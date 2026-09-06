@@ -22,7 +22,7 @@ function readDone(): Set<string> {
   }
 }
 
-export function Coach({ view, me, plan, enabled }: { view: GameState; me: PlayerId; plan: TurnPlan; enabled: boolean }) {
+export function Coach({ view, me, plan, enabled, onActive }: { view: GameState; me: PlayerId; plan: TurnPlan; enabled: boolean; onActive?: (key: string | null) => void }) {
   const [done, setDone] = useState<Set<string>>(() => readDone());
   const [current, setCurrent] = useState<string | null>(null);
   useEffect(() => {
@@ -30,6 +30,9 @@ export function Coach({ view, me, plan, enabled }: { view: GameState; me: Player
     const tip = TIPS.find((t) => !done.has(t.key) && t.when(view, me, plan));
     if (tip) setCurrent(tip.key);
   }, [view, me, plan, enabled, done, current]);
+  useEffect(() => {
+    onActive?.(enabled ? current : null);
+  }, [current, enabled, onActive]);
   if (!enabled || !current) return null;
   const tip = TIPS.find((t) => t.key === current)!;
   const dismiss = () => {

@@ -516,3 +516,11 @@ table.stats td:last-child { text-align: right; font-variant-numeric: tabular-num
 .card .legend > div { display: flex; gap: 8px; align-items: flex-start; }
 .hex.small { position: static; flex: none; width: 24px; height: 24px; font-size: 11px; }
 .hex.e.small { font-size: 9px; }
+
+/* ---------- First-match coach highlight ---------- */
+.ftue-flash { animation: ftue 0.9s ease-in-out infinite; position: relative; z-index: 2; }
+@keyframes ftue {
+  0%, 100% { box-shadow: 0 0 0 2px #fff, 0 0 0 6px rgba(255,255,255,0); }
+  50% { box-shadow: 0 0 0 3px #fff, 0 0 18px 6px rgba(255,255,255,0.55); }
+}
+@media (prefers-reduced-motion: reduce) { .ftue-flash { animation: none; box-shadow: 0 0 0 3px #fff; } }

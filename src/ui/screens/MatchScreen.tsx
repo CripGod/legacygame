@@ -36,6 +36,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   const compact = useCompact();
   const [selected, setSelected] = useState<string | null>(null);
   const [sheet, setSheet] = useState<SheetState>(null);
+  const [flash, setFlash] = useState<string | null>(null);
   const opts = useMemo(() => legalOptions(view, me), [view, me]);
   const planning = view.phase === 'planning' && !locked && !busy;
 
@@ -144,9 +145,10 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           onChar={onChar}
           onThreat={(uid) => setSheet({ kind: 'threat', uid })}
           locked={!planning}
+          flash={flash}
         />
         <Feed events={m.feed} index={m.feedIndex} onSkip={m.skipFeed} />
-        <Coach view={view} me={me} plan={plan} enabled={coach && planning && m.mode === 'ai'} />
+        <Coach view={view} me={me} plan={plan} enabled={coach && planning && m.mode === 'ai'} onActive={setFlash} />
       </div>
       <div className="bottom">
         <Hand view={view} me={me} plan={plan} selected={selected} onSelect={selectCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} />
@@ -167,7 +169,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           </button>
         </div>
         <div className="actions-right">
-          <button className={plan.standOnBusiness ? 'primary' : ''} disabled={!planning || !opts.canStand} onClick={() => setSheet({ kind: 'stand' })}>
+          <button className={`${plan.standOnBusiness ? 'primary' : ''} ${flash === 'stakes' ? 'ftue-flash' : ''}`} disabled={!planning || !opts.canStand} onClick={() => setSheet({ kind: 'stand' })}>
             {plan.standOnBusiness ? 'Standing ✓' : 'Stand on Business'}
           </button>
         </div>
@@ -178,7 +180,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           <button className="primary" disabled={!planning} onClick={m.lockIn}>
             LOCK IT IN
           </button>
-          <button className={plan.standOnBusiness ? 'primary' : ''} disabled={!planning || !opts.canStand} onClick={() => setSheet({ kind: 'stand' })}>
+          <button className={`${plan.standOnBusiness ? 'primary' : ''} ${flash === 'stakes' ? 'ftue-flash' : ''}`} disabled={!planning || !opts.canStand} onClick={() => setSheet({ kind: 'stand' })}>
             {plan.standOnBusiness ? 'Standing ✓' : 'Stand'}
           </button>
         </div>

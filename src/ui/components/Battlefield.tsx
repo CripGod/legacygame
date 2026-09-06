@@ -28,6 +28,8 @@ export interface BattlefieldProps {
   onChar: (uid: string) => void;
   onThreat: (uid: string) => void;
   locked: boolean;
+  /** Active first-match coach tip; matching elements pulse. */
+  flash?: string | null;
 }
 
 function useBump(value: number): boolean {
@@ -53,7 +55,7 @@ function Score({ p, value }: { p: PlayerId; value: number }) {
   );
 }
 
-function GateStrip({ view, owner, me, index, plan, onChar, label, right }: { view: GameState; owner: PlayerId; me: PlayerId; index: number; plan: TurnPlan; onChar: (uid: string) => void; label: string; right?: React.ReactNode }) {
+function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash }: { view: GameState; owner: PlayerId; me: PlayerId; index: number; plan: TurnPlan; onChar: (uid: string) => void; label: string; right?: React.ReactNode; flash?: string | null }) {
   const chars = charsAt(view, index, owner, 'gate').sort((a, b) => a.arrivedTurn - b.arrivedTurn);
   const slots: (CharacterInstance | 'planned' | null)[] = [...chars];
   const planned = owner === me && plan.play && plan.play.location === index && CARD_BY_ID[plan.play.cardId]?.kind === 'character';
@@ -82,7 +84,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right }: { vie
             const entering = plan.enters.includes(s.uid);
             const confronting = plan.confronts.some((c) => c.uid === s.uid);
             return (
-              <div key={s.uid} className={`gate-slot filled owner-${owner} ${entering ? 'entering' : ''}`}>
+              <div key={s.uid} className={`gate-slot filled owner-${owner} ${entering ? 'entering' : ''} ${flash === 'enter' && owner === me && s.ready && !entering ? 'ftue-flash' : ''}`}>
                 <Pic state={view} c={s} strip={entering ? 'Entering' : confronting ? 'Confront' : undefined} onClick={() => onChar(s.uid)} />
               </div>
             );
@@ -94,7 +96,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right }: { vie
   );
 }
 
-function InsideRow({ view, owner, index, plan, onChar, label }: { view: GameState; owner: PlayerId; index: number; plan: TurnPlan; onChar: (uid: string) => void; label: string }) {
+function InsideRow({ view, owner, index, plan, onChar, label, flash }: { view: GameState; owner: PlayerId; index: number; plan: TurnPlan; onChar: (uid: string) => void; label: string; flash?: boolean }) {
   const chars = charsAt(view, index, owner, 'inside').sort((a, b) => a.arrivedTurn - b.arrivedTurn);
   const cap = insideCapacity(view, index);
   return (
@@ -109,7 +111,7 @@ function InsideRow({ view, owner, index, plan, onChar, label }: { view: GameStat
           const relocating = plan.relocations.some((r) => r.uid === c.uid);
           const confronting = plan.confronts.some((x) => x.uid === c.uid);
           return (
-            <div key={c.uid} className={`slot filled ${c.owner}`}>
+            <div key={c.uid} className={`slot filled ${c.owner} ${flash && !relocating ? 'ftue-flash' : ''}`}>
               <Pic state={view} c={c} highlight={relocating || confronting} strip={relocating ? 'Moving' : confronting ? 'Confront' : undefined} onClick={() => onChar(c.uid)} />
             </div>
           );
@@ -120,7 +122,7 @@ function InsideRow({ view, owner, index, plan, onChar, label }: { view: GameStat
 }
 
 export function Battlefield(props: BattlefieldProps) {
-  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onThreat } = props;
+  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onThreat, flash } = props;
   const { placeholders } = useDisplay();
   const opp = other(me);
   return (
@@ -144,7 +146,7 @@ export function Battlefield(props: BattlefieldProps) {
         );
         return (
           <div key={loc.index} className={`column ${isTarget ? `targetable for-${me}` : ''}`} onClick={isTarget ? () => onLocationTap(loc.index) : undefined}>
-            <GateStrip view={view} owner={opp} me={me} index={loc.index} plan={plan} onChar={onChar} label="Opponent Gates" right={title} />
+            <GateStrip view={view} owner={opp} me={me} index={loc.index} plan={plan} onChar={onChar} label="Opponent Gates" right={title} flash={flash} />
             <div className={cls}>
               <div
                 key={loc.revealed ? 'r' : 'h'}
@@ -169,7 +171,7 @@ export function Battlefield(props: BattlefieldProps) {
                 </div>
                 <Score p="B" value={inf.B} />
               </div>
-              <InsideRow view={view} owner={me} index={loc.index} plan={plan} onChar={onChar} label="Your Characters" />
+              <InsideRow view={view} owner={me} index={loc.index} plan={plan} onChar={onChar} label="Your Characters" flash={flash === 'move'} />
               <div className="threats">
                 {loc.threats.map((t) => {
                   const tdef = THREAT_BY_ID[t.defId];
@@ -177,7 +179,7 @@ export function Battlefield(props: BattlefieldProps) {
                   return (
                     <div
                       key={t.uid}
-                      className={`threat ${confronting ? 'confronting' : ''}`}
+                      className={`threat ${confronting ? 'confronting' : ''} ${flash === 'threat' ? 'ftue-flash' : ''}`}
                       onClick={(e) => {
                         e.stopPropagation();
                         onThreat(t.uid);
@@ -202,7 +204,7 @@ export function Battlefield(props: BattlefieldProps) {
                 {loc.revealed ? def.rule : 'Hidden until revealed. Commit blind.'}
               </div>
             </div>
-            <GateStrip view={view} owner={me} me={me} index={loc.index} plan={plan} onChar={onChar} label="Your Gates" />
+            <GateStrip view={view} owner={me} me={me} index={loc.index} plan={plan} onChar={onChar} label="Your Gates" flash={flash} />
           </div>
         );
       })}
