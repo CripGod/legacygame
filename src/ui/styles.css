@@ -372,9 +372,8 @@ button.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
   box-shadow: 0 8px 20px rgba(0,0,0,0.45);
   position: relative;
   user-select: none;
-  padding-top: calc(var(--card-w) * 0.1);
 }
-.card.big { width: min(78vw, 340px); font-size: 14px; padding-top: 32px; }
+.card.big { width: min(78vw, 340px); font-size: 14px; }
 .card.event { background: #ebe4f7; }
 .hex {
   position: absolute; top: 5px;
@@ -387,13 +386,14 @@ button.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 .hex.i { left: 5px; background: #1c1f28; }
 .hex.f { right: 5px; background: #a83a34; }
 .hex.e { left: 5px; background: #6d4bb5; font-size: calc(var(--card-w) * 0.07); }
-.portrait-wrap { display: grid; place-items: center; }
-.card .portrait {
-  width: calc(var(--card-w) * 0.44); height: calc(var(--card-w) * 0.44); border-radius: 50%;
-  display: grid; place-items: center; font-weight: 900; font-size: calc(var(--card-w) * 0.16); color: #111;
-  border: 2px solid rgba(0,0,0,0.15);
+.card .card-art {
+  height: calc(var(--card-w) * 0.62);
+  display: grid; place-items: center; font-weight: 900; font-size: calc(var(--card-w) * 0.22); color: #111;
+  position: relative; overflow: hidden;
 }
-.card.big .portrait { width: 120px; height: 120px; font-size: 44px; }
+.card.big .card-art { height: min(78vw, 340px); font-size: 96px; }
+.card .card-art .portrait-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.hex { z-index: 2; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6)); }
 .card .name { font-weight: 800; font-size: clamp(9px, 0.95vw, 13px); line-height: 1.1; text-align: center; padding: 4px 6px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .card.big .name { font-size: 20px; white-space: normal; }
 .card .era { font-size: 11px; color: #5e6472; text-align: center; }
@@ -581,8 +581,7 @@ body.dragging { cursor: grabbing; user-select: none; }
 .art .art-name { position: relative; z-index: 1; text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 2px #000; }
 .art .era-tag { z-index: 1; text-shadow: 0 1px 4px #000; }
 .pic .pic-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.card .portrait { overflow: hidden; }
-.card .portrait .portrait-img { width: 100%; height: 100%; object-fit: cover; }
+
 .avatar { overflow: hidden; }
 .avatar .avatar-img { width: 100%; height: 100%; object-fit: cover; }
 .in-effect { padding: 2px 8px; font-size: clamp(8px, 0.8vw, 12px); color: #c9cdd8; display: grid; gap: 1px; }

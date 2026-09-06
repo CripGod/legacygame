@@ -25,10 +25,8 @@ export function CardFace({ id, big = false, onClick }: { id: string; big?: boole
           EV
         </div>
       )}
-      <div className="portrait-wrap">
-        <div className="portrait" style={{ background: hueFor(id) }}>
-          {placeholders ? initials(id, true) : <Art kind={isChar ? 'characters' : 'events'} id={id} className="portrait-img" fallback={initials(id, false)} alt={def.name} />}
-        </div>
+      <div className="card-art" style={{ background: hueFor(id) }}>
+        {placeholders ? <span className="ini">{initials(id, true)}</span> : <Art kind={isChar ? 'characters' : 'events'} id={id} className="portrait-img" fallback={<span className="ini">{initials(id, false)}</span>} alt={def.name} />}
       </div>
       <div className="name">{cardName(id, placeholders)}</div>
       {isChar && def.category === 'mythic' && !placeholders && <div className="cat mythic">Mythic</div>}
