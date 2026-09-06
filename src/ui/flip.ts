@@ -6,8 +6,6 @@
 import { useLayoutEffect, useRef } from 'react';
 
 export interface FlipOptions {
-  /** Where a tile with no previous position should start from. */
-  originFor: (uid: string, prevRects: Map<string, DOMRect>) => DOMRect | null;
   /** Per-tile stagger in ms. */
   delayFor: (uid: string) => number;
   /** Per-tile glide duration in ms. */
@@ -18,6 +16,7 @@ export interface FlipOptions {
 
 export function useFlip(container: React.RefObject<HTMLElement | null>, opts: FlipOptions): void {
   const rects = useRef(new Map<string, DOMRect>());
+  const places = useRef(new Map<string, string>());
   const optsRef = useRef(opts);
   optsRef.current = opts;
   useLayoutEffect(() => {
@@ -25,14 +24,19 @@ export function useFlip(container: React.RefObject<HTMLElement | null>, opts: Fl
     if (!root) return;
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     const next = new Map<string, DOMRect>();
+    const nextPlaces = new Map<string, string>();
     const els = root.querySelectorAll<HTMLElement>('[data-uid]');
-    els.forEach((el) => next.set(el.dataset.uid!, el.getBoundingClientRect()));
+    els.forEach((el) => {
+      next.set(el.dataset.uid!, el.getBoundingClientRect());
+      nextPlaces.set(el.dataset.uid!, el.dataset.place ?? '');
+    });
     if (!reduce) {
       els.forEach((el) => {
         const uid = el.dataset.uid!;
         const rect = next.get(uid)!;
-        const prev = rects.current.get(uid) ?? optsRef.current.originFor(uid, rects.current);
-        if (!prev) return;
+        const prev = rects.current.get(uid);
+        // Only a change of place (Gate↔Inside, Location→Location) animates; new tiles simply appear.
+        if (!prev || places.current.get(uid) === nextPlaces.get(uid)) return;
         const dx = prev.left + prev.width / 2 - (rect.left + rect.width / 2);
         const dy = prev.top + prev.height / 2 - (rect.top + rect.height / 2);
         if (Math.abs(dx) < 2 && Math.abs(dy) < 2) return;
@@ -58,5 +62,6 @@ export function useFlip(container: React.RefObject<HTMLElement | null>, opts: Fl
       });
     }
     rects.current = next;
+    places.current = nextPlaces;
   });
 }

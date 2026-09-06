@@ -31,9 +31,10 @@ export function isCharacterCard(id: string): boolean {
 }
 
 /** Preset 12-card decks. Both decks are legal: no duplicate Characters, max 2 Events. */
-export const PRESET_DECKS: Record<string, { name: string; cards: string[] }> = {
-  silverlake: {
-    name: 'Silverlake Slayer — Railroad',
+export const PRESET_DECKS: Record<string, { name: string; style: string; cards: string[] }> = {
+  railroad: {
+    name: 'Railroad',
+    style: 'Movement and organizing. Harriet moves people, Douglass and Organizer build a Location, Nzinga and OG push back.',
     cards: [
       'harriet_tubman',
       'frederick_douglass',
@@ -49,8 +50,9 @@ export const PRESET_DECKS: Record<string, { name: string; cards: string[] }> = {
       'community_defense',
     ],
   },
-  harborlight: {
-    name: 'Harborlight — Black Star',
+  blackstar: {
+    name: 'Black Star',
+    style: 'Mobility and disruption. Garvey, Green and Porter relocate freely; Toussaint and Sojourner break the other side\'s plans; Karen is a gamble.',
     cards: [
       'marcus_garvey',
       'toussaint_louverture',
@@ -66,7 +68,33 @@ export const PRESET_DECKS: Record<string, { name: string; cards: string[] }> = {
       'community_defense',
     ],
   },
+  mirror: {
+    name: 'Mirror',
+    style: 'Both players get the same twelve cards. The cleanest way to test the rules and the Locations.',
+    cards: [
+      'harriet_tubman',
+      'frederick_douglass',
+      'john_brown',
+      'katherine_johnson',
+      'mansa_musa',
+      'zora_neale_hurston',
+      'organizer',
+      'ida_b_wells',
+      'queen_nzinga',
+      'toussaint_louverture',
+      'reparations',
+      'community_defense',
+    ],
+  },
 };
+
+/** A seeded random 12-card deck: ten distinct Characters and both Events. */
+export function randomDeck(pick: (n: number) => number): string[] {
+  const pool = CHARACTERS.map((c) => c.id);
+  const chosen: string[] = [];
+  while (chosen.length < 10) chosen.push(pool.splice(pick(pool.length), 1)[0]);
+  return [...chosen, ...EVENTS.map((e) => e.id)];
+}
 
 export function validateDeck(cards: string[]): string[] {
   const errors: string[] = [];

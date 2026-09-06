@@ -1,6 +1,7 @@
 import { CARD_BY_ID, PLANNING_SECONDS, type GameState, type PlayerId } from '../../engine';
 import { initials, useDisplay } from '../display';
 import { tip, HINTS } from '../tip';
+import { Art } from './Art';
 
 function TimerRing({ seconds, paused }: { seconds: number; paused: boolean }) {
   const r = 26;
@@ -25,7 +26,7 @@ export function Hud({ view, me, secondsLeft, paused, onProfile, onLog, hasLog }:
     return (
       <div className={`profile ${right ? 'right' : ''} p${p}`} onClick={() => onProfile(p)} role="button">
         <div className="avatar" title={av?.name} data-avatar={p}>
-          {initials(ps.avatarDefId, placeholders)}
+          {placeholders ? initials(ps.avatarDefId, true) : <Art kind="characters" id={ps.avatarDefId} className="avatar-img" fallback={initials(ps.avatarDefId, false)} alt={av?.name} />}
         </div>
         <div className="plate">
           <div className="handle">{ps.handle}</div>

@@ -1,5 +1,5 @@
 import { makeRng, shuffle, nextInt, nextFloat, pick } from './rng';
-import { LOCATIONS, PRESET_DECKS, validateDeck, THREAT_BY_ID, RANDOM_THREAT_POOL, LOCATION_BY_ID } from './content';
+import { LOCATIONS, PRESET_DECKS, randomDeck, validateDeck, THREAT_BY_ID, RANDOM_THREAT_POOL, LOCATION_BY_ID } from './content';
 import type { GameState, PlayerId, PlayerState, LocationState, GameEvent, ThreatInstance } from './types';
 import { STARTING_HAND, PLAYERS, TURNS } from './types';
 
@@ -8,6 +8,8 @@ export interface MatchOptions {
   handles?: Record<PlayerId, string>;
   avatars?: Record<PlayerId, string>;
   decks?: Record<PlayerId, string[]>;
+  /** Preset keys ('railroad', 'blackstar', 'mirror', 'random'); used when `decks` is absent. */
+  deckKeys?: Record<PlayerId, string>;
 }
 
 function makePlayer(id: PlayerId, handle: string, avatar: string, deck: string[]): PlayerState {
@@ -28,7 +30,9 @@ function makePlayer(id: PlayerId, handle: string, avatar: string, deck: string[]
 /** Create a new match. Turn 1 is started immediately (hands dealt, first draw taken). */
 export function createMatch(opts: MatchOptions): GameState {
   const rng = makeRng(opts.seed);
-  const decks = opts.decks ?? { A: PRESET_DECKS.silverlake.cards, B: PRESET_DECKS.harborlight.cards };
+  const keys = opts.deckKeys ?? { A: 'railroad', B: 'blackstar' };
+  const fromKey = (k: string) => (k === 'random' ? randomDeck((n) => nextInt(rng, n)) : (PRESET_DECKS[k] ?? PRESET_DECKS.railroad).cards);
+  const decks = opts.decks ?? { A: fromKey(keys.A), B: fromKey(keys.B) };
   for (const p of PLAYERS) {
     const errs = validateDeck(decks[p]);
     if (errs.length) throw new Error(`Deck ${p} invalid: ${errs.join(' ')}`);

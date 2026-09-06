@@ -1,5 +1,6 @@
 import { CARD_BY_ID, type CharacterInstance, type GameState, charInfluence, isSuppressed } from '../../engine';
 import { abilityLines, cardName, cardShort, hueFor, initials, useDisplay } from '../display';
+import { Art } from './Art';
 import { tip, HINTS } from '../tip';
 
 /** Full collectible card (hand, inspection). Always a 5:7 rigid rectangle. */
@@ -26,7 +27,7 @@ export function CardFace({ id, big = false, onClick }: { id: string; big?: boole
       )}
       <div className="portrait-wrap">
         <div className="portrait" style={{ background: hueFor(id) }}>
-          {initials(id, placeholders)}
+          {placeholders ? initials(id, true) : <Art kind={isChar ? 'characters' : 'events'} id={id} className="portrait-img" fallback={initials(id, false)} alt={def.name} />}
         </div>
       </div>
       <div className="name">{cardName(id, placeholders)}</div>
@@ -96,7 +97,7 @@ export function Pic({
       onClick={onClick}
       title={`${cardName(c.defId, placeholders)} · ${inf} Influence · ${def.force} Force`}
     >
-      <span className="ini">{initials(c.defId, placeholders)}</span>
+      {placeholders ? <span className="ini">{initials(c.defId, true)}</span> : <Art kind="characters" id={c.defId} className="pic-img" fallback={<span className="ini">{initials(c.defId, false)}</span>} alt={def.name} />}
       <span className="inf" {...tip(HINTS.currentInfluence)}>
         {inf}
       </span>
@@ -114,7 +115,7 @@ export function PlannedPic({ cardId }: { cardId: string }) {
   const { placeholders } = useDisplay();
   return (
     <div className="pic ghost" style={{ background: hueFor(cardId) }}>
-      <span className="ini">{initials(cardId, placeholders)}</span>
+      {placeholders ? <span className="ini">{initials(cardId, true)}</span> : <Art kind="characters" id={cardId} className="pic-img" fallback={<span className="ini">{initials(cardId, false)}</span>} />}
       <span className="strip planned" {...tip(HINTS.planned)}>
         {cardShort(cardId, placeholders)}
       </span>

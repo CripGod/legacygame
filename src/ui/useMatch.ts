@@ -47,9 +47,9 @@ export interface MatchController {
 
 const STAGGER_MS = 160;
 
-export function useMatch(initialSeed: number, mode: Mode): MatchController {
+export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<PlayerId, string>): MatchController {
   const [seed, setSeed] = useState(initialSeed);
-  const [trueState, setTrueState] = useState<GameState>(() => createMatch({ seed: initialSeed }));
+  const [trueState, setTrueState] = useState<GameState>(() => createMatch({ seed: initialSeed, deckKeys }));
   const [perspective, setPerspective] = useState<PlayerId>('A');
   const [plan, setPlanState] = useState<TurnPlan>(emptyPlan());
   const [locked, setLocked] = useState(false);
@@ -80,7 +80,7 @@ export function useMatch(initialSeed: number, mode: Mode): MatchController {
       let i = 0;
       for (const e of visible) {
         if (!e.uid || d[e.uid] !== undefined) continue;
-        if (e.type !== 'played' && e.type !== 'moved' && e.type !== 'entered') continue;
+        if (e.type !== 'moved' && e.type !== 'entered') continue;
         const c = next.characters[e.uid];
         if (!c || c.owner === seen) continue;
         d[e.uid] = Math.min(2400, i * STAGGER_MS);
@@ -188,7 +188,7 @@ export function useMatch(initialSeed: number, mode: Mode): MatchController {
   const newMatch = useCallback((s?: number) => {
     const ns = s ?? Math.floor(Math.random() * 1_000_000);
     setSeed(ns);
-    const st = createMatch({ seed: ns });
+    const st = createMatch({ seed: ns, deckKeys });
     setTrueState(st);
     setPerspective('A');
     setPlanState(emptyPlan());
@@ -201,7 +201,7 @@ export function useMatch(initialSeed: number, mode: Mode): MatchController {
     setLog(st.lastEvents);
     stashA.current = null;
     recorded.current = false;
-  }, []);
+  }, [deckKeys]);
 
   return {
     view,

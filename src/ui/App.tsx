@@ -35,8 +35,8 @@ class ErrorBoundary extends Component<{ children: ReactNode; onReset: () => void
   }
 }
 
-function MatchHost({ seed, mode, dev, coach, onMenu }: { seed: number; mode: Mode; dev: boolean; coach: boolean; onMenu: () => void }) {
-  const m = useMatch(seed, mode);
+function MatchHost({ seed, mode, dev, coach, decks, onMenu }: { seed: number; mode: Mode; dev: boolean; coach: boolean; decks: Record<'A' | 'B', string>; onMenu: () => void }) {
+  const m = useMatch(seed, mode, decks);
   const [screen, setScreen] = useState<'match' | 'result'>('match');
   const [devOpen, setDevOpen] = useState(false);
   if (m.handoff) {
@@ -84,7 +84,7 @@ function MatchHost({ seed, mode, dev, coach, onMenu }: { seed: number; mode: Mod
 export function App() {
   const initialDev = new URLSearchParams(window.location.search).get('dev') === '1';
   const [screen, setScreen] = useState<Screen>('start');
-  const [opts, setOpts] = useState<StartOptions>({ mode: 'ai', placeholders: false, dev: initialDev, coach: true });
+  const [opts, setOpts] = useState<StartOptions>({ mode: 'ai', placeholders: false, dev: initialDev, coach: true, deckA: 'railroad', deckB: 'blackstar' });
   const [seed, setSeed] = useState(0);
   const [matchKey, setMatchKey] = useState(0);
   const start = (o: StartOptions) => {
@@ -99,7 +99,7 @@ export function App() {
       {screen === 'rules' && <RulesScreen onBack={() => setScreen('start')} />}
       {screen === 'match' && (
         <ErrorBoundary onReset={() => setScreen('start')}>
-          <MatchHost key={matchKey} seed={seed} mode={opts.mode} dev={opts.dev} coach={opts.coach} onMenu={() => setScreen('start')} />
+          <MatchHost key={matchKey} seed={seed} mode={opts.mode} dev={opts.dev} coach={opts.coach} decks={{ A: opts.deckA, B: opts.deckB }} onMenu={() => setScreen('start')} />
         </ErrorBoundary>
       )}
     </DisplayContext.Provider>

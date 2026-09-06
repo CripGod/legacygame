@@ -15,6 +15,8 @@ import {
 } from '../../engine';
 import { locationName, threatLabel, useDisplay } from '../display';
 import { Pic } from './CardFace';
+import { Art } from './Art';
+import { charDef } from '../../engine';
 import { isPlannedUid, PLANNED_PREFIX } from '../preview';
 import { tip, HINTS } from '../tip';
 import type { DragPayload } from '../drag';
@@ -105,6 +107,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
               <div
                 key={s.uid}
                 data-uid={s.uid}
+                data-place={`${index}:gate`}
                 className={`gate-slot filled owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''}`}
                 {...draggable}
               >
@@ -143,7 +146,7 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
           const draggable =
             mine && dragProps ? dragProps(planned ? { kind: 'card', cardId: c.uid.slice(PLANNED_PREFIX.length) } : { kind: 'char', uid: c.uid }) : {};
           return (
-            <div key={c.uid} data-uid={c.uid} className={`slot filled ${c.owner} ${entering || planned ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''}`} {...draggable}>
+            <div key={c.uid} data-uid={c.uid} data-place={`${index}:inside`} className={`slot filled ${c.owner} ${entering || planned ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''}`} {...draggable}>
               <Pic state={view} c={c} highlight={confronting} strip={entering ? 'Entering' : planned ? 'Planned' : confronting ? 'Confront' : undefined} onClick={() => onChar(c.uid)} />
             </div>
           );
@@ -151,6 +154,52 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
       </div>
     </>
   );
+}
+
+/** Established abilities currently live at a Location, per player. */
+function InEffect({ view, index, me }: { view: GameState; index: number; me: PlayerId }) {
+  const { placeholders } = useDisplay();
+  const rows = (['A', 'B'] as PlayerId[]).map((p) => {
+    const items = charsAt(view, index, p, 'inside')
+      .filter((c) => charDef(c.defId).established && !(c.suppressedUntilTurn !== undefined && c.suppressedUntilTurn >= view.turn))
+      .map((c) => `${placeholders ? charDef(c.defId).short : charDef(c.defId).short}: ${shortEffect(charDef(c.defId).established!.effect.type)}`);
+    return { p, items };
+  });
+  if (!rows.some((r) => r.items.length)) return null;
+  return (
+    <div className="in-effect">
+      {rows.map(
+        (r) =>
+          r.items.length > 0 && (
+            <div key={r.p} className={`p${r.p}`}>
+              <b>{r.p === me ? 'You' : view.players[r.p].handle}:</b> {r.items.join(' · ')}
+            </div>
+          ),
+      )}
+    </div>
+  );
+}
+
+function shortEffect(type: string): string {
+  const map: Record<string, string> = {
+    readyRelocatedIn: 'arrivals Ready',
+    auraInfluenceOthersHere: '+1 Influence to others',
+    assistForceBonus: '+1 Force when assisting',
+    relocatedNoDisplace: 'relocated are safe',
+    blessNextEstablished: '+1 to next arrival',
+    gateInfluenceHere: '+1 to Gate Characters',
+    extraRelocation: '+1 Relocation',
+    extraPlay: '+1 card play',
+    opposingGateInfluence: '−1 to enemy Gates',
+    influenceOnThreatCleared: '+2 when a Threat falls',
+    forceAuraHere: '+1 Force here',
+    noDisplaceHere: 'cannot be displaced',
+    relocatedOutReady: 'leave Ready',
+    relocatedOutInside: 'leave straight Inside',
+    noBlockHere: 'cannot be blocked',
+    noSuppressHere: 'cannot be Suppressed',
+  };
+  return map[type] ?? type;
 }
 
 export function Battlefield(props: BattlefieldProps) {
@@ -163,19 +212,6 @@ export function Battlefield(props: BattlefieldProps) {
     delayFor: (uid) => delays?.[uid] ?? 0,
     // Your own moves snap quickly; the opponent's resolution moves glide.
     durationFor: (uid) => (view.characters[uid]?.owner === me || isPlannedUid(uid) ? (resolving ? 0 : 220) : 620),
-    originFor: (uid, prev) => {
-      if (isPlannedUid(uid)) {
-        const cardId = uid.slice(PLANNED_PREFIX.length);
-        return (document.querySelector(`[data-hand-card="${cardId}"]`) ?? document.querySelector('.hand'))?.getBoundingClientRect() ?? null;
-      }
-      const c = view.characters[uid];
-      if (!c) return null;
-      if (c.owner === me) {
-        const ghost = prev.get(`${PLANNED_PREFIX}${c.defId}`);
-        if (ghost) return ghost;
-      }
-      return document.querySelector(`[data-avatar="${c.owner}"]`)?.getBoundingClientRect() ?? null;
-    },
   });
   const common: Common = { view, me, plan, onChar, flash, dragProps, drop };
   return (
@@ -218,7 +254,8 @@ export function Battlefield(props: BattlefieldProps) {
                   onLocationInfo(loc.index);
                 }}
               >
-                {loc.revealed ? locationName(loc.defId, placeholders) : '?'}
+                {loc.revealed && !placeholders && <Art kind="locations" id={loc.defId} className="art-img" fallback={null} alt="" />}
+                <span className="art-name">{loc.revealed ? locationName(loc.defId, placeholders) : '?'}</span>
                 {loc.revealed && !placeholders && <span className="era-tag">{def.era}</span>}
                 {loc.lost && <span className="lost-tag">LOST</span>}
               </div>
@@ -259,6 +296,7 @@ export function Battlefield(props: BattlefieldProps) {
                   );
                 })}
               </div>
+              <InEffect view={view} index={loc.index} me={me} />
               <div
                 className="loc-rule"
                 onClick={(e) => {
