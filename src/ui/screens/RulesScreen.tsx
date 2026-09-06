@@ -12,7 +12,7 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
         <h2>The match</h2>
         <ul>
           <li>Two players, three Locations, six turns, 12-card decks. Four-card opening hand, draw one each turn.</li>
-          <li>Both players plan at the same time, then <b>Lock It In</b>. 30 seconds per turn.</li>
+          <li>Both players plan at the same time, then <b>Lock It In</b>. Two minutes per turn.</li>
           <li>Win Influence at two of the three Locations to win the match.</li>
         </ul>
         <h2>Playing Characters</h2>

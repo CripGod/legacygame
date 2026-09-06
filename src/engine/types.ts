@@ -15,7 +15,7 @@ export const INSIDE_CAPACITY = 5;
 export const STARTING_HAND = 4;
 export const DECK_SIZE = 12;
 export const MAX_EVENTS = 2;
-export const PLANNING_SECONDS = 30;
+export const PLANNING_SECONDS = 120;
 export const MAX_STAKES = 4;
 
 // ---------- Card definitions (data-driven) ----------

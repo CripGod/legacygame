@@ -118,7 +118,7 @@ button.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 .timer-ring.paused .prog { stroke: var(--line-2); }
 .timer {
   position: absolute; inset: 0; display: grid; place-items: center;
-  font-variant-numeric: tabular-nums; font-weight: 900; font-size: clamp(18px, min(2.4vw, 3.4vh), 32px); line-height: 1;
+  font-variant-numeric: tabular-nums; font-weight: 900; font-size: clamp(15px, min(2vw, 3vh), 26px); line-height: 1;
 }
 .timer-ring.low .timer { color: var(--danger); animation: pulse 0.8s infinite; }
 @keyframes pulse { 50% { opacity: 0.55; } }

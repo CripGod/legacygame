@@ -33,7 +33,7 @@ The engine never imports React. The UI never touches the true `GameState` except
 
 ## Playing
 
-- **Plan**: tap a card, tap a Location. Tap a Ready Character at your Gates to send it Inside. Tap an Established Character to relocate it. Tap a Threat to commit Force. Then **Lock It In**. 30 seconds per turn; timeout locks whatever you had.
+- **Plan**: tap a card, tap a Location. Tap a Ready Character at your Gates to send it Inside. Tap an Established Character to relocate it. Tap a Threat to commit Force. Then **Lock It In**. Two minutes per turn; timeout locks whatever you had.
 - **Win**: lead Influence at two of the three Locations after Turn 6.
 - **Stakes**: Stand on Business once per player to double the match (1 → 2 → 4). The other side Continues or Steps Off.
 

@@ -11,7 +11,7 @@ function TimerRing({ seconds, paused }: { seconds: number; paused: boolean }) {
         <circle cx="32" cy="32" r={r} className="track" />
         <circle cx="32" cy="32" r={r} className="prog" strokeDasharray={c} strokeDashoffset={c * (1 - frac)} />
       </svg>
-      <div className="timer">{paused ? '·' : seconds}</div>
+      <div className="timer">{paused ? '·' : seconds >= 60 ? `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}` : seconds}</div>
     </div>
   );
 }
