@@ -92,6 +92,8 @@ export interface CharacterDef {
   identity: string[];
   era: string;
   blurb: string;
+  /** Longer factual history, or origins and tradition for Mythic characters. */
+  history?: string;
 }
 
 export type EventEffect = { type: 'reparations'; max: number } | { type: 'communityDefense'; force: number };

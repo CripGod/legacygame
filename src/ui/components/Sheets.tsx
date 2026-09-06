@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import type { GameEvent } from '../../engine';
 import {
   CARD_BY_ID,
@@ -34,6 +34,29 @@ export function Sheet({ children, onClose, title }: { children: ReactNode; onClo
 }
 
 /** Inspect a hand card and, while planning, send it straight to a Location. */
+/** ⓘ History: the real story behind a Character, or the origins of a Mythic figure. */
+export function HistoryNote({ id }: { id: string }) {
+  const [open, setOpen] = useState(false);
+  const { placeholders } = useDisplay();
+  const def = CARD_BY_ID[id] as { kind?: string; category?: string; history?: string } | undefined;
+  if (!def || placeholders || !def.history) return null;
+  const mythic = def.category === 'mythic';
+  const label = mythic ? 'Origins' : 'History';
+  return (
+    <div className="history">
+      <button className={`ghost info ${open ? 'on' : ''}`} onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+        ⓘ {label}
+      </button>
+      {open && (
+        <div className="history-body">
+          {mythic && <div className="history-tag">Mythic · a figure of faith and folklore, not a historical person. Here is where the story comes from.</div>}
+          <p>{def.history}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function CardSheet({
   id,
   onClose,
@@ -54,6 +77,7 @@ export function CardSheet({
       <div className="row" style={{ justifyContent: 'center' }}>
         <CardFace id={id} big />
       </div>
+      <HistoryNote id={id} />
       {planned && (
         <div className="actions">
           <span className="muted">Planned for this turn.</span>
@@ -124,6 +148,7 @@ export function CharSheet({
       <div className="row" style={{ justifyContent: 'center' }}>
         <CardFace id={c.defId} big />
       </div>
+      <HistoryNote id={c.defId} />
       <div className="muted center">
         {status} at {locationName(locDef(view, c.location).id, placeholders)}
         {c.suppressedUntilTurn !== undefined && c.suppressedUntilTurn >= view.turn ? ' · Suppressed' : ''}

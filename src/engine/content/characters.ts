@@ -27,6 +27,7 @@ export const CHARACTERS: CharacterDef[] = [
     identity: ['freedom', 'movement', 'rescue', 'strategy'],
     era: '1822–1913',
     blurb: 'Conductor of the Underground Railroad who returned again and again to bring people out.',
+    history: 'Born Araminta Ross into slavery in Dorchester County, Maryland, around 1822, Harriet Tubman escaped in 1849 and then returned to the South roughly thirteen times, guiding about seventy people to freedom on the Underground Railroad and never losing a passenger. During the Civil War she worked for the Union Army as a nurse, scout and spy, and in June 1863 she guided the Combahee River Raid that freed more than seven hundred people, the first woman to lead an armed assault in the war. She spent her later years in Auburn, New York, campaigning for women\'s suffrage and running a home for the elderly.',
   },
   {
     kind: 'character',
@@ -49,6 +50,7 @@ export const CHARACTERS: CharacterDef[] = [
     identity: ['communication', 'leadership', 'persuasion', 'organizing'],
     era: '1818–1895',
     blurb: 'Escaped slavery and became the most photographed American of the 19th century through the power of his words.',
+    history: 'Born enslaved on Maryland\'s Eastern Shore in 1818, Frederick Douglass taught himself to read, escaped to New York in 1838 and became the most famous Black man in the nineteenth-century world. His 1845 Narrative sold tens of thousands of copies, he edited the abolitionist paper The North Star, advised Lincoln on the recruitment of Black soldiers, and later served as U.S. Marshal for the District of Columbia and Minister to Haiti. He sat for more photographs than any other American of his century, because he believed the image of a dignified Black man was itself an argument.',
   },
   {
     kind: 'character',
@@ -71,6 +73,7 @@ export const CHARACTERS: CharacterDef[] = [
     identity: ['abolition', 'confrontation', 'sacrifice', 'ally'],
     era: '1800–1859',
     blurb: 'Abolitionist who led the raid on Harpers Ferry in 1859, convinced that slavery would not end without force.',
+    history: 'A white abolitionist from Connecticut, John Brown believed slavery could only be ended by force. After fighting pro-slavery settlers in Kansas, he led twenty-one men, five of them Black, in a raid on the federal armory at Harpers Ferry, Virginia, on 16 October 1859, hoping to arm an uprising. The raid failed within two days; Brown was tried for treason and hanged on 2 December 1859. His trial speeches and death made him a martyr in the North, and Union soldiers marched to \'John Brown\'s Body\' eighteen months later.',
   },
   {
     kind: 'character',
@@ -93,6 +96,7 @@ export const CHARACTERS: CharacterDef[] = [
     identity: ['calculation', 'foresight', 'precision'],
     era: '1918–2020',
     blurb: 'NASA mathematician whose trajectory calculations put John Glenn in orbit and Apollo 11 on the Moon.',
+    history: 'Katherine Johnson (1918–2020) was a mathematician at NACA and then NASA\'s Langley Research Center. She calculated the trajectory for Alan Shepard\'s 1961 flight, and in 1962 John Glenn asked that she personally re-check the electronic computer\'s figures before his orbital flight. Her work contributed to Apollo 11 and the Space Shuttle. She received the Presidential Medal of Freedom in 2015, and her story reached a wide audience through Hidden Figures.',
   },
   {
     kind: 'character',
@@ -115,6 +119,7 @@ export const CHARACTERS: CharacterDef[] = [
     identity: ['scale', 'prosperity', 'establishment', 'prestige'],
     era: 'c. 1280–1337',
     blurb: 'Emperor of Mali whose pilgrimage to Mecca spent so much gold it depressed prices across the Mediterranean.',
+    history: 'Mansa Musa ruled the Mali Empire from about 1312 to 1337, at the height of its control over the West African gold and salt trade. His 1324 pilgrimage to Mecca, with a caravan reported at tens of thousands of people, spent so much gold in Cairo that the metal\'s value there dropped for years. He returned with scholars and architects, built mosques and madrasas in Timbuktu and Gao, and made Timbuktu a centre of Islamic learning. European maps of the era show him holding a gold nugget.',
   },
   {
     kind: 'character',
@@ -137,6 +142,7 @@ export const CHARACTERS: CharacterDef[] = [
     identity: ['story', 'folklore', 'anthropology', 'voice'],
     era: '1891–1960',
     blurb: 'Novelist and anthropologist who recorded the folklore of the rural South and wrote Their Eyes Were Watching God.',
+    history: 'Zora Neale Hurston (1891–1960) grew up in Eatonville, Florida, one of the first all-Black incorporated towns in the country. Trained in anthropology under Franz Boas at Barnard, she collected folklore across the rural South and the Caribbean and published it in Mules and Men. Her 1937 novel Their Eyes Were Watching God was dismissed by some contemporaries and rediscovered decades later, largely through Alice Walker, and is now a cornerstone of American literature.',
   },
   {
     kind: 'character',
@@ -160,6 +166,7 @@ export const CHARACTERS: CharacterDef[] = [
     identity: ['entitlement', 'disruption', 'unreliability'],
     era: 'Timeless',
     blurb: 'An archetype, not a person. Useful for a turn, then a liability for whoever is winning.',
+    history: 'Not a historical person. \'Karen\' is an internet-era archetype for an entitled woman who weaponises complaints and, at the sharp end, the police against Black people going about their day. The name became shorthand after a series of filmed incidents in the 2010s. In the game she is a Character of the same kind as \'Organizer\' or \'OG\': a type, not a biography.',
   },
   {
     kind: 'character',
@@ -178,6 +185,7 @@ export const CHARACTERS: CharacterDef[] = [
     identity: ['mobility', 'network', 'labor', 'news'],
     era: '1867–1968',
     blurb: 'Porters rode every line in the country, carrying the Chicago Defender and the news of the Great Migration with them.',
+    history: 'From the 1860s until the 1960s, the Pullman Company employed tens of thousands of Black men as sleeping-car porters, for decades the largest single employer of Black workers in the United States. The job was hard and underpaid but it was steady, it travelled, and it carried news: porters distributed the Chicago Defender across the South and were among the first Black families of the urban middle class. In 1925 A. Philip Randolph organised them into the Brotherhood of Sleeping Car Porters, the first Black-led union to win a contract with a major American company.',
   },
   {
     kind: 'character',
@@ -200,6 +208,7 @@ export const CHARACTERS: CharacterDef[] = [
     identity: ['mobilization', 'community', 'tempo'],
     era: 'Timeless',
     blurb: 'The person with the clipboard, the church basement and the phone tree.',
+    history: 'An archetype. The organizer is the person who runs the meeting, keeps the list and makes the phone calls: Ella Baker, who built the NAACP\'s Southern branches and mentored SNCC; Fannie Lou Hamer registering voters in Mississippi; the thousands of unnamed people who made the Montgomery bus boycott run for 381 days. The game\'s Organizer represents that role rather than one person.',
   },
   {
     kind: 'character',
@@ -222,6 +231,7 @@ export const CHARACTERS: CharacterDef[] = [
     identity: ['respect', 'territory', 'gatekeeping'],
     era: 'Timeless',
     blurb: 'Everybody on the block knows who you talk to first.',
+    history: 'An archetype. \'OG\' (original gangster, now simply \'original\') is the elder on the block whose standing comes from having been there first and stayed. The game uses the figure for territorial respect: the person you talk to before you do anything on that corner. No single historical figure is intended.',
   },
   {
     kind: 'character',
@@ -244,6 +254,7 @@ export const CHARACTERS: CharacterDef[] = [
     identity: ['exposure', 'press', 'courage', 'record'],
     era: '1862–1931',
     blurb: 'Investigative journalist who documented lynching with names, dates and evidence when no one else would print them.',
+    history: 'Ida B. Wells (1862–1931) was born enslaved in Mississippi and became a journalist and co-owner of the Memphis Free Speech. After three friends were lynched in 1892 she investigated lynching across the South and published the evidence in Southern Horrors and A Red Record, showing that the usual justifications were fabrications. A mob destroyed her press and she continued from Chicago, co-founding the NAACP and organising for women\'s suffrage. She was awarded a posthumous Pulitzer Prize citation in 2020.',
   },
   {
     kind: 'character',
@@ -266,6 +277,7 @@ export const CHARACTERS: CharacterDef[] = [
     identity: ['resistance', 'diplomacy', 'warfare', 'sovereignty'],
     era: 'c. 1583–1663',
     blurb: 'Queen of Ndongo and Matamba who fought and negotiated against Portuguese colonization for decades.',
+    history: 'Nzinga Mbande (c. 1583–1663) was queen of Ndongo and later Matamba, in present-day Angola. She first appears in the record in 1622, negotiating with the Portuguese governor in Luanda; when he offered her no chair, she sat on the back of an attendant. For four decades she fought, allied with and outmanoeuvred the Portuguese and their slave trade, building a state that endured after her death. She is a national symbol in Angola today.',
   },
   {
     kind: 'character',
@@ -288,6 +300,7 @@ export const CHARACTERS: CharacterDef[] = [
     identity: ['revolution', 'discipline', 'liberation', 'statecraft'],
     era: '1743–1803',
     blurb: 'Leader of the Haitian Revolution, the only slave revolt in history to found an independent state.',
+    history: 'Born enslaved in Saint-Domingue around 1743, Toussaint Louverture rose to lead the revolution that began in 1791. He defeated French, Spanish and British forces in turn, abolished slavery across the colony and wrote its 1801 constitution naming himself governor for life. Napoleon sent an army to restore slavery; Toussaint was captured by treachery in 1802 and died in a French prison in the Jura in 1803. His lieutenants finished the war and declared Haiti independent on 1 January 1804.',
   },
   {
     kind: 'character',
@@ -310,6 +323,7 @@ export const CHARACTERS: CharacterDef[] = [
     identity: ['mass movement', 'pride', 'enterprise', 'diaspora'],
     era: '1887–1940',
     blurb: 'Founded the UNIA and the Black Star Line, building the largest mass movement in Black history.',
+    history: 'Marcus Garvey (1887–1940), born in Jamaica, founded the Universal Negro Improvement Association in 1914 and moved it to Harlem in 1916. At its peak the UNIA claimed millions of members across the Americas and Africa, published the Negro World and ran the Black Star Line, a shipping company financed by Black shareholders. The line failed, Garvey was convicted of mail fraud in 1923 and deported in 1927, but his ideas of Black pride and self-reliance shaped Rastafari, Pan-Africanism and the civil rights generation.',
   },
   {
     kind: 'character',
@@ -328,6 +342,7 @@ export const CHARACTERS: CharacterDef[] = [
     identity: ['flight', 'barrier-breaking', 'daring'],
     era: '1892–1926',
     blurb: 'Refused entry to every American flight school, she learned French, trained in Paris and came home a licensed pilot.',
+    history: 'Bessie Coleman (1892–1926) was refused by every flight school in the United States because she was Black and a woman. She learned French, sailed to France and in 1921 earned an international pilot\'s licence from the Fédération Aéronautique Internationale, the first Black woman and first Native American woman to do so. Back home she flew barnstorming shows, refused to perform for segregated audiences, and died in a crash in Jacksonville in 1926 while preparing a show. Chicago\'s Bessie Coleman Drive leads to O\'Hare.',
   },
   {
     kind: 'character',
@@ -350,6 +365,7 @@ export const CHARACTERS: CharacterDef[] = [
     identity: ['truth', 'testimony', 'faith', 'defiance'],
     era: 'c. 1797–1883',
     blurb: 'Walked away from slavery, sued a white man for her son and won, and spoke truth that silenced rooms.',
+    history: 'Born Isabella Baumfree in about 1797 in Ulster County, New York, she walked away from slavery in 1826 with her infant daughter and the next year won a court case to recover her son from an Alabama enslaver, one of the first Black women to win such a case against a white man. She took the name Sojourner Truth in 1843 and spent the rest of her life preaching, speaking for abolition and women\'s rights, and recruiting Black troops during the Civil War. Her 1851 speech in Akron is remembered as \'Ain\'t I a Woman?\'.',
   },
 ];
 
@@ -374,6 +390,7 @@ CHARACTERS.push({
   identity: ['safe passage', 'knowledge', 'network', 'interior to interior'],
   era: '1892–1960',
   blurb: 'Publisher of the Green Book, the guide that told Black travelers where they could eat, sleep and buy gas without danger, including how to get through sundown towns.',
+    history: 'Victor Hugo Green (1892–1960), a postal worker in Harlem, published The Negro Motorist Green Book from 1936 to 1966. It listed the hotels, restaurants, gas stations and private homes where Black travellers could safely stop, state by state, at a time when a wrong turn at dusk could be dangerous. Green gathered listings through fellow postal workers and readers. The guide stopped publication after the Civil Rights Act of 1964, its stated hope fulfilled: a day when it would no longer be needed.',
 });
 
 // ---------- Mythic: African cosmology and diaspora spirituality ----------
@@ -399,6 +416,7 @@ const MYTHIC: CharacterDef[] = [
     identity: ['stories', 'cunning', 'small against large'],
     era: 'Akan, timeless',
     blurb: 'The spider who bought all the stories in the world from the sky god with wit alone, and carried them across the Atlantic in the holds of slave ships.',
+    history: 'Mythic (fantasy). Anansi is the spider trickster of the Akan people of Ghana and Côte d\'Ivoire, the keeper of all stories, which he won from the sky god Nyame by trapping a python, a leopard, hornets and a fairy with wit alone. Enslaved Akan people carried the tales across the Atlantic, where he became Anancy in Jamaica, Nancy in the Carolina Sea Islands and Aunt Nancy in the American South. The card\'s abilities are invention in his spirit.',
   },
   {
     kind: 'character',
@@ -421,6 +439,7 @@ const MYTHIC: CharacterDef[] = [
     identity: ['justice', 'thunder', 'kingship', 'fire'],
     era: 'Yoruba, Oyo',
     blurb: 'Fourth king of Oyo and orisha of thunder and justice, whose double-headed axe and drum travelled to Cuba, Brazil and Trinidad and never fell silent.',
+    history: 'Mythic (fantasy). Shango is the orisha of thunder, lightning, fire and justice in Yoruba religion, remembered as the fourth alaafin of the Oyo Empire who became a god. His symbols are the double-headed axe and the bata drum; his colours are red and white. He is honoured as Changó in Cuban Santería, Xangô in Brazilian Candomblé and in Trinidad\'s Shango Baptist tradition. The card\'s abilities are invention in his spirit.',
   },
   {
     kind: 'character',
@@ -443,6 +462,7 @@ const MYTHIC: CharacterDef[] = [
     identity: ['love', 'rivers', 'prosperity', 'diplomacy'],
     era: 'Yoruba, Osogbo',
     blurb: 'Orisha of the river Osun, of fresh water, beauty and wealth. When the other orisha ignored her, the world dried up until they asked her back.',
+    history: 'Mythic (fantasy). Oshun is the Yoruba orisha of fresh water, love, fertility and prosperity, associated with the river Osun in Nigeria, where the annual Osun-Osogbo festival draws pilgrims to her sacred grove. In one story the male orisha tried to build the world without her and failed until she was asked back. She is Ochún in Cuba and Oxum in Brazil. The card\'s abilities are invention in her spirit.',
   },
   {
     kind: 'character',
@@ -466,6 +486,7 @@ const MYTHIC: CharacterDef[] = [
     identity: ['mother', 'ocean', 'crossing', 'protection'],
     era: 'Yoruba, and every shore of the Atlantic',
     blurb: 'Mother of waters, who followed her children across the Middle Passage and is honoured as Yemayá in Cuba and Iemanjá in Brazil.',
+    history: 'Mythic (fantasy). Yemoja is the Yoruba mother of waters, patron of women, childbirth and the river Ogun. In the diaspora she became the goddess of the sea, Yemayá in Cuba and Iemanjá in Brazil, where millions bring flowers to the beach for her on 2 February and New Year\'s Eve. The card\'s crossing is a reference to the Middle Passage, over which her children were carried. The abilities are invention in her spirit.',
   },
   {
     kind: 'character',
@@ -488,6 +509,7 @@ const MYTHIC: CharacterDef[] = [
     identity: ['iron', 'labor', 'war', 'clearing the path'],
     era: 'Yoruba',
     blurb: 'Orisha of iron, the forge and the machete, patron of everyone who works metal, from blacksmiths to the steel mills of Gary.',
+    history: 'Mythic (fantasy). Ogun is the Yoruba orisha of iron, the forge, war and labour: blacksmiths, hunters, soldiers, drivers and everyone who works with metal. He cleared the first path through the forest with his machete. He is Ogún in Cuba, Ogum in Brazil and Ogou in Haitian Vodou. The card\'s pairing with Gary, Indiana\'s steel mills is deliberate. The abilities are invention in his spirit.',
   },
   {
     kind: 'character',
@@ -510,6 +532,7 @@ const MYTHIC: CharacterDef[] = [
     identity: ['allure', 'wealth', 'danger', 'the deep'],
     era: 'West and Central Africa, the Caribbean',
     blurb: 'The water spirit with the snake and the mirror, worshipped from Senegal to Suriname, generous and perilous in equal measure.',
+    history: 'Mythic (fantasy). Mami Wata is a water spirit venerated across West, Central and Southern Africa and throughout the diaspora, often shown as a mermaid or a woman with a snake and a mirror. She brings wealth and beauty and demands loyalty; her worship blended with Hindu prints, European mermaid lore and later with Catholic saints. The card\'s abilities are invention in her spirit.',
   },
   {
     kind: 'character',
@@ -532,6 +555,7 @@ const MYTHIC: CharacterDef[] = [
     identity: ['sanctuary', 'liberation', 'grace', 'the church'],
     era: 'The Black church, every era',
     blurb: 'The Christ of the Black church and of liberation theology: the one who sides with the captive. He never fights, and nothing hostile can act on those who stand with him.',
+    history: 'Mythic (fantasy). The Black Christ is not a new idea: Coptic Ethiopian art depicted him so for centuries, and in the United States the image runs from the Black church\'s spirituals through Marcus Garvey\'s African Orthodox Church to James Cone\'s Black liberation theology of the 1960s, which held that God sides with the oppressed. The card draws on that tradition. He never fights; his power is sanctuary. The abilities are invention.',
   },
 ];
 CHARACTERS.push(...MYTHIC);

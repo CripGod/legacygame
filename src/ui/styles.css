@@ -376,16 +376,26 @@ button.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 .card.big { width: min(78vw, 340px); font-size: 14px; }
 .card.event { background: #ebe4f7; }
 .hex {
+  --hexclip: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
   position: absolute; top: 5px;
   width: calc(var(--card-w) * 0.2); height: calc(var(--card-w) * 0.2);
-  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+  clip-path: var(--hexclip);
   display: grid; place-items: center;
   font-weight: 900; font-size: calc(var(--card-w) * 0.1); color: #fff;
+  background: #fff; /* bright rim so the badge reads against any art */
+  isolation: isolate;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+}
+.hex::after {
+  content: ''; position: absolute; inset: 2px; z-index: -1;
+  clip-path: var(--hexclip);
+  background: var(--hexfill, #1c1f28);
 }
 .card.big .hex { width: 40px; height: 40px; font-size: 18px; }
-.hex.i { left: 5px; background: #1c1f28; }
-.hex.f { right: 5px; background: #a83a34; }
-.hex.e { left: 5px; background: #6d4bb5; font-size: calc(var(--card-w) * 0.07); }
+.card.big .hex::after { inset: 3px; }
+.hex.i { left: 5px; --hexfill: #ffc21a; color: #14161c; text-shadow: 0 1px 0 rgba(255,255,255,0.55); }
+.hex.f { right: 5px; --hexfill: #e0281f; }
+.hex.e { left: 5px; --hexfill: #7a3ff0; font-size: calc(var(--card-w) * 0.07); }
 .card .card-art {
   height: calc(var(--card-w) * 1.02);
   display: grid; place-items: center; font-weight: 900; font-size: calc(var(--card-w) * 0.22); color: #111;
@@ -393,7 +403,7 @@ button.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 }
 .card.big .card-art { height: min(78vw, 340px); font-size: 96px; }
 .card .card-art .portrait-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.hex { z-index: 2; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6)); }
+.hex { z-index: 2; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.7)); }
 .card .name { font-weight: 800; font-size: clamp(9px, 0.95vw, 13px); line-height: 1.15; text-align: center; padding: 6px 6px 4px; white-space: normal; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .card.big .name { font-size: 20px; white-space: normal; }
 .card .era { font-size: 11px; color: #5e6472; text-align: center; }
@@ -401,6 +411,12 @@ button.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 .card.big .text { display: block; padding: 6px 10px 10px; font-size: 14px; line-height: 1.35; color: #2a2e38; overflow: auto; max-height: 38vh; border-top: 1px solid #d6d9e2; margin-top: 4px; }
 .card .text .kw { color: #000; font-weight: 800; letter-spacing: 0.03em; }
 .card .blurb { font-style: italic; color: #5e6472; margin-top: 6px; }
+.history { display: grid; gap: 6px; justify-items: start; }
+.history .info { font-weight: 800; }
+.history .info.on { background: rgba(255,255,255,0.08); }
+.history-body { background: rgba(255,255,255,0.06); border-left: 3px solid #ffc21a; border-radius: 6px; padding: 8px 10px; font-size: 14px; line-height: 1.45; max-width: 520px; }
+.history-body p { margin: 0; }
+.history-tag { font-size: 12px; font-weight: 700; color: #d9b8ff; margin-bottom: 6px; }
 
 
 /* ---------- Feed ---------- */
