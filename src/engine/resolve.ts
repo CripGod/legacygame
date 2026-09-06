@@ -11,6 +11,7 @@ import { charDef, cardDef, eventDef, LOCATION_BY_ID, THREAT_BY_ID, SUMMON } from
 import { nextFloat, pick } from './rng';
 import { drawCard, locName, spawnThreat, startTurn } from './setup';
 import {
+  canConfront,
   charsAt,
   charsOf,
   charInfluence,
@@ -441,6 +442,31 @@ function playEvent(state: GameState, p: PlayerId, play: PlayAction, events: Game
       events.push({ type: 'info', text: `${def.name}: ${ps.handle}'s Characters at ${locName(state, play.location)} are protected this turn.`, player: p, location: play.location });
       break;
     }
+    case 'cookout': {
+      const mine = charsAt(state, play.location, p);
+      const readied = mine.filter((c) => c.zone === 'gate' && !c.ready);
+      const fed = mine.filter((c) => c.zone === 'inside');
+      for (const c of readied) c.ready = true;
+      for (const c of fed) c.tempInfluence += def.effect.influence;
+      if (!mine.length) {
+        events.push({ type: 'info', text: `${def.name}: nobody of ${ps.handle}'s at ${locName(state, play.location)}.`, player: p, location: play.location });
+        break;
+      }
+      const parts: string[] = [];
+      if (readied.length) parts.push(`${readied.map((c) => charDef(c.defId).name).join(', ')} ${readied.length > 1 ? 'are' : 'is'} Ready now`);
+      if (fed.length) parts.push(`+${def.effect.influence} Influence to ${fed.length} Established Character${fed.length > 1 ? 's' : ''} this turn`);
+      events.push({ type: 'info', text: `${def.name} at ${locName(state, play.location)}: ${parts.join('; ')}.`, player: p, location: play.location });
+      break;
+    }
+    case 'chairteenth': {
+      if (!charsAt(state, play.location, p).length) {
+        events.push({ type: 'info', text: `${def.name}: ${ps.handle} has nobody at ${locName(state, play.location)}, so nobody grabs a chair.`, player: p, location: play.location });
+        break;
+      }
+      ps.chairLocation = play.location;
+      events.push({ type: 'info', text: `${def.name}: ${ps.handle} brings +${def.effect.force} Force to ${locName(state, play.location)} this turn.`, player: p, location: play.location });
+      break;
+    }
   }
 }
 
@@ -711,6 +737,24 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
   };
   for (const p of order) for (const cf of plans[p].confronts) addForce(cf.uid, cf.threatUid, 0);
   for (const pc of pendingConfronts) addForce(pc.uid, pc.threatUid, pc.bonus);
+  // Chairteenth: a flat +Force against one Threat at the chosen Location.
+  for (const p of order) {
+    const ps = state.players[p];
+    if (ps.chairLocation === undefined) continue;
+    const loc = state.locations[ps.chairLocation];
+    const eligible = loc.threats.filter((t) => canConfront(state, t, p));
+    if (!eligible.length) {
+      events.push({ type: 'info', text: `Chairteenth: no Threat at ${locName(state, loc.index)} for ${ps.handle} to swing at.`, player: p, location: loc.index });
+      continue;
+    }
+    const confronted = eligible.find((t) => (forceByThreat.get(t.uid)?.[p] ?? 0) > 0);
+    const target = confronted ?? [...eligible].sort((a, b) => threatForceNeeded(state, a) - threatForceNeeded(state, b))[0];
+    const entry = forceByThreat.get(target.uid) ?? { A: 0, B: 0, assists: new Set<string>() };
+    const chair = (eventDef('chairteenth').effect as { force: number }).force;
+    entry[p] += chair;
+    forceByThreat.set(target.uid, entry);
+    events.push({ type: 'threatActs', text: `Chairteenth: ${ps.handle} adds ${chair} Force against ${threatName(state, target)}.`, location: loc.index, player: p });
+  }
 
   for (const loc of state.locations) {
     const remaining: ThreatInstance[] = [];

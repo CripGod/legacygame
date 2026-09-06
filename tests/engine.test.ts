@@ -391,6 +391,33 @@ describe('locations', () => {
   });
 });
 
+describe('events', () => {
+  it('The Cookout readies Fresh Gate Characters the turn they arrive and feeds Established ones', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['gary_indiana', 'great_migration', 'greenwood'], revealAll: true, handA: ['og', 'organizer', 'cookout'] });
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'og', location: 0 }] }, B: pass() }).state;
+    const og = Object.values(s.characters).find((c) => c.defId === 'og')!;
+    expect(og.ready).toBe(false);
+    // Turn 2: play Organizer and The Cookout at the same Location: Organizer arrives and is Ready immediately.
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'organizer', location: 0 }, { cardId: 'cookout', location: 0 }] }, B: pass() }).state;
+    const org = Object.values(s.characters).find((c) => c.defId === 'organizer')!;
+    expect(org.ready).toBe(true);
+    expect(legalOptions(s, 'A').enters).toContain(org.uid);
+  });
+  it('Chairteenth adds +3 Force against the weakest Threat when nobody confronts', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['gary_indiana', 'great_migration', 'greenwood'], revealAll: true, handA: ['og', 'chairteenth'] });
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'og', location: 0 }] }, B: pass() }).state;
+    s.locations[0].threats.push({ uid: 'pr', defId: 'paddy_roller', location: 0, forceRequired: 2, spawnedTurn: 1 });
+    const out = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'chairteenth', location: 0 }] }, B: pass() });
+    expect(out.state.locations[0].threats.some((t) => t.uid === 'pr')).toBe(false);
+    expect(out.events.some((e) => e.type === 'threatNeutralized')).toBe(true);
+    // Nobody there: nothing happens.
+    const s2 = rig(createMatch({ seed: 2 }), { locations: ['gary_indiana', 'great_migration', 'greenwood'], revealAll: true, handA: ['chairteenth'] });
+    s2.locations[1].threats.push({ uid: 'pr2', defId: 'paddy_roller', location: 1, forceRequired: 2, spawnedTurn: 1 });
+    const out2 = resolveTurn(s2, { A: { ...pass(), plays: [{ cardId: 'chairteenth', location: 1 }] }, B: pass() });
+    expect(out2.state.locations[1].threats.length).toBe(1);
+  });
+});
+
 describe('match end', () => {
   it('Step Off ends the match immediately', () => {
     const s = createMatch({ seed: 4 });

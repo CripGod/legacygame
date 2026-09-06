@@ -56,7 +56,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'sojourner_truth',
       'ida_b_wells',
       'queen_nzinga',
-      'reparations',
+      'cookout',
       'community_defense',
     ],
   },
@@ -75,7 +75,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'harriet_tubman',
       'victor_hugo_green',
       'reparations',
-      'community_defense',
+      'chairteenth',
     ],
   },
   pantheon: {
@@ -110,8 +110,8 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'ida_b_wells',
       'queen_nzinga',
       'toussaint_louverture',
-      'reparations',
-      'community_defense',
+      'cookout',
+      'chairteenth',
     ],
   },
 };
@@ -121,7 +121,10 @@ export function randomDeck(pick: (n: number) => number): string[] {
   const pool = CHARACTERS.map((c) => c.id);
   const chosen: string[] = [];
   while (chosen.length < 10) chosen.push(pool.splice(pick(pool.length), 1)[0]);
-  return [...chosen, ...EVENTS.map((e) => e.id)];
+  const ev = EVENTS.map((e) => e.id);
+  const picked: string[] = [];
+  while (picked.length < 2) picked.push(ev.splice(pick(ev.length), 1)[0]);
+  return [...chosen, ...picked];
 }
 
 export function validateDeck(cards: string[]): string[] {

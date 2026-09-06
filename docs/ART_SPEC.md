@@ -69,12 +69,14 @@ Zip layout: `art/characters/*.jpg`, `art/locations/*.jpg`, `art/threats/*.jpg`, 
 | `threats/mob.jpg` | Mob | Crisis | Torches and shadows on a street at night, figures indistinct, smoke. Threatening, not explicit. |
 | `threats/paddy_roller.jpg` | Paddy Roller | Open Hostility | A wanted poster and a pair of shackles on a table, a lantern, 1850s. No person depicted. |
 
-## Events (2)
+## Events (4)
 
 | File | Name | Direction |
 |---|---|---|
 | `events/reparations.jpg` | Reparations | A ledger being balanced, hands passing a deed or a cheque across a table, morning light. |
 | `events/community_defense.jpg` | Community Defense | Neighbours on a porch at night, a lantern, a rifle leaning by the door, calm resolve. Deacons for Defense era. |
+| `events/cookout.jpg` | The Cookout | Backyard at golden hour: grill smoke, a long table of food, folding chairs, three generations, a spades game, a speaker. Joyful. No text. |
+| `events/chairteenth.jpg` | Chairteenth | A riverfront dock at dusk, a white folding chair held high like a banner, a crowd rallying in silhouette, a riverboat behind. Triumphant, non-graphic. |
 
 ## Card back and avatars
 

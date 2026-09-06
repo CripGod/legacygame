@@ -96,7 +96,11 @@ export interface CharacterDef {
   history?: string;
 }
 
-export type EventEffect = { type: 'reparations'; max: number } | { type: 'communityDefense'; force: number };
+export type EventEffect =
+  | { type: 'reparations'; max: number }
+  | { type: 'communityDefense'; force: number }
+  | { type: 'cookout'; influence: number }
+  | { type: 'chairteenth'; force: number };
 
 export interface EventDef {
   kind: 'event';
@@ -107,6 +111,8 @@ export interface EventDef {
   effect: EventEffect;
   needsLocation: boolean;
   blurb: string;
+  /** Where the card comes from. */
+  history?: string;
 }
 
 export type CardDef = CharacterDef | EventDef;
@@ -243,6 +249,8 @@ export interface PlayerState {
   knownNextReveal?: number;
   /** Community Defense: location protected this turn. */
   defendedLocation?: number;
+  /** Chairteenth: location where +Force lands against one Threat this turn. */
+  chairLocation?: number;
 }
 
 export type Phase = 'planning' | 'ended';
