@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import type { GameEvent } from '../../engine';
 import {
   CARD_BY_ID,
   LOCATION_BY_ID,
@@ -324,6 +325,21 @@ export function ProfileSheet({ view, p, me, onClose }: { view: GameState; p: Pla
       {p === me && ps.hand.length > 0 && (
         <div className="muted">Your hand: {ps.hand.map((id) => cardName(id, placeholders)).join(', ')}</div>
       )}
+    </Sheet>
+  );
+}
+
+export function LogSheet({ events, turn, onClose }: { events: GameEvent[]; turn: number; onClose: () => void }) {
+  return (
+    <Sheet onClose={onClose} title={`Turn ${turn}, step by step`}>
+      {events.length === 0 && <div className="muted">Nothing has happened yet.</div>}
+      <div className="log">
+        {events.map((e, i) => (
+          <div key={i} className={`log-line ${e.type}`}>
+            {e.text}
+          </div>
+        ))}
+      </div>
     </Sheet>
   );
 }

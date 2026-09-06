@@ -61,7 +61,7 @@ export const PRESET_DECKS: Record<string, { name: string; cards: string[] }> = {
       'mansa_musa',
       'frederick_douglass',
       'harriet_tubman',
-      'john_brown',
+      'victor_hugo_green',
       'reparations',
       'community_defense',
     ],

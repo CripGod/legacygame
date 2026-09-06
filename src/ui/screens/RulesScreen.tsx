@@ -17,7 +17,7 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
         </ul>
         <h2>Playing Characters</h2>
         <ul>
-          <li>One card per turn. A Character goes to one of your two Gate slots at a Location. Its <b>Reveal</b> ability triggers there.</li>
+          <li>One card per turn while any Location is hidden; <b>two</b> once all three are revealed. Organizer adds one more while Established. A Character goes to one of your two Gate slots at a Location. Its <b>Reveal</b> ability triggers there.</li>
           <li>Gate Characters count toward Influence but are <b>Fresh</b> for the turn they arrive and the following turn. Then they are <b>Ready</b> and may enter Inside (up to five per player).</li>
           <li>Inside, a Character is <b>Established</b>: its Established ability is live and it is safe from Gate-only effects.</li>
           <li><b>Direct Entry</b> Characters skip the wait.</li>

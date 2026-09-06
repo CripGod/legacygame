@@ -185,8 +185,8 @@ export const CHARACTERS: CharacterDef[] = [
       effect: { type: 'readyFriendly' },
     },
     established: {
-      text: 'Your Characters arriving at this Gate become Ready at the end of the turn they arrive.',
-      effect: { type: 'freshReadyHere' },
+      text: 'You may play one additional card each turn.',
+      effect: { type: 'extraPlay', amount: 1 },
     },
     identity: ['mobilization', 'community', 'tempo'],
     era: 'Timeless',
@@ -336,5 +336,27 @@ export const CHARACTERS: CharacterDef[] = [
     blurb: 'Walked away from slavery, sued a white man for her son and won, and spoke truth that silenced rooms.',
   },
 ];
+
+CHARACTERS.push({
+  kind: 'character',
+  id: 'victor_hugo_green',
+  name: 'Victor Hugo Green',
+  short: 'V. H. Green',
+  influence: 3,
+  force: 1,
+  tags: ['Black', 'Travel', 'Publisher'],
+  keywords: [],
+  reveal: {
+    text: 'Draw a card.',
+    effect: { type: 'draw', count: 1 },
+  },
+  established: {
+    text: 'Characters you relocate out of this Location arrive Inside their destination (Established), not at the Gates.',
+    effect: { type: 'relocatedOutInside' },
+  },
+  identity: ['safe passage', 'knowledge', 'network', 'interior to interior'],
+  era: '1892–1960',
+  blurb: 'Publisher of the Green Book, the guide that told Black travelers where they could eat, sleep and buy gas without danger, including how to get through sundown towns.',
+});
 
 export const CHARACTER_BY_ID: Record<string, CharacterDef> = Object.fromEntries(CHARACTERS.map((c) => [c.id, c]));

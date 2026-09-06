@@ -39,6 +39,7 @@ export function useFlip(container: React.RefObject<HTMLElement | null>, opts: Fl
         const scale = Math.max(0.3, Math.min(3, prev.width / rect.width));
         const delay = optsRef.current.delayFor(uid);
         const duration = optsRef.current.durationFor?.(uid) ?? 620;
+        if (duration <= 0) return;
         el.style.transition = 'none';
         el.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
         el.style.zIndex = '40';

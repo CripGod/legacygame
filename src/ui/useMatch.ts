@@ -30,9 +30,10 @@ export interface MatchController {
   setPlan: (fn: (p: TurnPlan) => TurnPlan) => void;
   locked: boolean;
   busy: boolean;
-  feed: GameEvent[];
-  feedIndex: number;
-  skipFeed: () => void;
+  /** Events from the most recent resolution, as seen by the perspective player. */
+  lastTurn: GameEvent[];
+  /** Tile animation stagger for the opponent's pieces. */
+  delays: Record<string, number>;
   secondsLeft: number;
   handoff: PlayerId | null;
   takeDevice: () => void;
@@ -44,7 +45,7 @@ export interface MatchController {
   log: GameEvent[];
 }
 
-const FEED_MS = 450;
+const STAGGER_MS = 160;
 
 export function useMatch(initialSeed: number, mode: Mode): MatchController {
   const [seed, setSeed] = useState(initialSeed);
@@ -52,8 +53,8 @@ export function useMatch(initialSeed: number, mode: Mode): MatchController {
   const [perspective, setPerspective] = useState<PlayerId>('A');
   const [plan, setPlanState] = useState<TurnPlan>(emptyPlan());
   const [locked, setLocked] = useState(false);
-  const [feed, setFeed] = useState<GameEvent[]>([]);
-  const [feedIndex, setFeedIndex] = useState(0);
+  const [lastTurn, setLastTurn] = useState<GameEvent[]>([]);
+  const [delays, setDelays] = useState<Record<string, number>>({});
   const [busy, setBusy] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(PLANNING_SECONDS);
   const [handoff, setHandoff] = useState<PlayerId | null>(null);
@@ -67,27 +68,28 @@ export function useMatch(initialSeed: number, mode: Mode): MatchController {
 
   const view = useMemo(() => viewFor(trueState, perspective), [trueState, perspective]);
 
-  // Feed animation.
-  useEffect(() => {
-    if (!feed.length) return;
-    if (feedIndex >= feed.length) {
-      if (busy) setBusy(false);
-      const id = setTimeout(() => setFeed([]), 2200);
-      return () => clearTimeout(id);
-    }
-    const id = setTimeout(() => setFeedIndex((i) => i + 1), FEED_MS);
-    return () => clearTimeout(id);
-  }, [feed, feedIndex, busy]);
-
-  const skipFeed = useCallback(() => setFeedIndex(feed.length), [feed.length]);
 
   const finishResolution = useCallback(
     (next: GameState, events: GameEvent[], seen: PlayerId) => {
       setTrueState(next);
       setLog((l) => [...l, ...events]);
-      setFeed(filterEvents(events, seen).filter((e) => e.text && e.type !== 'draw' && e.type !== 'influence'));
-      setFeedIndex(0);
+      const visible = filterEvents(events, seen).filter((e) => e.text && e.type !== 'draw');
+      setLastTurn(visible);
+      // Only the opponent's pieces animate; stagger them in event order.
+      const d: Record<string, number> = {};
+      let i = 0;
+      for (const e of visible) {
+        if (!e.uid || d[e.uid] !== undefined) continue;
+        if (e.type !== 'played' && e.type !== 'moved' && e.type !== 'entered') continue;
+        const c = next.characters[e.uid];
+        if (!c || c.owner === seen) continue;
+        d[e.uid] = Math.min(2400, i * STAGGER_MS);
+        i++;
+      }
+      setDelays(d);
+      const maxDelay = Object.values(d).reduce((m, v) => Math.max(m, v), 0);
       setBusy(true);
+      window.setTimeout(() => setBusy(false), (i ? maxDelay + 800 : 0) + 900);
       setLocked(false);
       setPlanState(emptyPlan());
       setSecondsLeft(PLANNING_SECONDS);
@@ -191,8 +193,8 @@ export function useMatch(initialSeed: number, mode: Mode): MatchController {
     setPerspective('A');
     setPlanState(emptyPlan());
     setLocked(false);
-    setFeed([]);
-    setFeedIndex(0);
+    setLastTurn([]);
+    setDelays({});
     setBusy(false);
     setSecondsLeft(PLANNING_SECONDS);
     setHandoff(null);
@@ -209,9 +211,8 @@ export function useMatch(initialSeed: number, mode: Mode): MatchController {
     setPlan,
     locked,
     busy,
-    feed,
-    feedIndex,
-    skipFeed,
+    lastTurn,
+    delays,
     secondsLeft,
     handoff,
     takeDevice,

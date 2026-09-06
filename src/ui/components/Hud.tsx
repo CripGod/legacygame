@@ -17,7 +17,7 @@ function TimerRing({ seconds, paused }: { seconds: number; paused: boolean }) {
   );
 }
 
-export function Hud({ view, me, secondsLeft, paused, onProfile }: { view: GameState; me: PlayerId; secondsLeft: number; paused: boolean; onProfile: (p: PlayerId) => void }) {
+export function Hud({ view, me, secondsLeft, paused, onProfile, onLog, hasLog }: { view: GameState; me: PlayerId; secondsLeft: number; paused: boolean; onProfile: (p: PlayerId) => void; onLog: () => void; hasLog: boolean }) {
   const { placeholders } = useDisplay();
   const profile = (p: PlayerId, right: boolean) => {
     const ps = view.players[p];
@@ -47,6 +47,9 @@ export function Hud({ view, me, secondsLeft, paused, onProfile }: { view: GameSt
             <span>{view.stakes}</span>
             <small>stake{view.stakes > 1 ? 's' : ''}</small>
           </div>
+          <button className="coin info" disabled={!hasLog} onClick={onLog} {...tip('What happened last turn, step by step.')} aria-label="Last turn log">
+            i
+          </button>
         </div>
       </div>
       {profile('B', true)}

@@ -49,14 +49,15 @@ export type EstablishedEffect =
   | { type: 'blessNextEstablished'; amount: number } // Mansa Musa
   | { type: 'gateInfluenceHere'; amount: number } // Zora
   | { type: 'extraRelocation'; amount: number } // Pullman Porter
-  | { type: 'freshReadyHere' } // Organizer
+  | { type: 'extraPlay'; amount: number } // Organizer
   | { type: 'opposingGateInfluence'; amount: number } // OG
   | { type: 'influenceOnThreatCleared'; amount: number } // Ida
   | { type: 'forceAuraHere'; amount: number } // Nzinga
   | { type: 'noDisplaceHere' } // Toussaint
   | { type: 'relocatedOutReady' } // Garvey
   | { type: 'noBlockHere' } // Bessie Coleman
-  | { type: 'noSuppressHere' }; // Sojourner Truth
+  | { type: 'noSuppressHere' } // Sojourner Truth
+  | { type: 'relocatedOutInside' }; // Victor Hugo Green
 
 export interface CharacterDef {
   kind: 'character';
@@ -304,7 +305,8 @@ export interface PlayAction {
 }
 
 export interface TurnPlan {
-  play?: PlayAction;
+  /** Cards played this turn, in order. Limited by playsAllowed(). */
+  plays: PlayAction[];
   enters: string[];
   relocations: { uid: string; to: number }[];
   confronts: { uid: string; threatUid: string }[];
@@ -312,7 +314,7 @@ export interface TurnPlan {
   stepOff?: boolean;
 }
 
-export const emptyPlan = (): TurnPlan => ({ enters: [], relocations: [], confronts: [] });
+export const emptyPlan = (): TurnPlan => ({ plays: [], enters: [], relocations: [], confronts: [] });
 
 export interface ResolveOutput {
   state: GameState;

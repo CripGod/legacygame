@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { CARD_BY_ID, legalOptions, type PlayerId, other } from '../../engine';
+import { CARD_BY_ID, legalOptions, gateRoom, type PlayerId, other } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight } from '../components/Battlefield';
@@ -8,9 +8,9 @@ import type { MatchController } from '../useMatch';
 import { Hud } from '../components/Hud';
 import { Battlefield } from '../components/Battlefield';
 import { Hand } from '../components/Hand';
-import { Feed } from '../components/Feed';
 import { Coach } from '../components/Coach';
-import { CardSheet, CharSheet, ConfirmSheet, LocationSheet, ProfileSheet, StandResponseSheet, TargetSheet, ThreatSheet } from '../components/Sheets';
+import { CardSheet, CharSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, StandResponseSheet, TargetSheet, ThreatSheet } from '../components/Sheets';
+import { guideDone, markGuideDone, suggest } from '../guide';
 import { cardName, locationName, useDisplay } from '../display';
 import { tip, HINTS } from '../tip';
 
@@ -23,6 +23,7 @@ type SheetState =
   | { kind: 'profile'; p: PlayerId }
   | { kind: 'stepOff' }
   | { kind: 'stand' }
+  | { kind: 'log' }
   | null;
 
 function useCompact(): boolean {
@@ -42,7 +43,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   const [selected, setSelected] = useState<string | null>(null);
   const [sheet, setSheet] = useState<SheetState>(null);
   const [flash, setFlash] = useState<string | null>(null);
-  const [delays, setDelays] = useState<Record<string, number>>({});
+  const [guideOn, setGuideOn] = useState(() => coach && m.mode === 'ai' && !guideDone());
   const opts = useMemo(() => legalOptions(view, me), [view, me]);
   const boardView = useMemo(() => (view.phase === 'planning' && !locked ? previewPlan(view, me, plan) : view), [view, me, plan, locked]);
   const planning = view.phase === 'planning' && !locked && !busy;
@@ -56,18 +57,22 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  // Stagger tile animations in the order the resolution events happened.
+  // First-turn guide: suggest a concrete move and glow the pieces involved.
+  const guide = useMemo(() => (guideOn && view.turn === 1 && planning ? suggest(view, me, placeholders) : null), [guideOn, view, me, planning, placeholders]);
+  const guideText = useMemo(() => {
+    if (!guide) return null;
+    if (guide.play && plan.plays.some((pl) => pl.cardId === guide.play!.cardId && pl.location === guide.play!.location)) return 'That is the move. Press Lock It In.';
+    if (plan.plays.length) return `That works too. Or ${guide.text.charAt(0).toLowerCase()}${guide.text.slice(1)}`;
+    return guide.text;
+  }, [guide, plan]);
+  const guideCard = guide?.play && !plan.plays.length ? guide.play.cardId : null;
+  const guideLocation = guide?.play && !plan.plays.length && CARD_BY_ID[guide.play.cardId]?.kind === 'character' ? guide.play.location : null;
   useEffect(() => {
-    const d: Record<string, number> = {};
-    let i = 0;
-    for (const e of m.feed) {
-      if (e.uid && d[e.uid] === undefined && (e.type === 'played' || e.type === 'moved' || e.type === 'entered')) {
-        d[e.uid] = Math.min(2400, i * 160);
-        i++;
-      }
+    if (guideOn && view.turn > 1) {
+      markGuideDone();
+      setGuideOn(false);
     }
-    setDelays(d);
-  }, [m.feed]);
+  }, [guideOn, view.turn]);
 
   // Reset transient selection on new turn.
   useEffect(() => {
@@ -79,16 +84,16 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     if (!selected || !planning) return [];
     const opt = opts.plays.find((p) => p.cardId === selected);
     if (!opt) return [];
-    return opt.needsLocation ? opt.locations : [];
-  }, [selected, opts, planning]);
+    return opt.needsLocation ? opt.locations.filter((i) => opt.kind !== 'character' || gateRoom(view, i, me, plannedAt(i, selected)) > 0) : [];
+  }, [selected, opts, planning, plan, view, me]);
 
   const selectCard = (cardId: string) => {
     if (!planning) {
       setSheet({ kind: 'card', id: cardId });
       return;
     }
-    if (plan.play?.cardId === cardId) {
-      setPlan((p) => ({ ...p, play: undefined }));
+    if (plan.plays.some((pl) => pl.cardId === cardId)) {
+      setPlan((p) => ({ ...p, plays: p.plays.filter((pl) => pl.cardId !== cardId) }));
       setSelected(null);
       return;
     }
@@ -99,7 +104,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     }
     if (!opt.needsLocation) {
       // Reparations: no Location choice.
-      setPlan((p) => ({ ...p, play: { cardId, location: 0 } }));
+      addPlay({ cardId, location: 0 });
       setSelected(null);
       return;
     }
@@ -119,10 +124,23 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       setSheet({ kind: 'target', cardId, location });
       return;
     }
-    setPlan((p) => ({ ...p, play: { cardId, location: opt.needsLocation ? location : 0 } }));
+    addPlay({ cardId, location: opt.needsLocation ? location : 0 });
     setSelected(null);
     setSheet(null);
   };
+
+  /** Add or move a play; when at the limit, the newest replaces the oldest. */
+  function addPlay(play: { cardId: string; location: number; target?: { charUid?: string; location?: number } }) {
+    setPlan((p) => {
+      let plays = p.plays.filter((pl) => pl.cardId !== play.cardId);
+      while (plays.length >= opts.playsAllowed && plays.length > 0) plays = plays.slice(1);
+      return { ...p, plays: [...plays, play] };
+    });
+  }
+
+  /** Gate room at a Location after the plays already planned there. */
+  const plannedAt = (index: number, except?: string) =>
+    plan.plays.filter((pl) => pl.location === index && pl.cardId !== except && CARD_BY_ID[pl.cardId]?.kind === 'character').length;
 
   const toggleEnter = (uid: string) => {
     setPlan((p) => ({ ...p, enters: p.enters.includes(uid) ? p.enters.filter((u) => u !== uid) : [...p.enters, uid] }));
@@ -145,7 +163,11 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       if (!planning) return out;
       if (payload.kind === 'card') {
         const opt = opts.plays.find((p) => p.cardId === payload.cardId);
-        if (opt) out.locations = opt.needsLocation ? opt.locations : view.locations.map((l) => l.index);
+        if (opt) {
+          out.locations = opt.needsLocation
+            ? opt.locations.filter((i) => opt.kind !== 'character' || gateRoom(view, i, me, plannedAt(i, payload.cardId)) > 0)
+            : view.locations.map((l) => l.index);
+        }
         return out;
       }
       const c = view.characters[payload.uid];
@@ -178,11 +200,11 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
         const opt = opts.plays.find((p) => p.cardId === payload.cardId);
         if (!opt) return;
         if (!opt.needsLocation) {
-          setPlan((p) => ({ ...p, play: { cardId: payload.cardId, location: 0 } }));
+          addPlay({ cardId: payload.cardId, location: 0 });
         } else if (opt.needsTarget) {
           setSheet({ kind: 'target', cardId: payload.cardId, location: target.index });
         } else {
-          setPlan((p) => ({ ...p, play: { cardId: payload.cardId, location: target.index } }));
+          addPlay({ cardId: payload.cardId, location: target.index });
         }
         setSelected(null);
         return;
@@ -228,11 +250,13 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
 
   const hint = (() => {
     if (view.phase === 'ended') return 'Match over.';
-    if (busy) return 'Resolving…';
+    if (busy) return 'Harborlight moves…';
     if (locked) return m.mode === 'ai' ? 'Locked. Harborlight is deciding…' : 'Locked.';
     if (selected) return `Tap a Location to commit ${cardName(selected, placeholders)}.`;
     const parts: string[] = [];
-    if (plan.play) parts.push(`Playing ${cardName(plan.play.cardId, placeholders)}${CARD_BY_ID[plan.play.cardId]?.kind === 'character' || CARD_BY_ID[plan.play.cardId]?.id === 'community_defense' ? ` at Location ${plan.play.location + 1}` : ''}`);
+    for (const pl of plan.plays) parts.push(`${cardName(pl.cardId, placeholders)}${CARD_BY_ID[pl.cardId]?.kind === 'character' || CARD_BY_ID[pl.cardId]?.id === 'community_defense' ? ` → Location ${pl.location + 1}` : ''}`);
+    const left = opts.playsAllowed - plan.plays.length;
+    if (left > 0 && opts.plays.length > plan.plays.length) parts.push(`${left} play${left > 1 ? 's' : ''} left`);
     if (plan.enters.length) parts.push(`${plan.enters.length} entering`);
     if (plan.relocations.length) parts.push(`${plan.relocations.length} relocating`);
     if (plan.confronts.length) parts.push(`${plan.confronts.length} confronting`);
@@ -244,7 +268,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
 
   return (
     <div className="app">
-      <Hud view={view} me={me} secondsLeft={m.secondsLeft} paused={!planning} onProfile={(p) => setSheet({ kind: 'profile', p })} />
+      <Hud view={view} me={me} secondsLeft={m.secondsLeft} paused={!planning} onProfile={(p) => setSheet({ kind: 'profile', p })} onLog={() => setSheet({ kind: 'log' })} hasLog={m.lastTurn.length > 0} />
       <div className="main-wrap">
         <Battlefield
           view={boardView}
@@ -259,13 +283,14 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           flash={flash}
           dragProps={dragProps}
           drop={drop}
-          delays={delays}
+          delays={m.delays}
+          resolving={busy}
+          glowLocation={guideLocation}
         />
-        <Feed events={m.feed} index={m.feedIndex} onSkip={m.skipFeed} />
-        <Coach view={view} me={me} plan={plan} enabled={coach && planning && m.mode === 'ai'} onActive={setFlash} />
+        <Coach view={view} me={me} plan={plan} enabled={coach && planning && m.mode === 'ai' && !guide} onActive={setFlash} override={guideText} />
       </div>
       <div className="bottom">
-        <Hand view={view} me={me} plan={plan} selected={selected} onSelect={selectCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} dragProps={dragProps} />
+        <Hand view={view} me={me} plan={plan} selected={selected} onSelect={selectCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} dragProps={dragProps} glow={guideCard} />
         <div className="hint">
           {selected && planning ? (
             <button className="small chip" onClick={() => setSheet({ kind: 'card', id: selected })}>
@@ -318,9 +343,9 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
         <CardSheet
           id={sheet.id}
           onClose={() => setSheet(null)}
-          planned={plan.play?.cardId === sheet.id}
+          planned={plan.plays.some((pl) => pl.cardId === sheet.id)}
           onCancelPlay={() => {
-            setPlan((p) => ({ ...p, play: undefined }));
+            setPlan((p) => ({ ...p, plays: p.plays.filter((pl) => pl.cardId !== sheet.id) }));
             setSheet(null);
           }}
           sendTo={(() => {
@@ -328,10 +353,12 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
             if (!opt) return undefined;
             return {
               needsLocation: opt.needsLocation,
-              options: opt.locations.map((i) => ({
-                index: i,
-                label: view.locations[i].revealed ? cardLocationLabel(i) : `Location ${i + 1} (hidden)`,
-              })),
+              options: opt.locations
+                .filter((i) => opt.kind !== 'character' || gateRoom(view, i, me, plannedAt(i, sheet.id)) > 0)
+                .map((i) => ({
+                  index: i,
+                  label: view.locations[i].revealed ? cardLocationLabel(i) : `Location ${i + 1} (hidden)`,
+                })),
               onSend: (i: number) => commitPlay(i, sheet.id),
             };
           })()}
@@ -340,6 +367,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       {sheet?.kind === 'char' && <CharSheet view={view} me={me} uid={sheet.uid} plan={plan} locked={!planning} onClose={() => setSheet(null)} onToggleEnter={toggleEnter} onRelocate={setRelocation} />}
       {sheet?.kind === 'threat' && <ThreatSheet view={view} me={me} threatUid={sheet.uid} plan={plan} locked={!planning} onClose={() => setSheet(null)} onToggle={toggleConfront} />}
       {sheet?.kind === 'location' && <LocationSheet view={view} index={sheet.index} onClose={() => setSheet(null)} />}
+      {sheet?.kind === 'log' && <LogSheet events={m.lastTurn} turn={Math.max(1, view.turn - (view.phase === 'ended' ? 0 : 1))} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'profile' && <ProfileSheet view={view} p={sheet.p} me={me} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'target' && (
         <TargetSheet
@@ -349,7 +377,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           location={sheet.location}
           onClose={() => setSheet(null)}
           onConfirm={(target) => {
-            setPlan((p) => ({ ...p, play: { cardId: sheet.cardId, location: sheet.location, target } }));
+            addPlay({ cardId: sheet.cardId, location: sheet.location, target });
             setSelected(null);
             setSheet(null);
           }}

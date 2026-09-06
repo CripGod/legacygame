@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { resetCoach } from '../components/Coach';
+import { resetGuide } from '../guide';
 
 export interface StartOptions {
   seed?: number;
@@ -49,7 +50,7 @@ export function StartScreen({ onPlay, onRules, initialDev }: { onPlay: (o: Start
               <button className="small" onClick={() => onPlay(opts('hotseat'))}>
                 Local two-player debug (pass the device)
               </button>
-              <button className="small ghost" onClick={resetCoach}>
+              <button className="small ghost" onClick={() => { resetCoach(); resetGuide(); }}>
                 Reset coach tips
               </button>
             </div>

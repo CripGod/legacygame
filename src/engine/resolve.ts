@@ -31,7 +31,7 @@ import {
   totalForce,
   validatePlan,
 } from './query';
-import type { CharacterInstance, GameEvent, GameState, MatchResult, PlayerId, ResolveOutput, ThreatInstance, TurnPlan } from './types';
+import type { CharacterInstance, GameEvent, GameState, MatchResult, PlayAction, PlayerId, ResolveOutput, ThreatInstance, TurnPlan } from './types';
 import { MAX_STAKES, PLAYERS, EXTENDED_TURNS, other, emptyPlan } from './types';
 
 export function cloneState(s: GameState): GameState {
@@ -136,7 +136,7 @@ interface PendingConfront {
   bonus: number;
 }
 
-function resolveReveal(state: GameState, c: CharacterInstance, plan: TurnPlan, events: GameEvent[], confronts: PendingConfront[]): void {
+function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: PlayAction['target'], events: GameEvent[], confronts: PendingConfront[]): void {
   const def = charDef(c.defId);
   if (!def.reveal) return;
   const p = c.owner;
@@ -148,7 +148,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, plan: TurnPlan, e
     case 'none':
       break;
     case 'moveFriendlyGate': {
-      const t = plan.play?.target;
+      const t = revealTarget;
       const target = t?.charUid ? state.characters[t.charUid] : undefined;
       if (!target || target.owner !== p || target.zone !== 'gate' || t?.location === undefined || t.location === target.location) {
         say('no Character to move.');
@@ -321,8 +321,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, plan: TurnPlan, e
   }
 }
 
-function playEvent(state: GameState, p: PlayerId, plan: TurnPlan, events: GameEvent[]): void {
-  const play = plan.play!;
+function playEvent(state: GameState, p: PlayerId, play: PlayAction, events: GameEvent[]): void {
   const def = eventDef(play.cardId);
   const ps = state.players[p];
   events.push({ type: 'eventPlayed', text: `${ps.handle} plays ${def.name}.`, player: p, cardId: def.id, location: def.needsLocation ? play.location : undefined });
@@ -466,10 +465,10 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
 
   // ---- 2. New plays: placement first, then Reveal abilities in initiative order ----
   const pendingConfronts: PendingConfront[] = [];
-  const newChars: { p: PlayerId; c: CharacterInstance }[] = [];
+  const newChars: { p: PlayerId; c: CharacterInstance; target: PlayAction['target'] }[] = [];
+  const eventPlays: { p: PlayerId; play: PlayAction }[] = [];
   for (const p of order) {
-    const play = plans[p].play;
-    if (!play) continue;
+    for (const play of plans[p].plays) {
     const ps = state.players[p];
     const idx = ps.hand.indexOf(play.cardId);
     if (idx < 0) continue;
@@ -478,6 +477,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     const def = cardDef(play.cardId);
     if (def.kind === 'event') {
       ps.discard.push(def.id);
+      eventPlays.push({ p, play });
       continue;
     }
     if (!gateOpen(state, play.location, p) || state.locations[play.location].lost) {
@@ -500,7 +500,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     };
     state.characters[c.uid] = c;
     if (loc.revealed && LOCATION_BY_ID[loc.defId]?.effect.type === 'readyOnArrival') c.ready = true;
-    newChars.push({ p, c });
+    newChars.push({ p, c, target: play.target });
     events.push({
       type: 'played',
       text: `${ps.handle} plays ${def.name} (${def.influence}/${def.force}) at the Gates of ${locName(state, play.location)}.`,
@@ -509,13 +509,11 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       uid: c.uid,
       location: play.location,
     });
+    }
   }
-  for (const p of order) {
-    const play = plans[p].play;
-    if (play && cardDef(play.cardId).kind === 'event') playEvent(state, p, plans[p], events);
-  }
-  for (const { p, c } of newChars) {
-    resolveReveal(state, c, plans[p], events, pendingConfronts);
+  for (const { p, play } of eventPlays) playEvent(state, p, play, events);
+  for (const { c, target } of newChars) {
+    resolveReveal(state, c, target, events, pendingConfronts);
   }
   // Direct Entry.
   for (const { c } of newChars) {
@@ -540,6 +538,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       const outReady =
         hasEstablished(state, p, from, 'relocatedOutReady').length > 0 ||
         (state.locations[from].revealed && LOCATION_BY_ID[state.locations[from].defId]?.effect.type === 'relocatedOutReady');
+      const outInside = hasEstablished(state, p, from, 'relocatedOutInside').length > 0 && insideOpen(state, r.to, p);
       c.location = r.to;
       c.zone = 'gate';
       c.ready = outReady;
@@ -563,7 +562,9 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
         player: p,
         data: { from, to: r.to, reason: 'relocation' },
       });
-      if (destDef?.effect.type === 'firstRelocatedEnters' && !dest.firstRelocatedThisTurn) {
+      if (outInside) {
+        enterInside(state, c, events, 'arrives Inside (Green Book) at');
+      } else if (destDef?.effect.type === 'firstRelocatedEnters' && !dest.firstRelocatedThisTurn) {
         dest.firstRelocatedThisTurn = c.uid;
         enterInside(state, c, events, 'enters immediately (Great Migration) at');
       }
@@ -686,8 +687,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     if (c.zone !== 'gate' || c.ready) continue;
     const loc = state.locations[c.location];
     const ldef = loc.revealed ? LOCATION_BY_ID[loc.defId] : undefined;
-    const organized = hasEstablished(state, c.owner, c.location, 'freshReadyHere').length > 0;
-    if (c.arrivedTurn < state.turn || organized || ldef?.effect.type === 'readyOnArrival') {
+    if (c.arrivedTurn < state.turn || ldef?.effect.type === 'readyOnArrival') {
       c.ready = true;
       events.push({ type: 'ready', text: `${name(state, c)} is Ready to enter ${locName(state, c.location)}.`, uid: c.uid, player: c.owner });
     }

@@ -22,7 +22,7 @@ function readDone(): Set<string> {
   }
 }
 
-export function Coach({ view, me, plan, enabled, onActive }: { view: GameState; me: PlayerId; plan: TurnPlan; enabled: boolean; onActive?: (key: string | null) => void }) {
+export function Coach({ view, me, plan, enabled, onActive, override }: { view: GameState; me: PlayerId; plan: TurnPlan; enabled: boolean; onActive?: (key: string | null) => void; override?: string | null }) {
   const [done, setDone] = useState<Set<string>>(() => readDone());
   const [current, setCurrent] = useState<string | null>(null);
   useEffect(() => {
@@ -33,6 +33,13 @@ export function Coach({ view, me, plan, enabled, onActive }: { view: GameState; 
   useEffect(() => {
     onActive?.(enabled ? current : null);
   }, [current, enabled, onActive]);
+  if (override) {
+    return (
+      <div className="coach guide">
+        <span>{override}</span>
+      </div>
+    );
+  }
   if (!enabled || !current) return null;
   const tip = TIPS.find((t) => t.key === current)!;
   const dismiss = () => {

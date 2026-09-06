@@ -120,7 +120,7 @@ describe('turn structure', () => {
     // Keep the turn-3 "history moves" Threat away from Location 1 by giving it a harmless Threat already.
     s.locations[0].threats.push({ uid: 'cc', defId: 'comfortable_complicity', location: 0, forceRequired: 1, spawnedTurn: 1 });
     const cardId = s.players.A.hand.find((c) => c !== 'reparations' && c !== 'community_defense' && c !== 'pullman_porter' && c !== 'bessie_coleman')!;
-    s = resolveTurn(s, { A: { ...pass(), play: { cardId, location: 0 } }, B: pass() }).state;
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId, location: 0 }] }, B: pass() }).state;
     const c = charsOf(s, 'A')[0];
     expect(c.zone).toBe('gate');
     expect(s.turn).toBe(2);
@@ -137,13 +137,13 @@ describe('turn structure', () => {
   });
   it('enforces one card per turn and Gate capacity of two', () => {
     let s = rig(createMatch({ seed: 2 }), { handA: ['og', 'organizer', 'zora_neale_hurston', 'ida_b_wells', 'reparations'] });
-    s = resolveTurn(s, { A: { ...pass(), play: { cardId: 'og', location: 1 } }, B: pass() }).state;
-    s = resolveTurn(s, { A: { ...pass(), play: { cardId: 'organizer', location: 1 } }, B: pass() }).state;
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'og', location: 1 }] }, B: pass() }).state;
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'organizer', location: 1 }] }, B: pass() }).state;
     expect(charsAt(s, 1, 'A', 'gate')).toHaveLength(2);
     const opts = legalOptions(s, 'A');
     const zora = opts.plays.find((p) => p.cardId === 'zora_neale_hurston')!;
     expect(zora.locations).not.toContain(1);
-    expect(validatePlan(s, 'A', { ...pass(), play: { cardId: 'zora_neale_hurston', location: 1 } })).not.toEqual([]);
+    expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'zora_neale_hurston', location: 1 }] })).not.toEqual([]);
   });
   it('Gate and Inside Characters both contribute Influence', () => {
     const s = rig(createMatch({ seed: 2 }), { locations: ['black_star', 'great_migration', 'juneteenth'], revealAll: true });
@@ -164,7 +164,7 @@ describe('abilities', () => {
   it('Karen blocks an opposing Ready Character and penalizes the leader', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['black_star', 'great_migration', 'juneteenth'], revealAll: true, handB: ['karen'] });
     const mansa = addChar(s, 'mansa_musa', 'A', 0, 'gate', true);
-    s = resolveTurn(s, { A: { ...pass(), enters: [mansa.uid] }, B: { ...pass(), play: { cardId: 'karen', location: 0 } } }).state;
+    s = resolveTurn(s, { A: { ...pass(), enters: [mansa.uid] }, B: { ...pass(), plays: [{ cardId: 'karen', location: 0 }] } }).state;
     expect(s.characters[mansa.uid].zone).toBe('gate');
     // A leads 5 vs 1 → Karen's presence costs the leader 1.
     expect(influenceAt(s, 0)).toEqual({ A: 4, B: 1 });
@@ -172,13 +172,13 @@ describe('abilities', () => {
   it('Harriet moves a friendly Gate Character preserving readiness', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['black_star', 'great_migration', 'greenwood'], revealAll: true, handA: ['harriet_tubman'] });
     const og = addChar(s, 'og', 'A', 0, 'gate', true);
-    s = resolveTurn(s, { A: { ...pass(), play: { cardId: 'harriet_tubman', location: 0, target: { charUid: og.uid, location: 2 } } }, B: pass() }).state;
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'harriet_tubman', location: 0, target: { charUid: og.uid, location: 2 } }] }, B: pass() }).state;
     expect(s.characters[og.uid].location).toBe(2);
     expect(s.characters[og.uid].ready).toBe(true);
   });
   it('Direct Entry Characters enter the turn they are played', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['black_star', 'great_migration', 'greenwood'], revealAll: true, handB: ['pullman_porter'] });
-    s = resolveTurn(s, { A: pass(), B: { ...pass(), play: { cardId: 'pullman_porter', location: 2 } } }).state;
+    s = resolveTurn(s, { A: pass(), B: { ...pass(), plays: [{ cardId: 'pullman_porter', location: 2 }] } }).state;
     const porter = charsOf(s, 'B')[0];
     expect(porter.zone).toBe('inside');
     expect(legalOptions(s, 'B').relocationsAllowed).toBe(2);
@@ -198,7 +198,7 @@ describe('abilities', () => {
   it('Mansa Musa gains +1 when a hidden Location he was committed to reveals', () => {
     let s = rig(createMatch({ seed: 2 }), { handA: ['mansa_musa'] });
     const target = s.revealOrder[1]; // reveals on turn 2
-    s = resolveTurn(s, { A: { ...pass(), play: { cardId: 'mansa_musa', location: target } }, B: pass() }).state;
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'mansa_musa', location: target }] }, B: pass() }).state;
     const m = charsOf(s, 'A')[0];
     expect(m.pendingRevealBonus).toBe(1);
     s = resolveTurn(s, { A: pass(), B: pass() }).state;
@@ -222,7 +222,7 @@ describe('threats', () => {
     const opts = legalOptions(s, 'A');
     expect(opts.confronts.find((c) => c.threatUid === 't2')?.assist).toBe(true);
     const before = influenceAt(s, 1).A;
-    const out = resolveTurn(s, { A: { ...pass(), play: { cardId: 'reparations', location: 0 } }, B: pass() });
+    const out = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'reparations', location: 0 }] }, B: pass() });
     expect(out.events.some((e) => e.text.includes('Reparations: +1'))).toBe(true);
     expect(before).toBe(0);
   });
@@ -249,6 +249,25 @@ describe('threats', () => {
     expect(s.players.A.setbacks).toBe(1);
     s = resolveTurn(s, { A: pass(), B: pass() }).state; // second full turn → LOST
     expect(s.locations[0].lost).toBe(true);
+  });
+});
+
+describe('multiple plays', () => {
+  it('allows one play while any Location is hidden, two after, and Organizer adds one', () => {
+    let s = createMatch({ seed: 21 });
+    expect(legalOptions(s, 'A').playsAllowed).toBe(1);
+    s = rig(s, { locations: ['black_star', 'great_migration', 'greenwood'], revealAll: true, handA: ['og', 'zora_neale_hurston', 'ida_b_wells', 'mansa_musa'] });
+    expect(legalOptions(s, 'A').playsAllowed).toBe(2);
+    addChar(s, 'organizer', 'A', 0, 'inside');
+    expect(legalOptions(s, 'A').playsAllowed).toBe(3);
+    // Two Characters into one Location need two open Gates; a third does not fit.
+    const ok = { ...pass(), plays: [{ cardId: 'og', location: 1 }, { cardId: 'zora_neale_hurston', location: 1 }] };
+    expect(validatePlan(s, 'A', ok)).toEqual([]);
+    const tooMany = { ...pass(), plays: [{ cardId: 'og', location: 1 }, { cardId: 'zora_neale_hurston', location: 1 }, { cardId: 'ida_b_wells', location: 1 }] };
+    expect(validatePlan(s, 'A', tooMany)).not.toEqual([]);
+    s = resolveTurn(s, { A: ok, B: pass() }).state;
+    expect(charsAt(s, 1, 'A', 'gate')).toHaveLength(2);
+    expect(s.players.A.hand).not.toContain('og');
   });
 });
 

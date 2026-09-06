@@ -41,6 +41,8 @@ Developer tools (`?dev=1` or the button on the start screen): fixed seeds, AI re
 
 ## Decisions made where the brief left room
 
+- **Plays per turn**: one while any Location is hidden, two once all three are revealed; Organizer's Established ability adds one. Twelve-card decks mean you cannot double up every turn, which is the intended pressure.
+
 - **Nine turns** (ten after Stand on Business) with 12-card decks: the draw simply stops when the deck is empty, so the last turn or two are played from hand. If nine turns stick, the deck should probably grow to 14.
 
 - **Gate wait timing.** A Character played on turn N is Fresh through turn N+1's planning and becomes Ready at the end of N+1, so it can enter on N+2. This is the reading that makes "becomes Ready immediately" effects (Harriet, Organizer, Juneteenth) worth a full turn. If playtesting says the wait is too long, the one-line change is in the cleanup step of `resolve.ts`.
@@ -50,7 +52,7 @@ Developer tools (`?dev=1` or the button on the start screen): fixed seeds, AI re
 - **Reparations** counts for final scoring when played on the final turn (temporary Influence is scored before cleanup).
 - **Location scoring with two ties or a Lost Location**: whoever won more Locations wins; if equal, the brief's tiebreaks apply.
 - **Katherine Johnson's** private reveal is stored per player and redacted from the opponent's view; the AI is allowed to use it exactly as a human would.
-- **Sojourner Truth** replaces the "selected additional historical figures" slot to give the pool a Suppress effect. **Ida B. Wells, Queen Nzinga, Toussaint Louverture, Marcus Garvey, Bessie Coleman** round out the sixteen.
+- **Victor Hugo Green** (the Green Book) lets relocations out of his Location arrive Inside, the interior-to-interior answer to Sundown Town. **Sojourner Truth** replaces the "selected additional historical figures" slot to give the pool a Suppress effect. **Ida B. Wells, Queen Nzinga, Toussaint Louverture, Marcus Garvey, Bessie Coleman** round out the sixteen.
 - Player Gates are shown under each Location panel (the wireframe omitted them; the brief requires them).
 
 ## Harborlight

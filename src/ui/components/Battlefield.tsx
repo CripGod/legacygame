@@ -43,6 +43,10 @@ export interface BattlefieldProps {
   drop?: DropHighlight | null;
   /** Per-tile animation stagger (ms) for the latest resolution. */
   delays?: Record<string, number>;
+  /** True while the opponent's resolution is animating: the player's own tiles snap. */
+  resolving?: boolean;
+  /** First-turn guide: Location to glow. */
+  glowLocation?: number | null;
 }
 
 function useBump(value: number): boolean {
@@ -146,7 +150,7 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
 }
 
 export function Battlefield(props: BattlefieldProps) {
-  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onThreat, flash, dragProps, drop, delays } = props;
+  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onThreat, flash, dragProps, drop, delays, resolving, glowLocation } = props;
   const { placeholders } = useDisplay();
   const opp = other(me);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -154,7 +158,7 @@ export function Battlefield(props: BattlefieldProps) {
     version: view,
     delayFor: (uid) => delays?.[uid] ?? 0,
     // Your own moves snap quickly; the opponent's resolution moves glide.
-    durationFor: (uid) => (view.characters[uid]?.owner === me && !delays?.[uid] ? 220 : 620),
+    durationFor: (uid) => (view.characters[uid]?.owner === me || isPlannedUid(uid) ? (resolving ? 0 : 220) : 620),
     originFor: (uid, prev) => {
       if (isPlannedUid(uid)) {
         const cardId = uid.slice(PLANNED_PREFIX.length);
@@ -194,7 +198,7 @@ export function Battlefield(props: BattlefieldProps) {
         return (
           <div
             key={loc.index}
-            className={`column ${isTarget ? `targetable for-${me}` : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''}`}
+            className={`column ${isTarget ? `targetable for-${me}` : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''}`}
             data-drop="location"
             data-index={loc.index}
             onClick={isTarget ? () => onLocationTap(loc.index) : undefined}

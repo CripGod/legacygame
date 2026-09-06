@@ -162,6 +162,18 @@ export function canConfront(state: GameState, threat: ThreatInstance, p: PlayerI
   return !own;
 }
 
+/** Cards a player may play this turn: 1 while any Location is hidden, 2 once all are revealed, plus Established bonuses. */
+export function playsAllowed(state: GameState, p: PlayerId): number {
+  let n = state.locations.every((l) => l.revealed) ? 2 : 1;
+  for (const c of hasEstablishedAnywhere(state, p, 'extraPlay')) n += amountOf(c);
+  return n;
+}
+
+/** Open Gate slots for `p` at a Location, after `planned` Characters already committed there. */
+export function gateRoom(state: GameState, location: number, p: PlayerId, planned = 0): number {
+  return GATE_CAPACITY - charsAt(state, location, p, 'gate').length - planned;
+}
+
 export function relocationsAllowed(state: GameState, p: PlayerId): number {
   let n = 1;
   for (const c of hasEstablishedAnywhere(state, p, 'extraRelocation')) n += amountOf(c);
@@ -199,6 +211,7 @@ export interface LegalOptions {
   enters: string[];
   relocations: { uid: string; destinations: number[] }[];
   relocationsAllowed: number;
+  playsAllowed: number;
   confronts: ConfrontOption[];
   canStand: boolean;
   canStepOff: boolean;
@@ -261,6 +274,7 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
     enters,
     relocations,
     relocationsAllowed: relocationsAllowed(state, p),
+    playsAllowed: playsAllowed(state, p),
     confronts,
     canStand,
     canStepOff: !ps.cannotStepOff,
@@ -272,14 +286,26 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
 export function validatePlan(state: GameState, p: PlayerId, plan: TurnPlan): string[] {
   const errors: string[] = [];
   const opts = legalOptions(state, p);
-  if (plan.play) {
-    const opt = opts.plays.find((o) => o.cardId === plan.play!.cardId);
-    if (!opt) errors.push('That card cannot be played.');
-    else if (!opt.locations.includes(plan.play.location)) errors.push('That Location is not available for this card.');
-    if (opt?.needsTarget && plan.play.target?.charUid) {
-      const c = state.characters[plan.play.target.charUid];
+  if (plan.plays.length > opts.playsAllowed) errors.push(`Only ${opts.playsAllowed} card play(s) allowed this turn.`);
+  const usedCards = new Set<string>();
+  const gateUse: Record<number, number> = {};
+  for (const play of plan.plays) {
+    if (usedCards.has(play.cardId)) errors.push('A card can only be played once.');
+    usedCards.add(play.cardId);
+    const opt = opts.plays.find((o) => o.cardId === play.cardId);
+    if (!opt) {
+      errors.push('That card cannot be played.');
+      continue;
+    }
+    if (opt.needsLocation && !opt.locations.includes(play.location)) errors.push('That Location is not available for this card.');
+    if (opt.kind === 'character') {
+      gateUse[play.location] = (gateUse[play.location] ?? 0) + 1;
+      if (gateRoom(state, play.location, p, gateUse[play.location] - 1) <= 0) errors.push('No open Gate slot for that card.');
+    }
+    if (opt.needsTarget && play.target?.charUid) {
+      const c = state.characters[play.target.charUid];
       if (!c || c.owner !== p || c.zone !== 'gate') errors.push('Invalid target Character.');
-      if (plan.play.target.location === undefined || plan.play.target.location === c?.location) errors.push('Choose a different destination.');
+      if (play.target.location === undefined || play.target.location === c?.location) errors.push('Choose a different destination.');
     }
   }
   for (const uid of plan.enters) {

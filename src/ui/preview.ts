@@ -7,7 +7,7 @@ import { cloneState, CARD_BY_ID, insideOpen, type GameState, type PlayerId, type
 export const PLANNED_PREFIX = 'planned:';
 
 export function previewPlan(view: GameState, me: PlayerId, plan: TurnPlan): GameState {
-  const hasChanges = plan.play || plan.enters.length || plan.relocations.length;
+  const hasChanges = plan.plays.length || plan.enters.length || plan.relocations.length;
   if (!hasChanges) return view;
   const v = cloneState(view);
   for (const uid of plan.enters) {
@@ -26,24 +26,23 @@ export function previewPlan(view: GameState, me: PlayerId, plan: TurnPlan): Game
       c.arrivedTurn = v.turn + 1; // sorts after existing Gate tiles
     }
   }
-  if (plan.play) {
-    const def = CARD_BY_ID[plan.play.cardId];
-    if (def?.kind === 'character') {
-      const c: CharacterInstance = {
-        uid: `${PLANNED_PREFIX}${def.id}`,
-        defId: def.id,
-        owner: me,
-        location: plan.play.location,
-        zone: 'gate',
-        ready: false,
-        arrivedTurn: v.turn + 2,
-        permInfluence: 0,
-        tempInfluence: 0,
-      };
-      if (def.keywords.includes('DIRECT_ENTRY') && insideOpen(v, c.location, me)) c.zone = 'inside';
-      v.characters[c.uid] = c;
-    }
-  }
+  plan.plays.forEach((play, i) => {
+    const def = CARD_BY_ID[play.cardId];
+    if (def?.kind !== 'character') return;
+    const c: CharacterInstance = {
+      uid: `${PLANNED_PREFIX}${def.id}`,
+      defId: def.id,
+      owner: me,
+      location: play.location,
+      zone: 'gate',
+      ready: false,
+      arrivedTurn: v.turn + 2 + i,
+      permInfluence: 0,
+      tempInfluence: 0,
+    };
+    if (def.keywords.includes('DIRECT_ENTRY') && insideOpen(v, c.location, me)) c.zone = 'inside';
+    v.characters[c.uid] = c;
+  });
   return v;
 }
 

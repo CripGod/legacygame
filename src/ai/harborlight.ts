@@ -13,6 +13,7 @@ import {
   charsOf,
   confrontForce,
   emptyPlan,
+  gateRoom,
   influenceAt,
   leaderAt,
   legalOptions,
@@ -79,7 +80,7 @@ const ESTABLISHED_VALUE: Record<string, number> = {
   blessNextEstablished: 0.9,
   gateInfluenceHere: 0.8,
   extraRelocation: 0.9,
-  freshReadyHere: 1.0,
+  extraPlay: 1.6,
   opposingGateInfluence: 0.9,
   influenceOnThreatCleared: 0.7,
   forceAuraHere: 0.5,
@@ -87,6 +88,7 @@ const ESTABLISHED_VALUE: Record<string, number> = {
   relocatedOutReady: 0.7,
   noBlockHere: 0.5,
   noSuppressHere: 0.3,
+  relocatedOutInside: 1.2,
 };
 
 function sigmoid(x: number): number {
@@ -201,10 +203,8 @@ export function evaluate(state: GameState, p: PlayerId): Evaluation {
 
 function labelPlan(state: GameState, plan: TurnPlan): string {
   const parts: string[] = [];
-  if (plan.play) {
-    const def = cardDef(plan.play.cardId);
-    const nm = def?.name ?? plan.play.cardId;
-    parts.push(`play ${nm}→L${plan.play.location + 1}`);
+  if (plan.plays.length) {
+    parts.push(`play ${plan.plays.map((pl) => `${cardDef(pl.cardId).name}→L${pl.location + 1}`).join(' + ')}`);
   } else parts.push('hold');
   if (plan.enters.length) parts.push(`enter ${plan.enters.map((u) => charDef(state.characters[u].defId).short).join(',')}`);
   if (plan.relocations.length) parts.push(`move ${plan.relocations.map((r) => `${charDef(state.characters[r.uid].defId).short}→L${r.to + 1}`).join(',')}`);
@@ -291,9 +291,9 @@ function decideConfronts(view: GameState, p: PlayerId, rand: () => number, reaso
   return { confronts, busy };
 }
 
-function playVariants(view: GameState, p: PlayerId): (PlayAction | undefined)[] {
+function playVariants(view: GameState, p: PlayerId): PlayAction[] {
   const opts = legalOptions(view, p);
-  const out: (PlayAction | undefined)[] = [];
+  const out: PlayAction[] = [];
   for (const o of opts.plays) {
     for (const location of o.locations) {
       if (o.needsTarget === 'friendlyGateCharAndLocation') {
@@ -314,7 +314,6 @@ function playVariants(view: GameState, p: PlayerId): (PlayAction | undefined)[] 
       }
     }
   }
-  if (!out.length) out.push(undefined);
   return out;
 }
 
@@ -352,33 +351,51 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
     const ev = evaluate(next, p);
     let score = ev.score;
     const reasons = [...ev.reasons];
-    if (plan.play && cardDef(plan.play.cardId).kind === 'character') {
-      const hb = hiddenBonus.get(plan.play.location);
+    for (const pl of plan.plays) {
+      if (cardDef(pl.cardId).kind !== 'character') continue;
+      const hb = hiddenBonus.get(pl.location);
       if (hb !== undefined) {
         score += hb;
         reasons.push('hidden gamble');
       }
     }
-    if (!plan.play) {
-      score -= 2;
+    const unused = Math.min(opts.playsAllowed, opts.plays.length) - plan.plays.length;
+    if (unused > 0) {
+      score -= 2 * unused;
       reasons.push('holding a card');
     }
     return { label: labelPlan(view, plan), plan, score, reasons };
   };
 
-  // Stage 1: plays with the default "enter everything" posture.
+  // Stage 1: single plays with the default "enter everything" posture.
   const defaultEnters = enterVariants[enterVariants.length > 1 ? 1 : 0];
-  const stage1: AiCandidate[] = plays.map((play) => scoreOf({ play, enters: defaultEnters, relocations: [], confronts }));
+  const singles: AiCandidate[] = plays.map((play) => scoreOf({ plays: [play], enters: defaultEnters, relocations: [], confronts }));
+  singles.sort((a, b) => b.score - a.score);
+  const playSets: PlayAction[][] = [[], ...singles.slice(0, 6).map((c) => c.plan.plays)];
+  if (opts.playsAllowed >= 2) {
+    const top = singles.slice(0, 6).map((c) => c.plan.plays[0]);
+    for (let i = 0; i < top.length; i++) {
+      for (let j = i + 1; j < top.length; j++) {
+        const a = top[i];
+        const b = top[j];
+        if (a.cardId === b.cardId) continue;
+        const bothChars = cardDef(a.cardId).kind === 'character' && cardDef(b.cardId).kind === 'character';
+        if (bothChars && a.location === b.location && gateRoom(view, a.location, p) < 2) continue;
+        playSets.push([a, b]);
+      }
+    }
+  }
+  const stage1: AiCandidate[] = playSets.map((ps) => scoreOf({ plays: ps, enters: defaultEnters, relocations: [], confronts }));
   stage1.sort((a, b) => b.score - a.score);
-  const topPlays = stage1.slice(0, 5).map((c) => c.plan.play);
+  const topPlays = stage1.slice(0, 5).map((c) => c.plan.plays);
 
-  // Stage 2: cross top plays with enter/relocation variants.
+  // Stage 2: cross top play sets with enter/relocation variants.
   const candidates: AiCandidate[] = [];
-  for (const play of topPlays) {
+  for (const ps of topPlays) {
     for (const enters of enterVariants) {
       for (const relocations of relocVariants) {
         if (relocations.some((r) => enters.includes(r.uid))) continue;
-        candidates.push(scoreOf({ play, enters, relocations, confronts }));
+        candidates.push(scoreOf({ plays: ps, enters, relocations, confronts }));
       }
     }
   }

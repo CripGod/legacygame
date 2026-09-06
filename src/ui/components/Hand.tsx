@@ -11,6 +11,7 @@ export function Hand({
   onInspect,
   compact,
   dragProps,
+  glow,
 }: {
   view: GameState;
   me: PlayerId;
@@ -20,9 +21,10 @@ export function Hand({
   onInspect: (cardId: string) => void;
   compact: boolean;
   dragProps?: (payload: DragPayload) => Record<string, unknown>;
+  glow?: string | null;
 }) {
   const hand = view.players[me].hand;
-  const visible = hand.filter((id) => plan.play?.cardId !== id);
+  const visible = hand.filter((id) => !plan.plays.some((pl) => pl.cardId === id));
   const n = visible.length;
   const mid = (n - 1) / 2;
   return (
@@ -34,7 +36,7 @@ export function Hand({
           const rot = compact ? off * 5 : 0;
           const ty = compact ? Math.abs(off) * Math.abs(off) * 2 : 0;
           const sel = selected === id;
-          const planned = plan.play?.cardId === id;
+          const planned = plan.plays.some((pl) => pl.cardId === id);
           const dp = (dragProps && !planned ? dragProps({ kind: 'card', cardId: id }) : {}) as { style?: React.CSSProperties };
           const style: React.CSSProperties = {
             ...(dp.style ?? {}),
@@ -47,7 +49,7 @@ export function Hand({
             <div
               key={`${id}-${i}`}
               data-hand-card={id}
-              className={`card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''}`}
+              className={`card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''} ${glow === id ? 'ftue-flash' : ''}`}
               {...dp}
               style={style}
               onClick={() => onSelect(id)}

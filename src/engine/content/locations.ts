@@ -47,7 +47,7 @@ export const LOCATIONS: LocationDef[] = [
     id: 'sundown_town',
     name: 'Sundown Town',
     era: '1890–1968',
-    rule: 'At the end of each turn, Fresh Gate Characters here are displaced to a random other Location. (Setback)',
+    rule: 'Characters arriving at these Gates are displaced to a random other Location at the end of the turn (Setback). Characters already waiting here when it reveals may stay; Direct Entry and Characters arriving Inside are safe.',
     blurb: 'Thousands of towns enforced, by sign, ordinance or violence, that Black people be gone by nightfall.',
     effect: { type: 'displaceFreshAtEnd' },
   },

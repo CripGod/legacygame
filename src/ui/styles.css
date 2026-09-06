@@ -544,3 +544,15 @@ body.dragging { cursor: grabbing; user-select: none; }
 /* Planned (unresolved) tiles */
 .gate-slot.preview, .slot.preview { border-style: dashed; }
 .gate-slot.preview .pic, .slot.preview .pic { opacity: 0.85; }
+
+/* Turn log */
+.coin.info { font-style: italic; font-family: Georgia, serif; font-weight: 700; font-size: 16px; padding: 0; min-height: 0; border-radius: 50%; }
+.coin.info:disabled { opacity: 0.3; }
+.log { display: grid; gap: 4px; }
+.log-line { padding: 5px 8px; border-left: 3px solid var(--line-2); background: rgba(255,255,255,0.03); font-size: 13px; }
+.log-line.locationRevealed { border-color: #fff; font-weight: 700; }
+.log-line.setback, .log-line.locationLost, .log-line.stepOff, .log-line.blocked { border-color: var(--danger); }
+.log-line.threatNeutralized, .log-line.entered { border-color: var(--ok); }
+.log-line.stand, .log-line.standResponse { border-color: var(--cA); }
+.log-line.turnStart { border-color: transparent; color: var(--muted); }
+.coach.guide { max-width: min(92vw, 620px); font-size: 14px; line-height: 1.35; background: #fff8e6; border: 2px solid var(--cA); }
