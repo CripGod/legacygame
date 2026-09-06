@@ -32,7 +32,7 @@ export function CardFace({ id, big = false, onClick }: { id: string; big?: boole
       {isChar && def.category === 'mythic' && !placeholders && <div className="cat mythic">Mythic</div>}
       {big && isChar && !placeholders && <div className="era">{def.era}</div>}
       <div className="text">
-        {abilityLines(def).map((l) => (
+        {big && abilityLines(def).map((l) => (
           <div key={l.label}>
             <span className="kw">{l.label}:</span> {l.text}
           </div>
@@ -43,24 +43,7 @@ export function CardFace({ id, big = false, onClick }: { id: string; big?: boole
             {def.tags.length ? def.tags.join(' · ') : ''}
           </div>
         )}
-        {big && (
-          <div className="legend">
-            {isChar ? (
-              <>
-                <div>
-                  <span className="hex i small">{def.influence}</span> {HINTS.influence}
-                </div>
-                <div>
-                  <span className="hex f small">{def.force}</span> {HINTS.force}
-                </div>
-              </>
-            ) : (
-              <div>
-                <span className="hex e small">EV</span> {HINTS.event}
-              </div>
-            )}
-          </div>
-        )}
+
       </div>
     </div>
   );
