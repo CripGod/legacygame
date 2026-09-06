@@ -39,7 +39,14 @@ export type RevealEffect =
   | { type: 'weakenThreat'; amount: number } // Ida B. Wells
   | { type: 'challengeGate' } // Nzinga
   | { type: 'challengeInside' } // Toussaint
-  | { type: 'suppressInside' }; // Sojourner Truth
+  | { type: 'suppressInside' } // Sojourner Truth
+  | { type: 'refreshOpposingGate' } // Anansi
+  | { type: 'challengeAllGates' } // Shango
+  | { type: 'permInfluenceOther'; amount: number } // Oshun
+  | { type: 'moveFriendlyInsideHere' } // Yemoja — needs target
+  | { type: 'confrontAllThreats'; bonus: number } // Ogun
+  | { type: 'displaceOpposingGate' } // Mami Wata
+  | { type: 'sanctuaryReveal' }; // Black Jesus
 
 export type EstablishedEffect =
   | { type: 'readyRelocatedIn' } // Harriet
@@ -57,19 +64,28 @@ export type EstablishedEffect =
   | { type: 'relocatedOutReady' } // Garvey
   | { type: 'noBlockHere' } // Bessie Coleman
   | { type: 'noSuppressHere' } // Sojourner Truth
-  | { type: 'relocatedOutInside' }; // Victor Hugo Green
+  | { type: 'relocatedOutInside' } // Victor Hugo Green
+  | { type: 'drawOnOpposingPlay' } // Anansi
+  | { type: 'confrontForceHere'; amount: number } // Shango
+  | { type: 'freshReadyHere' } // Oshun
+  | { type: 'relocatedInInside' } // Yemoja
+  | { type: 'weakenThreatsHere'; amount: number } // Ogun
+  | { type: 'sanctuary' }; // Black Jesus
+
+export type CharacterCategory = 'historical' | 'archetype' | 'mythic';
 
 export interface CharacterDef {
   kind: 'character';
   id: string;
   name: string;
+  category: CharacterCategory;
   /** Short name used on thumbnails. */
   short: string;
   influence: number;
   force: number;
   tags: string[];
   keywords: Keyword[];
-  reveal?: { text: string; effect: RevealEffect; needsTarget?: 'friendlyGateCharAndLocation' };
+  reveal?: { text: string; effect: RevealEffect; needsTarget?: 'friendlyGateCharAndLocation' | 'friendlyInsideChar' };
   established?: { text: string; effect: EstablishedEffect };
   /** Always-on quirks (Karen). */
   passive?: { text: string; unstable?: boolean; leaderPenalty?: number };

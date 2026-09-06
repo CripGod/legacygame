@@ -89,6 +89,12 @@ const ESTABLISHED_VALUE: Record<string, number> = {
   noBlockHere: 0.5,
   noSuppressHere: 0.3,
   relocatedOutInside: 1.2,
+  drawOnOpposingPlay: 0.9,
+  confrontForceHere: 0.5,
+  freshReadyHere: 1.0,
+  relocatedInInside: 1.1,
+  weakenThreatsHere: 0.5,
+  sanctuary: 1.2,
 };
 
 function sigmoid(x: number): number {
@@ -309,6 +315,10 @@ function playVariants(view: GameState, p: PlayerId): PlayAction[] {
           }
         }
         if (!added) out.push({ cardId: o.cardId, location });
+      } else if (o.needsTarget === 'friendlyInsideChar') {
+        const insideChars = charsOf(view, p).filter((c) => c.zone === 'inside' && c.location !== location);
+        for (const c of insideChars) out.push({ cardId: o.cardId, location, target: { charUid: c.uid } });
+        if (!insideChars.length) out.push({ cardId: o.cardId, location });
       } else {
         out.push({ cardId: o.cardId, location });
       }

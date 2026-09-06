@@ -61,8 +61,22 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
           <li>Cleanup: Fresh → Ready, Sundown Town, unstable Characters</li>
           <li>Influence update</li>
         </ol>
-        <h2>Characters in this prototype</h2>
-        {CHARACTERS.map((c) => (
+        {(['historical', 'archetype', 'mythic'] as const).map((cat) => (
+          <div key={cat}>
+            <h2>{cat === 'historical' ? 'Historical Characters' : cat === 'archetype' ? 'Archetypes' : 'Mythic: African cosmology and diaspora spirituality'}</h2>
+            {CHARACTERS.filter((c) => c.category === cat).map((c) => (
+              <div key={c.id} style={{ marginBottom: 8 }}>
+                <b>{c.name}</b> <span className="muted">{c.influence} Influence · {c.force} Force · {c.era}</span>
+                {abilityLines(c).map((l) => (
+                  <div key={l.label} style={{ fontSize: 14 }}>
+                    <span className="muted">{l.label}:</span> {l.text}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        ))}
+        {false && CHARACTERS.map((c) => (
           <div key={c.id} style={{ marginBottom: 8 }}>
             <b>{c.name}</b> <span className="muted">{c.influence} Influence · {c.force} Force · {c.era}</span>
             {abilityLines(c).map((l) => (

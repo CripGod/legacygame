@@ -29,6 +29,18 @@ export function previewPlan(view: GameState, me: PlayerId, plan: TurnPlan): Game
   plan.plays.forEach((play, i) => {
     const def = CARD_BY_ID[play.cardId];
     if (def?.kind !== 'character') return;
+    // Yemoja's Reveal: show the chosen Established Character brought across.
+    if (def.reveal?.effect.type === 'moveFriendlyInsideHere' && play.target?.charUid) {
+      const t = v.characters[play.target.charUid];
+      if (t && t.owner === me && t.zone === 'inside') {
+        t.location = play.location;
+        t.relocatedTurn = v.turn;
+        if (!insideOpen(v, play.location, me)) {
+          t.zone = 'gate';
+          t.ready = true;
+        }
+      }
+    }
     // Harriet Tubman's Reveal: show the chosen Gate Character at its destination.
     if (def.reveal?.effect.type === 'moveFriendlyGate' && play.target?.charUid && play.target.location !== undefined) {
       const t = v.characters[play.target.charUid];

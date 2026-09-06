@@ -141,13 +141,14 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
           const c = chars[i];
           if (!c) return <div key={i} className={`slot ${i >= cap ? 'locked' : ''}`} />;
           const entering = plan.enters.includes(c.uid);
+          const brought = plan.plays.some((pl) => pl.target?.charUid === c.uid);
           const planned = isPlannedUid(c.uid);
           const confronting = plan.confronts.some((x) => x.uid === c.uid);
           const draggable =
             mine && dragProps ? dragProps(planned ? { kind: 'card', cardId: c.uid.slice(PLANNED_PREFIX.length) } : { kind: 'char', uid: c.uid }) : {};
           return (
-            <div key={c.uid} data-uid={c.uid} data-place={`${index}:inside`} className={`slot filled ${c.owner} ${entering || planned ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''}`} {...draggable}>
-              <Pic state={view} c={c} highlight={confronting} strip={entering ? 'Entering' : planned ? 'Planned' : confronting ? 'Confront' : undefined} onClick={() => onChar(c.uid)} />
+            <div key={c.uid} data-uid={c.uid} data-place={`${index}:inside`} className={`slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''}`} {...draggable}>
+              <Pic state={view} c={c} highlight={confronting} strip={entering ? 'Entering' : brought ? 'Moving' : planned ? 'Planned' : confronting ? 'Confront' : undefined} onClick={() => onChar(c.uid)} />
             </div>
           );
         })}
@@ -198,6 +199,12 @@ function shortEffect(type: string): string {
     relocatedOutInside: 'leave straight Inside',
     noBlockHere: 'cannot be blocked',
     noSuppressHere: 'cannot be Suppressed',
+    drawOnOpposingPlay: 'draw when they play here',
+    confrontForceHere: '+2 Force vs Threats',
+    freshReadyHere: 'arrivals Ready at turn end',
+    relocatedInInside: 'relocations arrive Inside',
+    weakenThreatsHere: 'Threats need 1 less',
+    sanctuary: 'sanctuary from Threats',
   };
   return map[type] ?? type;
 }

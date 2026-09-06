@@ -261,6 +261,28 @@ export function TargetSheet({
   onConfirm: (target?: { charUid: string; location: number }) => void;
 }) {
   const { placeholders } = useDisplay();
+  const needs = (CARD_BY_ID[cardId] as { reveal?: { needsTarget?: string } })?.reveal?.needsTarget;
+  if (needs === 'friendlyInsideChar') {
+    const insideChars = charsOf(view, me).filter((c) => c.zone === 'inside' && c.location !== location);
+    return (
+      <Sheet onClose={onClose} title={`${cardName(cardId, placeholders)}: choose who to bring across`}>
+        <div className="muted">Bring one friendly Established Character from another Location here. It arrives Inside if there is room, otherwise Ready at the Gates.</div>
+        {insideChars.length === 0 && <div>No Established Characters elsewhere. The Reveal will do nothing.</div>}
+        <div className="actions">
+          {insideChars.map((c) => (
+            <button key={c.uid} className="primary" onClick={() => onConfirm({ charUid: c.uid, location })}>
+              {cardName(c.defId, placeholders)} <span className="muted">from {locationName(locDef(view, c.location).id, placeholders)}</span>
+            </button>
+          ))}
+        </div>
+        <div className="actions">
+          <button className="ghost" onClick={() => onConfirm(undefined)}>
+            Play without bringing anyone
+          </button>
+        </div>
+      </Sheet>
+    );
+  }
   const gateChars = charsOf(view, me).filter((c) => c.zone === 'gate');
   return (
     <Sheet onClose={onClose} title={`${cardName(cardId, placeholders)}: choose a Character to move`}>

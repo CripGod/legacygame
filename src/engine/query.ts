@@ -93,7 +93,7 @@ export function charInfluence(state: GameState, c: CharacterInstance): number {
       if (m.blessedUid === c.uid) v += amountOf(m);
     }
   } else {
-    if (threatActiveFor(state, c.location, 'zeroGateInfluence', c.owner)) return 0;
+    if (threatActiveFor(state, c.location, 'zeroGateInfluence', c.owner) && !hasEstablished(state, c.owner, c.location, 'sanctuary').length) return 0;
     for (const z of hasEstablished(state, c.owner, c.location, 'gateInfluenceHere')) v += amountOf(z);
     for (const o of hasEstablished(state, other(c.owner), c.location, 'opposingGateInfluence')) v -= amountOf(o);
   }
@@ -148,6 +148,7 @@ export function confrontForce(state: GameState, c: CharacterInstance, threat: Th
   if (ldef.effect.type === 'confrontForce') f += ldef.effect.amount;
   if (ldef.effect.type === 'steelAndSoul') f += ldef.effect.force;
   for (const n of hasEstablished(state, c.owner, c.location, 'forceAuraHere')) f += amountOf(n);
+  for (const n of hasEstablished(state, c.owner, c.location, 'confrontForceHere')) f += amountOf(n);
   if (state.players[c.owner].defendedLocation === c.location) f += 1;
   if (isAssist(threat, c.owner) && c.zone === 'inside' && !isSuppressed(state, c) && def.established?.effect.type === 'assistForceBonus') {
     f += def.established.effect.amount;
@@ -176,6 +177,13 @@ export function gateRoom(state: GameState, location: number, p: PlayerId, planne
   return GATE_CAPACITY - charsAt(state, location, p, 'gate').length - planned;
 }
 
+/** Force a Threat needs this turn, after Ogun-style reductions from either player. */
+export function threatForceNeeded(state: GameState, t: ThreatInstance): number {
+  let n = t.forceRequired;
+  for (const p of PLAYERS) for (const o of hasEstablished(state, p, t.location, 'weakenThreatsHere')) n -= amountOf(o);
+  return Math.max(1, n);
+}
+
 export function relocationsAllowed(state: GameState, p: PlayerId): number {
   let n = 1;
   for (const c of hasEstablishedAnywhere(state, p, 'extraRelocation')) n += amountOf(c);
@@ -184,6 +192,7 @@ export function relocationsAllowed(state: GameState, p: PlayerId): number {
 
 export function isBlockedFromEntering(state: GameState, c: CharacterInstance): string | null {
   if (hasEstablished(state, c.owner, c.location, 'noBlockHere').length) return null;
+  if (hasEstablished(state, c.owner, c.location, 'sanctuary').length) return null;
   if (state.players[c.owner].defendedLocation === c.location) return null;
   if (c.blockedEnterTurn === state.turn) return 'blocked by an opposing Character';
   if (threatActiveFor(state, c.location, 'blockEntry', c.owner)) return 'blocked by Segregationist Patrol';
@@ -197,7 +206,7 @@ export interface PlayOption {
   kind: 'character' | 'event';
   locations: number[];
   needsLocation: boolean;
-  needsTarget?: 'friendlyGateCharAndLocation';
+  needsTarget?: 'friendlyGateCharAndLocation' | 'friendlyInsideChar';
   directEntry: boolean;
 }
 
@@ -304,10 +313,14 @@ export function validatePlan(state: GameState, p: PlayerId, plan: TurnPlan): str
       gateUse[play.location] = (gateUse[play.location] ?? 0) + 1;
       if (gateRoom(state, play.location, p, gateUse[play.location] - 1) <= 0) errors.push('No open Gate slot for that card.');
     }
-    if (opt.needsTarget && play.target?.charUid) {
+    if (opt.needsTarget === 'friendlyGateCharAndLocation' && play.target?.charUid) {
       const c = state.characters[play.target.charUid];
       if (!c || c.owner !== p || c.zone !== 'gate') errors.push('Invalid target Character.');
       if (play.target.location === undefined || play.target.location === c?.location) errors.push('Choose a different destination.');
+    }
+    if (opt.needsTarget === 'friendlyInsideChar' && play.target?.charUid) {
+      const c = state.characters[play.target.charUid];
+      if (!c || c.owner !== p || c.zone !== 'inside' || c.location === play.location) errors.push('Invalid target Character.');
     }
   }
   for (const uid of plan.enters) {

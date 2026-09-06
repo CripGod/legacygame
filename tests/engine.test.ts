@@ -13,6 +13,7 @@ import {
   LOCATIONS,
   PRESET_DECKS,
   validateDeck,
+  threatForceNeeded,
   other,
   type GameState,
   type PlayerId,
@@ -267,6 +268,36 @@ describe('The Black Star', () => {
     expect(s.characters[ida.uid].zone).toBe('inside');
     expect(s.characters[ida.uid].permInfluence).toBe(1);
     expect(LOCATIONS.some((l) => l.id === 'accra_ghana' && l.notInPool)).toBe(true);
+  });
+});
+
+describe('Mythic', () => {
+  it('Black Jesus makes a Location a sanctuary against Threats', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['gary_indiana', 'great_migration', 'greenwood'], revealAll: true });
+    addChar(s, 'black_jesus', 'A', 0, 'inside');
+    const og = addChar(s, 'og', 'A', 0, 'gate', true);
+    s.locations[0].threats.push({ uid: 'pa', defId: 'segregationist_patrol', location: 0, target: 'A', forceRequired: 3, spawnedTurn: 1 });
+    s = resolveTurn(s, { A: { ...pass(), enters: [og.uid] }, B: pass() }).state;
+    expect(s.characters[og.uid].zone).toBe('inside');
+    expect(s.players.A.setbacks).toBe(0);
+  });
+  it('Shango displaces every weaker opposing Gate Character', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['gary_indiana', 'great_migration', 'greenwood'], revealAll: true, handA: ['shango'] });
+    const zora = addChar(s, 'zora_neale_hurston', 'B', 1, 'gate', true); // Force 1
+    const brown = addChar(s, 'john_brown', 'B', 1, 'gate', true); // Force 5
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'shango', location: 1 }] }, B: pass() }).state;
+    expect(s.characters[zora.uid].location).not.toBe(1);
+    expect(s.characters[brown.uid].location).toBe(1);
+  });
+  it('Yemoja brings an Established Character across, and Ogun weakens Threats', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['gary_indiana', 'great_migration', 'greenwood'], revealAll: true, handA: ['yemoja'] });
+    const ida = addChar(s, 'ida_b_wells', 'A', 2, 'inside');
+    addChar(s, 'ogun', 'A', 0, 'inside');
+    s.locations[0].threats.push({ uid: 'hr', defId: 'housing_restriction', location: 0, forceRequired: 4, spawnedTurn: 1 });
+    expect(threatForceNeeded(s, s.locations[0].threats[0])).toBe(3);
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'yemoja', location: 0, target: { charUid: ida.uid, location: 0 } }] }, B: pass() }).state;
+    expect(s.characters[ida.uid].location).toBe(0);
+    expect(s.characters[ida.uid].zone).toBe('inside');
   });
 });
 

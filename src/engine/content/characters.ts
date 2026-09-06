@@ -8,6 +8,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'harriet_tubman',
+    category: 'historical',
     name: 'Harriet Tubman',
     short: 'Harriet',
     influence: 3,
@@ -30,6 +31,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'frederick_douglass',
+    category: 'historical',
     name: 'Frederick Douglass',
     short: 'Douglass',
     influence: 4,
@@ -51,6 +53,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'john_brown',
+    category: 'historical',
     name: 'John Brown',
     short: 'J. Brown',
     influence: 2,
@@ -72,6 +75,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'katherine_johnson',
+    category: 'historical',
     name: 'Katherine Johnson',
     short: 'Katherine',
     influence: 3,
@@ -93,6 +97,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'mansa_musa',
+    category: 'historical',
     name: 'Mansa Musa',
     short: 'Mansa Musa',
     influence: 5,
@@ -114,6 +119,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'zora_neale_hurston',
+    category: 'historical',
     name: 'Zora Neale Hurston',
     short: 'Zora',
     influence: 3,
@@ -135,6 +141,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'karen',
+    category: 'archetype',
     name: 'Karen',
     short: 'Karen',
     influence: 1,
@@ -157,6 +164,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'pullman_porter',
+    category: 'archetype',
     name: 'Pullman Porter',
     short: 'Porter',
     influence: 2,
@@ -174,6 +182,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'organizer',
+    category: 'archetype',
     name: 'Organizer',
     short: 'Organizer',
     influence: 2,
@@ -195,6 +204,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'og',
+    category: 'archetype',
     name: 'OG',
     short: 'OG',
     influence: 3,
@@ -216,6 +226,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'ida_b_wells',
+    category: 'historical',
     name: 'Ida B. Wells',
     short: 'Ida',
     influence: 4,
@@ -237,6 +248,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'queen_nzinga',
+    category: 'historical',
     name: 'Queen Nzinga',
     short: 'Nzinga',
     influence: 3,
@@ -258,6 +270,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'toussaint_louverture',
+    category: 'historical',
     name: 'Toussaint Louverture',
     short: 'Toussaint',
     influence: 4,
@@ -279,6 +292,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'marcus_garvey',
+    category: 'historical',
     name: 'Marcus Garvey',
     short: 'Garvey',
     influence: 4,
@@ -300,6 +314,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'bessie_coleman',
+    category: 'historical',
     name: 'Bessie Coleman',
     short: 'Bessie',
     influence: 2,
@@ -317,6 +332,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'sojourner_truth',
+    category: 'historical',
     name: 'Sojourner Truth',
     short: 'Sojourner',
     influence: 3,
@@ -340,6 +356,7 @@ export const CHARACTERS: CharacterDef[] = [
 CHARACTERS.push({
   kind: 'character',
   id: 'victor_hugo_green',
+  category: 'historical',
   name: 'Victor Hugo Green',
   short: 'V. H. Green',
   influence: 3,
@@ -358,5 +375,165 @@ CHARACTERS.push({
   era: '1892–1960',
   blurb: 'Publisher of the Green Book, the guide that told Black travelers where they could eat, sleep and buy gas without danger, including how to get through sundown towns.',
 });
+
+// ---------- Mythic: African cosmology and diaspora spirituality ----------
+const MYTHIC: CharacterDef[] = [
+  {
+    kind: 'character',
+    id: 'anansi',
+    category: 'mythic',
+    name: 'Anansi',
+    short: 'Anansi',
+    influence: 2,
+    force: 1,
+    tags: ['Mythic', 'Akan', 'Trickster'],
+    keywords: [],
+    reveal: {
+      text: 'Draw a card. The opposing Ready Gate Character here with the highest Influence is tricked into waiting again (it becomes Fresh).',
+      effect: { type: 'refreshOpposingGate' },
+    },
+    established: {
+      text: 'Whenever your opponent plays a Character at this Location, draw a card.',
+      effect: { type: 'drawOnOpposingPlay' },
+    },
+    identity: ['stories', 'cunning', 'small against large'],
+    era: 'Akan, timeless',
+    blurb: 'The spider who bought all the stories in the world from the sky god with wit alone, and carried them across the Atlantic in the holds of slave ships.',
+  },
+  {
+    kind: 'character',
+    id: 'shango',
+    category: 'mythic',
+    name: 'Shango',
+    short: 'Shango',
+    influence: 3,
+    force: 5,
+    tags: ['Mythic', 'Yoruba', 'Orisha', 'Thunder'],
+    keywords: [],
+    reveal: {
+      text: 'Thunder: CHALLENGE every opposing Gate Character here. Each with lower Force than Shango is displaced to a random other Location.',
+      effect: { type: 'challengeAllGates' },
+    },
+    established: {
+      text: 'Your Characters confront Threats here with +2 Force.',
+      effect: { type: 'confrontForceHere', amount: 2 },
+    },
+    identity: ['justice', 'thunder', 'kingship', 'fire'],
+    era: 'Yoruba, Oyo',
+    blurb: 'Fourth king of Oyo and orisha of thunder and justice, whose double-headed axe and drum travelled to Cuba, Brazil and Trinidad and never fell silent.',
+  },
+  {
+    kind: 'character',
+    id: 'oshun',
+    category: 'mythic',
+    name: 'Oshun',
+    short: 'Oshun',
+    influence: 4,
+    force: 1,
+    tags: ['Mythic', 'Yoruba', 'Orisha', 'Rivers'],
+    keywords: [],
+    reveal: {
+      text: 'Sweet water: another friendly Character here gains +1 Influence permanently.',
+      effect: { type: 'permInfluenceOther', amount: 1 },
+    },
+    established: {
+      text: 'Your Characters arriving at this Gate become Ready at the end of the turn they arrive.',
+      effect: { type: 'freshReadyHere' },
+    },
+    identity: ['love', 'rivers', 'prosperity', 'diplomacy'],
+    era: 'Yoruba, Osogbo',
+    blurb: 'Orisha of the river Osun, of fresh water, beauty and wealth. When the other orisha ignored her, the world dried up until they asked her back.',
+  },
+  {
+    kind: 'character',
+    id: 'yemoja',
+    category: 'mythic',
+    name: 'Yemoja',
+    short: 'Yemoja',
+    influence: 3,
+    force: 3,
+    tags: ['Mythic', 'Yoruba', 'Orisha', 'Ocean'],
+    keywords: [],
+    reveal: {
+      text: 'Crossing: bring one friendly Established Character from another Location here. It arrives Inside if there is room, otherwise Ready at the Gates.',
+      effect: { type: 'moveFriendlyInsideHere' },
+      needsTarget: 'friendlyInsideChar',
+    },
+    established: {
+      text: 'Characters you relocate to this Location arrive Inside.',
+      effect: { type: 'relocatedInInside' },
+    },
+    identity: ['mother', 'ocean', 'crossing', 'protection'],
+    era: 'Yoruba, and every shore of the Atlantic',
+    blurb: 'Mother of waters, who followed her children across the Middle Passage and is honoured as Yemayá in Cuba and Iemanjá in Brazil.',
+  },
+  {
+    kind: 'character',
+    id: 'ogun',
+    category: 'mythic',
+    name: 'Ogun',
+    short: 'Ogun',
+    influence: 2,
+    force: 5,
+    tags: ['Mythic', 'Yoruba', 'Orisha', 'Iron'],
+    keywords: [],
+    reveal: {
+      text: 'Iron: confront every Threat here with +2 Force.',
+      effect: { type: 'confrontAllThreats', bonus: 2 },
+    },
+    established: {
+      text: 'Threats at this Location need 1 less Force to neutralize.',
+      effect: { type: 'weakenThreatsHere', amount: 1 },
+    },
+    identity: ['iron', 'labor', 'war', 'clearing the path'],
+    era: 'Yoruba',
+    blurb: 'Orisha of iron, the forge and the machete, patron of everyone who works metal, from blacksmiths to the steel mills of Gary.',
+  },
+  {
+    kind: 'character',
+    id: 'mami_wata',
+    category: 'mythic',
+    name: 'Mami Wata',
+    short: 'Mami Wata',
+    influence: 4,
+    force: 2,
+    tags: ['Mythic', 'Diaspora', 'Water spirit'],
+    keywords: [],
+    reveal: {
+      text: 'Lure: the opposing Gate Character here with the highest Influence is drawn away to a random other Location.',
+      effect: { type: 'displaceOpposingGate' },
+    },
+    established: {
+      text: 'Opposing Gate Characters here contribute 1 less Influence.',
+      effect: { type: 'opposingGateInfluence', amount: 1 },
+    },
+    identity: ['allure', 'wealth', 'danger', 'the deep'],
+    era: 'West and Central Africa, the Caribbean',
+    blurb: 'The water spirit with the snake and the mirror, worshipped from Senegal to Suriname, generous and perilous in equal measure.',
+  },
+  {
+    kind: 'character',
+    id: 'black_jesus',
+    category: 'mythic',
+    name: 'Black Jesus',
+    short: 'Black Jesus',
+    influence: 5,
+    force: 0,
+    tags: ['Mythic', 'Spiritual', 'Sanctuary'],
+    keywords: [],
+    reveal: {
+      text: 'Sanctuary: every Block and Suppression at this Location ends, for both players, and every Gate Character here becomes Ready.',
+      effect: { type: 'sanctuaryReveal' },
+    },
+    established: {
+      text: 'Threats at this Location cannot touch your Characters: no blocking, no silencing, no displacement.',
+      effect: { type: 'sanctuary' },
+    },
+    identity: ['sanctuary', 'liberation', 'grace', 'the church'],
+    era: 'The Black church, every era',
+    blurb: 'The Christ of the Black church and of liberation theology: the one who sides with the captive. He never fights, and nothing hostile can act on those who stand with him.',
+  },
+];
+CHARACTERS.push(...MYTHIC);
 
 export const CHARACTER_BY_ID: Record<string, CharacterDef> = Object.fromEntries(CHARACTERS.map((c) => [c.id, c]));

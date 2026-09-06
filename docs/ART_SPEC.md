@@ -15,7 +15,7 @@ Style: one consistent painterly treatment across the set (the same brush, the sa
 
 Zip layout: `art/characters/*.jpg`, `art/locations/*.jpg`, `art/threats/*.jpg`, `art/events/*.jpg`.
 
-## Characters (17)
+## Characters (24)
 
 | File | Name | Era | Direction |
 |---|---|---|---|
@@ -35,6 +35,13 @@ Zip layout: `art/characters/*.jpg`, `art/locations/*.jpg`, `art/threats/*.jpg`, 
 | `characters/marcus_garvey.jpg` | Marcus Garvey | 1887–1940 | Man in the UNIA plumed hat and formal uniform, parade or ship deck, Harlem 1920s. |
 | `characters/bessie_coleman.jpg` | Bessie Coleman | 1892–1926 | Woman in aviator cap, goggles and leather jacket beside a 1920s biplane, confident smile. |
 | `characters/sojourner_truth.jpg` | Sojourner Truth | c. 1797–1883 | Tall older woman in a white cap and shawl, knitting or with a Bible, speaking from a platform. Gravity. |
+| `characters/anansi.jpg` | Anansi | Akan, timeless | Mythic. A spider-man trickster: elegant, many-limbed, kente-patterned, a knowing grin, storytelling gesture. Gold web threads on indigo. |
+| `characters/shango.jpg` | Shango | Yoruba, Oyo | Mythic. Broad-shouldered king with a double-headed axe, red and white beads, lightning behind him, bata drum at his feet. |
+| `characters/oshun.jpg` | Oshun | Yoruba, Osogbo | Mythic. Woman in gold and honey tones, river water, brass bracelets, peacock feather, mirror. Warm, luminous. |
+| `characters/yemoja.jpg` | Yemoja | Yoruba, the Atlantic | Mythic. Mother of waters in blue and white, waves and moonlight, a shell crown, protective and vast. |
+| `characters/ogun.jpg` | Ogun | Yoruba | Mythic. Iron-worker god at a forge, machete, green and black, sparks, muscles and soot. |
+| `characters/mami_wata.jpg` | Mami Wata | West and Central Africa, the Caribbean | Mythic. Water spirit with long hair, a serpent across her shoulders, a mirror, deep-sea greens and coins. Beautiful and unsettling. |
+| `characters/black_jesus.jpg` | Black Jesus | The Black church, every era | Mythic. A dark-skinned Christ in the stained-glass idiom of the Black church: robes, a gentle direct gaze, a halo of gold leaf, hands open. No weapons, no wounds. |
 | `characters/victor_hugo_green.jpg` | Victor Hugo Green | 1892–1960 | Man in a 1940s suit and hat at a desk with maps and a copy of the Green Book, Harlem window behind. |
 
 ## Locations (8)

@@ -29,6 +29,7 @@ import {
   locationWinner,
   playerOrder,
   totalForce,
+  threatForceNeeded,
   validatePlan,
 } from './query';
 import type { CharacterInstance, GameEvent, GameState, MatchResult, PlayAction, PlayerId, ResolveOutput, ThreatInstance, TurnPlan } from './types';
@@ -55,6 +56,7 @@ function setback(state: GameState, p: PlayerId, reason: string, events: GameEven
 function isProtected(state: GameState, c: CharacterInstance): boolean {
   if (state.players[c.owner].defendedLocation === c.location) return true;
   if (hasEstablished(state, c.owner, c.location, 'noDisplaceHere').length) return true;
+  if (hasEstablished(state, c.owner, c.location, 'sanctuary').length) return true;
   if (c.relocatedTurn === state.turn && hasEstablishedAnywhere(state, c.owner, 'relocatedNoDisplace').length) return true;
   return false;
 }
@@ -318,6 +320,99 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       }
       break;
     }
+    case 'refreshOpposingGate': {
+      drawCard(state, p);
+      const targets = charsAt(state, loc, opp, 'gate').filter((x) => x.ready);
+      const target = targets.sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];
+      if (target && !isProtected(state, target)) {
+        target.ready = false;
+        target.arrivedTurn = state.turn;
+        say(`draws a card and tricks ${charDef(target.defId).name} into waiting again.`);
+      } else {
+        say('draws a card.');
+      }
+      break;
+    }
+    case 'challengeAllGates': {
+      const targets = charsAt(state, loc, opp, 'gate');
+      let hits = 0;
+      for (const t of targets) {
+        if (def.force > charDef(t.defId).force && !isProtected(state, t) && displace(state, t, 'Shango', events)) hits++;
+      }
+      say(hits ? `thunder displaces ${hits} opposing Gate Character${hits > 1 ? 's' : ''}.` : 'thunder rolls, but nobody here is weaker.');
+      break;
+    }
+    case 'permInfluenceOther': {
+      const others = charsAt(state, loc, p).filter((x) => x.uid !== c.uid);
+      const best = others.sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];
+      if (best) {
+        best.permInfluence += eff.amount;
+        say(`${charDef(best.defId).name} gains +${eff.amount} Influence permanently.`);
+      } else say('no other friendly Character here.');
+      break;
+    }
+    case 'moveFriendlyInsideHere': {
+      const t = revealTarget?.charUid ? state.characters[revealTarget.charUid] : undefined;
+      if (!t || t.owner !== p || t.zone !== 'inside' || t.location === loc) {
+        say('no Character to bring across.');
+        break;
+      }
+      const from = t.location;
+      const roomInside = insideOpen(state, loc, p);
+      const roomGate = gateOpen(state, loc, p);
+      t.location = loc;
+      t.relocatedTurn = state.turn;
+      t.blessedUid = undefined;
+      if (roomInside) {
+        t.zone = 'inside';
+        t.arrivedTurn = state.turn;
+        say(`brings ${charDef(t.defId).name} across from ${locName(state, from)}, straight Inside.`);
+      } else if (roomGate) {
+        t.zone = 'gate';
+        t.ready = true;
+        t.arrivedTurn = state.turn;
+        say(`brings ${charDef(t.defId).name} across from ${locName(state, from)} to the Gates, Ready.`);
+      } else {
+        t.location = from;
+        say(`could not bring ${charDef(t.defId).name} across: no room here.`);
+        break;
+      }
+      events.push({ type: 'moved', text: '', uid: t.uid, location: loc, data: { from, to: loc, reason: 'Yemoja' } });
+      break;
+    }
+    case 'confrontAllThreats': {
+      const threats = state.locations[loc].threats.filter((t) => !THREAT_BY_ID[t.defId].split || t.target === p);
+      if (!threats.length) {
+        say('no Threat here to confront.');
+        break;
+      }
+      for (const t of threats) confronts.push({ uid: c.uid, threatUid: t.uid, bonus: eff.bonus });
+      say(`confronts every Threat here with +${eff.bonus} Force.`);
+      break;
+    }
+    case 'displaceOpposingGate': {
+      const targets = charsAt(state, loc, opp, 'gate');
+      const target = targets.sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];
+      if (target && !isProtected(state, target)) {
+        say(`lures ${charDef(target.defId).name} away.`);
+        displace(state, target, 'Mami Wata', events);
+      } else say('nobody here to lure.');
+      break;
+    }
+    case 'sanctuaryReveal': {
+      let n = 0;
+      for (const x of charsAt(state, loc)) {
+        if (x.blockedEnterTurn === state.turn || (x.suppressedUntilTurn !== undefined && x.suppressedUntilTurn >= state.turn)) n++;
+        x.blockedEnterTurn = undefined;
+        x.suppressedUntilTurn = undefined;
+        if (x.zone === 'gate' && !x.ready) {
+          x.ready = true;
+          n++;
+        }
+      }
+      say(n ? `sanctuary: ${n} Character${n > 1 ? 's' : ''} freed or made Ready.` : 'sanctuary settles over the Location.');
+      break;
+    }
   }
 }
 
@@ -500,6 +595,10 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     };
     state.characters[c.uid] = c;
     if (loc.revealed && LOCATION_BY_ID[loc.defId]?.effect.type === 'readyOnArrival') c.ready = true;
+    for (const spider of hasEstablished(state, other(p), play.location, 'drawOnOpposingPlay')) {
+      drawCard(state, spider.owner);
+      events.push({ type: 'info', text: `${charDef(spider.defId).name} spins a story: ${state.players[spider.owner].handle} draws a card.`, uid: spider.uid, player: spider.owner });
+    }
     newChars.push({ p, c, target: play.target });
     events.push({
       type: 'played',
@@ -562,8 +661,9 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
         player: p,
         data: { from, to: r.to, reason: 'relocation' },
       });
-      if (outInside) {
-        enterInside(state, c, events, 'arrives Inside (Green Book) at');
+      const inInside = hasEstablished(state, p, r.to, 'relocatedInInside').length > 0 && insideOpen(state, r.to, p);
+      if (outInside || inInside) {
+        enterInside(state, c, events, outInside ? 'arrives Inside (Green Book) at' : 'arrives Inside (Yemoja) at');
       } else if (destDef?.effect.type === 'firstRelocatedEnters' && !dest.firstRelocatedThisTurn) {
         dest.firstRelocatedThisTurn = c.uid;
         enterInside(state, c, events, 'enters immediately (Great Migration) at');
@@ -621,12 +721,13 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       const def = THREAT_BY_ID[t.defId];
       const f = forceByThreat.get(t.uid);
       let cleared = false;
+      const needed = threatForceNeeded(state, t);
       if (f) {
         if (def.requiresBoth) cleared = f.A >= 1 && f.B >= 1;
-        else cleared = f.A + f.B >= t.forceRequired;
+        else cleared = f.A + f.B >= needed;
       }
       if (!cleared) {
-        if (f) events.push({ type: 'threatActs', text: `${threatName(state, t)} at ${locName(state, loc.index)} holds (${f.A + f.B}/${t.forceRequired} Force).`, location: loc.index });
+        if (f) events.push({ type: 'threatActs', text: `${threatName(state, t)} at ${locName(state, loc.index)} holds (${f.A + f.B}/${needed} Force).`, location: loc.index });
         remaining.push(t);
         continue;
       }
@@ -657,6 +758,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       if (def.effect === 'zeroGateInfluence') {
         for (const p of PLAYERS) {
           if (t.target && t.target !== p) continue;
+          if (hasEstablished(state, p, loc.index, 'sanctuary').length) continue;
           if (charsAt(state, loc.index, p, 'gate').length) setback(state, p, `${def.name} silences Gate Characters at ${locName(state, loc.index)}`, events);
         }
       }
@@ -691,7 +793,8 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     if (c.zone !== 'gate' || c.ready) continue;
     const loc = state.locations[c.location];
     const ldef = loc.revealed ? LOCATION_BY_ID[loc.defId] : undefined;
-    if (c.arrivedTurn < state.turn || ldef?.effect.type === 'readyOnArrival') {
+    const organized = hasEstablished(state, c.owner, c.location, 'freshReadyHere').length > 0;
+    if (c.arrivedTurn < state.turn || organized || ldef?.effect.type === 'readyOnArrival') {
       c.ready = true;
       events.push({ type: 'ready', text: `${name(state, c)} is Ready to enter ${locName(state, c.location)}.`, uid: c.uid, player: c.owner });
     }
