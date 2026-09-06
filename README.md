@@ -20,7 +20,7 @@ src/engine/      Pure TypeScript game engine. No React. Deterministic, seeded.
   content/         Data-driven Characters, Locations, Threats, Events, preset decks
   setup.ts         createMatch(seed), turn start, threat spawning
   query.ts         Influence, Force, capacity, legal-action API, plan validation
-  resolve.ts       resolveTurn(state, {A, B}) → next state + ordered events; Stand on Business response
+  resolve.ts       resolveTurn(state, {A, B}) → next state + ordered events; pending Stand on Business raises land here
   view.ts          viewFor(state, player): the redacted view every player (human UI and AI) receives
 src/ai/          Harborlight. Plans from the redacted view only; simulates candidates with the real engine.
 src/ui/          React presentation. Renders views, collects a TurnPlan, animates the event feed.
@@ -35,7 +35,7 @@ The engine never imports React. The UI never touches the true `GameState` except
 
 - **Plan**: drag a card onto a Location, drag a Ready Character from your Gates into the Location, drag an Established Character to another Location, drag any Character onto a Threat. Tapping opens the same actions in a sheet. Then **Lock It In**. Two minutes per turn; timeout locks whatever you had.
 - **Win**: lead Influence at two of the three Locations after Turn 9.
-- **Stakes**: Stand on Business once per player to double the match (1 → 2 → 4). It also extends the match to ten turns, and whoever stood can no longer Step Off. The other side Continues or Steps Off.
+- **Stakes**: Stand on Business once per player to double the match (1 → 2 → 4). It also extends the match to ten turns, and whoever stood can no longer Step Off. The raise lands one turn later, Marvel Snap style: the other side gets a full turn to Step Off at the old price, keep playing, or Stand back.
 
 Developer tools (`?dev=1` or the button on the start screen): fixed seeds, AI reasoning log (every candidate plan, score, chosen plan and tier), analytics summary/export, full event log, the true state, generic placeholder names (Test A), and a local two-player pass-the-device mode (Phase 2).
 
@@ -46,14 +46,14 @@ Developer tools (`?dev=1` or the button on the start screen): fixed seeds, AI re
 - **Nine turns** (ten after Stand on Business) with 12-card decks: the draw simply stops when the deck is empty, so the last turn or two are played from hand. If nine turns stick, the deck should probably grow to 14.
 
 - **Gate wait timing.** A Character played on turn N is Fresh through turn N+1's planning and becomes Ready at the end of N+1, so it can enter on N+2. This is the reading that makes "becomes Ready immediately" effects (Harriet, Organizer, Juneteenth) worth a full turn. If playtesting says the wait is too long, the one-line change is in the cleanup step of `resolve.ts`.
-- **Stand on Business** extends the match to ten turns and removes Step Off for the player who stood. The response happens after the turn resolves (the raise is part of the hidden plan), so the responder decides with the new board in view. A raise on the final turn is answered before the result is final.
+- **Stand on Business** extends the match to ten turns and removes Step Off for the player who stood. The raise is part of the hidden plan and takes effect at the end of the *following* turn. Nobody is forced into a yes/no modal: the other player plans a normal turn with a banner showing the pending raise, and Stepping Off during that turn costs only the old Stakes. Standing back doubles again (max 4). A Stand on turn 9 extends to turn 10 and lands with the final result.
 - **Confrontation** is a planned action: commit Characters at a Threat's Location; they cannot enter or relocate that turn. Shared Threats sum both players' Force in one turn; split Threats need the owner first, then Assist is offered.
-- **"History moves"**: at the start of Turn 3 one random Threat (Patrol, Complicity or Housing Restriction) appears at a revealed Location without one. Greenwood spawns a Supremacist Mob on Turn 4. Harpers Ferry reveals with Slave Catchers.
+- **"History moves"**: at the start of Turn 3 one random Threat (Patrol, Complicity or Housing Restriction) appears at a revealed Location without one. Greenwood spawns a Mob on Turn 4. Harpers Ferry reveals with Paddy Rollers.
 - **Reparations** counts for final scoring when played on the final turn (temporary Influence is scored before cleanup).
 - **Location scoring with two ties or a Lost Location**: whoever won more Locations wins; if equal, the brief's tiebreaks apply.
 - **Katherine Johnson's** private reveal is stored per player and redacted from the opponent's view; the AI is allowed to use it exactly as a human would.
 - **Victor Hugo Green** (the Green Book) lets relocations out of his Location arrive Inside, the interior-to-interior answer to Sundown Town. **Sojourner Truth** replaces the "selected additional historical figures" slot to give the pool a Suppress effect. **Ida B. Wells, Queen Nzinga, Toussaint Louverture, Marcus Garvey, Bessie Coleman** round out the sixteen.
-- **Sundown Town** is drawn about a third as often as other Locations and does nothing on the turn it reveals. **Gary, Indiana** (Steel and Soul) joins the pool. **Slave Catcher** is one shared Threat "in the area" rather than one per player.
+- **Sundown Town** is drawn about a third as often as other Locations and does nothing on the turn it reveals. **Gary, Indiana** (Steel and Soul) joins the pool. **Paddy Roller** is one shared Threat "in the area" rather than one per player.
 - Player Gates are shown under each Location panel (the wireframe omitted them; the brief requires them).
 
 ## Harborlight

@@ -55,8 +55,8 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
         <h2>Stakes</h2>
         <ul>
           <li>Matches start at 1 Stake. Either player may <b>Stand on Business</b> once to double it (1 → 2, then 2 → 4). Standing extends the match to <b>ten turns</b>, and whoever stood can no longer Step Off.</li>
-          <li>The other player must <b>Continue</b> or <b>Step Off</b>. Stepping off immediately loses the previously locked Stakes.</li>
-          <li><b>Step Off</b> is surrender and is always available.</li>
+          <li>A Stand is part of your hidden plan and lands <b>one turn later</b>. The other player is never forced to answer: they get a full turn to <b>Step Off</b> for the old Stakes, keep playing at the new Stakes, or <b>Stand back</b> and double it again.</li>
+          <li><b>Step Off</b> is surrender at the current Stakes. Stepping off during the grace turn is the cheap exit.</li>
         </ul>
         <h2>Resolution order</h2>
         <ol>

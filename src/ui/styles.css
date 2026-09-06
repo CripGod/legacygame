@@ -221,7 +221,16 @@ button.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
   min-height: 0;
   position: relative;
 }
-.location > * { flex: none; }
+.location > * { flex: none; position: relative; z-index: 1; }
+.location .loc-bg { position: absolute; inset: 0; z-index: 0; border-radius: var(--radius); overflow: hidden; pointer-events: none; }
+.location .loc-bg .loc-bg-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
+.location .loc-bg::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(12,14,20,0.18) 0%, rgba(12,14,20,0.62) 22%, rgba(12,14,20,0.8) 55%, rgba(12,14,20,0.88) 100%);
+}
+.location.lead-A .loc-bg::after { background: linear-gradient(to right, var(--cA-dim), transparent 55%), linear-gradient(to bottom, rgba(12,14,20,0.18) 0%, rgba(12,14,20,0.62) 22%, rgba(12,14,20,0.8) 55%, rgba(12,14,20,0.88) 100%); }
+.location.lead-B .loc-bg::after { background: linear-gradient(to left, var(--cB-dim), transparent 55%), linear-gradient(to bottom, rgba(12,14,20,0.18) 0%, rgba(12,14,20,0.62) 22%, rgba(12,14,20,0.8) 55%, rgba(12,14,20,0.88) 100%); }
+.location.lost .loc-bg .loc-bg-img { filter: grayscale(0.8) brightness(0.6); }
 .location .art { border-radius: calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0; }
 .location .loc-rule { margin-top: auto; }
 .location.lead-A { border-color: var(--cA); background: linear-gradient(to right, var(--cA-dim), var(--panel) 55%); }
@@ -230,8 +239,9 @@ button.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 .location.won-B { background: var(--cB-dim); }
 .location.lost { border-color: var(--danger); }
 .art {
-  flex: 1 1 0 !important;
-  min-height: 22px;
+  /* Fixed band so hidden and revealed panels share one layout; spare height goes above the rule box. */
+  flex: 1 1 auto !important;
+  min-height: 20px; max-height: clamp(40px, 11vh, 96px);
   display: grid; place-items: center;
   font-weight: 900; font-size: clamp(13px, min(2vw, 2.6vh), 24px); color: rgba(255,255,255,0.8);
   cursor: pointer; position: relative;
@@ -283,7 +293,9 @@ button.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 .line.won-A .fillA { width: 100% !important; }
 .line.won-B .fillB { width: 100% !important; }
 .threats { display: flex; flex-wrap: wrap; gap: 3px; padding: 2px 6px; min-height: 0; }
-.threats:empty { display: none; }
+/* Reserved row so a Threat appearing never shifts the rest of the panel. */
+.threats { min-height: 30px; }
+.in-effect { min-height: 16px; }
 .threat {
   border: 1px solid var(--danger);
   color: #ffb3ae;
@@ -301,10 +313,10 @@ button.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 .threat span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .threat.confronting { box-shadow: 0 0 0 2px var(--ok); }
 .loc-rule {
-  margin: 4px 6px 6px; padding: 5px 8px;
-  border: 1px solid var(--line-2); border-radius: 6px; background: rgba(0,0,0,0.25);
+  margin: 2px 6px 5px; padding: 3px 8px;
+  border: 1px solid var(--line-2); border-radius: 6px; background: rgba(0,0,0,0.35);
   font-size: clamp(8px, 0.9vw, 13px); color: #d5d8e0; line-height: 1.25; text-align: center;
-  overflow: hidden; align-self: end; cursor: pointer;
+  overflow: hidden; align-self: stretch; cursor: pointer;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
 }
 @media (max-width: 700px) {
@@ -474,6 +486,11 @@ button.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 .option { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; }
 .option.on { border-color: var(--ok); }
 .stand-title { font-size: 28px; font-weight: 900; letter-spacing: 0.08em; text-align: center; }
+.hint.stand-banner { grid-area: hint; justify-self: center; max-width: 900px; text-align: center; font-size: 13px; color: #ffe2a8; background: rgba(255,194,26,0.12); border: 1px solid rgba(255,194,26,0.5); border-radius: 8px; padding: 5px 10px; margin: 0 0 4px; }
+.coin.raised { border-color: #ffc21a; box-shadow: 0 0 0 2px rgba(255,194,26,0.35); }
+.coin em { font-style: normal; font-size: 10px; color: #ffc21a; margin-left: 1px; }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(229,83,75,0.55); } 50% { box-shadow: 0 0 0 6px rgba(229,83,75,0); } }
+button.pulse { animation: pulse 1.6s ease-out infinite; }
 
 /* ---------- Coach ---------- */
 .coach {
@@ -591,6 +608,12 @@ body.dragging { cursor: grabbing; user-select: none; }
 /* Artwork */
 .art { overflow: hidden; }
 .art .art-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.9; }
+.location .art.reveal-anim { background: transparent !important; border-bottom-color: rgba(255,255,255,0.12); }
+.location .art.reveal-anim .art-name { font-size: clamp(14px, min(2.2vw, 2.8vh), 26px); color: #fff; }
+.location .slot { background: rgba(12,14,20,0.35); }
+.location .influence, .location .threats { position: relative; }
+.threat .threat-thumb { width: 18px; height: 18px; border-radius: 50%; object-fit: cover; flex: none; border: 1px solid rgba(255,255,255,0.35); }
+.threat-art { width: min(60vw, 220px); height: min(60vw, 220px); object-fit: cover; border-radius: 12px; box-shadow: 0 6px 16px rgba(0,0,0,0.5); }
 .art .art-name { position: relative; z-index: 1; text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 2px #000; }
 .art .era-tag { z-index: 1; text-shadow: 0 1px 4px #000; }
 .pic .pic-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }

@@ -77,6 +77,7 @@ export function createMatch(opts: MatchOptions): GameState {
     characters: {},
     initiative: nextInt(rng, 2) === 0 ? 'A' : 'B',
     stakes: 1,
+    pendingRaises: [],
     maxTurns: TURNS,
     leadHistory: [],
     nextUid: 1,

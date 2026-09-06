@@ -1,4 +1,4 @@
-import { CARD_BY_ID, PLANNING_SECONDS, type GameState, type PlayerId } from '../../engine';
+import { CARD_BY_ID, PLANNING_SECONDS, type GameState, type PlayerId, effectiveStakes } from '../../engine';
 import { initials, useDisplay } from '../display';
 import { tip, HINTS } from '../tip';
 import { Art } from './Art';
@@ -58,8 +58,11 @@ export function Hud({ view, me, secondsLeft, paused, onProfile, onLog, hasLog, b
         <div className="turn-label">Turn {Math.min(view.turn, view.maxTurns)} / {view.maxTurns}</div>
         <div className="hud-mid">
           <TimerRing seconds={secondsLeft} paused={paused} />
-          <div className="coin" {...tip(HINTS.stakes)}>
-            <span>{view.stakes}</span>
+          <div className={`coin ${view.pendingRaises.length ? 'raised' : ''}`} {...tip(view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes)}>
+            <span>
+              {view.stakes}
+              {view.pendingRaises.length > 0 && <em>→{effectiveStakes(view)}</em>}
+            </span>
             <small>stake{view.stakes > 1 ? 's' : ''}</small>
           </div>
           <button className="coin info" disabled={!hasLog} onClick={onLog} {...tip('What happened last turn, step by step.')} aria-label="Last turn log">

@@ -6,18 +6,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   createMatch,
   resolveTurn,
-  respondToStand,
   viewFor,
   filterEvents,
   emptyPlan,
-  other,
   PLANNING_SECONDS,
   type GameEvent,
   type GameState,
   type PlayerId,
   type TurnPlan,
 } from '../engine';
-import { planTurn, respondToStandAi, recordAi, aiSummonProposal, aiAcceptSummon } from '../ai/harborlight';
+import { planTurn, recordAi, aiSummonProposal, aiAcceptSummon } from '../ai/harborlight';
 import { locName } from '../engine';
 import { recordMatch } from '../analytics/analytics';
 
@@ -50,7 +48,6 @@ export interface MatchController {
   handoff: PlayerId | null;
   takeDevice: () => void;
   lockIn: () => void;
-  respondStand: (continueMatch: boolean) => void;
   newMatch: (seed?: number) => void;
   seed: number;
   trueState: GameState;
@@ -133,16 +130,9 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
 
   const resolveWithPlans = useCallback(
     (state: GameState, plans: Record<PlayerId, TurnPlan>) => {
-      let out = resolveTurn(state, plans);
-      let events = out.events;
-      let next = out.state;
-      // AI answers a Stand on Business immediately.
-      if (mode === 'ai' && next.phase === 'standResponse' && next.pendingStand?.by === 'A') {
-        const r = respondToStandAi(viewFor(next, 'B'), 'B');
-        const res = respondToStand(next, 'B', r.continueMatch);
-        next = res.state;
-        events = [...events, ...res.events];
-      }
+      const out = resolveTurn(state, plans);
+      const events = out.events;
+      const next = out.state;
       finishResolution(next, events, 'A');
       if (mode === 'hotseat') setPerspective('A');
     },
@@ -179,26 +169,6 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
     setSecondsLeft(PLANNING_SECONDS);
   }, [handoff]);
 
-  const respondStand = useCallback(
-    (continueMatch: boolean) => {
-      const state = stateRef.current;
-      if (state.phase !== 'standResponse' || !state.pendingStand) return;
-      const responder = other(state.pendingStand.by);
-      const res = respondToStand(state, responder, continueMatch);
-      finishResolution(res.state, res.events, responder);
-      if (mode === 'hotseat') setPerspective('A');
-    },
-    [finishResolution, mode],
-  );
-
-  // Hotseat: the responder to a Stand must take the device.
-  useEffect(() => {
-    if (mode !== 'hotseat' || busy) return;
-    if (trueState.phase === 'standResponse' && trueState.pendingStand) {
-      const responder = other(trueState.pendingStand.by);
-      if (perspective !== responder && !handoff) setHandoff(responder);
-    }
-  }, [mode, busy, trueState, perspective, handoff]);
 
   const sendEmote = useCallback(
     (text: string) => {
@@ -314,7 +284,6 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
     handoff,
     takeDevice,
     lockIn,
-    respondStand,
     newMatch,
     seed,
     trueState,

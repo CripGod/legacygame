@@ -168,7 +168,7 @@ function InEffect({ view, index, me }: { view: GameState; index: number; me: Pla
       .map((c) => `${placeholders ? charDef(c.defId).short : charDef(c.defId).short}: ${shortEffect(charDef(c.defId).established!.effect.type)}`);
     return { p, items };
   });
-  if (!rows.some((r) => r.items.length)) return null;
+  if (!rows.some((r) => r.items.length)) return <div className="in-effect empty" />;
   return (
     <div className="in-effect">
       {rows.map(
@@ -255,6 +255,11 @@ export function Battlefield(props: BattlefieldProps) {
           >
             <GateStrip {...common} owner={opp} index={loc.index} label="Opponent Gates" right={title} />
             <div className={cls}>
+              {loc.revealed && !placeholders && (
+                <div className="loc-bg" aria-hidden>
+                  <Art kind="locations" id={loc.defId} className="loc-bg-img" fallback={null} alt="" />
+                </div>
+              )}
               <div
                 key={loc.revealed ? 'r' : 'h'}
                 className={`art ${loc.revealed ? 'reveal-anim' : 'hidden-art'}`}
@@ -264,7 +269,6 @@ export function Battlefield(props: BattlefieldProps) {
                   onLocationInfo(loc.index);
                 }}
               >
-                {loc.revealed && !placeholders && <Art kind="locations" id={loc.defId} className="art-img" fallback={null} alt="" />}
                 <span className="art-name">{loc.revealed ? locationName(loc.defId, placeholders) : '?'}</span>
                 {loc.revealed && def.transformsInto && loc.revealedTurn !== undefined && (
                   <span className="sail-tag" {...tip(`${def.name} arrives in ${Math.max(0, loc.revealedTurn + def.transformsInto.afterTurns - view.turn)} turn(s): everyone aboard gains +1 Influence and Gate Characters walk straight in.`)}>
@@ -304,6 +308,7 @@ export function Battlefield(props: BattlefieldProps) {
                         onThreat(t.uid);
                       }}
                     >
+                      {!placeholders && <Art kind="threats" id={t.defId} className="threat-thumb" fallback={null} alt="" />}
                       <span>
                         ⚠ {threatLabel(t.defId, placeholders)}
                         {tdef.split && t.target ? ` · ${t.target === me ? 'yours' : 'theirs'}` : ' · in the area'}

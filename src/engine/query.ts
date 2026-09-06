@@ -11,7 +11,12 @@ import type {
   EstablishedEffect,
   LocationDef,
 } from './types';
-import { GATE_CAPACITY, INSIDE_CAPACITY, PLAYERS, other, MAX_STAKES } from './types';
+import { GATE_CAPACITY, INSIDE_CAPACITY, PLAYERS, other, MAX_STAKES, EXTENDED_TURNS } from './types';
+
+/** Stakes once every pending Stand on Business has taken effect. */
+export function effectiveStakes(state: GameState): number {
+  return Math.min(MAX_STAKES, state.stakes * 2 ** state.pendingRaises.length);
+}
 
 export function locDef(state: GameState, index: number): LocationDef {
   const loc = state.locations[index];
@@ -227,6 +232,10 @@ export interface LegalOptions {
   canStand: boolean;
   canStepOff: boolean;
   proposedStakes: number;
+  /** Stakes after pending raises land. */
+  pendingStakes: number;
+  /** What Stepping Off costs right now (raises land only after the turn resolves). */
+  stepOffCost: number;
   /** Locations where a joint Summon may be attempted this turn. */
   summonable: number[];
 }
@@ -281,7 +290,8 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
       confronts.push({ threatUid: t.uid, location: loc.index, chars, assist: isAssist(t, p) });
     }
   }
-  const canStand = !ps.standUsed && state.stakes < MAX_STAKES && !state.pendingStand;
+  const effective = effectiveStakes(state);
+  const canStand = !ps.standUsed && effective < MAX_STAKES && (state.turn < state.maxTurns || state.maxTurns < EXTENDED_TURNS);
   return {
     plays,
     enters,
@@ -292,7 +302,9 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
     canStand,
     summonable: state.locations.filter((l) => l.revealed && !l.lost && !l.sanctified && l.threats.length > 0 && mine.some((c) => c.location === l.index)).map((l) => l.index),
     canStepOff: !ps.cannotStepOff,
-    proposedStakes: Math.min(MAX_STAKES, state.stakes * 2),
+    proposedStakes: Math.min(MAX_STAKES, effective * 2),
+    pendingStakes: effective,
+    stepOffCost: state.stakes,
   };
 }
 

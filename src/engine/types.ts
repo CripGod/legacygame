@@ -245,7 +245,7 @@ export interface PlayerState {
   defendedLocation?: number;
 }
 
-export type Phase = 'planning' | 'standResponse' | 'ended';
+export type Phase = 'planning' | 'ended';
 
 export interface MatchResult {
   winner: PlayerId | null; // null = draw
@@ -277,7 +277,7 @@ export interface GameEvent {
     | 'ready'
     | 'influence'
     | 'stand'
-    | 'standResponse'
+    | 'stakes'
     | 'stepOff'
     | 'ended'
     | 'info';
@@ -310,7 +310,8 @@ export interface GameState {
   stakes: number;
   /** Number of turns in this match (6, or 7 after Stand on Business). */
   maxTurns: number;
-  pendingStand?: { by: PlayerId; proposed: number };
+  /** Stands on Business that have not taken effect yet: each doubles the Stakes at the end of the turn after it was declared. */
+  pendingRaises: { by: PlayerId; declaredTurn: number }[];
   result?: MatchResult;
   leadHistory: LeadRecord[];
   /** Counter for generating uids. */
@@ -329,6 +330,7 @@ export interface MatchStats {
   assists: Record<PlayerId, { offered: number; taken: number }>;
   leadChanges: number;
   finalTurnFlips: number;
+  /** accepted = the raise took effect (the other side did not Step Off first). */
   standTurns: { player: PlayerId; turn: number; proposed: number; accepted: boolean }[];
   summons: { turn: number; location: number; success: boolean }[];
   stepOffTurn?: { player: PlayerId; turn: number };

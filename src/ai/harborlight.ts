@@ -478,7 +478,19 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
     }
   }
 
-  const plan: TurnPlan = { ...chosen.plan, standOnBusiness, summon: agreedSummon !== undefined && opts.summonable.includes(agreedSummon) ? { location: agreedSummon } : undefined };
+  // The opponent Stood on Business: this is the one cheap turn to Step Off. Stay when the board is worth playing.
+  let stepOff = false;
+  const raisedOnMe = view.pendingRaises.some((r) => r.by !== p);
+  if (raisedOnMe && opts.canStepOff && view.turn < view.maxTurns) {
+    if (winEstimate < tuning.continueThreshold) {
+      stepOff = true;
+      standDecision = `steps off (${(winEstimate * 100).toFixed(0)}%, pays ${opts.stepOffCost})`;
+    } else {
+      standDecision += ` · stays at ${opts.pendingStakes}`;
+    }
+  }
+
+  const plan: TurnPlan = { ...chosen.plan, standOnBusiness, stepOff, summon: agreedSummon !== undefined && opts.summonable.includes(agreedSummon) ? { location: agreedSummon } : undefined };
   const debug: AiDebug = {
     turn: view.turn,
     player: p,
@@ -491,11 +503,6 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
     elapsedMs: Date.now() - t0,
   };
   return { plan, debug };
-}
-
-export function respondToStandAi(view: GameState, p: PlayerId, tuning: AiTuning = DEFAULT_TUNING): { continueMatch: boolean; winEstimate: number } {
-  const winEstimate = estimateWinChance(view, p);
-  return { continueMatch: winEstimate >= tuning.continueThreshold, winEstimate };
 }
 
 /** Ring buffer of AI decisions for the developer panel. */

@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import {
   createMatch,
   resolveTurn,
-  respondToStand,
   viewFor,
   emptyPlan,
   legalOptions,
@@ -14,13 +13,12 @@ import {
   PRESET_DECKS,
   validateDeck,
   threatForceNeeded,
-  other,
   type GameState,
   type PlayerId,
   type TurnPlan,
   type CharacterInstance,
 } from '../src/engine';
-import { planTurn, respondToStandAi } from '../src/ai/harborlight';
+import { planTurn } from '../src/ai/harborlight';
 
 function pass(): TurnPlan {
   return emptyPlan();
@@ -238,13 +236,13 @@ describe('threats', () => {
     s = resolveTurn(s, { A: { ...pass(), confronts: [{ uid: a.uid, threatUid: 'cc' }] }, B: { ...pass(), confronts: [{ uid: b.uid, threatUid: 'cc' }] } }).state;
     expect(s.locations[0].threats).toHaveLength(0);
   });
-  it('Supremacist Mob displaces the leader and eventually loses the Location', () => {
+  it('Mob displaces the leader and eventually loses the Location', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'black_star'], revealAll: true });
     s.turn = 3;
     addChar(s, 'mansa_musa', 'A', 0, 'inside');
     s = resolveTurn(s, { A: pass(), B: pass() }).state; // → turn 4: Mob spawns at Greenwood
     expect(s.turn).toBe(4);
-    expect(s.locations[0].threats.some((t) => t.defId === 'supremacist_mob')).toBe(true);
+    expect(s.locations[0].threats.some((t) => t.defId === 'mob')).toBe(true);
     s = resolveTurn(s, { A: pass(), B: pass() }).state; // Mob displaces Mansa
     expect(charsAt(s, 0, 'A')).toHaveLength(0);
     expect(s.players.A.setbacks).toBe(1);
@@ -309,7 +307,7 @@ describe('Summon', () => {
     addChar(s, 'og', 'B', 0, 'inside'); // Force 3
     addChar(s, 'mansa_musa', 'A', 1, 'inside');
     addChar(s, 'ida_b_wells', 'B', 2, 'inside');
-    s.locations[0].threats.push({ uid: 'mob', defId: 'supremacist_mob', location: 0, forceRequired: 6, spawnedTurn: 4 });
+    s.locations[0].threats.push({ uid: 'mob', defId: 'mob', location: 0, forceRequired: 6, spawnedTurn: 4 });
     expect(legalOptions(s, 'A').summonable).toEqual([0]);
     // Only one side commits: nothing happens.
     let out = resolveTurn(s, { A: { ...pass(), summon: { location: 0 } }, B: pass() });
@@ -384,9 +382,9 @@ describe('locations', () => {
     addChar(s, 'organizer', 'A', 0, 'gate');
     expect(influenceAt(s, 0).A).toBe(3 + 3 + 4 + 5 + 2 + 5 + 1); // +1 from Zora's Gate bonus
   });
-  it('Slave Catcher is shared: it silences both players\' Gate Characters', () => {
+  it('Paddy Roller is shared: it silences both players\' Gate Characters', () => {
     const s = rig(createMatch({ seed: 2 }), { locations: ['harpers_ferry', 'great_migration', 'black_star'], revealAll: true });
-    s.locations[0].threats.push({ uid: 'sc', defId: 'slave_catcher', location: 0, forceRequired: 2, spawnedTurn: 1 });
+    s.locations[0].threats.push({ uid: 'sc', defId: 'paddy_roller', location: 0, forceRequired: 2, spawnedTurn: 1 });
     addChar(s, 'og', 'A', 0, 'gate');
     addChar(s, 'organizer', 'B', 0, 'gate');
     expect(influenceAt(s, 0)).toEqual({ A: 0, B: 0 });
@@ -401,42 +399,55 @@ describe('match end', () => {
     expect(out.state.result?.winner).toBe('B');
     expect(out.state.result?.reason).toBe('stepOff');
   });
-  it('Stand on Business raises stakes 1→2 on Continue and loses the old stake on Step Off', () => {
+  it('Stand on Business lands one turn later; the other side can Step Off at the old price first', () => {
     let s = createMatch({ seed: 4 });
     s = resolveTurn(s, { A: { ...pass(), standOnBusiness: true }, B: pass() }).state;
-    expect(s.phase).toBe('standResponse');
-    expect(s.pendingStand).toEqual({ by: 'A', proposed: 2 });
-    const cont = respondToStand(s, 'B', true).state;
+    expect(s.phase).toBe('planning');
+    expect(s.stakes).toBe(1);
+    expect(s.pendingRaises).toEqual([{ by: 'A', declaredTurn: 1 }]);
+    expect(legalOptions(s, 'B').stepOffCost).toBe(1);
+    expect(legalOptions(s, 'B').pendingStakes).toBe(2);
+    // Cheap exit: B steps off during the grace turn and loses only 1.
+    const fled = resolveTurn(s, { A: pass(), B: { ...pass(), stepOff: true } }).state;
+    expect(fled.result?.stakes).toBe(1);
+    expect(fled.result?.winner).toBe('A');
+    expect(fled.stats.standTurns[0].accepted).toBe(false);
+    // Stay: the raise lands at the end of the grace turn.
+    const cont = resolveTurn(s, { A: pass(), B: pass() }).state;
     expect(cont.stakes).toBe(2);
+    expect(cont.pendingRaises).toEqual([]);
     expect(cont.phase).toBe('planning');
-    expect(cont.turn).toBe(2);
+    expect(cont.turn).toBe(3);
     expect(cont.maxTurns).toBe(10);
+    // Standing back doubles again for both.
+    const back = resolveTurn(cont, { A: pass(), B: { ...pass(), standOnBusiness: true } }).state;
+    expect(back.stakes).toBe(2);
+    const landed = resolveTurn(back, { A: pass(), B: pass() }).state;
+    expect(landed.stakes).toBe(4);
+    expect(legalOptions(landed, 'B').canStand).toBe(false);
     expect(cont.players.A.cannotStepOff).toBe(true);
     expect(legalOptions(cont, 'A').canStepOff).toBe(false);
     // The player who stood cannot back out: a Step Off plan is ignored.
     const tried = resolveTurn(cont, { A: { ...pass(), stepOff: true }, B: pass() }).state;
     expect(tried.phase).toBe('planning');
-    expect(tried.turn).toBe(3);
+    expect(tried.turn).toBe(4);
     expect(legalOptions(cont, 'A').canStand).toBe(false);
     expect(legalOptions(cont, 'B').proposedStakes).toBe(4);
-    const off = respondToStand(s, 'B', false).state;
-    expect(off.phase).toBe('ended');
-    expect(off.result?.winner).toBe('A');
-    expect(off.result?.stakes).toBe(1);
   });
   it('Stand on Business on the last turn extends the match by one', () => {
     let s = createMatch({ seed: 4 });
     for (let t = 1; t <= 8; t++) s = resolveTurn(s, { A: pass(), B: pass() }).state;
     expect(s.turn).toBe(9);
     s = resolveTurn(s, { A: pass(), B: { ...pass(), standOnBusiness: true } }).state;
-    expect(s.phase).toBe('standResponse');
     expect(s.result).toBeUndefined();
-    s = respondToStand(s, 'A', true).state;
     expect(s.turn).toBe(10);
     expect(s.phase).toBe('planning');
+    expect(s.stakes).toBe(1);
+    expect(legalOptions(s, 'A').canStand).toBe(false); // no room left to extend
     s = resolveTurn(s, { A: pass(), B: pass() }).state;
     expect(s.phase).toBe('ended');
     expect(s.result?.turn).toBe(10);
+    expect(s.result?.stakes).toBe(2); // the raise lands on the final turn
     expect(s.result?.stakes).toBe(2);
   });
   it('scores two of three Locations at the end of turn 9', () => {
@@ -463,9 +474,6 @@ describe('AI vs AI smoke', () => {
           expect(validatePlan(s, 'A', a)).toEqual([]);
           expect(validatePlan(s, 'B', b)).toEqual([]);
           s = resolveTurn(s, { A: a, B: b }).state;
-        } else {
-          const r: PlayerId = other(s.pendingStand!.by);
-          s = respondToStand(s, r, respondToStandAi(viewFor(s, r), r).continueMatch).state;
         }
       }
       expect(s.phase).toBe('ended');

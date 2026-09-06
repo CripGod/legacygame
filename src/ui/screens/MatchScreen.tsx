@@ -9,7 +9,7 @@ import { Hud } from '../components/Hud';
 import { Battlefield } from '../components/Battlefield';
 import { Hand } from '../components/Hand';
 import { Coach } from '../components/Coach';
-import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, StandResponseSheet, TargetSheet, ThreatSheet } from '../components/Sheets';
+import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, TargetSheet, ThreatSheet } from '../components/Sheets';
 import { guideDone, markGuideDone, suggest } from '../guide';
 import { EMOTES } from '../useMatch';
 import { cardName, locationName, useDisplay } from '../display';
@@ -431,7 +431,9 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     return 'Drag a card onto a Location (or tap card, then Location). One card per turn.';
   })();
 
-  const showStandResponse = view.phase === 'standResponse' && view.pendingStand && other(view.pendingStand.by) === me && !busy;
+  // The opponent Stood on Business and the raise has not landed yet: this is the one cheap turn to Step Off.
+  const raisedOnMe = planning && view.pendingRaises.some((r) => r.by !== me);
+  const stepOffLabel = `Step Off${opts.canStepOff && view.phase !== 'ended' ? ` (−${opts.stepOffCost})` : ''}`;
 
   return (
     <div className="app">
@@ -464,8 +466,14 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       </div>
       <div className="bottom">
         <Hand view={view} me={me} plan={plan} selected={selected} onSelect={selectCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} dragProps={dragProps} glow={guideCard} dropState={drop?.hand ? (drop.overKey === 'hand' ? 'over' : 'ok') : null} />
-        <div className="hint">
-          {selected && planning ? (
+        <div className={`hint ${raisedOnMe ? 'stand-banner' : ''}`}>
+          {raisedOnMe ? (
+            <span role="status">
+              <b>{view.players[other(me)].handle} STOOD ON BUSINESS.</b> Stakes go {view.stakes} → {opts.pendingStakes} after this turn.{' '}
+              {opts.canStepOff ? `Step Off now and lose only ${opts.stepOffCost}` : 'You stood too, so there is no backing out'}
+              {opts.canStand ? `, or Stand back to make it ${opts.proposedStakes}.` : '.'}
+            </span>
+          ) : selected && planning ? (
             <button className="small chip" onClick={() => setSheet({ kind: 'card', id: selected })}>
               ⓘ Inspect / send {cardName(selected, placeholders)}
             </button>
@@ -494,8 +502,8 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           )}
         </div>
         <div className="actions-left">
-          <button className="danger" disabled={view.phase === 'ended' || !opts.canStepOff} {...(opts.canStepOff ? {} : tip(HINTS.noStepOff))} onClick={() => setSheet({ kind: 'stepOff' })}>
-            Step Off
+          <button className={`danger ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}`} disabled={view.phase === 'ended' || !opts.canStepOff} {...(opts.canStepOff ? {} : tip(HINTS.noStepOff))} onClick={() => setSheet({ kind: 'stepOff' })}>
+            {stepOffLabel}
           </button>
         </div>
         <div className="lock-row">
@@ -509,8 +517,8 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           </button>
         </div>
         <div className="mobile-actions">
-          <button className="danger" disabled={view.phase === 'ended' || !opts.canStepOff} onClick={() => setSheet({ kind: 'stepOff' })}>
-            Step Off
+          <button className={`danger ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}`} disabled={view.phase === 'ended' || !opts.canStepOff} onClick={() => setSheet({ kind: 'stepOff' })}>
+            {stepOffLabel}
           </button>
           <button className="primary" disabled={!planning} onClick={m.lockIn}>
             LOCK IT IN
@@ -608,7 +616,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       {sheet?.kind === 'stepOff' && (
         <ConfirmSheet
           title="Step Off?"
-          body={`Stepping off surrenders the match. ${view.players[other(me)].handle} wins ${view.stakes} Stake${view.stakes > 1 ? 's' : ''}.`}
+          body={`Stepping off surrenders the match. ${view.players[other(me)].handle} wins ${opts.stepOffCost} Stake${opts.stepOffCost > 1 ? 's' : ''}.${raisedOnMe ? ` Stay and the match is worth ${opts.pendingStakes} from next turn.` : ''}`}
           confirmLabel="Step Off"
           danger
           onClose={() => setSheet(null)}
@@ -625,9 +633,9 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           body={
             plan.standOnBusiness
               ? 'Cancel your raise this turn?'
-              : `Raise the match from ${view.stakes} to ${opts.proposedStakes} Stakes${view.maxTurns < 10 ? ' and extend it to 10 turns' : ''}. Your opponent must Continue or Step Off. Once you stand you cannot Step Off, and you can only do this once per match.`
+              : `Raise the match from ${opts.pendingStakes} to ${opts.proposedStakes} Stakes${view.maxTurns < 10 ? ' and extend it to 10 turns' : ''}. The raise lands after next turn: your opponent gets one turn to Step Off for ${view.stakes}, or to Stand back and double it again. Once you stand you cannot Step Off, and you can only do this once per match.`
           }
-          confirmLabel={plan.standOnBusiness ? 'Cancel raise' : `Stand: ${view.stakes} → ${opts.proposedStakes}`}
+          confirmLabel={plan.standOnBusiness ? 'Cancel raise' : `Stand: ${opts.pendingStakes} → ${opts.proposedStakes}`}
           onClose={() => setSheet(null)}
           onConfirm={() => {
             setPlan((p) => ({ ...p, standOnBusiness: !p.standOnBusiness }));
@@ -635,7 +643,6 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           }}
         />
       )}
-      {showStandResponse && <StandResponseSheet view={view} me={me} onRespond={m.respondStand} />}
       {view.phase === 'ended' && !busy && (
         <div className="scrim">
           <div className="sheet center">

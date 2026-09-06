@@ -66,8 +66,8 @@ Zip layout: `art/characters/*.jpg`, `art/locations/*.jpg`, `art/threats/*.jpg`, 
 | `threats/segregationist_patrol.jpg` | Segregationist Patrol | Open Hostility | A whites-only sign and a patrol car at a checkpoint, no faces. 1950s. |
 | `threats/comfortable_complicity.jpg` | Comfortable Complicity | Complicit Beneficiary | A comfortable parlour, drawn curtains, a newspaper folded away from bad news. Quiet, warm, wrong. |
 | `threats/housing_restriction.jpg` | Housing Restriction | Systemic Pressure | A redlining map with a neighbourhood outlined in red, a covenant document, a for-sale sign. |
-| `threats/supremacist_mob.jpg` | Supremacist Mob | Crisis | Torches and shadows on a street at night, figures indistinct, smoke. Threatening, not explicit. |
-| `threats/slave_catcher.jpg` | Slave Catcher | Open Hostility | A wanted poster and a pair of shackles on a table, a lantern, 1850s. No person depicted. |
+| `threats/mob.jpg` | Mob | Crisis | Torches and shadows on a street at night, figures indistinct, smoke. Threatening, not explicit. |
+| `threats/paddy_roller.jpg` | Paddy Roller | Open Hostility | A wanted poster and a pair of shackles on a table, a lantern, 1850s. No person depicted. |
 
 ## Events (2)
 

@@ -1,8 +1,8 @@
 /**
  * Headless AI-vs-AI simulation for balancing. Usage: npm run sim -- [matches] [seed]
  */
-import { createMatch, resolveTurn, respondToStand, viewFor, other, type GameState, type PlayerId } from '../src/engine';
-import { planTurn, respondToStandAi } from '../src/ai/harborlight';
+import { createMatch, resolveTurn, viewFor, type GameState } from '../src/engine';
+import { planTurn } from '../src/ai/harborlight';
 
 const matches = Number(process.argv[2] ?? 100);
 const baseSeed = Number(process.argv[3] ?? 1);
@@ -17,10 +17,6 @@ export function playMatch(seed: number): GameState {
         B: planTurn(viewFor(state, 'B'), 'B').plan,
       };
       state = resolveTurn(state, plans).state;
-    } else if (state.phase === 'standResponse') {
-      const responder: PlayerId = other(state.pendingStand!.by);
-      const r = respondToStandAi(viewFor(state, responder), responder);
-      state = respondToStand(state, responder, r.continueMatch).state;
     }
   }
   return state;

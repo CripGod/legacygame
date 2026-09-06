@@ -15,6 +15,7 @@ import {
 } from '../../engine';
 import { cardName, locationName, threatLabel, useDisplay } from '../display';
 import { CardFace } from './CardFace';
+import { Art } from './Art';
 import { HINTS } from '../tip';
 
 export function Sheet({ children, onClose, title }: { children: ReactNode; onClose: () => void; title?: string }) {
@@ -210,6 +211,11 @@ export function ThreatSheet({
   const busy = new Set([...plan.enters, ...plan.relocations.map((r) => r.uid), ...plan.confronts.filter((c) => c.threatUid !== threatUid).map((c) => c.uid)]);
   return (
     <Sheet onClose={onClose} title={`${threatLabel(t.defId, placeholders)}${t.target ? ` · hunting ${view.players[t.target].handle}` : ''}`}>
+      {!placeholders && (
+        <div className="row" style={{ justifyContent: 'center' }}>
+          <Art kind="threats" id={t.defId} className="threat-art" fallback={null} alt={def.name} />
+        </div>
+      )}
       <div className="muted">{def.family} · at {locationName(locDef(view, loc.index).id, placeholders)}</div>
       <div>{def.text}</div>
       {!placeholders && <div className="muted" style={{ fontStyle: 'italic' }}>{def.blurb}</div>}
@@ -446,29 +452,3 @@ export function ConfirmSheet({ title, body, confirmLabel, danger, onConfirm, onC
   );
 }
 
-export function StandResponseSheet({ view, me, onRespond }: { view: GameState; me: PlayerId; onRespond: (cont: boolean) => void }) {
-  const ps = view.pendingStand!;
-  const canStepOff = !view.players[me].cannotStepOff;
-  return (
-    <div className="scrim">
-      <div className="sheet">
-        <div className="stand-title pA">STAND ON BUSINESS</div>
-        <div className="center">
-          <b>{view.players[ps.by].handle}</b> raises the match from {view.stakes} to <b>{ps.proposed}</b> Stakes. The match now runs {view.maxTurns} turns.
-        </div>
-        <div className="center muted">{canStepOff ? `Continue at ${ps.proposed} Stakes, or Step Off now and lose ${view.stakes}.` : 'You Stood on Business earlier, so there is no backing out.'}</div>
-        <div className="actions" style={{ justifyContent: 'center' }}>
-          {canStepOff && (
-            <button className="danger" onClick={() => onRespond(false)}>
-              Step Off (lose {view.stakes})
-            </button>
-          )}
-          <button className="primary" onClick={() => onRespond(true)}>
-            Continue at {ps.proposed}
-          </button>
-        </div>
-        <div className="muted center">{view.players[me].handle}, this is your call.</div>
-      </div>
-    </div>
-  );
-}

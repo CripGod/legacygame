@@ -33,8 +33,8 @@ export const THREATS: ThreatDef[] = [
     blurb: 'Redlining and restrictive covenants decided who could live where, and therefore who could build wealth.',
   },
   {
-    id: 'supremacist_mob',
-    name: 'Supremacist Mob',
+    id: 'mob',
+    name: 'Mob',
     family: 'Crisis',
     text: 'At the end of each turn, displaces the leading player\'s highest-Influence Character here. Unresolved for 2 turns: this Location is LOST. Neutralize with 6 Force in one turn (both players may contribute).',
     split: false,
@@ -44,14 +44,14 @@ export const THREATS: ThreatDef[] = [
     blurb: 'Tulsa, Wilmington, Rosewood, Elaine: organized violence aimed at exactly the people who were winning.',
   },
   {
-    id: 'slave_catcher',
-    name: 'Slave Catcher',
+    id: 'paddy_roller',
+    name: 'Paddy Roller',
     family: 'Open Hostility',
-    text: 'A Slave Catcher is in the area. While active, Gate Characters here contribute no Influence for either player. Neutralize with 2 Force in one turn (either player, or both together).',
+    text: 'A Paddy Roller is in the area. While active, Gate Characters here contribute no Influence for either player. Neutralize with 2 Force in one turn (either player, or both together).',
     split: false,
     force: 2,
     effect: 'zeroGateInfluence',
-    blurb: 'After the Fugitive Slave Act of 1850, no free state was safe from men paid by the head.',
+    blurb: 'Paddy rollers were the slave patrols: armed riders who stopped Black people on the road and demanded a pass. After the Fugitive Slave Act of 1850, no free state was safe from them either.',
   },
 ];
 
