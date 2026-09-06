@@ -10,6 +10,8 @@ export const other = (p: PlayerId): PlayerId => (p === 'A' ? 'B' : 'A');
 export type Zone = 'gate' | 'inside';
 
 export const TURNS = 6;
+/** Stand on Business extends the match to this many turns. */
+export const EXTENDED_TURNS = 7;
 export const GATE_CAPACITY = 2;
 export const INSIDE_CAPACITY = 5;
 export const STARTING_HAND = 4;
@@ -196,6 +198,8 @@ export interface PlayerState {
   discard: string[];
   setbacks: number;
   standUsed: boolean;
+  /** Once you Stand on Business you cannot Step Off. */
+  cannotStepOff?: boolean;
   solidarity: number;
   /** Katherine Johnson: index of the next Location to reveal. */
   knownNextReveal?: number;
@@ -264,6 +268,8 @@ export interface GameState {
   characters: Record<string, CharacterInstance>;
   initiative: PlayerId;
   stakes: number;
+  /** Number of turns in this match (6, or 7 after Stand on Business). */
+  maxTurns: number;
   pendingStand?: { by: PlayerId; proposed: number };
   result?: MatchResult;
   leadHistory: LeadRecord[];

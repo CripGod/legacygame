@@ -1,7 +1,7 @@
 import { makeRng, shuffle, nextInt, pick } from './rng';
 import { LOCATIONS, PRESET_DECKS, validateDeck, THREAT_BY_ID, RANDOM_THREAT_POOL, LOCATION_BY_ID } from './content';
 import type { GameState, PlayerId, PlayerState, LocationState, GameEvent, ThreatInstance } from './types';
-import { STARTING_HAND, PLAYERS } from './types';
+import { STARTING_HAND, PLAYERS, TURNS } from './types';
 
 export interface MatchOptions {
   seed: number;
@@ -61,6 +61,7 @@ export function createMatch(opts: MatchOptions): GameState {
     characters: {},
     initiative: nextInt(rng, 2) === 0 ? 'A' : 'B',
     stakes: 1,
+    maxTurns: TURNS,
     leadHistory: [],
     nextUid: 1,
     lastEvents: [],

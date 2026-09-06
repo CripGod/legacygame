@@ -310,18 +310,21 @@ export function ConfirmSheet({ title, body, confirmLabel, danger, onConfirm, onC
 
 export function StandResponseSheet({ view, me, onRespond }: { view: GameState; me: PlayerId; onRespond: (cont: boolean) => void }) {
   const ps = view.pendingStand!;
+  const canStepOff = !view.players[me].cannotStepOff;
   return (
     <div className="scrim">
       <div className="sheet">
         <div className="stand-title pA">STAND ON BUSINESS</div>
         <div className="center">
-          <b>{view.players[ps.by].handle}</b> raises the match from {view.stakes} to <b>{ps.proposed}</b> Stakes.
+          <b>{view.players[ps.by].handle}</b> raises the match from {view.stakes} to <b>{ps.proposed}</b> Stakes. The match now runs {view.maxTurns} turns.
         </div>
-        <div className="center muted">Continue at {ps.proposed} Stakes, or Step Off now and lose {view.stakes}.</div>
+        <div className="center muted">{canStepOff ? `Continue at ${ps.proposed} Stakes, or Step Off now and lose ${view.stakes}.` : 'You Stood on Business earlier, so there is no backing out.'}</div>
         <div className="actions" style={{ justifyContent: 'center' }}>
-          <button className="danger" onClick={() => onRespond(false)}>
-            Step Off (lose {view.stakes})
-          </button>
+          {canStepOff && (
+            <button className="danger" onClick={() => onRespond(false)}>
+              Step Off (lose {view.stakes})
+            </button>
+          )}
           <button className="primary" onClick={() => onRespond(true)}>
             Continue at {ps.proposed}
           </button>

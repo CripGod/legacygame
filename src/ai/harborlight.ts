@@ -21,7 +21,6 @@ import {
   other,
   resolveTurn,
   THREAT_BY_ID,
-  TURNS,
   hashSeed,
   type GameState,
   type PlayerId,
@@ -97,7 +96,7 @@ function sigmoid(x: number): number {
 /** Probability-ish that `p` wins each Location, given current Influence and turns left. */
 function locationProbabilities(state: GameState, p: PlayerId): number[] {
   const opp = other(p);
-  const k = 0.2 + 0.08 * Math.min(state.turn, TURNS);
+  const k = 0.2 + 0.08 * Math.min(state.turn, state.maxTurns);
   return state.locations.map((l) => {
     if (l.lost) return 0;
     const inf = influenceAt(state, l.index);
@@ -125,7 +124,7 @@ interface Evaluation {
 export function evaluate(state: GameState, p: PlayerId): Evaluation {
   const opp = other(p);
   const reasons: string[] = [];
-  const remaining = Math.max(0, TURNS - state.turn);
+  const remaining = Math.max(0, state.maxTurns - state.turn);
   let score = 0;
 
   if (state.result) {

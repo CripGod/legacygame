@@ -58,7 +58,8 @@ export const HINTS = {
   scoreA: 'Silverlake Slayer\'s Influence at this Location.',
   scoreB: 'Harborlight\'s Influence at this Location.',
   line: 'The Influence Line: leans toward whoever leads. Lead at two of three Locations after Turn 6 to win.',
-  stakes: 'Stakes: what the match is worth. Stand on Business doubles it (1 → 2 → 4).',
+  stakes: 'Stakes: what the match is worth. Stand on Business doubles it (1 → 2 → 4), extends the match to 7 turns, and means you cannot Step Off.',
   timer: 'Planning timer. At zero your current plan locks automatically.',
+  noStepOff: 'You Stood on Business. There is no backing out of this match.',
   directEntry: 'Direct Entry: may enter Inside the turn it is played.',
 };

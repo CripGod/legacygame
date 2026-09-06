@@ -35,14 +35,14 @@ The engine never imports React. The UI never touches the true `GameState` except
 
 - **Plan**: tap a card, tap a Location. Tap a Ready Character at your Gates to send it Inside. Tap an Established Character to relocate it. Tap a Threat to commit Force. Then **Lock It In**. Two minutes per turn; timeout locks whatever you had.
 - **Win**: lead Influence at two of the three Locations after Turn 6.
-- **Stakes**: Stand on Business once per player to double the match (1 → 2 → 4). The other side Continues or Steps Off.
+- **Stakes**: Stand on Business once per player to double the match (1 → 2 → 4). It also extends the match to seven turns, and whoever stood can no longer Step Off. The other side Continues or Steps Off.
 
 Developer tools (`?dev=1` or the button on the start screen): fixed seeds, AI reasoning log (every candidate plan, score, chosen plan and tier), analytics summary/export, full event log, the true state, generic placeholder names (Test A), and a local two-player pass-the-device mode (Phase 2).
 
 ## Decisions made where the brief left room
 
 - **Gate wait timing.** A Character played on turn N is Fresh through turn N+1's planning and becomes Ready at the end of N+1, so it can enter on N+2. This is the reading that makes "becomes Ready immediately" effects (Harriet, Organizer, Juneteenth) worth a full turn. If playtesting says the wait is too long, the one-line change is in the cleanup step of `resolve.ts`.
-- **Stand on Business response** happens after the turn resolves (the raise is part of the hidden plan), so the responder decides with the new board in view. A raise on Turn 6 is answered before the result is final.
+- **Stand on Business** extends the match to seven turns and removes Step Off for the player who stood. The response happens after the turn resolves (the raise is part of the hidden plan), so the responder decides with the new board in view. A raise on the final turn is answered before the result is final.
 - **Confrontation** is a planned action: commit Characters at a Threat's Location; they cannot enter or relocate that turn. Shared Threats sum both players' Force in one turn; split Threats need the owner first, then Assist is offered.
 - **"History moves"**: at the start of Turn 3 one random Threat (Patrol, Complicity or Housing Restriction) appears at a revealed Location without one. Greenwood spawns a Supremacist Mob on Turn 4. Harpers Ferry reveals with Slave Catchers.
 - **Reparations** counts for final scoring when played on Turn 6 (temporary Influence is scored before cleanup).

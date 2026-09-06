@@ -8,6 +8,7 @@ import { Feed } from '../components/Feed';
 import { Coach } from '../components/Coach';
 import { CardSheet, CharSheet, ConfirmSheet, LocationSheet, ProfileSheet, StandResponseSheet, TargetSheet, ThreatSheet } from '../components/Sheets';
 import { cardName, useDisplay } from '../display';
+import { tip, HINTS } from '../tip';
 
 type SheetState =
   | { kind: 'card'; id: string }
@@ -154,7 +155,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
         <Hand view={view} me={me} plan={plan} selected={selected} onSelect={selectCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} />
         <div className="hint">{hint}</div>
         <div className="actions-left">
-          <button className="danger" disabled={view.phase === 'ended'} onClick={() => setSheet({ kind: 'stepOff' })}>
+          <button className="danger" disabled={view.phase === 'ended' || !opts.canStepOff} {...(opts.canStepOff ? {} : tip(HINTS.noStepOff))} onClick={() => setSheet({ kind: 'stepOff' })}>
             Step Off
           </button>
         </div>
@@ -174,7 +175,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           </button>
         </div>
         <div className="mobile-actions">
-          <button className="danger" disabled={view.phase === 'ended'} onClick={() => setSheet({ kind: 'stepOff' })}>
+          <button className="danger" disabled={view.phase === 'ended' || !opts.canStepOff} onClick={() => setSheet({ kind: 'stepOff' })}>
             Step Off
           </button>
           <button className="primary" disabled={!planning} onClick={m.lockIn}>
@@ -238,7 +239,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           body={
             plan.standOnBusiness
               ? 'Cancel your raise this turn?'
-              : `Raise the match from ${view.stakes} to ${opts.proposedStakes} Stakes. Your opponent must Continue or Step Off. You can only do this once per match.`
+              : `Raise the match from ${view.stakes} to ${opts.proposedStakes} Stakes${view.maxTurns < 7 ? ' and extend it to 7 turns' : ''}. Your opponent must Continue or Step Off. Once you stand you cannot Step Off, and you can only do this once per match.`
           }
           confirmLabel={plan.standOnBusiness ? 'Cancel raise' : `Stand: ${view.stakes} → ${opts.proposedStakes}`}
           onClose={() => setSheet(null)}

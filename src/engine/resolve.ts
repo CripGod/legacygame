@@ -32,7 +32,7 @@ import {
   validatePlan,
 } from './query';
 import type { CharacterInstance, GameEvent, GameState, MatchResult, PlayerId, ResolveOutput, ThreatInstance, TurnPlan } from './types';
-import { MAX_STAKES, PLAYERS, TURNS, other, emptyPlan } from './types';
+import { MAX_STAKES, PLAYERS, EXTENDED_TURNS, other, emptyPlan } from './types';
 
 export function cloneState(s: GameState): GameState {
   return structuredClone(s);
@@ -409,7 +409,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     const errs = validatePlan(state, p, plans[p]);
     if (errs.length) {
       events.push({ type: 'info', text: `${state.players[p].handle}'s plan was illegal (${errs[0]}) and became a pass.`, player: p });
-      plans[p] = { ...emptyPlan(), stepOff: plans[p].stepOff };
+      plans[p] = { ...emptyPlan(), stepOff: plans[p].stepOff && !state.players[p].cannotStepOff };
     }
   }
   const order = playerOrder(state);
@@ -429,17 +429,29 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     }
   }
   const raisers = order.filter((p) => plans[p].standOnBusiness);
+  const extend = () => {
+    if (state.maxTurns < EXTENDED_TURNS) {
+      state.maxTurns = EXTENDED_TURNS;
+      events.push({ type: 'stand', text: `The match is extended to ${EXTENDED_TURNS} turns.`, data: { maxTurns: EXTENDED_TURNS } });
+    }
+  };
   if (raisers.length === 2 && state.stakes === 1) {
     state.stakes = MAX_STAKES;
-    for (const p of PLAYERS) state.players[p].standUsed = true;
+    for (const p of PLAYERS) {
+      state.players[p].standUsed = true;
+      state.players[p].cannotStepOff = true;
+    }
     state.stats.standTurns.push({ player: raisers[0], turn: state.turn, proposed: MAX_STAKES, accepted: true });
-    events.push({ type: 'stand', text: `Both players Stand on Business. The match is now worth ${MAX_STAKES} Stakes.`, data: { stakes: MAX_STAKES } });
+    events.push({ type: 'stand', text: `Both players Stand on Business. The match is now worth ${MAX_STAKES} Stakes. Neither can Step Off.`, data: { stakes: MAX_STAKES } });
+    extend();
   } else if (raisers.length >= 1) {
     const p = raisers[0];
     const proposed = Math.min(MAX_STAKES, state.stakes * 2);
     state.players[p].standUsed = true;
+    state.players[p].cannotStepOff = true;
     state.pendingStand = { by: p, proposed };
-    events.push({ type: 'stand', text: `${state.players[p].handle} STANDS ON BUSINESS: ${state.stakes} → ${proposed} Stakes.`, player: p, data: { proposed } });
+    events.push({ type: 'stand', text: `${state.players[p].handle} STANDS ON BUSINESS: ${state.stakes} → ${proposed} Stakes. No backing out now.`, player: p, data: { proposed } });
+    extend();
   }
 
   // ---- 1. Location reveal ----
@@ -696,7 +708,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     for (let i = 0; i < 3; i++) {
       if (prev.leaders[i] !== leaders[i] && prev.leaders[i] !== null && leaders[i] !== null) {
         state.stats.leadChanges += 1;
-        if (state.turn === TURNS) state.stats.finalTurnFlips += 1;
+        if (state.turn === state.maxTurns) state.stats.finalTurnFlips += 1;
       }
     }
   }
@@ -710,7 +722,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     events.push({ type: 'influence', text: `${locName(state, l.index)}: ${state.players.A.handle} ${inf.A} · ${state.players.B.handle} ${inf.B}${l.lost ? ' (LOST)' : ''}.`, location: l.index, data: { A: inf.A, B: inf.B } });
   }
 
-  if (state.turn >= TURNS) {
+  if (state.turn >= state.maxTurns) {
     finalize(state, events);
     if (state.pendingStand) {
       // A raise on the final turn resolves at the final stakes; the responder is asked first.
@@ -740,6 +752,10 @@ export function respondToStand(input: GameState, responder: PlayerId, continueMa
   }
   const { by, proposed } = state.pendingStand;
   state.pendingStand = undefined;
+  if (!continueMatch && state.players[responder].cannotStepOff) {
+    // A player who has Stood on Business cannot back out; the raise stands.
+    continueMatch = true;
+  }
   if (continueMatch) {
     state.stakes = proposed;
     state.stats.standTurns.push({ player: by, turn: state.turn, proposed, accepted: true });

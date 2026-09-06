@@ -201,6 +201,7 @@ export interface LegalOptions {
   relocationsAllowed: number;
   confronts: ConfrontOption[];
   canStand: boolean;
+  canStepOff: boolean;
   proposedStakes: number;
 }
 
@@ -262,6 +263,7 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
     relocationsAllowed: relocationsAllowed(state, p),
     confronts,
     canStand,
+    canStepOff: !ps.cannotStepOff,
     proposedStakes: Math.min(MAX_STAKES, state.stakes * 2),
   };
 }
@@ -298,6 +300,7 @@ export function validatePlan(state: GameState, p: PlayerId, plan: TurnPlan): str
     seen.add(c.uid);
   }
   if (plan.standOnBusiness && !opts.canStand) errors.push('Stand on Business is not available.');
+  if (plan.stepOff && !opts.canStepOff) errors.push('You Stood on Business: you cannot Step Off.');
   return errors;
 }
 

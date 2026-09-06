@@ -40,7 +40,7 @@ export function Hud({ view, me, secondsLeft, paused, onProfile }: { view: GameSt
     <header className="hud">
       {profile('A', false)}
       <div className="hud-center">
-        <div className="turn-label">Turn {Math.min(view.turn, 6)} / 6</div>
+        <div className="turn-label">Turn {Math.min(view.turn, view.maxTurns)} / {view.maxTurns}</div>
         <div className="hud-mid">
           <TimerRing seconds={secondsLeft} paused={paused} />
           <div className="coin" {...tip(HINTS.stakes)}>

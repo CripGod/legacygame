@@ -11,7 +11,7 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
         <h1 className="title">Rules</h1>
         <h2>The match</h2>
         <ul>
-          <li>Two players, three Locations, six turns, 12-card decks. Four-card opening hand, draw one each turn.</li>
+          <li>Two players, three Locations, six turns (seven if someone Stands on Business), 12-card decks. Four-card opening hand, draw one each turn.</li>
           <li>Both players plan at the same time, then <b>Lock It In</b>. Two minutes per turn.</li>
           <li>Win Influence at two of the three Locations to win the match.</li>
         </ul>
@@ -46,7 +46,7 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
         </ul>
         <h2>Stakes</h2>
         <ul>
-          <li>Matches start at 1 Stake. Either player may <b>Stand on Business</b> once to double it (1 → 2, then 2 → 4).</li>
+          <li>Matches start at 1 Stake. Either player may <b>Stand on Business</b> once to double it (1 → 2, then 2 → 4). Standing extends the match to <b>seven turns</b>, and whoever stood can no longer Step Off.</li>
           <li>The other player must <b>Continue</b> or <b>Step Off</b>. Stepping off immediately loses the previously locked Stakes.</li>
           <li><b>Step Off</b> is surrender and is always available.</li>
         </ul>

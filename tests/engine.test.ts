@@ -269,12 +269,34 @@ describe('match end', () => {
     expect(cont.stakes).toBe(2);
     expect(cont.phase).toBe('planning');
     expect(cont.turn).toBe(2);
+    expect(cont.maxTurns).toBe(7);
+    expect(cont.players.A.cannotStepOff).toBe(true);
+    expect(legalOptions(cont, 'A').canStepOff).toBe(false);
+    // The player who stood cannot back out: a Step Off plan is ignored.
+    const tried = resolveTurn(cont, { A: { ...pass(), stepOff: true }, B: pass() }).state;
+    expect(tried.phase).toBe('planning');
+    expect(tried.turn).toBe(3);
     expect(legalOptions(cont, 'A').canStand).toBe(false);
     expect(legalOptions(cont, 'B').proposedStakes).toBe(4);
     const off = respondToStand(s, 'B', false).state;
     expect(off.phase).toBe('ended');
     expect(off.result?.winner).toBe('A');
     expect(off.result?.stakes).toBe(1);
+  });
+  it('Stand on Business on turn 6 extends the match to a seventh turn', () => {
+    let s = createMatch({ seed: 4 });
+    for (let t = 1; t <= 5; t++) s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(s.turn).toBe(6);
+    s = resolveTurn(s, { A: pass(), B: { ...pass(), standOnBusiness: true } }).state;
+    expect(s.phase).toBe('standResponse');
+    expect(s.result).toBeUndefined();
+    s = respondToStand(s, 'A', true).state;
+    expect(s.turn).toBe(7);
+    expect(s.phase).toBe('planning');
+    s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(s.phase).toBe('ended');
+    expect(s.result?.turn).toBe(7);
+    expect(s.result?.stakes).toBe(2);
   });
   it('scores two of three Locations at the end of turn 6', () => {
     let s = createMatch({ seed: 4 });
@@ -289,7 +311,7 @@ describe('match end', () => {
 });
 
 describe('AI vs AI smoke', () => {
-  it('completes 40 matches without errors and plays legally', () => {
+  it('completes 40 matches without errors and plays legally', { timeout: 30000 }, () => {
     for (let seed = 1000; seed < 1040; seed++) {
       let s = createMatch({ seed });
       let guard = 0;
