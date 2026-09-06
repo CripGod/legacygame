@@ -271,6 +271,35 @@ describe('multiple plays', () => {
   });
 });
 
+describe('locations', () => {
+  it('Sundown Town does nothing on the turn it reveals, then displaces new arrivals', () => {
+    let s = createMatch({ seed: 2 });
+    s.locations[0].defId = 'sundown_town';
+    s.revealOrder = [0, 1, 2];
+    s.players.A.hand = ['og', 'zora_neale_hurston', 'ida_b_wells', 'reparations', 'mansa_musa'];
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'og', location: 0 }] }, B: pass() }).state;
+    expect(charsOf(s, 'A')[0].location).toBe(0); // safe on the reveal turn
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'ida_b_wells', location: 0 }] }, B: pass() }).state;
+    const ida = charsOf(s, 'A').find((c) => c.defId === 'ida_b_wells')!;
+    expect(ida.location).not.toBe(0); // bounced
+    expect(s.players.A.setbacks).toBe(1);
+  });
+  it('Gary, Indiana grants +1 Force and +1 Influence each with five Characters', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['gary_indiana', 'great_migration', 'black_star'], revealAll: true });
+    for (let i = 0; i < 4; i++) addChar(s, ['og', 'zora_neale_hurston', 'ida_b_wells', 'mansa_musa'][i], 'A', 0, 'inside');
+    expect(influenceAt(s, 0).A).toBe(3 + 3 + 4 + 5);
+    addChar(s, 'organizer', 'A', 0, 'gate');
+    expect(influenceAt(s, 0).A).toBe(3 + 3 + 4 + 5 + 2 + 5 + 1); // +1 from Zora's Gate bonus
+  });
+  it('Slave Catcher is shared: it silences both players\' Gate Characters', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['harpers_ferry', 'great_migration', 'black_star'], revealAll: true });
+    s.locations[0].threats.push({ uid: 'sc', defId: 'slave_catcher', location: 0, forceRequired: 2, spawnedTurn: 1 });
+    addChar(s, 'og', 'A', 0, 'gate');
+    addChar(s, 'organizer', 'B', 0, 'gate');
+    expect(influenceAt(s, 0)).toEqual({ A: 0, B: 0 });
+  });
+});
+
 describe('match end', () => {
   it('Step Off ends the match immediately', () => {
     const s = createMatch({ seed: 4 });
@@ -350,7 +379,7 @@ describe('AI vs AI smoke', () => {
       expect(s.result).toBeDefined();
     }
   });
-  it('all six Locations and all cards are defined consistently', () => {
-    expect(LOCATIONS).toHaveLength(6);
+  it('all seven Locations are defined', () => {
+    expect(LOCATIONS).toHaveLength(7);
   });
 });

@@ -100,7 +100,8 @@ export type LocationEffect =
   | { type: 'relocatedOutReady' } // The Black Star
   | { type: 'firstRelocatedEnters' } // Great Migration
   | { type: 'readyOnArrival' } // Juneteenth
-  | { type: 'displaceFreshAtEnd' }; // Sundown Town
+  | { type: 'displaceFreshAtEnd' } // Sundown Town
+  | { type: 'steelAndSoul'; force: number; fiveBonus: number }; // Gary, Indiana
 
 export interface LocationDef {
   id: string;
@@ -111,6 +112,8 @@ export interface LocationDef {
   effect: LocationEffect;
   spawnOnReveal?: string;
   timedThreat?: { turn: number; threatId: string };
+  /** Relative chance of being drawn into a match (default 1). */
+  weight?: number;
   /** True only for the redacted placeholder used in player views. */
   hidden?: boolean;
 }
@@ -181,6 +184,8 @@ export interface LocationState {
   revealedTurn?: number;
   threats: ThreatInstance[];
   lost: boolean;
+  /** Why the Location became Lost. */
+  lostReason?: string;
   /** Great Migration: uid of first relocated Character this turn. */
   firstRelocatedThisTurn?: string;
   /** Harriet: uid of first relocated Character per owner this turn. */

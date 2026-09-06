@@ -233,7 +233,7 @@ export function LocationSheet({ view, index, onClose }: { view: GameState; index
       <div>{def.rule}</div>
       {loc.revealed && !placeholders && <div className="muted" style={{ fontStyle: 'italic' }}>{def.blurb}</div>}
       {!loc.revealed && known === index && <div className="pA">Katherine Johnson: this Location reveals next.</div>}
-      {loc.lost && <div style={{ color: 'var(--danger)' }}>LOST: neither player can win this Location.</div>}
+      {loc.lost && <div style={{ color: 'var(--danger)' }}>LOST: {loc.lostReason ?? 'an unresolved crisis.'} Neither player can win this Location; its Influence no longer counts toward the match.</div>}
       <div className="muted">
         Gates: 2 per player · Inside: 5 per player · Characters at both count toward Influence.
       </div>

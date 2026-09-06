@@ -23,7 +23,9 @@ import { useFlip } from '../flip';
 export interface DropHighlight {
   locations: number[];
   inside: number[];
+  gates: number[];
   threats: string[];
+  hand: boolean;
   overKey: string;
 }
 
@@ -74,13 +76,15 @@ function Score({ p, value }: { p: PlayerId; value: number }) {
 
 type Common = Pick<BattlefieldProps, 'view' | 'me' | 'plan' | 'onChar' | 'flash' | 'dragProps' | 'drop'>;
 
-function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, dragProps }: Common & { owner: PlayerId; index: number; label: string; right?: React.ReactNode }) {
+function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, dragProps, drop }: Common & { owner: PlayerId; index: number; label: string; right?: React.ReactNode }) {
+  const gOk = owner === me && drop?.gates.includes(index);
+  const gOver = gOk && drop?.overKey === `gates:${index}`;
   const chars = charsAt(view, index, owner, 'gate').sort((a, b) => a.arrivedTurn - b.arrivedTurn);
   const slots: (CharacterInstance | null)[] = [...chars];
   while (slots.length < GATE_CAPACITY) slots.push(null);
   return (
     <div className="gates-strip">
-      <div className="gates-left">
+      <div className={`gates-left ${gOk ? 'drop-ok' : ''} ${gOver ? 'drop-over' : ''}`} {...(owner === me ? { 'data-drop': 'gates', 'data-index': index } : {})}>
         <div className="lbl">
           {label} ({GATE_CAPACITY})
         </div>
@@ -248,7 +252,7 @@ export function Battlefield(props: BattlefieldProps) {
                     >
                       <span>
                         ⚠ {threatLabel(t.defId, placeholders)}
-                        {tdef.split && t.target ? ` · ${t.target === me ? 'yours' : 'theirs'}` : ''}
+                        {tdef.split && t.target ? ` · ${t.target === me ? 'yours' : 'theirs'}` : ' · in the area'}
                       </span>
                       <b>{tdef.requiresBoth ? 'both' : t.forceRequired}</b>
                     </div>
@@ -262,7 +266,7 @@ export function Battlefield(props: BattlefieldProps) {
                   onLocationInfo(loc.index);
                 }}
               >
-                {loc.revealed ? def.rule : 'Hidden until revealed. Commit blind.'}
+                {loc.lost ? `LOST: ${loc.lostReason ?? 'an unresolved crisis'} Neither player can win here.` : loc.revealed ? def.rule : 'Hidden until revealed. Commit blind.'}
               </div>
             </div>
             <GateStrip {...common} owner={me} index={loc.index} label="Your Gates" />

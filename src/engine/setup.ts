@@ -1,4 +1,4 @@
-import { makeRng, shuffle, nextInt, pick } from './rng';
+import { makeRng, shuffle, nextInt, nextFloat, pick } from './rng';
 import { LOCATIONS, PRESET_DECKS, validateDeck, THREAT_BY_ID, RANDOM_THREAT_POOL, LOCATION_BY_ID } from './content';
 import type { GameState, PlayerId, PlayerState, LocationState, GameEvent, ThreatInstance } from './types';
 import { STARTING_HAND, PLAYERS, TURNS } from './types';
@@ -36,7 +36,19 @@ export function createMatch(opts: MatchOptions): GameState {
   const handles = opts.handles ?? { A: 'Silverlake Slayer', B: 'Harborlight' };
   const avatars = opts.avatars ?? { A: 'frederick_douglass', B: 'marcus_garvey' };
 
-  const chosen = shuffle(rng, LOCATIONS).slice(0, 3);
+  // Weighted draw without replacement (rare Locations appear less often).
+  const pool = LOCATIONS.slice();
+  const chosen: typeof LOCATIONS = [];
+  while (chosen.length < 3 && pool.length) {
+    const total = pool.reduce((s, l) => s + (l.weight ?? 1), 0);
+    let r = nextFloat(rng) * total;
+    let idx = 0;
+    for (; idx < pool.length - 1; idx++) {
+      r -= pool[idx].weight ?? 1;
+      if (r <= 0) break;
+    }
+    chosen.push(pool.splice(idx, 1)[0]);
+  }
   const locations: LocationState[] = chosen.map((def, index) => ({
     index,
     defId: def.id,

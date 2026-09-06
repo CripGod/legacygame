@@ -53,6 +53,7 @@ Developer tools (`?dev=1` or the button on the start screen): fixed seeds, AI re
 - **Location scoring with two ties or a Lost Location**: whoever won more Locations wins; if equal, the brief's tiebreaks apply.
 - **Katherine Johnson's** private reveal is stored per player and redacted from the opponent's view; the AI is allowed to use it exactly as a human would.
 - **Victor Hugo Green** (the Green Book) lets relocations out of his Location arrive Inside, the interior-to-interior answer to Sundown Town. **Sojourner Truth** replaces the "selected additional historical figures" slot to give the pool a Suppress effect. **Ida B. Wells, Queen Nzinga, Toussaint Louverture, Marcus Garvey, Bessie Coleman** round out the sixteen.
+- **Sundown Town** is drawn about a third as often as other Locations and does nothing on the turn it reveals. **Gary, Indiana** (Steel and Soul) joins the pool. **Slave Catcher** is one shared Threat "in the area" rather than one per player.
 - Player Gates are shown under each Location panel (the wireframe omitted them; the brief requires them).
 
 ## Harborlight

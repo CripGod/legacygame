@@ -83,6 +83,7 @@ export function charInfluence(state: GameState, c: CharacterInstance): number {
   let v = def.influence + c.permInfluence + c.tempInfluence;
   const loc = state.locations[c.location];
   const ldef = LOCATION_BY_ID[loc.revealed ? loc.defId : 'unknown'];
+  if (ldef?.effect.type === 'steelAndSoul' && charsAt(state, c.location, c.owner).length >= 5) v += ldef.effect.fiveBonus;
   if (c.zone === 'inside') {
     if (ldef?.effect.type === 'insideInfluence') v += ldef.effect.amount;
     for (const d of hasEstablished(state, c.owner, c.location, 'auraInfluenceOthersHere')) {
@@ -145,6 +146,7 @@ export function confrontForce(state: GameState, c: CharacterInstance, threat: Th
   let f = def.force + extra;
   const ldef = locDef(state, c.location);
   if (ldef.effect.type === 'confrontForce') f += ldef.effect.amount;
+  if (ldef.effect.type === 'steelAndSoul') f += ldef.effect.force;
   for (const n of hasEstablished(state, c.owner, c.location, 'forceAuraHere')) f += amountOf(n);
   if (state.players[c.owner].defendedLocation === c.location) f += 1;
   if (isAssist(threat, c.owner) && c.zone === 'inside' && !isSuppressed(state, c) && def.established?.effect.type === 'assistForceBonus') {

@@ -31,7 +31,7 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
         <ul>
           <li><b>Influence</b> decides who controls a Location. <b>Force</b> decides confrontations with Threats and challenges. They are deliberately separate.</li>
           <li>Ties at a Location count for nobody. If the match ends 1–1 with a tie, total Influence, then total Force, break the tie.</li>
-          <li>Plan by dragging: a card onto a Location, a Ready Character into its Location, an Established Character to another Location, any Character onto a Threat. Tapping a card or tile opens the same actions.</li>
+          <li>Plan by dragging: a card onto a Location, a Ready Character into its Location, an Established Character to another Location, any Character onto a Threat. Tapping a card or tile opens the same actions. Drag a piece back to where it came from, or press Cmd/Ctrl+Z, to undo.</li>
         </ul>
         <h2>Movement</h2>
         <ul>

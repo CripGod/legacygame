@@ -556,3 +556,15 @@ body.dragging { cursor: grabbing; user-select: none; }
 .log-line.stand, .log-line.standResponse { border-color: var(--cA); }
 .log-line.turnStart { border-color: transparent; color: var(--muted); }
 .coach.guide { max-width: min(92vw, 620px); font-size: 14px; line-height: 1.35; background: #fff8e6; border: 2px solid var(--cA); }
+
+/* Lost Locations */
+.location.lost { filter: saturate(0.25); }
+.location.lost .loc-rule { color: #ffb3ae; border-color: var(--danger); }
+/* Feedback */
+.shake { animation: shake 0.5s; }
+@keyframes shake { 10%, 90% { transform: translateX(-2px); } 20%, 80% { transform: translateX(3px); } 30%, 50%, 70% { transform: translateX(-4px); } 40%, 60% { transform: translateX(4px); } }
+.toast { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 30; background: #fff; color: #111; border-radius: 10px; padding: 8px 14px; font-size: 13px; max-width: min(92vw, 520px); box-shadow: 0 8px 24px rgba(0,0,0,0.5); border-left: 4px solid var(--danger); }
+.hand-wrap.drop-ok { outline: 2px dashed var(--ok); outline-offset: -6px; border-radius: 12px; }
+.gates-left.drop-ok { outline: 2px dashed var(--ok); outline-offset: 2px; border-radius: 8px; }
+.gates-left.drop-over, .hand-wrap.drop-over { outline-color: #fff; }
+.hint .undo { margin-left: 8px; }

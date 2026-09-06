@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 export type DragPayload = { kind: 'card'; cardId: string } | { kind: 'char'; uid: string };
 
-export type DropTarget = { type: 'location'; index: number } | { type: 'inside'; index: number } | { type: 'threat'; uid: string };
+export type DropTarget = { type: 'location'; index: number } | { type: 'inside'; index: number } | { type: 'gates'; index: number } | { type: 'threat'; uid: string } | { type: 'hand' };
 
 export interface DragState {
   payload: DragPayload;
@@ -24,6 +24,7 @@ export function targetAt(x: number, y: number): DropTarget | null {
     if (!d) continue;
     const type = d.dataset.drop as DropTarget['type'];
     if (type === 'threat') return { type, uid: d.dataset.threat! };
+    if (type === 'hand') return { type };
     return { type, index: Number(d.dataset.index) };
   }
   return null;
@@ -31,6 +32,7 @@ export function targetAt(x: number, y: number): DropTarget | null {
 
 export function targetKey(t: DropTarget | null): string {
   if (!t) return '';
+  if (t.type === 'hand') return 'hand';
   return t.type === 'threat' ? `threat:${t.uid}` : `${t.type}:${t.index}`;
 }
 

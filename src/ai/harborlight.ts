@@ -158,7 +158,7 @@ export function evaluate(state: GameState, p: PlayerId): Evaluation {
           if (t.target === p && mine.some((c) => c.zone === 'gate')) score -= 2;
           break;
         case 'zeroGateInfluence':
-          if (t.target === p) score -= 1.5 * mine.filter((c) => c.zone === 'gate').length;
+          if (!t.target || t.target === p) score -= 1.5 * mine.filter((c) => c.zone === 'gate').length;
           break;
         case 'capacity':
           score -= 1;

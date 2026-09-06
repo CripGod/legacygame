@@ -654,8 +654,11 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
   for (const loc of state.locations) {
     for (const t of loc.threats.slice()) {
       const def = THREAT_BY_ID[t.defId];
-      if (def.effect === 'zeroGateInfluence' && t.target) {
-        if (charsAt(state, loc.index, t.target, 'gate').length) setback(state, t.target, `${def.name} silences Gate Characters at ${locName(state, loc.index)}`, events);
+      if (def.effect === 'zeroGateInfluence') {
+        for (const p of PLAYERS) {
+          if (t.target && t.target !== p) continue;
+          if (charsAt(state, loc.index, p, 'gate').length) setback(state, p, `${def.name} silences Gate Characters at ${locName(state, loc.index)}`, events);
+        }
       }
       if (def.effect === 'mobDisplace') {
         const leader = leaderAt(state, loc.index);
@@ -669,7 +672,8 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
         }
         if (def.lostAfterTurns && state.turn - t.spawnedTurn + 1 >= def.lostAfterTurns && !loc.lost) {
           loc.lost = true;
-          events.push({ type: 'locationLost', text: `${locName(state, loc.index)} is LOST. Neither player can win it.`, location: loc.index });
+          loc.lostReason = `${def.name} went unanswered for ${def.lostAfterTurns} turns (it needed ${t.forceRequired} Force in one turn, from either player or both).`;
+          events.push({ type: 'locationLost', text: `${locName(state, loc.index)} is LOST: ${loc.lostReason} Neither player can win it.`, location: loc.index });
         }
       }
     }
@@ -695,6 +699,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
   // Sundown Town displaces Fresh Gate Characters.
   for (const loc of state.locations) {
     if (!loc.revealed || LOCATION_BY_ID[loc.defId]?.effect.type !== 'displaceFreshAtEnd') continue;
+    if (loc.revealedTurn === state.turn) continue; // nothing happens on the reveal turn
     for (const c of charsAt(state, loc.index, undefined, 'gate')) {
       if (c.ready || isProtected(state, c)) continue;
       if (displace(state, c, 'Sundown Town', events)) setback(state, c.owner, 'displaced by Sundown Town', events);

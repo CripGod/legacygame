@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { CARD_BY_ID, legalOptions, gateRoom, type PlayerId, other } from '../../engine';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { CARD_BY_ID, legalOptions, gateRoom, insideCapacity, isBlockedFromEntering, charsAt, THREAT_BY_ID, type PlayerId, type TurnPlan, other } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight } from '../components/Battlefield';
@@ -37,7 +37,40 @@ function useCompact(): boolean {
 }
 
 export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: boolean; onExit: () => void }) {
-  const { view, perspective: me, plan, setPlan, locked, busy } = m;
+  const { view, perspective: me, plan, setPlan: setPlanRaw, locked, busy } = m;
+  // Undo history for the current plan.
+  const [history, setHistory] = useState<TurnPlan[]>([]);
+  const planRef = useRef(plan);
+  planRef.current = plan;
+  const setPlan = useCallback(
+    (fn: (p: TurnPlan) => TurnPlan) => {
+      setHistory((h) => [...h.slice(-30), planRef.current]);
+      setPlanRaw(fn);
+    },
+    [setPlanRaw],
+  );
+  const undo = useCallback(() => {
+    setHistory((h) => {
+      if (!h.length) return h;
+      const prev = h[h.length - 1];
+      setPlanRaw(() => prev);
+      return h.slice(0, -1);
+    });
+  }, [setPlanRaw]);
+  // Feedback for moves that cannot happen.
+  const [toast, setToast] = useState<string | null>(null);
+  const feedback = useCallback((text: string, shake: string[] = []) => {
+    setToast(text);
+    window.setTimeout(() => setToast((t) => (t === text ? null : t)), 3200);
+    for (const sel of shake) {
+      document.querySelectorAll<HTMLElement>(sel).forEach((el) => {
+        el.classList.remove('shake');
+        void el.offsetWidth;
+        el.classList.add('shake');
+        window.setTimeout(() => el.classList.remove('shake'), 600);
+      });
+    }
+  }, []);
   const { placeholders } = useDisplay();
   const compact = useCompact();
   const [selected, setSelected] = useState<string | null>(null);
@@ -52,10 +85,14 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setSheet((sh) => (sh && sh.kind !== 'stand' ? null : sh));
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        undo();
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  }, [undo]);
 
   // First-turn guide: suggest a concrete move and glow the pieces involved.
   const guide = useMemo(() => (guideOn && view.turn === 1 && planning ? suggest(view, me, placeholders) : null), [guideOn, view, me, planning, placeholders]);
@@ -78,6 +115,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   useEffect(() => {
     setSelected(null);
     setSheet(null);
+    setHistory([]);
   }, [view.turn, me]);
 
 /** Gate room at a Location after the plays already planned there. */
@@ -129,6 +167,11 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
 
   /** Add or move a play; when at the limit, the newest replaces the oldest. */
   function addPlay(play: { cardId: string; location: number; target?: { charUid?: string; location?: number } }) {
+    const current = planRef.current.plays.filter((pl) => pl.cardId !== play.cardId);
+    if (current.length >= opts.playsAllowed && current.length > 0) {
+      const dropped = current[0];
+      feedback(`Only ${opts.playsAllowed} play${opts.playsAllowed > 1 ? 's' : ''} this turn (${view.locations.every((l) => l.revealed) ? 'two once all Locations are revealed' : 'one while a Location is hidden'}). Swapped ${cardName(dropped.cardId, placeholders)} out for ${cardName(play.cardId, placeholders)}. Cmd/Ctrl+Z to undo.`);
+    }
     setPlan((p) => {
       let plays = p.plays.filter((pl) => pl.cardId !== play.cardId);
       while (plays.length >= opts.playsAllowed && plays.length > 0) plays = plays.slice(1);
@@ -154,7 +197,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
 
   const dropTargetsFor = useCallback(
     (payload: DragPayload): DropHighlight => {
-      const out: DropHighlight = { locations: [], inside: [], threats: [], overKey: '' };
+      const out: DropHighlight = { locations: [], inside: [], gates: [], threats: [], hand: false, overKey: '' };
       if (!planning) return out;
       if (payload.kind === 'card') {
         const opt = opts.plays.find((p) => p.cardId === payload.cardId);
@@ -163,22 +206,30 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
             ? opt.locations.filter((i) => opt.kind !== 'character' || gateRoom(view, i, me, plannedAt(i, payload.cardId)) > 0)
             : view.locations.map((l) => l.index);
         }
+        out.hand = plan.plays.some((pl) => pl.cardId === payload.cardId);
         return out;
       }
       const c = view.characters[payload.uid];
       if (!c || c.owner !== me) return out;
       const confronting = plan.confronts.some((x) => x.uid === c.uid);
+      const entering = plan.enters.includes(c.uid);
+      const reloc = plan.relocations.find((x) => x.uid === c.uid);
+      if (entering) out.gates = [c.location]; // drag back to cancel
+      if (reloc) {
+        out.locations = [c.location];
+        out.inside = [c.location];
+      }
       if (!confronting) {
-        if (c.zone === 'gate' && opts.enters.includes(c.uid)) {
+        if (c.zone === 'gate' && opts.enters.includes(c.uid) && !entering) {
           out.inside = [c.location];
           out.locations = [c.location];
         }
         if (c.zone === 'inside') {
           const r = opts.relocations.find((x) => x.uid === c.uid);
-          if (r && (plan.relocations.length < opts.relocationsAllowed || plan.relocations.some((x) => x.uid === c.uid))) out.locations = r.destinations;
+          if (r && (plan.relocations.length < opts.relocationsAllowed || reloc)) out.locations = [...out.locations, ...r.destinations];
         }
       }
-      if (!plan.enters.includes(c.uid) && !plan.relocations.some((x) => x.uid === c.uid)) {
+      if (!entering && !reloc) {
         out.threats = opts.confronts.filter((o) => o.chars.includes(c.uid)).map((o) => o.threatUid);
       }
       return out;
@@ -186,20 +237,94 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     [planning, opts, view, me, plan],
   );
 
+  /** Why a drop cannot happen, and what to shake. */
+  const explain = useCallback(
+    (payload: DragPayload, target: DropTarget): { text: string; shake: string[] } | null => {
+      const locIndex = target.type === 'location' || target.type === 'inside' || target.type === 'gates' ? target.index : null;
+      const locNameAt = (i: number) => (view.locations[i].revealed ? locationName(view.locations[i].defId, placeholders) : `Location ${i + 1}`);
+      const col = (i: number) => `.column[data-index="${i}"]`;
+      if (payload.kind === 'card') {
+        const nm = cardName(payload.cardId, placeholders);
+        if (target.type === 'threat') return { text: `${nm} is a card in your hand. Drop it on a Location; Threats are confronted by Characters already there.`, shake: [] };
+        if (target.type === 'hand') return null;
+        const i = locIndex!;
+        const opt = opts.plays.find((p) => p.cardId === payload.cardId);
+        if (view.locations[i].lost) return { text: `${locNameAt(i)} is Lost. Nobody can win it, so nothing can be played there.`, shake: [`${col(i)} .art`] };
+        if (!opt) return { text: `${nm} cannot be played right now.`, shake: [`[data-hand-card="${payload.cardId}"]`] };
+        if (opt.kind === 'character' && gateRoom(view, i, me, plannedAt(i, payload.cardId)) <= 0)
+          return { text: `Both of your Gate slots at ${locNameAt(i)} are taken. Send someone Inside or relocate them first.`, shake: [`${col(i)} .gates-left[data-drop="gates"] .gate-slot`] };
+        return { text: `${nm} cannot go to ${locNameAt(i)}.`, shake: [] };
+      }
+      const c = view.characters[payload.uid];
+      if (!c) return null;
+      const nm = cardName(c.defId, placeholders);
+      const tile = `[data-uid="${c.uid}"]`;
+      const confronting = plan.confronts.some((x) => x.uid === c.uid);
+      if (target.type === 'hand') return { text: `${nm} is already on the board; cards only return to your hand before they are played.`, shake: [] };
+      if (target.type === 'threat') {
+        const loc = view.locations.find((l) => l.threats.some((t) => t.uid === target.uid));
+        const t = loc?.threats.find((x) => x.uid === target.uid);
+        if (!loc || !t) return null;
+        const tname = THREAT_BY_ID[t.defId].name;
+        if (loc.index !== c.location) return { text: `${nm} is not at ${locNameAt(loc.index)}. Only Characters at a Threat's Location can confront it.`, shake: [tile] };
+        if (plan.enters.includes(c.uid) || plan.relocations.some((x) => x.uid === c.uid)) return { text: `${nm} is moving this turn. A Character cannot move and confront in the same turn.`, shake: [tile] };
+        if (t.target && t.target !== me) return { text: `Clear your own ${tname} first; then you may Assist against ${view.players[other(me)].handle}'s.`, shake: [`[data-threat="${target.uid}"]`] };
+        return { text: `${nm} cannot confront ${tname} right now.`, shake: [tile] };
+      }
+      const i = locIndex!;
+      if (confronting) return { text: `${nm} is confronting a Threat this turn and cannot move. Tap the Threat to release it.`, shake: [tile] };
+      if (c.zone === 'gate') {
+        if (i !== c.location) return { text: `Gate Characters enter the Location they are waiting at. Relocation is for Established Characters.`, shake: [tile] };
+        if (!c.ready) return { text: `${nm} is Fresh: it arrived this turn and waits one turn at the Gates before it can enter.`, shake: [tile] };
+        const blocked = isBlockedFromEntering(view, c);
+        if (blocked?.includes('Patrol')) {
+          const patrol = view.locations[i].threats.find((t) => t.defId === 'segregationist_patrol' && (!t.target || t.target === me));
+          return { text: `Segregationist Patrol blocks your entries at ${locNameAt(i)}. Neutralize it with ${patrol?.forceRequired ?? 3} Force in one turn.`, shake: patrol ? [`[data-threat="${patrol.uid}"]`] : [] };
+        }
+        if (blocked) return { text: `An opposing Reveal (Karen or OG) stopped ${nm} from entering this turn. Try again next turn.`, shake: [tile] };
+        const cap = insideCapacity(view, i);
+        if (charsAt(view, i, me, 'inside').length + plan.enters.filter((u) => view.characters[u]?.location === i).length >= cap) {
+          if (cap < 5) {
+            const hr = view.locations[i].threats.find((t) => t.defId === 'housing_restriction');
+            return { text: `Housing Restriction caps you at ${cap} Established Characters here. Neutralize it with ${hr?.forceRequired ?? 4} Force.`, shake: hr ? [`[data-threat="${hr.uid}"]`] : [] };
+          }
+          return { text: `All five of your Inside slots at ${locNameAt(i)} are full.`, shake: [`${col(i)} [data-drop="inside"]`] };
+        }
+        return { text: `${nm} cannot enter right now.`, shake: [tile] };
+      }
+      // Established Character relocating.
+      if (i === c.location) return null;
+      if (view.locations[i].lost) return { text: `${locNameAt(i)} is Lost. Nobody can win it.`, shake: [`${col(i)} .art`] };
+      if (gateRoom(view, i, me) <= 0) return { text: `Your Gates at ${locNameAt(i)} are full; a relocated Character arrives at the Gates.`, shake: [`${col(i)} .gates-left[data-drop="gates"] .gate-slot`] };
+      if (plan.relocations.length >= opts.relocationsAllowed && !plan.relocations.some((x) => x.uid === c.uid))
+        return { text: `You get ${opts.relocationsAllowed} Relocation${opts.relocationsAllowed > 1 ? 's' : ''} per turn (Pullman Porter adds one). Drag the other one back to cancel it.`, shake: plan.relocations.map((r) => `[data-uid="${r.uid}"]`) };
+      return { text: `${nm} cannot relocate there right now.`, shake: [tile] };
+    },
+    [view, me, plan, opts, placeholders],
+  );
+
   const onDrop = useCallback(
     (payload: DragPayload, target: DropTarget) => {
       const ok = dropTargetsFor(payload);
+      const fail = () => {
+        const why = explain(payload, target);
+        if (why) feedback(why.text, why.shake);
+      };
+      const idx = target.type === 'location' || target.type === 'inside' || target.type === 'gates' ? target.index : -1;
       if (payload.kind === 'card') {
-        if (target.type === 'threat') return;
-        if (!ok.locations.includes(target.index)) return;
+        if (target.type === 'hand') {
+          if (ok.hand) setPlan((p) => ({ ...p, plays: p.plays.filter((pl) => pl.cardId !== payload.cardId) }));
+          return;
+        }
+        if (target.type === 'threat' || !ok.locations.includes(idx)) return fail();
         const opt = opts.plays.find((p) => p.cardId === payload.cardId);
-        if (!opt) return;
+        if (!opt) return fail();
         if (!opt.needsLocation) {
           addPlay({ cardId: payload.cardId, location: 0 });
         } else if (opt.needsTarget) {
-          setSheet({ kind: 'target', cardId: payload.cardId, location: target.index });
+          setSheet({ kind: 'target', cardId: payload.cardId, location: idx });
         } else {
-          addPlay({ cardId: payload.cardId, location: target.index });
+          addPlay({ cardId: payload.cardId, location: idx });
         }
         setSelected(null);
         return;
@@ -208,17 +333,22 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       if (!c) return;
       if (target.type === 'threat') {
         if (ok.threats.includes(target.uid)) toggleConfront(c.uid, target.uid);
+        else fail();
         return;
       }
-      if (c.zone === 'gate' && ok.inside.includes(target.index)) {
-        if (!plan.enters.includes(c.uid)) toggleEnter(c.uid);
-        return;
+      const entering = plan.enters.includes(c.uid);
+      const reloc = plan.relocations.find((x) => x.uid === c.uid);
+      // Cancel by dragging back.
+      if (entering && target.type === 'gates' && idx === c.location) return toggleEnter(c.uid);
+      if (reloc && idx === c.location) return setRelocation(c.uid, null);
+      if (c.zone === 'gate' && !entering) {
+        if (ok.inside.includes(idx)) return toggleEnter(c.uid);
+        return fail();
       }
-      if (c.zone === 'inside' && ok.locations.includes(target.index)) {
-        setRelocation(c.uid, target.index);
-      }
+      if (c.zone === 'inside' && ok.locations.includes(idx) && idx !== c.location) return setRelocation(c.uid, idx);
+      if (idx !== c.location) fail();
     },
-    [dropTargetsFor, opts, view, plan, setPlan],
+    [dropTargetsFor, explain, feedback, opts, view, plan, setPlan],
   );
 
   const { drag, dragProps } = useDrag(onDrop, planning);
@@ -283,9 +413,14 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           glowLocation={guideLocation}
         />
         <Coach view={view} me={me} plan={plan} enabled={coach && planning && m.mode === 'ai' && !guide} onActive={setFlash} override={guideText} />
+        {toast && (
+          <div className="toast" role="status">
+            {toast}
+          </div>
+        )}
       </div>
       <div className="bottom">
-        <Hand view={view} me={me} plan={plan} selected={selected} onSelect={selectCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} dragProps={dragProps} glow={guideCard} />
+        <Hand view={view} me={me} plan={plan} selected={selected} onSelect={selectCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} dragProps={dragProps} glow={guideCard} dropState={drop?.hand ? (drop.overKey === 'hand' ? 'over' : 'ok') : null} />
         <div className="hint">
           {selected && planning ? (
             <button className="small chip" onClick={() => setSheet({ kind: 'card', id: selected })}>
@@ -293,6 +428,11 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
             </button>
           ) : (
             hint
+          )}
+          {planning && history.length > 0 && (
+            <button className="small chip undo" onClick={undo} title="Cmd/Ctrl+Z">
+              ↶ Undo
+            </button>
           )}
         </div>
         <div className="actions-left">

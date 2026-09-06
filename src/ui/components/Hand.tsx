@@ -12,6 +12,7 @@ export function Hand({
   compact,
   dragProps,
   glow,
+  dropState,
 }: {
   view: GameState;
   me: PlayerId;
@@ -22,13 +23,14 @@ export function Hand({
   compact: boolean;
   dragProps?: (payload: DragPayload) => Record<string, unknown>;
   glow?: string | null;
+  dropState?: 'ok' | 'over' | null;
 }) {
   const hand = view.players[me].hand;
   const visible = hand.filter((id) => !plan.plays.some((pl) => pl.cardId === id));
   const n = visible.length;
   const mid = (n - 1) / 2;
   return (
-    <div className="hand-wrap">
+    <div className={`hand-wrap ${dropState === 'ok' ? 'drop-ok' : ''} ${dropState === 'over' ? 'drop-ok drop-over' : ''}`} data-drop="hand">
       <div className="hand-label">Your hand ({n})</div>
       <div className="hand">
         {visible.map((id, i) => {
