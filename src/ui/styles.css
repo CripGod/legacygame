@@ -615,3 +615,10 @@ body.dragging { cursor: grabbing; user-select: none; }
 .location.sanctified { border-color: #fff; box-shadow: 0 0 0 1px #fff, 0 0 24px rgba(255,255,255,0.25); }
 .lost-tag.sanct { color: #fff; }
 .log-line.summon { border-color: #fff; font-weight: 700; }
+
+/* Plan chips */
+.hint { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px; }
+.plan-chip { display: inline-flex; align-items: center; gap: 4px; background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 999px; padding: 2px 4px 2px 10px; font-size: 12px; color: var(--text); }
+.plan-chip .x { min-height: 0; min-width: 0; padding: 0 6px; border: 0; background: transparent; color: var(--muted); font-size: 12px; line-height: 20px; border-radius: 999px; }
+.plan-chip .x:hover { background: var(--danger); color: #fff; }
+.hint .reset { border-color: var(--danger); color: #ff9c96; }

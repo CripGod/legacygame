@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CARD_BY_ID, legalOptions, gateRoom, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, type PlayerId, type TurnPlan, other } from '../../engine';
+import { CARD_BY_ID, legalOptions, gateRoom, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, other } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight } from '../components/Battlefield';
@@ -396,20 +396,39 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     return `SUMMON · You ${mine ? '✓' : '?'} · ${view.players[other(me)].handle} ${theirs ?? (mine ? '?' : '')}`;
   };
 
+  const planItems = useMemo(() => {
+    if (!planning) return [];
+    const items: { key: string; label: string; remove: () => void }[] = [];
+    for (const pl of plan.plays) {
+      const def = CARD_BY_ID[pl.cardId];
+      const where = def?.kind === 'character' || def?.id === 'community_defense' ? ` → L${pl.location + 1}` : '';
+      items.push({ key: `play:${pl.cardId}`, label: `${cardName(pl.cardId, placeholders)}${where}`, remove: () => setPlan((p) => ({ ...p, plays: p.plays.filter((x) => x.cardId !== pl.cardId) })) });
+    }
+    for (const uid of plan.enters) {
+      const c = view.characters[uid];
+      if (c) items.push({ key: `enter:${uid}`, label: `${cardName(c.defId, placeholders)} enters`, remove: () => setPlan((p) => ({ ...p, enters: p.enters.filter((u) => u !== uid) })) });
+    }
+    for (const r of plan.relocations) {
+      const c = view.characters[r.uid];
+      if (c) items.push({ key: `move:${r.uid}`, label: `${cardName(c.defId, placeholders)} → L${r.to + 1}`, remove: () => setPlan((p) => ({ ...p, relocations: p.relocations.filter((x) => x.uid !== r.uid) })) });
+    }
+    for (const cf of plan.confronts) {
+      const c = view.characters[cf.uid];
+      if (c) items.push({ key: `confront:${cf.uid}`, label: `${cardName(c.defId, placeholders)} confronts`, remove: () => setPlan((p) => ({ ...p, confronts: p.confronts.filter((x) => x.uid !== cf.uid) })) });
+    }
+    if (plan.summon) items.push({ key: 'summon', label: `Summon at L${plan.summon.location + 1}`, remove: () => setPlan((p) => ({ ...p, summon: undefined })) });
+    if (plan.standOnBusiness) items.push({ key: 'stand', label: 'Stand on Business', remove: () => setPlan((p) => ({ ...p, standOnBusiness: false })) });
+    return items;
+  }, [plan, planning, view, placeholders, setPlan]);
+
   const hint = (() => {
     if (view.phase === 'ended') return 'Match over.';
     if (busy) return 'Harborlight moves…';
     if (locked) return m.mode === 'ai' ? 'Locked. Harborlight is deciding…' : 'Locked.';
     if (selected) return `Tap a Location to commit ${cardName(selected, placeholders)}.`;
-    const parts: string[] = [];
-    for (const pl of plan.plays) parts.push(`${cardName(pl.cardId, placeholders)}${CARD_BY_ID[pl.cardId]?.kind === 'character' || CARD_BY_ID[pl.cardId]?.id === 'community_defense' ? ` → Location ${pl.location + 1}` : ''}`);
     const left = opts.playsAllowed - plan.plays.length;
-    if (left > 0 && opts.plays.length > plan.plays.length) parts.push(`${left} play${left > 1 ? 's' : ''} left`);
-    if (plan.enters.length) parts.push(`${plan.enters.length} entering`);
-    if (plan.relocations.length) parts.push(`${plan.relocations.length} relocating`);
-    if (plan.confronts.length) parts.push(`${plan.confronts.length} confronting`);
-    if (plan.standOnBusiness) parts.push('STANDING ON BUSINESS');
-    return parts.length ? parts.join(' · ') : 'Drag a card onto a Location (or tap card, then Location). One card per turn.';
+    if (planItems.length) return left > 0 && opts.plays.length > plan.plays.length ? `${left} play${left > 1 ? 's' : ''} left` : '';
+    return 'Drag a card onto a Location (or tap card, then Location). One card per turn.';
   })();
 
   const showStandResponse = view.phase === 'standResponse' && view.pendingStand && other(view.pendingStand.by) === me && !busy;
@@ -451,11 +470,26 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
               ⓘ Inspect / send {cardName(selected, placeholders)}
             </button>
           ) : (
-            hint
+            <>
+              {planItems.map((it) => (
+                <span key={it.key} className="plan-chip">
+                  {it.label}
+                  <button className="x" onClick={it.remove} aria-label={`Remove ${it.label}`} title="Remove this move">
+                    ✕
+                  </button>
+                </span>
+              ))}
+              {hint && <span>{hint}</span>}
+            </>
           )}
           {planning && history.length > 0 && (
             <button className="small chip undo" onClick={undo} title="Cmd/Ctrl+Z">
               ↶ Undo
+            </button>
+          )}
+          {planning && planItems.length > 0 && (
+            <button className="small chip reset" onClick={() => setPlan(() => emptyPlan())} title="Clear every move this turn (undoable)">
+              ⟲ Reset turn
             </button>
           )}
         </div>
