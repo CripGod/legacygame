@@ -208,7 +208,7 @@ describe('abilities', () => {
 
 describe('threats', () => {
   it('Segregationist Patrol blocks entry and records a Setback; Reparations converts Setbacks', () => {
-    let s = rig(createMatch({ seed: 2 }), { locations: ['black_star', 'great_migration', 'greenwood'], revealAll: true, handA: ['reparations', 'og'] });
+    let s = rig(createMatch({ seed: 2 }), { locations: ['gary_indiana', 'great_migration', 'greenwood'], revealAll: true, handA: ['reparations', 'og'] });
     const og = addChar(s, 'og', 'A', 0, 'gate', true);
     s.locations[0].threats.push({ uid: 't1', defId: 'segregationist_patrol', location: 0, target: 'A', forceRequired: 3, spawnedTurn: 1 });
     s.locations[0].threats.push({ uid: 't2', defId: 'segregationist_patrol', location: 0, target: 'B', forceRequired: 3, spawnedTurn: 1 });
@@ -249,6 +249,24 @@ describe('threats', () => {
     expect(s.players.A.setbacks).toBe(1);
     s = resolveTurn(s, { A: pass(), B: pass() }).state; // second full turn → LOST
     expect(s.locations[0].lost).toBe(true);
+  });
+});
+
+describe('The Black Star', () => {
+  it('arrives in Accra three turns after it reveals, rewarding everyone aboard', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['black_star', 'great_migration', 'greenwood'], revealAll: true });
+    s.locations[0].revealedTurn = 1;
+    const mansa = addChar(s, 'mansa_musa', 'A', 0, 'inside');
+    const ida = addChar(s, 'ida_b_wells', 'B', 0, 'gate', false);
+    s.locations[0].threats.push({ uid: 'hr', defId: 'housing_restriction', location: 0, forceRequired: 4, spawnedTurn: 1 });
+    for (let t = 1; t <= 3; t++) s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(s.turn).toBe(4);
+    expect(s.locations[0].defId).toBe('accra_ghana');
+    expect(s.locations[0].threats).toHaveLength(0);
+    expect(s.characters[mansa.uid].permInfluence).toBe(1);
+    expect(s.characters[ida.uid].zone).toBe('inside');
+    expect(s.characters[ida.uid].permInfluence).toBe(1);
+    expect(LOCATIONS.some((l) => l.id === 'accra_ghana' && l.notInPool)).toBe(true);
   });
 });
 
@@ -380,6 +398,6 @@ describe('AI vs AI smoke', () => {
     }
   });
   it('all seven Locations are defined', () => {
-    expect(LOCATIONS).toHaveLength(7);
+    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(7);
   });
 });

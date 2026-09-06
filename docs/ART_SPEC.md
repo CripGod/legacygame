@@ -37,7 +37,7 @@ Zip layout: `art/characters/*.jpg`, `art/locations/*.jpg`, `art/threats/*.jpg`, 
 | `characters/sojourner_truth.jpg` | Sojourner Truth | c. 1797–1883 | Tall older woman in a white cap and shawl, knitting or with a Bible, speaking from a platform. Gravity. |
 | `characters/victor_hugo_green.jpg` | Victor Hugo Green | 1892–1960 | Man in a 1940s suit and hat at a desk with maps and a copy of the Green Book, Harlem window behind. |
 
-## Locations (7)
+## Locations (8)
 
 | File | Name | Era | Direction |
 |---|---|---|---|
@@ -47,6 +47,7 @@ Zip layout: `art/characters/*.jpg`, `art/locations/*.jpg`, `art/threats/*.jpg`, 
 | `locations/great_migration.jpg` | Great Migration | 1916–1970 | A crowded northbound train platform, suitcases and Sunday clothes, city skyline ahead, 1920s–40s. |
 | `locations/juneteenth.jpg` | Juneteenth | Galveston, 1865 | Galveston street celebration, June 1865: flags, brass band, families in their best. |
 | `locations/sundown_town.jpg` | Sundown Town | 1890–1968 | A small-town road at dusk with a painted warning sign at the town line, empty main street, long shadows. Ominous but not graphic. |
+| `locations/accra_ghana.jpg` | Accra, Ghana | Independence, 1957 | Independence Square at night, 6 March 1957: the black-star flag rising over a jubilant crowd, floodlights, kente. |
 | `locations/gary_indiana.jpg` | Gary, Indiana | Steel City, 1906– | Gary Works blast furnaces glowing at night behind a row of neat bungalows, one lit living-room window. Steel and soul. |
 
 ## Threats (5)

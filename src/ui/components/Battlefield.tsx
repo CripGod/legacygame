@@ -256,6 +256,11 @@ export function Battlefield(props: BattlefieldProps) {
               >
                 {loc.revealed && !placeholders && <Art kind="locations" id={loc.defId} className="art-img" fallback={null} alt="" />}
                 <span className="art-name">{loc.revealed ? locationName(loc.defId, placeholders) : '?'}</span>
+                {loc.revealed && def.transformsInto && loc.revealedTurn !== undefined && (
+                  <span className="sail-tag" {...tip(`${def.name} arrives in ${Math.max(0, loc.revealedTurn + def.transformsInto.afterTurns - view.turn)} turn(s): everyone aboard gains +1 Influence and Gate Characters walk straight in.`)}>
+                    ⛵ arrives in {Math.max(0, loc.revealedTurn + def.transformsInto.afterTurns - view.turn)}
+                  </span>
+                )}
                 {loc.revealed && !placeholders && <span className="era-tag">{def.era}</span>}
                 {loc.lost && <span className="lost-tag">LOST</span>}
               </div>

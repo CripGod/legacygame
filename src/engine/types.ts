@@ -101,7 +101,8 @@ export type LocationEffect =
   | { type: 'firstRelocatedEnters' } // Great Migration
   | { type: 'readyOnArrival' } // Juneteenth
   | { type: 'displaceFreshAtEnd' } // Sundown Town
-  | { type: 'steelAndSoul'; force: number; fiveBonus: number }; // Gary, Indiana
+  | { type: 'steelAndSoul'; force: number; fiveBonus: number } // Gary, Indiana
+  | { type: 'relocatedInReady' }; // Accra, Ghana
 
 export interface LocationDef {
   id: string;
@@ -114,6 +115,12 @@ export interface LocationDef {
   timedThreat?: { turn: number; threatId: string };
   /** Relative chance of being drawn into a match (default 1). */
   weight?: number;
+  /** Not drawn directly; reached by transformation. */
+  notInPool?: boolean;
+  /** Becomes another Location this many turns after it reveals. */
+  transformsInto?: { id: string; afterTurns: number };
+  /** Neutral Threats never appear here. */
+  noThreats?: boolean;
   /** True only for the redacted placeholder used in player views. */
   hidden?: boolean;
 }
@@ -229,6 +236,7 @@ export interface GameEvent {
     | 'turnStart'
     | 'draw'
     | 'locationRevealed'
+    | 'locationTransformed'
     | 'played'
     | 'eventPlayed'
     | 'reveal'

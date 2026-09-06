@@ -548,7 +548,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       state.stats.relocations[p] += 1;
       const dest = state.locations[r.to];
       const destDef = dest.revealed ? LOCATION_BY_ID[dest.defId] : undefined;
-      if (destDef?.effect.type === 'readyOnArrival') c.ready = true;
+      if (destDef?.effect.type === 'readyOnArrival' || destDef?.effect.type === 'relocatedInReady') c.ready = true;
       const byOwner = dest.firstRelocatedByOwner ?? (dest.firstRelocatedByOwner = {});
       if (!byOwner[p]) {
         byOwner[p] = c.uid;
