@@ -32,18 +32,54 @@ export function Sheet({ children, onClose, title }: { children: ReactNode; onClo
   );
 }
 
-/** Inspect a hand card. */
-export function CardSheet({ id, onClose, onPlay }: { id: string; onClose: () => void; onPlay?: () => void }) {
+/** Inspect a hand card and, while planning, send it straight to a Location. */
+export function CardSheet({
+  id,
+  onClose,
+  sendTo,
+  planned,
+  onCancelPlay,
+}: {
+  id: string;
+  onClose: () => void;
+  /** Legal destinations while planning; undefined when the card cannot be played now. */
+  sendTo?: { options: { index: number; label: string }[]; needsLocation: boolean; onSend: (index: number) => void };
+  planned?: boolean;
+  onCancelPlay?: () => void;
+}) {
+  const { placeholders } = useDisplay();
   return (
-    <Sheet onClose={onClose}>
+    <Sheet onClose={onClose} title={cardName(id, placeholders)}>
       <div className="row" style={{ justifyContent: 'center' }}>
         <CardFace id={id} big />
       </div>
-      {onPlay && (
+      {planned && (
         <div className="actions">
-          <button className="primary" onClick={onPlay}>
-            Choose a Location
-          </button>
+          <span className="muted">Planned for this turn.</span>
+          {onCancelPlay && (
+            <button className="ghost" onClick={onCancelPlay}>
+              Cancel play
+            </button>
+          )}
+        </div>
+      )}
+      {!planned && sendTo && (
+        <div style={{ display: 'grid', gap: 6 }}>
+          <div style={{ fontWeight: 800 }}>{sendTo.needsLocation ? 'Send to:' : 'Play this Event:'}</div>
+          <div className="actions">
+            {sendTo.needsLocation ? (
+              sendTo.options.map((o) => (
+                <button key={o.index} className="primary" onClick={() => sendTo.onSend(o.index)}>
+                  {o.label}
+                </button>
+              ))
+            ) : (
+              <button className="primary" onClick={() => sendTo.onSend(0)}>
+                Play {cardName(id, placeholders)}
+              </button>
+            )}
+            {sendTo.needsLocation && sendTo.options.length === 0 && <span className="muted">No Location has an open Gate for this card.</span>}
+          </div>
         </div>
       )}
     </Sheet>

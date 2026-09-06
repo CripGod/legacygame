@@ -1,5 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { CARD_BY_ID, legalOptions, type PlayerId, other } from '../../engine';
+import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
+import { CardFace, Pic } from '../components/CardFace';
+import type { DropHighlight } from '../components/Battlefield';
 import type { MatchController } from '../useMatch';
 import { Hud } from '../components/Hud';
 import { Battlefield } from '../components/Battlefield';
@@ -7,7 +10,7 @@ import { Hand } from '../components/Hand';
 import { Feed } from '../components/Feed';
 import { Coach } from '../components/Coach';
 import { CardSheet, CharSheet, ConfirmSheet, LocationSheet, ProfileSheet, StandResponseSheet, TargetSheet, ThreatSheet } from '../components/Sheets';
-import { cardName, useDisplay } from '../display';
+import { cardName, locationName, useDisplay } from '../display';
 import { tip, HINTS } from '../tip';
 
 type SheetState =
@@ -38,8 +41,31 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   const [selected, setSelected] = useState<string | null>(null);
   const [sheet, setSheet] = useState<SheetState>(null);
   const [flash, setFlash] = useState<string | null>(null);
+  const [delays, setDelays] = useState<Record<string, number>>({});
   const opts = useMemo(() => legalOptions(view, me), [view, me]);
   const planning = view.phase === 'planning' && !locked && !busy;
+
+  // Escape closes any sheet.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSheet((sh) => (sh && sh.kind !== 'stand' ? null : sh));
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  // Stagger tile animations in the order the resolution events happened.
+  useEffect(() => {
+    const d: Record<string, number> = {};
+    let i = 0;
+    for (const e of m.feed) {
+      if (e.uid && d[e.uid] === undefined && (e.type === 'played' || e.type === 'moved' || e.type === 'entered')) {
+        d[e.uid] = Math.min(2400, i * 160);
+        i++;
+      }
+    }
+    setDelays(d);
+  }, [m.feed]);
 
   // Reset transient selection on new turn.
   useEffect(() => {
@@ -75,19 +101,25 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       setSelected(null);
       return;
     }
-    setSelected(selected === cardId ? null : cardId);
-  };
-
-  const commitPlay = (location: number) => {
-    if (!selected) return;
-    const opt = opts.plays.find((p) => p.cardId === selected);
-    if (!opt || !opt.locations.includes(location)) return;
-    if (opt.needsTarget) {
-      setSheet({ kind: 'target', cardId: selected, location });
+    if (selected === cardId) {
+      setSheet({ kind: 'card', id: cardId });
       return;
     }
-    setPlan((p) => ({ ...p, play: { cardId: selected, location } }));
+    setSelected(cardId);
+  };
+
+  const commitPlay = (location: number, cardId: string | null = selected) => {
+    if (!cardId) return;
+    const opt = opts.plays.find((p) => p.cardId === cardId);
+    if (!opt) return;
+    if (opt.needsLocation && !opt.locations.includes(location)) return;
+    if (opt.needsTarget) {
+      setSheet({ kind: 'target', cardId, location });
+      return;
+    }
+    setPlan((p) => ({ ...p, play: { cardId, location: opt.needsLocation ? location : 0 } }));
     setSelected(null);
+    setSheet(null);
   };
 
   const toggleEnter = (uid: string) => {
@@ -105,16 +137,88 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     });
   };
 
+  const dropTargetsFor = useCallback(
+    (payload: DragPayload): DropHighlight => {
+      const out: DropHighlight = { locations: [], inside: [], threats: [], overKey: '' };
+      if (!planning) return out;
+      if (payload.kind === 'card') {
+        const opt = opts.plays.find((p) => p.cardId === payload.cardId);
+        if (opt) out.locations = opt.needsLocation ? opt.locations : view.locations.map((l) => l.index);
+        return out;
+      }
+      const c = view.characters[payload.uid];
+      if (!c || c.owner !== me) return out;
+      const confronting = plan.confronts.some((x) => x.uid === c.uid);
+      if (!confronting) {
+        if (c.zone === 'gate' && opts.enters.includes(c.uid)) {
+          out.inside = [c.location];
+          out.locations = [c.location];
+        }
+        if (c.zone === 'inside') {
+          const r = opts.relocations.find((x) => x.uid === c.uid);
+          if (r && (plan.relocations.length < opts.relocationsAllowed || plan.relocations.some((x) => x.uid === c.uid))) out.locations = r.destinations;
+        }
+      }
+      if (!plan.enters.includes(c.uid) && !plan.relocations.some((x) => x.uid === c.uid)) {
+        out.threats = opts.confronts.filter((o) => o.chars.includes(c.uid)).map((o) => o.threatUid);
+      }
+      return out;
+    },
+    [planning, opts, view, me, plan],
+  );
+
+  const onDrop = useCallback(
+    (payload: DragPayload, target: DropTarget) => {
+      const ok = dropTargetsFor(payload);
+      if (payload.kind === 'card') {
+        if (target.type === 'threat') return;
+        if (!ok.locations.includes(target.index)) return;
+        const opt = opts.plays.find((p) => p.cardId === payload.cardId);
+        if (!opt) return;
+        if (!opt.needsLocation) {
+          setPlan((p) => ({ ...p, play: { cardId: payload.cardId, location: 0 } }));
+        } else if (opt.needsTarget) {
+          setSheet({ kind: 'target', cardId: payload.cardId, location: target.index });
+        } else {
+          setPlan((p) => ({ ...p, play: { cardId: payload.cardId, location: target.index } }));
+        }
+        setSelected(null);
+        return;
+      }
+      const c = view.characters[payload.uid];
+      if (!c) return;
+      if (target.type === 'threat') {
+        if (ok.threats.includes(target.uid)) toggleConfront(c.uid, target.uid);
+        return;
+      }
+      if (c.zone === 'gate' && ok.inside.includes(target.index)) {
+        if (!plan.enters.includes(c.uid)) toggleEnter(c.uid);
+        return;
+      }
+      if (c.zone === 'inside' && ok.locations.includes(target.index)) {
+        setRelocation(c.uid, target.index);
+      }
+    },
+    [dropTargetsFor, opts, view, plan, setPlan],
+  );
+
+  const { drag, dragProps } = useDrag(onDrop, planning);
+  useEffect(() => {
+    document.body.classList.toggle('dragging', !!drag);
+    return () => document.body.classList.remove('dragging');
+  }, [drag]);
+  const drop: DropHighlight | null = useMemo(() => {
+    if (!drag) return null;
+    return { ...dropTargetsFor(drag.payload), overKey: targetKey(drag.over) };
+  }, [drag, dropTargetsFor]);
+
   const onChar = (uid: string) => {
-    const c = view.characters[uid];
-    if (!c) return;
-    // Quick action: tapping your own Ready Gate Character toggles entering.
-    if (planning && c.owner === me && c.zone === 'gate' && opts.enters.includes(uid) && !plan.confronts.some((x) => x.uid === uid)) {
-      toggleEnter(uid);
-      return;
-    }
+    if (!view.characters[uid]) return;
+    // Tap inspects and offers actions; drag is the quick action.
     setSheet({ kind: 'char', uid });
   };
+
+  const cardLocationLabel = (i: number) => locationName(view.locations[i].defId, placeholders);
 
   const hint = (() => {
     if (view.phase === 'ended') return 'Match over.';
@@ -127,7 +231,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     if (plan.relocations.length) parts.push(`${plan.relocations.length} relocating`);
     if (plan.confronts.length) parts.push(`${plan.confronts.length} confronting`);
     if (plan.standOnBusiness) parts.push('STANDING ON BUSINESS');
-    return parts.length ? parts.join(' · ') : 'Tap a card, then a Location. One card per turn.';
+    return parts.length ? parts.join(' · ') : 'Drag a card onto a Location (or tap card, then Location). One card per turn.';
   })();
 
   const showStandResponse = view.phase === 'standResponse' && view.pendingStand && other(view.pendingStand.by) === me && !busy;
@@ -147,24 +251,30 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           onThreat={(uid) => setSheet({ kind: 'threat', uid })}
           locked={!planning}
           flash={flash}
+          dragProps={dragProps}
+          drop={drop}
+          delays={delays}
         />
         <Feed events={m.feed} index={m.feedIndex} onSkip={m.skipFeed} />
         <Coach view={view} me={me} plan={plan} enabled={coach && planning && m.mode === 'ai'} onActive={setFlash} />
       </div>
       <div className="bottom">
-        <Hand view={view} me={me} plan={plan} selected={selected} onSelect={selectCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} />
-        <div className="hint">{hint}</div>
+        <Hand view={view} me={me} plan={plan} selected={selected} onSelect={selectCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} dragProps={dragProps} />
+        <div className="hint">
+          {selected && planning ? (
+            <button className="small chip" onClick={() => setSheet({ kind: 'card', id: selected })}>
+              ⓘ Inspect / send {cardName(selected, placeholders)}
+            </button>
+          ) : (
+            hint
+          )}
+        </div>
         <div className="actions-left">
           <button className="danger" disabled={view.phase === 'ended' || !opts.canStepOff} {...(opts.canStepOff ? {} : tip(HINTS.noStepOff))} onClick={() => setSheet({ kind: 'stepOff' })}>
             Step Off
           </button>
         </div>
         <div className="lock-row">
-          {selected && (
-            <button className="small ghost" onClick={() => setSheet({ kind: 'card', id: selected })}>
-              Inspect
-            </button>
-          )}
           <button className="primary" disabled={!planning} onClick={m.lockIn}>
             LOCK IT IN
           </button>
@@ -187,18 +297,38 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
         </div>
       </div>
 
+      {drag && (
+        <div className="drag-ghost" style={{ left: drag.x, top: drag.y }}>
+          {drag.payload.kind === 'card' ? (
+            <CardFace id={drag.payload.cardId} />
+          ) : view.characters[drag.payload.uid] ? (
+            <div className="tile">
+              <Pic state={view} c={view.characters[drag.payload.uid]} />
+            </div>
+          ) : null}
+        </div>
+      )}
       {sheet?.kind === 'card' && (
         <CardSheet
           id={sheet.id}
           onClose={() => setSheet(null)}
-          onPlay={
-            planning && opts.plays.some((p) => p.cardId === sheet.id)
-              ? () => {
-                  setSheet(null);
-                  selectCard(sheet.id);
-                }
-              : undefined
-          }
+          planned={plan.play?.cardId === sheet.id}
+          onCancelPlay={() => {
+            setPlan((p) => ({ ...p, play: undefined }));
+            setSheet(null);
+          }}
+          sendTo={(() => {
+            const opt = planning ? opts.plays.find((p) => p.cardId === sheet.id) : undefined;
+            if (!opt) return undefined;
+            return {
+              needsLocation: opt.needsLocation,
+              options: opt.locations.map((i) => ({
+                index: i,
+                label: view.locations[i].revealed ? cardLocationLabel(i) : `Location ${i + 1} (hidden)`,
+              })),
+              onSend: (i: number) => commitPlay(i, sheet.id),
+            };
+          })()}
         />
       )}
       {sheet?.kind === 'char' && <CharSheet view={view} me={me} uid={sheet.uid} plan={plan} locked={!planning} onClose={() => setSheet(null)} onToggleEnter={toggleEnter} onRelocate={setRelocation} />}
@@ -239,7 +369,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           body={
             plan.standOnBusiness
               ? 'Cancel your raise this turn?'
-              : `Raise the match from ${view.stakes} to ${opts.proposedStakes} Stakes${view.maxTurns < 7 ? ' and extend it to 7 turns' : ''}. Your opponent must Continue or Step Off. Once you stand you cannot Step Off, and you can only do this once per match.`
+              : `Raise the match from ${view.stakes} to ${opts.proposedStakes} Stakes${view.maxTurns < 10 ? ' and extend it to 10 turns' : ''}. Your opponent must Continue or Step Off. Once you stand you cannot Step Off, and you can only do this once per match.`
           }
           confirmLabel={plan.standOnBusiness ? 'Cancel raise' : `Stand: ${view.stakes} → ${opts.proposedStakes}`}
           onClose={() => setSheet(null)}

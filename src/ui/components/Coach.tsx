@@ -3,13 +3,13 @@ import type { GameState, PlayerId, TurnPlan } from '../../engine';
 import { charsOf } from '../../engine';
 
 const TIPS: { key: string; text: string; when: (v: GameState, me: PlayerId, plan: TurnPlan) => boolean }[] = [
-  { key: 'first', text: 'Choose a card, then tap a Location to commit it. All three Locations are hidden on Turn 1.', when: (v) => v.turn === 1 },
+  { key: 'first', text: 'Drag a card onto a Location to commit it (or tap the card, then the Location). All three Locations are hidden on Turn 1.', when: (v) => v.turn === 1 },
   { key: 'gates', text: 'Characters wait one turn at the Gates. Next turn they become Ready and may enter.', when: (v, me) => v.turn === 2 && charsOf(v, me).some((c) => c.zone === 'gate') },
-  { key: 'enter', text: 'Tap a Ready Character at your Gates to send it Inside. Entering is free.', when: (v, me) => charsOf(v, me).some((c) => c.zone === 'gate' && c.ready) },
+  { key: 'enter', text: 'Drag a Ready Character from your Gates into the Location (or tap it and choose Enter). Entering is free.', when: (v, me) => charsOf(v, me).some((c) => c.zone === 'gate' && c.ready) },
   { key: 'influence', text: 'Control two of the three Locations at the end of the last turn to win.', when: (v) => v.turn === 3 },
-  { key: 'move', text: 'Tap an Established Character to relocate it. Movement is a big part of this game.', when: (v, me) => charsOf(v, me).some((c) => c.zone === 'inside') },
-  { key: 'threat', text: 'Threats are neutral dangers. Tap one to confront it. Some affect both players.', when: (v) => v.locations.some((l) => l.threats.length > 0) },
-  { key: 'stakes', text: 'Stand on Business doubles the Stakes and adds a seventh turn. Once you stand, you cannot Step Off.', when: (v) => v.turn >= 4 },
+  { key: 'move', text: 'Drag an Established Character to another Location to relocate it. Movement is a big part of this game.', when: (v, me) => charsOf(v, me).some((c) => c.zone === 'inside') },
+  { key: 'threat', text: 'Threats are neutral dangers. Drag a Character onto one to confront it. Some affect both players.', when: (v) => v.locations.some((l) => l.threats.length > 0) },
+  { key: 'stakes', text: 'Stand on Business doubles the Stakes and adds a tenth turn. Once you stand, you cannot Step Off.', when: (v) => v.turn >= 5 },
 ];
 
 const KEY = 'bhcb.coach.v1';

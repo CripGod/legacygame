@@ -24,7 +24,7 @@ export function Hud({ view, me, secondsLeft, paused, onProfile }: { view: GameSt
     const av = CARD_BY_ID[ps.avatarDefId];
     return (
       <div className={`profile ${right ? 'right' : ''} p${p}`} onClick={() => onProfile(p)} role="button">
-        <div className="avatar" title={av?.name}>
+        <div className="avatar" title={av?.name} data-avatar={p}>
           {initials(ps.avatarDefId, placeholders)}
         </div>
         <div className="plate">

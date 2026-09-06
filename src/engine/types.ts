@@ -9,9 +9,9 @@ export const other = (p: PlayerId): PlayerId => (p === 'A' ? 'B' : 'A');
 
 export type Zone = 'gate' | 'inside';
 
-export const TURNS = 6;
+export const TURNS = 9;
 /** Stand on Business extends the match to this many turns. */
-export const EXTENDED_TURNS = 7;
+export const EXTENDED_TURNS = 10;
 export const GATE_CAPACITY = 2;
 export const INSIDE_CAPACITY = 5;
 export const STARTING_HAND = 4;

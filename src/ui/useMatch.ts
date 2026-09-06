@@ -44,7 +44,7 @@ export interface MatchController {
   log: GameEvent[];
 }
 
-const FEED_MS = 550;
+const FEED_MS = 450;
 
 export function useMatch(initialSeed: number, mode: Mode): MatchController {
   const [seed, setSeed] = useState(initialSeed);
