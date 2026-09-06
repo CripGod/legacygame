@@ -4,8 +4,6 @@ import {
   CARD_BY_ID,
   LOCATION_BY_ID,
   THREAT_BY_ID,
-  charsAt,
-  charsOf,
   confrontForce,
   legalOptions,
   locDef,
@@ -122,6 +120,8 @@ export function CharSheet({
   onClose,
   onToggleEnter,
   onRelocate,
+  tubman,
+  yemoja,
 }: {
   view: GameState;
   me: PlayerId;
@@ -131,6 +131,10 @@ export function CharSheet({
   onClose: () => void;
   onToggleEnter: (uid: string) => void;
   onRelocate: (uid: string, to: number | null) => void;
+  /** Harriet Tubman is planned: Gate Characters may take a free move. */
+  tubman?: { name: string; dests: number[]; onMove: (to: number | null) => void };
+  /** Yemoja is planned: an Established Character elsewhere may be brought across. */
+  yemoja?: { name: string; location: number; onBring: (on: boolean) => void };
 }) {
   const { placeholders } = useDisplay();
   const c = view.characters[uid];
@@ -156,6 +160,27 @@ export function CharSheet({
         {c.permInfluence ? ` · +${c.permInfluence} Influence` : ''}
         {c.tempInfluence ? ` · +${c.tempInfluence} this turn` : ''}
       </div>
+      {mine && c.zone === 'gate' && tubman && !entering && !confronting && (
+        <div style={{ display: 'grid', gap: 6 }}>
+          <div className="muted">{tubman.name} can move this Character to another Gate for free (waiting progress kept):</div>
+          <div className="actions">
+            {tubman.dests.map((d) => (
+              <button key={d} className={harrietMove?.target?.location === d ? 'primary' : ''} onClick={() => tubman.onMove(harrietMove?.target?.location === d ? null : d)}>
+                {locationName(locDef(view, d).id, placeholders)}
+                {!view.locations[d].revealed ? ` (Location ${d + 1})` : ''}
+              </button>
+            ))}
+            {tubman.dests.length === 0 && <span className="muted">No other Gate has room.</span>}
+          </div>
+        </div>
+      )}
+      {mine && c.zone === 'inside' && yemoja && yemoja.location !== c.location && !confronting && (
+        <div className="actions">
+          <button className={plan.plays.some((pl) => pl.target?.charUid === uid) ? 'primary' : ''} onClick={() => yemoja.onBring(!plan.plays.some((pl) => pl.target?.charUid === uid))}>
+            {plan.plays.some((pl) => pl.target?.charUid === uid) ? `Coming with ${yemoja.name} ✓ (tap to cancel)` : `Bring across with ${yemoja.name}`}
+          </button>
+        </div>
+      )}
       {mine && c.zone === 'gate' && (
         <div className="actions">
           <button className={entering ? 'primary' : ''} disabled={!canEnter && !entering || confronting} onClick={() => onToggleEnter(uid)}>
@@ -276,73 +301,6 @@ export function LocationSheet({ view, index, onClose }: { view: GameState; index
 }
 
 /** Harriet Tubman's Reveal needs a friendly Gate Character and a destination. */
-export function TargetSheet({
-  view,
-  me,
-  cardId,
-  location,
-  onClose,
-  onConfirm,
-}: {
-  view: GameState;
-  me: PlayerId;
-  cardId: string;
-  location: number;
-  onClose: () => void;
-  onConfirm: (target?: { charUid: string; location: number }) => void;
-}) {
-  const { placeholders } = useDisplay();
-  const needs = (CARD_BY_ID[cardId] as { reveal?: { needsTarget?: string } })?.reveal?.needsTarget;
-  if (needs === 'friendlyInsideChar') {
-    const insideChars = charsOf(view, me).filter((c) => c.zone === 'inside' && c.location !== location);
-    return (
-      <Sheet onClose={onClose} title={`${cardName(cardId, placeholders)}: choose who to bring across`}>
-        <div className="muted">Bring one friendly Established Character from another Location here. It arrives Inside if there is room, otherwise Ready at the Gates.</div>
-        {insideChars.length === 0 && <div>No Established Characters elsewhere. The Reveal will do nothing.</div>}
-        <div className="actions">
-          {insideChars.map((c) => (
-            <button key={c.uid} className="primary" onClick={() => onConfirm({ charUid: c.uid, location })}>
-              {cardName(c.defId, placeholders)} <span className="muted">from {locationName(locDef(view, c.location).id, placeholders)}</span>
-            </button>
-          ))}
-        </div>
-        <div className="actions">
-          <button className="ghost" onClick={() => onConfirm(undefined)}>
-            Play without bringing anyone
-          </button>
-        </div>
-      </Sheet>
-    );
-  }
-  const gateChars = charsOf(view, me).filter((c) => c.zone === 'gate');
-  return (
-    <Sheet onClose={onClose} title={`${cardName(cardId, placeholders)}: choose a Character to move`}>
-      <div className="muted">Move one friendly Gate Character to another Location's open Gate. Waiting progress is preserved.</div>
-      {gateChars.length === 0 && <div>No friendly Gate Characters to move. Harriet's Reveal will do nothing.</div>}
-      {gateChars.map((c) => (
-        <div key={c.uid} style={{ display: 'grid', gap: 4 }}>
-          <div>
-            <b>{cardName(c.defId, placeholders)}</b> <span className="muted">at {locationName(locDef(view, c.location).id, placeholders)} · {c.ready ? 'Ready' : 'Fresh'}</span>
-          </div>
-          <div className="actions">
-            {view.locations
-              .filter((l) => l.index !== c.location && !l.lost && charsAt(view, l.index, me, 'gate').length + (l.index === location ? 1 : 0) < 2)
-              .map((l) => (
-                <button key={l.index} onClick={() => onConfirm({ charUid: c.uid, location: l.index })}>
-                  → {l.revealed ? locationName(l.defId, placeholders) : `Location ${l.index + 1}`}
-                </button>
-              ))}
-          </div>
-        </div>
-      ))}
-      <div className="actions">
-        <button className="ghost" onClick={() => onConfirm(undefined)}>
-          Play without moving anyone
-        </button>
-      </div>
-    </Sheet>
-  );
-}
 
 export function ProfileSheet({ view, p, me, onClose }: { view: GameState; p: PlayerId; me: PlayerId; onClose: () => void }) {
   const { placeholders } = useDisplay();

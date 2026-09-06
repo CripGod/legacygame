@@ -9,7 +9,7 @@ import { Hud } from '../components/Hud';
 import { Battlefield } from '../components/Battlefield';
 import { Hand } from '../components/Hand';
 import { Coach } from '../components/Coach';
-import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, TargetSheet, ThreatSheet } from '../components/Sheets';
+import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, ThreatSheet } from '../components/Sheets';
 import { guideDone, markGuideDone, suggest } from '../guide';
 import { EMOTES } from '../useMatch';
 import { cardName, locationName, useDisplay } from '../display';
@@ -20,7 +20,6 @@ type SheetState =
   | { kind: 'char'; uid: string }
   | { kind: 'threat'; uid: string }
   | { kind: 'location'; index: number }
-  | { kind: 'target'; cardId: string; location: number }
   | { kind: 'profile'; p: PlayerId }
   | { kind: 'stepOff' }
   | { kind: 'stand' }
@@ -158,10 +157,6 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     const opt = opts.plays.find((p) => p.cardId === cardId);
     if (!opt) return;
     if (opt.needsLocation && !opt.locations.includes(location)) return;
-    if (opt.needsTarget) {
-      setSheet({ kind: 'target', cardId, location });
-      return;
-    }
     addPlay({ cardId, location: opt.needsLocation ? location : 0 });
     setSelected(null);
     setSheet(null);
@@ -179,7 +174,28 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       while (plays.length >= opts.playsAllowed && plays.length > 0) plays = plays.slice(1);
       return { ...p, plays: [...plays, play] };
     });
+    const needs = opts.plays.find((p) => p.cardId === play.cardId)?.needsTarget;
+    if (needs === 'friendlyGateCharAndLocation' && !play.target) feedback(`${cardName(play.cardId, placeholders)} planned. Optional: drag one of your Gate Characters to another Location's Gates and she moves it there for free.`);
+    if (needs === 'friendlyInsideChar' && !play.target) feedback(`${cardName(play.cardId, placeholders)} planned. Optional: drag one of your Established Characters from another Location onto hers and she brings them across.`);
   }
+
+  /** Harriet Tubman / Yemoja: the planned play whose Reveal wants a target, if any. */
+  const targetPlay = (kind: 'friendlyGateCharAndLocation' | 'friendlyInsideChar') =>
+    planRef.current.plays.find((pl) => (CARD_BY_ID[pl.cardId] as { reveal?: { needsTarget?: string } })?.reveal?.needsTarget === kind);
+  const harrietPlay = plan.plays.find((pl) => (CARD_BY_ID[pl.cardId] as { reveal?: { needsTarget?: string } })?.reveal?.needsTarget === 'friendlyGateCharAndLocation');
+  const yemojaPlay = plan.plays.find((pl) => (CARD_BY_ID[pl.cardId] as { reveal?: { needsTarget?: string } })?.reveal?.needsTarget === 'friendlyInsideChar');
+  /** Gates with room for a Tubman move, counting the plays already planned there. */
+  const tubmanDests = (uid: string) => {
+    const c = view.characters[uid];
+    if (!c || !harrietPlay) return [];
+    return view.locations.filter((l) => l.index !== c.location && !l.lost && gateRoom(view, l.index, me, plannedAt(l.index)) > 0).map((l) => l.index);
+  };
+  const setTarget = (kind: 'friendlyGateCharAndLocation' | 'friendlyInsideChar', target: { charUid: string; location: number } | null) => {
+    const play = targetPlay(kind);
+    if (!play) return;
+    setPlan((p) => ({ ...p, plays: p.plays.map((pl) => (pl.cardId === play.cardId ? { ...pl, target: target ?? undefined } : pl)) }));
+    setSheet(null);
+  };
 
 
   const toggleEnter = (uid: string) => {
@@ -221,6 +237,19 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
         out.locations = [c.location];
         out.inside = [c.location];
       }
+      const targeted = plan.plays.find((pl) => pl.target?.charUid === c.uid);
+      if (targeted) out.gates = [...out.gates, c.location]; // drag back to cancel the free move
+      if (!confronting && !entering && !reloc) {
+        if (c.zone === 'gate' && harrietPlay) {
+          const d = tubmanDests(c.uid);
+          out.gates = [...out.gates, ...d];
+          out.locations = [...out.locations, ...d];
+        }
+        if (c.zone === 'inside' && yemojaPlay && yemojaPlay.location !== c.location && !view.locations[yemojaPlay.location].lost) {
+          out.inside = [...out.inside, yemojaPlay.location];
+          out.locations = [...out.locations, yemojaPlay.location];
+        }
+      }
       if (!confronting) {
         if (c.zone === 'gate' && opts.enters.includes(c.uid) && !entering) {
           out.inside = [c.location];
@@ -238,7 +267,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       }
       return out;
     },
-    [planning, opts, view, me, plan],
+    [planning, opts, view, me, plan, harrietPlay, yemojaPlay],
   );
 
   /** Why a drop cannot happen, and what to shake. */
@@ -278,7 +307,12 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       const i = locIndex!;
       if (confronting) return { text: `${nm} is confronting a Threat this turn and cannot move. Tap the Threat to release it.`, shake: [tile] };
       if (c.zone === 'gate') {
-        if (i !== c.location) return { text: `Gate Characters enter the Location they are waiting at. Relocation is for Established Characters.`, shake: [tile] };
+        if (i !== c.location) {
+          if (harrietPlay && (plan.enters.includes(c.uid) || plan.relocations.some((x) => x.uid === c.uid))) return { text: `${nm} is already moving this turn. Harriet Tubman can only move a Character that is staying put.`, shake: [tile] };
+          if (harrietPlay && view.locations[i].lost) return { text: `${locNameAt(i)} is Lost. Nobody can win it.`, shake: [`${col(i)} .art`] };
+          if (harrietPlay) return { text: `Your Gates at ${locNameAt(i)} are full, so Harriet Tubman cannot move ${nm} there.`, shake: [`${col(i)} .gates-left[data-drop="gates"] .gate-slot`] };
+          return { text: `Gate Characters enter the Location they are waiting at. Play Harriet Tubman first and she can move one of them to another Gate.`, shake: [tile] };
+        }
         if (!c.ready) return { text: `${nm} is Fresh: it arrived this turn and waits one turn at the Gates before it can enter.`, shake: [tile] };
         const blocked = isBlockedFromEntering(view, c);
         if (blocked?.includes('Patrol')) {
@@ -323,13 +357,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
         if (target.type === 'threat' || !ok.locations.includes(idx)) return fail();
         const opt = opts.plays.find((p) => p.cardId === payload.cardId);
         if (!opt) return fail();
-        if (!opt.needsLocation) {
-          addPlay({ cardId: payload.cardId, location: 0 });
-        } else if (opt.needsTarget) {
-          setSheet({ kind: 'target', cardId: payload.cardId, location: idx });
-        } else {
-          addPlay({ cardId: payload.cardId, location: idx });
-        }
+        addPlay({ cardId: payload.cardId, location: opt.needsLocation ? idx : 0 });
         setSelected(null);
         return;
       }
@@ -342,17 +370,21 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       }
       const entering = plan.enters.includes(c.uid);
       const reloc = plan.relocations.find((x) => x.uid === c.uid);
+      const targeted = plan.plays.find((pl) => pl.target?.charUid === c.uid);
       // Cancel by dragging back.
       if (entering && target.type === 'gates' && idx === c.location) return toggleEnter(c.uid);
       if (reloc && idx === c.location) return setRelocation(c.uid, null);
+      if (targeted && idx === c.location) return setTarget(c.zone === 'gate' ? 'friendlyGateCharAndLocation' : 'friendlyInsideChar', null);
       if (c.zone === 'gate' && !entering) {
-        if (ok.inside.includes(idx)) return toggleEnter(c.uid);
+        if (idx !== c.location && harrietPlay && ok.gates.includes(idx)) return setTarget('friendlyGateCharAndLocation', { charUid: c.uid, location: idx });
+        if (idx === c.location && ok.inside.includes(idx)) return toggleEnter(c.uid);
         return fail();
       }
+      if (c.zone === 'inside' && idx !== c.location && yemojaPlay?.location === idx && (target.type === 'inside' || ok.inside.includes(idx))) return setTarget('friendlyInsideChar', { charUid: c.uid, location: idx });
       if (c.zone === 'inside' && ok.locations.includes(idx) && idx !== c.location) return setRelocation(c.uid, idx);
       if (idx !== c.location) fail();
     },
-    [dropTargetsFor, explain, feedback, opts, view, plan, setPlan],
+    [dropTargetsFor, explain, feedback, opts, view, plan, setPlan, harrietPlay, yemojaPlay],
   );
 
   const { drag, dragProps } = useDrag(onDrop, planning);
@@ -408,6 +440,10 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       const c = view.characters[uid];
       if (c) items.push({ key: `enter:${uid}`, label: `${cardName(c.defId, placeholders)} enters`, remove: () => setPlan((p) => ({ ...p, enters: p.enters.filter((u) => u !== uid) })) });
     }
+    for (const pl of plan.plays) {
+      const c = pl.target?.charUid ? view.characters[pl.target.charUid] : undefined;
+      if (c) items.push({ key: `target:${c.uid}`, label: `${cardName(c.defId, placeholders)} → L${(pl.target!.location ?? pl.location) + 1} (${cardName(pl.cardId, placeholders).split(' ')[0]})`, remove: () => setPlan((p) => ({ ...p, plays: p.plays.map((x) => (x.cardId === pl.cardId ? { ...x, target: undefined } : x)) })) });
+    }
     for (const r of plan.relocations) {
       const c = view.characters[r.uid];
       if (c) items.push({ key: `move:${r.uid}`, label: `${cardName(c.defId, placeholders)} → L${r.to + 1}`, remove: () => setPlan((p) => ({ ...p, relocations: p.relocations.filter((x) => x.uid !== r.uid) })) });
@@ -426,6 +462,8 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     if (busy) return 'Harborlight moves…';
     if (locked) return m.mode === 'ai' ? 'Locked. Harborlight is deciding…' : 'Locked.';
     if (selected) return `Tap a Location to commit ${cardName(selected, placeholders)}.`;
+    if (harrietPlay && !harrietPlay.target) return 'Harriet Tubman: drag a Gate Character to another Gate for a free move (optional).';
+    if (yemojaPlay && !yemojaPlay.target) return `Yemoja: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : `Location ${yemojaPlay.location + 1}`} (optional).`;
     const left = opts.playsAllowed - plan.plays.length;
     if (planItems.length) return left > 0 && opts.plays.length > plan.plays.length ? `${left} play${left > 1 ? 's' : ''} left` : '';
     return 'Drag a card onto a Location (or tap card, then Location). One card per turn.';
@@ -565,7 +603,20 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           })()}
         />
       )}
-      {sheet?.kind === 'char' && <CharSheet view={view} me={me} uid={sheet.uid} plan={plan} locked={!planning} onClose={() => setSheet(null)} onToggleEnter={toggleEnter} onRelocate={setRelocation} />}
+      {sheet?.kind === 'char' && (
+        <CharSheet
+          view={view}
+          me={me}
+          uid={sheet.uid}
+          plan={plan}
+          locked={!planning}
+          onClose={() => setSheet(null)}
+          onToggleEnter={toggleEnter}
+          onRelocate={setRelocation}
+          tubman={harrietPlay ? { name: cardName(harrietPlay.cardId, placeholders), dests: tubmanDests(sheet.uid), onMove: (to) => setTarget('friendlyGateCharAndLocation', to === null ? null : { charUid: sheet.uid, location: to }) } : undefined}
+          yemoja={yemojaPlay ? { name: cardName(yemojaPlay.cardId, placeholders), location: yemojaPlay.location, onBring: (on) => setTarget('friendlyInsideChar', on ? { charUid: sheet.uid, location: yemojaPlay.location } : null) } : undefined}
+        />
+      )}
       {sheet?.kind === 'threat' && <ThreatSheet view={view} me={me} threatUid={sheet.uid} plan={plan} locked={!planning} onClose={() => setSheet(null)} onToggle={toggleConfront} />}
       {sheet?.kind === 'location' && <LocationSheet view={view} index={sheet.index} onClose={() => setSheet(null)} />}
       {m.pendingProposal && m.pendingProposal.from !== me && planning && (
@@ -599,20 +650,6 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       )}
       {sheet?.kind === 'log' && <LogSheet events={m.lastTurn} turn={Math.max(1, view.turn - (view.phase === 'ended' ? 0 : 1))} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'profile' && <ProfileSheet view={view} p={sheet.p} me={me} onClose={() => setSheet(null)} />}
-      {sheet?.kind === 'target' && (
-        <TargetSheet
-          view={view}
-          me={me}
-          cardId={sheet.cardId}
-          location={sheet.location}
-          onClose={() => setSheet(null)}
-          onConfirm={(target) => {
-            addPlay({ cardId: sheet.cardId, location: sheet.location, target });
-            setSelected(null);
-            setSheet(null);
-          }}
-        />
-      )}
       {sheet?.kind === 'stepOff' && (
         <ConfirmSheet
           title="Step Off?"
