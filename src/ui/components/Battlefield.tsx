@@ -93,7 +93,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                 </div>
               );
             const planned = isPlannedUid(s.uid);
-            const moving = plan.relocations.some((r) => r.uid === s.uid);
+            const moving = plan.relocations.some((r) => r.uid === s.uid) || plan.plays.some((pl) => pl.target?.charUid === s.uid);
             const confronting = plan.confronts.some((c) => c.uid === s.uid);
             const draggable =
               owner === me && dragProps ? dragProps(planned ? { kind: 'card', cardId: s.uid.slice(PLANNED_PREFIX.length) } : { kind: 'char', uid: s.uid }) : {};

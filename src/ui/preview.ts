@@ -29,6 +29,14 @@ export function previewPlan(view: GameState, me: PlayerId, plan: TurnPlan): Game
   plan.plays.forEach((play, i) => {
     const def = CARD_BY_ID[play.cardId];
     if (def?.kind !== 'character') return;
+    // Harriet Tubman's Reveal: show the chosen Gate Character at its destination.
+    if (def.reveal?.effect.type === 'moveFriendlyGate' && play.target?.charUid && play.target.location !== undefined) {
+      const t = v.characters[play.target.charUid];
+      if (t && t.owner === me && t.zone === 'gate') {
+        t.location = play.target.location;
+        t.relocatedTurn = v.turn;
+      }
+    }
     const c: CharacterInstance = {
       uid: `${PLANNED_PREFIX}${def.id}`,
       defId: def.id,

@@ -117,7 +117,8 @@ export function CharSheet({
   const current = plan.relocations.find((r) => r.uid === uid);
   const entering = plan.enters.includes(uid);
   const confronting = plan.confronts.some((x) => x.uid === uid);
-  const status = c.zone === 'inside' ? 'Established: Inside, Established ability active' : c.blockedEnterTurn === view.turn ? `At the Gates · ${HINTS.blocked}` : c.ready ? `At the Gates · ${HINTS.ready}` : `At the Gates · ${HINTS.fresh}`;
+  const harrietMove = plan.plays.find((pl) => pl.target?.charUid === uid);
+  const status = harrietMove ? `Moving with Harriet Tubman to Location ${(harrietMove.target!.location ?? 0) + 1} when you Lock It In` : c.zone === 'inside' ? 'Established: Inside, Established ability active' : c.blockedEnterTurn === view.turn ? `At the Gates · ${HINTS.blocked}` : c.ready ? `At the Gates · ${HINTS.ready}` : `At the Gates · ${HINTS.fresh}`;
   return (
     <Sheet onClose={onClose} title={`${cardName(c.defId, placeholders)} · ${view.players[c.owner].handle}`}>
       <div className="row" style={{ justifyContent: 'center' }}>
