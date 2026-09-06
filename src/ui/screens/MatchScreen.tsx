@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CARD_BY_ID, legalOptions, gateRoom, insideCapacity, isBlockedFromEntering, charsAt, THREAT_BY_ID, type PlayerId, type TurnPlan, other } from '../../engine';
+import { CARD_BY_ID, legalOptions, gateRoom, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, type PlayerId, type TurnPlan, other } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight } from '../components/Battlefield';
@@ -9,8 +9,9 @@ import { Hud } from '../components/Hud';
 import { Battlefield } from '../components/Battlefield';
 import { Hand } from '../components/Hand';
 import { Coach } from '../components/Coach';
-import { CardSheet, CharSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, StandResponseSheet, TargetSheet, ThreatSheet } from '../components/Sheets';
+import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, StandResponseSheet, TargetSheet, ThreatSheet } from '../components/Sheets';
 import { guideDone, markGuideDone, suggest } from '../guide';
+import { EMOTES } from '../useMatch';
 import { cardName, locationName, useDisplay } from '../display';
 import { tip, HINTS } from '../tip';
 
@@ -24,6 +25,7 @@ type SheetState =
   | { kind: 'stepOff' }
   | { kind: 'stand' }
   | { kind: 'log' }
+  | { kind: 'chat' }
   | null;
 
 function useCompact(): boolean {
@@ -226,7 +228,9 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
         }
         if (c.zone === 'inside') {
           const r = opts.relocations.find((x) => x.uid === c.uid);
-          if (r && (plan.relocations.length < opts.relocationsAllowed || reloc)) out.locations = [...out.locations, ...r.destinations];
+          const fromHub = locDef(view, c.location).effect.type === 'hub';
+          const used = plan.relocations.filter((x) => locDef(view, view.characters[x.uid]?.location ?? -1).effect.type !== 'hub').length;
+          if (r && (fromHub || used < opts.relocationsAllowed || reloc)) out.locations = [...out.locations, ...r.destinations];
         }
       }
       if (!entering && !reloc) {
@@ -372,6 +376,25 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   };
 
   const cardLocationLabel = (i: number) => locationName(view.locations[i].defId, placeholders);
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const bubbles = useMemo(() => {
+    const out: Partial<Record<PlayerId, string>> = {};
+    for (const p of ['A', 'B'] as PlayerId[]) {
+      const last = [...m.chat].reverse().find((c) => c.from === p);
+      if (last && now - last.at < 7000) out[p] = last.text;
+    }
+    return out;
+  }, [m.chat, now]);
+  const summonState = (i: number): string | null => {
+    const mine = plan.summon?.location === i;
+    const theirs = m.pendingProposal?.from !== me && m.pendingProposal?.location === i ? '?' : m.opponentAgreed === i ? '✓' : null;
+    if (!mine && !theirs) return null;
+    return `SUMMON · You ${mine ? '✓' : '?'} · ${view.players[other(me)].handle} ${theirs ?? (mine ? '?' : '')}`;
+  };
 
   const hint = (() => {
     if (view.phase === 'ended') return 'Match over.';
@@ -393,7 +416,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
 
   return (
     <div className="app">
-      <Hud view={view} me={me} secondsLeft={m.secondsLeft} paused={!planning} onProfile={(p) => setSheet({ kind: 'profile', p })} onLog={() => setSheet({ kind: 'log' })} hasLog={m.lastTurn.length > 0} />
+      <Hud view={view} me={me} secondsLeft={m.secondsLeft} paused={!planning} onProfile={(p) => setSheet({ kind: 'profile', p })} onLog={() => setSheet({ kind: 'log' })} hasLog={m.lastTurn.length > 0} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} />
       <div className="main-wrap">
         <Battlefield
           view={boardView}
@@ -411,6 +434,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           delays={m.delays}
           resolving={busy}
           glowLocation={guideLocation}
+          summonLabel={summonState}
         />
         <Coach view={view} me={me} plan={plan} enabled={coach && planning && m.mode === 'ai' && !guide} onActive={setFlash} override={guideText} />
         {toast && (
@@ -502,6 +526,35 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       {sheet?.kind === 'char' && <CharSheet view={view} me={me} uid={sheet.uid} plan={plan} locked={!planning} onClose={() => setSheet(null)} onToggleEnter={toggleEnter} onRelocate={setRelocation} />}
       {sheet?.kind === 'threat' && <ThreatSheet view={view} me={me} threatUid={sheet.uid} plan={plan} locked={!planning} onClose={() => setSheet(null)} onToggle={toggleConfront} />}
       {sheet?.kind === 'location' && <LocationSheet view={view} index={sheet.index} onClose={() => setSheet(null)} />}
+      {m.pendingProposal && m.pendingProposal.from !== me && planning && (
+        <div className="proposal">
+          <span>
+            <b>{view.players[m.pendingProposal.from].handle}</b> proposes a Summon at <b>{cardLocationLabel(m.pendingProposal.location)}</b>. {SUMMON.name} needs {SUMMON.force} Force from both of you.
+          </span>
+          <button className="small primary" onClick={m.acceptSummon} disabled={!opts.summonable.includes(m.pendingProposal.location)}>
+            Summon!
+          </button>
+          <button className="small ghost" onClick={m.declineSummon}>
+            Nah, I'm busy.
+          </button>
+        </div>
+      )}
+      {sheet?.kind === 'chat' && (
+        <ChatSheet
+          onClose={() => setSheet(null)}
+          emotes={EMOTES}
+          onEmote={(t) => {
+            m.sendEmote(t);
+            setSheet(null);
+          }}
+          summonable={planning && !plan.summon ? opts.summonable.map((i) => ({ index: i, label: cardLocationLabel(i) })) : []}
+          onSummon={(i) => {
+            m.proposeSummon(i);
+            setSheet(null);
+          }}
+          chat={m.chat.map((c) => ({ from: view.players[c.from].handle, text: c.text }))}
+        />
+      )}
       {sheet?.kind === 'log' && <LogSheet events={m.lastTurn} turn={Math.max(1, view.turn - (view.phase === 'ended' ? 0 : 1))} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'profile' && <ProfileSheet view={view} p={sheet.p} me={me} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'target' && (

@@ -327,13 +327,46 @@ function playVariants(view: GameState, p: PlayerId): PlayAction[] {
   return out;
 }
 
-export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAULT_TUNING): AiDecision {
+/** Would Harborlight propose a Summon this turn, and where? */
+export function aiSummonProposal(view: GameState, p: PlayerId): number | null {
+  const opts = legalOptions(view, p);
+  const rng = makeRng(hashSeed(`${view.seed}:${view.turn}:${p}:summon`));
+  for (const i of opts.summonable) {
+    const loc = view.locations[i];
+    const dangerous = loc.threats.some((t) => THREAT_BY_ID[t.defId].lostAfterTurns);
+    const myForce = charsAt(view, i, p).reduce((s, c) => s + charDef(c.defId).force, 0);
+    const theirForce = charsAt(view, i, other(p)).reduce((s, c) => s + charDef(c.defId).force, 0);
+    if (myForce < 1 || theirForce < 1) continue;
+    if (dangerous || (myForce + theirForce >= 6 && nextFloat(rng) < 0.35)) return i;
+  }
+  return null;
+}
+
+/** Should Harborlight accept a proposed Summon? */
+export function aiAcceptSummon(view: GameState, p: PlayerId, location: number): boolean {
+  const opts = legalOptions(view, p);
+  if (!opts.summonable.includes(location)) return false;
+  const loc = view.locations[location];
+  const rng = makeRng(hashSeed(`${view.seed}:${view.turn}:${p}:accept:${location}`));
+  const dangerous = loc.threats.some((t) => THREAT_BY_ID[t.defId].lostAfterTurns);
+  const myForce = charsAt(view, location, p).reduce((s, c) => s + charDef(c.defId).force, 0);
+  const theirForce = charsAt(view, location, other(p)).reduce((s, c) => s + charDef(c.defId).force, 0);
+  if (myForce + theirForce < 6) return nextFloat(rng) < 0.15; // long shot, rarely
+  if (dangerous) return true;
+  return nextFloat(rng) < 0.6;
+}
+
+export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAULT_TUNING, agreedSummon?: number): AiDecision {
   const t0 = Date.now();
   const rng = makeRng(hashSeed(`${view.seed}:${view.turn}:${p}:ai`));
   const rand = () => nextFloat(rng);
   const globalReasons: string[] = [];
   const { confronts, busy } = decideConfronts(view, p, rand, globalReasons);
   const opts = legalOptions(view, p);
+  if (agreedSummon !== undefined && opts.summonable.includes(agreedSummon)) {
+    for (const c of charsOf(view, p)) if (c.location === agreedSummon) busy.add(c.uid);
+    globalReasons.push(`joins the Summon at L${agreedSummon + 1}`);
+  }
 
   const readyUids = opts.enters.filter((u) => !busy.has(u));
   const enterVariants: string[][] = [[]];
@@ -445,7 +478,7 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
     }
   }
 
-  const plan: TurnPlan = { ...chosen.plan, standOnBusiness };
+  const plan: TurnPlan = { ...chosen.plan, standOnBusiness, summon: agreedSummon !== undefined && opts.summonable.includes(agreedSummon) ? { location: agreedSummon } : undefined };
   const debug: AiDebug = {
     turn: view.turn,
     player: p,

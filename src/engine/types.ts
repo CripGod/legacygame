@@ -118,7 +118,8 @@ export type LocationEffect =
   | { type: 'readyOnArrival' } // Juneteenth
   | { type: 'displaceFreshAtEnd' } // Sundown Town
   | { type: 'steelAndSoul'; force: number; fiveBonus: number } // Gary, Indiana
-  | { type: 'relocatedInReady' }; // Accra, Ghana
+  | { type: 'relocatedInReady' } // Accra, Ghana
+  | { type: 'hub' }; // Lagos
 
 export interface LocationDef {
   id: string;
@@ -215,6 +216,12 @@ export interface LocationState {
   firstRelocatedByOwner?: Partial<Record<PlayerId, string>>;
   /** Reparations / temporary location influence per player this turn. */
   tempInfluence: Record<PlayerId, number>;
+  /** Permanent per-player Influence modifiers at this Location (broken pacts). */
+  permInfluence?: Record<PlayerId, number>;
+  /** Obatala has manifested here: no Threats, cannot be Lost. */
+  sanctified?: boolean;
+  /** A Summon was agreed here and failed; losing the Location now costs both players. */
+  pactFailed?: boolean;
 }
 
 export interface PlayerState {
@@ -253,6 +260,7 @@ export interface GameEvent {
     | 'draw'
     | 'locationRevealed'
     | 'locationTransformed'
+    | 'summon'
     | 'played'
     | 'eventPlayed'
     | 'reveal'
@@ -320,6 +328,7 @@ export interface MatchStats {
   leadChanges: number;
   finalTurnFlips: number;
   standTurns: { player: PlayerId; turn: number; proposed: number; accepted: boolean }[];
+  summons: { turn: number; location: number; success: boolean }[];
   stepOffTurn?: { player: PlayerId; turn: number };
   gateTurns: number;
   insideTurns: number;
@@ -341,6 +350,8 @@ export interface TurnPlan {
   confronts: { uid: string; threatUid: string }[];
   standOnBusiness?: boolean;
   stepOff?: boolean;
+  /** Commit to a joint Summon at this Location this turn. Both players must commit for it to happen. */
+  summon?: { location: number };
 }
 
 export const emptyPlan = (): TurnPlan => ({ plays: [], enters: [], relocations: [], confronts: [] });

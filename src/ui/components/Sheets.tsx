@@ -142,7 +142,7 @@ export function CharSheet({
           <div className="muted">Relocate to another Location's Gates (arrives Fresh):</div>
           <div className="actions">
             {reloc?.destinations.map((d) => (
-              <button key={d} className={current?.to === d ? 'primary' : ''} disabled={confronting || (!current && plan.relocations.length >= opts.relocationsAllowed)} onClick={() => onRelocate(uid, current?.to === d ? null : d)}>
+              <button key={d} className={current?.to === d ? 'primary' : ''} disabled={confronting || (!current && locDef(view, c.location).effect.type !== 'hub' && plan.relocations.length >= opts.relocationsAllowed)} onClick={() => onRelocate(uid, current?.to === d ? null : d)}>
                 {locationName(locDef(view, d).id, placeholders)}
                 {!view.locations[d].revealed ? ` (Location ${d + 1})` : ''}
               </button>
@@ -366,6 +366,41 @@ export function LogSheet({ events, turn, onClose }: { events: GameEvent[]; turn:
           </div>
         ))}
       </div>
+    </Sheet>
+  );
+}
+
+export function ChatSheet({ onClose, emotes, onEmote, summonable, onSummon, chat }: { onClose: () => void; emotes: string[]; onEmote: (t: string) => void; summonable: { index: number; label: string }[]; onSummon: (i: number) => void; chat: { from: string; text: string }[] }) {
+  return (
+    <Sheet onClose={onClose} title="Quick chat">
+      <div style={{ display: 'grid', gap: 6 }}>
+        <div style={{ fontWeight: 800 }}>Summon?</div>
+        <div className="muted">Call the other side to a joint Summon at a Location with a Threat. If you both commit and reach 6 Force together, Obatala manifests there for everyone.</div>
+        <div className="actions">
+          {summonable.map((s) => (
+            <button key={s.index} className="primary" onClick={() => onSummon(s.index)}>
+              Summon at {s.label}?
+            </button>
+          ))}
+          {summonable.length === 0 && <span className="muted">No Location qualifies right now (you need a Character at a Location with a Threat, and no Summon already planned).</span>}
+        </div>
+      </div>
+      <div className="actions">
+        {emotes.map((e) => (
+          <button key={e} onClick={() => onEmote(e)}>
+            {e}
+          </button>
+        ))}
+      </div>
+      {chat.length > 0 && (
+        <div className="log">
+          {chat.slice(-8).map((c, i) => (
+            <div key={i} className="log-line">
+              <b>{c.from}:</b> {c.text}
+            </div>
+          ))}
+        </div>
+      )}
     </Sheet>
   );
 }

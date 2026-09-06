@@ -62,6 +62,10 @@ Harborlight receives `viewFor(state, 'B')`: no opponent hand, no unrevealed Loca
 
 A 200-match self-play run currently gives roughly 54% / 45% split for the two preset decks, 2.3 Location lead changes per match and 0.6 final-turn flips.
 
+## Mythic and the Summon
+
+Characters carry a category: historical, archetype or mythic. Mythic cards (Anansi, Shango, Oshun, Yemoja, Ogun, Mami Wata, Black Jesus) are fantasy drawn from African cosmology and diaspora spirituality, labelled as such on the card. The joint **Summon** is cooperative: both players commit at a Location with a Threat via quick chat; enough combined Force manifests Obatala (Threats cleared, the Location can never be Lost, +1 Influence to everyone there, both draw). A failed Summon followed by that Location being Lost costs both players 1 Influence at their other Locations.
+
 ## Not built (by design)
 
 Backend, accounts, matchmaking, collection, shop, progression, chat, production VFX. See the brief's §112.

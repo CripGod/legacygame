@@ -64,6 +64,14 @@ export const LOCATIONS: LocationDef[] = [
     weight: 0.35,
   },
   {
+    id: 'lagos',
+    name: 'Lagos',
+    era: 'Eko, today',
+    rule: 'Danfo: Relocations out of Lagos do not count against your Relocation limit, and Characters who leave arrive Ready. The city moves people.',
+    blurb: 'Twenty million people, Nollywood, Afrobeats, Fela\'s Kalakuta Republic and the yellow danfo buses that never stop. Lagos no dey carry last.',
+    effect: { type: 'hub' },
+  },
+  {
     id: 'gary_indiana',
     name: 'Gary, Indiana',
     era: 'Steel City, 1906–',

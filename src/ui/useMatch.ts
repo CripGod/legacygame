@@ -17,10 +17,22 @@ import {
   type PlayerId,
   type TurnPlan,
 } from '../engine';
-import { planTurn, respondToStandAi, recordAi } from '../ai/harborlight';
+import { planTurn, respondToStandAi, recordAi, aiSummonProposal, aiAcceptSummon } from '../ai/harborlight';
+import { locName } from '../engine';
 import { recordMatch } from '../analytics/analytics';
 
 export type Mode = 'ai' | 'hotseat';
+
+export interface ChatMsg {
+  id: number;
+  from: PlayerId;
+  text: string;
+  at: number;
+  kind: 'emote' | 'summon' | 'accept' | 'decline';
+  location?: number;
+}
+
+export const EMOTES = ['Well played', 'Ouch', 'Nah, I\'m busy.', 'Good game'];
 
 export interface MatchController {
   view: GameState;
@@ -43,6 +55,17 @@ export interface MatchController {
   seed: number;
   trueState: GameState;
   log: GameEvent[];
+  chat: ChatMsg[];
+  sendEmote: (text: string) => void;
+  /** Propose (and commit to) a Summon at a Location this turn. */
+  proposeSummon: (location: number) => void;
+  /** Accept the opponent's pending proposal. */
+  acceptSummon: () => void;
+  declineSummon: () => void;
+  /** The opponent's open proposal this turn, if any. */
+  pendingProposal: { from: PlayerId; location: number } | null;
+  /** The opponent has agreed to your proposal. */
+  opponentAgreed: number | null;
 }
 
 const STAGGER_MS = 160;
@@ -59,6 +82,14 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
   const [secondsLeft, setSecondsLeft] = useState(PLANNING_SECONDS);
   const [handoff, setHandoff] = useState<PlayerId | null>(null);
   const [log, setLog] = useState<GameEvent[]>([]);
+  const [chat, setChat] = useState<ChatMsg[]>([]);
+  const [pendingProposal, setPendingProposal] = useState<{ from: PlayerId; location: number } | null>(null);
+  const [opponentAgreed, setOpponentAgreed] = useState<number | null>(null);
+  const aiAgreedRef = useRef<number | null>(null);
+  const chatId = useRef(1);
+  const say = useCallback((from: PlayerId, text: string, kind: ChatMsg['kind'] = 'emote', location?: number) => {
+    setChat((c) => [...c.slice(-19), { id: chatId.current++, from, text, at: Date.now(), kind, location }]);
+  }, []);
   const stashA = useRef<TurnPlan | null>(null);
   const recorded = useRef(false);
   const stateRef = useRef(trueState);
@@ -93,6 +124,9 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
       setLocked(false);
       setPlanState(emptyPlan());
       setSecondsLeft(PLANNING_SECONDS);
+      setPendingProposal(null);
+      setOpponentAgreed(null);
+      aiAgreedRef.current = null;
     },
     [],
   );
@@ -122,7 +156,7 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
     if (mode === 'ai') {
       // Let the UI paint the locked state before the AI thinks.
       setTimeout(() => {
-        const ai = planTurn(viewFor(state, 'B'), 'B');
+        const ai = planTurn(viewFor(state, 'B'), 'B', undefined, aiAgreedRef.current ?? undefined);
         recordAi(ai.debug);
         resolveWithPlans(state, { A: plan, B: ai.plan });
       }, 60);
@@ -165,6 +199,69 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
       if (perspective !== responder && !handoff) setHandoff(responder);
     }
   }, [mode, busy, trueState, perspective, handoff]);
+
+  const sendEmote = useCallback(
+    (text: string) => {
+      say(perspective, text, 'emote');
+      if (mode === 'ai') {
+        const replies = ['Well played', 'Respect.', 'Ouch', 'Good game', 'Let\'s go.'];
+        window.setTimeout(() => say('B', replies[Math.floor(Math.random() * replies.length)], 'emote'), 900 + Math.random() * 800);
+      }
+    },
+    [say, perspective, mode],
+  );
+
+  const proposeSummon = useCallback(
+    (location: number) => {
+      const state = stateRef.current;
+      setPlanState((p) => ({ ...p, summon: { location } }));
+      say(perspective, `Summon at ${locName(state, location)}?`, 'summon', location);
+      if (mode === 'ai') {
+        const accept = aiAcceptSummon(viewFor(state, 'B'), 'B', location);
+        window.setTimeout(() => {
+          if (accept) {
+            aiAgreedRef.current = location;
+            setOpponentAgreed(location);
+            say('B', 'Summon!', 'accept', location);
+          } else {
+            say('B', 'Nah, I\'m busy.', 'decline', location);
+          }
+        }, 1000 + Math.random() * 900);
+      } else {
+        setPendingProposal({ from: perspective, location });
+      }
+    },
+    [say, perspective, mode],
+  );
+
+  const acceptSummon = useCallback(() => {
+    if (!pendingProposal) return;
+    setPlanState((p) => ({ ...p, summon: { location: pendingProposal.location } }));
+    say(perspective, 'Summon!', 'accept', pendingProposal.location);
+    setPendingProposal(null);
+  }, [pendingProposal, say, perspective]);
+
+  const declineSummon = useCallback(() => {
+    if (!pendingProposal) return;
+    say(perspective, 'Nah, I\'m busy.', 'decline', pendingProposal.location);
+    setPendingProposal(null);
+  }, [pendingProposal, say, perspective]);
+
+  // Harborlight may propose a Summon shortly after planning begins.
+  useEffect(() => {
+    if (mode !== 'ai' || trueState.phase !== 'planning' || busy || locked) return;
+    const state = trueState;
+    const id = window.setTimeout(() => {
+      if (stateRef.current !== state) return;
+      const loc = aiSummonProposal(viewFor(state, 'B'), 'B');
+      if (loc === null) return;
+      aiAgreedRef.current = loc;
+      setPendingProposal({ from: 'B', location: loc });
+      say('B', `Summon at ${locName(state, loc)}?`, 'summon', loc);
+    }, 1500);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, trueState.turn, trueState.phase]);
 
   // Timer.
   const timerActive = trueState.phase === 'planning' && !locked && !busy && !handoff;
@@ -222,5 +319,12 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
     seed,
     trueState,
     log,
+    chat,
+    sendEmote,
+    proposeSummon,
+    acceptSummon,
+    declineSummon,
+    pendingProposal,
+    opponentAgreed,
   };
 }

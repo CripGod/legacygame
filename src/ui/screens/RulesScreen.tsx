@@ -45,6 +45,13 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
           <li>Harm caused by neutral Threats or hostile Locations counts as a <b>Setback</b>. <b>Reparations</b> converts Setbacks into Influence. The opponent's actions never count.</li>
           <li>Unresolved crises can make a Location <b>Lost</b>: nobody wins it.</li>
         </ul>
+        <h2>Summon (cooperative)</h2>
+        <ul>
+          <li>Use quick chat (💬) to call <b>Summon?</b> at a Location with a Threat. If the other side answers <b>Summon!</b>, both of you commit that turn.</li>
+          <li>Every Character of yours at that Location that is not moving adds its Force. If each player adds at least 1 and the total reaches 6, <b>Obatala</b> manifests: every Threat there dissolves, the Location can never be Lost, every Character there gains +1 Influence, and both players draw a card.</li>
+          <li>If the Summon fails and that Location is later Lost, both players lose 1 Influence at each of their other Locations. A broken pact costs everyone.</li>
+          <li>Mythic content is fantasy drawn from real traditions; the abilities are invention.</li>
+        </ul>
         <h2>Stakes</h2>
         <ul>
           <li>Matches start at 1 Stake. Either player may <b>Stand on Business</b> once to double it (1 → 2, then 2 → 4). Standing extends the match to <b>ten turns</b>, and whoever stood can no longer Step Off.</li>

@@ -8,6 +8,16 @@ export { CHARACTERS, CHARACTER_BY_ID, EVENTS, EVENT_BY_ID, LOCATIONS, LOCATION_B
 
 export const CARD_BY_ID: Record<string, CardDef> = { ...CHARACTER_BY_ID, ...EVENT_BY_ID };
 
+/** The joint Summon. Not a card: both players must call, and both must contribute. */
+export const SUMMON = {
+  id: 'obatala',
+  name: 'Obatala',
+  force: 6,
+  minEach: 1,
+  text: 'Both players commit at a Location with a Threat. If each contributes at least 1 Force and the total reaches 6, Obatala manifests: every Threat there is cleared, the Location can never be Lost, every Character there gains +1 Influence, and both players draw a card. If the Summon fails and the Location is later Lost, both players lose 1 Influence at each of their other Locations.',
+  blurb: 'Orisha of the white cloth, of peace, clarity and creation; the one the others turn to when they have made a mess of the world. Mythic: fantasy drawn from Yoruba tradition.',
+};
+
 export function cardDef(id: string): CardDef {
   const d = CARD_BY_ID[id];
   if (!d) throw new Error(`Unknown card: ${id}`);

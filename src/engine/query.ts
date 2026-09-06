@@ -102,9 +102,9 @@ export function charInfluence(state: GameState, c: CharacterInstance): number {
 
 /** Raw Influence per player at a Location, before leader-based modifiers. */
 export function rawInfluence(state: GameState, location: number, p: PlayerId): number {
-  let v = state.locations[location].tempInfluence[p] ?? 0;
+  let v = (state.locations[location].tempInfluence[p] ?? 0) + (state.locations[location].permInfluence?.[p] ?? 0);
   for (const c of charsAt(state, location, p)) v += charInfluence(state, c);
-  return v;
+  return Math.max(0, v);
 }
 
 /** Final Influence for both players at a Location, including Karen and Comfortable Complicity. */
@@ -227,6 +227,8 @@ export interface LegalOptions {
   canStand: boolean;
   canStepOff: boolean;
   proposedStakes: number;
+  /** Locations where a joint Summon may be attempted this turn. */
+  summonable: number[];
 }
 
 export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
@@ -288,6 +290,7 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
     playsAllowed: playsAllowed(state, p),
     confronts,
     canStand,
+    summonable: state.locations.filter((l) => l.revealed && !l.lost && !l.sanctified && l.threats.length > 0 && mine.some((c) => c.location === l.index)).map((l) => l.index),
     canStepOff: !ps.cannotStepOff,
     proposedStakes: Math.min(MAX_STAKES, state.stakes * 2),
   };
@@ -326,7 +329,11 @@ export function validatePlan(state: GameState, p: PlayerId, plan: TurnPlan): str
   for (const uid of plan.enters) {
     if (!opts.enters.includes(uid)) errors.push('A Character selected to enter is not Ready.');
   }
-  if (plan.relocations.length > opts.relocationsAllowed) errors.push(`Only ${opts.relocationsAllowed} Relocation(s) allowed this turn.`);
+  const counted = plan.relocations.filter((r) => {
+    const c = state.characters[r.uid];
+    return !(c && locDef(state, c.location).effect.type === 'hub');
+  });
+  if (counted.length > opts.relocationsAllowed) errors.push(`Only ${opts.relocationsAllowed} Relocation(s) allowed this turn (Lagos departures are free).`);
   for (const r of plan.relocations) {
     const opt = opts.relocations.find((o) => o.uid === r.uid);
     if (!opt || !opt.destinations.includes(r.to)) errors.push('Invalid Relocation.');
@@ -342,6 +349,7 @@ export function validatePlan(state: GameState, p: PlayerId, plan: TurnPlan): str
   }
   if (plan.standOnBusiness && !opts.canStand) errors.push('Stand on Business is not available.');
   if (plan.stepOff && !opts.canStepOff) errors.push('You Stood on Business: you cannot Step Off.');
+  if (plan.summon && !opts.summonable.includes(plan.summon.location)) errors.push('No Summon is possible there.');
   return errors;
 }
 

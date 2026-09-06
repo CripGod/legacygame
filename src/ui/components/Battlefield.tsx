@@ -51,6 +51,8 @@ export interface BattlefieldProps {
   resolving?: boolean;
   /** First-turn guide: Location to glow. */
   glowLocation?: number | null;
+  /** Joint Summon status label per Location. */
+  summonLabel?: (index: number) => string | null;
 }
 
 function useBump(value: number): boolean {
@@ -210,7 +212,7 @@ function shortEffect(type: string): string {
 }
 
 export function Battlefield(props: BattlefieldProps) {
-  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onThreat, flash, dragProps, drop, delays, resolving, glowLocation } = props;
+  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onThreat, flash, dragProps, drop, delays, resolving, glowLocation, summonLabel } = props;
   const { placeholders } = useDisplay();
   const opp = other(me);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -234,7 +236,8 @@ export function Battlefield(props: BattlefieldProps) {
         const isTarget = targetable.includes(loc.index);
         const dropOk = drop?.locations.includes(loc.index);
         const dropOver = dropOk && drop?.overKey === `location:${loc.index}`;
-        const cls = ['location', loc.revealed ? '' : 'hidden-loc', loc.lost ? 'lost' : '', lead ? `lead-${lead}` : '', winner && winner !== 'lost' ? `won-${winner}` : ''].join(' ');
+        const cls = ['location', loc.revealed ? '' : 'hidden-loc', loc.lost ? 'lost' : '', loc.sanctified ? 'sanctified' : '', lead ? `lead-${lead}` : '', winner && winner !== 'lost' ? `won-${winner}` : ''].join(' ');
+        const summon = summonLabel?.(loc.index);
         const title = loc.revealed ? (
           <div className="who">{locationName(loc.defId, placeholders)}</div>
         ) : (
@@ -270,6 +273,8 @@ export function Battlefield(props: BattlefieldProps) {
                 )}
                 {loc.revealed && !placeholders && <span className="era-tag">{def.era}</span>}
                 {loc.lost && <span className="lost-tag">LOST</span>}
+                {loc.sanctified && <span className="lost-tag sanct">OBATALA</span>}
+                {summon && <span className="summon-tag">{summon}</span>}
               </div>
               <InsideRow {...common} owner={opp} index={loc.index} label="Opponent Characters" />
               <div className="influence">

@@ -301,6 +301,50 @@ describe('Mythic', () => {
   });
 });
 
+describe('Summon', () => {
+  it('manifests Obatala when both commit enough Force, and punishes a broken pact', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true });
+    s.turn = 4;
+    const brown = addChar(s, 'john_brown', 'A', 0, 'inside'); // Force 5
+    addChar(s, 'og', 'B', 0, 'inside'); // Force 3
+    addChar(s, 'mansa_musa', 'A', 1, 'inside');
+    addChar(s, 'ida_b_wells', 'B', 2, 'inside');
+    s.locations[0].threats.push({ uid: 'mob', defId: 'supremacist_mob', location: 0, forceRequired: 6, spawnedTurn: 4 });
+    expect(legalOptions(s, 'A').summonable).toEqual([0]);
+    // Only one side commits: nothing happens.
+    let out = resolveTurn(s, { A: { ...pass(), summon: { location: 0 } }, B: pass() });
+    expect(out.state.locations[0].sanctified).toBeFalsy();
+    // Both commit: 5 + 3 = 8 ≥ 6, at least 1 each.
+    out = resolveTurn(s, { A: { ...pass(), summon: { location: 0 } }, B: { ...pass(), summon: { location: 0 } } });
+    const t = out.state;
+    expect(t.locations[0].sanctified).toBe(true);
+    expect(t.locations[0].threats).toHaveLength(0);
+    expect(t.characters[brown.uid].permInfluence).toBe(1);
+    expect(t.stats.summons[0].success).toBe(true);
+    // Failed pact then Lost: both lose 1 at other Locations.
+    const f = structuredClone(s);
+    f.characters[brown.uid].defId = 'zora_neale_hurston'; // Force 1: 1 + 3 = 4 < 6
+    let g = resolveTurn(f, { A: { ...pass(), summon: { location: 0 } }, B: { ...pass(), summon: { location: 0 } } }).state;
+    expect(g.locations[0].pactFailed).toBe(true);
+    g = resolveTurn(g, { A: pass(), B: pass() }).state; // Mob unresolved 2 turns → Lost
+    expect(g.locations[0].lost).toBe(true);
+    expect(g.locations[1].permInfluence?.A).toBe(-1);
+    expect(g.locations[2].permInfluence?.B).toBe(-1);
+  });
+  it('Lagos departures are free and arrive Ready', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['lagos', 'great_migration', 'gary_indiana'], revealAll: true });
+    const a = addChar(s, 'og', 'A', 0, 'inside');
+    const b = addChar(s, 'ida_b_wells', 'A', 0, 'inside');
+    const c = addChar(s, 'zora_neale_hurston', 'A', 2, 'inside');
+    const plan = { ...pass(), relocations: [{ uid: a.uid, to: 2 }, { uid: b.uid, to: 1 }, { uid: c.uid, to: 1 }] };
+    expect(validatePlan(s, 'A', plan)).toEqual([]); // two free Lagos departures plus the one allowed
+    s = resolveTurn(s, { A: plan, B: pass() }).state;
+    expect(s.characters[a.uid].zone).toBe('gate');
+    expect(s.characters[a.uid].ready).toBe(true); // left Lagos: Ready
+    expect(s.characters[c.uid].ready).toBe(false); // left Gary: Fresh
+  });
+});
+
 describe('multiple plays', () => {
   it('allows one play while any Location is hidden, two after, and Organizer adds one', () => {
     let s = createMatch({ seed: 21 });
@@ -429,6 +473,6 @@ describe('AI vs AI smoke', () => {
     }
   });
   it('all seven Locations are defined', () => {
-    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(7);
+    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(8);
   });
 });

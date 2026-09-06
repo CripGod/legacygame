@@ -15,7 +15,7 @@ Style: one consistent painterly treatment across the set (the same brush, the sa
 
 Zip layout: `art/characters/*.jpg`, `art/locations/*.jpg`, `art/threats/*.jpg`, `art/events/*.jpg`.
 
-## Characters (24)
+## Characters (25)
 
 | File | Name | Era | Direction |
 |---|---|---|---|
@@ -42,9 +42,10 @@ Zip layout: `art/characters/*.jpg`, `art/locations/*.jpg`, `art/threats/*.jpg`, 
 | `characters/ogun.jpg` | Ogun | Yoruba | Mythic. Iron-worker god at a forge, machete, green and black, sparks, muscles and soot. |
 | `characters/mami_wata.jpg` | Mami Wata | West and Central Africa, the Caribbean | Mythic. Water spirit with long hair, a serpent across her shoulders, a mirror, deep-sea greens and coins. Beautiful and unsettling. |
 | `characters/black_jesus.jpg` | Black Jesus | The Black church, every era | Mythic. A dark-skinned Christ in the stained-glass idiom of the Black church: robes, a gentle direct gaze, a halo of gold leaf, hands open. No weapons, no wounds. |
+| `characters/obatala.jpg` | Obatala (Summon manifestation, not a card) | Yoruba | Mythic. An elder in white cloth and a white crown, serene, hands raised in blessing, soft white light. Used as a small marker on a sanctified Location. |
 | `characters/victor_hugo_green.jpg` | Victor Hugo Green | 1892–1960 | Man in a 1940s suit and hat at a desk with maps and a copy of the Green Book, Harlem window behind. |
 
-## Locations (8)
+## Locations (9)
 
 | File | Name | Era | Direction |
 |---|---|---|---|
@@ -55,6 +56,7 @@ Zip layout: `art/characters/*.jpg`, `art/locations/*.jpg`, `art/threats/*.jpg`, 
 | `locations/juneteenth.jpg` | Juneteenth | Galveston, 1865 | Galveston street celebration, June 1865: flags, brass band, families in their best. |
 | `locations/sundown_town.jpg` | Sundown Town | 1890–1968 | A small-town road at dusk with a painted warning sign at the town line, empty main street, long shadows. Ominous but not graphic. |
 | `locations/accra_ghana.jpg` | Accra, Ghana | Independence, 1957 | Independence Square at night, 6 March 1957: the black-star flag rising over a jubilant crowd, floodlights, kente. |
+| `locations/lagos.jpg` | Lagos | Eko, today | Third Mainland Bridge at golden hour, yellow danfo buses, Lagos Island towers, market colour, motion blur. Energy. |
 | `locations/gary_indiana.jpg` | Gary, Indiana | Steel City, 1906– | Gary Works blast furnaces glowing at night behind a row of neat bungalows, one lit living-room window. Steel and soul. |
 
 ## Threats (5)

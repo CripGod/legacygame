@@ -7,7 +7,7 @@
  *   4 voluntary Relocations · 5 Gate→Inside · 6 Enter effects · 7 Established recalculation
  *   8 Threat actions · 9 Assists · 10 cleanup · 11 Influence update
  */
-import { charDef, cardDef, eventDef, LOCATION_BY_ID, THREAT_BY_ID } from './content';
+import { charDef, cardDef, eventDef, LOCATION_BY_ID, THREAT_BY_ID, SUMMON } from './content';
 import { nextFloat, pick } from './rng';
 import { drawCard, locName, spawnThreat, startTurn } from './setup';
 import {
@@ -636,7 +636,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       const from = c.location;
       const outReady =
         hasEstablished(state, p, from, 'relocatedOutReady').length > 0 ||
-        (state.locations[from].revealed && LOCATION_BY_ID[state.locations[from].defId]?.effect.type === 'relocatedOutReady');
+        (state.locations[from].revealed && ['relocatedOutReady', 'hub'].includes(LOCATION_BY_ID[state.locations[from].defId]?.effect.type ?? ''));
       const outInside = hasEstablished(state, p, from, 'relocatedOutInside').length > 0 && insideOpen(state, r.to, p);
       c.location = r.to;
       c.zone = 'gate';
@@ -751,6 +751,43 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     loc.threats = remaining;
   }
 
+  // ---- Joint Summon ----
+  const sA = plans.A.summon?.location;
+  const sB = plans.B.summon?.location;
+  if (sA !== undefined && sA === sB) {
+    const loc = state.locations[sA];
+    const busy = new Set<string>([...plans.A.enters, ...plans.B.enters, ...plans.A.relocations.map((r) => r.uid), ...plans.B.relocations.map((r) => r.uid)]);
+    const contrib: Record<PlayerId, number> = { A: 0, B: 0 };
+    const pseudo: ThreatInstance = { uid: 'summon', defId: 'comfortable_complicity', location: sA, forceRequired: SUMMON.force, spawnedTurn: state.turn };
+    for (const c of charsAt(state, sA)) {
+      if (busy.has(c.uid)) continue;
+      contrib[c.owner] += confrontForce(state, c, pseudo);
+    }
+    const total = contrib.A + contrib.B;
+    const success = contrib.A >= SUMMON.minEach && contrib.B >= SUMMON.minEach && total >= SUMMON.force && !loc.lost;
+    events.push({ type: 'summon', text: `Both players call on ${SUMMON.name} at ${locName(state, sA)}: ${state.players.A.handle} ${contrib.A} Force, ${state.players.B.handle} ${contrib.B} Force (${total}/${SUMMON.force}).`, location: sA, data: { contrib, success } });
+    state.stats.summons.push({ turn: state.turn, location: sA, success });
+    if (success) {
+      loc.sanctified = true;
+      loc.pactFailed = false;
+      for (const t of loc.threats) events.push({ type: 'threatNeutralized', text: `${threatName(state, t)} at ${locName(state, sA)} dissolves before ${SUMMON.name}.`, location: sA });
+      loc.threats = [];
+      for (const c of charsAt(state, sA)) c.permInfluence += 1;
+      for (const p of PLAYERS) {
+        drawCard(state, p);
+        state.players[p].solidarity += 1;
+      }
+      events.push({ type: 'summon', text: `${SUMMON.name} manifests at ${locName(state, sA)}. Every Character there gains +1 Influence, both players draw a card, and this Location can never be Lost.`, location: sA, data: { manifest: true } });
+    } else {
+      loc.pactFailed = true;
+      events.push({ type: 'summon', text: `The Summon at ${locName(state, sA)} fails${loc.lost ? '' : `: it needed ${SUMMON.force} Force with at least ${SUMMON.minEach} from each player`}. If this Location is Lost, both players will pay for the broken pact.`, location: sA, data: { manifest: false } });
+    }
+  } else if (sA !== undefined || sB !== undefined) {
+    const by: PlayerId = sA !== undefined ? 'A' : 'B';
+    const at = (sA ?? sB)!;
+    events.push({ type: 'summon', text: `${state.players[by].handle} called for a Summon at ${locName(state, at)}, but ${state.players[other(by)].handle} did not join.`, location: at, player: by });
+  }
+
   // Threat actions.
   for (const loc of state.locations) {
     for (const t of loc.threats.slice()) {
@@ -772,10 +809,18 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
             if (displace(state, victim, def.name, events)) setback(state, leader, `${def.name} displaced ${charDef(victim.defId).name}`, events);
           }
         }
-        if (def.lostAfterTurns && state.turn - t.spawnedTurn + 1 >= def.lostAfterTurns && !loc.lost) {
+        if (def.lostAfterTurns && state.turn - t.spawnedTurn + 1 >= def.lostAfterTurns && !loc.lost && !loc.sanctified) {
           loc.lost = true;
           loc.lostReason = `${def.name} went unanswered for ${def.lostAfterTurns} turns (it needed ${t.forceRequired} Force in one turn, from either player or both).`;
           events.push({ type: 'locationLost', text: `${locName(state, loc.index)} is LOST: ${loc.lostReason} Neither player can win it.`, location: loc.index });
+          if (loc.pactFailed) {
+            for (const other_ of state.locations) {
+              if (other_.index === loc.index) continue;
+              other_.permInfluence = other_.permInfluence ?? { A: 0, B: 0 };
+              for (const p of PLAYERS) other_.permInfluence[p] -= 1;
+            }
+            events.push({ type: 'summon', text: `Broken pact: both players lose 1 Influence at each of their other Locations.`, location: loc.index, data: { penalty: true } });
+          }
         }
       }
     }

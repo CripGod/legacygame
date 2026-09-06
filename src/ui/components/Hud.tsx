@@ -18,7 +18,7 @@ function TimerRing({ seconds, paused }: { seconds: number; paused: boolean }) {
   );
 }
 
-export function Hud({ view, me, secondsLeft, paused, onProfile, onLog, hasLog }: { view: GameState; me: PlayerId; secondsLeft: number; paused: boolean; onProfile: (p: PlayerId) => void; onLog: () => void; hasLog: boolean }) {
+export function Hud({ view, me, secondsLeft, paused, onProfile, onLog, hasLog, bubbles, onChat }: { view: GameState; me: PlayerId; secondsLeft: number; paused: boolean; onProfile: (p: PlayerId) => void; onLog: () => void; hasLog: boolean; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void }) {
   const { placeholders } = useDisplay();
   const profile = (p: PlayerId, right: boolean) => {
     const ps = view.players[p];
@@ -34,6 +34,20 @@ export function Hud({ view, me, secondsLeft, paused, onProfile, onLog, hasLog }:
             {ps.hand.length} in hand · {ps.deckCount} in deck{p === me ? ' · you' : ''}
           </div>
         </div>
+        {p === me && onChat && (
+          <button
+            className="small chat-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onChat();
+            }}
+            {...tip('Quick chat: emotes and Summon.')}
+            aria-label="Quick chat"
+          >
+            💬
+          </button>
+        )}
+        {bubbles?.[p] && <div className={`bubble ${right ? 'right' : ''}`}>{bubbles[p]}</div>}
       </div>
     );
   };

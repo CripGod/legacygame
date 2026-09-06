@@ -88,6 +88,7 @@ export function createMatch(opts: MatchOptions): GameState {
       leadChanges: 0,
       finalTurnFlips: 0,
       standTurns: [],
+      summons: [],
       gateTurns: 0,
       insideTurns: 0,
     },
@@ -119,7 +120,7 @@ export function drawCard(state: GameState, p: PlayerId): string | undefined {
 export function spawnThreat(state: GameState, location: number, threatId: string, events: GameEvent[]): void {
   const def = THREAT_BY_ID[threatId];
   const loc = state.locations[location];
-  if (!def || loc.lost) return;
+  if (!def || loc.lost || loc.sanctified) return;
   if (loc.revealed && LOCATION_BY_ID[loc.defId]?.noThreats) return;
   const make = (target?: PlayerId): ThreatInstance => ({
     uid: `t${state.nextUid++}`,
