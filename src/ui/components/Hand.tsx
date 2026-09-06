@@ -22,13 +22,14 @@ export function Hand({
   dragProps?: (payload: DragPayload) => Record<string, unknown>;
 }) {
   const hand = view.players[me].hand;
-  const n = hand.length;
+  const visible = hand.filter((id) => plan.play?.cardId !== id);
+  const n = visible.length;
   const mid = (n - 1) / 2;
   return (
     <div className="hand-wrap">
       <div className="hand-label">Your hand ({n})</div>
       <div className="hand">
-        {hand.map((id, i) => {
+        {visible.map((id, i) => {
           const off = i - mid;
           const rot = compact ? off * 5 : 0;
           const ty = compact ? Math.abs(off) * Math.abs(off) * 2 : 0;
@@ -56,7 +57,7 @@ export function Hand({
             </div>
           );
         })}
-        {n === 0 && <div className="muted">No cards in hand</div>}
+        {n === 0 && <div className="muted">{hand.length ? 'Card committed' : 'No cards in hand'}</div>}
       </div>
     </div>
   );

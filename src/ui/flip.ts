@@ -10,6 +10,8 @@ export interface FlipOptions {
   originFor: (uid: string, prevRects: Map<string, DOMRect>) => DOMRect | null;
   /** Per-tile stagger in ms. */
   delayFor: (uid: string) => number;
+  /** Per-tile glide duration in ms. */
+  durationFor?: (uid: string) => number;
   /** Bump to force a pass (e.g. state version). */
   version: unknown;
 }
@@ -36,19 +38,20 @@ export function useFlip(container: React.RefObject<HTMLElement | null>, opts: Fl
         if (Math.abs(dx) < 2 && Math.abs(dy) < 2) return;
         const scale = Math.max(0.3, Math.min(3, prev.width / rect.width));
         const delay = optsRef.current.delayFor(uid);
+        const duration = optsRef.current.durationFor?.(uid) ?? 620;
         el.style.transition = 'none';
         el.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
         el.style.zIndex = '40';
         el.style.opacity = delay > 0 && !rects.current.has(uid) ? '0' : '1';
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            el.style.transition = `transform 620ms cubic-bezier(.2,.8,.2,1) ${delay}ms, opacity 120ms linear ${delay}ms`;
+            el.style.transition = `transform ${duration}ms cubic-bezier(.2,.8,.2,1) ${delay}ms, opacity 120ms linear ${delay}ms`;
             el.style.transform = '';
             el.style.opacity = '1';
             window.setTimeout(() => {
               el.style.transition = '';
               el.style.zIndex = '';
-            }, 700 + delay);
+            }, duration + 80 + delay);
           });
         });
       });

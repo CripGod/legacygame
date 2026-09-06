@@ -3,6 +3,7 @@ import { CARD_BY_ID, legalOptions, type PlayerId, other } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight } from '../components/Battlefield';
+import { previewPlan, isPlannedUid, PLANNED_PREFIX } from '../preview';
 import type { MatchController } from '../useMatch';
 import { Hud } from '../components/Hud';
 import { Battlefield } from '../components/Battlefield';
@@ -43,6 +44,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   const [flash, setFlash] = useState<string | null>(null);
   const [delays, setDelays] = useState<Record<string, number>>({});
   const opts = useMemo(() => legalOptions(view, me), [view, me]);
+  const boardView = useMemo(() => (view.phase === 'planning' && !locked ? previewPlan(view, me, plan) : view), [view, me, plan, locked]);
   const planning = view.phase === 'planning' && !locked && !busy;
 
   // Escape closes any sheet.
@@ -213,6 +215,10 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   }, [drag, dropTargetsFor]);
 
   const onChar = (uid: string) => {
+    if (isPlannedUid(uid)) {
+      setSheet({ kind: 'card', id: uid.slice(PLANNED_PREFIX.length) });
+      return;
+    }
     if (!view.characters[uid]) return;
     // Tap inspects and offers actions; drag is the quick action.
     setSheet({ kind: 'char', uid });
@@ -241,7 +247,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       <Hud view={view} me={me} secondsLeft={m.secondsLeft} paused={!planning} onProfile={(p) => setSheet({ kind: 'profile', p })} />
       <div className="main-wrap">
         <Battlefield
-          view={view}
+          view={boardView}
           me={me}
           plan={plan}
           targetable={targetable}

@@ -12,10 +12,10 @@ import {
   GATE_CAPACITY,
   INSIDE_CAPACITY,
   THREAT_BY_ID,
-  CARD_BY_ID,
 } from '../../engine';
 import { locationName, threatLabel, useDisplay } from '../display';
-import { Pic, PlannedPic } from './CardFace';
+import { Pic } from './CardFace';
+import { isPlannedUid, PLANNED_PREFIX } from '../preview';
 import { tip, HINTS } from '../tip';
 import type { DragPayload } from '../drag';
 import { useFlip } from '../flip';
@@ -72,9 +72,7 @@ type Common = Pick<BattlefieldProps, 'view' | 'me' | 'plan' | 'onChar' | 'flash'
 
 function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, dragProps }: Common & { owner: PlayerId; index: number; label: string; right?: React.ReactNode }) {
   const chars = charsAt(view, index, owner, 'gate').sort((a, b) => a.arrivedTurn - b.arrivedTurn);
-  const slots: (CharacterInstance | 'planned' | null)[] = [...chars];
-  const planned = owner === me && plan.play && plan.play.location === index && CARD_BY_ID[plan.play.cardId]?.kind === 'character';
-  if (planned && slots.length < GATE_CAPACITY) slots.push('planned');
+  const slots: (CharacterInstance | null)[] = [...chars];
   while (slots.length < GATE_CAPACITY) slots.push(null);
   return (
     <div className="gates-strip">
@@ -90,23 +88,19 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                   +
                 </div>
               );
-            if (s === 'planned')
-              return (
-                <div key={i} className={`gate-slot filled ghost owner-${owner}`} data-uid={`planned:${plan.play!.cardId}`}>
-                  <PlannedPic cardId={plan.play!.cardId} />
-                </div>
-              );
-            const entering = plan.enters.includes(s.uid);
+            const planned = isPlannedUid(s.uid);
+            const moving = plan.relocations.some((r) => r.uid === s.uid);
             const confronting = plan.confronts.some((c) => c.uid === s.uid);
-            const draggable = owner === me && dragProps ? dragProps({ kind: 'char', uid: s.uid }) : {};
+            const draggable =
+              owner === me && dragProps ? dragProps(planned ? { kind: 'card', cardId: s.uid.slice(PLANNED_PREFIX.length) } : { kind: 'char', uid: s.uid }) : {};
             return (
               <div
                 key={s.uid}
                 data-uid={s.uid}
-                className={`gate-slot filled owner-${owner} ${entering ? 'entering' : ''} ${flash === 'enter' && owner === me && s.ready && !entering ? 'ftue-flash' : ''}`}
+                className={`gate-slot filled owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''}`}
                 {...draggable}
               >
-                <Pic state={view} c={s} strip={entering ? 'Entering' : confronting ? 'Confront' : undefined} onClick={() => onChar(s.uid)} />
+                <Pic state={view} c={s} strip={planned ? 'Planned' : moving ? 'Moving' : confronting ? 'Confront' : undefined} onClick={() => onChar(s.uid)} />
               </div>
             );
           })}
@@ -135,12 +129,14 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
         {Array.from({ length: INSIDE_CAPACITY }).map((_, i) => {
           const c = chars[i];
           if (!c) return <div key={i} className={`slot ${i >= cap ? 'locked' : ''}`} />;
-          const relocating = plan.relocations.some((r) => r.uid === c.uid);
+          const entering = plan.enters.includes(c.uid);
+          const planned = isPlannedUid(c.uid);
           const confronting = plan.confronts.some((x) => x.uid === c.uid);
-          const draggable = mine && dragProps ? dragProps({ kind: 'char', uid: c.uid }) : {};
+          const draggable =
+            mine && dragProps ? dragProps(planned ? { kind: 'card', cardId: c.uid.slice(PLANNED_PREFIX.length) } : { kind: 'char', uid: c.uid }) : {};
           return (
-            <div key={c.uid} data-uid={c.uid} className={`slot filled ${c.owner} ${flash === 'move' && mine && !relocating ? 'ftue-flash' : ''}`} {...draggable}>
-              <Pic state={view} c={c} highlight={relocating || confronting} strip={relocating ? 'Moving' : confronting ? 'Confront' : undefined} onClick={() => onChar(c.uid)} />
+            <div key={c.uid} data-uid={c.uid} className={`slot filled ${c.owner} ${entering || planned ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''}`} {...draggable}>
+              <Pic state={view} c={c} highlight={confronting} strip={entering ? 'Entering' : planned ? 'Planned' : confronting ? 'Confront' : undefined} onClick={() => onChar(c.uid)} />
             </div>
           );
         })}
@@ -157,15 +153,17 @@ export function Battlefield(props: BattlefieldProps) {
   useFlip(rootRef, {
     version: view,
     delayFor: (uid) => delays?.[uid] ?? 0,
+    // Your own moves snap quickly; the opponent's resolution moves glide.
+    durationFor: (uid) => (view.characters[uid]?.owner === me && !delays?.[uid] ? 220 : 620),
     originFor: (uid, prev) => {
-      if (uid.startsWith('planned:')) {
-        const cardId = uid.slice('planned:'.length);
-        return document.querySelector(`[data-hand-card="${cardId}"]`)?.getBoundingClientRect() ?? null;
+      if (isPlannedUid(uid)) {
+        const cardId = uid.slice(PLANNED_PREFIX.length);
+        return (document.querySelector(`[data-hand-card="${cardId}"]`) ?? document.querySelector('.hand'))?.getBoundingClientRect() ?? null;
       }
       const c = view.characters[uid];
       if (!c) return null;
       if (c.owner === me) {
-        const ghost = prev.get(`planned:${c.defId}`);
+        const ghost = prev.get(`${PLANNED_PREFIX}${c.defId}`);
         if (ghost) return ghost;
       }
       return document.querySelector(`[data-avatar="${c.owner}"]`)?.getBoundingClientRect() ?? null;
