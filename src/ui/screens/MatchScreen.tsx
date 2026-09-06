@@ -80,6 +80,19 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   const [guideOn, setGuideOn] = useState(() => coach && m.mode === 'ai' && !guideDone());
   const opts = useMemo(() => legalOptions(view, me), [view, me]);
   const boardView = useMemo(() => (view.phase === 'planning' && !locked ? previewPlan(view, me, plan) : view), [view, me, plan, locked]);
+  /** Gate slots my departing Characters still hold this turn (the preview shows them elsewhere). */
+  const reserved = useMemo(() => {
+    const out: Record<number, { uid: string; defId: string; why: string }[]> = {};
+    if (view.phase !== 'planning' || locked) return out;
+    const add = (uid: string, why: string) => {
+      const c = view.characters[uid];
+      if (!c || c.owner !== me || c.zone !== 'gate') return;
+      (out[c.location] ??= []).push({ uid, defId: c.defId, why });
+    };
+    for (const uid of plan.enters) add(uid, 'enters');
+    for (const pl of plan.plays) if (pl.target?.charUid && pl.target.location !== undefined) add(pl.target.charUid, `moves with ${cardName(pl.cardId, placeholders)}`);
+    return out;
+  }, [view, me, plan, locked, placeholders]);
   const planning = view.phase === 'planning' && !locked && !busy;
 
   // Escape closes any sheet.
@@ -284,8 +297,12 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
         const opt = opts.plays.find((p) => p.cardId === payload.cardId);
         if (view.locations[i].lost) return { text: `${locNameAt(i)} is Lost. Nobody can win it, so nothing can be played there.`, shake: [`${col(i)} .art`] };
         if (!opt) return { text: `${nm} cannot be played right now.`, shake: [`[data-hand-card="${payload.cardId}"]`] };
-        if (opt.kind === 'character' && gateRoom(view, i, me, plannedAt(i, payload.cardId)) <= 0)
+        if (opt.kind === 'character' && gateRoom(view, i, me, plannedAt(i, payload.cardId)) <= 0) {
+          const leaving = reserved[i] ?? [];
+          if (leaving.length)
+            return { text: `${leaving.map((h) => cardName(h.defId, placeholders)).join(' and ')} still hold${leaving.length > 1 ? '' : 's'} a Gate slot at ${locNameAt(i)} until the turn resolves (new arrivals are placed before anyone enters). Play ${nm} there next turn.`, shake: [`${col(i)} .gate-slot.reserved`] };
           return { text: `Both of your Gate slots at ${locNameAt(i)} are taken. Send someone Inside or relocate them first.`, shake: [`${col(i)} .gates-left[data-drop="gates"] .gate-slot`] };
+        }
         return { text: `${nm} cannot go to ${locNameAt(i)}.`, shake: [] };
       }
       const c = view.characters[payload.uid];
@@ -490,6 +507,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           flash={flash}
           dragProps={dragProps}
           drop={drop}
+          reserved={reserved}
           delays={m.delays}
           resolving={busy}
           glowLocation={guideLocation}

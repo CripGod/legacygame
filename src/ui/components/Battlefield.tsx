@@ -47,6 +47,8 @@ export interface BattlefieldProps {
   drop?: DropHighlight | null;
   /** Per-tile animation stagger (ms) for the latest resolution. */
   delays?: Record<string, number>;
+  /** Gate slots still occupied until the turn resolves, keyed by Location: Characters leaving the Gates this turn. */
+  reserved?: Record<number, { uid: string; defId: string; why: string }[]>;
   /** True while the opponent's resolution is animating: the player's own tiles snap. */
   resolving?: boolean;
   /** First-turn guide: Location to glow. */
@@ -78,13 +80,14 @@ function Score({ p, value }: { p: PlayerId; value: number }) {
   );
 }
 
-type Common = Pick<BattlefieldProps, 'view' | 'me' | 'plan' | 'onChar' | 'flash' | 'dragProps' | 'drop'>;
+type Common = Pick<BattlefieldProps, 'view' | 'me' | 'plan' | 'onChar' | 'flash' | 'dragProps' | 'drop' | 'reserved'>;
 
-function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, dragProps, drop }: Common & { owner: PlayerId; index: number; label: string; right?: React.ReactNode }) {
+function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, dragProps, drop, reserved }: Common & { owner: PlayerId; index: number; label: string; right?: React.ReactNode }) {
   const gOk = owner === me && drop?.gates.includes(index);
   const gOver = gOk && drop?.overKey === `gates:${index}`;
   const chars = charsAt(view, index, owner, 'gate').sort((a, b) => a.arrivedTurn - b.arrivedTurn);
-  const slots: (CharacterInstance | null)[] = [...chars];
+  const held = owner === me ? reserved?.[index] ?? [] : [];
+  const slots: (CharacterInstance | { held: { uid: string; defId: string; why: string } } | null)[] = [...chars, ...held.map((h) => ({ held: h }))];
   while (slots.length < GATE_CAPACITY) slots.push(null);
   return (
     <div className="gates-strip">
@@ -100,6 +103,16 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                   +
                 </div>
               );
+            if ('held' in s) {
+              // Reserved: the Character has left in the preview but still holds this slot until the turn resolves.
+              const hd = charDef(s.held.defId);
+              return (
+                <div key={`held:${s.held.uid}`} className="gate-slot reserved" data-reserved={s.held.uid} onClick={() => onChar(s.held.uid)} {...tip(`${hd.name} ${s.held.why} when you Lock It In. The slot stays taken until then.`)}>
+                  <Art kind="characters" id={s.held.defId} className="pic-img" fallback={<span className="ini">{hd.name.slice(0, 2)}</span>} alt="" />
+                  <span className="strip leaving">Leaving</span>
+                </div>
+              );
+            }
             const planned = isPlannedUid(s.uid);
             const moving = plan.relocations.some((r) => r.uid === s.uid) || plan.plays.some((pl) => pl.target?.charUid === s.uid);
             const confronting = plan.confronts.some((c) => c.uid === s.uid);
@@ -212,7 +225,7 @@ function shortEffect(type: string): string {
 }
 
 export function Battlefield(props: BattlefieldProps) {
-  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onThreat, flash, dragProps, drop, delays, resolving, glowLocation, summonLabel } = props;
+  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onThreat, flash, dragProps, drop, delays, resolving, glowLocation, summonLabel, reserved } = props;
   const { placeholders } = useDisplay();
   const opp = other(me);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -222,7 +235,7 @@ export function Battlefield(props: BattlefieldProps) {
     // Your own moves snap quickly; the opponent's resolution moves glide.
     durationFor: (uid) => (view.characters[uid]?.owner === me || isPlannedUid(uid) ? (resolving ? 0 : 220) : 620),
   });
-  const common: Common = { view, me, plan, onChar, flash, dragProps, drop };
+  const common: Common = { view, me, plan, onChar, flash, dragProps, drop, reserved };
   return (
     <div className="battlefield" ref={rootRef}>
       {view.locations.map((loc) => {
