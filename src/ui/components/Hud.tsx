@@ -1,12 +1,13 @@
 import { CARD_BY_ID, PLANNING_SECONDS, type GameState, type PlayerId } from '../../engine';
 import { initials, useDisplay } from '../display';
+import { tip, HINTS } from '../tip';
 
 function TimerRing({ seconds, paused }: { seconds: number; paused: boolean }) {
   const r = 26;
   const c = 2 * Math.PI * r;
   const frac = paused ? 1 : seconds / PLANNING_SECONDS;
   return (
-    <div className={`timer-ring ${seconds <= 5 && !paused ? 'low' : ''} ${paused ? 'paused' : ''}`}>
+    <div className={`timer-ring ${seconds <= 5 && !paused ? 'low' : ''} ${paused ? 'paused' : ''}`} {...tip(HINTS.timer)}>
       <svg viewBox="0 0 64 64">
         <circle cx="32" cy="32" r={r} className="track" />
         <circle cx="32" cy="32" r={r} className="prog" strokeDasharray={c} strokeDashoffset={c * (1 - frac)} />
@@ -42,7 +43,7 @@ export function Hud({ view, me, secondsLeft, paused, onProfile }: { view: GameSt
         <div className="turn-label">Turn {Math.min(view.turn, 6)} / 6</div>
         <div className="hud-mid">
           <TimerRing seconds={secondsLeft} paused={paused} />
-          <div className="coin" title="Match Stakes">
+          <div className="coin" {...tip(HINTS.stakes)}>
             <span>{view.stakes}</span>
             <small>stake{view.stakes > 1 ? 's' : ''}</small>
           </div>

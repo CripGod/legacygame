@@ -1,5 +1,6 @@
 import { CARD_BY_ID, type CharacterInstance, type GameState, charInfluence, isSuppressed } from '../../engine';
 import { abilityLines, cardName, cardShort, hueFor, initials, useDisplay } from '../display';
+import { tip, HINTS } from '../tip';
 
 /** Full collectible card (hand, inspection). Always a 5:7 rigid rectangle. */
 export function CardFace({ id, big = false, onClick }: { id: string; big?: boolean; onClick?: () => void }) {
@@ -11,15 +12,17 @@ export function CardFace({ id, big = false, onClick }: { id: string; big?: boole
     <div className={`card ${big ? 'big' : ''} ${isChar ? '' : 'event'}`} onClick={onClick} role={onClick ? 'button' : undefined}>
       {isChar ? (
         <>
-          <div className="hex i" title="Influence">
+          <div className="hex i" {...tip(HINTS.influence)}>
             {def.influence}
           </div>
-          <div className="hex f" title="Force">
+          <div className="hex f" {...tip(HINTS.force)}>
             {def.force}
           </div>
         </>
       ) : (
-        <div className="hex e">EV</div>
+        <div className="hex e" {...tip(HINTS.event)}>
+          EV
+        </div>
       )}
       <div className="portrait-wrap">
         <div className="portrait" style={{ background: hueFor(id) }}>
@@ -37,8 +40,25 @@ export function CardFace({ id, big = false, onClick }: { id: string; big?: boole
         {big && !placeholders && <div className="blurb">{def.blurb}</div>}
         {big && isChar && (
           <div className="era" style={{ marginTop: 6 }}>
-            Influence {def.influence} · Force {def.force}
-            {def.tags.length ? ` · ${def.tags.join(', ')}` : ''}
+            {def.tags.length ? def.tags.join(' · ') : ''}
+          </div>
+        )}
+        {big && (
+          <div className="legend">
+            {isChar ? (
+              <>
+                <div>
+                  <span className="hex i small">{def.influence}</span> {HINTS.influence}
+                </div>
+                <div>
+                  <span className="hex f small">{def.force}</span> {HINTS.force}
+                </div>
+              </>
+            ) : (
+              <div>
+                <span className="hex e small">EV</span> {HINTS.event}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -77,10 +97,14 @@ export function Pic({
       title={`${cardName(c.defId, placeholders)} · ${inf} Influence · ${def.force} Force`}
     >
       <span className="ini">{initials(c.defId, placeholders)}</span>
-      <span className="inf" title="Influence">
+      <span className="inf" {...tip(HINTS.currentInfluence)}>
         {inf}
       </span>
-      {label && <span className={`strip ${cls}`}>{label}</span>}
+      {label && (
+        <span className={`strip ${cls}`} {...tip((HINTS as Record<string, string>)[cls] ?? label)}>
+          {label}
+        </span>
+      )}
     </div>
   );
 }
@@ -91,7 +115,9 @@ export function PlannedPic({ cardId }: { cardId: string }) {
   return (
     <div className="pic ghost" style={{ background: hueFor(cardId) }}>
       <span className="ini">{initials(cardId, placeholders)}</span>
-      <span className="strip planned">{cardShort(cardId, placeholders)}</span>
+      <span className="strip planned" {...tip(HINTS.planned)}>
+        {cardShort(cardId, placeholders)}
+      </span>
     </div>
   );
 }

@@ -16,6 +16,7 @@ import {
 } from '../../engine';
 import { locationName, threatLabel, useDisplay } from '../display';
 import { Pic, PlannedPic } from './CardFace';
+import { tip, HINTS } from '../tip';
 
 export interface BattlefieldProps {
   view: GameState;
@@ -45,7 +46,11 @@ function useBump(value: number): boolean {
 
 function Score({ p, value }: { p: PlayerId; value: number }) {
   const bump = useBump(value);
-  return <div className={`score p${p} ${bump ? 'bump' : ''}`}>{value}</div>;
+  return (
+    <div className={`score p${p} ${bump ? 'bump' : ''}`} {...tip(p === 'A' ? HINTS.scoreA : HINTS.scoreB)}>
+      {value}
+    </div>
+  );
 }
 
 function GateStrip({ view, owner, me, index, plan, onChar, label, right }: { view: GameState; owner: PlayerId; me: PlayerId; index: number; plan: TurnPlan; onChar: (uid: string) => void; label: string; right?: React.ReactNode }) {
@@ -157,7 +162,7 @@ export function Battlefield(props: BattlefieldProps) {
               <InsideRow view={view} owner={opp} index={loc.index} plan={plan} onChar={onChar} label="Opponent Characters" />
               <div className="influence">
                 <Score p="A" value={inf.A} />
-                <div className={`line ${winner && winner !== 'lost' ? `won-${winner}` : ''}`}>
+                <div className={`line ${winner && winner !== 'lost' ? `won-${winner}` : ''}`} {...tip(HINTS.line)}>
                   <div className="fillA" style={{ width: `${fracA * 100}%` }} />
                   <div className="fillB" style={{ width: `${(1 - fracA) * 100}%` }} />
                   <div className="mark" style={{ left: `${fracA * 100}%` }} />

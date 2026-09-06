@@ -1,0 +1,64 @@
+/**
+ * Lightweight hover/focus tooltip. One fixed-position element for the whole app.
+ * Hints are never hover-only: the same text is available by tap in the sheets.
+ */
+let el: HTMLDivElement | null = null;
+
+function ensure(): HTMLDivElement {
+  if (el) return el;
+  el = document.createElement('div');
+  el.className = 'tip';
+  el.setAttribute('role', 'tooltip');
+  document.body.appendChild(el);
+  return el;
+}
+
+export function showTip(target: Element, text: string): void {
+  const t = ensure();
+  t.textContent = text;
+  t.style.display = 'block';
+  const r = target.getBoundingClientRect();
+  const w = t.offsetWidth;
+  const h = t.offsetHeight;
+  let x = r.left + r.width / 2 - w / 2;
+  x = Math.max(6, Math.min(window.innerWidth - w - 6, x));
+  let y = r.top - h - 8;
+  if (y < 6) y = r.bottom + 8;
+  t.style.left = `${x}px`;
+  t.style.top = `${y}px`;
+}
+
+export function hideTip(): void {
+  if (el) el.style.display = 'none';
+}
+
+/** Spread onto any element: `<span {...tip('Influence …')}>`. */
+export function tip(text: string) {
+  return {
+    onMouseEnter: (e: React.MouseEvent) => showTip(e.currentTarget, text),
+    onMouseLeave: hideTip,
+    onFocus: (e: React.FocusEvent) => showTip(e.currentTarget, text),
+    onBlur: hideTip,
+    'aria-label': text,
+  };
+}
+
+export const HINTS = {
+  influence: 'Influence: how much this Character counts toward controlling its Location. Gate and Inside Characters both count.',
+  force: 'Force: strength when confronting Threats or answering a challenge. Force never attacks players directly.',
+  event: 'Event: a one-shot card. Playing it uses your one card play for the turn.',
+  currentInfluence: 'Influence this Character currently contributes here, including bonuses and penalties.',
+  ready: 'Ready: waited a turn at the Gates. Tap to send it Inside this turn.',
+  fresh: 'Fresh: arrived this turn. It waits one turn at the Gates before it can enter.',
+  blocked: 'Blocked: an effect stops this Character from entering this turn.',
+  entering: 'Entering: will move Inside when you Lock It In.',
+  moving: 'Relocating: will move to another Location\'s Gates when you Lock It In.',
+  confront: 'Confronting a Threat this turn. It cannot enter or relocate.',
+  planned: 'Planned: this card will be played here when you Lock It In.',
+  scoreA: 'Silverlake Slayer\'s Influence at this Location.',
+  scoreB: 'Harborlight\'s Influence at this Location.',
+  line: 'The Influence Line: leans toward whoever leads. Lead at two of three Locations after Turn 6 to win.',
+  stakes: 'Stakes: what the match is worth. Stand on Business doubles it (1 → 2 → 4).',
+  timer: 'Planning timer. At zero your current plan locks automatically.',
+  directEntry: 'Direct Entry: may enter Inside the turn it is played.',
+};

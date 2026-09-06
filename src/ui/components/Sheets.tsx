@@ -14,6 +14,7 @@ import {
 } from '../../engine';
 import { cardName, locationName, threatLabel, useDisplay } from '../display';
 import { CardFace } from './CardFace';
+import { HINTS } from '../tip';
 
 export function Sheet({ children, onClose, title }: { children: ReactNode; onClose: () => void; title?: string }) {
   return (
@@ -79,7 +80,7 @@ export function CharSheet({
   const current = plan.relocations.find((r) => r.uid === uid);
   const entering = plan.enters.includes(uid);
   const confronting = plan.confronts.some((x) => x.uid === uid);
-  const status = c.zone === 'inside' ? 'Established' : c.blockedEnterTurn === view.turn ? 'At the Gates · Blocked this turn' : c.ready ? 'At the Gates · Ready' : 'At the Gates · Fresh (waits one turn)';
+  const status = c.zone === 'inside' ? 'Established: Inside, Established ability active' : c.blockedEnterTurn === view.turn ? `At the Gates · ${HINTS.blocked}` : c.ready ? `At the Gates · ${HINTS.ready}` : `At the Gates · ${HINTS.fresh}`;
   return (
     <Sheet onClose={onClose} title={`${cardName(c.defId, placeholders)} · ${view.players[c.owner].handle}`}>
       <div className="row" style={{ justifyContent: 'center' }}>
