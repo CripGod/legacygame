@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Component, useState, type ReactNode } from 'react';
 import { DisplayContext } from './display';
 import { StartScreen, type StartOptions } from './screens/StartScreen';
 import { RulesScreen } from './screens/RulesScreen';
@@ -8,6 +8,32 @@ import { useMatch, type Mode } from './useMatch';
 import { DevPanel } from './components/DevPanel';
 
 type Screen = 'start' | 'rules' | 'match' | 'result';
+
+class ErrorBoundary extends Component<{ children: ReactNode; onReset: () => void }, { error: Error | null }> {
+  state = { error: null as Error | null };
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="screen">
+          <div className="inner">
+            <h1 className="title">Something broke</h1>
+            <pre style={{ whiteSpace: 'pre-wrap', color: 'var(--danger)' }}>{String(this.state.error?.message ?? this.state.error)}</pre>
+            <div className="muted">This is a prototype bug, not something you did. The match state is lost; please report what you tapped.</div>
+            <div className="menu">
+              <button className="primary" onClick={() => { this.setState({ error: null }); this.props.onReset(); }}>
+                Back to menu
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 function MatchHost({ seed, mode, dev, coach, onMenu }: { seed: number; mode: Mode; dev: boolean; coach: boolean; onMenu: () => void }) {
   const m = useMatch(seed, mode);
@@ -71,7 +97,11 @@ export function App() {
     <DisplayContext.Provider value={{ placeholders: opts.placeholders }}>
       {screen === 'start' && <StartScreen onPlay={start} onRules={() => setScreen('rules')} initialDev={opts.dev} />}
       {screen === 'rules' && <RulesScreen onBack={() => setScreen('start')} />}
-      {screen === 'match' && <MatchHost key={matchKey} seed={seed} mode={opts.mode} dev={opts.dev} coach={opts.coach} onMenu={() => setScreen('start')} />}
+      {screen === 'match' && (
+        <ErrorBoundary onReset={() => setScreen('start')}>
+          <MatchHost key={matchKey} seed={seed} mode={opts.mode} dev={opts.dev} coach={opts.coach} onMenu={() => setScreen('start')} />
+        </ErrorBoundary>
+      )}
     </DisplayContext.Provider>
   );
 }

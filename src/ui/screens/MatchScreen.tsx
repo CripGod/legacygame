@@ -80,6 +80,10 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     setSheet(null);
   }, [view.turn, me]);
 
+/** Gate room at a Location after the plays already planned there. */
+  const plannedAt = (index: number, except?: string) =>
+    plan.plays.filter((pl) => pl.location === index && pl.cardId !== except && CARD_BY_ID[pl.cardId]?.kind === 'character').length;
+
   const targetable = useMemo(() => {
     if (!selected || !planning) return [];
     const opt = opts.plays.find((p) => p.cardId === selected);
@@ -100,12 +104,6 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     const opt = opts.plays.find((p) => p.cardId === cardId);
     if (!opt) {
       setSheet({ kind: 'card', id: cardId });
-      return;
-    }
-    if (!opt.needsLocation) {
-      // Reparations: no Location choice.
-      addPlay({ cardId, location: 0 });
-      setSelected(null);
       return;
     }
     if (selected === cardId) {
@@ -138,9 +136,6 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     });
   }
 
-  /** Gate room at a Location after the plays already planned there. */
-  const plannedAt = (index: number, except?: string) =>
-    plan.plays.filter((pl) => pl.location === index && pl.cardId !== except && CARD_BY_ID[pl.cardId]?.kind === 'character').length;
 
   const toggleEnter = (uid: string) => {
     setPlan((p) => ({ ...p, enters: p.enters.includes(uid) ? p.enters.filter((u) => u !== uid) : [...p.enters, uid] }));
