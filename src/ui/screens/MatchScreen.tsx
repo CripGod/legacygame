@@ -10,7 +10,7 @@ import { Battlefield } from '../components/Battlefield';
 import { Hand } from '../components/Hand';
 import { Coach } from '../components/Coach';
 import { Spotlight } from '../components/Spotlight';
-import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, SpawnSheet, ThreatSheet, AncestorsSheet } from '../components/Sheets';
+import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, SpawnSheet, ThreatSheet, AncestorsSheet, ShowdownSheet } from '../components/Sheets';
 import { guideDone, markGuideDone, suggest } from '../guide';
 import { EMOTES } from '../useMatch';
 import { cardName, locationName, useDisplay } from '../display';
@@ -87,8 +87,11 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   const boardView = useMemo(() => (view.phase === 'planning' && !locked ? previewPlan(view, me, plan) : view), [view, me, plan, locked]);
   /** Gatherings that arrived in the last resolution, shown one at a time with fanfare. */
   const [fanfare, setFanfare] = useState<GameEvent[]>([]);
+  /** Confrontations from the last resolution, replayed as showdowns. */
+  const [showdowns, setShowdowns] = useState<GameEvent[]>([]);
   useEffect(() => {
     setFanfare(m.lastTurn.filter((e) => e.type === 'spawned'));
+    setShowdowns(m.lastTurn.filter((e) => e.type === 'showdown'));
   }, [m.lastTurn]);
   /** Gate slots my departing Characters still hold this turn (the preview shows them elsewhere). */
   const reserved = useMemo(() => {
@@ -736,7 +739,8 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           }}
         />
       )}
-      {fanfare.length > 0 && !busy && view.phase !== 'ended' && <SpawnSheet ev={fanfare[0]} view={view} me={me} onClose={() => setFanfare((f) => f.slice(1))} />}
+      {showdowns.length > 0 && !busy && <ShowdownSheet ev={showdowns[0]} view={view} onClose={() => setShowdowns((s) => s.slice(1))} />}
+      {showdowns.length === 0 && fanfare.length > 0 && !busy && view.phase !== 'ended' && <SpawnSheet ev={fanfare[0]} view={view} me={me} onClose={() => setFanfare((f) => f.slice(1))} />}
       {view.phase === 'ended' && !busy && !peek && (
         <div className="scrim">
           <div className="sheet center">

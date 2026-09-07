@@ -89,6 +89,10 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - blurb: Born enslaved, fluent in several Native languages, one of the first Black deputy U.S. Marshals west of the Mississippi. Three thousand arrests, never wounded.
 - history: Bass Reeves was born enslaved in Arkansas in 1838 and escaped into Indian Territory during the Civil War. In 1875 Judge Isaac Parker made him a deputy U.S. Marshal, one of the first Black deputies west of the Mississippi. Over thirty-two years he made roughly three thousand arrests, including of his own son, and was never wounded despite many gunfights. Some argue he was the inspiration for the Lone Ranger.
 
+### Neighbor Kid (`neighbor_kid`)
+- cost 0 · Influence 1 · Force 1 · archetype · era: Any afternoon
+- blurb: Somebody's nephew. Runs the errand, holds the door, sees everything and tells his grandmother.
+
 ### Karen (`karen`)
 - cost 1 · Influence 1 · Force 1 · archetype · era: Timeless
 - reveal: The opposing Ready Gate Character here with the highest Influence cannot enter this turn. Then Karen becomes unstable.
@@ -249,6 +253,16 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - blurb: Never in a deck. They come to whoever holds three Characters Inside at Accra, Ghana, once per match.
 - arrives: The Ancestors have something to say. / button: Listen
 
+### Word of Mouth (`word_of_mouth`)
+- cost 0
+- text: Draw a card.
+- blurb: Free, fast and usually right.
+
+### Persuade (`persuade`)
+- cost 2
+- text: Curse. Choose a Location: the opposing Gate Character there with the highest Influence crosses over to your Gates at −1 Influence. You need an open Gate slot there.
+- blurb: Everybody has a price, a grievance or a cousin. Find the one that opens the door.
+
 ## Threats
 
 ### Segregationist Patrol (`segregationist_patrol`)
@@ -393,6 +407,7 @@ Deploy heroes, legends and neighbors across three Locations. Win Influence at tw
 onPlay(opts('ai'))}>
 Play vs Harborlight
 Rules
+Cards
 Seed  setSeed(e.target.value)} placeholder="random" />
 setPlaceholders(e.target.checked)} /> Generic placeholder names (Test A: is it still fun?)
 setCoach(e.target.checked)} /> First-match coach tips
@@ -434,6 +449,8 @@ Rules
 - The Ancestors are never in a deck. Hold three Characters Inside at Accra, Ghana and they come to your hand once per match. Play them while planning to see your opponent's plan for the turn and every danger the board is about to spring.
 - The Tabernacle protects your Characters from displacement. Establish Sister Griffin, Deacon Wells and The Bishop there and Black Jesus appears: sanctuary at his Location and +1 Influence to every Character you control.
 - The Justice System holds anyone who goes Inside for two turns: no relocating out.
+- Curses are dark Events that act on your opponent's Characters. Persuade turns the strongest opposing Gate Character at a Location to your side at −1 Influence. Some cards cost 0 Energy.
+- Every deck carries at least one Mythic. The full list, with costs, is under Cards on the start screen.
 ### Summon (cooperative)
 - Use quick chat (💬) to call Summon? at a Location with a Threat. If the other side answers Summon!, both of you commit that turn.
 - Every Character of yours at that Location that is not moving adds its Force. If each player adds at least 1 and the total reaches 6, Obatala manifests: every Threat there dissolves, the Location can never be Lost, every Character there gains +1 Influence, and both players draw a card.
@@ -529,6 +546,7 @@ Main menu
 - Yemoja: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : 
 - Drag a card onto a Location.
 - Step Off${opts.canStepOff && view.phase !== 'ended' ? 
+- What happened last turn, step by step.
 - danger ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}
 - ${plan.standOnBusiness ? 'primary' : ''} ${flash === 'stakes' ? 'ftue-flash' : ''}
 - Stepping off surrenders the match. ${view.players[other(me)].handle} wins ${opts.stepOffCost} Legacy.${raisedOnMe ? 
@@ -640,6 +658,74 @@ export function AncestorsSheet({ view, me, plan, onClose }: { view: GameState; m
   if (view.pendingRaises.some((r) => r.by === opp)) dangers.push(
 - );
   if (view.turn >= 3 && view.turn < view.maxTurns) dangers.push(
+- );
+  return (
+    <Sheet onClose={onClose} title="The Ancestors speak">
+      <div className="fx-list">
+        <div className="fx-title pB">{view.players[opp].handle}'s plan this turn</div>
+        {plan ? moves.map((t, i) => <div key={i} className="fx-row">{t}</div>) : <div className="fx-row muted">Only the board speaks in a pass-the-device match.</div>}
+      </div>
+      <div className="fx-list">
+        <div className="fx-title pA">What is coming</div>
+        {dangers.length ? dangers.map((t, i) => <div key={i} className="fx-row">{t}</div>) : <div className="fx-row muted">Nothing the Ancestors can see.</div>}
+      </div>
+      <div className="actions">
+        <button className="primary" onClick={onClose} autoFocus>
+          Plan accordingly
+        </button>
+      </div>
+    </Sheet>
+  );
+}
+
+/** A confrontation replayed as a showdown: fighters on one side, the Threat on the other, the Force bar filling toward what it needs. */
+export function ShowdownSheet({ ev, view, onClose }: { ev: GameEvent; view: GameState; onClose: () => void }) {
+  const { placeholders } = useDisplay();
+  const d = ev.data as { threatUid: string; defId: string; needed: number; requiresBoth: boolean; force: { A: number; B: number }; fighters: { uid: string; defId: string; owner: PlayerId; force: number }[]; cleared: boolean };
+  const tdef = THREAT_BY_ID[d.defId];
+  const total = d.force.A + d.force.B;
+  const pct = d.requiresBoth ? (d.cleared ? 100 : 50) : Math.min(100, Math.round((total / Math.max(1, d.needed)) * 100));
+  const [stage, setStage] = useState(0);
+  useEffect(() => {
+    const t1 = setTimeout(() => setStage(1), 200);
+    const t2 = setTimeout(() => setStage(2), 1300);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, []);
+  const loc = ev.location !== undefined ? view.locations[ev.location] : undefined;
+  return (
+    <div className="scrim">
+      <div className={
+- }>
+        <div className="stand-title">SHOWDOWN</div>
+        <div className="center muted">{loc ? locationName(loc.defId, placeholders) : ''}</div>
+        <div className="showdown-row">
+          <div className="showdown-side fighters">
+            {d.fighters.map((f) => (
+              <div key={f.uid} className={
+- } title={cardName(f.defId, placeholders)}>
+                <div className="fighter-pic">{placeholders ? <span className="ini">{initials(f.defId, true)}</span> : <Art kind="characters" id={f.defId} className="fighter-img" fallback={<span className="ini">{initials(f.defId, false)}</span>} alt={cardName(f.defId, placeholders)} />}</div>
+                <b>{f.force}</b>
+              </div>
+            ))}
+          </div>
+          <div className="showdown-vs">VS</div>
+          <div className="showdown-side threat-side">
+            <div className="fighter-pic big">{placeholders ? <span className="ini">{initials(d.defId, true)}</span> : <Art kind="threats" id={d.defId} className="fighter-img" fallback={<span className="ini">{initials(d.defId, false)}</span>} alt={tdef?.name} />}</div>
+            <b>{d.requiresBoth ? 'both' : d.needed}</b>
+          </div>
+        </div>
+        <div className="center" style={{ fontWeight: 800 }}>{threatLabel(d.defId, placeholders)}</div>
+        <div className="force-bar">
+          <div className="force-fill" style={{ width: stage >= 1 ? 
+-  : '0%' }} />
+          <span className="force-label">
+            {total} / {d.requiresBoth ? 'both sides' : d.needed} Force
+          </span>
+        </div>
+        <div className={
 
 ### src/ui/components/Battlefield.tsx
 
@@ -656,7 +742,7 @@ export function AncestorsSheet({ view, me, plan, onClose }: { view: GameState; m
 - linear-gradient(135deg, hsl(${(loc.defId.length * 47) % 360} 30% 24%), hsl(${(loc.defId.length * 47 + 60) % 360} 30% 14%))
 - ${def.name} arrives in ${Math.max(0, loc.revealedTurn + def.transformsInto.afterTurns - view.turn)} turn(s): everyone aboard gains +1 Influence and Gate Characters walk straight in.
 - line ${winner && winner !== 'lost' ? 
-- threat ${confronting ? 'confronting' : ''} ${flash === 'threat' ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''}
+- threat ${confronting ? 'confronting' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''}
 -  · ${t.target === me ? 'yours' : 'theirs'}
 - LOST: ${loc.lostReason ?? 'an unresolved crisis'} Neither player can win here.
 - Hidden until revealed. Commit blind.
@@ -675,7 +761,6 @@ export function AncestorsSheet({ view, me, plan, onClose }: { view: GameState; m
 - Quick chat: emotes and Summon.
 - bubble ${right ? 'right' : ''}
 - coin ${view.pendingRaises.length ? 'raised' : ''}
-- What happened last turn, step by step.
 - energy-meter mana ${energy.left === 0 ? 'spent' : ''}
 - Energy ${energy.left} of ${energy.have}
 
@@ -748,6 +833,10 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${def.name}: no Setbacks this match.
 - ${def.name}: +${bonus} Influence at ${locName(state, lowest.index)} this turn (${ps.setbacks} Setbacks).
 - ${def.name}: ${ps.handle} has been warned.
+- ${def.name}: ${ps.handle} draws a card.
+- ${def.name}: no opposing Gate Character at ${locName(state, play.location)}.
+- ${def.name}: ${ps.handle}'s Gates at ${locName(state, play.location)} are full.
+- ${def.name}: ${name(state, target)} crosses over to ${ps.handle} at −1 Influence.
 - ${def.name}: ${ps.handle}'s Characters at ${locName(state, play.location)} are protected this turn.
 - ${state.players[p].handle} steps off. ${state.players[other(p)].handle} wins ${state.stakes} Legacy.
 - ${state.players[p].handle}'s plan was illegal (${errs[0]}) and became a pass.
@@ -762,6 +851,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${name(state, c)} cannot enter ${locName(state, c.location)}: ${blocked}.
 - ${name(state, c)} cannot enter ${locName(state, c.location)}: no room Inside.
 - ${name(state, c)} confronts ${threatName(state, t)} with ${f} Force${isAssist(t, c.owner) ? ' (Assist)' : ''}.
+- Showdown at ${locName(state, loc.index)}: ${f.A + f.B} Force against ${threatName(state, t)}${def.requiresBoth ? ' (both sides needed)' : 
 - ${threatName(state, t)} at ${locName(state, loc.index)} holds (${f.A + f.B}/${needed} Force).
 - ${threatName(state, t)} at ${locName(state, loc.index)} is neutralized.
 - ${name(state, c)} earns Solidarity.

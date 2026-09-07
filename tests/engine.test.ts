@@ -12,6 +12,7 @@ import {
   LOCATIONS,
   PRESET_DECKS,
   validateDeck,
+  randomDeck,
   threatForceNeeded,
   type GameState,
   type PlayerId,
@@ -384,7 +385,7 @@ describe('energy', () => {
   it('every deck card has a cost and presets are 13 cards', () => {
     for (const d of Object.values(PRESET_DECKS)) {
       expect(validateDeck(d.cards)).toEqual([]);
-      for (const id of d.cards) expect(CARD_BY_ID[id]?.cost ?? 0).toBeGreaterThan(0);
+      for (const id of d.cards) expect(CARD_BY_ID[id]?.cost ?? 0).toBeGreaterThanOrEqual(0);
     }
   });
 });
@@ -550,6 +551,49 @@ describe('special arrivals', () => {
     const t = resolveTurn(s, { A: pass(), B: pass() }).state;
     expect(t.characters[mansa.uid].location).toBe(0);
     expect(t.players.A.setbacks).toBe(0);
+  });
+});
+
+describe('curses, zero-cost cards and showdowns', () => {
+  it('Persuade turns the strongest opposing Gate Character at −1 Influence', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['persuade', 'word_of_mouth'] });
+    s.turn = 3;
+    const og = addChar(s, 'og', 'B', 0, 'gate'); // Influence 3
+    addChar(s, 'newsboy', 'B', 0, 'gate'); // Influence 1
+    const handBefore = s.players.A.hand.length;
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'persuade', location: 0 }, { cardId: 'word_of_mouth', location: 0 }] }, B: pass() }).state;
+    const stolen = s.characters[og.uid];
+    expect(stolen.owner).toBe('A');
+    expect(stolen.location).toBe(0);
+    expect(stolen.zone).toBe('gate');
+    expect(charInfluence(s, stolen)).toBe(2);
+    expect(charsAt(s, 0, 'B', 'gate')).toHaveLength(1);
+    // Word of Mouth: two cards played, one drawn by the card, one by the turn.
+    expect(s.players.A.hand.length).toBe(handBefore - 2 + 2);
+  });
+  it('a confrontation emits a showdown with every fighter', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['great_migration', 'juneteenth', 'gary_indiana'], revealAll: true });
+    s.turn = 4;
+    const brown = addChar(s, 'john_brown', 'A', 0, 'inside'); // Force 5
+    const og = addChar(s, 'og', 'A', 0, 'inside'); // Force 3
+    s.locations[0].threats.push({ uid: 'mob', defId: 'mob', location: 0, forceRequired: 6, spawnedTurn: 4 });
+    const out = resolveTurn(s, { A: { ...pass(), confronts: [{ uid: brown.uid, threatUid: 'mob' }, { uid: og.uid, threatUid: 'mob' }] }, B: pass() });
+    const show = out.events.find((e) => e.type === 'showdown');
+    expect(show).toBeTruthy();
+    const d = show!.data as { needed: number; force: { A: number; B: number }; fighters: unknown[]; cleared: boolean };
+    expect(d.needed).toBe(6);
+    expect(d.force.A).toBe(8);
+    expect(d.fighters).toHaveLength(2);
+    expect(d.cleared).toBe(true);
+    expect(out.state.locations[0].threats).toHaveLength(0);
+  });
+  it('random decks are legal and carry a Mythic', () => {
+    let x = 12345;
+    const pick = (n: number) => {
+      x = (x * 1103515245 + 12345) % 2147483648;
+      return x % n;
+    };
+    for (let i = 0; i < 20; i++) expect(validateDeck(randomDeck(pick))).toEqual([]);
   });
 });
 

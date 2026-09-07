@@ -13,7 +13,7 @@ export interface StartOptions {
   deckB: string;
 }
 
-export function StartScreen({ onPlay, onRules, initialDev }: { onPlay: (o: StartOptions) => void; onRules: () => void; initialDev: boolean }) {
+export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: (o: StartOptions) => void; onRules: () => void; onCards: () => void; initialDev: boolean }) {
   const [dev, setDev] = useState(initialDev);
   const [seed, setSeed] = useState('');
   const [placeholders, setPlaceholders] = useState(false);
@@ -56,6 +56,7 @@ export function StartScreen({ onPlay, onRules, initialDev }: { onPlay: (o: Start
             Play vs Harborlight
           </button>
           <button onClick={onRules}>Rules</button>
+          <button onClick={onCards}>Cards</button>
           <button className="ghost" onClick={() => setDev((d) => !d)}>
             {dev ? 'Hide developer tools' : 'Developer tools'}
           </button>

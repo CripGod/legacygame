@@ -9,8 +9,9 @@ export function CardFace({ id, big = false, onClick }: { id: string; big?: boole
   const def = CARD_BY_ID[id];
   if (!def) return null;
   const isChar = def.kind === 'character';
+  const curse = !isChar && !!(def as { curse?: boolean }).curse;
   return (
-    <div className={`card ${big ? 'big' : ''} ${isChar ? '' : 'event'}`} onClick={onClick} role={onClick ? 'button' : undefined}>
+    <div className={`card ${big ? 'big' : ''} ${isChar ? '' : 'event'} ${curse ? 'curse' : ''}`} onClick={onClick} role={onClick ? 'button' : undefined}>
       <div className="cost" {...tip(HINTS.cost)}>
         {def.cost}
       </div>
@@ -34,6 +35,7 @@ export function CardFace({ id, big = false, onClick }: { id: string; big?: boole
       <div className="name">{cardName(id, placeholders)}</div>
       {isChar && def.category === 'mythic' && !placeholders && <div className="cat mythic">Mythic</div>}
       {isChar && def.category === 'gathering' && !placeholders && <div className="cat gathering">Gathering</div>}
+      {curse && !placeholders && <div className="cat curse">Curse</div>}
       {big && isChar && !placeholders && <div className="era">{def.era}</div>}
       <div className="text">
         {big && abilityLines(def).map((l) => (

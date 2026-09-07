@@ -120,7 +120,9 @@ export interface CharacterDef {
 export type EventEffect =
   | { type: 'reparations'; max: number }
   | { type: 'communityDefense'; force: number }
-  | { type: 'ancestors' };
+  | { type: 'ancestors' }
+  | { type: 'draw'; count: number }
+  | { type: 'persuade' };
 
 export interface EventDef {
   kind: 'event';
@@ -137,6 +139,8 @@ export interface EventDef {
   history?: string;
   /** Never in a deck: the board puts it in your hand. */
   spawn?: SpawnRule;
+  /** Curses act on the opponent's Characters. Styled dark. */
+  curse?: boolean;
 }
 
 export type CardDef = CharacterDef | EventDef;
@@ -314,6 +318,7 @@ export interface GameEvent {
     | 'blocked'
     | 'threatSpawned'
     | 'threatNeutralized'
+    | 'showdown'
     | 'threatActs'
     | 'locationLost'
     | 'setback'

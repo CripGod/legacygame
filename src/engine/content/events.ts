@@ -37,6 +37,29 @@ export const EVENTS: EventDef[] = [
     blurb: 'Never in a deck. They come to whoever holds three Characters Inside at Accra, Ghana, once per match.',
     spawn: { type: 'insideAt', locationId: 'accra_ghana', count: 3, headline: 'The Ancestors have something to say.', cta: 'Listen', into: 'hand' },
   },
+  {
+    kind: 'event',
+    id: 'word_of_mouth',
+    name: 'Word of Mouth',
+    short: 'Word',
+    cost: 0,
+    text: 'Draw a card.',
+    effect: { type: 'draw', count: 1 },
+    needsLocation: false,
+    blurb: 'Free, fast and usually right.',
+  },
+  {
+    kind: 'event',
+    id: 'persuade',
+    name: 'Persuade',
+    short: 'Persuade',
+    cost: 2,
+    curse: true,
+    text: 'Curse. Choose a Location: the opposing Gate Character there with the highest Influence crosses over to your Gates at −1 Influence. You need an open Gate slot there.',
+    effect: { type: 'persuade' },
+    needsLocation: true,
+    blurb: 'Everybody has a price, a grievance or a cousin. Find the one that opens the door.',
+  },
 ];
 
 export const EVENT_BY_ID: Record<string, EventDef> = Object.fromEntries(EVENTS.map((e) => [e.id, e]));

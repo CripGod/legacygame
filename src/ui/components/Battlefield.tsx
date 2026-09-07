@@ -16,7 +16,7 @@ import {
 import { locationName, threatLabel, useDisplay } from '../display';
 import { Pic } from './CardFace';
 import { Art } from './Art';
-import { charDef } from '../../engine';
+import { charDef, confrontForce, threatForceNeeded } from '../../engine';
 import { isPlannedUid, PLANNED_PREFIX } from '../preview';
 import { tip, HINTS } from '../tip';
 import type { DragPayload } from '../drag';
@@ -323,6 +323,13 @@ export function Battlefield(props: BattlefieldProps) {
                 {loc.threats.map((t) => {
                   const tdef = THREAT_BY_ID[t.defId];
                   const confronting = plan.confronts.some((c) => c.threatUid === t.uid);
+                  const committed = plan.confronts
+                    .filter((c) => c.threatUid === t.uid)
+                    .map((c) => view.characters[c.uid])
+                    .filter((c): c is CharacterInstance => !!c)
+                    .reduce((s, c) => s + confrontForce(view, c, t), 0);
+                  const need = threatForceNeeded(view, t);
+                  const armed = !tdef.requiresBoth && committed >= need;
                   const tOk = drop?.threats.includes(t.uid);
                   const tOver = tOk && drop?.overKey === `threat:${t.uid}`;
                   return (
@@ -330,7 +337,7 @@ export function Battlefield(props: BattlefieldProps) {
                       key={t.uid}
                       data-drop="threat"
                       data-threat={t.uid}
-                      className={`threat ${confronting ? 'confronting' : ''} ${flash === 'threat' ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''}`}
+                      className={`threat ${confronting ? 'confronting' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''}`}
                       onClick={(e) => {
                         e.stopPropagation();
                         onThreat(t.uid);
@@ -341,7 +348,7 @@ export function Battlefield(props: BattlefieldProps) {
                         ⚠ {threatLabel(t.defId, placeholders)}
                         {tdef.split && t.target ? ` · ${t.target === me ? 'yours' : 'theirs'}` : ' · in the area'}
                       </span>
-                      <b>{tdef.requiresBoth ? 'both' : t.forceRequired}</b>
+                      <b>{tdef.requiresBoth ? 'both' : committed > 0 ? `${committed}/${need}` : need}</b>
                     </div>
                   );
                 })}

@@ -2,12 +2,13 @@ import { Component, useState, type ReactNode } from 'react';
 import { DisplayContext } from './display';
 import { StartScreen, type StartOptions } from './screens/StartScreen';
 import { RulesScreen } from './screens/RulesScreen';
+import { CardsScreen } from './screens/CardsScreen';
 import { ResultScreen } from './screens/ResultScreen';
 import { MatchScreen } from './screens/MatchScreen';
 import { useMatch, type Mode } from './useMatch';
 import { DevPanel } from './components/DevPanel';
 
-type Screen = 'start' | 'rules' | 'match' | 'result';
+type Screen = 'start' | 'rules' | 'cards' | 'match' | 'result';
 
 class ErrorBoundary extends Component<{ children: ReactNode; onReset: () => void }, { error: Error | null }> {
   state = { error: null as Error | null };
@@ -96,8 +97,9 @@ export function App() {
   };
   return (
     <DisplayContext.Provider value={{ placeholders: opts.placeholders }}>
-      {screen === 'start' && <StartScreen onPlay={start} onRules={() => setScreen('rules')} initialDev={opts.dev} />}
+      {screen === 'start' && <StartScreen onPlay={start} onRules={() => setScreen('rules')} onCards={() => setScreen('cards')} initialDev={opts.dev} />}
       {screen === 'rules' && <RulesScreen onBack={() => setScreen('start')} />}
+      {screen === 'cards' && <CardsScreen onBack={() => setScreen('start')} />}
       {screen === 'match' && (
         <ErrorBoundary onReset={() => setScreen('start')}>
           <MatchHost key={matchKey} seed={seed} mode={opts.mode} dev={opts.dev} coach={opts.coach} decks={{ A: opts.deckA, B: opts.deckB }} onMenu={() => setScreen('start')} />

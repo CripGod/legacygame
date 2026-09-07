@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import type { GameEvent } from '../../engine';
 import {
   CARD_BY_ID,
@@ -12,7 +12,7 @@ import {
   type PlayerId,
   type TurnPlan,
 } from '../../engine';
-import { cardName, locationName, threatLabel, useDisplay } from '../display';
+import { cardName, initials, locationName, threatLabel, useDisplay } from '../display';
 import { CardFace } from './CardFace';
 import { liveAbilities } from './Battlefield';
 import { Art } from './Art';
@@ -515,5 +515,60 @@ export function AncestorsSheet({ view, me, plan, onClose }: { view: GameState; m
         </button>
       </div>
     </Sheet>
+  );
+}
+
+/** A confrontation replayed as a showdown: fighters on one side, the Threat on the other, the Force bar filling toward what it needs. */
+export function ShowdownSheet({ ev, view, onClose }: { ev: GameEvent; view: GameState; onClose: () => void }) {
+  const { placeholders } = useDisplay();
+  const d = ev.data as { threatUid: string; defId: string; needed: number; requiresBoth: boolean; force: { A: number; B: number }; fighters: { uid: string; defId: string; owner: PlayerId; force: number }[]; cleared: boolean };
+  const tdef = THREAT_BY_ID[d.defId];
+  const total = d.force.A + d.force.B;
+  const pct = d.requiresBoth ? (d.cleared ? 100 : 50) : Math.min(100, Math.round((total / Math.max(1, d.needed)) * 100));
+  const [stage, setStage] = useState(0);
+  useEffect(() => {
+    const t1 = setTimeout(() => setStage(1), 200);
+    const t2 = setTimeout(() => setStage(2), 1300);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, []);
+  const loc = ev.location !== undefined ? view.locations[ev.location] : undefined;
+  return (
+    <div className="scrim">
+      <div className={`sheet fanfare showdown ${d.cleared ? 'win' : 'hold'}`}>
+        <div className="stand-title">SHOWDOWN</div>
+        <div className="center muted">{loc ? locationName(loc.defId, placeholders) : ''}</div>
+        <div className="showdown-row">
+          <div className="showdown-side fighters">
+            {d.fighters.map((f) => (
+              <div key={f.uid} className={`fighter p${f.owner}`} title={cardName(f.defId, placeholders)}>
+                <div className="fighter-pic">{placeholders ? <span className="ini">{initials(f.defId, true)}</span> : <Art kind="characters" id={f.defId} className="fighter-img" fallback={<span className="ini">{initials(f.defId, false)}</span>} alt={cardName(f.defId, placeholders)} />}</div>
+                <b>{f.force}</b>
+              </div>
+            ))}
+          </div>
+          <div className="showdown-vs">VS</div>
+          <div className="showdown-side threat-side">
+            <div className="fighter-pic big">{placeholders ? <span className="ini">{initials(d.defId, true)}</span> : <Art kind="threats" id={d.defId} className="fighter-img" fallback={<span className="ini">{initials(d.defId, false)}</span>} alt={tdef?.name} />}</div>
+            <b>{d.requiresBoth ? 'both' : d.needed}</b>
+          </div>
+        </div>
+        <div className="center" style={{ fontWeight: 800 }}>{threatLabel(d.defId, placeholders)}</div>
+        <div className="force-bar">
+          <div className="force-fill" style={{ width: stage >= 1 ? `${pct}%` : '0%' }} />
+          <span className="force-label">
+            {total} / {d.requiresBoth ? 'both sides' : d.needed} Force
+          </span>
+        </div>
+        <div className={`verdict ${stage >= 2 ? 'show' : ''}`}>{d.cleared ? 'NEUTRALIZED' : 'IT HOLDS'}</div>
+        <div className="actions" style={{ justifyContent: 'center' }}>
+          <button className="primary" onClick={onClose} autoFocus>
+            Continue
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

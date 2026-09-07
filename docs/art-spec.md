@@ -23,7 +23,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Missing
 
-### characters (8)
+### characters (9)
 
 - `newsboy` **Newsboy** (1905–1960): The Chicago Defender rode south in the bags of Pullman porters and the hands of kids on corners; a paper was the first thing many families bought.
 - `barber` **Barber** (Any Saturday): The barbershop was bank, newsroom, campaign office and town hall. Everybody passed through, and nobody stayed long.
@@ -33,10 +33,13 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `the_bishop` **The Bishop** (Every Sunday): Three services, a radio hour and a seat at every table in the city. When the Bishop speaks, the room moves.
 - `claudette_colvin` **Claudette Colvin** (1939–): Fifteen years old, Montgomery, March 1955. Nine months before Rosa Parks, she refused to move and was dragged off the bus.
 - `bass_reeves` **Bass Reeves** (1838–1910): Born enslaved, fluent in several Native languages, one of the first Black deputy U.S. Marshals west of the Mississippi. Three thousand arrests, never wounded.
+- `neighbor_kid` **Neighbor Kid** (Any afternoon): Somebody's nephew. Runs the errand, holds the door, sees everything and tells his grandmother.
 
-### events (1)
+### events (3)
 
 - `the_ancestors` **The Ancestors**: Never in a deck. They come to whoever holds three Characters Inside at Accra, Ghana, once per match.
+- `word_of_mouth` **Word of Mouth**: Free, fast and usually right.
+- `persuade` **Persuade**: Everybody has a price, a grievance or a cousin. Find the one that opens the door.
 
 ### threats (0)
 

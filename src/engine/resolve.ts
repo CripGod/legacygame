@@ -524,6 +524,30 @@ function playEvent(state: GameState, p: PlayerId, play: PlayAction, events: Game
       events.push({ type: 'info', text: `${def.name}: ${ps.handle} has been warned.`, player: p });
       break;
     }
+    case 'draw': {
+      for (let i = 0; i < def.effect.count; i++) drawCard(state, p, events);
+      events.push({ type: 'info', text: `${def.name}: ${ps.handle} draws a card.`, player: p });
+      break;
+    }
+    case 'persuade': {
+      const opp = other(p);
+      const target = charsAt(state, play.location, opp, 'gate').sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];
+      if (!target) {
+        events.push({ type: 'info', text: `${def.name}: no opposing Gate Character at ${locName(state, play.location)}.`, player: p, location: play.location });
+        break;
+      }
+      if (!gateOpen(state, play.location, p)) {
+        events.push({ type: 'info', text: `${def.name}: ${ps.handle}'s Gates at ${locName(state, play.location)} are full.`, player: p, location: play.location });
+        break;
+      }
+      target.owner = p;
+      target.permInfluence -= 1;
+      target.ready = false;
+      target.arrivedTurn = state.turn;
+      target.blessedUid = undefined;
+      events.push({ type: 'moved', text: `${def.name}: ${name(state, target)} crosses over to ${ps.handle} at −1 Influence.`, uid: target.uid, location: play.location, player: p, data: { from: play.location, to: play.location, reason: 'persuade' } });
+      break;
+    }
     case 'communityDefense': {
       ps.defendedLocation = play.location;
       events.push({ type: 'info', text: `${def.name}: ${ps.handle}'s Characters at ${locName(state, play.location)} are protected this turn.`, player: p, location: play.location });
@@ -780,15 +804,16 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
   }
 
   // ---- 8/9. Threats: confrontations, then Threat actions ----
-  const forceByThreat = new Map<string, { A: number; B: number; assists: Set<string> }>();
+  const forceByThreat = new Map<string, { A: number; B: number; assists: Set<string>; fighters: { uid: string; defId: string; owner: PlayerId; force: number }[] }>();
   const addForce = (uid: string, threatUid: string, bonus: number) => {
     const c = state.characters[uid];
     const loc = state.locations.find((l) => l.threats.some((t) => t.uid === threatUid));
     const t = loc?.threats.find((x) => x.uid === threatUid);
     if (!c || !t || c.location !== t.location) return;
-    const entry = forceByThreat.get(threatUid) ?? { A: 0, B: 0, assists: new Set<string>() };
+    const entry = forceByThreat.get(threatUid) ?? { A: 0, B: 0, assists: new Set<string>(), fighters: [] };
     const f = confrontForce(state, c, t, bonus);
     entry[c.owner] += f;
+    entry.fighters.push({ uid, defId: c.defId, owner: c.owner, force: f });
     if (isAssist(t, c.owner)) entry.assists.add(uid);
     forceByThreat.set(threatUid, entry);
     events.push({
@@ -811,6 +836,14 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       if (f) {
         if (def.requiresBoth) cleared = f.A >= 1 && f.B >= 1;
         else cleared = f.A + f.B >= needed;
+      }
+      if (f) {
+        events.push({
+          type: 'showdown',
+          text: `Showdown at ${locName(state, loc.index)}: ${f.A + f.B} Force against ${threatName(state, t)}${def.requiresBoth ? ' (both sides needed)' : ` (needs ${needed})`}.`,
+          location: loc.index,
+          data: { threatUid: t.uid, defId: t.defId, needed, requiresBoth: !!def.requiresBoth, force: { A: f.A, B: f.B }, fighters: f.fighters, cleared },
+        });
       }
       if (!cleared) {
         if (f) events.push({ type: 'threatActs', text: `${threatName(state, t)} at ${locName(state, loc.index)} holds (${f.A + f.B}/${needed} Force).`, location: loc.index });

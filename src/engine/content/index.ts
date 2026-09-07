@@ -45,76 +45,76 @@ export function isCharacterCard(id: string): boolean {
 export const PRESET_DECKS: Record<string, { name: string; style: string; cards: string[] }> = {
   railroad: {
     name: 'Railroad',
-    style: 'Movement and organizing. Harriet moves people, Douglass and Organizer build a Location, Nzinga and OG push back.',
+    style: 'Movement and organizing. Harriet moves people, Douglass and the Organizer build a Location, Anansi keeps the cards coming.',
     cards: [
       'harriet_tubman',
       'frederick_douglass',
-      'john_brown',
       'katherine_johnson',
-      'mansa_musa',
       'zora_neale_hurston',
       'organizer',
-      'sister_griffin',
-      'bass_reeves',
       'queen_nzinga',
       'pullman_porter',
+      'sister_griffin',
+      'bass_reeves',
+      'newsboy',
+      'anansi',
       'reparations',
       'community_defense',
     ],
   },
   blackstar: {
     name: 'Black Star',
-    style: 'Mobility and disruption. Garvey, Green and Porter relocate freely; Toussaint and Sojourner break the other side\'s plans; Karen is a gamble.',
+    style: 'Mobility and disruption. Garvey and Green relocate freely, Toussaint and Yemoja break the other side\'s plans, Persuade steals a body.',
     cards: [
       'marcus_garvey',
       'toussaint_louverture',
       'bessie_coleman',
-      'pullman_porter',
-      'claudette_colvin',
       'karen',
       'mansa_musa',
-      'frederick_douglass',
-      'harriet_tubman',
       'victor_hugo_green',
       'barber',
+      'claudette_colvin',
+      'block_captain',
+      'og',
+      'yemoja',
       'reparations',
-      'community_defense',
+      'persuade',
     ],
   },
   pantheon: {
     name: 'Pantheon',
-    style: 'The Mythic category: orisha, Anansi and Black Jesus alongside three anchors from history. Rule-bending abilities.',
+    style: 'Four orisha with the church behind them and John Brown up front. Rule-bending abilities on top of a working congregation.',
     cards: [
-      'anansi',
       'shango',
       'oshun',
-      'yemoja',
       'ogun',
       'mami_wata',
-      'mansa_musa',
-      'harriet_tubman',
-      'frederick_douglass',
-      'block_captain',
-      'organizer',
-      'reparations',
+      'john_brown',
+      'ida_b_wells',
+      'sojourner_truth',
+      'deacon_wells',
+      'the_bishop',
+      'neighbor_kid',
+      'katherine_johnson',
+      'word_of_mouth',
       'community_defense',
     ],
   },
   mirror: {
     name: 'Mirror',
-    style: 'Both players get the same twelve cards. The cleanest way to test the rules and the Locations.',
+    style: 'Both players get the same cards. The cleanest way to test the rules and the Locations.',
     cards: [
       'harriet_tubman',
       'frederick_douglass',
       'john_brown',
-      'katherine_johnson',
       'mansa_musa',
       'zora_neale_hurston',
       'organizer',
-      'newsboy',
       'queen_nzinga',
+      'newsboy',
       'sister_griffin',
       'bessie_coleman',
+      'shango',
       'reparations',
       'community_defense',
     ],
@@ -123,8 +123,11 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
 
 /** A seeded random 12-card deck: ten distinct Characters and both Events. */
 export function randomDeck(pick: (n: number) => number): string[] {
-  const pool = CHARACTERS.filter((c) => c.category !== 'gathering' && !c.spawn).map((c) => c.id);
-  const chosen: string[] = [];
+  // Every deck carries at least one Mythic.
+  const mythics = CHARACTERS.filter((c) => c.category === 'mythic' && !c.spawn).map((c) => c.id);
+  const first = mythics[pick(mythics.length)];
+  const pool = CHARACTERS.filter((c) => c.category !== 'gathering' && !c.spawn && c.id !== first).map((c) => c.id);
+  const chosen: string[] = [first];
   while (chosen.length < DECK_SIZE - 2) chosen.push(pool.splice(pick(pool.length), 1)[0]);
   const ev = EVENTS.filter((e) => !e.spawn).map((e) => e.id);
   const picked: string[] = [];
@@ -152,5 +155,6 @@ export function validateDeck(cards: string[]): string[] {
     }
   }
   if (events > 2) errors.push(`Maximum 2 Event cards (has ${events}).`);
+  if (!cards.some((id) => CARD_BY_ID[id]?.kind === 'character' && (CARD_BY_ID[id] as { category?: string }).category === 'mythic')) errors.push('Every deck carries at least one Mythic.');
   return errors;
 }
