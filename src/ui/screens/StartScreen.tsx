@@ -47,7 +47,7 @@ export function StartScreen({ onPlay, onRules, initialDev }: { onPlay: (o: Start
           <small>Systems prototype · v0.2</small>
         </h1>
         <div className="muted">
-          Deploy historical figures across three Locations. Win Influence at two of them. Six turns. Three to six minutes.
+          Deploy heroes, legends and neighbors across three Locations. Win Influence at two of them. Nine turns. Ten minutes, give or take.
         </div>
         <DeckPicker label="Your deck" value={deckA} onChange={setDeckA} />
         <DeckPicker label="Harborlight's deck" value={deckB} onChange={setDeckB} />
