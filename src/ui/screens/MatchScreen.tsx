@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CARD_BY_ID, legalOptions, gateRoom, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, planCost, cardCost } from '../../engine';
+import { CARD_BY_ID, legalOptions, gateRoom, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, planCost, cardCost, filterEvents } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight } from '../components/Battlefield';
@@ -28,6 +28,44 @@ type SheetState =
   | { kind: 'log' }
   | { kind: 'chat' }
   | null;
+
+/** How long each replay beat holds on screen before the next. */
+const BEAT_MS: Record<string, number> = {
+  stand: 1400,
+  reveal: 1400,
+  play: 950,
+  event: 1300,
+  revealFx: 1400,
+  enter: 800,
+  move: 900,
+  showdown: 600,
+  summon: 1200,
+  threat: 1200,
+  spawn: 600,
+  ready: 700,
+  sundown: 1200,
+  info: 500,
+  tally: 1200,
+  stakes: 1300,
+};
+const BEAT_KIND: Record<string, string> = {
+  stand: 'Stand',
+  reveal: 'Location',
+  play: 'Play',
+  event: 'Event',
+  revealFx: 'Reveal',
+  enter: 'Enter',
+  move: 'Move',
+  showdown: 'Showdown',
+  summon: 'Summon',
+  threat: 'Threat',
+  spawn: 'Arrival',
+  ready: 'Ready',
+  sundown: 'Sundown',
+  info: '',
+  tally: 'Tally',
+  stakes: 'Legacy',
+};
 
 /** The last scheduled turn can still grow by one if someone Stands on Business. */
 function finalTurnLabel(view: GameState, short = false): string | null {
@@ -109,13 +147,36 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   const [showdowns, setShowdowns] = useState<GameEvent[]>([]);
   /** Knocks, blocks and holds from the last resolution: replayed first, so the tally makes sense. */
   const [clashes, setClashes] = useState<GameEvent[]>([]);
+  const step = m.replay ? m.replay.steps[m.replay.idx] : null;
+  /** Without a replay (Sit Down, or a resolution with no beats), the whole turn's sheets queue at once. */
   useEffect(() => {
+    if (m.replay) return;
     setFanfare(m.lastTurn.filter((e) => e.type === 'spawned'));
     setShowdowns(m.lastTurn.filter((e) => e.type === 'showdown'));
     setClashes(m.lastTurn.filter((e) => e.type === 'clash'));
     const peek = m.lastTurn.find((e) => e.player === me && Array.isArray((e.data as { peekHand?: string[] } | undefined)?.peekHand));
     if (peek) setSheet({ kind: 'peek', cards: (peek.data as { peekHand: string[] }).peekHand, by: peek.uid ? cardName(view.characters[peek.uid]?.defId ?? 'omar_ibn_said', placeholders) : 'Omar ibn Said' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [m.lastTurn]);
+  /** During a replay each beat queues only its own sheets. */
+  useEffect(() => {
+    if (!step) return;
+    const evs = filterEvents(step.events, me);
+    setClashes(evs.filter((e) => e.type === 'clash'));
+    setShowdowns(evs.filter((e) => e.type === 'showdown'));
+    setFanfare(evs.filter((e) => e.type === 'spawned'));
+    const peek = evs.find((e) => e.player === me && Array.isArray((e.data as { peekHand?: string[] } | undefined)?.peekHand));
+    if (peek) setSheet({ kind: 'peek', cards: (peek.data as { peekHand: string[] }).peekHand, by: 'Omar ibn Said' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [m.replay?.idx, m.replay?.steps]);
+  /** Advance the replay once this beat's sheets are closed. */
+  useEffect(() => {
+    if (!step || clashes.length || showdowns.length || fanfare.length || sheet?.kind === 'peek') return;
+    const ms = BEAT_MS[step.kind] ?? 900;
+    const id = window.setTimeout(m.replayNext, ms);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [m.replay?.idx, m.replay?.steps, clashes.length, showdowns.length, fanfare.length, sheet?.kind]);
   /** Gate slots my departing Characters still hold this turn (the preview shows them elsewhere). */
   const reserved = useMemo(() => {
     const out: Record<number, { uid: string; defId: string; why: string }[]> = {};
@@ -130,6 +191,8 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     return out;
   }, [view, me, plan, locked, placeholders]);
   const planning = view.phase === 'planning' && !locked && !busy;
+  /** Sheets show while the board is settled, or beat by beat during a replay. */
+  const sheetsOk = !busy || !!m.replay;
 
   // Escape closes any sheet.
   useEffect(() => {
@@ -542,7 +605,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
 
   const hint = (() => {
     if (view.phase === 'ended') return `Match over: ${view.result?.winner ? `${view.players[view.result.winner].handle} wins` : 'a draw'}. Tap any card or Location for details.`;
-    if (busy) return 'Harborlight moves…';
+    if (busy) return m.replay ? 'Watching the turn play out…' : 'Harborlight moves…';
     if (locked) return m.mode === 'ai' ? 'Locked. Harborlight is deciding…' : 'Locked.';
     if (view.players[me].hand.length - plan.plays.length >= MAX_HAND && view.players[me].deckCount > 0 && !selected) return `Hand full (${MAX_HAND}). Play a card or your next draw is discarded.`;
     if (selected) return `Tap a Location to commit ${cardName(selected, placeholders)}.`;
@@ -577,9 +640,24 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           reserved={reserved}
           delays={m.delays}
           resolving={busy}
+          focus={step?.uids}
+          eventFx={step?.kind === 'event' && step.cardId && step.player ? { cardId: step.cardId, owner: step.player, location: step.location ?? 0 } : undefined}
+          pendingEvents={step?.pendingEvents}
           glowLocation={guideLocation}
           summonLabel={summonState}
         />
+        {step && (
+          <div className={`replay-banner kind-${step.kind}`} role="status">
+            {BEAT_KIND[step.kind] && <span className="replay-kind">{BEAT_KIND[step.kind]}</span>}
+            <span className="replay-text">{step.label}</span>
+            <span className="replay-count">
+              {m.replay!.idx + 1}/{m.replay!.steps.length}
+            </span>
+            <button className="small" onClick={m.replaySkip}>
+              Skip ▸▸
+            </button>
+          </div>
+        )}
         <Coach view={view} me={me} plan={plan} enabled={coach && planning && m.mode === 'ai' && !guide} onActive={setFlash} override={guideText} />
         <Spotlight active={planning && !drag && (flash !== null || guide !== null)} />
         <button className="log-toggle" disabled={m.lastTurn.length === 0} onClick={() => setSheet({ kind: 'log' })} {...tip('What happened last turn, step by step.')} aria-label="Last turn log">
@@ -782,9 +860,9 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           }}
         />
       )}
-      {clashes.length > 0 && !busy && <ClashSheet key={`${clashes[0].uid}-${clashes.length}`} ev={clashes[0]} view={view} me={me} onClose={() => setClashes((c) => c.slice(1))} />}
-      {clashes.length === 0 && showdowns.length > 0 && !busy && <ShowdownSheet ev={showdowns[0]} view={view} me={me} onClose={() => setShowdowns((s) => s.slice(1))} />}
-      {clashes.length === 0 && showdowns.length === 0 && fanfare.length > 0 && !busy && view.phase !== 'ended' && <SpawnSheet ev={fanfare[0]} view={view} me={me} onClose={() => setFanfare((f) => f.slice(1))} />}
+      {clashes.length > 0 && sheetsOk && <ClashSheet key={`${clashes[0].uid}-${clashes.length}`} ev={clashes[0]} view={view} me={me} onClose={() => setClashes((c) => c.slice(1))} />}
+      {clashes.length === 0 && showdowns.length > 0 && sheetsOk && <ShowdownSheet ev={showdowns[0]} view={view} me={me} onClose={() => setShowdowns((s) => s.slice(1))} />}
+      {clashes.length === 0 && showdowns.length === 0 && fanfare.length > 0 && sheetsOk && view.phase !== 'ended' && <SpawnSheet ev={fanfare[0]} view={view} me={me} onClose={() => setFanfare((f) => f.slice(1))} />}
       {view.phase === 'ended' && !busy && !peek && clashes.length === 0 && showdowns.length === 0 && <TallySheet view={view} me={me} onResult={onExit} onBoard={() => setPeek(true)} />}
     </div>
   );

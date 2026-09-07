@@ -527,6 +527,7 @@ export function AncestorsSheet({ view, me, plan, onClose }: { view: GameState; m
 
 /** A confrontation replayed as a showdown: fighters on one side, the Threat on the other, and a plain-words account of why it broke or held. */
 export function ShowdownSheet({ ev, view, me, onClose }: { ev: GameEvent; view: GameState; me: PlayerId; onClose: () => void }) {
+  const [dap] = useState(() => Math.floor(Math.random() * DAP.length));
   const { placeholders } = useDisplay();
   const d = ev.data as { threatUid: string; defId: string; needed: number; requiresBoth: boolean; force: { A: number; B: number }; fighters: { uid: string; defId: string; owner: PlayerId; force: number }[]; cleared: boolean };
   const tdef = THREAT_BY_ID[d.defId];
@@ -609,13 +610,16 @@ export function ShowdownSheet({ ev, view, me, onClose }: { ev: GameEvent; view: 
         {!d.cleared && tdef && ev.location !== undefined && <div className="showdown-rule beat">{adviceFor(view, me, { kind: 'threat', id: d.defId }, 'held', ev.location, placeholders)}</div>}
         <div className="actions" style={{ justifyContent: 'center' }}>
           <button className="primary" onClick={onClose} autoFocus>
-            Continue
+            {d.cleared && d.force[me] === 0 && d.force[other(me)] > 0 ? DAP[dap] : 'Continue'}
           </button>
         </div>
       </div>
     </div>
   );
 }
+
+/** The other player handled a Threat on their own: close the sheet with some love. */
+const DAP = ['High five', 'Fist bump', "Give 'em some skin", 'Firm handshake', 'Dap', 'Salute', 'Tip of the hat', 'Much respect'];
 
 /** Omar ibn Said: the opponent's hand, laid out. */
 export function PeekHandSheet({ cards, by, opponent, onClose }: { cards: string[]; by: string; opponent: string; onClose: () => void }) {

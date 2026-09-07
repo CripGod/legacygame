@@ -446,7 +446,28 @@ export interface TurnPlan {
 
 export const emptyPlan = (): TurnPlan => ({ plays: [], enters: [], relocations: [], confronts: [] });
 
+/** One beat of a turn's resolution, for the UI to replay: the board as it stood right after this beat. */
+export interface TraceStep {
+  kind: 'stand' | 'reveal' | 'play' | 'event' | 'revealFx' | 'enter' | 'move' | 'showdown' | 'summon' | 'threat' | 'spawn' | 'ready' | 'sundown' | 'info' | 'tally' | 'stakes';
+  label: string;
+  state: GameState;
+  /** Events produced by this beat alone. */
+  events: GameEvent[];
+  uids?: string[];
+  location?: number;
+  player?: PlayerId;
+  cardId?: string;
+  /** Event cards played this turn that have not resolved yet at this beat (they sit at the Gates until they do). */
+  pendingEvents?: { cardId: string; player: PlayerId; location: number }[];
+}
+
+export interface ResolveOptions {
+  /** Record a TraceStep after every beat. Costs clones; the AI never asks for it. */
+  trace?: boolean;
+}
+
 export interface ResolveOutput {
   state: GameState;
   events: GameEvent[];
+  trace?: TraceStep[];
 }

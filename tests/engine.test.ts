@@ -1001,3 +1001,31 @@ describe('clash beats', () => {
     expect((held!.data as { outcome: string }).outcome).toBe('held');
   });
 });
+
+describe('turn trace', () => {
+  it('records the turn one beat at a time, ending on the resolved state', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['queen_nzinga'], handB: ['newsboy'] });
+    addChar(s, 'barber', 'B', 0, 'gate', true);
+    const plans = { A: { ...pass(), plays: [{ cardId: 'queen_nzinga', location: 0 }] }, B: { ...pass(), plays: [{ cardId: 'newsboy', location: 1 }] } };
+    const out = resolveTurn(s, plans, { trace: true });
+    expect(out.trace).toBeTruthy();
+    const steps = out.trace!;
+    expect(steps.length).toBeGreaterThan(3);
+    const kinds = steps.map((st) => st.kind);
+    expect(kinds).toContain('play');
+    expect(kinds).toContain('revealFx');
+    expect(kinds).toContain('tally');
+    // Each beat carries its own events and a label; the last beat is the resolved state.
+    for (const st of steps) expect(st.label.length).toBeGreaterThan(0);
+    expect(steps.some((st) => st.events.some((e) => e.type === 'clash'))).toBe(true);
+    // The last beat is the counted board; the next turn's draw happens after the replay.
+    expect(steps[steps.length - 1].state.turn).toBe(s.turn);
+    expect(Object.keys(steps[steps.length - 1].state.characters).sort()).toEqual(Object.keys(out.state.characters).sort());
+    // The beats do not share state objects with the live result.
+    expect(steps[0].state).not.toBe(out.state);
+    // Without the option, no trace is produced and the result is the same.
+    const plain = resolveTurn(s, plans);
+    expect(plain.trace).toBeUndefined();
+    expect(plain.state).toEqual(out.state);
+  });
+});

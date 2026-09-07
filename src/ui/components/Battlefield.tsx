@@ -13,10 +13,10 @@ import {
   INSIDE_CAPACITY,
   THREAT_BY_ID,
 } from '../../engine';
-import { locationName, threatLabel, useDisplay } from '../display';
+import { initials, locationName, threatLabel, useDisplay } from '../display';
 import { Pic } from './CardFace';
 import { Art } from './Art';
-import { charDef, confrontForce, threatForceNeeded, isNight, lockReason, LOCATION_BY_ID } from '../../engine';
+import { charDef, confrontForce, threatForceNeeded, isNight, lockReason, LOCATION_BY_ID, CARD_BY_ID } from '../../engine';
 
 /** A Location under curfew right now: a curfew Location at night. */
 function curfewOn(view: GameState, index: number): boolean {
@@ -55,6 +55,12 @@ export interface BattlefieldProps {
   delays?: Record<string, number>;
   /** Gate slots still occupied until the turn resolves, keyed by Location: Characters leaving the Gates this turn. */
   reserved?: Record<number, { uid: string; defId: string; why: string }[]>;
+  /** Replay: the pieces this beat is about. */
+  focus?: string[];
+  /** Replay: an Event card resolving right now, flaring at its Gates. */
+  eventFx?: { cardId: string; owner: PlayerId; location: number };
+  /** Replay: Event cards played this turn that have not resolved yet; they wait at the Gates. */
+  pendingEvents?: { cardId: string; player: PlayerId; location: number }[];
   /** True while the opponent's resolution is animating: the player's own tiles snap. */
   resolving?: boolean;
   /** First-turn guide: Location to glow. */
@@ -86,15 +92,42 @@ function Score({ p, value }: { p: PlayerId; value: number }) {
   );
 }
 
-type Common = Pick<BattlefieldProps, 'view' | 'me' | 'plan' | 'onChar' | 'flash' | 'dragProps' | 'drop' | 'reserved'>;
+type Common = Pick<BattlefieldProps, 'view' | 'me' | 'plan' | 'onChar' | 'flash' | 'dragProps' | 'drop' | 'reserved' | 'focus' | 'eventFx' | 'pendingEvents'>;
 
-function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, dragProps, drop, reserved }: Common & { owner: PlayerId; index: number; label: string; right?: React.ReactNode }) {
+/** An Event card sitting at the Gates: planned, waiting to resolve, or resolving now. */
+function EventTile({ cardId, state, hidden, onClick }: { cardId: string; state: 'planned' | 'pending' | 'trigger'; hidden?: boolean; onClick?: () => void }) {
+  const { placeholders } = useDisplay();
+  const def = CARD_BY_ID[cardId] as { name: string; curse?: boolean } | undefined;
+  if (!def) return null;
+  if (hidden) {
+    // The opponent's Event waits face-down until its beat, Snap-style.
+    return (
+      <div className="gate-slot event-slot pending facedown" {...tip('The opponent played an Event here. It flips when it resolves.')}>
+        <span className="ini">?</span>
+        <span className="strip event">Event</span>
+      </div>
+    );
+  }
+  return (
+    <div className={`gate-slot event-slot ${state} ${def.curse ? 'curse' : ''}`} onClick={onClick} {...tip(state === 'planned' ? `${def.name} is planned here. It resolves when you Lock In and needs this open Gate slot.` : state === 'pending' ? `${def.name} waits to resolve.` : `${def.name} resolves.`)}>
+      {placeholders ? <span className="ini">{initials(cardId, true)}</span> : <Art kind="events" id={cardId} className="pic-img" fallback={<span className="ini">{initials(cardId, false)}</span>} alt={def.name} />}
+      <span className={`strip ${def.curse ? 'curse' : 'event'}`}>{state === 'trigger' ? '✦' : def.curse ? 'Curse' : 'Event'}</span>
+    </div>
+  );
+}
+
+function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, dragProps, drop, reserved, focus, eventFx, pendingEvents }: Common & { owner: PlayerId; index: number; label: string; right?: React.ReactNode }) {
   const gOk = owner === me && drop?.gates.includes(index);
   const gOver = gOk && drop?.overKey === `gates:${index}`;
   const chars = charsAt(view, index, owner, 'gate').sort((a, b) => a.arrivedTurn - b.arrivedTurn);
   const held = owner === me ? reserved?.[index] ?? [] : [];
   const slots: (CharacterInstance | { held: { uid: string; defId: string; why: string } } | null)[] = [...chars, ...held.map((h) => ({ held: h }))];
   while (slots.length < GATE_CAPACITY) slots.push(null);
+  // Event cards at these Gates: planned by me, or (in a replay) waiting to resolve or resolving now.
+  const eventTiles: { cardId: string; state: 'planned' | 'pending' | 'trigger'; hidden?: boolean }[] = [];
+  if (owner === me) for (const pl of plan.plays) if (pl.location === index && CARD_BY_ID[pl.cardId]?.kind === 'event') eventTiles.push({ cardId: pl.cardId, state: 'planned' });
+  for (const pe of pendingEvents ?? []) if (pe.player === owner && pe.location === index) eventTiles.push({ cardId: pe.cardId, state: 'pending', hidden: owner !== me });
+  if (eventFx && eventFx.owner === owner && eventFx.location === index) eventTiles.push({ cardId: eventFx.cardId, state: 'trigger' });
   return (
     <div className="gates-strip">
       <div className={`gates-left ${gOk ? 'drop-ok' : ''} ${gOver ? 'drop-over' : ''}`} {...(owner === me ? { 'data-drop': 'gates', 'data-index': index } : {})}>
@@ -132,10 +165,13 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                 className={`gate-slot filled owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''}`}
                 {...draggable}
               >
-                <Pic state={view} c={s} badges strip={planned ? 'Planned' : moving ? 'Moving' : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockReason(view, s) ? 'Held' : undefined} onClick={() => onChar(s.uid)} />
+                <Pic state={view} c={s} badges focus={focus?.includes(s.uid)} strip={planned ? 'Planned' : moving ? 'Moving' : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockReason(view, s) ? 'Held' : undefined} onClick={() => onChar(s.uid)} />
               </div>
             );
           })}
+          {eventTiles.map((t, n) => (
+            <EventTile key={`ev:${t.cardId}:${n}`} cardId={t.cardId} state={t.state} hidden={t.hidden} onClick={owner === me && t.state === 'planned' ? () => onChar(`${PLANNED_PREFIX}${t.cardId}`) : undefined} />
+          ))}
         </div>
       </div>
       {right}
@@ -143,7 +179,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
   );
 }
 
-function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragProps, drop }: Common & { owner: PlayerId; index: number; label: string }) {
+function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragProps, drop, focus }: Common & { owner: PlayerId; index: number; label: string }) {
   const chars = charsAt(view, index, owner, 'inside').sort((a, b) => a.arrivedTurn - b.arrivedTurn);
   const cap = insideCapacity(view, index);
   const mine = owner === me;
@@ -169,7 +205,7 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
             mine && dragProps ? dragProps(planned ? { kind: 'card', cardId: c.uid.slice(PLANNED_PREFIX.length) } : { kind: 'char', uid: c.uid }) : {};
           return (
             <div key={c.uid} data-uid={c.uid} data-place={`${index}:inside`} className={`slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''}`} {...draggable}>
-              <Pic state={view} c={c} highlight={confronting} strip={entering ? 'Entering' : brought ? 'Moving' : planned ? 'Planned' : confronting ? 'Confront' : lockReason(view, c) ? 'Held' : undefined} onClick={() => onChar(c.uid)} />
+              <Pic state={view} c={c} highlight={confronting} focus={focus?.includes(c.uid)} strip={entering ? 'Entering' : brought ? 'Moving' : planned ? 'Planned' : confronting ? 'Confront' : lockReason(view, c) ? 'Held' : undefined} onClick={() => onChar(c.uid)} />
             </div>
           );
         })}
@@ -246,7 +282,7 @@ function shortEffect(type: string): string {
 }
 
 export function Battlefield(props: BattlefieldProps) {
-  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onThreat, flash, dragProps, drop, delays, resolving, glowLocation, summonLabel, reserved } = props;
+  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onThreat, flash, dragProps, drop, delays, resolving, glowLocation, summonLabel, reserved, focus, eventFx, pendingEvents } = props;
   const { placeholders } = useDisplay();
   const opp = other(me);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -256,7 +292,7 @@ export function Battlefield(props: BattlefieldProps) {
     // Your own moves snap quickly; the opponent's resolution moves glide.
     durationFor: (uid) => (view.characters[uid]?.owner === me || isPlannedUid(uid) ? (resolving ? 0 : 220) : 620),
   });
-  const common: Common = { view, me, plan, onChar, flash, dragProps, drop, reserved };
+  const common: Common = { view, me, plan, onChar, flash, dragProps, drop, reserved, focus, eventFx, pendingEvents };
   return (
     <div className="battlefield" ref={rootRef}>
       {view.locations.map((loc) => {

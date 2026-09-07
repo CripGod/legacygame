@@ -35,7 +35,7 @@ import {
   cardCost,
   lockReason,
 } from './query';
-import type { CharacterDef, CharacterInstance, GameEvent, GameState, MatchResult, PlayAction, PlayerId, ResolveOutput, ThreatInstance, TurnPlan } from './types';
+import type { CharacterDef, CharacterInstance, GameEvent, GameState, MatchResult, PlayAction, PlayerId, ResolveOptions, ResolveOutput, ThreatInstance, TraceStep, TurnPlan } from './types';
 import { MAX_STAKES, PLAYERS, EXTENDED_TURNS, MAX_HAND, other, emptyPlan } from './types';
 import { GATHERING_DEFS } from './content/characters';
 
@@ -823,7 +823,7 @@ function endByStepOff(state: GameState, p: PlayerId, events: GameEvent[]): void 
 }
 
 /** Resolve a full turn. Never mutates `input`. Illegal plans are replaced by a pass. */
-export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan>): ResolveOutput {
+export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan>, opts: ResolveOptions = {}): ResolveOutput {
   const state = cloneState(input);
   const events: GameEvent[] = [];
   if (state.phase !== 'planning') throw new Error(`Cannot resolve in phase ${state.phase}`);
@@ -837,6 +837,20 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
   }
   const order = playerOrder(state);
   state.lastEvents = events;
+
+  // ---- Replay trace: one snapshot per beat, only when asked for ----
+  const steps: TraceStep[] = [];
+  let mark = 0;
+  const allEventPlays = PLAYERS.flatMap((p) => plans[p].plays.filter((pl) => cardDef(pl.cardId).kind === 'event').map((pl) => ({ cardId: pl.cardId, player: p, location: pl.location })));
+  const resolvedEvents = new Set<string>();
+  const trace = (kind: TraceStep['kind'], label: string, extra: Partial<Pick<TraceStep, 'uids' | 'location' | 'player' | 'cardId'>> = {}, force = false): void => {
+    if (!opts.trace) return;
+    if (events.length === mark && !force) return;
+    const snap = cloneState(state);
+    snap.lastEvents = [];
+    steps.push({ kind, label, state: snap, events: events.slice(mark), pendingEvents: allEventPlays.filter((e) => !resolvedEvents.has(e.cardId)), ...extra });
+    mark = events.length;
+  };
 
   // Count offered assists for analytics.
   for (const p of PLAYERS) {
@@ -867,10 +881,13 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       events.push({ type: 'stand', text: `The match is extended to ${EXTENDED_TURNS} turns.`, data: { maxTurns: EXTENDED_TURNS } });
     }
   }
+  if (raisers.length) trace('stand', `${raisers.map((p) => state.players[p].handle).join(' and ')} stand${raisers.length > 1 ? '' : 's'} on business`, { player: raisers[0] });
 
   // ---- 1. Location reveal ----
   if (state.turn <= 3 && state.revealOrder.length) {
-    revealLocation(state, state.revealOrder[state.turn - 1], events);
+    const idx = state.revealOrder[state.turn - 1];
+    revealLocation(state, idx, events);
+    trace('reveal', `${locName(state, idx)} is revealed`, { location: idx });
   }
   for (const p of PLAYERS) {
     if (state.players[p].knownNextReveal !== undefined && state.locations[state.players[p].knownNextReveal!].revealed) {
@@ -930,11 +947,22 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       uid: c.uid,
       location: play.location,
     });
+    trace('play', `${ps.handle} plays ${def.name} at ${locName(state, play.location)}`, { uids: [c.uid], location: play.location, player: p, cardId: def.id });
     }
   }
-  for (const { p, play } of eventPlays) playEvent(state, p, play, events);
+  for (const { p, play } of eventPlays) {
+    playEvent(state, p, play, events);
+    resolvedEvents.add(play.cardId);
+    trace('event', `${state.players[p].handle} plays ${eventDef(play.cardId).name} at ${locName(state, play.location)}`, { location: play.location, player: p, cardId: play.cardId }, true);
+  }
   for (const { c, target } of newChars) {
+    const before = events.length;
     resolveReveal(state, c, target, events, pendingConfronts);
+    if (events.length > before) {
+      const said = events.slice(before).find((e) => e.type === 'reveal');
+      const touched = events.slice(before).map((e) => e.uid).filter((u): u is string => !!u);
+      trace('revealFx', said?.text ?? `${charDef(c.defId).name} reveals`, { uids: [c.uid, ...touched], location: c.location, player: c.owner, cardId: c.defId });
+    }
   }
   // Straight Inside always enters; Direct Entry enters when the player chose to.
   for (const { c, enter } of newChars) {
@@ -944,6 +972,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       if (!enterInside(state, c, events, kw.includes('STRAIGHT_INSIDE') ? 'goes straight Inside at' : 'enters immediately (Direct Entry) at')) {
         events.push({ type: 'blocked', text: `${name(state, c)} cannot enter: no room Inside.`, uid: c.uid });
       }
+      trace('enter', `${charDef(c.defId).name} goes straight Inside ${locName(state, c.location)}`, { uids: [c.uid], location: c.location, player: c.owner });
     }
   }
 
@@ -994,6 +1023,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
         dest.firstRelocatedThisTurn = c.uid;
         enterInside(state, c, events, 'enters immediately (Great Migration) at');
       }
+      trace('move', `${charDef(c.defId).name} relocates to ${locName(state, r.to)}`, { uids: [c.uid], location: r.to, player: p });
     }
   }
 
@@ -1015,6 +1045,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
         continue;
       }
       enterInside(state, c, events, 'enters');
+      trace('enter', `${charDef(c.defId).name} enters ${locName(state, c.location)}`, { uids: [c.uid], location: c.location, player: p });
     }
   }
 
@@ -1083,6 +1114,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       }
     }
     loc.threats = remaining;
+    trace('showdown', `Showdown at ${locName(state, loc.index)}`, { location: loc.index });
   }
 
   // ---- Joint Summon ----
@@ -1121,6 +1153,8 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     const at = (sA ?? sB)!;
     events.push({ type: 'summon', text: `${state.players[by].handle} called for a Summon at ${locName(state, at)}, but ${state.players[other(by)].handle} did not join.`, location: at, player: by });
   }
+
+  trace('summon', 'Summon', {});
 
   // Threat actions.
   for (const loc of state.locations) {
@@ -1163,15 +1197,22 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     }
   }
 
+  {
+    const acted = events.slice(mark).find((e) => e.type === 'threatActs' || e.type === 'locationLost');
+    trace('threat', acted?.text ?? 'Threats act', { location: acted?.location, uids: acted?.uid ? [acted.uid] : undefined });
+  }
+
   // ---- 10. Cleanup ----
   // Unstable Characters (Karen) may wander.
   for (const c of Object.values(state.characters)) {
     if (c.unstable && c.arrivedTurn < state.turn && nextFloat(state.rng) < 0.5) {
       displace(state, c, 'unstable', events);
+      trace('move', `${charDef(c.defId).name} wanders off`, { uids: [c.uid], location: c.location, player: c.owner });
     }
   }
   // Gatherings earned this turn arrive before readiness is settled.
   checkGatherings(state, events, 'cleanup');
+  trace('spawn', events.slice(mark).find((e) => e.type === 'spawned')?.text ?? 'An arrival', {});
   // Fresh → Ready.
   for (const c of Object.values(state.characters)) {
     if (c.zone !== 'gate' || c.ready) continue;
@@ -1183,6 +1224,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       events.push({ type: 'ready', text: `${name(state, c)} is Ready to enter ${locName(state, c.location)}.`, uid: c.uid, player: c.owner });
     }
   }
+  trace('ready', 'Fresh Characters are Ready', {});
   // Carver: the most expensive card in hand ripens.
   for (const p of PLAYERS) {
     const ps = state.players[p];
@@ -1205,6 +1247,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       events.push({ type: 'info', text: `${ldef.name}: ${state.players[p].handle} has ${ldef.effect.count}+ Characters Inside and gains +${ldef.effect.amount} Energy next turn.`, player: p, location: loc.index });
     }
   }
+  trace('info', 'End of turn', {});
   // Sundown Town displaces Fresh Gate Characters.
   for (const loc of state.locations) {
     if (!loc.revealed || LOCATION_BY_ID[loc.defId]?.effect.type !== 'displaceFreshAtEnd') continue;
@@ -1215,6 +1258,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       if (displace(state, c, 'Sundown Town', events)) {
         setback(state, c.owner, 'displaced by Sundown Town', events);
         clash(state, events, { kind: 'location', id: loc.defId }, c, 'displaced', fromHere, { to: c.location, note: 'Anyone still Fresh at these Gates at the end of the turn is run out of town. A Setback.' });
+        trace('sundown', `Sundown Town runs ${charDef(c.defId).name} out`, { uids: [c.uid], location: fromHere, player: c.owner });
       }
     }
   }
@@ -1239,6 +1283,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     const inf = influenceAt(state, l.index);
     events.push({ type: 'influence', text: `${locName(state, l.index)}: ${state.players.A.handle} ${inf.A} · ${state.players.B.handle} ${inf.B}${l.lost ? ' (LOST)' : ''}.`, location: l.index, data: { A: inf.A, B: inf.B } });
   }
+  trace('tally', `Turn ${state.turn} is counted`, {}, true);
 
   // Raises declared on an earlier turn land now: the other side had a full turn to Sit Down at the old price.
   const landing = state.pendingRaises.filter((r) => r.declaredTurn < state.turn);
@@ -1246,6 +1291,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     state.pendingRaises = state.pendingRaises.filter((r) => r.declaredTurn >= state.turn);
     state.stakes = Math.min(MAX_STAKES, state.stakes * 2 ** landing.length);
     events.push({ type: 'stakes', text: `Nobody sat down. The match is now worth ${state.stakes} Legacy.`, data: { stakes: state.stakes } });
+    trace('stakes', `The match is now worth ${state.stakes} Legacy`, {});
   }
 
   if (state.turn >= state.maxTurns) {
@@ -1254,7 +1300,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     clearTemporary(state);
     startTurn(state, events);
   }
-  return { state, events };
+  return { state, events, trace: opts.trace ? steps : undefined };
 }
 
 function clearTemporary(state: GameState): void {

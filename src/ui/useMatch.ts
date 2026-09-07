@@ -14,6 +14,7 @@ import {
   type GameState,
   type PlayerId,
   type TurnPlan,
+  type TraceStep,
 } from '../engine';
 import { planTurn, recordAi, aiSummonProposal, aiAcceptSummon } from '../ai/harborlight';
 import { locName } from '../engine';
@@ -42,6 +43,10 @@ export interface MatchController {
   busy: boolean;
   /** Events from the most recent resolution, as seen by the perspective player. */
   lastTurn: GameEvent[];
+  /** The turn being replayed one beat at a time, or null when the board shows the live state. */
+  replay: { steps: TraceStep[]; idx: number } | null;
+  replayNext: () => void;
+  replaySkip: () => void;
   /** Tile animation stagger for the opponent's pieces. */
   delays: Record<string, number>;
   secondsLeft: number;
@@ -67,8 +72,6 @@ export interface MatchController {
   opponentAgreed: number | null;
 }
 
-const STAGGER_MS = 160;
-
 export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<PlayerId, string>): MatchController {
   const [seed, setSeed] = useState(initialSeed);
   const [trueState, setTrueState] = useState<GameState>(() => createMatch({ seed: initialSeed, deckKeys }));
@@ -78,6 +81,7 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
   const [lastTurn, setLastTurn] = useState<GameEvent[]>([]);
   const [delays, setDelays] = useState<Record<string, number>>({});
   const [busy, setBusy] = useState(false);
+  const [replay, setReplay] = useState<{ steps: TraceStep[]; idx: number } | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(PLANNING_SECONDS);
   const [handoff, setHandoff] = useState<PlayerId | null>(null);
   const [log, setLog] = useState<GameEvent[]>([]);
@@ -96,30 +100,38 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
 
   const setPlan = useCallback((fn: (p: TurnPlan) => TurnPlan) => setPlanState((p) => fn(p)), []);
 
-  const view = useMemo(() => viewFor(trueState, perspective), [trueState, perspective]);
+  const liveView = useMemo(() => viewFor(trueState, perspective), [trueState, perspective]);
+  const view = useMemo(() => (replay ? viewFor(replay.steps[replay.idx].state, perspective) : liveView), [replay, liveView, perspective]);
+  const replayNext = useCallback(() => {
+    setReplay((r) => {
+      if (!r) return r;
+      if (r.idx + 1 >= r.steps.length) {
+        setBusy(false);
+        return null;
+      }
+      return { steps: r.steps, idx: r.idx + 1 };
+    });
+  }, []);
+  const replaySkip = useCallback(() => {
+    setReplay(null);
+    setBusy(false);
+  }, []);
 
 
   const finishResolution = useCallback(
-    (next: GameState, events: GameEvent[], seen: PlayerId) => {
+    (next: GameState, events: GameEvent[], seen: PlayerId, steps?: TraceStep[]) => {
       setTrueState(next);
       setLog((l) => [...l, ...events]);
       const visible = filterEvents(events, seen).filter((e) => e.text && e.type !== 'draw');
       setLastTurn(visible);
-      // Only the opponent's pieces animate; stagger them in event order.
-      const d: Record<string, number> = {};
-      let i = 0;
-      for (const e of visible) {
-        if (!e.uid || d[e.uid] !== undefined) continue;
-        if (e.type !== 'moved' && e.type !== 'entered') continue;
-        const c = next.characters[e.uid];
-        if (!c || c.owner === seen) continue;
-        d[e.uid] = Math.min(2400, i * STAGGER_MS);
-        i++;
-      }
-      setDelays(d);
-      const maxDelay = Object.values(d).reduce((m, v) => Math.max(m, v), 0);
+      setDelays({});
       setBusy(true);
-      window.setTimeout(() => setBusy(false), (i ? maxDelay + 800 : 0) + 900);
+      if (steps && steps.length) {
+        // The screen replays the turn one beat at a time and clears busy when it is done.
+        setReplay({ steps, idx: 0 });
+      } else {
+        window.setTimeout(() => setBusy(false), 900);
+      }
       setLocked(false);
       setPlanState(emptyPlan());
       setSecondsLeft(PLANNING_SECONDS);
@@ -132,10 +144,10 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
 
   const resolveWithPlans = useCallback(
     (state: GameState, plans: Record<PlayerId, TurnPlan>) => {
-      const out = resolveTurn(state, plans);
+      const out = resolveTurn(state, plans, { trace: true });
       const events = out.events;
       const next = out.state;
-      finishResolution(next, events, 'A');
+      finishResolution(next, events, 'A', out.trace);
       if (mode === 'hotseat') setPerspective('A');
     },
     [mode, finishResolution],
@@ -279,6 +291,7 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
     setLastTurn([]);
     setDelays({});
     setBusy(false);
+    setReplay(null);
     setSecondsLeft(PLANNING_SECONDS);
     setHandoff(null);
     setLog(st.lastEvents);
@@ -295,6 +308,9 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
     locked,
     busy,
     lastTurn,
+    replay,
+    replayNext,
+    replaySkip,
     delays,
     secondsLeft,
     handoff,

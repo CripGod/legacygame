@@ -80,6 +80,7 @@ export function Pic({
   onClick,
   highlight,
   badges,
+  focus,
 }: {
   state: GameState;
   c: CharacterInstance;
@@ -88,6 +89,8 @@ export function Pic({
   highlight?: boolean;
   /** Gate tiles: show cost, Influence and Force like a small card. */
   badges?: boolean;
+  /** Replay: this piece is the one acting in the current beat. */
+  focus?: boolean;
 }) {
   const { placeholders } = useDisplay();
   const def = CARD_BY_ID[c.defId];
@@ -100,7 +103,7 @@ export function Pic({
   const cls = label ? label.toLowerCase() : '';
   return (
     <div
-      className={`pic ${c.owner} ${isSuppressed(state, c) ? 'suppressed' : ''} ${highlight ? 'highlight' : ''}`}
+      className={`pic ${c.owner} ${isSuppressed(state, c) ? 'suppressed' : ''} ${highlight ? 'highlight' : ''} ${focus ? 'focus' : ''}`}
       style={{ background: hueFor(c.defId) }}
       onClick={onClick}
       title={`${cardName(c.defId, placeholders)} · ${inf} Influence · ${def.force} Force`}

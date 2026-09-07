@@ -34,6 +34,7 @@ The engine never imports React. The UI never touches the true `GameState` except
 ## Playing
 
 - **Plan**: drag a card onto a Location, drag a Ready Character from your Gates into the Location, drag an Established Character to another Location, drag any Character onto a Threat. Tapping opens the same actions in a sheet. Then **Lock It In**. Two minutes per turn; timeout locks whatever you had.
+- **Watch**: after both players lock in, the turn plays out one beat at a time (Hearthstone/Snap style): each play, Event, Reveal, entry, move, clash and Showdown gets its own banner and spotlight, and the Location tally lands last. Events sit face-up in the Gate slot they were played into (the opponent's face-down) until their beat, then flip and flare. Skip ▸▸ jumps to the settled board. `resolveTurn(state, plans, { trace: true })` returns the same beats as `TraceStep`s.
 - **Win**: lead Influence at two of the three Locations after Turn 7.
 - **Legacy** is what the match is worth. Stand on Business once per player to double it (1 → 2 → 4). It also adds an 8th turn, and whoever stood can no longer Sit Down. The raise lands one turn later, Marvel Snap style: the other side gets a full turn to Sit Down at the old price, keep playing, or Stand back.
 

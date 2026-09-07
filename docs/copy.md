@@ -675,6 +675,7 @@ Main menu
 - Yemoja: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : 
 - Drag a card onto a Location.
 - Sit Down${opts.canStepOff && view.phase !== 'ended' ? 
+- replay-banner kind-${step.kind}
 - What happened last turn, step by step.
 - danger ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}
 - primary lock-btn ${planning ? urgency(m.secondsLeft) : ''}
@@ -816,6 +817,7 @@ export function AncestorsSheet({ view, me, plan, onClose }: { view: GameState; m
 
 /** A confrontation replayed as a showdown: fighters on one side, the Threat on the other, and a plain-words account of why it broke or held. */
 export function ShowdownSheet({ ev, view, me, onClose }: { ev: GameEvent; view: GameState; me: PlayerId; onClose: () => void }) {
+  const [dap] = useState(() => Math.floor(Math.random() * DAP.length));
   const { placeholders } = useDisplay();
   const d = ev.data as { threatUid: string; defId: string; needed: number; requiresBoth: boolean; force: { A: number; B: number }; fighters: { uid: string; defId: string; owner: PlayerId; force: number }[]; cleared: boolean };
   const tdef = THREAT_BY_ID[d.defId];
@@ -908,13 +910,16 @@ export function ShowdownSheet({ ev, view, me, onClose }: { ev: GameEvent; view: 
         {!d.cleared && tdef && ev.location !== undefined && <div className="showdown-rule beat">{adviceFor(view, me, { kind: 'threat', id: d.defId }, 'held', ev.location, placeholders)}</div>}
         <div className="actions" style={{ justifyContent: 'center' }}>
           <button className="primary" onClick={onClose} autoFocus>
-            Continue
+            {d.cleared && d.force[me] === 0 && d.force[other(me)] > 0 ? DAP[dap] : 'Continue'}
           </button>
         </div>
       </div>
     </div>
   );
 }
+
+/** The other player handled a Threat on their own: close the sheet with some love. */
+const DAP = ['High five', 'Fist bump', "Give 'em some skin", 'Firm handshake', 'Dap', 'Salute', 'Tip of the hat', 'Much respect'];
 
 /** Omar ibn Said: the opponent's hand, laid out. */
 export function PeekHandSheet({ cards, by, opponent, onClose }: { cards: string[]; by: string; opponent: string; onClose: () => void }) {
@@ -1166,6 +1171,11 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 
 - s resolution is animating: the player
 - score p${p} ${bump ? 'bump' : ''}
+- The opponent played an Event here. It flips when it resolves.
+- gate-slot event-slot ${state} ${def.curse ? 'curse' : ''}
+- ${def.name} is planned here. It resolves when you Lock In and needs this open Gate slot.
+- ${def.name} waits to resolve.
+- strip ${def.curse ? 'curse' : 'event'}
 - gates-left ${gOk ? 'drop-ok' : ''} ${gOver ? 'drop-over' : ''}
 - ${hd.name} ${s.held.why} when you Lock It In. The slot stays taken until then.
 - gate-slot filled owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''}
