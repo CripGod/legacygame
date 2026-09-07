@@ -12,6 +12,7 @@ import { Coach } from '../components/Coach';
 import { Spotlight } from '../components/Spotlight';
 import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, SpawnSheet, ThreatSheet, AncestorsSheet, ShowdownSheet, PeekHandSheet, ClashSheet, TallySheet } from '../components/Sheets';
 import { guideDone, markGuideDone, suggest } from '../guide';
+import { lessonsFor, tutorialActive } from '../tutorial';
 import { EMOTES } from '../useMatch';
 import { cardName, locationName, useDisplay } from '../display';
 import { tip, HINTS } from '../tip';
@@ -94,7 +95,7 @@ function useCompact(): boolean {
   return compact;
 }
 
-export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: boolean; onExit: () => void }) {
+export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchController; coach: boolean; tutorial?: boolean; onExit: () => void }) {
   const { view, perspective: me, plan, setPlan: setPlanRaw, locked, busy } = m;
   // Undo history for the current plan.
   const [history, setHistory] = useState<TurnPlan[]>([]);
@@ -138,7 +139,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   const [flash, setFlash] = useState<string | null>(null);
   /** Match over and the player chose to look at the final board instead of the result card. */
   const [peek, setPeek] = useState(() => m.view.phase === 'ended');
-  const [guideOn, setGuideOn] = useState(() => coach && m.mode === 'ai' && !guideDone());
+  const [guideOn, setGuideOn] = useState(() => coach && m.mode === 'ai' && !guideDone() && !tutorial);
   const opts = useMemo(() => legalOptions(view, me), [view, me]);
   const step = m.replay ? m.replay.steps[m.replay.idx] : null;
   /** During a replay your own moves stay where you put them; the board only re-animates what you could not see coming. */
@@ -197,6 +198,15 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     return out;
   }, [view, me, plan, locked, placeholders]);
   const planning = view.phase === 'planning' && !locked && !busy;
+  // Tutorial: one scripted lesson at a time; 'read' lessons modal the board out, 'do' lessons spotlight the target.
+  const [tutIdx, setTutIdx] = useState(0);
+  useEffect(() => setTutIdx(0), [view.turn]);
+  const lessons = useMemo(() => (tutorial && tutorialActive(view) ? lessonsFor(view, me, placeholders) : []), [tutorial, view, me, placeholders]);
+  const lesson = planning && tutIdx < lessons.length ? lessons[tutIdx] : null;
+  useEffect(() => {
+    if (lesson?.kind === 'do' && lesson.done(view, plan)) setTutIdx((i) => i + 1);
+  }, [lesson, view, plan]);
+  const doing = lesson?.kind === 'do' ? lesson : null;
   /** Sheets show while the board is settled, or beat by beat during a replay. */
   const sheetsOk = !busy || !!m.replay;
 
@@ -221,8 +231,8 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     if (plan.plays.length) return `That works too. Or ${guide.text.charAt(0).toLowerCase()}${guide.text.slice(1)}`;
     return guide.text;
   }, [guide, plan]);
-  const guideCard = guide?.play && !plan.plays.length ? guide.play.cardId : null;
-  const guideLocation = guide?.play && !plan.plays.length && CARD_BY_ID[guide.play.cardId]?.kind === 'character' ? guide.play.location : null;
+  const guideCard = doing ? doing.card ?? null : guide?.play && !plan.plays.length ? guide.play.cardId : null;
+  const guideLocation = doing ? doing.location ?? null : guide?.play && !plan.plays.length && CARD_BY_ID[guide.play.cardId]?.kind === 'character' ? guide.play.location : null;
   useEffect(() => {
     if (guideOn && view.turn > 1) {
       markGuideDone();
@@ -640,7 +650,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           onChar={onChar}
           onThreat={(uid) => setSheet({ kind: 'threat', uid })}
           locked={!planning}
-          flash={flash}
+          flash={doing ? doing.flash ?? null : flash}
           dragProps={dragProps}
           drop={drop}
           reserved={reserved}
@@ -664,8 +674,24 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
             </button>
           </div>
         )}
-        <Coach view={view} me={me} plan={plan} enabled={coach && planning && m.mode === 'ai' && !guide} onActive={setFlash} override={guideText} />
-        <Spotlight active={planning && !drag && (flash !== null || guide !== null)} />
+        <Coach view={view} me={me} plan={plan} enabled={coach && planning && m.mode === 'ai' && !guide && !lesson} onActive={setFlash} override={doing ? doing.text : guideText} overrideKicker={doing ? `Tutorial · ${tutIdx + 1} of ${lessons.length}` : undefined} />
+        <Spotlight active={planning && !drag && (flash !== null || guide !== null || !!doing)} />
+        {lesson?.kind === 'read' && (
+          <div className="scrim tut-scrim">
+            <div className="sheet tut-sheet" role="dialog" aria-label={lesson.title}>
+              <div className="tut-kicker">
+                Tutorial · {tutIdx + 1} of {lessons.length}
+              </div>
+              <h3>{lesson.title}</h3>
+              <p>{lesson.text}</p>
+              <div className="actions" style={{ justifyContent: 'center' }}>
+                <button className="primary" autoFocus onClick={() => setTutIdx((i) => i + 1)}>
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         <button className="log-toggle" disabled={m.lastTurn.length === 0} onClick={() => setSheet({ kind: 'log' })} {...tip('What happened last turn, step by step.')} aria-label="Last turn log">
           i
         </button>
@@ -722,7 +748,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
               SEE RESULT
             </button>
           ) : (
-            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''}`} disabled={!planning} onClick={m.lockIn} title={HINTS.timer}>
+            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning} onClick={m.lockIn} title={HINTS.timer}>
               <span>LOCK IN</span>
               <i className="timer-bar" aria-hidden>
                 <b style={{ width: `${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 100}%` }} />
@@ -749,7 +775,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
               SEE RESULT
             </button>
           ) : (
-            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''}`} disabled={!planning} onClick={m.lockIn} title={HINTS.timer}>
+            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning} onClick={m.lockIn} title={HINTS.timer}>
               <span>LOCK IN</span>
               <i className="timer-bar" aria-hidden>
                 <b style={{ width: `${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 100}%` }} />

@@ -40,7 +40,7 @@ const TIPS: { key: string; when: (c: Ctx) => string | null }[] = [
       if (!ready) return null;
       const def = charDef(ready.defId);
       const why = def.established ? `Inside, ${c.nm(ready.defId)} becomes Established and the standing ability turns on: ${def.established.text}` : 'Entering is free, and Inside is where a Character is safe from what happens at the Gates.';
-      return `${c.nm(ready.defId)} is Ready at ${c.ln(ready.location)}'s Gates. Drag the tile into the Location. ${why}`;
+      return `${c.nm(ready.defId)} is Ready at the Gates of ${c.ln(ready.location)}. Drag the tile into the Location. ${why}`;
     },
   },
   {
@@ -48,7 +48,7 @@ const TIPS: { key: string; when: (c: Ctx) => string | null }[] = [
     when: (c) => {
       const fresh = myChars(c).find((x) => x.zone === 'gate' && !x.ready);
       if (!fresh || c.v.turn < 2) return null;
-      return `${c.nm(fresh.defId)} waits at ${c.ln(fresh.location)}'s Gates this turn, still counting ${charInfluence(c.v, fresh)} Influence there. At the end of the turn the tile turns Ready, and next turn it can go Inside.`;
+      return `${c.nm(fresh.defId)} waits at the Gates of ${c.ln(fresh.location)} this turn, still counting ${charInfluence(c.v, fresh)} Influence there. At the end of the turn the tile turns Ready, and next turn it can go Inside.`;
     },
   },
   {
@@ -144,7 +144,7 @@ function readDone(): Set<string> {
   }
 }
 
-export function Coach({ view, me, plan, enabled, onActive, override }: { view: GameState; me: PlayerId; plan: TurnPlan; enabled: boolean; onActive?: (key: string | null) => void; override?: string | null }) {
+export function Coach({ view, me, plan, enabled, onActive, override, overrideKicker }: { view: GameState; me: PlayerId; plan: TurnPlan; enabled: boolean; onActive?: (key: string | null) => void; override?: string | null; overrideKicker?: string }) {
   const { placeholders } = useDisplay();
   const [done, setDone] = useState<Set<string>>(() => readDone());
   const [current, setCurrent] = useState<string | null>(null);
@@ -177,7 +177,7 @@ export function Coach({ view, me, plan, enabled, onActive, override }: { view: G
           💡
         </span>
         <div className="coach-body">
-          <div className="coach-kicker">Coach · First turn</div>
+          <div className="coach-kicker">{overrideKicker ?? 'Coach · First turn'}</div>
           <span>{override}</span>
         </div>
       </div>

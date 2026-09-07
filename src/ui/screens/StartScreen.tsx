@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { resetCoach } from '../components/Coach';
 import { resetGuide } from '../guide';
 import { PRESET_DECKS, CARD_BY_ID } from '../../engine';
+import { TUTORIAL_SEED, TUTORIAL_DECKS } from '../tutorial';
 
 export interface StartOptions {
   seed?: number;
@@ -11,6 +12,8 @@ export interface StartOptions {
   coach: boolean;
   deckA: string;
   deckB: string;
+  /** The baked walkthrough: fixed seed and decks, stopped clock, scripted lessons. */
+  tutorial?: boolean;
 }
 
 export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: (o: StartOptions) => void; onRules: () => void; onCards: () => void; initialDev: boolean }) {
@@ -54,6 +57,9 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
         <div className="menu">
           <button className="primary" onClick={() => onPlay(opts('ai'))}>
             Play vs Harborlight
+          </button>
+          <button onClick={() => onPlay({ ...opts('ai'), seed: TUTORIAL_SEED, deckA: TUTORIAL_DECKS.A, deckB: TUTORIAL_DECKS.B, coach: true, tutorial: true })}>
+            Tutorial · learn in five turns
           </button>
           <button onClick={onRules}>Rules</button>
           <button onClick={onCards}>Cards</button>

@@ -72,7 +72,7 @@ export interface MatchController {
   opponentAgreed: number | null;
 }
 
-export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<PlayerId, string>): MatchController {
+export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<PlayerId, string>, options: { tutorial?: boolean } = {}): MatchController {
   const [seed, setSeed] = useState(initialSeed);
   const [trueState, setTrueState] = useState<GameState>(() => createMatch({ seed: initialSeed, deckKeys }));
   const [perspective, setPerspective] = useState<PlayerId>('A');
@@ -262,7 +262,8 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
   }, [mode, trueState.turn, trueState.phase]);
 
   // Timer.
-  const timerActive = trueState.phase === 'planning' && !locked && !busy && !handoff;
+  // The tutorial stops the clock: nothing happens until the player acts.
+  const timerActive = trueState.phase === 'planning' && !locked && !busy && !handoff && !options.tutorial;
   useEffect(() => {
     if (!timerActive) return;
     const id = setInterval(() => setSecondsLeft((s) => Math.max(0, s - 1)), 1000);

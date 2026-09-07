@@ -36,8 +36,8 @@ class ErrorBoundary extends Component<{ children: ReactNode; onReset: () => void
   }
 }
 
-function MatchHost({ seed, mode, dev, coach, decks, onMenu }: { seed: number; mode: Mode; dev: boolean; coach: boolean; decks: Record<'A' | 'B', string>; onMenu: () => void }) {
-  const m = useMatch(seed, mode, decks);
+function MatchHost({ seed, mode, dev, coach, decks, tutorial, onMenu }: { seed: number; mode: Mode; dev: boolean; coach: boolean; decks: Record<'A' | 'B', string>; tutorial: boolean; onMenu: () => void }) {
+  const m = useMatch(seed, mode, decks, { tutorial });
   const [screen, setScreen] = useState<'match' | 'result'>('match');
   const [devOpen, setDevOpen] = useState(false);
   if (m.handoff) {
@@ -57,7 +57,7 @@ function MatchHost({ seed, mode, dev, coach, decks, onMenu }: { seed: number; mo
   return (
     <>
       {screen === 'match' ? (
-        <MatchScreen m={m} coach={coach} onExit={() => setScreen('result')} />
+        <MatchScreen m={m} coach={coach} tutorial={tutorial} onExit={() => setScreen('result')} />
       ) : (
         <ResultScreen
           state={m.trueState}
@@ -102,7 +102,7 @@ export function App() {
       {screen === 'cards' && <CardsScreen onBack={() => setScreen('start')} />}
       {screen === 'match' && (
         <ErrorBoundary onReset={() => setScreen('start')}>
-          <MatchHost key={matchKey} seed={seed} mode={opts.mode} dev={opts.dev} coach={opts.coach} decks={{ A: opts.deckA, B: opts.deckB }} onMenu={() => setScreen('start')} />
+          <MatchHost key={matchKey} seed={seed} mode={opts.mode} dev={opts.dev} coach={opts.coach} decks={{ A: opts.deckA, B: opts.deckB }} tutorial={!!opts.tutorial} onMenu={() => setScreen('start')} />
         </ErrorBoundary>
       )}
     </DisplayContext.Provider>
