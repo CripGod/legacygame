@@ -9,7 +9,7 @@ export function ResultScreen({ state, onAgain, onRematch, onMenu, onBoard }: { s
     'tiebreak-influence': 'won on total Influence (1–1 with a tie)',
     'tiebreak-force': 'won on total Force',
     draw: 'nobody could break the tie',
-    stepOff: 'the opponent stepped off',
+    stepOff: 'the opponent sat down',
   };
   return (
     <div className="screen">
@@ -42,7 +42,7 @@ export function ResultScreen({ state, onAgain, onRematch, onMenu, onBoard }: { s
             <tr><td>Relocations</td><td>{state.stats.relocations.A} / {state.stats.relocations.B}</td></tr>
             <tr><td>Setbacks (neutral)</td><td>{state.players.A.setbacks} / {state.players.B.setbacks}</td></tr>
             <tr><td>Solidarity earned</td><td>{state.players.A.solidarity} / {state.players.B.solidarity}</td></tr>
-            <tr><td>Stand on Business</td><td>{state.stats.standTurns.length ? state.stats.standTurns.map((s) => `${state.players[s.player].handle} T${s.turn} → ${s.proposed} (${s.accepted ? 'landed' : 'opponent stepped off'})`).join('; ') : '—'}</td></tr>
+            <tr><td>Stand on Business</td><td>{state.stats.standTurns.length ? state.stats.standTurns.map((s) => `${state.players[s.player].handle} T${s.turn} → ${s.proposed} (${s.accepted ? 'landed' : 'opponent sat down'})`).join('; ') : '—'}</td></tr>
           </tbody>
         </table>
         <div className="menu">

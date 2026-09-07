@@ -109,6 +109,17 @@ export const LOCATIONS: LocationDef[] = [
     effect: { type: 'relocatedOutReady' },
     weight: 0.9,
   },
+  {
+    id: 'oak_bluffs',
+    name: 'Oak Bluffs',
+    era: "Martha's Vineyard, 1912–",
+    rule: 'The Inkwell: at the end of each turn, each player with 2 or more Characters Inside here gains +1 Energy next turn. Threats never appear here.',
+    blurb: "Shearer Cottage opened to Black guests in 1912 when the island's hotels would not. A century of summers followed: the Inkwell, the gingerbread cottages, families who came back every August.",
+    effect: { type: 'restEnergy', count: 2, amount: 1 },
+    noThreats: true,
+    region: 'americas',
+    weight: 0.9,
+  },
 ];
 
 export const UNKNOWN_LOCATION: LocationDef = {

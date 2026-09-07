@@ -195,19 +195,61 @@ export function canConfront(state: GameState, threat: ThreatInstance, p: PlayerI
 
 /** Energy this turn: the turn number, plus Organizer-style bonuses. Unspent Energy does not carry over. */
 export function energyFor(state: GameState, p: PlayerId): number {
-  let n = state.turn + (state.players[p].energyBonus ?? 0);
+  let n = state.turn + (state.players[p].energyBonus ?? 0) + (state.players[p].energyNextTurn ?? 0);
   for (const c of hasEstablishedAnywhere(state, p, 'extraEnergy')) n += amountOf(c);
   return n;
 }
 
-/** Energy cost of a card. */
-export function cardCost(cardId: string): number {
-  return CARD_BY_ID[cardId]?.cost ?? 0;
+/** Energy cost of a card. With a state and player, every discount that applies right now is taken off (never below 0). */
+export function cardCost(cardId: string, state?: GameState, p?: PlayerId): number {
+  const def = CARD_BY_ID[cardId];
+  if (!def) return 0;
+  let n = def.cost;
+  if (state && p) {
+    const ps = state.players[p];
+    n -= ps.discounts?.[cardId] ?? 0;
+    if (def.kind === 'character') {
+      for (const c of hasEstablishedAnywhere(state, p, 'discountCharacters')) n -= amountOf(c);
+      for (const c of hasEstablishedAnywhere(state, p, 'discountTag')) {
+        const eff = charDef(c.defId).established!.effect as { tag: string; amount: number };
+        if (def.tags.includes(eff.tag)) n -= eff.amount;
+      }
+      const td = def.passive?.tagDiscount;
+      if (td) n -= td.amount * charsOf(state, p).filter((x) => charDef(x.defId).tags.includes(td.tag)).length;
+    } else {
+      for (const c of hasEstablishedAnywhere(state, p, 'discountEvents')) n -= amountOf(c);
+    }
+  }
+  return Math.max(0, n);
 }
 
-/** Total Energy a plan spends on plays. */
-export function planCost(plan: TurnPlan): number {
-  return plan.plays.reduce((s, pl) => s + cardCost(pl.cardId), 0);
+/** Why a card costs less than printed right now, for the UI. Empty when it costs full price. */
+export function costBreakdown(state: GameState, p: PlayerId, cardId: string): string[] {
+  const def = CARD_BY_ID[cardId];
+  if (!def) return [];
+  const out: string[] = [];
+  const earned = state.players[p].discounts?.[cardId] ?? 0;
+  if (earned) out.push(`−${earned} earned while in hand`);
+  if (def.kind === 'character') {
+    for (const c of hasEstablishedAnywhere(state, p, 'discountCharacters')) out.push(`−${amountOf(c)} ${charDef(c.defId).name}`);
+    for (const c of hasEstablishedAnywhere(state, p, 'discountTag')) {
+      const eff = charDef(c.defId).established!.effect as { tag: string; amount: number };
+      if (def.tags.includes(eff.tag)) out.push(`−${eff.amount} ${charDef(c.defId).name} (${eff.tag})`);
+    }
+    const td = def.passive?.tagDiscount;
+    if (td) {
+      const n = charsOf(state, p).filter((x) => charDef(x.defId).tags.includes(td.tag)).length;
+      if (n) out.push(`−${td.amount * n} for ${n} ${td.tag} Character${n > 1 ? 's' : ''} on the board`);
+    }
+  } else {
+    for (const c of hasEstablishedAnywhere(state, p, 'discountEvents')) out.push(`−${amountOf(c)} ${charDef(c.defId).name}`);
+  }
+  return out;
+}
+
+/** Total Energy a plan spends on plays, with discounts when a state and player are given. */
+export function planCost(plan: TurnPlan, state?: GameState, p?: PlayerId): number {
+  return plan.plays.reduce((s, pl) => s + cardCost(pl.cardId, state, p), 0);
 }
 
 /** Open Gate slots for `p` at a Location, after `planned` Characters already committed there. */
@@ -269,7 +311,7 @@ export interface LegalOptions {
   proposedStakes: number;
   /** Stakes after pending raises land. */
   pendingStakes: number;
-  /** What Stepping Off costs right now (raises land only after the turn resolves). */
+  /** What Sitting Down costs right now (raises land only after the turn resolves). */
   stepOffCost: number;
   /** Locations where a joint Summon may be attempted this turn. */
   summonable: number[];
@@ -348,7 +390,7 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
 export function validatePlan(state: GameState, p: PlayerId, plan: TurnPlan): string[] {
   const errors: string[] = [];
   const opts = legalOptions(state, p);
-  if (planCost(plan) > opts.energy) errors.push(`Not enough Energy: this plan costs ${planCost(plan)} and you have ${opts.energy}.`);
+  if (planCost(plan, state, p) > opts.energy) errors.push(`Not enough Energy: this plan costs ${planCost(plan, state, p)} and you have ${opts.energy}.`);
   const usedCards = new Set<string>();
   const gateUse: Record<number, number> = {};
   for (const play of plan.plays) {
@@ -400,7 +442,7 @@ export function validatePlan(state: GameState, p: PlayerId, plan: TurnPlan): str
     seen.add(c.uid);
   }
   if (plan.standOnBusiness && !opts.canStand) errors.push('Stand on Business is not available.');
-  if (plan.stepOff && !opts.canStepOff) errors.push('You Stood on Business: you cannot Step Off.');
+  if (plan.stepOff && !opts.canStepOff) errors.push('You Stood on Business: you cannot Sit Down.');
   if (plan.summon && !opts.summonable.includes(plan.summon.location)) errors.push('No Summon is possible there.');
   return errors;
 }

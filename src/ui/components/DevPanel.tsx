@@ -60,7 +60,7 @@ export function DevPanel({ trueState, log, onClose }: { trueState: GameState; lo
               <tr><td>Relocations / match</td><td>{summary.avgRelocations.toFixed(2)}</td></tr>
               <tr><td>Assist rate (taken / offered)</td><td>{(summary.assistRate * 100).toFixed(0)}%</td></tr>
               <tr><td>Stand on Business / match</td><td>{summary.standFrequency.toFixed(2)}</td></tr>
-              <tr><td>Step Offs</td><td>{summary.stepOffs}</td></tr>
+              <tr><td>Sit Downs</td><td>{summary.stepOffs}</td></tr>
               <tr><td>Gate character-turns / match</td><td>{summary.avgGateTurns.toFixed(1)}</td></tr>
               <tr><td>Inside character-turns / match</td><td>{summary.avgInsideTurns.toFixed(1)}</td></tr>
             </tbody>

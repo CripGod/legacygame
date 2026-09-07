@@ -9,7 +9,7 @@ const TIPS: { key: string; text: string; when: (v: GameState, me: PlayerId, plan
   { key: 'influence', text: 'Control two of the three Locations at the end of the last turn to win.', when: (v) => v.turn === 3 },
   { key: 'move', text: 'Drag an Established Character to another Location to relocate it. Movement is a big part of this game.', when: (v, me) => charsOf(v, me).some((c) => c.zone === 'inside') },
   { key: 'threat', text: 'Threats are neutral dangers. Drag a Character onto one to confront it. Some affect both players.', when: (v) => v.locations.some((l) => l.threats.length > 0) },
-  { key: 'stakes', text: 'Stand on Business doubles the Legacy and adds an 8th turn. Once you stand, you cannot Step Off.', when: (v) => v.turn >= 5 },
+  { key: 'stakes', text: 'Stand on Business doubles the Legacy and adds an 8th turn. Once you stand, you cannot Sit Down.', when: (v) => v.turn >= 5 },
 ];
 
 const KEY = 'bhcb.coach.v1';

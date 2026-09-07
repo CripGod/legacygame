@@ -7,7 +7,7 @@
  *   4 voluntary Relocations · 5 Gate→Inside · 6 Enter effects · 7 Established recalculation
  *   8 Threat actions · 9 Assists · 10 cleanup · 11 Influence update
  */
-import { charDef, cardDef, eventDef, LOCATION_BY_ID, THREAT_BY_ID, SUMMON, EVENTS } from './content';
+import { charDef, cardDef, eventDef, LOCATION_BY_ID, THREAT_BY_ID, SUMMON, EVENTS, CARD_BY_ID } from './content';
 import { nextFloat, pick } from './rng';
 import { drawCard, locName, spawnThreat, startTurn } from './setup';
 import {
@@ -32,9 +32,10 @@ import {
   totalForce,
   threatForceNeeded,
   validatePlan,
+  cardCost,
 } from './query';
 import type { CharacterDef, CharacterInstance, GameEvent, GameState, MatchResult, PlayAction, PlayerId, ResolveOutput, ThreatInstance, TurnPlan } from './types';
-import { MAX_STAKES, PLAYERS, EXTENDED_TURNS, other, emptyPlan } from './types';
+import { MAX_STAKES, PLAYERS, EXTENDED_TURNS, MAX_HAND, other, emptyPlan } from './types';
 import { GATHERING_DEFS } from './content/characters';
 
 export function cloneState(s: GameState): GameState {
@@ -65,8 +66,32 @@ function isProtected(state: GameState, c: CharacterInstance): boolean {
   return false;
 }
 
+/** Nanny of the Maroons: opposing Reveal abilities cannot single out your Characters here. */
+function shielded(state: GameState, c: CharacterInstance): boolean {
+  return hasEstablished(state, c.owner, c.location, 'shieldHere').length > 0;
+}
+
+/** Nehanda: a Character that rises again leaves the board for the hand instead of being displaced, and costs 0 next time. */
+function riseAgain(state: GameState, c: CharacterInstance, reason: string, events: GameEvent[]): boolean {
+  const def = charDef(c.defId);
+  if (!def.passive?.risesAgain) return false;
+  const ps = state.players[c.owner];
+  delete state.characters[c.uid];
+  if (ps.hand.length >= MAX_HAND) {
+    ps.discard.push(def.id);
+    events.push({ type: 'info', text: `${name(state, c)} would rise again, but ${ps.handle}'s hand is full: she is discarded (${reason}).`, uid: c.uid, player: c.owner, location: c.location });
+    return true;
+  }
+  ps.hand.push(def.id);
+  ps.discounts = ps.discounts ?? {};
+  ps.discounts[def.id] = def.cost;
+  events.push({ type: 'moved', text: `${name(state, c)} rises again: instead of being displaced (${reason}) she returns to ${ps.handle}'s hand and costs 0 the next time.`, uid: c.uid, player: c.owner, location: c.location, data: { from: c.location, to: -1, reason: 'risesAgain' } });
+  return true;
+}
+
 /** Move a Character to another Location's Gate (random open one). Returns false if nowhere to go. */
 function displace(state: GameState, c: CharacterInstance, reason: string, events: GameEvent[], to?: number): boolean {
+  if (riseAgain(state, c, reason, events)) return true;
   const options = state.locations
     .filter((l) => l.index !== c.location && !l.lost && gateOpen(state, l.index, c.owner))
     .map((l) => l.index);
@@ -313,7 +338,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       break;
     }
     case 'blockOneOpposingGate': {
-      const targets = charsAt(state, loc, opp, 'gate').filter((x) => x.ready);
+      const targets = charsAt(state, loc, opp, 'gate').filter((x) => x.ready && !shielded(state, x));
       const target = targets.sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];
       if (target) {
         target.blockedEnterTurn = state.turn;
@@ -325,7 +350,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       break;
     }
     case 'blockOpposingGatesHere': {
-      const targets = charsAt(state, loc, opp, 'gate');
+      const targets = charsAt(state, loc, opp, 'gate').filter((x) => !shielded(state, x));
       for (const t of targets) t.blockedEnterTurn = state.turn;
       say(targets.length ? `${targets.length} opposing Gate Character(s) cannot enter this turn.` : 'no opposing Gate Characters here.');
       break;
@@ -355,7 +380,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       break;
     }
     case 'challengeGate': {
-      const targets = charsAt(state, loc, opp, 'gate');
+      const targets = charsAt(state, loc, opp, 'gate').filter((x) => !shielded(state, x));
       const target = targets.sort((a, b) => charDef(b.defId).force - charDef(a.defId).force)[0];
       if (!target) {
         say('no opposing Gate Character to challenge.');
@@ -372,7 +397,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       break;
     }
     case 'challengeInside': {
-      const targets = charsAt(state, loc, opp, 'inside');
+      const targets = charsAt(state, loc, opp, 'inside').filter((x) => !shielded(state, x));
       const target = targets.sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];
       if (!target) {
         say('no opposing Established Character to challenge.');
@@ -397,7 +422,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
         say('the opposing Characters here cannot be Suppressed.');
         break;
       }
-      const targets = charsAt(state, loc, opp, 'inside');
+      const targets = charsAt(state, loc, opp, 'inside').filter((x) => !shielded(state, x));
       const target = targets.sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];
       if (target) {
         target.suppressedUntilTurn = state.turn + 1;
@@ -409,7 +434,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
     }
     case 'refreshOpposingGate': {
       drawCard(state, p, events);
-      const targets = charsAt(state, loc, opp, 'gate').filter((x) => x.ready);
+      const targets = charsAt(state, loc, opp, 'gate').filter((x) => x.ready && !shielded(state, x));
       const target = targets.sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];
       if (target && !isProtected(state, target)) {
         target.ready = false;
@@ -421,7 +446,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       break;
     }
     case 'challengeAllGates': {
-      const targets = charsAt(state, loc, opp, 'gate');
+      const targets = charsAt(state, loc, opp, 'gate').filter((x) => !shielded(state, x));
       let hits = 0;
       for (const t of targets) {
         if (def.force > charDef(t.defId).force && !isProtected(state, t) && displace(state, t, 'Shango', events)) hits++;
@@ -478,12 +503,93 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       break;
     }
     case 'displaceOpposingGate': {
-      const targets = charsAt(state, loc, opp, 'gate');
+      const targets = charsAt(state, loc, opp, 'gate').filter((x) => !shielded(state, x));
       const target = targets.sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];
       if (target && !isProtected(state, target)) {
         say(`lures ${charDef(target.defId).name} away.`);
         displace(state, target, 'Mami Wata', events);
       } else say('nobody here to lure.');
+      break;
+    }
+    case 'massEnter': {
+      let n = 0;
+      for (const x of charsOf(state, p)) {
+        if (x.uid === c.uid || x.zone !== 'gate' || !x.ready || state.locations[x.location].lost) continue;
+        if (isBlockedFromEntering(state, x)) continue;
+        if (enterInside(state, x, events, 'rises and enters (Boukman) at')) n++;
+      }
+      say(n ? `uprising: ${n} Ready Character${n > 1 ? 's' : ''} enter${n > 1 ? '' : 's'} at once.` : 'calls for an uprising, but no Ready Character is waiting at any Gate.');
+      break;
+    }
+    case 'stealGate': {
+      const target = charsAt(state, loc, opp, 'gate')
+        .filter((x) => !shielded(state, x) && !isProtected(state, x))
+        .sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];
+      if (!target) {
+        say('no opposing Gate Character here to turn.');
+        break;
+      }
+      if (!gateOpen(state, loc, p)) {
+        say(`${state.players[p].handle}'s Gates here are full, so nobody crosses over.`);
+        break;
+      }
+      target.owner = p;
+      target.permInfluence -= 1;
+      target.ready = false;
+      target.arrivedTurn = state.turn;
+      target.blessedUid = undefined;
+      say(`turns ${charDef(target.defId).name}: they cross over to ${state.players[p].handle} at −1 Influence.`);
+      events.push({ type: 'moved', text: '', uid: target.uid, location: loc, player: p, data: { from: loc, to: loc, reason: 'Laveau' } });
+      break;
+    }
+    case 'returnFriendlyToHand': {
+      const target = revealTarget?.charUid ? state.characters[revealTarget.charUid] : undefined;
+      if (!target || target.owner !== p || target.zone !== 'inside' || target.uid === c.uid) {
+        say('no Established Character chosen to bring home.');
+        break;
+      }
+      const tdef = charDef(target.defId);
+      const ps = state.players[p];
+      delete state.characters[target.uid];
+      if (ps.hand.length >= MAX_HAND) {
+        ps.discard.push(tdef.id);
+        say(`writes home for ${tdef.name}, but the hand is full: the card is discarded.`);
+        break;
+      }
+      ps.hand.push(tdef.id);
+      ps.discounts = ps.discounts ?? {};
+      ps.discounts[tdef.id] = tdef.cost;
+      drawCard(state, p, events);
+      say(`brings ${tdef.name} home from ${locName(state, target.location)}: back in hand and free to play again. ${ps.handle} draws a card.`);
+      events.push({ type: 'moved', text: '', uid: target.uid, location: target.location, player: p, data: { from: target.location, to: -1, reason: 'Diallo' } });
+      break;
+    }
+    case 'peekHand': {
+      const ids = state.players[opp].hand.filter((id) => id !== 'hidden');
+      const names = ids.map((id) => CARD_BY_ID[id]?.name ?? id);
+      events.push({
+        type: 'info',
+        text: `${def.name}: ${state.players[opp].handle} is holding ${names.length ? names.join(', ') : 'nothing'}.`,
+        uid: c.uid,
+        player: p,
+        location: loc,
+        privateTo: p,
+        data: { peekHand: ids },
+      });
+      break;
+    }
+    case 'reduceHandCost': {
+      const ps = state.players[p];
+      const best = ps.hand
+        .filter((id) => cardCost(id, state, p) > 0)
+        .sort((a, b) => cardCost(b, state, p) - cardCost(a, state, p))[0];
+      if (!best) {
+        say('no card in hand left to make cheaper.');
+        break;
+      }
+      ps.discounts = ps.discounts ?? {};
+      ps.discounts[best] = (ps.discounts[best] ?? 0) + eff.amount;
+      events.push({ type: 'reveal', text: `${def.name}: ${CARD_BY_ID[best]?.name ?? best} in ${ps.handle}'s hand now costs ${eff.amount} less (${cardCost(best, state, p)}).`, uid: c.uid, player: p, location: loc, privateTo: p });
       break;
     }
     case 'sanctuaryReveal': {
@@ -533,7 +639,9 @@ function playEvent(state: GameState, p: PlayerId, play: PlayAction, events: Game
     }
     case 'persuade': {
       const opp = other(p);
-      const target = charsAt(state, play.location, opp, 'gate').sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];
+      const target = charsAt(state, play.location, opp, 'gate')
+        .filter((x) => !shielded(state, x))
+        .sort((a, b) => charInfluence(state, a) - charInfluence(state, b))[0];
       if (!target) {
         events.push({ type: 'info', text: `${def.name}: no opposing Gate Character at ${locName(state, play.location)}.`, player: p, location: play.location });
         break;
@@ -635,7 +743,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     state.stats.assists[p].offered += offered;
   }
 
-  // ---- 0. Step Off / Stand on Business ----
+  // ---- 0. Sit Down / Stand on Business ----
   for (const p of order) {
     if (plans[p].stepOff) {
       endByStepOff(state, p, events);
@@ -651,7 +759,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     const to = effectiveStakes(state);
     state.stats.standTurns.push({ player: p, turn: state.turn, proposed: to, accepted: true });
     const o = other(p);
-    const escape = state.players[o].cannotStepOff ? `${state.players[o].handle} already stood, so there is no backing out.` : `${state.players[o].handle} has one turn to Step Off for ${state.stakes}.`;
+    const escape = state.players[o].cannotStepOff ? `${state.players[o].handle} already stood, so there is no backing out.` : `${state.players[o].handle} has one turn to Sit Down for ${state.stakes}.`;
     events.push({ type: 'stand', text: `${state.players[p].handle} STANDS ON BUSINESS: ${from} → ${to} Legacy after next turn. ${escape}`, player: p, data: { from, to } });
     if (state.maxTurns < EXTENDED_TURNS) {
       state.maxTurns = EXTENDED_TURNS;
@@ -679,6 +787,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     const idx = ps.hand.indexOf(play.cardId);
     if (idx < 0) continue;
     ps.hand.splice(idx, 1);
+    if (ps.discounts) delete ps.discounts[play.cardId];
     state.stats.plays[p].push(play.cardId);
     const def = cardDef(play.cardId);
     if (def.kind === 'event') {
@@ -967,6 +1076,28 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       events.push({ type: 'ready', text: `${name(state, c)} is Ready to enter ${locName(state, c.location)}.`, uid: c.uid, player: c.owner });
     }
   }
+  // Carver: the most expensive card in hand ripens.
+  for (const p of PLAYERS) {
+    const ps = state.players[p];
+    for (const _farm of hasEstablishedAnywhere(state, p, 'ripen')) {
+      const best = ps.hand.filter((id) => cardCost(id, state, p) > 0).sort((a, b) => cardCost(b, state, p) - cardCost(a, state, p))[0];
+      if (!best) break;
+      ps.discounts = ps.discounts ?? {};
+      ps.discounts[best] = (ps.discounts[best] ?? 0) + 1;
+      events.push({ type: 'info', text: `${charDef(_farm.defId).name}: ${CARD_BY_ID[best]?.name ?? best} in ${ps.handle}'s hand now costs ${cardCost(best, state, p)}.`, uid: _farm.uid, player: p, privateTo: p });
+    }
+  }
+  // Oak Bluffs: a full house Inside pays out Energy next turn.
+  for (const p of PLAYERS) state.players[p].energyNextTurn = 0;
+  for (const loc of state.locations) {
+    const ldef = loc.revealed ? LOCATION_BY_ID[loc.defId] : undefined;
+    if (!ldef || ldef.effect.type !== 'restEnergy' || loc.lost) continue;
+    for (const p of PLAYERS) {
+      if (charsAt(state, loc.index, p, 'inside').length < ldef.effect.count) continue;
+      state.players[p].energyNextTurn = (state.players[p].energyNextTurn ?? 0) + ldef.effect.amount;
+      events.push({ type: 'info', text: `${ldef.name}: ${state.players[p].handle} has ${ldef.effect.count}+ Characters Inside and gains +${ldef.effect.amount} Energy next turn.`, player: p, location: loc.index });
+    }
+  }
   // Sundown Town displaces Fresh Gate Characters.
   for (const loc of state.locations) {
     if (!loc.revealed || LOCATION_BY_ID[loc.defId]?.effect.type !== 'displaceFreshAtEnd') continue;
@@ -998,12 +1129,12 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     events.push({ type: 'influence', text: `${locName(state, l.index)}: ${state.players.A.handle} ${inf.A} · ${state.players.B.handle} ${inf.B}${l.lost ? ' (LOST)' : ''}.`, location: l.index, data: { A: inf.A, B: inf.B } });
   }
 
-  // Raises declared on an earlier turn land now: the other side had a full turn to Step Off at the old price.
+  // Raises declared on an earlier turn land now: the other side had a full turn to Sit Down at the old price.
   const landing = state.pendingRaises.filter((r) => r.declaredTurn < state.turn);
   if (landing.length) {
     state.pendingRaises = state.pendingRaises.filter((r) => r.declaredTurn >= state.turn);
     state.stakes = Math.min(MAX_STAKES, state.stakes * 2 ** landing.length);
-    events.push({ type: 'stakes', text: `Nobody stepped off. The match is now worth ${state.stakes} Legacy.`, data: { stakes: state.stakes } });
+    events.push({ type: 'stakes', text: `Nobody sat down. The match is now worth ${state.stakes} Legacy.`, data: { stakes: state.stakes } });
   }
 
   if (state.turn >= state.maxTurns) {

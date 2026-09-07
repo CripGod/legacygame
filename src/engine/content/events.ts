@@ -55,7 +55,7 @@ export const EVENTS: EventDef[] = [
     short: 'Persuade',
     cost: 3,
     curse: true,
-    text: 'Curse. Choose a Location: the opposing Gate Character there with the highest Influence crosses over to your Gates at −1 Influence. You need an open Gate slot there.',
+    text: 'Curse. Choose a Location: the opposing Gate Character there with the lowest Influence crosses over to your Gates at −1 Influence. You need an open Gate slot there.',
     effect: { type: 'persuade' },
     needsLocation: true,
     blurb: 'Everybody has a price, a grievance or a cousin. Find the one that opens the door.',

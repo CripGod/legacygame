@@ -24,6 +24,8 @@ import {
   charInfluence,
   spawnThreat,
   type GameEvent,
+  cardCost,
+  energyFor,
 } from '../src/engine';
 import { planTurn } from '../src/ai/harborlight';
 
@@ -557,18 +559,18 @@ describe('special arrivals', () => {
 });
 
 describe('curses, zero-cost cards and showdowns', () => {
-  it('Persuade turns the strongest opposing Gate Character at −1 Influence', () => {
+  it('Persuade turns the weakest opposing Gate Character at −1 Influence', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['persuade', 'word_of_mouth'] });
     s.turn = 3;
-    const og = addChar(s, 'og', 'B', 0, 'gate'); // Influence 3
-    addChar(s, 'newsboy', 'B', 0, 'gate'); // Influence 1
+    addChar(s, 'og', 'B', 0, 'gate'); // Influence 3
+    const kid = addChar(s, 'newsboy', 'B', 0, 'gate'); // Influence 1
     const handBefore = s.players.A.hand.length;
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'persuade', location: 0 }, { cardId: 'word_of_mouth', location: 0 }] }, B: pass() }).state;
-    const stolen = s.characters[og.uid];
+    const stolen = s.characters[kid.uid];
     expect(stolen.owner).toBe('A');
     expect(stolen.location).toBe(0);
     expect(stolen.zone).toBe('gate');
-    expect(charInfluence(s, stolen)).toBe(2);
+    expect(charInfluence(s, stolen)).toBe(0);
     expect(charsAt(s, 0, 'B', 'gate')).toHaveLength(1);
     // Word of Mouth: two cards played, one drawn by the card, one by the turn.
     expect(s.players.A.hand.length).toBe(handBefore - 2 + 2);
@@ -678,14 +680,14 @@ describe('hand limit', () => {
 });
 
 describe('match end', () => {
-  it('Step Off ends the match immediately', () => {
+  it('Sit Down ends the match immediately', () => {
     const s = createMatch({ seed: 4 });
     const out = resolveTurn(s, { A: { ...pass(), stepOff: true }, B: pass() });
     expect(out.state.phase).toBe('ended');
     expect(out.state.result?.winner).toBe('B');
     expect(out.state.result?.reason).toBe('stepOff');
   });
-  it('Stand on Business lands one turn later; the other side can Step Off at the old price first', () => {
+  it('Stand on Business lands one turn later; the other side can Sit Down at the old price first', () => {
     let s = createMatch({ seed: 4 });
     s = resolveTurn(s, { A: { ...pass(), standOnBusiness: true }, B: pass() }).state;
     expect(s.phase).toBe('planning');
@@ -713,7 +715,7 @@ describe('match end', () => {
     expect(legalOptions(landed, 'B').canStand).toBe(false);
     expect(cont.players.A.cannotStepOff).toBe(true);
     expect(legalOptions(cont, 'A').canStepOff).toBe(false);
-    // The player who stood cannot back out: a Step Off plan is ignored.
+    // The player who stood cannot back out: a Sit Down plan is ignored.
     const tried = resolveTurn(cont, { A: { ...pass(), stepOff: true }, B: pass() }).state;
     expect(tried.phase).toBe('planning');
     expect(tried.turn).toBe(4);
@@ -767,6 +769,108 @@ describe('AI vs AI smoke', () => {
     }
   });
   it('all pool Locations are defined', () => {
-    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(11);
+    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(12);
+  });
+});
+
+describe('cost flow', () => {
+  it('Booker T. Washington makes Characters cheaper, never below 0, and Omar only touches Events', () => {
+    const s = rig(createMatch({ seed: 5 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, energy: true, handA: ['nat_turner', 'neighbor_kid', 'reparations'] });
+    expect(cardCost('nat_turner', s, 'A')).toBe(2);
+    addChar(s, 'booker_t_washington', 'A', 0, 'inside');
+    expect(cardCost('nat_turner', s, 'A')).toBe(1);
+    expect(cardCost('neighbor_kid', s, 'A')).toBe(0);
+    expect(cardCost('reparations', s, 'A')).toBe(1);
+    addChar(s, 'omar_ibn_said', 'A', 1, 'inside');
+    expect(cardCost('reparations', s, 'A')).toBe(0);
+    expect(cardCost('nat_turner', s, 'B')).toBe(2);
+  });
+
+  it('Boukman costs 1 less per Rebellion Character on the board and Fatiman takes 2 off the priciest card in hand', () => {
+    let s = rig(createMatch({ seed: 5 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, energy: true, handA: ['boukman_dutty', 'cecile_fatiman'] });
+    s.turn = 3;
+    expect(cardCost('boukman_dutty', s, 'A')).toBe(7);
+    addChar(s, 'nat_turner', 'A', 0, 'inside');
+    addChar(s, 'nanny_of_the_maroons', 'A', 1, 'gate');
+    expect(cardCost('boukman_dutty', s, 'A')).toBe(5);
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'cecile_fatiman', location: 2 }] }, B: pass() }).state;
+    expect(s.players.A.discounts?.boukman_dutty).toBe(2);
+    // Fatiman herself now counts as a Rebellion Character: 7 − 3 on board − 2 earned.
+    expect(cardCost('boukman_dutty', s, 'A')).toBe(2);
+    // Once she is Established, Rebellion Characters are 1 cheaper again.
+    const fat = charsOf(s, 'A').find((c) => c.defId === 'cecile_fatiman')!;
+    fat.zone = 'inside';
+    expect(cardCost('boukman_dutty', s, 'A')).toBe(1);
+  });
+
+  it('Carver ripens the most expensive card in hand at the end of each turn, and the discount clears when it is played', () => {
+    let s = rig(createMatch({ seed: 5 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, energy: true, handA: ['marie_laveau', 'neighbor_kid'], handB: [] });
+    s.players.A.deck = [];
+    s.players.B.deck = [];
+    addChar(s, 'george_washington_carver', 'A', 0, 'inside');
+    s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(s.players.A.discounts?.marie_laveau).toBe(1);
+    expect(cardCost('marie_laveau', s, 'A')).toBe(2);
+    s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(cardCost('marie_laveau', s, 'A')).toBe(1);
+    s.players.A.energyBonus = 20;
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'marie_laveau', location: 1 }] }, B: pass() }).state;
+    expect(s.players.A.discounts?.marie_laveau).toBeUndefined();
+  });
+
+  it("Boukman's Uprising sends every Ready Gate Character Inside at once", () => {
+    let s = rig(createMatch({ seed: 5 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['boukman_dutty'] });
+    addChar(s, 'newsboy', 'A', 0, 'gate', true);
+    addChar(s, 'barber', 'A', 1, 'gate', true);
+    addChar(s, 'organizer', 'A', 2, 'gate', false);
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'boukman_dutty', location: 2 }] }, B: pass() }).state;
+    const zones = Object.fromEntries(charsOf(s, 'A').map((c) => [c.defId, c.zone]));
+    expect(zones.newsboy).toBe('inside');
+    expect(zones.barber).toBe('inside');
+    expect(zones.organizer).toBe('gate');
+    expect(zones.boukman_dutty).toBe('gate');
+  });
+
+  it('Nehanda returns to hand at cost 0 instead of being displaced', () => {
+    let s = rig(createMatch({ seed: 5 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: [], handB: ['mami_wata'] });
+    addChar(s, 'nehanda', 'A', 0, 'gate', true);
+    s = resolveTurn(s, { A: pass(), B: { ...pass(), plays: [{ cardId: 'mami_wata', location: 0 }] } }).state;
+    expect(charsOf(s, 'A').some((c) => c.defId === 'nehanda')).toBe(false);
+    expect(s.players.A.hand).toContain('nehanda');
+    expect(cardCost('nehanda', s, 'A')).toBe(0);
+  });
+
+  it('Nanny shields her Location from opposing Reveals; Laveau turns a Gate Character elsewhere', () => {
+    let s = rig(createMatch({ seed: 5 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: [], handB: ['marie_laveau', 'queen_nzinga'] });
+    addChar(s, 'nanny_of_the_maroons', 'A', 0, 'inside');
+    addChar(s, 'newsboy', 'A', 0, 'gate', true);
+    addChar(s, 'barber', 'A', 1, 'gate', true);
+    s = resolveTurn(s, { A: pass(), B: { ...pass(), plays: [{ cardId: 'marie_laveau', location: 0 }, { cardId: 'queen_nzinga', location: 1 }] } }).state;
+    expect(charsOf(s, 'A').find((c) => c.defId === 'newsboy')!.location).toBe(0);
+    const barber = Object.values(s.characters).find((c) => c.defId === 'barber')!;
+    expect(barber.owner).toBe('A');
+    expect(barber.location).not.toBe(1); // Nzinga (force 4) displaces the Barber
+    // Laveau at Nanny's Location turned nobody; try her where Nanny is not.
+    let t = rig(createMatch({ seed: 5 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: [], handB: ['marie_laveau'] });
+    addChar(t, 'newsboy', 'A', 2, 'gate', true);
+    t = resolveTurn(t, { A: pass(), B: { ...pass(), plays: [{ cardId: 'marie_laveau', location: 2 }] } }).state;
+    const kid = Object.values(t.characters).find((c) => c.defId === 'newsboy')!;
+    expect(kid.owner).toBe('B');
+    expect(kid.permInfluence).toBe(-1);
+  });
+
+  it('Diallo brings an Established Character home for free; Oak Bluffs pays Energy next turn', () => {
+    let s = rig(createMatch({ seed: 5 }), { locations: ['oak_bluffs', 'great_migration', 'gary_indiana'], revealAll: true, energy: true, handA: ['ayuba_suleiman_diallo'] });
+    s.turn = 2;
+    const z = addChar(s, 'zora_neale_hurston', 'A', 1, 'inside');
+    addChar(s, 'newsboy', 'A', 0, 'inside');
+    addChar(s, 'barber', 'A', 0, 'inside');
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'ayuba_suleiman_diallo', location: 2, target: { charUid: z.uid } }] }, B: pass() }).state;
+    expect(s.characters[z.uid]).toBeUndefined();
+    expect(s.players.A.hand).toContain('zora_neale_hurston');
+    expect(cardCost('zora_neale_hurston', s, 'A')).toBe(0);
+    expect(s.turn).toBe(3);
+    expect(energyFor(s, 'A')).toBe(4);
+    expect(energyFor(s, 'B')).toBe(3);
   });
 });

@@ -100,6 +100,11 @@ const ESTABLISHED_VALUE: Record<string, number> = {
   cookout: 1.8,
   freeDeparture: 0.6,
   allyBonus: 0.7,
+  discountCharacters: 1.5,
+  discountEvents: 0.4,
+  discountTag: 0.8,
+  ripen: 0.9,
+  shieldHere: 0.8,
 };
 
 function sigmoid(x: number): number {
@@ -408,8 +413,8 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
         reasons.push('hidden gamble');
       }
     }
-    const spent = planCost(plan);
-    const cheapestLeft = Math.min(...opts.plays.filter((o) => !plan.plays.some((pl) => pl.cardId === o.cardId)).map((o) => cardCost(o.cardId)), Infinity);
+    const spent = planCost(plan, view, p);
+    const cheapestLeft = Math.min(...opts.plays.filter((o) => !plan.plays.some((pl) => pl.cardId === o.cardId)).map((o) => cardCost(o.cardId, view, p)), Infinity);
     if (opts.energy - spent >= cheapestLeft) {
       score -= 1.2 * (opts.energy - spent);
       reasons.push('unspent Energy');
@@ -419,7 +424,7 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
 
   // Stage 1: single plays with the default "enter everything" posture.
   const defaultEnters = enterVariants[enterVariants.length > 1 ? 1 : 0];
-  const affordable = plays.filter((play) => cardCost(play.cardId) <= opts.energy);
+  const affordable = plays.filter((play) => cardCost(play.cardId, view, p) <= opts.energy);
   const singles: AiCandidate[] = affordable.map((play) => scoreOf({ plays: [play], enters: defaultEnters, relocations: [], confronts }));
   singles.sort((a, b) => b.score - a.score);
   const playSets: PlayAction[][] = [[], ...singles.slice(0, 6).map((c) => c.plan.plays)];
@@ -430,7 +435,7 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
         const a = top[i];
         const b = top[j];
         if (a.cardId === b.cardId) continue;
-        if (cardCost(a.cardId) + cardCost(b.cardId) > opts.energy) continue;
+        if (cardCost(a.cardId, view, p) + cardCost(b.cardId, view, p) > opts.energy) continue;
         const bothChars = cardDef(a.cardId).kind === 'character' && cardDef(b.cardId).kind === 'character';
         if (bothChars && a.location === b.location && gateRoom(view, a.location, p) < 2) continue;
         playSets.push([a, b]);
@@ -439,7 +444,7 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
         for (let k = j + 1; k < Math.min(top.length, 5); k++) {
           const c = top[k];
           if (c.cardId === a.cardId || c.cardId === b.cardId) continue;
-          if (cardCost(a.cardId) + cardCost(b.cardId) + cardCost(c.cardId) > opts.energy) continue;
+          if (cardCost(a.cardId, view, p) + cardCost(b.cardId, view, p) + cardCost(c.cardId, view, p) > opts.energy) continue;
           const chars = [a, b, c].filter((x) => cardDef(x.cardId).kind === 'character');
           const perLoc: Record<number, number> = {};
           for (const x of chars) perLoc[x.location] = (perLoc[x.location] ?? 0) + 1;
@@ -499,7 +504,7 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
     }
   }
 
-  // The opponent Stood on Business: this is the one cheap turn to Step Off. Stay when the board is worth playing.
+  // The opponent Stood on Business: this is the one cheap turn to Sit Down. Stay when the board is worth playing.
   let stepOff = false;
   const raisedOnMe = view.pendingRaises.some((r) => r.by !== p);
   if (raisedOnMe && opts.canStepOff && view.turn < view.maxTurns) {

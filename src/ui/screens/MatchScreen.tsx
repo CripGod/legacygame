@@ -10,7 +10,7 @@ import { Battlefield } from '../components/Battlefield';
 import { Hand } from '../components/Hand';
 import { Coach } from '../components/Coach';
 import { Spotlight } from '../components/Spotlight';
-import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, SpawnSheet, ThreatSheet, AncestorsSheet, ShowdownSheet } from '../components/Sheets';
+import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, SpawnSheet, ThreatSheet, AncestorsSheet, ShowdownSheet, PeekHandSheet } from '../components/Sheets';
 import { guideDone, markGuideDone, suggest } from '../guide';
 import { EMOTES } from '../useMatch';
 import { cardName, locationName, useDisplay } from '../display';
@@ -24,7 +24,8 @@ type SheetState =
   | { kind: 'profile'; p: PlayerId }
   | { kind: 'stepOff' }
   | { kind: 'ancestors' }
-    | { kind: 'log' }
+  | { kind: 'peek'; cards: string[]; by: string }
+  | { kind: 'log' }
   | { kind: 'chat' }
   | null;
 
@@ -92,6 +93,8 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   useEffect(() => {
     setFanfare(m.lastTurn.filter((e) => e.type === 'spawned'));
     setShowdowns(m.lastTurn.filter((e) => e.type === 'showdown'));
+    const peek = m.lastTurn.find((e) => e.player === me && Array.isArray((e.data as { peekHand?: string[] } | undefined)?.peekHand));
+    if (peek) setSheet({ kind: 'peek', cards: (peek.data as { peekHand: string[] }).peekHand, by: peek.uid ? cardName(view.characters[peek.uid]?.defId ?? 'omar_ibn_said', placeholders) : 'Omar ibn Said' });
   }, [m.lastTurn]);
   /** Gate slots my departing Characters still hold this turn (the preview shows them elsewhere). */
   const reserved = useMemo(() => {
@@ -196,11 +199,11 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       return;
     }
     setPlan((p) => ({ ...p, standOnBusiness: true }));
-    feedback(`Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds an 8th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Step Off for ${view.stakes} or Stand back. You cannot Step Off once you stand, and this is once per match. Tap again to cancel.`, [], 'info');
+    feedback(`Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds an 8th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.`, [], 'info');
   };
 
   /** Energy left after the plays already planned. */
-  const energyLeft = opts.energy - planCost(plan);
+  const energyLeft = opts.energy - planCost(plan, view, me);
 
   /** Add or move a play. Refused when it would overspend this turn's Energy. */
   function addPlay(play: { cardId: string; location: number; target?: { charUid?: string; location?: number }; enter?: boolean }) {
@@ -208,8 +211,8 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     const directEntry = pdef?.kind === 'character' && pdef.keywords.includes('DIRECT_ENTRY');
     if (directEntry && play.enter === undefined) play = { ...play, enter: true };
     const current = planRef.current.plays.filter((pl) => pl.cardId !== play.cardId);
-    const spent = current.reduce((s, pl) => s + cardCost(pl.cardId), 0);
-    const cost = cardCost(play.cardId);
+    const spent = current.reduce((s, pl) => s + cardCost(pl.cardId, view, me), 0);
+    const cost = cardCost(play.cardId, view, me);
     if (spent + cost > opts.energy) {
       feedback(`Not enough Energy. ${cardName(play.cardId, placeholders)} costs ${cost} and you have ${opts.energy - spent} left of ${opts.energy} this turn (Energy = the turn number). Remove a planned card or wait a turn.`, [`[data-hand-card="${play.cardId}"]`, '.energy-meter']);
       return;
@@ -263,7 +266,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       if (payload.kind === 'card') {
         const opt = opts.plays.find((p) => p.cardId === payload.cardId);
         const alreadyPlanned = plan.plays.some((pl) => pl.cardId === payload.cardId);
-        const affordable = alreadyPlanned || cardCost(payload.cardId) <= opts.energy - planCost(plan);
+        const affordable = alreadyPlanned || cardCost(payload.cardId, view, me) <= opts.energy - planCost(plan, view, me);
         if (opt && affordable) {
           out.locations = opt.needsLocation
             ? opt.locations.filter((i) => opt.kind !== 'character' || gateRoom(view, i, me, plannedAt(i, payload.cardId)) > 0)
@@ -329,8 +332,8 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
         const opt = opts.plays.find((p) => p.cardId === payload.cardId);
         if (view.locations[i].lost) return { text: `${locNameAt(i)} is Lost. Nobody can win it, so nothing can be played there.`, shake: [`${col(i)} .art`] };
         if (!opt) return { text: `${nm} cannot be played right now.`, shake: [`[data-hand-card="${payload.cardId}"]`] };
-        if (!plan.plays.some((pl) => pl.cardId === payload.cardId) && cardCost(payload.cardId) > opts.energy - planCost(plan))
-          return { text: `Not enough Energy: ${nm} costs ${cardCost(payload.cardId)} and you have ${opts.energy - planCost(plan)} left this turn. Energy equals the turn number, so it grows every turn.`, shake: [`[data-hand-card="${payload.cardId}"]`, '.energy-meter'] };
+        if (!plan.plays.some((pl) => pl.cardId === payload.cardId) && cardCost(payload.cardId, view, me) > opts.energy - planCost(plan, view, me))
+          return { text: `Not enough Energy: ${nm} costs ${cardCost(payload.cardId, view, me)} and you have ${opts.energy - planCost(plan, view, me)} left this turn. Energy equals the turn number, so it grows every turn.`, shake: [`[data-hand-card="${payload.cardId}"]`, '.energy-meter'] };
         if (opt.kind === 'character' && gateRoom(view, i, me, plannedAt(i, payload.cardId)) <= 0) {
           const leaving = reserved[i] ?? [];
           if (leaving.length)
@@ -522,14 +525,14 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     if (selected) return `Tap a Location to commit ${cardName(selected, placeholders)}.`;
     if (harrietPlay && !harrietPlay.target) return 'Harriet Tubman: drag a Gate Character to another Gate for a free move (optional).';
     if (yemojaPlay && !yemojaPlay.target) return `Yemoja: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : `Location ${yemojaPlay.location + 1}`} (optional).`;
-    const affordable = opts.plays.filter((o) => !plan.plays.some((pl) => pl.cardId === o.cardId) && cardCost(o.cardId) <= energyLeft).length;
+    const affordable = opts.plays.filter((o) => !plan.plays.some((pl) => pl.cardId === o.cardId) && cardCost(o.cardId, view, me) <= energyLeft).length;
     if (planItems.length) return affordable > 0 ? '' : '';
     return 'Drag a card onto a Location.';
   })();
 
-  // The opponent Stood on Business and the raise has not landed yet: this is the one cheap turn to Step Off.
+  // The opponent Stood on Business and the raise has not landed yet: this is the one cheap turn to Sit Down.
   const raisedOnMe = planning && view.pendingRaises.some((r) => r.by !== me);
-  const stepOffLabel = `Step Off${opts.canStepOff && view.phase !== 'ended' ? ` (−${opts.stepOffCost})` : ''}`;
+  const stepOffLabel = `Sit Down${opts.canStepOff && view.phase !== 'ended' ? ` (−${opts.stepOffCost})` : ''}`;
 
   return (
     <div className="app">
@@ -724,12 +727,13 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       )}
       {sheet?.kind === 'log' && <LogSheet events={m.lastTurn} turn={Math.max(1, view.turn - (view.phase === 'ended' ? 0 : 1))} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'ancestors' && <AncestorsSheet view={view} me={me} plan={m.peekAiPlan()} onClose={() => setSheet(null)} />}
+      {sheet?.kind === 'peek' && <PeekHandSheet cards={sheet.cards} by={sheet.by} opponent={view.players[other(me)].handle} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'profile' && <ProfileSheet view={view} p={sheet.p} me={me} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'stepOff' && (
         <ConfirmSheet
-          title="Step Off?"
-          body={`Stepping off surrenders the match. ${view.players[other(me)].handle} wins ${opts.stepOffCost} Legacy.${raisedOnMe ? ` Stay and the match is worth ${opts.pendingStakes} from next turn.` : ''}`}
-          confirmLabel="Step Off"
+          title="Sit Down?"
+          body={`Sitting down surrenders the match. ${view.players[other(me)].handle} wins ${opts.stepOffCost} Legacy.${raisedOnMe ? ` Stay and the match is worth ${opts.pendingStakes} from next turn.` : ''}`}
+          confirmLabel="Sit Down"
           danger
           onClose={() => setSheet(null)}
           onConfirm={() => {

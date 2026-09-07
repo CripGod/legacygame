@@ -477,7 +477,7 @@ export function AncestorsSheet({ view, me, plan, onClose }: { view: GameState; m
     for (const cf of plan.confronts) moves.push(`${who(cf.uid)} confronts a Threat.`);
     if (plan.summon) moves.push(`Proposes a Summon at ${locLabel(plan.summon.location)}.`);
     if (plan.standOnBusiness) moves.push('Stands on Business.');
-    if (plan.stepOff) moves.push('Steps Off.');
+    if (plan.stepOff) moves.push('Sits Down.');
     if (!moves.length) moves.push('Does nothing this turn.');
   }
   const dangers: string[] = [];
@@ -601,6 +601,33 @@ export function ShowdownSheet({ ev, view, onClose }: { ev: GameEvent; view: Game
         {!d.cleared && tdef && <div className="showdown-rule muted">While it stands: {tdef.text}</div>}
         <div className="actions" style={{ justifyContent: 'center' }}>
           <button className="primary" onClick={onClose} autoFocus>
+            Continue
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Omar ibn Said: the opponent's hand, laid out. */
+export function PeekHandSheet({ cards, by, opponent, onClose }: { cards: string[]; by: string; opponent: string; onClose: () => void }) {
+  return (
+    <div className="scrim" onClick={onClose}>
+      <div className="sheet" onClick={(e) => e.stopPropagation()}>
+        <div className="row">
+          <h3>{by} reads the room</h3>
+          <button className="close small" onClick={onClose}>
+            Close
+          </button>
+        </div>
+        <div className="muted">{cards.length ? `${opponent} is holding ${cards.length} card${cards.length > 1 ? 's' : ''}. They still draw one each turn.` : `${opponent} is holding nothing.`}</div>
+        <div className="card-grid">
+          {cards.map((id, i) => (
+            <CardFace key={`${id}-${i}`} id={id} />
+          ))}
+        </div>
+        <div className="actions">
+          <button className="primary" onClick={onClose}>
             Continue
           </button>
         </div>

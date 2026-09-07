@@ -284,6 +284,64 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - blurb: Somebody grabbed a folding chair. The whole dock showed up.
 - history: On August 5, 2023, at Riverfront Park in Montgomery, Alabama, a group of white boaters attacked a Black riverboat co-captain who had asked them to move their pontoon from the Harriott II's docking space. Bystanders, most of them Black, rushed to his defense; one man swam across the river to join in, and a folding chair became the day's symbol. Videos went viral, several of the boaters were charged with assault, and the internet named the anniversary Chairteenth.
 
+### Booker T. Washington (`booker_t_washington`)
+- cost 3 · Influence 3 · Force 2 · historical · era: 1856–1915
+- established: Tuskegee: your Characters cost 1 less Energy to play.
+- blurb: Built Tuskegee from a shanty and a church into a campus the students made with their own hands.
+- history: Born enslaved in Franklin County, Virginia, in 1856, Booker Taliaferro Washington worked in salt furnaces and coal mines before walking to Hampton Institute. In 1881 he opened Tuskegee Normal and Industrial Institute in Alabama with thirty students in a shanty; the students built the campus brick by brick. His 1895 Atlanta address and his book Up from Slavery made him the most influential Black American of his day, and his quiet funding of legal challenges to segregation was only discovered after his death in 1915.
+
+### George Washington Carver (`george_washington_carver`)
+- cost 2 · Influence 2 · Force 2 · historical · era: c. 1864–1943
+- reveal: Draw a card.
+- established: Rotation: at the end of each turn, the most expensive card in your hand costs 1 less.
+- blurb: Taught the South to rest its soil and found three hundred uses for the peanut.
+- history: Born enslaved near Diamond, Missouri, around 1864 and kidnapped as an infant by raiders, George Washington Carver became the first Black student and then the first Black faculty member at Iowa State. In 1896 Booker T. Washington brought him to Tuskegee, where he ran the agriculture department for forty-seven years, publishing free bulletins on crop rotation, soil restoration and hundreds of uses for peanuts, sweet potatoes and soybeans, and sending a movable school out to sharecroppers by wagon. He died in 1943, leaving his savings to found the Carver Research Foundation.
+
+### Marie Laveau (`marie_laveau`)
+- cost 3 · Influence 2 · Force 2 · historical · era: 1801–1881
+- reveal: The opposing Gate Character here with the highest Influence crosses over to your Gates at −1 Influence. You need an open Gate slot.
+- blurb: Hairdresser, healer and the most consulted woman in New Orleans.
+- history: Marie Catherine Laveau was born free in New Orleans in 1801, a Creole of African, French and Native descent. A hairdresser to wealthy households, she became the city's best-known Vodou practitioner, leading ceremonies at Congo Square and on Lake Pontchartrain, nursing yellow fever patients and visiting prisoners on death row. Clients across every class came to her for charms, advice and intercession. She died in 1881; her tomb in St. Louis Cemetery No. 1 is still visited.
+
+### Nanny of the Maroons (`nanny_of_the_maroons`)
+- cost 3 · Influence 3 · Force 4 · historical · era: c. 1686–1755
+- established: Nanny Town: opposing Reveal abilities cannot target your Characters here.
+- blurb: Led the Windward Maroons from the Blue Mountains and held off the British for a decade.
+- history: Queen Nanny, born in the Gold Coast around 1686, led the Windward Maroons of Jamaica from a mountain settlement the British called Nanny Town. Through the First Maroon War of the 1720s and 1730s her people used the terrain, ambush and abeng horn signals to hold off repeated expeditions, and Maroon tradition credits her with spiritual power as well as command. A 1740 land grant recorded her name. Jamaica named her a National Hero in 1975; she is on the 500-dollar note.
+
+### Nehanda Nyakasikana (`nehanda`)
+- cost 3 · Influence 3 · Force 3 · historical · era: c. 1840–1898
+- passive: My bones will rise: if she is displaced she returns to your hand instead, and costs 0 the next time you play her. +1 Influence at any Location in Africa.
+- blurb: Spirit medium of the Shona who told the colonial court her bones would rise again.
+- history: Charwe Nyakasikana, born around 1840 in the Mazowe valley, was the medium of the ancestral spirit Nehanda among the Shona. In 1896 she and the medium Kaguvi helped lead the First Chimurenga against the British South Africa Company's rule in what is now Zimbabwe. Captured in 1897, she refused conversion and was hanged in Salisbury in April 1898. Her reported last words, that her bones would rise again, became a rallying cry of the liberation war of the 1960s and 1970s.
+
+### Boukman Dutty (`boukman_dutty`)
+- cost 7 · Influence 4 · Force 6 · historical · era: d. 1791
+- reveal: Uprising: every Ready Character at your Gates, at every Location, enters Inside now.
+- passive: Costs 1 less for each of your Characters on the board with the Rebellion tag.
+- blurb: The Bois Caïman ceremony, and a week later the north of Saint-Domingue was burning.
+- history: Dutty Boukman was a Jamaican-born enslaved man, a Vodou priest and a coachman on a plantation in the northern plain of Saint-Domingue. On the night of 14 August 1791 he presided, with the priestess Cécile Fatiman, over the ceremony at Bois Caïman where enslaved leaders swore to rise. The revolt began a week later and became the Haitian Revolution. Boukman was killed in November 1791 and the French displayed his head in Cap-Français to prove he was dead.
+
+### Cécile Fatiman (`cecile_fatiman`)
+- cost 1 · Influence 1 · Force 2 · historical · era: c. 1771–1883
+- reveal: Ceremony: the most expensive card in your hand costs 2 less.
+- established: Your Characters with the Rebellion tag cost 1 less Energy.
+- blurb: The mambo at Bois Caïman. Lived to be over a hundred and saw the republic she helped start.
+- history: Cécile Fatiman was a Vodou priestess, a mambo, born around 1771 to an enslaved African mother and a Corsican father. Accounts of the Bois Caïman ceremony of August 1791 describe her presiding alongside Boukman, sacrificing a black pig and being possessed by the lwa Erzulie as the assembled leaders swore their oath. She later married Louis Michel Pierrot, who became president of Haiti, and is said to have lived to 112, dying in 1883.
+
+### Ayuba Suleiman Diallo (`ayuba_suleiman_diallo`)
+- cost 2 · Influence 2 · Force 1 · historical · era: 1701–1773
+- reveal: Letter home: return one of your Established Characters at another Location to your hand; it costs 0 the next time you play it. Draw a card.
+- blurb: Wrote a letter in Arabic from a Maryland tobacco farm and it carried him home.
+- history: Ayuba Suleiman Diallo, called Job ben Solomon in England, was a Fulani Muslim scholar from Bundu in Senegal, captured and sold in 1731 while himself on a trading journey. Enslaved on a tobacco plantation in Maryland, he wrote a letter in Arabic to his father that reached James Oglethorpe, who bought his freedom. In London he wrote out the Qur'an from memory, sat for a portrait and returned to Bundu in 1734. His account, published in 1734, is one of the earliest slave narratives.
+
+### Omar ibn Said (`omar_ibn_said`)
+- cost 3 · Influence 2 · Force 2 · historical · era: c. 1770–1864
+- reveal: Autobiography: see every card in your opponent's hand.
+- established: Scholar: your Events cost 1 less Energy.
+- blurb: Twenty-five years a scholar in Futa Toro, fifty-six years enslaved in Carolina, and he kept writing.
+- history: Omar ibn Said was born around 1770 in Futa Toro on the Senegal River, studied for twenty-five years and was captured and shipped to Charleston in 1807. He escaped a harsh owner, was jailed in Fayetteville, North Carolina, where he wrote on the cell walls in Arabic, and was then held by the Owen family until his death in 1864. His 1831 autobiography, the only known Arabic-language slave narrative written in the United States, opens with a chapter of the Qur'an and is held by the Library of Congress.
+
 ## Events
 
 ### Reparations (`reparations`)
@@ -310,7 +368,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Persuade (`persuade`)
 - cost 3
-- text: Curse. Choose a Location: the opposing Gate Character there with the highest Influence crosses over to your Gates at −1 Influence. You need an open Gate slot there.
+- text: Curse. Choose a Location: the opposing Gate Character there with the lowest Influence crosses over to your Gates at −1 Influence. You need an open Gate slot there.
 - blurb: Everybody has a price, a grievance or a cousin. Find the one that opens the door.
 
 ## Threats
@@ -402,6 +460,11 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - rule: The boycott: Characters who relocate out of Montgomery arrive Ready.
 - blurb: For 381 days the buses ran empty. Forty thousand people walked, carpooled and waited, and the seats stopped being the point.
 
+### Oak Bluffs (`oak_bluffs`)
+- era: Martha's Vineyard, 1912–
+- rule: The Inkwell: at the end of each turn, each player with 2 or more Characters Inside here gains +1 Energy next turn. Threats never appear here.
+- blurb: Shearer Cottage opened to Black guests in 1912 when the island's hotels would not. A century of summers followed: the Inkwell, the gingerbread cottages, families who came back every August.
+
 ## Hints (tap or hover explanations)
 
 - `influence`: Influence: how much this Character counts toward controlling its Location. Gate and Inside Characters both count.
@@ -419,9 +482,9 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - `scoreB`: Harborlight's Influence at this Location.
 - `line`: The Influence Line: leans toward whoever leads. Lead at two of three Locations after the final turn to win.
 - `energy`: Energy: the crystals up here are what you can spend on cards this turn. You get one more each turn (Turn 3 = 3), Organizer adds one, and unspent Energy does not carry over. Lit crystals are still unspent; dim ones are spent; hollow ones come on later turns.
-- `cost`: Cost: the Energy this card takes to play. Energy equals the turn number, so expensive cards wait for later turns.
-- `stakes`: Legacy: what the match is worth. Stand on Business doubles it (1 → 2 → 4) one turn later, adds an 8th turn, and means you cannot Step Off. The other side gets one turn to Step Off at the old price.
-- `stakesPending`: Someone Stood on Business. The raise lands after this turn: Step Off now to lose only the current Legacy.
+- `cost`: Cost: the Energy this card takes to play. Energy equals the turn number, so expensive cards wait for later turns, unless something brings the price down: a green cost means a discount is on right now.
+- `stakes`: Legacy: what the match is worth. Stand on Business doubles it (1 → 2 → 4) one turn later, adds an 8th turn, and means you cannot Sit Down. The other side gets one turn to Sit Down at the old price.
+- `stakesPending`: Someone Stood on Business. The raise lands after this turn: Sit Down now to lose only the current Legacy.
 - `timer`: Planning timer. At zero your current plan locks automatically.
 - `noStepOff`: You Stood on Business. There is no backing out of this match.
 - `directEntry`: Direct Entry: may go Inside the turn it is played. Tap ⇅ on the planned move to choose Gates or Inside.
@@ -434,7 +497,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - `influence`: Control two of the three Locations at the end of the last turn to win.
 - `move`: Drag an Established Character to another Location to relocate it. Movement is a big part of this game.
 - `threat`: Threats are neutral dangers. Drag a Character onto one to confront it. Some affect both players.
-- `stakes`: Stand on Business doubles the Legacy and adds an 8th turn. Once you stand, you cannot Step Off.
+- `stakes`: Stand on Business doubles the Legacy and adds an 8th turn. Once you stand, you cannot Sit Down.
 
 ## First-turn guide
 
@@ -480,7 +543,8 @@ Rules
 - Both players plan at the same time, then Lock It In. Two minutes per turn.
 - Win Influence at two of the three Locations to win the match.
 ### Playing Characters
-- Every card has an Energy cost. Each turn you get Energy equal to the turn number (Turn 1: 1, Turn 5: 5); Organizer adds +1 while Established, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your two Gate slots at a Location. Its Reveal ability triggers there.
+- Every card has an Energy cost. Each turn you get Energy equal to the turn number (Turn 1: 1, Turn 5: 5); Organizer and Denmark Vesey add +1 while Established, Oak Bluffs pays +1 next turn, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your two Gate slots at a Location. Its Reveal ability triggers there.
+- Discounts. Some cards cost more than you will ever have on your own: Boukman Dutty is 7. Prices come down while a card waits in your hand. Booker T. Washington makes every Character 1 cheaper, Cécile Fatiman takes 2 off your most expensive card and 1 off every Rebellion Character, George Washington Carver knocks 1 off your priciest card at the end of each turn, and Boukman himself costs 1 less for each Rebellion Character you have on the board. A green cost on a card in your hand means it is discounted right now; a card never costs less than 0.
 - Gate Characters count toward Influence but are Fresh for the turn they arrive and the following turn. Then they are Ready and may enter Inside (up to five per player).
 - Inside, a Character is Established: its Established ability is live and it is safe from Gate-only effects.
 - Straight Inside and Direct Entry Characters can skip the wait (see Special arrivals below).
@@ -504,7 +568,7 @@ Rules
 - The Ancestors are never in a deck. In one match out of four, holding three Characters Inside at Accra, Ghana brings them to your hand. Play them while planning to see your opponent's plan for the turn and every danger the board is about to spring.
 - The Tabernacle protects your Characters from displacement. Establish Richard Allen, Absalom Jones and Daniel Payne there and Black Jesus appears: sanctuary at his Location and +1 Influence to every Character you control.
 - The Justice System holds anyone who goes Inside for two turns: no relocating out.
-- Curses are dark Events that act on your opponent's Characters. Persuade turns the strongest opposing Gate Character at a Location to your side at −1 Influence. Some cards cost 0 Energy.
+- Curses are dark Events that act on your opponent's Characters. Persuade turns the weakest opposing Gate Character at a Location to your side at −1 Influence; Marie Laveau's Reveal takes the strongest. Some cards cost 0 Energy.
 - Every deck carries at least one Mythic. The full list, with costs, is under Cards on the start screen.
 ### Summon (cooperative)
 - Use quick chat (💬) to call Summon? at a Location with a Threat. If the other side answers Summon!, both of you commit that turn.
@@ -512,9 +576,9 @@ Rules
 - If the Summon fails and that Location is later Lost, both players lose 1 Influence at each of their other Locations. A broken pact costs everyone.
 - Mythic content is fantasy drawn from real traditions; the abilities are invention.
 ### Legacy
-- Matches start at 1 Legacy. Either player may Stand on Business once to double it (1 → 2, then 2 → 4). Standing adds an 8th turn, and whoever stood can no longer Step Off.
-- A Stand is part of your hidden plan and lands one turn later. The other player is never forced to answer: they get a full turn to Step Off for the old Legacy, keep playing at the new Legacy, or Stand back and double it again.
-- Step Off is surrender at the current Legacy. Stepping off during the grace turn is the cheap exit.
+- Matches start at 1 Legacy. Either player may Stand on Business once to double it (1 → 2, then 2 → 4). Standing adds an 8th turn, and whoever stood can no longer Sit Down.
+- A Stand is part of your hidden plan and lands one turn later. The other player is never forced to answer: they get a full turn to Sit Down for the old Legacy, keep playing at the new Legacy, or Stand back and double it again.
+- Sit Down is surrender at the current Legacy. Sitting down during the grace turn is the cheap exit.
 ### Resolution order
 - Location reveal
 - New Characters placed, Events, then Reveal abilities (initiative order, alternating each turn)
@@ -551,7 +615,7 @@ Main menu
 - moves with ${cardName(pl.cardId, placeholders)}
 - That is the move. Press Lock It In.
 - That works too. Or ${guide.text.charAt(0).toLowerCase()}${guide.text.slice(1)}
-- Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds an 8th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Step Off for ${view.stakes} or Stand back. You cannot Step Off once you stand, and this is once per match. Tap again to cancel.
+- Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds an 8th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.
 - Not enough Energy. ${cardName(play.cardId, placeholders)} costs ${cost} and you have ${opts.energy - spent} left of ${opts.energy} this turn (Energy = the turn number). Remove a planned card or wait a turn.
 - ${cardName(play.cardId, placeholders)} goes Inside right away (Direct Entry). Tap ⇅ on the planned move to wait at the Gates instead.
 - ${cardName(play.cardId, placeholders)} planned. Optional: drag one of your Gate Characters to another Location's Gates and she moves it there for free.
@@ -559,7 +623,7 @@ Main menu
 - ${nm} is a card in your hand. Drop it on a Location; Threats are confronted by Characters already there.
 - ${locNameAt(i)} is Lost. Nobody can win it, so nothing can be played there.
 - ${nm} cannot be played right now.
-- Not enough Energy: ${nm} costs ${cardCost(payload.cardId)} and you have ${opts.energy - planCost(plan)} left this turn. Energy equals the turn number, so it grows every turn.
+- Not enough Energy: ${nm} costs ${cardCost(payload.cardId, view, me)} and you have ${opts.energy - planCost(plan, view, me)} left this turn. Energy equals the turn number, so it grows every turn.
 - ${leaving.map((h) => cardName(h.defId, placeholders)).join(' and ')} still hold${leaving.length > 1 ? '' : 's'} a Gate slot at ${locNameAt(i)} until the turn resolves (new arrivals are placed before anyone enters). Play ${nm} there next turn.
 - ${col(i)} .gate-slot.reserved
 - Both of your Gate slots at ${locNameAt(i)} are taken. Send someone Inside or relocate them first.
@@ -600,11 +664,11 @@ Main menu
 - Harriet Tubman: drag a Gate Character to another Gate for a free move (optional).
 - Yemoja: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : 
 - Drag a card onto a Location.
-- Step Off${opts.canStepOff && view.phase !== 'ended' ? 
+- Sit Down${opts.canStepOff && view.phase !== 'ended' ? 
 - What happened last turn, step by step.
 - danger ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}
 - ${plan.standOnBusiness ? 'primary' : ''} ${flash === 'stakes' ? 'ftue-flash' : ''}
-- Stepping off surrenders the match. ${view.players[other(me)].handle} wins ${opts.stepOffCost} Legacy.${raisedOnMe ? 
+- Sitting down surrenders the match. ${view.players[other(me)].handle} wins ${opts.stepOffCost} Legacy.${raisedOnMe ? 
 - ${view.players[view.result.winner].handle} wins
 
 ### src/ui/components/Sheets.tsx
@@ -686,7 +750,7 @@ export function AncestorsSheet({ view, me, plan, onClose }: { view: GameState; m
     if (plan.summon) moves.push(
 - );
     if (plan.standOnBusiness) moves.push('Stands on Business.');
-    if (plan.stepOff) moves.push('Steps Off.');
+    if (plan.stepOff) moves.push('Sits Down.');
     if (!moves.length) moves.push('Does nothing this turn.');
   }
   const dangers: string[] = [];
@@ -821,6 +885,35 @@ export function ShowdownSheet({ ev, view, onClose }: { ev: GameEvent; view: Game
           </div>
         )}
         <div className={
+- }>{d.cleared ? 'NEUTRALIZED' : 'IT HOLDS'}</div>
+        <div className="showdown-why">{why}</div>
+        {!d.cleared && tdef && <div className="showdown-rule muted">While it stands: {tdef.text}</div>}
+        <div className="actions" style={{ justifyContent: 'center' }}>
+          <button className="primary" onClick={onClose} autoFocus>
+            Continue
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Omar ibn Said: the opponent's hand, laid out. */
+export function PeekHandSheet({ cards, by, opponent, onClose }: { cards: string[]; by: string; opponent: string; onClose: () => void }) {
+  return (
+    <div className="scrim" onClick={onClose}>
+      <div className="sheet" onClick={(e) => e.stopPropagation()}>
+        <div className="row">
+          <h3>{by} reads the room</h3>
+          <button className="close small" onClick={onClose}>
+            Close
+          </button>
+        </div>
+        <div className="muted">{cards.length ? 
+- }</div>
+        <div className="card-grid">
+          {cards.map((id, i) => (
+            <CardFace key={
 
 ### src/ui/components/Battlefield.tsx
 
@@ -846,7 +939,7 @@ export function ShowdownSheet({ ev, view, onClose }: { ev: GameEvent; view: Game
 
 - hand-wrap ${dropState === 'ok' ? 'drop-ok' : ''} ${dropState === 'over' ? 'drop-ok drop-over' : ''}
 - rotate(${rot}deg) translateY(${sel ? -26 : ty}px) scale(${sel ? 1.08 : 1})
-- card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''} ${glow === id ? 'ftue-flash' : ''} ${energyLeft !== undefined && (CARD_BY_ID[id]?.cost ?? 0) > energyLeft ? 'unaffordable' : ''}
+- card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''} ${glow === id ? 'ftue-flash' : ''} ${energyLeft !== undefined && cardCost(id, view, me) > energyLeft ? 'unaffordable' : ''}
 
 ### src/ui/components/Hud.tsx
 
@@ -877,6 +970,8 @@ Template fields in `${...}` are filled in by the game. Keep them.
 ### src/engine/resolve.ts
 
 - Setback for ${state.players[p].handle}: ${reason}.
+- ${name(state, c)} would rise again, but ${ps.handle}'s hand is full: she is discarded (${reason}).
+- ${name(state, c)} rises again: instead of being displaced (${reason}) she returns to ${ps.handle}'s hand and costs 0 the next time.
 - ${name(state, c)} could not be displaced: no open Gate.
 - ${name(state, c)} is displaced from ${locName(state, from)} to the Gates of ${locName(state, dest)} (${reason}).
 - ${name(state, c)} ${how} ${locName(state, c.location)}.
@@ -925,6 +1020,15 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - confronts every Threat here with +${eff.bonus} Force.
 - lures ${charDef(target.defId).name} away.
 - nobody here to lure.
+- no opposing Gate Character here to turn.
+- ${state.players[p].handle}'s Gates here are full, so nobody crosses over.
+- turns ${charDef(target.defId).name}: they cross over to ${state.players[p].handle} at −1 Influence.
+- no Established Character chosen to bring home.
+- writes home for ${tdef.name}, but the hand is full: the card is discarded.
+- brings ${tdef.name} home from ${locName(state, target.location)}: back in hand and free to play again. ${ps.handle} draws a card.
+- ${def.name}: ${state.players[opp].handle} is holding ${names.length ? names.join(', ') : 'nothing'}.
+- no card in hand left to make cheaper.
+- ${def.name}: ${CARD_BY_ID[best]?.name ?? best} in ${ps.handle}'s hand now costs ${eff.amount} less (${cardCost(best, state, p)}).
 - ${ps.handle} plays ${def.name}.
 - ${def.name}: no Setbacks this match.
 - ${def.name}: +${bonus} Influence at ${locName(state, lowest.index)} this turn (${ps.setbacks} Setbacks).
@@ -961,8 +1065,10 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${locName(state, loc.index)} is LOST: ${loc.lostReason} Neither player can win it.
 - Broken pact: both players lose 1 Influence at each of their other Locations.
 - ${name(state, c)} is Ready to enter ${locName(state, c.location)}.
+- ${charDef(_farm.defId).name}: ${CARD_BY_ID[best]?.name ?? best} in ${ps.handle}'s hand now costs ${cardCost(best, state, p)}.
+- ${ldef.name}: ${state.players[p].handle} has ${ldef.effect.count}+ Characters Inside and gains +${ldef.effect.amount} Energy next turn.
 - ${locName(state, l.index)}: ${state.players.A.handle} ${inf.A} · ${state.players.B.handle} ${inf.B}${l.lost ? ' (LOST)' : ''}.
-- Nobody stepped off. The match is now worth ${state.stakes} Legacy.
+- Nobody sat down. The match is now worth ${state.stakes} Legacy.
 
 ### src/engine/setup.ts
 
@@ -977,7 +1083,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 
 ### src/engine/query.ts
 
-- Not enough Energy: this plan costs ${planCost(plan)} and you have ${opts.energy}.
+- Not enough Energy: this plan costs ${planCost(plan, state, p)} and you have ${opts.energy}.
 - Only a Direct Entry Character can enter the turn it is played.
 - A card can only be played once.
 - That card cannot be played.
@@ -992,5 +1098,5 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - A Character cannot confront and move in the same turn.
 - A Character can only confront one Threat per turn.
 - Stand on Business is not available.
-- You Stood on Business: you cannot Step Off.
+- You Stood on Business: you cannot Sit Down.
 - No Summon is possible there.

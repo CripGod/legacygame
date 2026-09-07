@@ -51,7 +51,12 @@ export type RevealEffect =
   | { type: 'confrontAllThreats'; bonus: number } // Ogun
   | { type: 'displaceOpposingGate' } // Mami Wata
   | { type: 'sanctuaryReveal' } // Black Jesus
-  | { type: 'holdSeat' }; // Claudette Colvin: cannot be displaced this turn
+  | { type: 'holdSeat' } // Claudette Colvin: cannot be displaced this turn
+  | { type: 'massEnter' } // Boukman Dutty: every Ready friendly Gate Character everywhere enters now
+  | { type: 'stealGate' } // Marie Laveau: the strongest opposing Gate Character here crosses over at −1
+  | { type: 'returnFriendlyToHand' } // Ayuba Suleiman Diallo: bounce an Established Character to hand at cost 0 — needs target
+  | { type: 'peekHand' } // Omar ibn Said: see the opponent's hand
+  | { type: 'reduceHandCost'; amount: number }; // Cécile Fatiman: the most expensive card in hand costs less
 
 export type EstablishedEffect =
   | { type: 'readyRelocatedIn' } // Harriet
@@ -78,7 +83,12 @@ export type EstablishedEffect =
   | { type: 'sanctuary'; blessing?: number } // Black Jesus: Threats cannot touch you here; blessing = +Influence to all your Characters everywhere
   | { type: 'cookout'; amount: number } // The Cookout: friends here +Influence, arrivals Ready
   | { type: 'freeDeparture' } // Barber: leaving here never counts against the Relocation limit
-  | { type: 'allyBonus'; amount: number }; // Church Mother: +Influence while another friendly Character is here
+  | { type: 'allyBonus'; amount: number } // +Influence while another friendly Character is here
+  | { type: 'discountCharacters'; amount: number } // Booker T. Washington: your Characters cost less
+  | { type: 'discountEvents'; amount: number } // Omar ibn Said: your Events cost less
+  | { type: 'discountTag'; tag: string; amount: number } // Cécile Fatiman: Characters with a tag cost less
+  | { type: 'ripen' } // George Washington Carver: each turn the most expensive card in hand gets cheaper
+  | { type: 'shieldHere' }; // Nanny of the Maroons: opposing Reveals cannot target your Characters here
 
 /** Gatherings are never in a deck: they spawn on the board when the world earns them. */
 export type CharacterCategory = 'historical' | 'archetype' | 'mythic' | 'gathering';
@@ -109,7 +119,17 @@ export interface CharacterDef {
   reveal?: { text: string; effect: RevealEffect; needsTarget?: 'friendlyGateCharAndLocation' | 'friendlyInsideChar' };
   established?: { text: string; effect: EstablishedEffect };
   /** Always-on quirks (Karen). */
-  passive?: { text: string; unstable?: boolean; leaderPenalty?: number; regionBonus?: { region: 'africa' | 'americas' | 'atlantic'; influence: number }; locationBonus?: { locationId: string; influence: number } };
+  passive?: {
+    text: string;
+    unstable?: boolean;
+    leaderPenalty?: number;
+    regionBonus?: { region: 'africa' | 'americas' | 'atlantic'; influence: number };
+    locationBonus?: { locationId: string; influence: number };
+    /** Costs `amount` less for each of your Characters on the board with `tag`. */
+    tagDiscount?: { tag: string; amount: number };
+    /** If displaced, returns to your hand and costs 0 the next time. */
+    risesAgain?: boolean;
+  };
   /** Gatherings: how and where the card arrives on its own. */
   spawn?: SpawnRule;
   identity: string[];
@@ -159,7 +179,8 @@ export type LocationEffect =
   | { type: 'relocatedInReady' } // Accra, Ghana
   | { type: 'hub' } // Lagos
   | { type: 'lockInside'; turns: number } // The Justice System
-  | { type: 'noDisplace' }; // The Tabernacle
+  | { type: 'noDisplace' } // The Tabernacle
+  | { type: 'restEnergy'; count: number; amount: number }; // Oak Bluffs: players with `count` Inside gain Energy next turn
 
 export interface LocationDef {
   id: string;
@@ -282,7 +303,11 @@ export interface PlayerState {
   spawned: string[];
   /** Permanent extra Energy per turn (tests and future cards). */
   energyBonus?: number;
-  /** Once you Stand on Business you cannot Step Off. */
+  /** Extra Energy on the coming turn only (Oak Bluffs). */
+  energyNextTurn?: number;
+  /** Energy discounts earned while a card sits in hand (card id → amount). Cleared when the card leaves the hand. */
+  discounts?: Record<string, number>;
+  /** Once you Stand on Business you cannot Sit Down. */
   cannotStepOff?: boolean;
   solidarity: number;
   /** Katherine Johnson: index of the next Location to reveal. */
@@ -382,7 +407,7 @@ export interface MatchStats {
   assists: Record<PlayerId, { offered: number; taken: number }>;
   leadChanges: number;
   finalTurnFlips: number;
-  /** accepted = the raise took effect (the other side did not Step Off first). */
+  /** accepted = the raise took effect (the other side did not Sit Down first). */
   standTurns: { player: PlayerId; turn: number; proposed: number; accepted: boolean }[];
   summons: { turn: number; location: number; success: boolean }[];
   stepOffTurn?: { player: PlayerId; turn: number };

@@ -4,7 +4,7 @@ import { Art } from './Art';
 import { tip, HINTS } from '../tip';
 
 /** Full collectible card (hand, inspection). Always a 5:7 rigid rectangle. */
-export function CardFace({ id, big = false, onClick }: { id: string; big?: boolean; onClick?: () => void }) {
+export function CardFace({ id, big = false, onClick, cost, costWhy }: { id: string; big?: boolean; onClick?: () => void; /** Cost right now, after discounts (defaults to the printed cost). */ cost?: number; costWhy?: string[] }) {
   const { placeholders } = useDisplay();
   const def = CARD_BY_ID[id];
   if (!def) return null;
@@ -12,8 +12,8 @@ export function CardFace({ id, big = false, onClick }: { id: string; big?: boole
   const curse = !isChar && !!(def as { curse?: boolean }).curse;
   return (
     <div className={`card ${big ? 'big' : ''} ${isChar ? '' : 'event'} ${curse ? 'curse' : ''}`} onClick={onClick} role={onClick ? 'button' : undefined}>
-      <div className="cost" {...tip(HINTS.cost)}>
-        {def.cost}
+      <div className={`cost ${cost !== undefined && cost < def.cost ? 'discounted' : ''}`} {...tip(cost !== undefined && cost < def.cost ? `Costs ${cost} right now instead of ${def.cost}${costWhy?.length ? ': ' + costWhy.join(', ') : ''}.` : HINTS.cost)}>
+        {cost ?? def.cost}
       </div>
       {isChar ? (
         <>

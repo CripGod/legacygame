@@ -17,7 +17,8 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
         </ul>
         <h2>Playing Characters</h2>
         <ul>
-          <li>Every card has an <b>Energy</b> cost. Each turn you get Energy equal to the turn number (Turn 1: 1, Turn 5: 5); Organizer adds +1 while Established, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your two Gate slots at a Location. Its <b>Reveal</b> ability triggers there.</li>
+          <li>Every card has an <b>Energy</b> cost. Each turn you get Energy equal to the turn number (Turn 1: 1, Turn 5: 5); Organizer and Denmark Vesey add +1 while Established, Oak Bluffs pays +1 next turn, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your two Gate slots at a Location. Its <b>Reveal</b> ability triggers there.</li>
+          <li><b>Discounts.</b> Some cards cost more than you will ever have on your own: Boukman Dutty is 7. Prices come down while a card waits in your hand. Booker T. Washington makes every Character 1 cheaper, Cécile Fatiman takes 2 off your most expensive card and 1 off every Rebellion Character, George Washington Carver knocks 1 off your priciest card at the end of each turn, and Boukman himself costs 1 less for each Rebellion Character you have on the board. A green cost on a card in your hand means it is discounted right now; a card never costs less than 0.</li>
           <li>Gate Characters count toward Influence but are <b>Fresh</b> for the turn they arrive and the following turn. Then they are <b>Ready</b> and may enter Inside (up to five per player).</li>
           <li>Inside, a Character is <b>Established</b>: its Established ability is live and it is safe from Gate-only effects.</li>
           <li><b>Straight Inside</b> and <b>Direct Entry</b> Characters can skip the wait (see Special arrivals below).</li>
@@ -51,7 +52,7 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
           <li><b>The Ancestors</b> are never in a deck. In one match out of four, holding three Characters Inside at Accra, Ghana brings them to your hand. Play them while planning to see your opponent's plan for the turn and every danger the board is about to spring.</li>
           <li><b>The Tabernacle</b> protects your Characters from displacement. Establish Richard Allen, Absalom Jones and Daniel Payne there and <b>Black Jesus</b> appears: sanctuary at his Location and +1 Influence to every Character you control.</li>
           <li><b>The Justice System</b> holds anyone who goes Inside for two turns: no relocating out.</li>
-          <li><b>Curses</b> are dark Events that act on your opponent's Characters. <b>Persuade</b> turns the strongest opposing Gate Character at a Location to your side at −1 Influence. Some cards cost 0 Energy.</li>
+          <li><b>Curses</b> are dark Events that act on your opponent's Characters. <b>Persuade</b> turns the weakest opposing Gate Character at a Location to your side at −1 Influence; Marie Laveau's Reveal takes the strongest. Some cards cost 0 Energy.</li>
           <li>Every deck carries at least one <b>Mythic</b>. The full list, with costs, is under <b>Cards</b> on the start screen.</li>
         </ul>
         <h2>Summon (cooperative)</h2>
@@ -63,9 +64,9 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
         </ul>
         <h2>Legacy</h2>
         <ul>
-          <li>Matches start at 1 Legacy. Either player may <b>Stand on Business</b> once to double it (1 → 2, then 2 → 4). Standing adds an <b>8th turn</b>, and whoever stood can no longer Step Off.</li>
-          <li>A Stand is part of your hidden plan and lands <b>one turn later</b>. The other player is never forced to answer: they get a full turn to <b>Step Off</b> for the old Legacy, keep playing at the new Legacy, or <b>Stand back</b> and double it again.</li>
-          <li><b>Step Off</b> is surrender at the current Legacy. Stepping off during the grace turn is the cheap exit.</li>
+          <li>Matches start at 1 Legacy. Either player may <b>Stand on Business</b> once to double it (1 → 2, then 2 → 4). Standing adds an <b>8th turn</b>, and whoever stood can no longer Sit Down.</li>
+          <li>A Stand is part of your hidden plan and lands <b>one turn later</b>. The other player is never forced to answer: they get a full turn to <b>Sit Down</b> for the old Legacy, keep playing at the new Legacy, or <b>Stand back</b> and double it again.</li>
+          <li><b>Sit Down</b> is surrender at the current Legacy. Sitting down during the grace turn is the cheap exit.</li>
         </ul>
         <h2>Resolution order</h2>
         <ol>

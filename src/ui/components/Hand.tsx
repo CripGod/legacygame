@@ -1,4 +1,4 @@
-import { CARD_BY_ID, type GameState, type PlayerId, type TurnPlan } from '../../engine';
+import { cardCost, costBreakdown, type GameState, type PlayerId, type TurnPlan } from '../../engine';
 import { CardFace } from './CardFace';
 import type { DragPayload } from '../drag';
 
@@ -53,13 +53,13 @@ export function Hand({
             <div
               key={`${id}-${i}`}
               data-hand-card={id}
-              className={`card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''} ${glow === id ? 'ftue-flash' : ''} ${energyLeft !== undefined && (CARD_BY_ID[id]?.cost ?? 0) > energyLeft ? 'unaffordable' : ''}`}
+              className={`card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''} ${glow === id ? 'ftue-flash' : ''} ${energyLeft !== undefined && cardCost(id, view, me) > energyLeft ? 'unaffordable' : ''}`}
               {...dp}
               style={style}
               onClick={() => onSelect(id)}
               onDoubleClick={() => onInspect(id)}
             >
-              <CardFace id={id} />
+              <CardFace id={id} cost={cardCost(id, view, me)} costWhy={costBreakdown(view, me, id)} />
             </div>
           );
         })}

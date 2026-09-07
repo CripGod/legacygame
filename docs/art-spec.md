@@ -23,7 +23,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Missing
 
-### characters (16)
+### characters (25)
 
 - `newsboy` **Newsboy** (1905–1960): The Chicago Defender rode south in the bags of Pullman porters and the hands of kids on corners; a paper was the first thing many families bought.
 - `barber` **Barber** (Any Saturday): The barbershop was bank, newsroom, campaign office and town hall. Everybody passed through, and nobody stayed long.
@@ -41,6 +41,15 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `claudette_colvin` **Claudette Colvin** (1939–): Fifteen years old, Montgomery, March 1955. Nine months before Rosa Parks, she refused to move and was dragged off the bus.
 - `bass_reeves` **Bass Reeves** (1838–1910): Born enslaved, fluent in several Native languages, one of the first Black deputy U.S. Marshals west of the Mississippi. Three thousand arrests, never wounded.
 - `neighbor_kid` **Neighbor Kid** (Any afternoon): Somebody's nephew. Runs the errand, holds the door, sees everything and tells his grandmother.
+- `booker_t_washington` **Booker T. Washington** (1856–1915): Built Tuskegee from a shanty and a church into a campus the students made with their own hands.
+- `george_washington_carver` **George Washington Carver** (c. 1864–1943): Taught the South to rest its soil and found three hundred uses for the peanut.
+- `marie_laveau` **Marie Laveau** (1801–1881): Hairdresser, healer and the most consulted woman in New Orleans.
+- `nanny_of_the_maroons` **Nanny of the Maroons** (c. 1686–1755): Led the Windward Maroons from the Blue Mountains and held off the British for a decade.
+- `nehanda` **Nehanda Nyakasikana** (c. 1840–1898): Spirit medium of the Shona who told the colonial court her bones would rise again.
+- `boukman_dutty` **Boukman Dutty** (d. 1791): The Bois Caïman ceremony, and a week later the north of Saint-Domingue was burning.
+- `cecile_fatiman` **Cécile Fatiman** (c. 1771–1883): The mambo at Bois Caïman. Lived to be over a hundred and saw the republic she helped start.
+- `ayuba_suleiman_diallo` **Ayuba Suleiman Diallo** (1701–1773): Wrote a letter in Arabic from a Maryland tobacco farm and it carried him home.
+- `omar_ibn_said` **Omar ibn Said** (c. 1770–1864): Twenty-five years a scholar in Futa Toro, fifty-six years enslaved in Carolina, and he kept writing.
 
 ### events (3)
 
@@ -53,11 +62,12 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - none
 
 
-### locations (3)
+### locations (4)
 
 - `justice_system` **The Justice System** (1865–): The Thirteenth Amendment kept one exception, "as a punishment for crime." Convict leasing, chain gangs and mass incarceration have run on it ever since.
 - `the_tabernacle` **The Tabernacle** (1794–): Mother Bethel, Philadelphia, 1794: Richard Allen walked out rather than pray in the back. The Black church has been meeting house, school, bank and headquarters ever since.
 - `montgomery` **Montgomery, Alabama** (1955–1956): For 381 days the buses ran empty. Forty thousand people walked, carpooled and waited, and the seats stopped being the point.
+- `oak_bluffs` **Oak Bluffs** (Martha's Vineyard, 1912–): Shearer Cottage opened to Black guests in 1912 when the island's hotels would not. A century of summers followed: the Inkwell, the gingerbread cottages, families who came back every August.
 
 ## Have
 
