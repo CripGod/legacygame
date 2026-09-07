@@ -518,13 +518,13 @@ export function AncestorsSheet({ view, me, plan, onClose }: { view: GameState; m
   );
 }
 
-/** A confrontation replayed as a showdown: fighters on one side, the Threat on the other, the Force bar filling toward what it needs. */
+/** A confrontation replayed as a showdown: fighters on one side, the Threat on the other, and a plain-words account of why it broke or held. */
 export function ShowdownSheet({ ev, view, onClose }: { ev: GameEvent; view: GameState; onClose: () => void }) {
   const { placeholders } = useDisplay();
   const d = ev.data as { threatUid: string; defId: string; needed: number; requiresBoth: boolean; force: { A: number; B: number }; fighters: { uid: string; defId: string; owner: PlayerId; force: number }[]; cleared: boolean };
   const tdef = THREAT_BY_ID[d.defId];
   const total = d.force.A + d.force.B;
-  const pct = d.requiresBoth ? (d.cleared ? 100 : 50) : Math.min(100, Math.round((total / Math.max(1, d.needed)) * 100));
+  const pct = Math.min(100, Math.round((total / Math.max(1, d.needed)) * 100));
   const [stage, setStage] = useState(0);
   useEffect(() => {
     const t1 = setTimeout(() => setStage(1), 200);
@@ -535,6 +535,28 @@ export function ShowdownSheet({ ev, view, onClose }: { ev: GameEvent; view: Game
     };
   }, []);
   const loc = ev.location !== undefined ? view.locations[ev.location] : undefined;
+  const handle = (p: PlayerId) => view.players[p].handle;
+  const names = (p: PlayerId) =>
+    d.fighters
+      .filter((f) => f.owner === p)
+      .map((f) => `${cardName(f.defId, placeholders)} ${f.force}`)
+      .join(', ');
+  const tname = threatLabel(d.defId, placeholders);
+  let why: string;
+  if (d.requiresBoth) {
+    const showedA = d.force.A > 0;
+    if (d.cleared) why = `${tname} only breaks when both players confront it in the same turn. Both did: ${handle('A')} sent ${names('A')} and ${handle('B')} sent ${names('B')}.`;
+    else {
+      const who: PlayerId = showedA ? 'A' : 'B';
+      why = `${tname} only breaks when both players confront it in the same turn. ${handle(who)} showed up (${names(who)}) but ${handle(other(who))} sent nobody, so nothing happened. Force does not carry over: both sides have to commit on the same turn.`;
+    }
+  } else if (d.cleared) {
+    const parts = (['A', 'B'] as PlayerId[]).filter((p) => d.force[p] > 0).map((p) => `${handle(p)}: ${names(p)}`);
+    why = `It needed ${d.needed} Force in one turn and got ${total}. ${parts.join('. ')}.`;
+  } else {
+    const parts = (['A', 'B'] as PlayerId[]).filter((p) => d.force[p] > 0).map((p) => `${handle(p)}: ${names(p)}`);
+    why = `It needed ${d.needed} Force in one turn and only got ${total} (${parts.join('; ')}). Force does not carry over between turns: next time commit ${d.needed - total} more, from either side or both together.`;
+  }
   return (
     <div className="scrim">
       <div className={`sheet fanfare showdown ${d.cleared ? 'win' : 'hold'}`}>
@@ -546,6 +568,7 @@ export function ShowdownSheet({ ev, view, onClose }: { ev: GameEvent; view: Game
               <div key={f.uid} className={`fighter p${f.owner}`} title={cardName(f.defId, placeholders)}>
                 <div className="fighter-pic">{placeholders ? <span className="ini">{initials(f.defId, true)}</span> : <Art kind="characters" id={f.defId} className="fighter-img" fallback={<span className="ini">{initials(f.defId, false)}</span>} alt={cardName(f.defId, placeholders)} />}</div>
                 <b>{f.force}</b>
+                <small>{cardName(f.defId, placeholders)}</small>
               </div>
             ))}
           </div>
@@ -553,16 +576,29 @@ export function ShowdownSheet({ ev, view, onClose }: { ev: GameEvent; view: Game
           <div className="showdown-side threat-side">
             <div className="fighter-pic big">{placeholders ? <span className="ini">{initials(d.defId, true)}</span> : <Art kind="threats" id={d.defId} className="fighter-img" fallback={<span className="ini">{initials(d.defId, false)}</span>} alt={tdef?.name} />}</div>
             <b>{d.requiresBoth ? 'both' : d.needed}</b>
+            <small>{d.requiresBoth ? 'needs both players' : `needs ${d.needed} Force`}</small>
           </div>
         </div>
-        <div className="center" style={{ fontWeight: 800 }}>{threatLabel(d.defId, placeholders)}</div>
-        <div className="force-bar">
-          <div className="force-fill" style={{ width: stage >= 1 ? `${pct}%` : '0%' }} />
-          <span className="force-label">
-            {total} / {d.requiresBoth ? 'both sides' : d.needed} Force
-          </span>
-        </div>
+        <div className="center" style={{ fontWeight: 800 }}>{tname}</div>
+        {d.requiresBoth ? (
+          <div className="force-bar split">
+            {(['A', 'B'] as PlayerId[]).map((p) => (
+              <div key={p} className={`force-half p${p} ${stage >= 1 && d.force[p] > 0 ? 'on' : ''}`}>
+                {handle(p)} {d.force[p] > 0 ? `${d.force[p]} Force` : 'nobody'}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="force-bar">
+            <div className="force-fill" style={{ width: stage >= 1 ? `${pct}%` : '0%' }} />
+            <span className="force-label">
+              {total} / {d.needed} Force
+            </span>
+          </div>
+        )}
         <div className={`verdict ${stage >= 2 ? 'show' : ''}`}>{d.cleared ? 'NEUTRALIZED' : 'IT HOLDS'}</div>
+        <div className="showdown-why">{why}</div>
+        {!d.cleared && tdef && <div className="showdown-rule muted">While it stands: {tdef.text}</div>}
         <div className="actions" style={{ justifyContent: 'center' }}>
           <button className="primary" onClick={onClose} autoFocus>
             Continue

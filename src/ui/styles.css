@@ -776,3 +776,13 @@ body.dragging { cursor: grabbing; user-select: none; }
 .compendium { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
 .compendium li { border-left: 3px solid var(--line-2); padding: 4px 10px; font-size: 14px; }
 @media (max-width: 700px) { .cards-screen { --card-w: 26vw; } .fighter-pic { width: 52px; height: 52px; } .fighter-pic.big { width: 84px; height: 84px; } }
+
+.fighter small { font-size: 10px; color: var(--muted); max-width: 72px; line-height: 1.1; }
+.threat-side small { font-size: 10px; color: var(--muted); }
+.threat-side { display: grid; justify-items: center; gap: 2px; }
+.force-bar.split { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: transparent; border: 0; height: auto; overflow: visible; }
+.force-half { border-radius: 999px; padding: 3px 8px; font-size: 12px; font-weight: 800; background: var(--panel-2); border: 1px solid var(--line-2); color: var(--muted); transition: background 0.5s, color 0.5s; }
+.force-half.pA.on { background: var(--cA); color: #1a1200; border-color: var(--cA); }
+.force-half.pB.on { background: var(--cB); color: #032a2e; border-color: var(--cB); }
+.showdown-why { font-size: 14px; line-height: 1.4; text-align: left; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 8px 12px; }
+.showdown-rule { font-size: 12px; line-height: 1.35; text-align: left; padding: 0 4px; }
