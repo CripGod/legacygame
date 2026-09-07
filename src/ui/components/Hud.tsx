@@ -1,5 +1,4 @@
 import { CARD_BY_ID, MAX_HAND, type GameState, type PlayerId, effectiveStakes } from '../../engine';
-import { isNight } from '../../engine';
 import { initials, useDisplay } from '../display';
 import { tip, HINTS } from '../tip';
 import { Art } from './Art';
@@ -51,9 +50,6 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
             {view.stakes}
             {view.pendingRaises.length > 0 && <em>→{effectiveStakes(view)}</em>}
             <small>legacy</small>
-          </span>
-          <span className={`turn-label ${isNight(view) ? 'night' : 'day'}`} {...tip(HINTS.dayNight)}>
-            {isNight(view) ? '🌙 Night' : '☀ Day'}
           </span>
         </div>
       </div>

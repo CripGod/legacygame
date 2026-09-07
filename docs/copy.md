@@ -474,7 +474,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 - `influence`: Influence: how much this Character counts toward controlling its Location. Gate and Inside Characters both count.
 - `force`: Force: strength when confronting Threats or answering a challenge. Force never attacks players directly.
-- `dayNight`: Odd turns are day, even turns are night. At night a Location with a curfew (Sundown Town) lets nobody relocate out until morning. A Curfew Threat holds a Location day and night. Harriet Tubman is the only one who can move a Character out.
+- `dayNight`: This Location has a curfew. Odd turns are day, even turns are night: at night nobody relocates out until morning. Harriet Tubman is the only one who can move a Character out.
 - `locked`: Held here: cannot relocate out. Curfew, a Curfew Threat or The Justice System. Harriet Tubman can still move them.
 - `event`: Event: a one-shot card. Drop it on a Location with an open Gate slot: it works everywhere, and the Location it lands on adds a little more.
 - `currentInfluence`: Influence this Character currently contributes here, including bonuses and penalties.
@@ -564,7 +564,7 @@ Rules
 - Ties at a Location count for nobody. If the match ends 1–1 with a tie, total Influence, then total Force, break the tie.
 - Plan by dragging: a card onto a Location, a Ready Character into its Location, an Established Character to another Location, any Character onto a Threat. Tapping a card or tile opens the same actions. Drag a piece back to where it came from, or press Cmd/Ctrl+Z, to undo.
 ### Movement
-- Day and night. Odd turns are day, even turns are night. At night a Location with a curfew (Sundown Town) lets nobody relocate out until morning. A Curfew Threat holds a Location day and night until it is cleared with 3 Force. The Justice System holds anyone Inside for two turns. Held Characters show a red Held strip.
+- Day and night. Odd turns are day, even turns are night. At night a Location with a curfew (Sundown Town) lets nobody relocate out until morning. A Curfew Threat holds a Location day and night until it is cleared with 3 Force. The Justice System holds anyone Inside for two turns. Held Characters show a red Held strip. Only a curfew Location shows the time of day, since nothing else changes at night.
 - Harriet Tubman is the conductor: her Reveal moves one of your Characters, Gate or Inside, from anywhere to another open Gate, even out of a curfew or The Justice System. From the Gates it keeps its status; from Inside it arrives Ready. Free, and before anyone enters.
 - Once per turn you may Relocate a Character to another Location's Gates. From Inside it arrives Fresh and waits again, unless an ability says otherwise. From the Gates it keeps its Ready status: a Ready Character waiting at the Gates is a flex piece you can commit late, wherever the fight turns out to be. The Inside is the committed zone; the Gates are the mobile one.
 - Threats and abilities can Displace Characters against their will.
@@ -966,7 +966,6 @@ export function PeekHandSheet({ cards, by, opponent, onClose }: { cards: string[
 - bubble ${right ? 'right' : ''}
 - stand-btn ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''}
 - coin ${view.pendingRaises.length ? 'raised' : ''}
-- turn-label ${isNight(view) ? 'night' : 'day'}
 
 ### src/ui/display.ts
 

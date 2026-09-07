@@ -272,7 +272,10 @@ export function Battlefield(props: BattlefieldProps) {
         const isTarget = targetable.includes(loc.index);
         const dropOk = drop?.locations.includes(loc.index);
         const dropOver = dropOk && drop?.overKey === `location:${loc.index}`;
-        const cls = ['location', loc.revealed ? '' : 'hidden-loc', loc.lost ? 'lost' : '', loc.sanctified ? 'sanctified' : '', lead ? `lead-${lead}` : '', winner && winner !== 'lost' ? `won-${winner}` : '', isNight(view) ? 'night' : 'day', !loc.lost && curfewOn(view, loc.index) ? 'curfew' : ''].join(' ');
+        const hasCurfew = loc.revealed && !!LOCATION_BY_ID[loc.defId]?.curfew;
+        const nightHere = hasCurfew && isNight(view);
+        const state = [loc.lost ? 'lost' : '', loc.sanctified ? 'sanctified' : '', lead ? `lead-${lead}` : '', winner && winner !== 'lost' ? `won-${winner}` : '', nightHere ? 'night' : '', !loc.lost && curfewOn(view, loc.index) ? 'curfew' : ''].join(' ');
+        const cls = ['location', loc.revealed ? '' : 'hidden-loc', state].join(' ');
         const summon = summonLabel?.(loc.index);
         const title = loc.revealed ? (
           <div className="who">{locationName(loc.defId, placeholders)}</div>
@@ -290,10 +293,11 @@ export function Battlefield(props: BattlefieldProps) {
             onClick={isTarget ? () => onLocationTap(loc.index) : undefined}
           >
             <GateStrip {...common} owner={opp} index={loc.index} label="Opponent Gates" right={title} />
+            <div className={`loc-glow ${state}`}>
             <div className={cls}>
               {loc.revealed && !placeholders && (
                 <div className="loc-bg" aria-hidden>
-                  {isNight(view) ? (
+                  {nightHere ? (
                     <Art kind="locations" id={`${loc.defId}_night`} className="loc-bg-img" fallback={<Art kind="locations" id={loc.defId} className="loc-bg-img" fallback={null} alt="" />} alt="" />
                   ) : (
                     <Art kind="locations" id={loc.defId} className="loc-bg-img" fallback={null} alt="" />
@@ -318,6 +322,8 @@ export function Battlefield(props: BattlefieldProps) {
                 {loc.revealed && !placeholders && <span className="era-tag">{def.era}</span>}
                 {loc.lost && <span className="lost-tag">LOST</span>}
                 {!loc.lost && loc.revealed && curfewOn(view, loc.index) && <span className="lost-tag curfew" {...tip(HINTS.locked)}>CURFEW</span>}
+                {!loc.lost && hasCurfew && !curfewOn(view, loc.index) && <span className="lost-tag daytag" {...tip(HINTS.dayNight)}>☀ DAY</span>}
+                {!loc.lost && nightHere && <span className="lost-tag nighttag" {...tip(HINTS.dayNight)}>🌙 NIGHT</span>}
                 {loc.sanctified && <span className="lost-tag sanct">OBATALA</span>}
                 {summon && <span className="summon-tag">{summon}</span>}
               </div>
@@ -376,6 +382,7 @@ export function Battlefield(props: BattlefieldProps) {
               >
                 {loc.lost ? `LOST: ${loc.lostReason ?? 'an unresolved crisis'} Neither player can win here.` : loc.revealed ? def.rule : 'Hidden until revealed. Commit blind.'}
               </div>
+            </div>
             </div>
             <GateStrip {...common} owner={me} index={loc.index} label="Your Gates" />
           </div>
