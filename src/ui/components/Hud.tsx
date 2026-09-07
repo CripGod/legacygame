@@ -18,7 +18,7 @@ function TimerRing({ seconds, paused }: { seconds: number; paused: boolean }) {
   );
 }
 
-export function Hud({ view, me, secondsLeft, paused, onProfile, onLog, hasLog, bubbles, onChat, energy }: { view: GameState; me: PlayerId; secondsLeft: number; paused: boolean; onProfile: (p: PlayerId) => void; onLog: () => void; hasLog: boolean; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void; energy?: { have: number; left: number; max: number } }) {
+export function Hud({ view, me, secondsLeft, paused, onProfile, bubbles, onChat, energy }: { view: GameState; me: PlayerId; secondsLeft: number; paused: boolean; onProfile: (p: PlayerId) => void; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void; energy?: { have: number; left: number; max: number } }) {
   const { placeholders } = useDisplay();
   const profile = (p: PlayerId, right: boolean) => {
     const ps = view.players[p];
@@ -65,9 +65,6 @@ export function Hud({ view, me, secondsLeft, paused, onProfile, onLog, hasLog, b
             </span>
             <small>legacy</small>
           </div>
-          <button className="coin info" disabled={!hasLog} onClick={onLog} {...tip('What happened last turn, step by step.')} aria-label="Last turn log">
-            i
-          </button>
         </div>
         {energy && (
           <div className={`energy-meter mana ${energy.left === 0 ? 'spent' : ''}`} {...tip(HINTS.energy)} aria-label={`Energy ${energy.left} of ${energy.have}`}>

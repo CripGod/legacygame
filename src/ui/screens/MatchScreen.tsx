@@ -530,7 +530,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
 
   return (
     <div className="app">
-      <Hud view={view} me={me} secondsLeft={m.secondsLeft} paused={!planning} energy={{ have: opts.energy, left: planning ? energyLeft : opts.energy, max: Math.max(view.maxTurns, opts.energy) }} onProfile={(p) => setSheet({ kind: 'profile', p })} onLog={() => setSheet({ kind: 'log' })} hasLog={m.lastTurn.length > 0} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} />
+      <Hud view={view} me={me} secondsLeft={m.secondsLeft} paused={!planning} energy={{ have: opts.energy, left: planning ? energyLeft : opts.energy, max: Math.max(view.maxTurns, opts.energy) }} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} />
       <div className="main-wrap">
         <Battlefield
           view={boardView}
@@ -553,6 +553,9 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
         />
         <Coach view={view} me={me} plan={plan} enabled={coach && planning && m.mode === 'ai' && !guide} onActive={setFlash} override={guideText} />
         <Spotlight active={planning && !drag && (flash !== null || guide !== null)} />
+        <button className="log-toggle" disabled={m.lastTurn.length === 0} onClick={() => setSheet({ kind: 'log' })} {...tip('What happened last turn, step by step.')} aria-label="Last turn log">
+          i
+        </button>
         {toast && (
           <div className={`toast ${toastTone}`} role="status">
             {toast}
