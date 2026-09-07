@@ -1,4 +1,4 @@
-import { CARD_BY_ID, PLANNING_SECONDS, type GameState, type PlayerId, effectiveStakes } from '../../engine';
+import { CARD_BY_ID, PLANNING_SECONDS, MAX_HAND, type GameState, type PlayerId, effectiveStakes } from '../../engine';
 import { initials, useDisplay } from '../display';
 import { tip, HINTS } from '../tip';
 import { Art } from './Art';
@@ -31,7 +31,7 @@ export function Hud({ view, me, secondsLeft, paused, onProfile, onLog, hasLog, b
         <div className="plate">
           <div className="handle">{ps.handle}</div>
           <div className="sub">
-            {ps.hand.length} in hand · {ps.deckCount} in deck{p === me ? ' · you' : ''}
+            {ps.hand.length}/{MAX_HAND} in hand · {ps.deckCount} in deck{p === me ? ' · you' : ''}
           </div>
         </div>
         {p === me && onChat && (

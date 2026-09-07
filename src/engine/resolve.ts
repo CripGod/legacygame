@@ -272,7 +272,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       break;
     }
     case 'draw': {
-      for (let i = 0; i < eff.count; i++) drawCard(state, p);
+      for (let i = 0; i < eff.count; i++) drawCard(state, p, events);
       say(`${state.players[p].handle} draws a card.`);
       break;
     }
@@ -372,7 +372,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       break;
     }
     case 'refreshOpposingGate': {
-      drawCard(state, p);
+      drawCard(state, p, events);
       const targets = charsAt(state, loc, opp, 'gate').filter((x) => x.ready);
       const target = targets.sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];
       if (target && !isProtected(state, target)) {
@@ -644,7 +644,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     if (loc.revealed && LOCATION_BY_ID[loc.defId]?.effect.type === 'readyOnArrival') c.ready = true;
     if (hasEstablished(state, p, play.location, 'cookout').length) c.ready = true;
     for (const spider of hasEstablished(state, other(p), play.location, 'drawOnOpposingPlay')) {
-      drawCard(state, spider.owner);
+      drawCard(state, spider.owner, events);
       events.push({ type: 'info', text: `${charDef(spider.defId).name} spins a story: ${state.players[spider.owner].handle} draws a card.`, uid: spider.uid, player: spider.owner });
     }
     newChars.push({ p, c, target: play.target });
@@ -821,7 +821,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       loc.threats = [];
       for (const c of charsAt(state, sA)) c.permInfluence += 1;
       for (const p of PLAYERS) {
-        drawCard(state, p);
+        drawCard(state, p, events);
         state.players[p].solidarity += 1;
       }
       events.push({ type: 'summon', text: `${SUMMON.name} manifests at ${locName(state, sA)}. Every Character there gains +1 Influence, both players draw a card, and this Location can never be Lost.`, location: sA, data: { manifest: true } });

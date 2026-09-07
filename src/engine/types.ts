@@ -15,6 +15,8 @@ export const EXTENDED_TURNS = 10;
 export const GATE_CAPACITY = 2;
 export const INSIDE_CAPACITY = 5;
 export const STARTING_HAND = 4;
+/** Hand limit: a card drawn into a full hand is discarded. */
+export const MAX_HAND = 7;
 export const DECK_SIZE = 12;
 export const MAX_EVENTS = 2;
 export const PLANNING_SECONDS = 120;

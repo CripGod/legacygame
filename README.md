@@ -43,7 +43,7 @@ Developer tools (`?dev=1` or the button on the start screen): fixed seeds, AI re
 
 - **Plays per turn**: one while any Location is hidden, two once all three are revealed; Organizer's Established ability adds one. Twelve-card decks mean you cannot double up every turn, which is the intended pressure.
 
-- **Nine turns** (ten after Stand on Business) with 12-card decks: the draw simply stops when the deck is empty, so the last turn or two are played from hand. If nine turns stick, the deck should probably grow to 14.
+- **Nine turns** (ten after Stand on Business) with 12-card decks: the draw simply stops when the deck is empty, so the last turn or two are played from hand. If nine turns stick, the deck should probably grow to 14. Hands hold at most 7 cards; a draw into a full hand is discarded (logged in the turn log).
 
 - **Gate wait timing.** A Character played on turn N is Fresh through turn N+1's planning and becomes Ready at the end of N+1, so it can enter on N+2. This is the reading that makes "becomes Ready immediately" effects (Harriet, Organizer, Juneteenth) worth a full turn. If playtesting says the wait is too long, the one-line change is in the cleanup step of `resolve.ts`.
 - **Stand on Business** extends the match to ten turns and removes Step Off for the player who stood. The raise is part of the hidden plan and takes effect at the end of the *following* turn. Nobody is forced into a yes/no modal: the other player plans a normal turn with a banner showing the pending raise, and Stepping Off during that turn costs only the old Stakes. Standing back doubles again (max 4). A Stand on turn 9 extends to turn 10 and lands with the final result.

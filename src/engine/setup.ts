@@ -1,7 +1,8 @@
 import { makeRng, shuffle, nextInt, nextFloat, pick } from './rng';
 import { LOCATIONS, PRESET_DECKS, randomDeck, validateDeck, THREAT_BY_ID, RANDOM_THREAT_POOL, LOCATION_BY_ID, CHARACTER_BY_ID } from './content';
 import type { GameState, PlayerId, PlayerState, LocationState, GameEvent, ThreatInstance } from './types';
-import { STARTING_HAND, PLAYERS, TURNS } from './types';
+import { CARD_BY_ID } from './content';
+import { STARTING_HAND, PLAYERS, TURNS, MAX_HAND } from './types';
 
 export interface MatchOptions {
   seed: number;
@@ -105,16 +106,23 @@ export function createMatch(opts: MatchOptions): GameState {
   return state;
 }
 
-export function drawCard(state: GameState, p: PlayerId): string | undefined {
+/** Draw one card. A full hand (MAX_HAND) burns the draw to the discard pile; `events` gets the explanation when given. */
+export function drawCard(state: GameState, p: PlayerId, events?: GameEvent[]): string | undefined {
   const ps = state.players[p];
+  const full = ps.hand.length >= MAX_HAND;
   const card = ps.deck.shift();
   if (card) {
-    ps.hand.push(card);
     ps.deckCount = ps.deck.length;
+    if (full) {
+      ps.discard.push(card);
+      events?.push({ type: 'info', text: `${ps.handle}'s hand is full (${MAX_HAND}): ${CARD_BY_ID[card]?.name ?? card} is discarded.`, player: p, cardId: card, privateTo: p });
+      return undefined;
+    }
+    ps.hand.push(card);
   } else if (ps.deckCount > 0 && ps.deck.length === 0) {
     // Redacted view: deck contents unknown; just decrement the count.
     ps.deckCount--;
-    ps.hand.push('hidden');
+    if (!full) ps.hand.push('hidden');
   }
   return card;
 }
@@ -191,7 +199,9 @@ export function startTurn(state: GameState, events: GameEvent[]): void {
     state.initiative = state.initiative === 'A' ? 'B' : 'A';
   }
   for (const p of PLAYERS) {
-    const card = drawCard(state, p);
+    const card = drawCard(state, p, events);
+    if (!card && state.players[p].deckCount === 0 && state.players[p].deck.length === 0) continue;
+    if (!card) continue;
     events.push({
       type: 'draw',
       text: `${state.players[p].handle} draws a card.`,

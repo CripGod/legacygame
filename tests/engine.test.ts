@@ -18,6 +18,7 @@ import {
   type TurnPlan,
   type CharacterInstance,
   charDef,
+  MAX_HAND,
 } from '../src/engine';
 import { planTurn } from '../src/ai/harborlight';
 
@@ -425,6 +426,22 @@ describe('gatherings', () => {
       expect(c.location).toBe(0);
     }
     expect(validateDeck([...PRESET_DECKS.railroad.cards.slice(0, 11), 'chairteenth'])).not.toEqual([]);
+  });
+});
+
+describe('hand limit', () => {
+  it('a draw into a full hand is discarded', () => {
+    let s = createMatch({ seed: 4 });
+    // Never play: the hand grows from 4 by one each turn and caps at MAX_HAND.
+    for (let t = 1; t <= 5; t++) s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(s.players.A.hand.length).toBe(MAX_HAND);
+    const deckBefore = s.players.A.deckCount;
+    const discardBefore = s.players.A.discard.length;
+    const out = resolveTurn(s, { A: pass(), B: pass() });
+    expect(out.state.players.A.hand.length).toBe(MAX_HAND);
+    expect(out.state.players.A.deckCount).toBe(deckBefore - 1);
+    expect(out.state.players.A.discard.length).toBe(discardBefore + 1);
+    expect(out.events.some((e) => e.type === 'info' && /hand is full/.test(e.text) && e.player === 'A')).toBe(true);
   });
 });
 
