@@ -11,7 +11,6 @@ import { charDef, cardDef, eventDef, LOCATION_BY_ID, THREAT_BY_ID, SUMMON } from
 import { nextFloat, pick } from './rng';
 import { drawCard, locName, spawnThreat, startTurn } from './setup';
 import {
-  canConfront,
   charsAt,
   charsOf,
   charInfluence,
@@ -34,8 +33,9 @@ import {
   threatForceNeeded,
   validatePlan,
 } from './query';
-import type { CharacterInstance, GameEvent, GameState, MatchResult, PlayAction, PlayerId, ResolveOutput, ThreatInstance, TurnPlan } from './types';
+import type { CharacterDef, CharacterInstance, GameEvent, GameState, MatchResult, PlayAction, PlayerId, ResolveOutput, ThreatInstance, TurnPlan } from './types';
 import { MAX_STAKES, PLAYERS, EXTENDED_TURNS, other, emptyPlan } from './types';
+import { GATHERING_DEFS } from './content/characters';
 
 export function cloneState(s: GameState): GameState {
   return structuredClone(s);
@@ -106,6 +106,54 @@ function enterInside(state: GameState, c: CharacterInstance, events: GameEvent[]
   return true;
 }
 
+/** A Gathering arrives on its own. Returns the new Character, or null when there is no room. */
+function spawnGathering(state: GameState, p: PlayerId, def: CharacterDef, location: number, events: GameEvent[], prefer: 'inside' | 'gate' = 'inside'): CharacterInstance | null {
+  const ps = state.players[p];
+  if (ps.spawned.includes(def.id)) return null;
+  const loc = state.locations[location];
+  if (loc.lost) return null;
+  const canInside = prefer === 'inside' && insideOpen(state, location, p);
+  const canGate = gateOpen(state, location, p);
+  if (!canInside && !canGate) return null;
+  const zone: 'inside' | 'gate' = canInside ? 'inside' : 'gate';
+  const c: CharacterInstance = {
+    uid: `c${state.nextUid++}`,
+    defId: def.id,
+    owner: p,
+    location,
+    zone,
+    ready: true,
+    arrivedTurn: state.turn,
+    permInfluence: 0,
+    tempInfluence: 0,
+    wasHiddenAtCommit: false,
+  };
+  state.characters[c.uid] = c;
+  ps.spawned.push(def.id);
+  const where = zone === 'inside' ? 'Inside' : 'the Gates of';
+  events.push({ type: 'spawned', text: `${def.name} arrives ${where === 'Inside' ? 'Inside' : 'at the Gates of'} ${locName(state, location)} for ${ps.handle}. ${def.spawn?.headline ?? ''}`.trim(), player: p, cardId: def.id, uid: c.uid, location, data: { zone } });
+  return c;
+}
+
+/** Gatherings whose condition is met arrive now. Called after reveals and at cleanup. */
+function checkGatherings(state: GameState, events: GameEvent[], trigger: 'reveal' | 'cleanup', revealedIndex?: number): void {
+  for (const def of GATHERING_DEFS) {
+    const rule = def.spawn;
+    if (!rule) continue;
+    for (const p of PLAYERS) {
+      if (rule.type === 'onReveal' && trigger === 'reveal' && revealedIndex !== undefined && state.locations[revealedIndex].defId === rule.locationId) {
+        spawnGathering(state, p, def, revealedIndex, events, 'gate');
+      }
+      if (rule.type === 'establishedAt' && trigger === 'cleanup') {
+        const loc = state.locations.find((l) => l.revealed && l.defId === rule.locationId);
+        if (!loc) continue;
+        const established = charsAt(state, loc.index, p, 'inside').filter((c) => charDef(c.defId).category !== 'gathering').length;
+        if (established >= rule.count) spawnGathering(state, p, def, loc.index, events);
+      }
+    }
+  }
+}
+
 function revealLocation(state: GameState, index: number, events: GameEvent[]): void {
   const loc = state.locations[index];
   if (loc.revealed) return;
@@ -123,6 +171,7 @@ function revealLocation(state: GameState, index: number, events: GameEvent[]): v
       }
     }
   }
+  checkGatherings(state, events, 'reveal', index);
   for (const c of charsAt(state, index)) {
     if (c.pendingRevealBonus) {
       c.permInfluence += c.pendingRevealBonus;
@@ -442,31 +491,6 @@ function playEvent(state: GameState, p: PlayerId, play: PlayAction, events: Game
       events.push({ type: 'info', text: `${def.name}: ${ps.handle}'s Characters at ${locName(state, play.location)} are protected this turn.`, player: p, location: play.location });
       break;
     }
-    case 'cookout': {
-      const mine = charsAt(state, play.location, p);
-      const readied = mine.filter((c) => c.zone === 'gate' && !c.ready);
-      const fed = mine.filter((c) => c.zone === 'inside');
-      for (const c of readied) c.ready = true;
-      for (const c of fed) c.tempInfluence += def.effect.influence;
-      if (!mine.length) {
-        events.push({ type: 'info', text: `${def.name}: nobody of ${ps.handle}'s at ${locName(state, play.location)}.`, player: p, location: play.location });
-        break;
-      }
-      const parts: string[] = [];
-      if (readied.length) parts.push(`${readied.map((c) => charDef(c.defId).name).join(', ')} ${readied.length > 1 ? 'are' : 'is'} Ready now`);
-      if (fed.length) parts.push(`+${def.effect.influence} Influence to ${fed.length} Established Character${fed.length > 1 ? 's' : ''} this turn`);
-      events.push({ type: 'info', text: `${def.name} at ${locName(state, play.location)}: ${parts.join('; ')}.`, player: p, location: play.location });
-      break;
-    }
-    case 'chairteenth': {
-      if (!charsAt(state, play.location, p).length) {
-        events.push({ type: 'info', text: `${def.name}: ${ps.handle} has nobody at ${locName(state, play.location)}, so nobody grabs a chair.`, player: p, location: play.location });
-        break;
-      }
-      ps.chairLocation = play.location;
-      events.push({ type: 'info', text: `${def.name}: ${ps.handle} brings +${def.effect.force} Force to ${locName(state, play.location)} this turn.`, player: p, location: play.location });
-      break;
-    }
   }
 }
 
@@ -618,6 +642,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     };
     state.characters[c.uid] = c;
     if (loc.revealed && LOCATION_BY_ID[loc.defId]?.effect.type === 'readyOnArrival') c.ready = true;
+    if (hasEstablished(state, p, play.location, 'cookout').length) c.ready = true;
     for (const spider of hasEstablished(state, other(p), play.location, 'drawOnOpposingPlay')) {
       drawCard(state, spider.owner);
       events.push({ type: 'info', text: `${charDef(spider.defId).name} spins a story: ${state.players[spider.owner].handle} draws a card.`, uid: spider.uid, player: spider.owner });
@@ -737,25 +762,6 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
   };
   for (const p of order) for (const cf of plans[p].confronts) addForce(cf.uid, cf.threatUid, 0);
   for (const pc of pendingConfronts) addForce(pc.uid, pc.threatUid, pc.bonus);
-  // Chairteenth: a flat +Force against one Threat at the chosen Location.
-  for (const p of order) {
-    const ps = state.players[p];
-    if (ps.chairLocation === undefined) continue;
-    const loc = state.locations[ps.chairLocation];
-    const eligible = loc.threats.filter((t) => canConfront(state, t, p));
-    if (!eligible.length) {
-      events.push({ type: 'info', text: `Chairteenth: no Threat at ${locName(state, loc.index)} for ${ps.handle} to swing at.`, player: p, location: loc.index });
-      continue;
-    }
-    const confronted = eligible.find((t) => (forceByThreat.get(t.uid)?.[p] ?? 0) > 0);
-    const target = confronted ?? [...eligible].sort((a, b) => threatForceNeeded(state, a) - threatForceNeeded(state, b))[0];
-    const entry = forceByThreat.get(target.uid) ?? { A: 0, B: 0, assists: new Set<string>() };
-    const chair = (eventDef('chairteenth').effect as { force: number }).force;
-    entry[p] += chair;
-    forceByThreat.set(target.uid, entry);
-    events.push({ type: 'threatActs', text: `Chairteenth: ${ps.handle} adds ${chair} Force against ${threatName(state, target)}.`, location: loc.index, player: p });
-  }
-
   for (const loc of state.locations) {
     const remaining: ThreatInstance[] = [];
     for (const t of loc.threats) {
@@ -874,12 +880,14 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       displace(state, c, 'unstable', events);
     }
   }
+  // Gatherings earned this turn arrive before readiness is settled.
+  checkGatherings(state, events, 'cleanup');
   // Fresh → Ready.
   for (const c of Object.values(state.characters)) {
     if (c.zone !== 'gate' || c.ready) continue;
     const loc = state.locations[c.location];
     const ldef = loc.revealed ? LOCATION_BY_ID[loc.defId] : undefined;
-    const organized = hasEstablished(state, c.owner, c.location, 'freshReadyHere').length > 0;
+    const organized = hasEstablished(state, c.owner, c.location, 'freshReadyHere').length > 0 || hasEstablished(state, c.owner, c.location, 'cookout').length > 0;
     if (c.arrivedTurn < state.turn || organized || ldef?.effect.type === 'readyOnArrival') {
       c.ready = true;
       events.push({ type: 'ready', text: `${name(state, c)} is Ready to enter ${locName(state, c.location)}.`, uid: c.uid, player: c.owner });

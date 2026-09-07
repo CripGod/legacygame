@@ -17,6 +17,7 @@ import {
   type PlayerId,
   type TurnPlan,
   type CharacterInstance,
+  charDef,
 } from '../src/engine';
 import { planTurn } from '../src/ai/harborlight';
 
@@ -391,30 +392,39 @@ describe('locations', () => {
   });
 });
 
-describe('events', () => {
-  it('The Cookout readies Fresh Gate Characters the turn they arrive and feeds Established ones', () => {
-    let s = rig(createMatch({ seed: 2 }), { locations: ['gary_indiana', 'great_migration', 'greenwood'], revealAll: true, handA: ['og', 'organizer', 'cookout'] });
+describe('gatherings', () => {
+  it('The Cookout arrives at Great Migration once you have two Established there, and feeds them', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['great_migration', 'gary_indiana', 'greenwood'], revealAll: true, handA: ['og', 'organizer', 'zora_neale_hurston'] });
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'og', location: 0 }] }, B: pass() }).state;
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'organizer', location: 0 }] }, B: pass() }).state;
     const og = Object.values(s.characters).find((c) => c.defId === 'og')!;
-    expect(og.ready).toBe(false);
-    // Turn 2: play Organizer and The Cookout at the same Location: Organizer arrives and is Ready immediately.
-    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'organizer', location: 0 }, { cardId: 'cookout', location: 0 }] }, B: pass() }).state;
+    s = resolveTurn(s, { A: { ...pass(), enters: [og.uid] }, B: pass() }).state;
+    expect(Object.values(s.characters).some((c) => c.defId === 'cookout')).toBe(false);
     const org = Object.values(s.characters).find((c) => c.defId === 'organizer')!;
-    expect(org.ready).toBe(true);
-    expect(legalOptions(s, 'A').enters).toContain(org.uid);
+    const out = resolveTurn(s, { A: { ...pass(), enters: [org.uid] }, B: pass() });
+    const cookout = Object.values(out.state.characters).find((c) => c.defId === 'cookout');
+    expect(cookout).toBeDefined();
+    expect(cookout!.owner).toBe('A');
+    expect(cookout!.zone).toBe('inside');
+    expect(out.events.some((e) => e.type === 'spawned' && e.cardId === 'cookout')).toBe(true);
+    expect(out.state.players.A.spawned).toContain('cookout');
+    // +1 Influence to the other two Established Characters here.
+    expect(influenceAt(out.state, 0).A).toBe(charDef('og').influence + charDef('organizer').influence + charDef('cookout').influence + 2);
+    // Only once per match.
+    const again = resolveTurn(out.state, { A: pass(), B: pass() }).state;
+    expect(Object.values(again.characters).filter((c) => c.defId === 'cookout')).toHaveLength(1);
   });
-  it('Chairteenth adds +3 Force against the weakest Threat when nobody confronts', () => {
-    let s = rig(createMatch({ seed: 2 }), { locations: ['gary_indiana', 'great_migration', 'greenwood'], revealAll: true, handA: ['og', 'chairteenth'] });
-    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'og', location: 0 }] }, B: pass() }).state;
-    s.locations[0].threats.push({ uid: 'pr', defId: 'paddy_roller', location: 0, forceRequired: 2, spawnedTurn: 1 });
-    const out = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'chairteenth', location: 0 }] }, B: pass() });
-    expect(out.state.locations[0].threats.some((t) => t.uid === 'pr')).toBe(false);
-    expect(out.events.some((e) => e.type === 'threatNeutralized')).toBe(true);
-    // Nobody there: nothing happens.
-    const s2 = rig(createMatch({ seed: 2 }), { locations: ['gary_indiana', 'great_migration', 'greenwood'], revealAll: true, handA: ['chairteenth'] });
-    s2.locations[1].threats.push({ uid: 'pr2', defId: 'paddy_roller', location: 1, forceRequired: 2, spawnedTurn: 1 });
-    const out2 = resolveTurn(s2, { A: { ...pass(), plays: [{ cardId: 'chairteenth', location: 1 }] }, B: pass() });
-    expect(out2.state.locations[1].threats.length).toBe(1);
+  it('Chairteenth arrives Ready at both players\' Gates when Juneteenth reveals', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['juneteenth', 'gary_indiana', 'greenwood'] });
+    const out = resolveTurn(s, { A: pass(), B: pass() });
+    const chairs = Object.values(out.state.characters).filter((c) => c.defId === 'chairteenth');
+    expect(chairs.map((c) => c.owner).sort()).toEqual(['A', 'B']);
+    for (const c of chairs) {
+      expect(c.zone).toBe('gate');
+      expect(c.ready).toBe(true);
+      expect(c.location).toBe(0);
+    }
+    expect(validateDeck([...PRESET_DECKS.railroad.cards.slice(0, 11), 'chairteenth'])).not.toEqual([]);
   });
 });
 

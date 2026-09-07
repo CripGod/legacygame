@@ -31,7 +31,6 @@ export function Hand({
   const mid = (n - 1) / 2;
   return (
     <div className={`hand-wrap ${dropState === 'ok' ? 'drop-ok' : ''} ${dropState === 'over' ? 'drop-ok drop-over' : ''}`} data-drop="hand">
-      <div className="hand-label">Your hand ({n})</div>
       <div className="hand">
         {visible.map((id, i) => {
           const off = i - mid;

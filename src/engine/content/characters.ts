@@ -560,4 +560,63 @@ const MYTHIC: CharacterDef[] = [
 ];
 CHARACTERS.push(...MYTHIC);
 
+/** Gatherings: never in a deck. They arrive on their own when the board earns them. */
+const GATHERINGS: CharacterDef[] = [
+  {
+    kind: 'character',
+    id: 'cookout',
+    category: 'gathering',
+    name: 'The Cookout',
+    short: 'Cookout',
+    influence: 2,
+    force: 1,
+    tags: ['Gathering', 'Community'],
+    keywords: [],
+    established: {
+      text: 'Everybody eats: your other Established Characters here gain +1 Influence, and your Characters arriving at this Gate are Ready at once.',
+      effect: { type: 'cookout', amount: 1 },
+    },
+    spawn: {
+      type: 'establishedAt',
+      locationId: 'great_migration',
+      count: 2,
+      headline: 'Two of yours made it north. Word spreads, the grill is lit.',
+      cta: 'Fix a plate',
+    },
+    identity: ['community', 'welcome', 'joy'],
+    era: 'Timeless',
+    blurb: 'Everybody eats. Bring a chair, fix a plate, you are in.',
+    history:
+      'The Black cookout grows out of emancipation celebrations, church picnics and the Southern barbecue tradition that enslaved and freed Black pitmasters built. The Great Migration carried it to backyards and parks in every Northern city. "Invited to the cookout" became shorthand for being welcomed into the community.',
+  },
+  {
+    kind: 'character',
+    id: 'chairteenth',
+    category: 'gathering',
+    name: 'Chairteenth',
+    short: 'Chair',
+    influence: 1,
+    force: 3,
+    tags: ['Gathering', 'Defense'],
+    keywords: [],
+    established: {
+      text: 'Your Characters here confront Threats with +1 Force.',
+      effect: { type: 'forceAuraHere', amount: 1 },
+    },
+    spawn: {
+      type: 'onReveal',
+      locationId: 'juneteenth',
+      headline: 'Juneteenth is on the board. Somebody brought a folding chair.',
+      cta: 'Grab a chair',
+    },
+    identity: ['defense', 'solidarity', 'folding chair'],
+    era: 'Montgomery, 2023',
+    blurb: 'Somebody grabbed a folding chair. The whole dock showed up.',
+    history:
+      'On August 5, 2023, at Riverfront Park in Montgomery, Alabama, a group of white boaters attacked a Black riverboat co-captain who had asked them to move their pontoon from the Harriott II\'s docking space. Bystanders, most of them Black, rushed to his defense; one man swam across the river to join in, and a folding chair became the day\'s symbol. Videos went viral, several of the boaters were charged with assault, and the internet named the anniversary Chairteenth.',
+  },
+];
+CHARACTERS.push(...GATHERINGS);
+export const GATHERING_DEFS = GATHERINGS;
+
 export const CHARACTER_BY_ID: Record<string, CharacterDef> = Object.fromEntries(CHARACTERS.map((c) => [c.id, c]));

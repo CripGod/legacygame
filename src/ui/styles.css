@@ -636,6 +636,10 @@ body.dragging { cursor: grabbing; user-select: none; }
 
 .card .cat { text-align: center; font-size: clamp(7px, 0.65vw, 9px); letter-spacing: 0.16em; text-transform: uppercase; font-weight: 800; }
 .card .cat.mythic { color: #6d4bb5; }
+.card .cat.gathering { color: #b8741a; }
+.sheet.fanfare { border-color: var(--cA); box-shadow: 0 0 0 1px var(--cA), 0 0 40px rgba(240,181,69,0.35); animation: fanfare 0.5s ease-out; }
+@keyframes fanfare { 0% { transform: scale(0.92); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.log-line.spawned { border-color: var(--cA); font-weight: 700; }
 .card.big .cat { font-size: 11px; }
 
 /* Quick chat */

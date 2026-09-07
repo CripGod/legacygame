@@ -95,6 +95,7 @@ const ESTABLISHED_VALUE: Record<string, number> = {
   relocatedInInside: 1.1,
   weakenThreatsHere: 0.5,
   sanctuary: 1.2,
+  cookout: 1.8,
 };
 
 function sigmoid(x: number): number {

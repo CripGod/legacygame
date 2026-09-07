@@ -97,6 +97,9 @@ export function charInfluence(state: GameState, c: CharacterInstance): number {
     for (const m of hasEstablished(state, c.owner, c.location, 'blessNextEstablished')) {
       if (m.blessedUid === c.uid) v += amountOf(m);
     }
+    for (const k of hasEstablished(state, c.owner, c.location, 'cookout')) {
+      if (k.uid !== c.uid) v += amountOf(k);
+    }
   } else {
     if (threatActiveFor(state, c.location, 'zeroGateInfluence', c.owner) && !hasEstablished(state, c.owner, c.location, 'sanctuary').length) return 0;
     for (const z of hasEstablished(state, c.owner, c.location, 'gateInfluenceHere')) v += amountOf(z);

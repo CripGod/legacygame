@@ -30,6 +30,7 @@ export function CardFace({ id, big = false, onClick }: { id: string; big?: boole
       </div>
       <div className="name">{cardName(id, placeholders)}</div>
       {isChar && def.category === 'mythic' && !placeholders && <div className="cat mythic">Mythic</div>}
+      {isChar && def.category === 'gathering' && !placeholders && <div className="cat gathering">Gathering</div>}
       {big && isChar && !placeholders && <div className="era">{def.era}</div>}
       <div className="text">
         {big && abilityLines(def).map((l) => (

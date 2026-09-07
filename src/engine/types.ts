@@ -70,9 +70,15 @@ export type EstablishedEffect =
   | { type: 'freshReadyHere' } // Oshun
   | { type: 'relocatedInInside' } // Yemoja
   | { type: 'weakenThreatsHere'; amount: number } // Ogun
-  | { type: 'sanctuary' }; // Black Jesus
+  | { type: 'sanctuary' } // Black Jesus
+  | { type: 'cookout'; amount: number }; // The Cookout: friends here +Influence, arrivals Ready
 
-export type CharacterCategory = 'historical' | 'archetype' | 'mythic';
+/** Gatherings are never in a deck: they spawn on the board when the world earns them. */
+export type CharacterCategory = 'historical' | 'archetype' | 'mythic' | 'gathering';
+
+export type SpawnRule =
+  | { type: 'establishedAt'; locationId: string; count: number; headline: string; cta: string }
+  | { type: 'onReveal'; locationId: string; headline: string; cta: string };
 
 export interface CharacterDef {
   kind: 'character';
@@ -89,6 +95,8 @@ export interface CharacterDef {
   established?: { text: string; effect: EstablishedEffect };
   /** Always-on quirks (Karen). */
   passive?: { text: string; unstable?: boolean; leaderPenalty?: number };
+  /** Gatherings: how and where the card arrives on its own. */
+  spawn?: SpawnRule;
   identity: string[];
   era: string;
   blurb: string;
@@ -98,9 +106,7 @@ export interface CharacterDef {
 
 export type EventEffect =
   | { type: 'reparations'; max: number }
-  | { type: 'communityDefense'; force: number }
-  | { type: 'cookout'; influence: number }
-  | { type: 'chairteenth'; force: number };
+  | { type: 'communityDefense'; force: number };
 
 export interface EventDef {
   kind: 'event';
@@ -242,6 +248,8 @@ export interface PlayerState {
   discard: string[];
   setbacks: number;
   standUsed: boolean;
+  /** Gathering cards that already arrived for this player this match. */
+  spawned: string[];
   /** Once you Stand on Business you cannot Step Off. */
   cannotStepOff?: boolean;
   solidarity: number;
@@ -273,6 +281,7 @@ export interface GameEvent {
     | 'summon'
     | 'played'
     | 'eventPlayed'
+    | 'spawned'
     | 'reveal'
     | 'moved'
     | 'entered'

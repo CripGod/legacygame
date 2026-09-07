@@ -23,6 +23,7 @@ function makePlayer(id: PlayerId, handle: string, avatar: string, deck: string[]
     discard: [],
     setbacks: 0,
     standUsed: false,
+    spawned: [],
     solidarity: 0,
   };
 }

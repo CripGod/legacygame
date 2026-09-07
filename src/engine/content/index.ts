@@ -1,10 +1,10 @@
 import type { CardDef, CharacterDef, EventDef } from '../types';
-import { CHARACTERS, CHARACTER_BY_ID } from './characters';
+import { CHARACTERS, CHARACTER_BY_ID, GATHERING_DEFS } from './characters';
 import { EVENTS, EVENT_BY_ID } from './events';
 import { LOCATIONS, LOCATION_BY_ID, UNKNOWN_LOCATION } from './locations';
 import { THREATS, THREAT_BY_ID, RANDOM_THREAT_POOL } from './threats';
 
-export { CHARACTERS, CHARACTER_BY_ID, EVENTS, EVENT_BY_ID, LOCATIONS, LOCATION_BY_ID, UNKNOWN_LOCATION, THREATS, THREAT_BY_ID, RANDOM_THREAT_POOL };
+export { CHARACTERS, GATHERING_DEFS, CHARACTER_BY_ID, EVENTS, EVENT_BY_ID, LOCATIONS, LOCATION_BY_ID, UNKNOWN_LOCATION, THREATS, THREAT_BY_ID, RANDOM_THREAT_POOL };
 
 export const CARD_BY_ID: Record<string, CardDef> = { ...CHARACTER_BY_ID, ...EVENT_BY_ID };
 
@@ -56,7 +56,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'sojourner_truth',
       'ida_b_wells',
       'queen_nzinga',
-      'cookout',
+      'reparations',
       'community_defense',
     ],
   },
@@ -75,7 +75,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'harriet_tubman',
       'victor_hugo_green',
       'reparations',
-      'chairteenth',
+      'community_defense',
     ],
   },
   pantheon: {
@@ -110,15 +110,15 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'ida_b_wells',
       'queen_nzinga',
       'toussaint_louverture',
-      'cookout',
-      'chairteenth',
+      'reparations',
+      'community_defense',
     ],
   },
 };
 
 /** A seeded random 12-card deck: ten distinct Characters and both Events. */
 export function randomDeck(pick: (n: number) => number): string[] {
-  const pool = CHARACTERS.map((c) => c.id);
+  const pool = CHARACTERS.filter((c) => c.category !== 'gathering').map((c) => c.id);
   const chosen: string[] = [];
   while (chosen.length < 10) chosen.push(pool.splice(pick(pool.length), 1)[0]);
   const ev = EVENTS.map((e) => e.id);
@@ -139,6 +139,7 @@ export function validateDeck(cards: string[]): string[] {
       continue;
     }
     if (def.kind === 'character') {
+      if (def.category === 'gathering') errors.push(`${def.name} is a Gathering: it arrives on its own and cannot be put in a deck.`);
       if (seen.has(id)) errors.push(`Duplicate Character ${def.name}.`);
       seen.add(id);
     } else {

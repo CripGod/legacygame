@@ -68,9 +68,10 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
           <li>Cleanup: Fresh → Ready, Sundown Town, unstable Characters</li>
           <li>Influence update</li>
         </ol>
-        {(['historical', 'archetype', 'mythic'] as const).map((cat) => (
+        {(['historical', 'archetype', 'mythic', 'gathering'] as const).map((cat) => (
           <div key={cat}>
-            <h2>{cat === 'historical' ? 'Historical Characters' : cat === 'archetype' ? 'Archetypes' : 'Mythic: African cosmology and diaspora spirituality'}</h2>
+            <h2>{cat === 'historical' ? 'Historical Characters' : cat === 'archetype' ? 'Archetypes' : cat === 'mythic' ? 'Mythic: African cosmology and diaspora spirituality' : 'Gatherings: they arrive on their own'}</h2>
+            {cat === 'gathering' && <p className="muted">Gatherings are never in a deck. When the board earns one it appears with some fanfare and plays like any Character from then on. If a card ever returns one to your hand, you can replay it.</p>}
             {CHARACTERS.filter((c) => c.category === cat).map((c) => (
               <div key={c.id} style={{ marginBottom: 8 }}>
                 <b>{c.name}</b> <span className="muted">{c.influence} Influence · {c.force} Force · {c.era}</span>

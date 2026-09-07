@@ -2,7 +2,7 @@
  * Presentation helpers: names (with the "generic placeholder" Test A mode), colors, text.
  */
 import { createContext, useContext } from 'react';
-import { CARD_BY_ID, LOCATION_BY_ID, THREAT_BY_ID, type CardDef, type PlayerId } from '../engine';
+import { CARD_BY_ID, LOCATION_BY_ID, THREAT_BY_ID, type CardDef, type CharacterDef, type PlayerId } from '../engine';
 
 export interface DisplaySettings {
   placeholders: boolean;
@@ -74,5 +74,12 @@ export function abilityLines(def: CardDef): { label: string; text: string }[] {
   if (def.reveal) out.push({ label: 'Reveal', text: def.reveal.text });
   if (def.established) out.push({ label: 'Established', text: def.established.text });
   if (def.passive) out.push({ label: 'Always', text: def.passive.text });
+  if (def.spawn) out.push({ label: 'Arrives', text: spawnText(def.spawn) });
   return out;
+}
+
+export function spawnText(rule: NonNullable<CharacterDef['spawn']>): string {
+  const loc = LOCATION_BY_ID[rule.locationId]?.name ?? rule.locationId;
+  if (rule.type === 'onReveal') return `Not in any deck. When ${loc} is revealed, one arrives Ready at each player's Gates there (if there is room).`;
+  return `Not in any deck. When you have ${rule.count} Established Characters at ${loc}, it arrives there for you (Inside if there is room, else at the Gates). Once per match.`;
 }

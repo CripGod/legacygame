@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CARD_BY_ID, legalOptions, gateRoom, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, other } from '../../engine';
+import { CARD_BY_ID, legalOptions, gateRoom, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, other } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight } from '../components/Battlefield';
@@ -9,7 +9,7 @@ import { Hud } from '../components/Hud';
 import { Battlefield } from '../components/Battlefield';
 import { Hand } from '../components/Hand';
 import { Coach } from '../components/Coach';
-import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, ThreatSheet } from '../components/Sheets';
+import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, SpawnSheet, ThreatSheet } from '../components/Sheets';
 import { guideDone, markGuideDone, suggest } from '../guide';
 import { EMOTES } from '../useMatch';
 import { cardName, locationName, useDisplay } from '../display';
@@ -80,6 +80,11 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   const [guideOn, setGuideOn] = useState(() => coach && m.mode === 'ai' && !guideDone());
   const opts = useMemo(() => legalOptions(view, me), [view, me]);
   const boardView = useMemo(() => (view.phase === 'planning' && !locked ? previewPlan(view, me, plan) : view), [view, me, plan, locked]);
+  /** Gatherings that arrived in the last resolution, shown one at a time with fanfare. */
+  const [fanfare, setFanfare] = useState<GameEvent[]>([]);
+  useEffect(() => {
+    setFanfare(m.lastTurn.filter((e) => e.type === 'spawned'));
+  }, [m.lastTurn]);
   /** Gate slots my departing Characters still hold this turn (the preview shows them elsewhere). */
   const reserved = useMemo(() => {
     const out: Record<number, { uid: string; defId: string; why: string }[]> = {};
@@ -698,6 +703,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           }}
         />
       )}
+      {fanfare.length > 0 && !busy && view.phase !== 'ended' && <SpawnSheet ev={fanfare[0]} view={view} me={me} onClose={() => setFanfare((f) => f.slice(1))} />}
       {view.phase === 'ended' && !busy && (
         <div className="scrim">
           <div className="sheet center">

@@ -394,6 +394,34 @@ export function ChatSheet({ onClose, emotes, onEmote, summonable, onSummon, chat
   );
 }
 
+/** Fanfare for a Gathering that just arrived. */
+export function SpawnSheet({ ev, view, me, onClose }: { ev: GameEvent; view: GameState; me: PlayerId; onClose: () => void }) {
+  const def = CARD_BY_ID[ev.cardId ?? ''] as { name?: string; blurb?: string; spawn?: { headline: string; cta: string } } | undefined;
+  if (!def || ev.player === undefined) return null;
+  const mine = ev.player === me;
+  const loc = ev.location !== undefined ? view.locations[ev.location] : undefined;
+  const zone = (ev.data as { zone?: string } | undefined)?.zone;
+  return (
+    <div className="scrim">
+      <div className="sheet fanfare">
+        <div className={`stand-title ${mine ? 'pA' : 'pB'}`}>{def.name?.toUpperCase()}</div>
+        <div className="center">{def.spawn?.headline}</div>
+        <div className="row" style={{ justifyContent: 'center' }}>
+          <CardFace id={ev.cardId!} big />
+        </div>
+        <div className="center muted">
+          {mine ? 'Yours.' : `${view.players[ev.player].handle}'s.`} It is {zone === 'inside' ? 'Established' : 'Ready at the Gates'} at {loc ? locationName(loc.defId, false) : 'a Location'} and plays like any Character from now on.
+        </div>
+        <div className="actions" style={{ justifyContent: 'center' }}>
+          <button className="primary" onClick={onClose} autoFocus>
+            {mine ? def.spawn?.cta ?? 'Continue' : 'Noted'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ConfirmSheet({ title, body, confirmLabel, danger, onConfirm, onClose }: { title: string; body: string; confirmLabel: string; danger?: boolean; onConfirm: () => void; onClose: () => void }) {
   return (
     <Sheet onClose={onClose} title={title}>
