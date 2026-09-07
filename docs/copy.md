@@ -285,7 +285,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - history: On August 5, 2023, at Riverfront Park in Montgomery, Alabama, a group of white boaters attacked a Black riverboat co-captain who had asked them to move their pontoon from the Harriott II's docking space. Bystanders, most of them Black, rushed to his defense; one man swam across the river to join in, and a folding chair became the day's symbol. Videos went viral, several of the boaters were charged with assault, and the internet named the anniversary Chairteenth.
 
 ### Booker T. Washington (`booker_t_washington`)
-- cost 3 · Influence 3 · Force 2 · historical · era: 1856–1915
+- cost 3 · Influence 4 · Force 2 · historical · era: 1856–1915
 - established: Tuskegee: your Characters cost 1 less Energy to play.
 - blurb: Built Tuskegee from a shanty and a church into a campus the students made with their own hands.
 - history: Born enslaved in Franklin County, Virginia, in 1856, Booker Taliaferro Washington worked in salt furnaces and coal mines before walking to Hampton Institute. In 1881 he opened Tuskegee Normal and Industrial Institute in Alabama with thirty students in a shanty; the students built the campus brick by brick. His 1895 Atlanta address and his book Up from Slavery made him the most influential Black American of his day, and his quiet funding of legal challenges to segregation was only discovered after his death in 1915.
@@ -298,7 +298,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - history: Born enslaved near Diamond, Missouri, around 1864 and kidnapped as an infant by raiders, George Washington Carver became the first Black student and then the first Black faculty member at Iowa State. In 1896 Booker T. Washington brought him to Tuskegee, where he ran the agriculture department for forty-seven years, publishing free bulletins on crop rotation, soil restoration and hundreds of uses for peanuts, sweet potatoes and soybeans, and sending a movable school out to sharecroppers by wagon. He died in 1943, leaving his savings to found the Carver Research Foundation.
 
 ### Marie Laveau (`marie_laveau`)
-- cost 3 · Influence 2 · Force 2 · historical · era: 1801–1881
+- cost 3 · Influence 3 · Force 2 · historical · era: 1801–1881
 - reveal: The opposing Gate Character here with the highest Influence crosses over to your Gates at −1 Influence. You need an open Gate slot.
 - blurb: Hairdresser, healer and the most consulted woman in New Orleans.
 - history: Marie Catherine Laveau was born free in New Orleans in 1801, a Creole of African, French and Native descent. A hairdresser to wealthy households, she became the city's best-known Vodou practitioner, leading ceremonies at Congo Square and on Lake Pontchartrain, nursing yellow fever patients and visiting prisoners on death row. Clients across every class came to her for charms, advice and intercession. She died in 1881; her tomb in St. Louis Cemetery No. 1 is still visited.
@@ -323,7 +323,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - history: Dutty Boukman was a Jamaican-born enslaved man, a Vodou priest and a coachman on a plantation in the northern plain of Saint-Domingue. On the night of 14 August 1791 he presided, with the priestess Cécile Fatiman, over the ceremony at Bois Caïman where enslaved leaders swore to rise. The revolt began a week later and became the Haitian Revolution. Boukman was killed in November 1791 and the French displayed his head in Cap-Français to prove he was dead.
 
 ### Cécile Fatiman (`cecile_fatiman`)
-- cost 1 · Influence 1 · Force 2 · historical · era: c. 1771–1883
+- cost 1 · Influence 2 · Force 2 · historical · era: c. 1771–1883
 - reveal: Ceremony: the most expensive card in your hand costs 2 less.
 - established: Your Characters with the Rebellion tag cost 1 less Energy.
 - blurb: The mambo at Bois Caïman. Lived to be over a hundred and saw the republic she helped start.
