@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CARD_BY_ID, legalOptions, gateRoom, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, other, MAX_HAND, EXTENDED_TURNS, planCost, cardCost } from '../../engine';
+import { CARD_BY_ID, legalOptions, gateRoom, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, planCost, cardCost } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight } from '../components/Battlefield';
@@ -28,6 +28,14 @@ type SheetState =
   | { kind: 'log' }
   | { kind: 'chat' }
   | null;
+
+/** The last scheduled turn can still grow by one if someone Stands on Business. */
+function finalTurnLabel(view: GameState, short = false): string | null {
+  if (view.phase === 'ended' || view.turn < view.maxTurns) return null;
+  const extendable = view.maxTurns < EXTENDED_TURNS && (!view.players.A.standUsed || !view.players.B.standUsed);
+  if (short) return extendable ? 'LAST?' : 'FINAL';
+  return extendable ? 'Last turn unless someone stands' : 'Final turn';
+}
 
 /** How hard the Lock In button flashes as the planning timer drains. */
 function urgency(secondsLeft: number): string {
@@ -637,9 +645,9 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
               </i>
             </button>
           )}
-          <div className={`turn-panel ${view.turn >= view.maxTurns && view.phase !== 'ended' ? 'final' : ''}`} {...tip(view.turn >= view.maxTurns ? HINTS.finalTurn : HINTS.energy)}>
+          <div className={`turn-panel ${finalTurnLabel(view) ? 'final' : ''}`} {...tip(finalTurnLabel(view) ? HINTS.finalTurn : HINTS.energy)}>
             <div className="turn-text">
-              {view.turn >= view.maxTurns && view.phase !== 'ended' ? 'Final turn' : `Turn ${Math.min(view.turn, view.maxTurns)} / ${view.maxTurns}`}
+              {finalTurnLabel(view) ?? `Turn ${Math.min(view.turn, view.maxTurns)} / ${view.maxTurns}`}
             </div>
             <div className="crystals" aria-label={`Energy ${planning ? energyLeft : opts.energy} of ${opts.energy}`}>
               {Array.from({ length: Math.max(view.maxTurns, opts.energy) }, (_, i) => (
@@ -664,8 +672,8 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
               </i>
             </button>
           )}
-          <div className={`turn-mini ${view.turn >= view.maxTurns && view.phase !== 'ended' ? 'final' : ''}`} {...tip(HINTS.energy)}>
-            <span className="turn-text">{view.turn >= view.maxTurns && view.phase !== 'ended' ? 'FINAL' : `T${Math.min(view.turn, view.maxTurns)}/${view.maxTurns}`}</span>
+          <div className={`turn-mini ${finalTurnLabel(view) ? 'final' : ''}`} {...tip(HINTS.energy)}>
+            <span className="turn-text">{finalTurnLabel(view, true) ?? `T${Math.min(view.turn, view.maxTurns)}/${view.maxTurns}`}</span>
             <span className="crystals">
               {Array.from({ length: Math.max(view.maxTurns, opts.energy) }, (_, i) => (
                 <i key={i} className={i < (planning ? energyLeft : opts.energy) ? 'on' : i < opts.energy ? 'used' : 'future'} />

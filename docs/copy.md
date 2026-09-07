@@ -469,7 +469,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 - `influence`: Influence: how much this Character counts toward controlling its Location. Gate and Inside Characters both count.
 - `force`: Force: strength when confronting Threats or answering a challenge. Force never attacks players directly.
-- `finalTurn`: Final turn. Whatever stands after this one is counted: two Locations of three, then total Influence, then total Force.
+- `finalTurn`: Last scheduled turn. A Stand on Business now adds an 8th turn; otherwise whatever stands after this one is counted: two Locations of three, then total Influence, then total Force.
 - `dayNight`: This Location has a curfew. Odd turns are day, even turns are night: at night nobody relocates out until morning. Harriet Tubman is the only one who can move a Character out.
 - `locked`: Held here: cannot relocate out. A curfew at night, or The Justice System. Harriet Tubman can still move them.
 - `event`: Event: a one-shot card. Drop it on a Location with an open Gate slot: it works everywhere, and the Location it lands on adds a little more.
@@ -499,7 +499,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - `enter`: Drag a Ready Character from your Gates into the Location. Entering is free.
 - `influence`: Control two of the three Locations at the end of the last turn to win.
 - `move`: Drag a Character to another Location to relocate it. From the Gates it stays Ready; from Inside it arrives Fresh and waits again.
-- `final`: Final turn. After this the Locations are counted: win two of three. Commit everything that can enter, and remember Reveals resolve before entries.
+- `final`: Last turn unless someone stands. After it the Locations are counted: win two of three. Commit everything that can enter; Reveals resolve before entries.
 - `night`: Night falls on even turns. Sundown Town locks everyone in until morning and a Curfew Threat holds a Location around the clock. Harriet Tubman is the only one who can get them out.
 - `threat`: Threats are neutral dangers. Drag a Character onto one to confront it. Some affect both players.
 - `stakes`: Stand on Business doubles the Legacy and adds an 8th turn. Once you stand, you cannot Sit Down.
@@ -620,6 +620,7 @@ Main menu
 
 ### src/ui/screens/MatchScreen.tsx
 
+- Last turn unless someone stands
 - moves with ${cardName(pl.cardId, placeholders)}
 - That is the move. Press Lock It In.
 - That works too. Or ${guide.text.charAt(0).toLowerCase()}${guide.text.slice(1)}
@@ -678,11 +679,11 @@ Main menu
 - danger ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}
 - primary lock-btn ${planning ? urgency(m.secondsLeft) : ''}
 - ${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 100}%
-- turn-panel ${view.turn >= view.maxTurns && view.phase !== 'ended' ? 'final' : ''}
+- turn-panel ${finalTurnLabel(view) ? 'final' : ''}
 - Turn ${Math.min(view.turn, view.maxTurns)} / ${view.maxTurns}
 - Energy ${planning ? energyLeft : opts.energy} of ${opts.energy}
 - danger sit-btn ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}
-- turn-mini ${view.turn >= view.maxTurns && view.phase !== 'ended' ? 'final' : ''}
+- turn-mini ${finalTurnLabel(view) ? 'final' : ''}
 - T${Math.min(view.turn, view.maxTurns)}/${view.maxTurns}
 - Sitting down surrenders the match. ${view.players[other(me)].handle} wins ${opts.stepOffCost} Legacy.${raisedOnMe ? 
 
@@ -945,14 +946,10 @@ export function PeekHandSheet({ cards, by, opponent, onClose }: { cards: string[
 }
 
 
-/** Advice computed from the board and the viewer's hand: what it takes, and what you have for it. */
-export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'character' | 'threat' | 'location' | 'event'; id: string; force?: number }, outcome: string, location: number, placeholders: boolean): string {
+/** One line of advice computed from the board: what it takes, and where you stand. No hand-holding. */
+export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'character' | 'threat' | 'location' | 'event'; id: string; force?: number }, _outcome: string, location: number, placeholders: boolean): string {
   const nm = (id: string) => cardName(id, placeholders);
   const locName = locationName(view.locations[location].revealed ? view.locations[location].defId : 'unknown', placeholders);
-  const handChars = view.players[me].hand.filter((id) => id !== 'hidden' && CARD_BY_ID[id]?.kind === 'character').map((id) => CARD_BY_ID[id] as { id: string; force: number; cost: number });
-  const handHas = (id: string) => view.players[me].hand.includes(id);
-  const listForce = (min: number) => handChars.filter((c) => c.force >= min).map((c) => 
-- );
   if (actor.kind === 'threat') {
     const t = view.locations[location].threats.find((x) => x.defId === actor.id);
     const tdef = THREAT_BY_ID[actor.id];
@@ -966,73 +963,44 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
 - ;
     if (have >= need) return 
 - ;
-    const gap = need - have;
-    const bring = listForce(gap);
-    const from = mine.length ? 
-- ;
-    const how = bring.length ? 
--  : ' Draw into Characters, or let your opponent try.';
-    const clock = tdef.lostAfterTurns ? 
--  : '';
-    return from + how + clock;
   }
   if (actor.kind === 'location') {
     const fresh = charsAt(view, location, me, 'gate').filter((c) => !c.ready);
     return fresh.length ? 
-- ;
+-  : '';
   }
   if (actor.kind === 'event') {
     const exposed = charsAt(view, location, me, 'gate');
-    const nanny = handHas('nanny_of_the_maroons') ? 
+    return exposed.length ? 
 -  : '';
-    return (exposed.length ? 
-- ) + nanny;
   }
   const def = CARD_BY_ID[actor.id];
   const eff = def?.kind === 'character' ? def.reveal?.effect.type : undefined;
   const force = actor.force ?? 0;
-  const guard = handHas('community_defense') ? ' Community Defense is in your hand: play it at the Location that turn and nobody there can be moved.' : '';
   switch (eff) {
     case 'challengeGate':
-    case 'challengeAllGates': {
-      const ok = listForce(force);
-      return 
--  In your hand: ${ok.slice(0, 3).join(', ')}.
--  Nothing in your hand has that much yet.
-- ;
-    }
-    case 'challengeInside': {
-      const ok = listForce(force);
+    case 'challengeAllGates':
       return 
 - ;
-    }
+    case 'challengeInside':
+      return 
+- ;
     case 'displaceOpposingGate':
-      return 
--  Community Defense, Toussaint Established, or The Tabernacle.
-- ;
+      return 'No Force check. Only protection stops her.';
     case 'blockOneOpposingGate':
-    case 'blockOpposingGatesHere': {
-      const bessie = handHas('bessie_coleman') ? 
--  Community Defense or Bessie Coleman Established there prevent it.
-- ;
-    }
+    case 'blockOpposingGatesHere':
+      return 'Blocked Characters can try again next turn.';
     case 'suppressInside':
-      return 
--  Sojourner Truth is in your hand: Established, she stops Suppression there.
-- ;
+      return 'It wears off at the end of next turn.';
     case 'refreshOpposingGate':
-      return 
-- ;
+      return 'They are Ready again next turn.';
     case 'stealGate': {
       const exposed = charsAt(view, location, me, 'gate');
-      return 
-- ${exposed.map((c) => nm(c.defId)).join(' and ')} at the Gates of ${locName} can be taken next.
-- Keep your Gates at ${locName} empty or Entered.
--  Nanny of the Maroons is in your hand: Establish her there and nobody can be targeted.
-- ;
+      return exposed.length ? 
+-  : '';
     }
     default:
-      return outcome === 'held' ? '' : '';
+      return '';
   }
 }
 

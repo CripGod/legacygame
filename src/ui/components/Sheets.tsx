@@ -645,13 +645,10 @@ export function PeekHandSheet({ cards, by, opponent, onClose }: { cards: string[
 }
 
 
-/** Advice computed from the board and the viewer's hand: what it takes, and what you have for it. */
-export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'character' | 'threat' | 'location' | 'event'; id: string; force?: number }, outcome: string, location: number, placeholders: boolean): string {
+/** One line of advice computed from the board: what it takes, and where you stand. No hand-holding. */
+export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'character' | 'threat' | 'location' | 'event'; id: string; force?: number }, _outcome: string, location: number, placeholders: boolean): string {
   const nm = (id: string) => cardName(id, placeholders);
   const locName = locationName(view.locations[location].revealed ? view.locations[location].defId : 'unknown', placeholders);
-  const handChars = view.players[me].hand.filter((id) => id !== 'hidden' && CARD_BY_ID[id]?.kind === 'character').map((id) => CARD_BY_ID[id] as { id: string; force: number; cost: number });
-  const handHas = (id: string) => view.players[me].hand.includes(id);
-  const listForce = (min: number) => handChars.filter((c) => c.force >= min).map((c) => `${nm(c.id)} (${c.force})`);
   if (actor.kind === 'threat') {
     const t = view.locations[location].threats.find((x) => x.defId === actor.id);
     const tdef = THREAT_BY_ID[actor.id];
@@ -660,55 +657,42 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
     const mine = charsAt(view, location, me).map((c) => ({ c, f: confrontForce(view, c, t) })).filter((x) => x.f > 0);
     const have = mine.reduce((sum, x) => sum + x.f, 0);
     const names = mine.map((x) => `${nm(x.c.defId)} (${x.f})`).join(' + ');
-    if (tdef.requiresBoth) return `It only breaks if both players confront it in the same turn. Drag ${mine.length ? names : 'a Character'} onto it at ${locName} and hope ${view.players[other(me)].handle} does the same.`;
-    if (have >= need) return `You can clear it next turn: drag ${names} onto it at ${locName} for ${have} Force (it needs ${need}).`;
-    const gap = need - have;
-    const bring = listForce(gap);
-    const from = mine.length ? `${names} give you ${have} of ${need} Force at ${locName}; you need ${gap} more.` : `It needs ${need} Force in one turn at ${locName} and you have nobody there.`;
-    const how = bring.length ? ` In your hand: ${bring.slice(0, 3).join(', ')} would cover it.` : handChars.length ? ` Nothing in your hand covers ${gap} alone; bring two Characters, or Assist with your opponent.` : ' Draw into Characters, or let your opponent try.';
-    const clock = tdef.lostAfterTurns ? ` ${tdef.lostAfterTurns} unanswered turns and ${locName} is Lost.` : '';
-    return from + how + clock;
+    if (tdef.requiresBoth) return `It only breaks if both players confront it in the same turn.`;
+    if (have >= need) return `${names} give you ${have} Force at ${locName}; it needs ${need}.`;
+    return mine.length ? `${names} give${mine.length > 1 ? '' : 's'} you ${have} of ${need} Force at ${locName}; you need ${need - have} more.` : `It needs ${need} Force in one turn at ${locName}; you have nobody there.`;
   }
   if (actor.kind === 'location') {
     const fresh = charsAt(view, location, me, 'gate').filter((c) => !c.ready);
-    return fresh.length ? `Enter or move ${fresh.map((c) => nm(c.defId)).join(' and ')} before the turn ends, or it happens again.` : `Anyone you leave Fresh at the Gates of ${locName} is run out at the end of the turn. Enter, move, or arrive Inside.`;
+    return fresh.length ? `${fresh.map((c) => nm(c.defId)).join(' and ')} will be run out too unless they enter or move.` : '';
   }
   if (actor.kind === 'event') {
     const exposed = charsAt(view, location, me, 'gate');
-    const nanny = handHas('nanny_of_the_maroons') ? ` Nanny of the Maroons is in your hand: Establish her at ${locName} and nobody there can be targeted.` : '';
-    return (exposed.length ? `${exposed.map((c) => nm(c.defId)).join(' and ')} at the Gates of ${locName} can be taken the same way. Enter them or move them.` : `Nothing of yours is exposed at ${locName} right now.`) + nanny;
+    return exposed.length ? `${exposed.map((c) => nm(c.defId)).join(' and ')} at the Gates of ${locName} can be taken the same way.` : '';
   }
   const def = CARD_BY_ID[actor.id];
   const eff = def?.kind === 'character' ? def.reveal?.effect.type : undefined;
   const force = actor.force ?? 0;
-  const guard = handHas('community_defense') ? ' Community Defense is in your hand: play it at the Location that turn and nobody there can be moved.' : '';
   switch (eff) {
     case 'challengeGate':
-    case 'challengeAllGates': {
-      const ok = listForce(force);
-      return `${nm(actor.id)} has ${force} Force: a Gate Character with ${force} or more holds ${eff === 'challengeGate' ? 'her' : 'him'} off.${ok.length ? ` In your hand: ${ok.slice(0, 3).join(', ')}.` : ' Nothing in your hand has that much yet.'}${guard}`;
-    }
-    case 'challengeInside': {
-      const ok = listForce(force);
-      return `${nm(actor.id)} has ${force} Force: an Established Character with ${force} or more holds him off, and full opposing Gates leave nowhere to send them.${ok.length ? ` In your hand: ${ok.slice(0, 3).join(', ')}.` : ' Nothing in your hand has that much yet.'}${guard}`;
-    }
+    case 'challengeAllGates':
+      return `${nm(actor.id)} has ${force} Force: a Gate Character with ${force} or more holds ${eff === 'challengeGate' ? 'her' : 'him'} off.`;
+    case 'challengeInside':
+      return `${nm(actor.id)} has ${force} Force: an Established Character with ${force} or more holds him off.`;
     case 'displaceOpposingGate':
-      return `No Force check beats her. Only protection does.${guard || ' Community Defense, Toussaint Established, or The Tabernacle.'}`;
+      return 'No Force check. Only protection stops her.';
     case 'blockOneOpposingGate':
-    case 'blockOpposingGatesHere': {
-      const bessie = handHas('bessie_coleman') ? ` Bessie Coleman is in your hand: at ${locName} nobody of yours can be blocked.` : '';
-      return `Blocked Characters try again next turn.${bessie}${guard || (bessie ? '' : ' Community Defense or Bessie Coleman Established there prevent it.')}`;
-    }
+    case 'blockOpposingGatesHere':
+      return 'Blocked Characters can try again next turn.';
     case 'suppressInside':
-      return `It wears off at the end of next turn.${handHas('sojourner_truth') ? ' Sojourner Truth is in your hand: Established, she stops Suppression there.' : ''}`;
+      return 'It wears off at the end of next turn.';
     case 'refreshOpposingGate':
-      return `They are Ready again next turn.${guard}`;
+      return 'They are Ready again next turn.';
     case 'stealGate': {
       const exposed = charsAt(view, location, me, 'gate');
-      return `${exposed.length ? `${exposed.map((c) => nm(c.defId)).join(' and ')} at the Gates of ${locName} can be taken next.` : `Keep your Gates at ${locName} empty or Entered.`}${handHas('nanny_of_the_maroons') ? ' Nanny of the Maroons is in your hand: Establish her there and nobody can be targeted.' : ''}`;
+      return exposed.length ? `${exposed.map((c) => nm(c.defId)).join(' and ')} at the Gates of ${locName} can be taken next.` : '';
     }
     default:
-      return outcome === 'held' ? '' : '';
+      return '';
   }
 }
 
