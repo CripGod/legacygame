@@ -216,21 +216,21 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - cost 4 · Influence 5 · Force 0 · mythic · era: The Black church, every era
 - reveal: Sanctuary: every Block and Suppression at this Location ends, for both players, and every Gate Character here becomes Ready.
 - established: Threats at this Location cannot touch your Characters: no blocking, no silencing, no displacement. Blessing: every Character you control, at every Location, gains +1 Influence.
-- arrives: The church is full. Black Jesus appears. / button: Amen
+- arrives: Sister Griffin, Deacon Wells and The Bishop are Established at The Tabernacle. Black Jesus appears. / button: Continue
 - blurb: The Christ of the Black church and of liberation theology: the one who sides with the captive. He never fights, and nothing hostile can act on those who stand with him.
 - history: Mythic (fantasy). The Black Christ is not a new idea: Coptic Ethiopian art depicted him so for centuries, and in the United States the image runs from the Black church's spirituals through Marcus Garvey's African Orthodox Church to James Cone's Black liberation theology of the 1960s, which held that God sides with the oppressed. The card draws on that tradition. He never fights; his power is sanctuary. The abilities are invention.
 
 ### The Cookout (`cookout`)
 - cost 2 · Influence 2 · Force 1 · gathering · era: Timeless
 - established: Everybody eats: your other Established Characters here gain +1 Influence, and your Characters arriving at this Gate are Ready at once.
-- arrives: Two of yours made it north. Word spreads, the grill is lit. / button: Fix a plate
+- arrives: You have two Characters Established at Great Migration. The Cookout arrives. / button: Continue
 - blurb: Everybody eats. Bring a chair, fix a plate, you are in.
 - history: The Black cookout grows out of emancipation celebrations, church picnics and the Southern barbecue tradition that enslaved and freed Black pitmasters built. The Great Migration carried it to backyards and parks in every Northern city. "Invited to the cookout" became shorthand for being welcomed into the community.
 
 ### Chairteenth (`chairteenth`)
 - cost 1 · Influence 1 · Force 3 · gathering · era: Montgomery, 2023
 - established: Your Characters here confront Threats with +1 Force.
-- arrives: Juneteenth is on the board. Somebody brought a folding chair. / button: Grab a chair
+- arrives: Juneteenth is revealed. Chairteenth arrives at each player's Gates there. / button: Continue
 - blurb: Somebody grabbed a folding chair. The whole dock showed up.
 - history: On August 5, 2023, at Riverfront Park in Montgomery, Alabama, a group of white boaters attacked a Black riverboat co-captain who had asked them to move their pontoon from the Harriott II's docking space. Bystanders, most of them Black, rushed to his defense; one man swam across the river to join in, and a folding chair became the day's symbol. Videos went viral, several of the boaters were charged with assault, and the internet named the anniversary Chairteenth.
 
@@ -251,7 +251,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - cost 0
 - text: Play it while planning: the Ancestors show you your opponent's plan for this turn and every danger the board is about to spring.
 - blurb: Never in a deck. They come to whoever holds three Characters Inside at Accra, Ghana, once per match.
-- arrives: The Ancestors have something to say. / button: Listen
+- arrives: You have three Characters Inside at Accra, Ghana. The Ancestors come to your hand. / button: Continue
 
 ### Word of Mouth (`word_of_mouth`)
 - cost 0
@@ -678,13 +678,13 @@ export function AncestorsSheet({ view, me, plan, onClose }: { view: GameState; m
   );
 }
 
-/** A confrontation replayed as a showdown: fighters on one side, the Threat on the other, the Force bar filling toward what it needs. */
+/** A confrontation replayed as a showdown: fighters on one side, the Threat on the other, and a plain-words account of why it broke or held. */
 export function ShowdownSheet({ ev, view, onClose }: { ev: GameEvent; view: GameState; onClose: () => void }) {
   const { placeholders } = useDisplay();
   const d = ev.data as { threatUid: string; defId: string; needed: number; requiresBoth: boolean; force: { A: number; B: number }; fighters: { uid: string; defId: string; owner: PlayerId; force: number }[]; cleared: boolean };
   const tdef = THREAT_BY_ID[d.defId];
   const total = d.force.A + d.force.B;
-  const pct = d.requiresBoth ? (d.cleared ? 100 : 50) : Math.min(100, Math.round((total / Math.max(1, d.needed)) * 100));
+  const pct = Math.min(100, Math.round((total / Math.max(1, d.needed)) * 100));
   const [stage, setStage] = useState(0);
   useEffect(() => {
     const t1 = setTimeout(() => setStage(1), 200);
@@ -695,6 +695,31 @@ export function ShowdownSheet({ ev, view, onClose }: { ev: GameEvent; view: Game
     };
   }, []);
   const loc = ev.location !== undefined ? view.locations[ev.location] : undefined;
+  const handle = (p: PlayerId) => view.players[p].handle;
+  const names = (p: PlayerId) =>
+    d.fighters
+      .filter((f) => f.owner === p)
+      .map((f) => 
+- )
+      .join(', ');
+  const tname = threatLabel(d.defId, placeholders);
+  let why: string;
+  if (d.requiresBoth) {
+    const showedA = d.force.A > 0;
+    if (d.cleared) why = 
+- ;
+    else {
+      const who: PlayerId = showedA ? 'A' : 'B';
+      why = 
+- ;
+    }
+  } else if (d.cleared) {
+    const parts = (['A', 'B'] as PlayerId[]).filter((p) => d.force[p] > 0).map((p) => 
+- ;
+  } else {
+    const parts = (['A', 'B'] as PlayerId[]).filter((p) => d.force[p] > 0).map((p) => 
+- ;
+  }
   return (
     <div className="scrim">
       <div className={
@@ -708,6 +733,7 @@ export function ShowdownSheet({ ev, view, onClose }: { ev: GameEvent; view: Game
 - } title={cardName(f.defId, placeholders)}>
                 <div className="fighter-pic">{placeholders ? <span className="ini">{initials(f.defId, true)}</span> : <Art kind="characters" id={f.defId} className="fighter-img" fallback={<span className="ini">{initials(f.defId, false)}</span>} alt={cardName(f.defId, placeholders)} />}</div>
                 <b>{f.force}</b>
+                <small>{cardName(f.defId, placeholders)}</small>
               </div>
             ))}
           </div>
@@ -715,16 +741,30 @@ export function ShowdownSheet({ ev, view, onClose }: { ev: GameEvent; view: Game
           <div className="showdown-side threat-side">
             <div className="fighter-pic big">{placeholders ? <span className="ini">{initials(d.defId, true)}</span> : <Art kind="threats" id={d.defId} className="fighter-img" fallback={<span className="ini">{initials(d.defId, false)}</span>} alt={tdef?.name} />}</div>
             <b>{d.requiresBoth ? 'both' : d.needed}</b>
+            <small>{d.requiresBoth ? 'needs both players' : 
+- }</small>
           </div>
         </div>
-        <div className="center" style={{ fontWeight: 800 }}>{threatLabel(d.defId, placeholders)}</div>
-        <div className="force-bar">
-          <div className="force-fill" style={{ width: stage >= 1 ? 
+        <div className="center" style={{ fontWeight: 800 }}>{tname}</div>
+        {d.requiresBoth ? (
+          <div className="force-bar split">
+            {(['A', 'B'] as PlayerId[]).map((p) => (
+              <div key={p} className={
+- }>
+                {handle(p)} {d.force[p] > 0 ? 
+-  : 'nobody'}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="force-bar">
+            <div className="force-fill" style={{ width: stage >= 1 ? 
 -  : '0%' }} />
-          <span className="force-label">
-            {total} / {d.requiresBoth ? 'both sides' : d.needed} Force
-          </span>
-        </div>
+            <span className="force-label">
+              {total} / {d.needed} Force
+            </span>
+          </div>
+        )}
         <div className={
 
 ### src/ui/components/Battlefield.tsx
