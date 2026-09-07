@@ -682,7 +682,7 @@ Main menu
 - primary lock-btn ${m.secondsLeft <= 5 && planning ? 'low' : ''}
 - ${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 100}%
 - Energy ${planning ? energyLeft : opts.energy} of ${opts.energy}
-- ${plan.standOnBusiness ? 'primary' : ''} ${flash === 'stakes' ? 'ftue-flash' : ''}
+- danger sit-btn ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}
 - Sitting down surrenders the match. ${view.players[other(me)].handle} wins ${opts.stepOffCost} Legacy.${raisedOnMe ? 
 - ${view.players[view.result.winner].handle} wins
 
@@ -930,6 +930,97 @@ export function PeekHandSheet({ cards, by, opponent, onClose }: { cards: string[
         <div className="card-grid">
           {cards.map((id, i) => (
             <CardFace key={
+- } id={id} />
+          ))}
+        </div>
+        <div className="actions">
+          <button className="primary" onClick={onClose}>
+            Continue
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** A Character knocks, blocks, holds off or turns another: the beat that explains the tally. */
+export function ClashSheet({ ev, view, onClose }: { ev: GameEvent; view: GameState; onClose: () => void }) {
+  const { placeholders } = useDisplay();
+  const d = ev.data as {
+    actor: { kind: 'character' | 'threat' | 'location' | 'event'; id: string; owner?: PlayerId; force?: number };
+    victim: { uid: string; defId: string; owner: PlayerId; force: number };
+    outcome: 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose';
+    from: number;
+    to?: number;
+    theirForce?: number;
+    note?: string;
+  };
+  const [stage, setStage] = useState(0);
+  useEffect(() => {
+    const t1 = setTimeout(() => setStage(1), 350);
+    const t2 = setTimeout(() => setStage(2), 900);
+    const t3 = setTimeout(() => setStage(3), 1500);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, []);
+  const actorName =
+    d.actor.kind === 'character' ? cardName(d.actor.id, placeholders) : d.actor.kind === 'threat' ? threatLabel(d.actor.id, placeholders) : d.actor.kind === 'location' ? locationName(d.actor.id, placeholders) : cardName(d.actor.id, placeholders);
+  const victimName = cardName(d.victim.defId, placeholders);
+  const title: Record<typeof d.outcome, string> = {
+    displaced: 'KNOCKED AWAY',
+    held: 'HELD OFF',
+    blocked: 'BLOCKED',
+    sentBack: 'SENT BACK',
+    suppressed: 'SUPPRESSED',
+    turned: 'TURNED',
+    tricked: 'TRICKED',
+    rose: 'RISES AGAIN',
+  };
+  const attackerWins = d.outcome !== 'held';
+  const artKind = d.actor.kind === 'character' ? 'characters' : d.actor.kind === 'threat' ? 'threats' : d.actor.kind === 'location' ? 'locations' : 'events';
+  const where = d.to !== undefined ? locationName(view.locations[d.to].revealed ? view.locations[d.to].defId : 'unknown', placeholders) : '';
+  const whereText = d.to !== undefined && !view.locations[d.to].revealed ? 
+-  : where;
+  const owner = (p?: PlayerId) => (p ? view.players[p].handle : '');
+  return (
+    <div className="scrim">
+      <div className={
+- }>
+        <div className="stand-title">{title[d.outcome]}</div>
+        <div className="center muted">{locationName(view.locations[d.from].revealed ? view.locations[d.from].defId : 'unknown', placeholders)}</div>
+        <div className="clash-row">
+          <div className={
+- }>
+            <div className="fighter-pic big">
+              {placeholders ? <span className="ini">{initials(d.actor.id, true)}</span> : <Art kind={artKind} id={d.actor.id} className="fighter-img" fallback={<span className="ini">{initials(d.actor.id, false)}</span>} alt={actorName} />}
+            </div>
+            <b>{actorName}</b>
+            <small>{d.actor.owner ? owner(d.actor.owner) : d.actor.kind === 'threat' ? 'Threat' : d.actor.kind === 'location' ? 'Location' : 'Event'}{d.actor.force !== undefined ? 
+-  : ''}</small>
+          </div>
+          <div className="clash-strike" aria-hidden>
+            {attackerWins ? '⚡' : '🛡'}
+          </div>
+          <div className={
+- }>
+            <div className="fighter-pic big">
+              {placeholders ? <span className="ini">{initials(d.victim.defId, true)}</span> : <Art kind="characters" id={d.victim.defId} className="fighter-img" fallback={<span className="ini">{initials(d.victim.defId, false)}</span>} alt={victimName} />}
+            </div>
+            <b>{victimName}</b>
+            <small>{owner(d.victim.owner)}{d.theirForce !== undefined ? 
+- }</small>
+          </div>
+        </div>
+        <div className={
+- }>{title[d.outcome]}</div>
+        <div className="showdown-why">
+          <b>{ev.text}</b>
+          {d.note ? 
+-  : ''}
+          {d.outcome === 'displaced' && whereText ? 
 
 ### src/ui/components/Battlefield.tsx
 
@@ -987,6 +1078,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - Setback for ${state.players[p].handle}: ${reason}.
 - ${name(state, c)} would rise again, but ${ps.handle}'s hand is full: she is discarded (${reason}).
 - ${name(state, c)} rises again: instead of being displaced (${reason}) she returns to ${ps.handle}'s hand and costs 0 the next time.
+- ${who} ${verb}.
 - ${name(state, c)} could not be displaced: no open Gate.
 - ${name(state, c)} is displaced from ${locName(state, from)} to the Gates of ${locName(state, dest)} (${reason}).
 - ${name(state, c)} ${how} ${locName(state, c.location)}.

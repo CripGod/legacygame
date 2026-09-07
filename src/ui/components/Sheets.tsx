@@ -639,3 +639,84 @@ export function PeekHandSheet({ cards, by, opponent, onClose }: { cards: string[
     </div>
   );
 }
+
+/** A Character knocks, blocks, holds off or turns another: the beat that explains the tally. */
+export function ClashSheet({ ev, view, onClose }: { ev: GameEvent; view: GameState; onClose: () => void }) {
+  const { placeholders } = useDisplay();
+  const d = ev.data as {
+    actor: { kind: 'character' | 'threat' | 'location' | 'event'; id: string; owner?: PlayerId; force?: number };
+    victim: { uid: string; defId: string; owner: PlayerId; force: number };
+    outcome: 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose';
+    from: number;
+    to?: number;
+    theirForce?: number;
+    note?: string;
+  };
+  const [stage, setStage] = useState(0);
+  useEffect(() => {
+    const t1 = setTimeout(() => setStage(1), 350);
+    const t2 = setTimeout(() => setStage(2), 900);
+    const t3 = setTimeout(() => setStage(3), 1500);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, []);
+  const actorName =
+    d.actor.kind === 'character' ? cardName(d.actor.id, placeholders) : d.actor.kind === 'threat' ? threatLabel(d.actor.id, placeholders) : d.actor.kind === 'location' ? locationName(d.actor.id, placeholders) : cardName(d.actor.id, placeholders);
+  const victimName = cardName(d.victim.defId, placeholders);
+  const title: Record<typeof d.outcome, string> = {
+    displaced: 'KNOCKED AWAY',
+    held: 'HELD OFF',
+    blocked: 'BLOCKED',
+    sentBack: 'SENT BACK',
+    suppressed: 'SUPPRESSED',
+    turned: 'TURNED',
+    tricked: 'TRICKED',
+    rose: 'RISES AGAIN',
+  };
+  const attackerWins = d.outcome !== 'held';
+  const artKind = d.actor.kind === 'character' ? 'characters' : d.actor.kind === 'threat' ? 'threats' : d.actor.kind === 'location' ? 'locations' : 'events';
+  const where = d.to !== undefined ? locationName(view.locations[d.to].revealed ? view.locations[d.to].defId : 'unknown', placeholders) : '';
+  const whereText = d.to !== undefined && !view.locations[d.to].revealed ? `Location ${d.to + 1}` : where;
+  const owner = (p?: PlayerId) => (p ? view.players[p].handle : '');
+  return (
+    <div className="scrim">
+      <div className={`sheet fanfare clash ${attackerWins ? 'hit' : 'miss'} stage-${stage}`}>
+        <div className="stand-title">{title[d.outcome]}</div>
+        <div className="center muted">{locationName(view.locations[d.from].revealed ? view.locations[d.from].defId : 'unknown', placeholders)}</div>
+        <div className="clash-row">
+          <div className={`clash-side actor p${d.actor.owner ?? ''}`}>
+            <div className="fighter-pic big">
+              {placeholders ? <span className="ini">{initials(d.actor.id, true)}</span> : <Art kind={artKind} id={d.actor.id} className="fighter-img" fallback={<span className="ini">{initials(d.actor.id, false)}</span>} alt={actorName} />}
+            </div>
+            <b>{actorName}</b>
+            <small>{d.actor.owner ? owner(d.actor.owner) : d.actor.kind === 'threat' ? 'Threat' : d.actor.kind === 'location' ? 'Location' : 'Event'}{d.actor.force !== undefined ? ` · ${d.actor.force} Force` : ''}</small>
+          </div>
+          <div className="clash-strike" aria-hidden>
+            {attackerWins ? '⚡' : '🛡'}
+          </div>
+          <div className={`clash-side victim p${d.victim.owner}`}>
+            <div className="fighter-pic big">
+              {placeholders ? <span className="ini">{initials(d.victim.defId, true)}</span> : <Art kind="characters" id={d.victim.defId} className="fighter-img" fallback={<span className="ini">{initials(d.victim.defId, false)}</span>} alt={victimName} />}
+            </div>
+            <b>{victimName}</b>
+            <small>{owner(d.victim.owner)}{d.theirForce !== undefined ? ` · ${d.theirForce} Force` : ` · ${d.victim.force} Force`}</small>
+          </div>
+        </div>
+        <div className={`verdict ${stage >= 3 ? 'show' : ''}`}>{title[d.outcome]}</div>
+        <div className="showdown-why">
+          <b>{ev.text}</b>
+          {d.note ? ` ${d.note}` : ''}
+          {d.outcome === 'displaced' && whereText ? ` ${victimName} now waits Fresh at the Gates of ${whereText}.` : ''}
+        </div>
+        <div className="actions" style={{ justifyContent: 'center' }}>
+          <button className="primary" onClick={onClose} autoFocus>
+            Continue
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

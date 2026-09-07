@@ -976,3 +976,24 @@ describe('day and night', () => {
     expect(legalOptions(t, 'A').relocations.map((r) => r.uid)).toContain(held.uid);
   });
 });
+
+describe('clash beats', () => {
+  it('a challenge emits a clash event that names the actor, the victim and the outcome', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['queen_nzinga'] });
+    const barber = addChar(s, 'barber', 'B', 0, 'gate', true);
+    const out = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'queen_nzinga', location: 0 }] }, B: pass() });
+    const clash = out.events.find((e) => e.type === 'clash');
+    expect(clash).toBeTruthy();
+    const d = clash!.data as { actor: { id: string; owner: string }; victim: { uid: string }; outcome: string; to?: number };
+    expect(d.actor.id).toBe('queen_nzinga');
+    expect(d.victim.uid).toBe(barber.uid);
+    expect(d.outcome).toBe('displaced');
+    expect(d.to).toBe(out.state.characters[barber.uid].location);
+    expect(clash!.text).toContain('knocks Barber away');
+    // A held-off challenge is a clash too.
+    let h = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['queen_nzinga'] });
+    addChar(h, 'ogun', 'B', 0, 'gate', true); // Force 5 beats Nzinga's 4
+    const held = resolveTurn(h, { A: { ...pass(), plays: [{ cardId: 'queen_nzinga', location: 0 }] }, B: pass() }).events.find((e) => e.type === 'clash');
+    expect((held!.data as { outcome: string }).outcome).toBe('held');
+  });
+});

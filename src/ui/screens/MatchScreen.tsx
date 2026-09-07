@@ -10,7 +10,7 @@ import { Battlefield } from '../components/Battlefield';
 import { Hand } from '../components/Hand';
 import { Coach } from '../components/Coach';
 import { Spotlight } from '../components/Spotlight';
-import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, SpawnSheet, ThreatSheet, AncestorsSheet, ShowdownSheet, PeekHandSheet } from '../components/Sheets';
+import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, SpawnSheet, ThreatSheet, AncestorsSheet, ShowdownSheet, PeekHandSheet, ClashSheet } from '../components/Sheets';
 import { guideDone, markGuideDone, suggest } from '../guide';
 import { EMOTES } from '../useMatch';
 import { cardName, locationName, useDisplay } from '../display';
@@ -90,9 +90,12 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   const [fanfare, setFanfare] = useState<GameEvent[]>([]);
   /** Confrontations from the last resolution, replayed as showdowns. */
   const [showdowns, setShowdowns] = useState<GameEvent[]>([]);
+  /** Knocks, blocks and holds from the last resolution: replayed first, so the tally makes sense. */
+  const [clashes, setClashes] = useState<GameEvent[]>([]);
   useEffect(() => {
     setFanfare(m.lastTurn.filter((e) => e.type === 'spawned'));
     setShowdowns(m.lastTurn.filter((e) => e.type === 'showdown'));
+    setClashes(m.lastTurn.filter((e) => e.type === 'clash'));
     const peek = m.lastTurn.find((e) => e.player === me && Array.isArray((e.data as { peekHand?: string[] } | undefined)?.peekHand));
     if (peek) setSheet({ kind: 'peek', cards: (peek.data as { peekHand: string[] }).peekHand, by: peek.uid ? cardName(view.characters[peek.uid]?.defId ?? 'omar_ibn_said', placeholders) : 'Omar ibn Said' });
   }, [m.lastTurn]);
@@ -637,21 +640,29 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           </div>
         </div>
         <div className="mobile-actions">
-          <button className={`danger ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}`} disabled={view.phase === 'ended' || !opts.canStepOff} onClick={() => setSheet({ kind: 'stepOff' })}>
-            {stepOffLabel}
+          <button className={`danger sit-btn ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}`} disabled={view.phase === 'ended' || !opts.canStepOff} onClick={() => setSheet({ kind: 'stepOff' })}>
+            Sit Down
           </button>
           {view.phase === 'ended' ? (
-            <button className="primary" onClick={onExit}>
+            <button className="primary lock-btn" onClick={onExit}>
               SEE RESULT
             </button>
           ) : (
-            <button className="primary" disabled={!planning} onClick={m.lockIn}>
-              LOCK IT IN
+            <button className={`primary lock-btn ${m.secondsLeft <= 5 && planning ? 'low' : ''}`} disabled={!planning} onClick={m.lockIn} title={HINTS.timer}>
+              <span>LOCK IN</span>
+              <i className="timer-bar" aria-hidden>
+                <b style={{ width: `${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 100}%` }} />
+              </i>
             </button>
           )}
-          <button className={`${plan.standOnBusiness ? 'primary' : ''} ${flash === 'stakes' ? 'ftue-flash' : ''}`} disabled={!planning || !opts.canStand} onClick={toggleStand}>
-            {plan.standOnBusiness ? 'Standing ✓' : 'Stand'}
-          </button>
+          <div className="turn-mini" {...tip(HINTS.energy)}>
+            <span className="turn-text">T{Math.min(view.turn, view.maxTurns)}/{view.maxTurns}</span>
+            <span className="crystals">
+              {Array.from({ length: Math.max(view.maxTurns, opts.energy) }, (_, i) => (
+                <i key={i} className={i < (planning ? energyLeft : opts.energy) ? 'on' : i < opts.energy ? 'used' : 'future'} />
+              ))}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -754,8 +765,9 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           }}
         />
       )}
-      {showdowns.length > 0 && !busy && <ShowdownSheet ev={showdowns[0]} view={view} onClose={() => setShowdowns((s) => s.slice(1))} />}
-      {showdowns.length === 0 && fanfare.length > 0 && !busy && view.phase !== 'ended' && <SpawnSheet ev={fanfare[0]} view={view} me={me} onClose={() => setFanfare((f) => f.slice(1))} />}
+      {clashes.length > 0 && !busy && <ClashSheet key={`${clashes[0].uid}-${clashes.length}`} ev={clashes[0]} view={view} onClose={() => setClashes((c) => c.slice(1))} />}
+      {clashes.length === 0 && showdowns.length > 0 && !busy && <ShowdownSheet ev={showdowns[0]} view={view} onClose={() => setShowdowns((s) => s.slice(1))} />}
+      {clashes.length === 0 && showdowns.length === 0 && fanfare.length > 0 && !busy && view.phase !== 'ended' && <SpawnSheet ev={fanfare[0]} view={view} me={me} onClose={() => setFanfare((f) => f.slice(1))} />}
       {view.phase === 'ended' && !busy && !peek && (
         <div className="scrim">
           <div className="sheet center">

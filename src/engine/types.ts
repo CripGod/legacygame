@@ -352,6 +352,7 @@ export interface GameEvent {
     | 'threatSpawned'
     | 'threatNeutralized'
     | 'showdown'
+    | 'clash'
     | 'threatActs'
     | 'locationLost'
     | 'setback'

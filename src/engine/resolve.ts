@@ -90,6 +90,41 @@ function riseAgain(state: GameState, c: CharacterInstance, reason: string, event
   return true;
 }
 
+/** One Character (or Threat, Location, Event) acting on another: the story beat the UI replays before the tally. */
+type ClashActor = { kind: 'character' | 'threat' | 'location' | 'event'; id: string; owner?: PlayerId; force?: number };
+type ClashOutcome = 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose';
+function clash(state: GameState, events: GameEvent[], actor: ClashActor, victim: CharacterInstance, outcome: ClashOutcome, location: number, extra: { theirForce?: number; from?: number; to?: number; note?: string } = {}): void {
+  const vdef = charDef(victim.defId);
+  const alive = !!state.characters[victim.uid];
+  const out: ClashOutcome = outcome === 'displaced' && !alive ? 'rose' : outcome;
+  const who = actor.kind === 'character' ? charDef(actor.id).name : actor.kind === 'threat' ? THREAT_BY_ID[actor.id]?.name ?? actor.id : actor.kind === 'location' ? LOCATION_BY_ID[actor.id]?.name ?? actor.id : eventDef(actor.id).name;
+  const verb =
+    out === 'displaced' ? `knocks ${vdef.name} away to the Gates of ${extra.to !== undefined ? locName(state, extra.to) : 'another Location'}`
+    : out === 'held' ? `is held off by ${vdef.name}`
+    : out === 'blocked' ? `blocks ${vdef.name} from entering this turn`
+    : out === 'sentBack' ? `sends ${vdef.name} back to the Gates, Fresh`
+    : out === 'suppressed' ? `suppresses ${vdef.name}: no Influence, no abilities until the end of next turn`
+    : out === 'turned' ? `turns ${vdef.name}: they cross over at −1 Influence`
+    : out === 'tricked' ? `tricks ${vdef.name} into waiting again`
+    : `pushes ${vdef.name}, who rises again into the hand`;
+  events.push({
+    type: 'clash',
+    text: `${who} ${verb}.`,
+    location,
+    uid: victim.uid,
+    player: actor.owner,
+    data: {
+      actor,
+      victim: { uid: victim.uid, defId: victim.defId, owner: victim.owner, force: vdef.force },
+      outcome: out,
+      from: extra.from ?? location,
+      to: extra.to,
+      theirForce: extra.theirForce,
+      note: extra.note,
+    },
+  });
+}
+
 /** Move a Character to another Location's Gate (random open one). Returns false if nowhere to go. */
 function displace(state: GameState, c: CharacterInstance, reason: string, events: GameEvent[], to?: number): boolean {
   if (riseAgain(state, c, reason, events)) return true;
@@ -377,6 +412,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       if (target) {
         target.blockedEnterTurn = state.turn;
         say(`${charDef(target.defId).name} cannot enter this turn.`);
+        clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, target, 'blocked', loc, { note: 'Her Reveal picks the opposing Ready Character here with the highest Influence.' });
       } else {
         say('no opposing Ready Character to block.');
       }
@@ -385,7 +421,10 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
     }
     case 'blockOpposingGatesHere': {
       const targets = charsAt(state, loc, opp, 'gate').filter((x) => !shielded(state, x));
-      for (const t of targets) t.blockedEnterTurn = state.turn;
+      for (const t of targets) {
+        t.blockedEnterTurn = state.turn;
+        clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, t, 'blocked', loc, { note: 'His Reveal blocks every opposing Gate Character here this turn.' });
+      }
       say(targets.length ? `${targets.length} opposing Gate Character(s) cannot enter this turn.` : 'no opposing Gate Characters here.');
       break;
     }
@@ -425,8 +464,10 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       if (myForce > theirForce && !isProtected(state, target)) {
         say(`challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}) and displaces them.`);
         displace(state, target, 'Nzinga', events);
+        clash(state, events, { kind: 'character', id: def.id, owner: p, force: myForce }, target, 'displaced', loc, { theirForce, to: target.location, note: `Force decides: ${myForce} against ${theirForce}.` });
       } else {
         say(`challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}) and is held off.`);
+        clash(state, events, { kind: 'character', id: def.id, owner: p, force: myForce }, target, 'held', loc, { theirForce, note: isProtected(state, target) ? `${charDef(target.defId).name} is protected this turn.` : `Force decides: ${myForce} is not more than ${theirForce}.` });
       }
       break;
     }
@@ -446,8 +487,10 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
         target.blessedUid = undefined;
         say(`challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}); they return to the Gates, Fresh.`);
         events.push({ type: 'moved', text: '', uid: target.uid, location: loc, data: { from: loc, to: loc, reason: 'Toussaint' } });
+        clash(state, events, { kind: 'character', id: def.id, owner: p, force: myForce }, target, 'sentBack', loc, { theirForce, note: `Force decides: ${myForce} against ${theirForce}. They lose their seat Inside and wait at the Gates again.` });
       } else {
         say(`challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}) and is held off.`);
+        clash(state, events, { kind: 'character', id: def.id, owner: p, force: myForce }, target, 'held', loc, { theirForce, note: myForce > theirForce ? `${charDef(target.defId).name} is protected, or the opposing Gates are full.` : `Force decides: ${myForce} is not more than ${theirForce}.` });
       }
       break;
     }
@@ -461,6 +504,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       if (target) {
         target.suppressedUntilTurn = state.turn + 1;
         say(`suppresses ${charDef(target.defId).name} until the end of next turn.`);
+        clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, target, 'suppressed', loc, { note: 'Her Reveal picks the opposing Established Character here with the highest Influence.' });
       } else {
         say('no opposing Established Character to suppress.');
       }
@@ -474,6 +518,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
         target.ready = false;
         target.arrivedTurn = state.turn;
         say(`draws a card and tricks ${charDef(target.defId).name} into waiting again.`);
+        clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, target, 'tricked', loc, { note: 'They were Ready; now they are Fresh and wait a turn before they can enter.' });
       } else {
         say('draws a card.');
       }
@@ -483,7 +528,10 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       const targets = charsAt(state, loc, opp, 'gate').filter((x) => !shielded(state, x));
       let hits = 0;
       for (const t of targets) {
-        if (def.force > charDef(t.defId).force && !isProtected(state, t) && displace(state, t, 'Shango', events)) hits++;
+        if (def.force > charDef(t.defId).force && !isProtected(state, t) && displace(state, t, 'Shango', events)) {
+          hits++;
+          clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, t, 'displaced', loc, { theirForce: charDef(t.defId).force, to: t.location, note: `Thunder: ${def.force} Force against ${charDef(t.defId).force}.` });
+        }
       }
       say(hits ? `thunder displaces ${hits} opposing Gate Character${hits > 1 ? 's' : ''}.` : 'thunder rolls, but nobody here is weaker.');
       break;
@@ -542,6 +590,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       if (target && !isProtected(state, target)) {
         say(`lures ${charDef(target.defId).name} away.`);
         displace(state, target, 'Mami Wata', events);
+        clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, target, 'displaced', loc, { to: target.location, note: 'Her Reveal lures the opposing Gate Character here with the highest Influence. No Force check.' });
       } else say('nobody here to lure.');
       break;
     }
@@ -574,6 +623,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       target.blessedUid = undefined;
       say(`turns ${charDef(target.defId).name}: they cross over to ${state.players[p].handle} at −1 Influence.`);
       events.push({ type: 'moved', text: '', uid: target.uid, location: loc, player: p, data: { from: loc, to: loc, reason: 'Laveau' } });
+      clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, target, 'turned', loc, { note: 'Her Reveal takes the opposing Gate Character here with the highest Influence. It needed an open Gate slot on her side.' });
       break;
     }
     case 'returnFriendlyToHand': {
@@ -701,6 +751,7 @@ function playEvent(state: GameState, p: PlayerId, play: PlayAction, events: Game
       target.arrivedTurn = state.turn;
       target.blessedUid = undefined;
       events.push({ type: 'moved', text: `${def.name}: ${name(state, target)} crosses over to ${ps.handle} at −1 Influence.`, uid: target.uid, location: play.location, player: p, data: { from: play.location, to: play.location, reason: 'persuade' } });
+      clash(state, events, { kind: 'event', id: def.id, owner: p }, target, 'turned', play.location, { note: 'The Curse takes the opposing Gate Character here with the lowest Influence.' });
       break;
     }
     case 'communityDefense': {
@@ -1085,7 +1136,10 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
           const victim = victims.sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];
           if (victim) {
             events.push({ type: 'threatActs', text: `${def.name} targets ${name(state, victim)}.`, location: loc.index, uid: victim.uid });
-            if (displace(state, victim, def.name, events)) setback(state, leader, `${def.name} displaced ${charDef(victim.defId).name}`, events);
+            if (displace(state, victim, def.name, events)) {
+              setback(state, leader, `${def.name} displaced ${charDef(victim.defId).name}`, events);
+              clash(state, events, { kind: 'threat', id: def.id }, victim, 'displaced', loc.index, { to: victim.location, note: `${def.name} goes after whoever leads this Location, picking their Character with the highest Influence. A Setback for ${state.players[leader].handle}.` });
+            }
           }
         }
         if (def.lostAfterTurns && state.turn - t.spawnedTurn + 1 >= def.lostAfterTurns && !loc.lost && !loc.sanctified) {
@@ -1153,7 +1207,11 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     if (loc.revealedTurn === state.turn) continue; // nothing happens on the reveal turn
     for (const c of charsAt(state, loc.index, undefined, 'gate')) {
       if (c.ready || isProtected(state, c)) continue;
-      if (displace(state, c, 'Sundown Town', events)) setback(state, c.owner, 'displaced by Sundown Town', events);
+      const fromHere = loc.index;
+      if (displace(state, c, 'Sundown Town', events)) {
+        setback(state, c.owner, 'displaced by Sundown Town', events);
+        clash(state, events, { kind: 'location', id: loc.defId }, c, 'displaced', fromHere, { to: c.location, note: 'Anyone still Fresh at these Gates at the end of the turn is run out of town. A Setback.' });
+      }
     }
   }
 
