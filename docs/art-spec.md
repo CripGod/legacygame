@@ -23,14 +23,21 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Missing
 
-### characters (9)
+### characters (16)
 
 - `newsboy` **Newsboy** (1905–1960): The Chicago Defender rode south in the bags of Pullman porters and the hands of kids on corners; a paper was the first thing many families bought.
 - `barber` **Barber** (Any Saturday): The barbershop was bank, newsroom, campaign office and town hall. Everybody passed through, and nobody stayed long.
 - `block_captain` **Block Captain** (1960s–): Knows every door on the street and who is behind it. When trouble comes, the block already has a plan.
-- `sister_griffin` **Sister Griffin** (Every Sunday): First pew, white gloves, a plate for anyone who came alone. The church runs on the women who run the church.
-- `deacon_wells` **Deacon Wells** (Every Sunday): Opens the doors, counts the offering, knows who has not been seen in a while. Nothing moves in the building without him.
 - `richard_allen` **Richard Allen** (1760–1831): Bought his own freedom, walked out of a segregated church and built his own denomination.
+- `absalom_jones` **Absalom Jones** (1746–1818): Bought his wife's freedom before his own. First Black priest in the Episcopal Church.
+- `daniel_payne` **Daniel Payne** (1811–1893): Ran a school for Black children in Charleston until the state outlawed it. Later ran a university.
+- `henry_mcneal_turner` **Henry McNeal Turner** (1834–1915): Army chaplain, Georgia legislator expelled for being Black, AME bishop who told his people to leave.
+- `denmark_vesey` **Denmark Vesey** (c. 1767–1822): Won a lottery, bought his freedom, built a church and planned an uprising. Hanged with 34 others.
+- `nat_turner` **Nat Turner** (1800–1831): Preacher who saw signs in the sky. Two days in Southampton County in 1831 changed every law in the South.
+- `robert_smalls` **Robert Smalls** (1839–1915): Steered a Confederate steamer out of Charleston harbor with his family aboard and handed it to the Union.
+- `madam_cj_walker` **Madam C.J. Walker** (1867–1919): Orphaned laundress who built a hair-care company, thousands of sales agents and the first self-made fortune by an American woman.
+- `paul_laurence_dunbar` **Paul Laurence Dunbar** (1872–1906): The first Black poet with a national audience. "We Wear the Mask." Dead of tuberculosis at 33.
+- `scott_joplin` **Scott Joplin** (1868–1917): The King of Ragtime. "Maple Leaf Rag" sold a million copies; his opera waited sixty years for a stage.
 - `claudette_colvin` **Claudette Colvin** (1939–): Fifteen years old, Montgomery, March 1955. Nine months before Rosa Parks, she refused to move and was dragged off the bus.
 - `bass_reeves` **Bass Reeves** (1838–1910): Born enslaved, fluent in several Native languages, one of the first Black deputy U.S. Marshals west of the Mississippi. Three thousand arrests, never wounded.
 - `neighbor_kid` **Neighbor Kid** (Any afternoon): Somebody's nephew. Runs the errand, holds the door, sees everything and tells his grandmother.

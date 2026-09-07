@@ -221,6 +221,7 @@ interface PendingConfront {
 
 function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: PlayAction['target'], events: GameEvent[], confronts: PendingConfront[]): void {
   const def = charDef(c.defId);
+  if (def.passive?.unstable) c.unstable = true;
   if (!def.reveal) return;
   const p = c.owner;
   const opp = other(p);

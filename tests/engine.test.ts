@@ -470,7 +470,7 @@ describe('new one-drops and The Justice System', () => {
     s = resolveTurn(s, { A: pass(), B: pass() }).state; // turn 6: free
     expect(legalOptions(s, 'A').relocations.some((r) => r.uid === og.uid)).toBe(true);
   });
-  it('Barber makes departures free; Church Mother wants company', () => {
+  it('Barber makes departures free; Daniel Payne wants company', () => {
     const s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true });
     s.turn = 4;
     addChar(s, 'barber', 'A', 0, 'inside');
@@ -478,10 +478,10 @@ describe('new one-drops and The Justice System', () => {
     const b = addChar(s, 'zora_neale_hurston', 'A', 0, 'inside');
     // Two relocations out of the Barber's Location cost nothing against the limit of one.
     expect(validatePlan(s, 'A', { ...pass(), relocations: [{ uid: a.uid, to: 1 }, { uid: b.uid, to: 2 }] })).toEqual([]);
-    const mother = addChar(s, 'sister_griffin', 'A', 1, 'inside');
-    expect(charInfluence(s, mother)).toBe(1);
+    const payne = addChar(s, 'daniel_payne', 'A', 1, 'inside');
+    expect(charInfluence(s, payne)).toBe(1);
     addChar(s, 'pullman_porter', 'A', 1, 'gate');
-    expect(charInfluence(s, mother)).toBe(2);
+    expect(charInfluence(s, payne)).toBe(2);
   });
   it('Claudette Colvin keeps her seat at Sundown Town', () => {
     let s = rig(createMatch({ seed: 2 }), {});
@@ -516,8 +516,8 @@ describe('special arrivals', () => {
   it('Black Jesus appears when the church fills The Tabernacle and blesses every Location', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['the_tabernacle', 'great_migration', 'gary_indiana'], revealAll: true });
     s.turn = 4;
-    addChar(s, 'sister_griffin', 'A', 0, 'inside');
-    addChar(s, 'deacon_wells', 'A', 0, 'inside');
+    addChar(s, 'absalom_jones', 'A', 0, 'inside');
+    addChar(s, 'daniel_payne', 'A', 0, 'inside');
     const og = addChar(s, 'og', 'A', 1, 'inside');
     const before = charInfluence(s, og);
     addChar(s, 'richard_allen', 'A', 0, 'inside');
@@ -619,6 +619,27 @@ describe('arrival odds', () => {
     s.spawnRolls.chairteenth = false;
     const out = resolveTurn(s, { A: pass(), B: pass() });
     expect(Object.values(out.state.characters).some((c) => c.defId === 'chairteenth')).toBe(false);
+  });
+});
+
+describe('new historical cards', () => {
+  it('Henry McNeal Turner is strongest aboard The Black Star and stronger anywhere in Africa', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['black_star', 'accra_ghana', 'gary_indiana'], revealAll: true });
+    const aboard = addChar(s, 'henry_mcneal_turner', 'A', 0, 'inside');
+    expect(charInfluence(s, aboard)).toBe(4);
+    const africa = addChar(s, 'henry_mcneal_turner', 'B', 1, 'inside');
+    expect(charInfluence(s, africa)).toBe(3);
+    const gary = addChar(s, 'henry_mcneal_turner', 'B', 2, 'inside');
+    expect(charInfluence(s, gary)).toBe(2);
+  });
+  it('Denmark Vesey adds Energy once Established; Nat Turner is not unstable after his Reveal', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, energy: true, handA: ['nat_turner'] });
+    s.turn = 3;
+    addChar(s, 'denmark_vesey', 'A', 0, 'inside');
+    expect(legalOptions(s, 'A').energy).toBe(4);
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'nat_turner', location: 1 }] }, B: pass() }).state;
+    const nat = charsOf(s, 'A').find((c) => c.defId === 'nat_turner')!;
+    expect(nat.unstable).toBeFalsy();
   });
 });
 

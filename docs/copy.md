@@ -27,7 +27,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Katherine Johnson (`katherine_johnson`)
 - cost 2 · Influence 3 · Force 2 · historical · era: 1918–2020
-- reveal: If any Locations remain hidden, privately learn which Location will reveal next.
+- reveal: Launch window: your Characters at this Gate become Ready.
 - established: Characters you relocate cannot be displaced the turn they arrive.
 - blurb: NASA mathematician whose trajectory calculations put John Glenn in orbit and Apollo 11 on the Moon.
 - history: Katherine Johnson (1918–2020) was a mathematician at NACA and then NASA's Langley Research Center. She calculated the trajectory for Alan Shepard's 1961 flight, and in 1962 John Glenn asked that she personally re-check the electronic computer's figures before his orbital flight. Her work contributed to Apollo 11 and the Space Shuttle. She received the Presidential Medal of Freedom in 2015, and her story reached a wide audience through Hidden Figures.
@@ -62,21 +62,70 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - established: Your Characters here confront Threats with +1 Force.
 - blurb: Knows every door on the street and who is behind it. When trouble comes, the block already has a plan.
 
-### Sister Griffin (`sister_griffin`)
-- cost 1 · Influence 1 · Force 1 · archetype · era: Every Sunday
-- established: Gains +1 Influence while another of your Characters is at this Location.
-- blurb: First pew, white gloves, a plate for anyone who came alone. The church runs on the women who run the church.
-
-### Deacon Wells (`deacon_wells`)
-- cost 1 · Influence 1 · Force 2 · archetype · era: Every Sunday
-- established: Ushers: your Characters arriving at this Gate are Ready at the end of the turn.
-- blurb: Opens the doors, counts the offering, knows who has not been seen in a while. Nothing moves in the building without him.
-
 ### Richard Allen (`richard_allen`)
 - cost 2 · Influence 3 · Force 1 · historical · era: 1760–1831
 - established: The pulpit: your other Characters here gain +1 Influence.
 - blurb: Bought his own freedom, walked out of a segregated church and built his own denomination.
 - history: Richard Allen was born enslaved in Philadelphia in 1760, bought his freedom in his twenties and became a Methodist preacher. In 1787, after Black worshippers were pulled from their knees at St. George's Church, he and Absalom Jones founded the Free African Society, and in 1794 Allen opened Mother Bethel. In 1816 he brought several Black congregations together as the African Methodist Episcopal Church, the first independent Black denomination in the United States, and became its first bishop. Mother Bethel still stands on the oldest parcel of land continuously owned by Black Americans.
+
+### Absalom Jones (`absalom_jones`)
+- cost 1 · Influence 1 · Force 2 · historical · era: 1746–1818
+- established: The doors are open: your Characters arriving at this Gate are Ready at the end of the turn.
+- blurb: Bought his wife's freedom before his own. First Black priest in the Episcopal Church.
+- history: Absalom Jones was born enslaved in Delaware in 1746 and taught himself to read from the New Testament. He bought his wife's freedom first, so their children would be born free, and his own in 1784. With Richard Allen he founded the Free African Society in 1787, the first Black mutual-aid society in the country, and led the African Church of St. Thomas in Philadelphia, becoming the first Black priest ordained in the Episcopal Church in 1804. During the yellow fever epidemic of 1793 he and Allen organized Black nurses and grave diggers for a city that had fled.
+
+### Daniel Payne (`daniel_payne`)
+- cost 1 · Influence 1 · Force 1 · historical · era: 1811–1893
+- reveal: Schoolmaster: draw a card.
+- established: Wilberforce: gains +1 Influence while another of your Characters is at this Location.
+- blurb: Ran a school for Black children in Charleston until the state outlawed it. Later ran a university.
+- history: Daniel Alexander Payne was born free in Charleston in 1811 and opened a school for Black children at nineteen. South Carolina closed it by law in 1835, and he left for the North, was ordained in the AME Church and became a bishop in 1852. In 1863 he purchased Wilberforce University for the church and served as its president, the first Black president of a college in the United States. He spent decades pushing an educated ministry on a church that did not always want one.
+
+### Henry McNeal Turner (`henry_mcneal_turner`)
+- cost 2 · Influence 2 · Force 3 · historical · era: 1834–1915
+- established: Chaplain: your Characters here confront Threats with +1 Force.
+- passive: Back to Africa: +2 Influence at The Black Star, +1 Influence anywhere in Africa.
+- blurb: Army chaplain, Georgia legislator expelled for being Black, AME bishop who told his people to leave.
+- history: Henry McNeal Turner was born free in South Carolina in 1834, became an AME minister and in 1863 was commissioned the first Black chaplain in the United States Army. Elected to the Georgia legislature in 1868, he was expelled with the other Black members and delivered a speech, "I Am Here to Demand My Rights," that is still read. As an AME bishop he built the church in Georgia and Africa, declared that God is Black, and after the 1890s argued that Black Americans should emigrate, chartering ships to Liberia. He died in Windsor, Ontario, in 1915.
+
+### Denmark Vesey (`denmark_vesey`)
+- cost 3 · Influence 3 · Force 4 · historical · era: c. 1767–1822
+- reveal: Challenge the opposing Gate Character here with the highest Influence. Force decides.
+- established: The plan: you have +1 Energy each turn.
+- blurb: Won a lottery, bought his freedom, built a church and planned an uprising. Hanged with 34 others.
+- history: Denmark Vesey was bought as a boy by a Bermuda slave captain, won $1,500 in a Charleston lottery in 1799 and purchased his own freedom, though not his family's. A carpenter and a founder of the city's AME church, he organized what would have been one of the largest slave uprisings in American history for the summer of 1822. It was betrayed before it began. Vesey and 34 others were hanged, the church was razed, and the state built a citadel to guard against the next attempt. The church rebuilt as Mother Emanuel.
+
+### Nat Turner (`nat_turner`)
+- cost 2 · Influence 2 · Force 4 · historical · era: 1800–1831
+- reveal: Challenge the opposing Established Character here with the highest Influence. Force decides.
+- blurb: Preacher who saw signs in the sky. Two days in Southampton County in 1831 changed every law in the South.
+- history: Nat Turner was born enslaved in Southampton County, Virginia, in 1800, taught to read as a child and known among the enslaved as a preacher who fasted, prayed and saw visions. On 21 August 1831 he led about seventy men across the county, killing around sixty white people in two days before militia scattered them. He hid for two months, was tried and hanged on 11 November, and Virginia and its neighbors answered with new laws against Black literacy, assembly and preaching. His jailhouse account, taken down by a white lawyer, is the only record in something like his own words.
+
+### Robert Smalls (`robert_smalls`)
+- cost 2 · Influence 3 · Force 2 · historical · era: 1839–1915
+- reveal: The Planter: move one of your Gate Characters to another Location's Gates for free.
+- established: Characters who relocate out of this Location arrive Ready.
+- blurb: Steered a Confederate steamer out of Charleston harbor with his family aboard and handed it to the Union.
+- history: Robert Smalls was born enslaved in Beaufort, South Carolina, in 1839 and worked the Charleston waterfront as a pilot. Before dawn on 13 May 1862, with the white officers ashore, he took the armed steamer Planter past five Confederate forts, giving the correct signals at each, picked up his wife and children and surrendered the ship to the Union blockade. He piloted for the Navy, served in the South Carolina legislature and five terms in Congress, wrote the state's first public school law, and bought the Beaufort house of the family that had owned him.
+
+### Madam C.J. Walker (`madam_cj_walker`)
+- cost 3 · Influence 4 · Force 1 · historical · era: 1867–1919
+- reveal: Agents: draw a card.
+- established: The next Character you Establish here gains +1 Influence.
+- blurb: Orphaned laundress who built a hair-care company, thousands of sales agents and the first self-made fortune by an American woman.
+- history: Sarah Breedlove was born on a Louisiana plantation in 1867, orphaned at seven, married at fourteen and widowed at twenty. Working as a laundress in St. Louis, she developed a line of hair-care products, renamed herself Madam C.J. Walker and built a company with a factory in Indianapolis and thousands of trained sales agents. By her death in 1919 she was reckoned the first self-made woman millionaire in the country. She funded the NAACP's anti-lynching campaign, the Tuskegee Institute and scholarships, and told her agents that their first duty was to their communities.
+
+### Paul Laurence Dunbar (`paul_laurence_dunbar`)
+- cost 1 · Influence 2 · Force 1 · historical · era: 1872–1906
+- reveal: If any Locations remain hidden, privately learn which Location will reveal next.
+- blurb: The first Black poet with a national audience. "We Wear the Mask." Dead of tuberculosis at 33.
+- history: Paul Laurence Dunbar was born in Dayton, Ohio, in 1872 to parents who had been enslaved in Kentucky. The only Black student in his high school class, he edited the school paper and ran an elevator to pay for printing his first book. Majors and Minors and Lyrics of Lowly Life made him famous by 25; he wrote novels, songs for the Broadway show Clorindy and the poems "Sympathy" and "We Wear the Mask." He died of tuberculosis in 1906, at 33.
+
+### Scott Joplin (`scott_joplin`)
+- cost 2 · Influence 2 · Force 1 · historical · era: 1868–1917
+- established: Ragtime: your Characters at this Gate gain +1 Influence.
+- blurb: The King of Ragtime. "Maple Leaf Rag" sold a million copies; his opera waited sixty years for a stage.
+- history: Scott Joplin was born in Texas around 1868, the son of a formerly enslaved railroad laborer, and learned piano from a German teacher in Texarkana. In Sedalia, Missouri, he published "Maple Leaf Rag" in 1899, the first sheet music by a Black composer to sell in the hundreds of thousands, and wrote some forty rags that turned a saloon style into a composed art. He spent his last years in New York trying to stage his opera Treemonisha and died in 1917. Treemonisha was finally produced in 1972 and won him a Pulitzer in 1976.
 
 ### Claudette Colvin (`claudette_colvin`)
 - cost 1 · Influence 2 · Force 1 · historical · era: 1939–
@@ -217,7 +266,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - cost 4 · Influence 5 · Force 0 · mythic · era: The Black church, every era
 - reveal: Sanctuary: every Block and Suppression at this Location ends, for both players, and every Gate Character here becomes Ready.
 - established: Threats at this Location cannot touch your Characters: no blocking, no silencing, no displacement. Blessing: every Character you control, at every Location, gains +1 Influence.
-- arrives: Sister Griffin, Deacon Wells and Richard Allen are Established at The Tabernacle. Black Jesus appears. / button: Continue
+- arrives: Richard Allen, Absalom Jones and Daniel Payne are Established at The Tabernacle. Black Jesus appears. / button: Continue
 - blurb: The Christ of the Black church and of liberation theology: the one who sides with the captive. He never fights, and nothing hostile can act on those who stand with him.
 - history: Mythic (fantasy). The Black Christ is not a new idea: Coptic Ethiopian art depicted him so for centuries, and in the United States the image runs from the Black church's spirituals through Marcus Garvey's African Orthodox Church to James Cone's Black liberation theology of the 1960s, which held that God sides with the oppressed. The card draws on that tradition. He never fights; his power is sanctuary. The abilities are invention.
 
@@ -345,7 +394,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### The Tabernacle (`the_tabernacle`)
 - era: 1794–
-- rule: Sanctuary: your Characters here cannot be displaced. Establish Sister Griffin, Deacon Wells and Richard Allen here and Black Jesus appears.
+- rule: Sanctuary: your Characters here cannot be displaced. Establish Richard Allen, Absalom Jones and Daniel Payne here and Black Jesus appears.
 - blurb: Mother Bethel, Philadelphia, 1794: Richard Allen walked out rather than pray in the back. The Black church has been meeting house, school, bank and headquarters ever since.
 
 ### Montgomery, Alabama (`montgomery`)
@@ -453,7 +502,7 @@ Rules
 ### Special arrivals
 - Straight Inside (Pullman Porter) always goes Inside the turn it is played. Direct Entry (Bessie Coleman) may: tap ⇅ on the planned move to choose Gates or Inside.
 - The Ancestors are never in a deck. In one match out of four, holding three Characters Inside at Accra, Ghana brings them to your hand. Play them while planning to see your opponent's plan for the turn and every danger the board is about to spring.
-- The Tabernacle protects your Characters from displacement. Establish Sister Griffin, Deacon Wells and Richard Allen there and Black Jesus appears: sanctuary at his Location and +1 Influence to every Character you control.
+- The Tabernacle protects your Characters from displacement. Establish Richard Allen, Absalom Jones and Daniel Payne there and Black Jesus appears: sanctuary at his Location and +1 Influence to every Character you control.
 - The Justice System holds anyone who goes Inside for two turns: no relocating out.
 - Curses are dark Events that act on your opponent's Characters. Persuade turns the strongest opposing Gate Character at a Location to your side at −1 Influence. Some cards cost 0 Energy.
 - Every deck carries at least one Mythic. The full list, with costs, is under Cards on the start screen.

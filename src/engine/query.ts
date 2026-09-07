@@ -100,6 +100,8 @@ export function charInfluence(state: GameState, c: CharacterInstance): number {
   if (ldef?.effect.type === 'steelAndSoul' && charsAt(state, c.location, c.owner).length >= 5) v += ldef.effect.fiveBonus;
   const home = def.passive?.regionBonus;
   if (home && ldef?.region === home.region) v += home.influence;
+  const spot = def.passive?.locationBonus;
+  if (spot && loc.revealed && loc.defId === spot.locationId) v += spot.influence;
   for (const j of hasEstablishedAnywhere(state, c.owner, 'sanctuary')) {
     const b = (charDef(j.defId).established?.effect as { blessing?: number }).blessing;
     if (b) v += b;

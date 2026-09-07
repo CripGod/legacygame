@@ -49,7 +49,7 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
         <ul>
           <li><b>Straight Inside</b> (Pullman Porter) always goes Inside the turn it is played. <b>Direct Entry</b> (Bessie Coleman) may: tap ⇅ on the planned move to choose Gates or Inside.</li>
           <li><b>The Ancestors</b> are never in a deck. In one match out of four, holding three Characters Inside at Accra, Ghana brings them to your hand. Play them while planning to see your opponent's plan for the turn and every danger the board is about to spring.</li>
-          <li><b>The Tabernacle</b> protects your Characters from displacement. Establish Sister Griffin, Deacon Wells and Richard Allen there and <b>Black Jesus</b> appears: sanctuary at his Location and +1 Influence to every Character you control.</li>
+          <li><b>The Tabernacle</b> protects your Characters from displacement. Establish Richard Allen, Absalom Jones and Daniel Payne there and <b>Black Jesus</b> appears: sanctuary at his Location and +1 Influence to every Character you control.</li>
           <li><b>The Justice System</b> holds anyone who goes Inside for two turns: no relocating out.</li>
           <li><b>Curses</b> are dark Events that act on your opponent's Characters. <b>Persuade</b> turns the strongest opposing Gate Character at a Location to your side at −1 Influence. Some cards cost 0 Energy.</li>
           <li>Every deck carries at least one <b>Mythic</b>. The full list, with costs, is under <b>Cards</b> on the start screen.</li>

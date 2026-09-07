@@ -109,7 +109,7 @@ export interface CharacterDef {
   reveal?: { text: string; effect: RevealEffect; needsTarget?: 'friendlyGateCharAndLocation' | 'friendlyInsideChar' };
   established?: { text: string; effect: EstablishedEffect };
   /** Always-on quirks (Karen). */
-  passive?: { text: string; unstable?: boolean; leaderPenalty?: number; regionBonus?: { region: 'africa' | 'americas' | 'atlantic'; influence: number } };
+  passive?: { text: string; unstable?: boolean; leaderPenalty?: number; regionBonus?: { region: 'africa' | 'americas' | 'atlantic'; influence: number }; locationBonus?: { locationId: string; influence: number } };
   /** Gatherings: how and where the card arrives on its own. */
   spawn?: SpawnRule;
   identity: string[];
