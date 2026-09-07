@@ -34,8 +34,8 @@ export const EVENTS: EventDef[] = [
     text: 'Play it while planning: the Ancestors show you your opponent\'s plan for this turn and every danger the board is about to spring.',
     effect: { type: 'ancestors' },
     needsLocation: false,
-    blurb: 'Never in a deck. They come to whoever holds three Characters Inside at Accra, Ghana, once per match.',
-    spawn: { type: 'insideAt', locationId: 'accra_ghana', count: 3, headline: 'You have three Characters Inside at Accra, Ghana. The Ancestors come to your hand.', cta: 'Continue', into: 'hand' },
+    blurb: 'Never in a deck. In one match out of four they come to whoever holds three Characters Inside at Accra, Ghana.',
+    spawn: { type: 'insideAt', chance: 0.25, locationId: 'accra_ghana', count: 3, headline: 'You have three Characters Inside at Accra, Ghana. The Ancestors come to your hand.', cta: 'Continue', into: 'hand' },
   },
   {
     kind: 'event',

@@ -250,7 +250,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 ### The Ancestors (`the_ancestors`)
 - cost 0
 - text: Play it while planning: the Ancestors show you your opponent's plan for this turn and every danger the board is about to spring.
-- blurb: Never in a deck. They come to whoever holds three Characters Inside at Accra, Ghana, once per match.
+- blurb: Never in a deck. In one match out of four they come to whoever holds three Characters Inside at Accra, Ghana.
 - arrives: You have three Characters Inside at Accra, Ghana. The Ancestors come to your hand. / button: Continue
 
 ### Word of Mouth (`word_of_mouth`)
@@ -446,7 +446,7 @@ Rules
 - Unresolved crises can make a Location Lost: nobody wins it.
 ### Special arrivals
 - Straight Inside (Pullman Porter) always goes Inside the turn it is played. Direct Entry (Bessie Coleman) may: tap ⇅ on the planned move to choose Gates or Inside.
-- The Ancestors are never in a deck. Hold three Characters Inside at Accra, Ghana and they come to your hand once per match. Play them while planning to see your opponent's plan for the turn and every danger the board is about to spring.
+- The Ancestors are never in a deck. In one match out of four, holding three Characters Inside at Accra, Ghana brings them to your hand. Play them while planning to see your opponent's plan for the turn and every danger the board is about to spring.
 - The Tabernacle protects your Characters from displacement. Establish Sister Griffin, Deacon Wells and The Bishop there and Black Jesus appears: sanctuary at his Location and +1 Influence to every Character you control.
 - The Justice System holds anyone who goes Inside for two turns: no relocating out.
 - Curses are dark Events that act on your opponent's Characters. Persuade turns the strongest opposing Gate Character at a Location to your side at −1 Influence. Some cards cost 0 Energy.
@@ -809,9 +809,10 @@ export function ShowdownSheet({ ev, view, onClose }: { ev: GameEvent; view: Game
 - Figure ${String(cardIndex[id]).padStart(2, '0')}
 - May go Inside the turn it is played. Your choice: tap the planned card to switch between Gates and Inside.
 - Always goes Inside the turn it is played.
-- Not in any deck. When ${loc} is revealed, one arrives Ready at each player's Gates there (if there is room).
+-  Only ${Math.round(rule.chance * 100)}% of matches have it at all.
+- Not in any deck. When ${loc} is revealed, one arrives Ready at each player's Gates there (if there is room).${odds}
 - Not in any deck. When ${rule.cardIds.map((id) => CARD_BY_ID[id]?.name ?? id).join(', ')} are all Established at ${loc}, it appears there for you. Once per match.
-- Not in any deck. When you have ${rule.count} Characters Inside at ${loc}, it comes to your hand. Once per match.
+- Not in any deck. When you have ${rule.count} Characters Inside at ${loc}, it comes to your hand. Once per match.${odds}
 - Not in any deck. When you have ${rule.count} Established Characters at ${loc}, it arrives there for you (Inside if there is room, else at the Gates). Once per match.
 
 ## Turn log lines (engine)

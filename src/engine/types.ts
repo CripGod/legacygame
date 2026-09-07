@@ -83,13 +83,15 @@ export type EstablishedEffect =
 /** Gatherings are never in a deck: they spawn on the board when the world earns them. */
 export type CharacterCategory = 'historical' | 'archetype' | 'mythic' | 'gathering';
 
-export type SpawnRule =
+/** `chance`: the arrival only exists in that fraction of matches, rolled once when the match is created. */
+export type SpawnRule = { chance?: number } & (
   | { type: 'establishedAt'; locationId: string; count: number; headline: string; cta: string; unique?: boolean }
   | { type: 'onReveal'; locationId: string; headline: string; cta: string }
   /** A named set of Characters all Established at one Location (the church set). */
   | { type: 'setAt'; locationId: string; cardIds: string[]; headline: string; cta: string }
   /** Arrives in the hand once you have `count` Characters Inside at the Location. */
-  | { type: 'insideAt'; locationId: string; count: number; headline: string; cta: string; into: 'hand' };
+  | { type: 'insideAt'; locationId: string; count: number; headline: string; cta: string; into: 'hand' }
+);
 
 export interface CharacterDef {
   kind: 'character';
@@ -360,6 +362,8 @@ export interface GameState {
   maxTurns: number;
   /** Stands on Business that have not taken effect yet: each doubles the Stakes at the end of the turn after it was declared. */
   pendingRaises: { by: PlayerId; declaredTurn: number }[];
+  /** Once-per-match dice for arrivals that only happen some matches (card id -> rolled true). Hidden from views. */
+  spawnRolls: Record<string, boolean>;
   result?: MatchResult;
   leadHistory: LeadRecord[];
   /** Counter for generating uids. */

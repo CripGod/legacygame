@@ -81,8 +81,9 @@ export function abilityLines(def: CardDef): { label: string; text: string }[] {
 
 export function spawnText(rule: NonNullable<CharacterDef['spawn']>): string {
   const loc = LOCATION_BY_ID[rule.locationId]?.name ?? rule.locationId;
-  if (rule.type === 'onReveal') return `Not in any deck. When ${loc} is revealed, one arrives Ready at each player's Gates there (if there is room).`;
+  const odds = rule.chance !== undefined ? ` Only ${Math.round(rule.chance * 100)}% of matches have it at all.` : '';
+  if (rule.type === 'onReveal') return `Not in any deck. When ${loc} is revealed, one arrives Ready at each player's Gates there (if there is room).${odds}`;
   if (rule.type === 'setAt') return `Not in any deck. When ${rule.cardIds.map((id) => CARD_BY_ID[id]?.name ?? id).join(', ')} are all Established at ${loc}, it appears there for you. Once per match.`;
-  if (rule.type === 'insideAt') return `Not in any deck. When you have ${rule.count} Characters Inside at ${loc}, it comes to your hand. Once per match.`;
+  if (rule.type === 'insideAt') return `Not in any deck. When you have ${rule.count} Characters Inside at ${loc}, it comes to your hand. Once per match.${odds}`;
   return `Not in any deck. When you have ${rule.count} Established Characters at ${loc}, it arrives there for you (Inside if there is room, else at the Gates). Once per match.`;
 }

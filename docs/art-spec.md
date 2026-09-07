@@ -37,7 +37,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ### events (3)
 
-- `the_ancestors` **The Ancestors**: Never in a deck. They come to whoever holds three Characters Inside at Accra, Ghana, once per match.
+- `the_ancestors` **The Ancestors**: Never in a deck. In one match out of four they come to whoever holds three Characters Inside at Accra, Ghana.
 - `word_of_mouth` **Word of Mouth**: Free, fast and usually right.
 - `persuade` **Persuade**: Everybody has a price, a grievance or a cousin. Find the one that opens the door.
 

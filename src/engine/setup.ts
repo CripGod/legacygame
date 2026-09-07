@@ -1,5 +1,5 @@
-import { makeRng, shuffle, nextInt, nextFloat, pick } from './rng';
-import { LOCATIONS, PRESET_DECKS, randomDeck, validateDeck, THREAT_BY_ID, RANDOM_THREAT_POOL, LOCATION_BY_ID, CHARACTER_BY_ID } from './content';
+import { makeRng, shuffle, nextInt, nextFloat, pick, hashSeed } from './rng';
+import { CHARACTERS, EVENTS, LOCATIONS, PRESET_DECKS, randomDeck, validateDeck, THREAT_BY_ID, RANDOM_THREAT_POOL, LOCATION_BY_ID, CHARACTER_BY_ID } from './content';
 import type { GameState, PlayerId, PlayerState, LocationState, GameEvent, ThreatInstance } from './types';
 import { CARD_BY_ID } from './content';
 import { STARTING_HAND, PLAYERS, TURNS, MAX_HAND } from './types';
@@ -80,6 +80,7 @@ export function createMatch(opts: MatchOptions): GameState {
     initiative: nextInt(rng, 2) === 0 ? 'A' : 'B',
     stakes: 1,
     pendingRaises: [],
+    spawnRolls: Object.fromEntries([...CHARACTERS, ...EVENTS].filter((d) => d.spawn?.chance !== undefined).map((d) => [d.id, nextFloat(makeRng(hashSeed(`${opts.seed}:arrival:${d.id}`))) < (d.spawn!.chance as number)])),
     maxTurns: TURNS,
     leadHistory: [],
     nextUid: 1,

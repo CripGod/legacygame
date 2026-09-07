@@ -813,6 +813,7 @@ const GATHERINGS: CharacterDef[] = [
     spawn: {
       type: 'onReveal',
       locationId: 'juneteenth',
+      chance: 0.25,
       headline: 'Juneteenth is revealed. Chairteenth arrives at each player\'s Gates there.',
       cta: 'Continue',
     },

@@ -22,6 +22,7 @@ export function viewFor(state: GameState, p: PlayerId): GameState {
     if (!loc.revealed) loc.defId = 'unknown';
   }
   v.revealOrder = [];
+  v.spawnRolls = {};
   // Characters committed to hidden Locations are public once placed (they are at the Gates).
   for (const c of Object.values(v.characters)) {
     if (c.owner === opp) {

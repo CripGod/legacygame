@@ -443,6 +443,7 @@ describe('gatherings', () => {
   });
   it('Chairteenth arrives Ready at both players\' Gates when Juneteenth reveals', () => {
     const s = rig(createMatch({ seed: 2 }), { locations: ['juneteenth', 'gary_indiana', 'greenwood'] });
+    s.spawnRolls.chairteenth = true;
     const out = resolveTurn(s, { A: pass(), B: pass() });
     const chairs = Object.values(out.state.characters).filter((c) => c.defId === 'chairteenth');
     expect(chairs.map((c) => c.owner).sort()).toEqual(['A', 'B']);
@@ -531,6 +532,7 @@ describe('special arrivals', () => {
   });
   it('The Ancestors come to your hand with three Characters Inside at Accra', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['accra_ghana', 'great_migration', 'gary_indiana'], revealAll: true });
+    s.spawnRolls.the_ancestors = true;
     s.turn = 4;
     addChar(s, 'og', 'A', 0, 'inside');
     addChar(s, 'zora_neale_hurston', 'A', 0, 'inside');
@@ -594,6 +596,29 @@ describe('curses, zero-cost cards and showdowns', () => {
       return x % n;
     };
     for (let i = 0; i < 20; i++) expect(validateDeck(randomDeck(pick))).toEqual([]);
+  });
+});
+
+describe('arrival odds', () => {
+  it('Chairteenth and The Ancestors are rolled once per match at about 25%', () => {
+    let chairs = 0;
+    let ancestors = 0;
+    for (let seed = 1; seed <= 400; seed++) {
+      const s = createMatch({ seed });
+      if (s.spawnRolls.chairteenth) chairs++;
+      if (s.spawnRolls.the_ancestors) ancestors++;
+      expect(viewFor(s, 'A').spawnRolls).toEqual({});
+    }
+    expect(chairs).toBeGreaterThan(60);
+    expect(chairs).toBeLessThan(140);
+    expect(ancestors).toBeGreaterThan(60);
+    expect(ancestors).toBeLessThan(140);
+  });
+  it('a match that rolled no Chairteenth never gets one', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['juneteenth', 'gary_indiana', 'greenwood'] });
+    s.spawnRolls.chairteenth = false;
+    const out = resolveTurn(s, { A: pass(), B: pass() });
+    expect(Object.values(out.state.characters).some((c) => c.defId === 'chairteenth')).toBe(false);
   });
 });
 

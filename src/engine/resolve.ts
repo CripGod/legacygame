@@ -139,9 +139,10 @@ function spawnGathering(state: GameState, p: PlayerId, def: CharacterDef, locati
 
 /** Gatherings whose condition is met arrive now. Called after reveals and at cleanup. */
 function checkGatherings(state: GameState, events: GameEvent[], trigger: 'reveal' | 'cleanup', revealedIndex?: number): void {
+  const rolled = (id: string, rule: { chance?: number }) => rule.chance === undefined || state.spawnRolls?.[id] === true;
   for (const def of GATHERING_DEFS) {
     const rule = def.spawn;
-    if (!rule) continue;
+    if (!rule || !rolled(def.id, rule)) continue;
     for (const p of PLAYERS) {
       if (rule.type === 'onReveal' && trigger === 'reveal' && revealedIndex !== undefined && state.locations[revealedIndex].defId === rule.locationId) {
         spawnGathering(state, p, def, revealedIndex, events, 'gate');
@@ -168,7 +169,7 @@ function checkGatherings(state: GameState, events: GameEvent[], trigger: 'reveal
   if (trigger === 'cleanup') {
     for (const def of EVENTS) {
       const rule = def.spawn;
-      if (!rule || rule.type !== 'insideAt') continue;
+      if (!rule || rule.type !== 'insideAt' || !rolled(def.id, rule)) continue;
       const loc = state.locations.find((l) => l.revealed && l.defId === rule.locationId);
       if (!loc) continue;
       for (const q of PLAYERS) {
