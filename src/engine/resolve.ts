@@ -144,12 +144,14 @@ function checkGatherings(state: GameState, events: GameEvent[], trigger: 'reveal
       if (rule.type === 'onReveal' && trigger === 'reveal' && revealedIndex !== undefined && state.locations[revealedIndex].defId === rule.locationId) {
         spawnGathering(state, p, def, revealedIndex, events, 'gate');
       }
-      if (rule.type === 'establishedAt' && trigger === 'cleanup') {
-        const loc = state.locations.find((l) => l.revealed && l.defId === rule.locationId);
-        if (!loc) continue;
-        const established = charsAt(state, loc.index, p, 'inside').filter((c) => charDef(c.defId).category !== 'gathering').length;
-        if (established >= rule.count) spawnGathering(state, p, def, loc.index, events);
-      }
+    }
+    if (rule.type === 'establishedAt' && trigger === 'cleanup') {
+      const loc = state.locations.find((l) => l.revealed && l.defId === rule.locationId);
+      if (!loc) continue;
+      // Unique Gatherings: one per match, to whoever earns it first (both, if they earn it the same turn).
+      if (rule.unique && PLAYERS.some((q) => state.players[q].spawned.includes(def.id))) continue;
+      const earned = PLAYERS.filter((q) => charsAt(state, loc.index, q, 'inside').filter((c) => charDef(c.defId).category !== 'gathering').length >= rule.count);
+      for (const q of earned) spawnGathering(state, q, def, loc.index, events);
     }
   }
 }

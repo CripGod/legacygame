@@ -8,6 +8,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'harriet_tubman',
+    cost: 2,
     category: 'historical',
     name: 'Harriet Tubman',
     short: 'Harriet',
@@ -32,6 +33,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'frederick_douglass',
+    cost: 3,
     category: 'historical',
     name: 'Frederick Douglass',
     short: 'Douglass',
@@ -55,6 +57,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'john_brown',
+    cost: 3,
     category: 'historical',
     name: 'John Brown',
     short: 'J. Brown',
@@ -78,6 +81,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'katherine_johnson',
+    cost: 2,
     category: 'historical',
     name: 'Katherine Johnson',
     short: 'Katherine',
@@ -101,6 +105,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'mansa_musa',
+    cost: 4,
     category: 'historical',
     name: 'Mansa Musa',
     short: 'Mansa Musa',
@@ -124,6 +129,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'zora_neale_hurston',
+    cost: 2,
     category: 'historical',
     name: 'Zora Neale Hurston',
     short: 'Zora',
@@ -147,6 +153,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'karen',
+    cost: 1,
     category: 'archetype',
     name: 'Karen',
     short: 'Karen',
@@ -171,6 +178,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'pullman_porter',
+    cost: 1,
     category: 'archetype',
     name: 'Pullman Porter',
     short: 'Porter',
@@ -190,6 +198,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'organizer',
+    cost: 1,
     category: 'archetype',
     name: 'Organizer',
     short: 'Organizer',
@@ -202,8 +211,8 @@ export const CHARACTERS: CharacterDef[] = [
       effect: { type: 'readyFriendly' },
     },
     established: {
-      text: 'You may play one additional card each turn.',
-      effect: { type: 'extraPlay', amount: 1 },
+      text: 'You have +1 Energy each turn.',
+      effect: { type: 'extraEnergy', amount: 1 },
     },
     identity: ['mobilization', 'community', 'tempo'],
     era: 'Timeless',
@@ -213,6 +222,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'og',
+    cost: 2,
     category: 'archetype',
     name: 'OG',
     short: 'OG',
@@ -236,6 +246,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'ida_b_wells',
+    cost: 3,
     category: 'historical',
     name: 'Ida B. Wells',
     short: 'Ida',
@@ -259,6 +270,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'queen_nzinga',
+    cost: 3,
     category: 'historical',
     name: 'Queen Nzinga',
     short: 'Nzinga',
@@ -282,6 +294,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'toussaint_louverture',
+    cost: 4,
     category: 'historical',
     name: 'Toussaint Louverture',
     short: 'Toussaint',
@@ -305,6 +318,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'marcus_garvey',
+    cost: 3,
     category: 'historical',
     name: 'Marcus Garvey',
     short: 'Garvey',
@@ -328,6 +342,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'bessie_coleman',
+    cost: 1,
     category: 'historical',
     name: 'Bessie Coleman',
     short: 'Bessie',
@@ -347,6 +362,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'sojourner_truth',
+    cost: 2,
     category: 'historical',
     name: 'Sojourner Truth',
     short: 'Sojourner',
@@ -372,6 +388,7 @@ export const CHARACTERS: CharacterDef[] = [
 CHARACTERS.push({
   kind: 'character',
   id: 'victor_hugo_green',
+  cost: 2,
   category: 'historical',
   name: 'Victor Hugo Green',
   short: 'V. H. Green',
@@ -398,6 +415,7 @@ const MYTHIC: CharacterDef[] = [
   {
     kind: 'character',
     id: 'anansi',
+    cost: 1,
     category: 'mythic',
     name: 'Anansi',
     short: 'Anansi',
@@ -421,6 +439,7 @@ const MYTHIC: CharacterDef[] = [
   {
     kind: 'character',
     id: 'shango',
+    cost: 4,
     category: 'mythic',
     name: 'Shango',
     short: 'Shango',
@@ -444,6 +463,7 @@ const MYTHIC: CharacterDef[] = [
   {
     kind: 'character',
     id: 'oshun',
+    cost: 3,
     category: 'mythic',
     name: 'Oshun',
     short: 'Oshun',
@@ -467,6 +487,7 @@ const MYTHIC: CharacterDef[] = [
   {
     kind: 'character',
     id: 'yemoja',
+    cost: 2,
     category: 'mythic',
     name: 'Yemoja',
     short: 'Yemoja',
@@ -491,6 +512,7 @@ const MYTHIC: CharacterDef[] = [
   {
     kind: 'character',
     id: 'ogun',
+    cost: 3,
     category: 'mythic',
     name: 'Ogun',
     short: 'Ogun',
@@ -514,6 +536,7 @@ const MYTHIC: CharacterDef[] = [
   {
     kind: 'character',
     id: 'mami_wata',
+    cost: 3,
     category: 'mythic',
     name: 'Mami Wata',
     short: 'Mami Wata',
@@ -537,6 +560,7 @@ const MYTHIC: CharacterDef[] = [
   {
     kind: 'character',
     id: 'black_jesus',
+    cost: 5,
     category: 'mythic',
     name: 'Black Jesus',
     short: 'Black Jesus',
@@ -565,6 +589,7 @@ const GATHERINGS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'cookout',
+    cost: 2,
     category: 'gathering',
     name: 'The Cookout',
     short: 'Cookout',
@@ -580,6 +605,7 @@ const GATHERINGS: CharacterDef[] = [
       type: 'establishedAt',
       locationId: 'great_migration',
       count: 2,
+      unique: true,
       headline: 'Two of yours made it north. Word spreads, the grill is lit.',
       cta: 'Fix a plate',
     },
@@ -592,6 +618,7 @@ const GATHERINGS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'chairteenth',
+    cost: 1,
     category: 'gathering',
     name: 'Chairteenth',
     short: 'Chair',

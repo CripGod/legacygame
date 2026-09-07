@@ -15,9 +15,10 @@ export const EXTENDED_TURNS = 10;
 export const GATE_CAPACITY = 2;
 export const INSIDE_CAPACITY = 5;
 export const STARTING_HAND = 4;
+/** Deck size: opening hand plus one draw per turn for nine turns. */
+export const DECK_SIZE = 13;
 /** Hand limit: a card drawn into a full hand is discarded. */
 export const MAX_HAND = 7;
-export const DECK_SIZE = 12;
 export const MAX_EVENTS = 2;
 export const PLANNING_SECONDS = 120;
 export const MAX_STAKES = 4;
@@ -58,7 +59,7 @@ export type EstablishedEffect =
   | { type: 'blessNextEstablished'; amount: number } // Mansa Musa
   | { type: 'gateInfluenceHere'; amount: number } // Zora
   | { type: 'extraRelocation'; amount: number } // Pullman Porter
-  | { type: 'extraPlay'; amount: number } // Organizer
+  | { type: 'extraEnergy'; amount: number } // Organizer
   | { type: 'opposingGateInfluence'; amount: number } // OG
   | { type: 'influenceOnThreatCleared'; amount: number } // Ida
   | { type: 'forceAuraHere'; amount: number } // Nzinga
@@ -79,7 +80,7 @@ export type EstablishedEffect =
 export type CharacterCategory = 'historical' | 'archetype' | 'mythic' | 'gathering';
 
 export type SpawnRule =
-  | { type: 'establishedAt'; locationId: string; count: number; headline: string; cta: string }
+  | { type: 'establishedAt'; locationId: string; count: number; headline: string; cta: string; unique?: boolean }
   | { type: 'onReveal'; locationId: string; headline: string; cta: string };
 
 export interface CharacterDef {
@@ -87,6 +88,8 @@ export interface CharacterDef {
   id: string;
   name: string;
   category: CharacterCategory;
+  /** Energy to play. Energy each turn equals the turn number. */
+  cost: number;
   /** Short name used on thumbnails. */
   short: string;
   influence: number;
@@ -115,6 +118,8 @@ export interface EventDef {
   id: string;
   name: string;
   short: string;
+  /** Energy to play. */
+  cost: number;
   text: string;
   effect: EventEffect;
   needsLocation: boolean;
@@ -252,6 +257,8 @@ export interface PlayerState {
   standUsed: boolean;
   /** Gathering cards that already arrived for this player this match. */
   spawned: string[];
+  /** Permanent extra Energy per turn (tests and future cards). */
+  energyBonus?: number;
   /** Once you Stand on Business you cannot Step Off. */
   cannotStepOff?: boolean;
   solidarity: number;

@@ -1,4 +1,4 @@
-import { type GameState, type PlayerId, type TurnPlan } from '../../engine';
+import { CARD_BY_ID, type GameState, type PlayerId, type TurnPlan } from '../../engine';
 import { CardFace } from './CardFace';
 import type { DragPayload } from '../drag';
 
@@ -12,6 +12,7 @@ export function Hand({
   compact,
   dragProps,
   glow,
+  energyLeft,
   dropState,
 }: {
   view: GameState;
@@ -23,6 +24,8 @@ export function Hand({
   compact: boolean;
   dragProps?: (payload: DragPayload) => Record<string, unknown>;
   glow?: string | null;
+  /** Energy still unspent this turn; cards above it are dimmed. */
+  energyLeft?: number;
   dropState?: 'ok' | 'over' | null;
 }) {
   const hand = view.players[me].hand;
@@ -50,7 +53,7 @@ export function Hand({
             <div
               key={`${id}-${i}`}
               data-hand-card={id}
-              className={`card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''} ${glow === id ? 'ftue-flash' : ''}`}
+              className={`card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''} ${glow === id ? 'ftue-flash' : ''} ${energyLeft !== undefined && (CARD_BY_ID[id]?.cost ?? 0) > energyLeft ? 'unaffordable' : ''}`}
               {...dp}
               style={style}
               onClick={() => onSelect(id)}

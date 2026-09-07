@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CARD_BY_ID, legalOptions, gateRoom, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, other, MAX_HAND } from '../../engine';
+import { CARD_BY_ID, legalOptions, gateRoom, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, other, MAX_HAND, planCost, cardCost } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight } from '../components/Battlefield';
@@ -22,7 +22,6 @@ type SheetState =
   | { kind: 'location'; index: number }
   | { kind: 'profile'; p: PlayerId }
   | { kind: 'stepOff' }
-  | { kind: 'stand' }
   | { kind: 'log' }
   | { kind: 'chat' }
   | null;
@@ -60,7 +59,9 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   }, [setPlanRaw]);
   // Feedback for moves that cannot happen.
   const [toast, setToast] = useState<string | null>(null);
-  const feedback = useCallback((text: string, shake: string[] = []) => {
+  const [toastTone, setToastTone] = useState<'warn' | 'info'>('warn');
+  const feedback = useCallback((text: string, shake: string[] = [], tone: 'warn' | 'info' = 'warn') => {
+    setToastTone(tone);
     setToast(text);
     window.setTimeout(() => setToast((t) => (t === text ? null : t)), 3200);
     for (const sel of shake) {
@@ -103,7 +104,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   // Escape closes any sheet.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setSheet((sh) => (sh && sh.kind !== 'stand' ? null : sh));
+      if (e.key === 'Escape') setSheet(null);
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault();
         undo();
@@ -180,18 +181,30 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     setSheet(null);
   };
 
-  /** Add or move a play; when at the limit, the newest replaces the oldest. */
+  /** Stand on Business is one tap: it toggles in the plan and the toast explains what it does. */
+  const toggleStand = () => {
+    if (plan.standOnBusiness) {
+      setPlan((p) => ({ ...p, standOnBusiness: false }));
+      feedback('Stand cancelled.', [], 'info');
+      return;
+    }
+    setPlan((p) => ({ ...p, standOnBusiness: true }));
+    feedback(`Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Stakes after next turn${view.maxTurns < 10 ? ' and extends to 10 turns' : ''}. ${view.players[other(me)].handle} gets one turn to Step Off for ${view.stakes} or Stand back. You cannot Step Off once you stand, and this is once per match. Tap again to cancel.`, [], 'info');
+  };
+
+  /** Energy left after the plays already planned. */
+  const energyLeft = opts.energy - planCost(plan);
+
+  /** Add or move a play. Refused when it would overspend this turn's Energy. */
   function addPlay(play: { cardId: string; location: number; target?: { charUid?: string; location?: number } }) {
     const current = planRef.current.plays.filter((pl) => pl.cardId !== play.cardId);
-    if (current.length >= opts.playsAllowed && current.length > 0) {
-      const dropped = current[0];
-      feedback(`Only ${opts.playsAllowed} play${opts.playsAllowed > 1 ? 's' : ''} this turn (${view.locations.every((l) => l.revealed) ? 'two once all Locations are revealed' : 'one while a Location is hidden'}). Swapped ${cardName(dropped.cardId, placeholders)} out for ${cardName(play.cardId, placeholders)}. Cmd/Ctrl+Z to undo.`);
+    const spent = current.reduce((s, pl) => s + cardCost(pl.cardId), 0);
+    const cost = cardCost(play.cardId);
+    if (spent + cost > opts.energy) {
+      feedback(`Not enough Energy. ${cardName(play.cardId, placeholders)} costs ${cost} and you have ${opts.energy - spent} left of ${opts.energy} this turn (Energy = the turn number). Remove a planned card or wait a turn.`, [`[data-hand-card="${play.cardId}"]`]);
+      return;
     }
-    setPlan((p) => {
-      let plays = p.plays.filter((pl) => pl.cardId !== play.cardId);
-      while (plays.length >= opts.playsAllowed && plays.length > 0) plays = plays.slice(1);
-      return { ...p, plays: [...plays, play] };
-    });
+    setPlan((p) => ({ ...p, plays: [...p.plays.filter((pl) => pl.cardId !== play.cardId), play] }));
     const needs = opts.plays.find((p) => p.cardId === play.cardId)?.needsTarget;
     if (needs === 'friendlyGateCharAndLocation' && !play.target) feedback(`${cardName(play.cardId, placeholders)} planned. Optional: drag one of your Gate Characters to another Location's Gates and she moves it there for free.`);
     if (needs === 'friendlyInsideChar' && !play.target) feedback(`${cardName(play.cardId, placeholders)} planned. Optional: drag one of your Established Characters from another Location onto hers and she brings them across.`);
@@ -237,7 +250,9 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       if (!planning) return out;
       if (payload.kind === 'card') {
         const opt = opts.plays.find((p) => p.cardId === payload.cardId);
-        if (opt) {
+        const alreadyPlanned = plan.plays.some((pl) => pl.cardId === payload.cardId);
+        const affordable = alreadyPlanned || cardCost(payload.cardId) <= opts.energy - planCost(plan);
+        if (opt && affordable) {
           out.locations = opt.needsLocation
             ? opt.locations.filter((i) => opt.kind !== 'character' || gateRoom(view, i, me, plannedAt(i, payload.cardId)) > 0)
             : view.locations.map((l) => l.index);
@@ -302,6 +317,8 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
         const opt = opts.plays.find((p) => p.cardId === payload.cardId);
         if (view.locations[i].lost) return { text: `${locNameAt(i)} is Lost. Nobody can win it, so nothing can be played there.`, shake: [`${col(i)} .art`] };
         if (!opt) return { text: `${nm} cannot be played right now.`, shake: [`[data-hand-card="${payload.cardId}"]`] };
+        if (!plan.plays.some((pl) => pl.cardId === payload.cardId) && cardCost(payload.cardId) > opts.energy - planCost(plan))
+          return { text: `Not enough Energy: ${nm} costs ${cardCost(payload.cardId)} and you have ${opts.energy - planCost(plan)} left this turn. Energy equals the turn number, so it grows every turn.`, shake: [`[data-hand-card="${payload.cardId}"]`] };
         if (opt.kind === 'character' && gateRoom(view, i, me, plannedAt(i, payload.cardId)) <= 0) {
           const leaving = reserved[i] ?? [];
           if (leaving.length)
@@ -487,9 +504,9 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     if (selected) return `Tap a Location to commit ${cardName(selected, placeholders)}.`;
     if (harrietPlay && !harrietPlay.target) return 'Harriet Tubman: drag a Gate Character to another Gate for a free move (optional).';
     if (yemojaPlay && !yemojaPlay.target) return `Yemoja: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : `Location ${yemojaPlay.location + 1}`} (optional).`;
-    const left = opts.playsAllowed - plan.plays.length;
-    if (planItems.length) return left > 0 && opts.plays.length > plan.plays.length ? `${left} play${left > 1 ? 's' : ''} left` : '';
-    return 'Drag a card onto a Location (or tap card, then Location). One card per turn.';
+    const affordable = opts.plays.filter((o) => !plan.plays.some((pl) => pl.cardId === o.cardId) && cardCost(o.cardId) <= energyLeft).length;
+    if (planItems.length) return affordable > 0 ? `⚡ ${energyLeft} Energy left` : '';
+    return `Drag a card onto a Location (or tap card, then Location). ⚡ ${opts.energy} Energy this turn; each card shows its cost.`;
   })();
 
   // The opponent Stood on Business and the raise has not landed yet: this is the one cheap turn to Step Off.
@@ -498,7 +515,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
 
   return (
     <div className="app">
-      <Hud view={view} me={me} secondsLeft={m.secondsLeft} paused={!planning} onProfile={(p) => setSheet({ kind: 'profile', p })} onLog={() => setSheet({ kind: 'log' })} hasLog={m.lastTurn.length > 0} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} />
+      <Hud view={view} me={me} energy={planning ? { left: energyLeft, total: opts.energy } : undefined} secondsLeft={m.secondsLeft} paused={!planning} onProfile={(p) => setSheet({ kind: 'profile', p })} onLog={() => setSheet({ kind: 'log' })} hasLog={m.lastTurn.length > 0} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} />
       <div className="main-wrap">
         <Battlefield
           view={boardView}
@@ -521,21 +538,15 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
         />
         <Coach view={view} me={me} plan={plan} enabled={coach && planning && m.mode === 'ai' && !guide} onActive={setFlash} override={guideText} />
         {toast && (
-          <div className="toast" role="status">
+          <div className={`toast ${toastTone}`} role="status">
             {toast}
           </div>
         )}
       </div>
       <div className="bottom">
-        <Hand view={view} me={me} plan={plan} selected={selected} onSelect={selectCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} dragProps={dragProps} glow={guideCard} dropState={drop?.hand ? (drop.overKey === 'hand' ? 'over' : 'ok') : null} />
-        <div className={`hint ${raisedOnMe ? 'stand-banner' : ''}`}>
-          {raisedOnMe ? (
-            <span role="status">
-              <b>{view.players[other(me)].handle} STOOD ON BUSINESS.</b> Stakes go {view.stakes} → {opts.pendingStakes} after this turn.{' '}
-              {opts.canStepOff ? `Step Off now and lose only ${opts.stepOffCost}` : 'You stood too, so there is no backing out'}
-              {opts.canStand ? `, or Stand back to make it ${opts.proposedStakes}.` : '.'}
-            </span>
-          ) : selected && planning ? (
+        <Hand view={view} me={me} plan={plan} selected={selected} onSelect={selectCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} dragProps={dragProps} glow={guideCard} energyLeft={planning ? energyLeft : undefined} dropState={drop?.hand ? (drop.overKey === 'hand' ? 'over' : 'ok') : null} />
+        <div className="hint">
+          {selected && planning ? (
             <button className="small chip" onClick={() => setSheet({ kind: 'card', id: selected })}>
               ⓘ Inspect / send {cardName(selected, placeholders)}
             </button>
@@ -574,7 +585,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           </button>
         </div>
         <div className="actions-right">
-          <button className={`${plan.standOnBusiness ? 'primary' : ''} ${flash === 'stakes' ? 'ftue-flash' : ''}`} disabled={!planning || !opts.canStand} onClick={() => setSheet({ kind: 'stand' })}>
+          <button className={`${plan.standOnBusiness ? 'primary' : ''} ${flash === 'stakes' ? 'ftue-flash' : ''}`} disabled={!planning || !opts.canStand} onClick={toggleStand}>
             {plan.standOnBusiness ? 'Standing ✓' : 'Stand on Business'}
           </button>
         </div>
@@ -585,7 +596,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           <button className="primary" disabled={!planning} onClick={m.lockIn}>
             LOCK IT IN
           </button>
-          <button className={`${plan.standOnBusiness ? 'primary' : ''} ${flash === 'stakes' ? 'ftue-flash' : ''}`} disabled={!planning || !opts.canStand} onClick={() => setSheet({ kind: 'stand' })}>
+          <button className={`${plan.standOnBusiness ? 'primary' : ''} ${flash === 'stakes' ? 'ftue-flash' : ''}`} disabled={!planning || !opts.canStand} onClick={toggleStand}>
             {plan.standOnBusiness ? 'Standing ✓' : 'Stand'}
           </button>
         </div>
@@ -685,22 +696,6 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
             setSheet(null);
             setPlan((p) => ({ ...p, stepOff: true }));
             setTimeout(() => m.lockIn(), 0);
-          }}
-        />
-      )}
-      {sheet?.kind === 'stand' && (
-        <ConfirmSheet
-          title="Stand on Business"
-          body={
-            plan.standOnBusiness
-              ? 'Cancel your raise this turn?'
-              : `Raise the match from ${opts.pendingStakes} to ${opts.proposedStakes} Stakes${view.maxTurns < 10 ? ' and extend it to 10 turns' : ''}. The raise lands after next turn: your opponent gets one turn to Step Off for ${view.stakes}, or to Stand back and double it again. Once you stand you cannot Step Off, and you can only do this once per match.`
-          }
-          confirmLabel={plan.standOnBusiness ? 'Cancel raise' : `Stand: ${opts.pendingStakes} → ${opts.proposedStakes}`}
-          onClose={() => setSheet(null)}
-          onConfirm={() => {
-            setPlan((p) => ({ ...p, standOnBusiness: !p.standOnBusiness }));
-            setSheet(null);
           }}
         />
       )}

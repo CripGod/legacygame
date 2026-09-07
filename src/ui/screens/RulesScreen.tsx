@@ -11,13 +11,13 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
         <h1 className="title">Rules</h1>
         <h2>The match</h2>
         <ul>
-          <li>Two players, three Locations, nine turns (ten if someone Stands on Business), 12-card decks. Four-card opening hand, draw one each turn until the deck runs out. Hands hold at most seven cards: a draw into a full hand is discarded.</li>
+          <li>Two players, three Locations, nine turns (ten if someone Stands on Business), 13-card decks. Four-card opening hand and one draw every turn. Hands hold at most seven cards: a draw into a full hand is discarded.</li>
           <li>Both players plan at the same time, then <b>Lock It In</b>. Two minutes per turn.</li>
           <li>Win Influence at two of the three Locations to win the match.</li>
         </ul>
         <h2>Playing Characters</h2>
         <ul>
-          <li>One card per turn while any Location is hidden; <b>two</b> once all three are revealed. Organizer adds one more while Established. A Character goes to one of your two Gate slots at a Location. Its <b>Reveal</b> ability triggers there.</li>
+          <li>Every card has an <b>Energy</b> cost. Each turn you get Energy equal to the turn number (Turn 1: 1, Turn 5: 5); Organizer adds +1 while Established, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your two Gate slots at a Location. Its <b>Reveal</b> ability triggers there.</li>
           <li>Gate Characters count toward Influence but are <b>Fresh</b> for the turn they arrive and the following turn. Then they are <b>Ready</b> and may enter Inside (up to five per player).</li>
           <li>Inside, a Character is <b>Established</b>: its Established ability is live and it is safe from Gate-only effects.</li>
           <li><b>Direct Entry</b> Characters skip the wait.</li>

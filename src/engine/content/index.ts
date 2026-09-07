@@ -1,4 +1,5 @@
 import type { CardDef, CharacterDef, EventDef } from '../types';
+import { DECK_SIZE } from '../types';
 import { CHARACTERS, CHARACTER_BY_ID, GATHERING_DEFS } from './characters';
 import { EVENTS, EVENT_BY_ID } from './events';
 import { LOCATIONS, LOCATION_BY_ID, UNKNOWN_LOCATION } from './locations';
@@ -56,6 +57,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'sojourner_truth',
       'ida_b_wells',
       'queen_nzinga',
+      'pullman_porter',
       'reparations',
       'community_defense',
     ],
@@ -74,6 +76,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'frederick_douglass',
       'harriet_tubman',
       'victor_hugo_green',
+      'og',
       'reparations',
       'community_defense',
     ],
@@ -92,6 +95,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'harriet_tubman',
       'frederick_douglass',
       'mansa_musa',
+      'organizer',
       'reparations',
       'community_defense',
     ],
@@ -110,6 +114,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'ida_b_wells',
       'queen_nzinga',
       'toussaint_louverture',
+      'bessie_coleman',
       'reparations',
       'community_defense',
     ],
@@ -120,7 +125,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
 export function randomDeck(pick: (n: number) => number): string[] {
   const pool = CHARACTERS.filter((c) => c.category !== 'gathering').map((c) => c.id);
   const chosen: string[] = [];
-  while (chosen.length < 10) chosen.push(pool.splice(pick(pool.length), 1)[0]);
+  while (chosen.length < DECK_SIZE - 2) chosen.push(pool.splice(pick(pool.length), 1)[0]);
   const ev = EVENTS.map((e) => e.id);
   const picked: string[] = [];
   while (picked.length < 2) picked.push(ev.splice(pick(ev.length), 1)[0]);
@@ -129,7 +134,7 @@ export function randomDeck(pick: (n: number) => number): string[] {
 
 export function validateDeck(cards: string[]): string[] {
   const errors: string[] = [];
-  if (cards.length !== 12) errors.push(`Deck must have 12 cards (has ${cards.length}).`);
+  if (cards.length !== DECK_SIZE) errors.push(`Deck must have ${DECK_SIZE} cards (has ${cards.length}).`);
   const seen = new Set<string>();
   let events = 0;
   for (const id of cards) {

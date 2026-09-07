@@ -19,6 +19,7 @@ import {
   type CharacterInstance,
   charDef,
   MAX_HAND,
+  CARD_BY_ID,
 } from '../src/engine';
 import { planTurn } from '../src/ai/harborlight';
 
@@ -27,8 +28,13 @@ function pass(): TurnPlan {
 }
 
 /** Force a specific hand/board for tests. */
-function rig(state: GameState, opts: { handA?: string[]; handB?: string[]; locations?: string[]; revealAll?: boolean }): GameState {
+function rig(state: GameState, opts: { handA?: string[]; handB?: string[]; locations?: string[]; revealAll?: boolean; energy?: boolean }): GameState {
   const s = structuredClone(state);
+  // Rigged scenarios ignore the Energy curve unless a test opts in.
+  if (!opts.energy) {
+    s.players.A.energyBonus = 20;
+    s.players.B.energyBonus = 20;
+  }
   if (opts.handA) s.players.A.hand = opts.handA;
   if (opts.handB) s.players.B.hand = opts.handB;
   if (opts.locations) opts.locations.forEach((id, i) => (s.locations[i].defId = id));
@@ -69,7 +75,7 @@ describe('setup', () => {
     const s = createMatch({ seed: 1 });
     expect(s.turn).toBe(1);
     expect(s.players.A.hand).toHaveLength(5);
-    expect(s.players.A.deckCount).toBe(7);
+    expect(s.players.A.deckCount).toBe(8);
     expect(s.locations.every((l) => !l.revealed)).toBe(true);
     expect(new Set(s.revealOrder)).toEqual(new Set([0, 1, 2]));
   });
@@ -117,7 +123,7 @@ describe('turn structure', () => {
     }
   });
   it('a played Character waits one full turn at the Gates before it can enter', () => {
-    let s = createMatch({ seed: 11 });
+    let s = rig(createMatch({ seed: 11 }), {});
     // Keep the turn-3 "history moves" Threat away from Location 1 by giving it a harmless Threat already.
     s.locations[0].threats.push({ uid: 'cc', defId: 'comfortable_complicity', location: 0, forceRequired: 1, spawnedTurn: 1 });
     const cardId = s.players.A.hand.find((c) => c !== 'reparations' && c !== 'community_defense' && c !== 'pullman_porter' && c !== 'bessie_coleman')!;
@@ -345,28 +351,36 @@ describe('Summon', () => {
   });
 });
 
-describe('multiple plays', () => {
-  it('allows one play while any Location is hidden, two after, and Organizer adds one', () => {
-    let s = createMatch({ seed: 21 });
-    expect(legalOptions(s, 'A').playsAllowed).toBe(1);
-    s = rig(s, { locations: ['black_star', 'great_migration', 'greenwood'], revealAll: true, handA: ['og', 'zora_neale_hurston', 'ida_b_wells', 'mansa_musa'] });
-    expect(legalOptions(s, 'A').playsAllowed).toBe(2);
+describe('energy', () => {
+  it('Energy equals the turn number, cards cost Energy, and Organizer adds one', () => {
+    let s = rig(createMatch({ seed: 21 }), { energy: true, locations: ['black_star', 'great_migration', 'greenwood'], revealAll: true, handA: ['karen', 'organizer', 'og', 'mansa_musa'] });
+    expect(legalOptions(s, 'A').energy).toBe(1);
+    // Turn 1: a 2-cost card is refused, a 1-cost card is fine.
+    expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'og', location: 1 }] })).not.toEqual([]);
+    expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'karen', location: 1 }] })).toEqual([]);
+    s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(legalOptions(s, 'A').energy).toBe(2);
+    // Turn 2: two 1-cost cards, or one 2-cost card, not both.
+    expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'karen', location: 1 }, { cardId: 'organizer', location: 1 }] })).toEqual([]);
+    expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'og', location: 1 }, { cardId: 'karen', location: 2 }] })).not.toEqual([]);
     addChar(s, 'organizer', 'A', 0, 'inside');
-    expect(legalOptions(s, 'A').playsAllowed).toBe(3);
-    // Two Characters into one Location need two open Gates; a third does not fit.
-    const ok = { ...pass(), plays: [{ cardId: 'og', location: 1 }, { cardId: 'zora_neale_hurston', location: 1 }] };
-    expect(validatePlan(s, 'A', ok)).toEqual([]);
-    const tooMany = { ...pass(), plays: [{ cardId: 'og', location: 1 }, { cardId: 'zora_neale_hurston', location: 1 }, { cardId: 'ida_b_wells', location: 1 }] };
-    expect(validatePlan(s, 'A', tooMany)).not.toEqual([]);
-    s = resolveTurn(s, { A: ok, B: pass() }).state;
-    expect(charsAt(s, 1, 'A', 'gate')).toHaveLength(2);
+    expect(legalOptions(s, 'A').energy).toBe(3);
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'og', location: 1 }, { cardId: 'karen', location: 2 }] }, B: pass() }).state;
+    expect(charsAt(s, 1, 'A', 'gate')).toHaveLength(1);
+    expect(charsAt(s, 2, 'A', 'gate')).toHaveLength(1);
     expect(s.players.A.hand).not.toContain('og');
+  });
+  it('every deck card has a cost and presets are 13 cards', () => {
+    for (const d of Object.values(PRESET_DECKS)) {
+      expect(validateDeck(d.cards)).toEqual([]);
+      for (const id of d.cards) expect(CARD_BY_ID[id]?.cost ?? 0).toBeGreaterThan(0);
+    }
   });
 });
 
 describe('locations', () => {
   it('Sundown Town does nothing on the turn it reveals, then displaces new arrivals', () => {
-    let s = createMatch({ seed: 2 });
+    let s = rig(createMatch({ seed: 2 }), {});
     s.locations[0].defId = 'sundown_town';
     s.revealOrder = [0, 1, 2];
     s.players.A.hand = ['og', 'zora_neale_hurston', 'ida_b_wells', 'reparations', 'mansa_musa'];

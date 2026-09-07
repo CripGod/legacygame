@@ -11,6 +11,9 @@ export function CardFace({ id, big = false, onClick }: { id: string; big?: boole
   const isChar = def.kind === 'character';
   return (
     <div className={`card ${big ? 'big' : ''} ${isChar ? '' : 'event'}`} onClick={onClick} role={onClick ? 'button' : undefined}>
+      <div className="cost" {...tip(HINTS.cost)}>
+        {def.cost}
+      </div>
       {isChar ? (
         <>
           <div className="hex i" {...tip(HINTS.influence)}>

@@ -1,7 +1,7 @@
 /**
  * Read-only queries over GameState: Influence, Force, capacity, legal actions.
  */
-import { charDef, cardDef, LOCATION_BY_ID, THREAT_BY_ID } from './content';
+import { charDef, cardDef, LOCATION_BY_ID, THREAT_BY_ID, CARD_BY_ID } from './content';
 import type {
   GameState,
   PlayerId,
@@ -173,11 +173,21 @@ export function canConfront(state: GameState, threat: ThreatInstance, p: PlayerI
   return !own;
 }
 
-/** Cards a player may play this turn: 1 while any Location is hidden, 2 once all are revealed, plus Established bonuses. */
-export function playsAllowed(state: GameState, p: PlayerId): number {
-  let n = state.locations.every((l) => l.revealed) ? 2 : 1;
-  for (const c of hasEstablishedAnywhere(state, p, 'extraPlay')) n += amountOf(c);
+/** Energy this turn: the turn number, plus Organizer-style bonuses. Unspent Energy does not carry over. */
+export function energyFor(state: GameState, p: PlayerId): number {
+  let n = state.turn + (state.players[p].energyBonus ?? 0);
+  for (const c of hasEstablishedAnywhere(state, p, 'extraEnergy')) n += amountOf(c);
   return n;
+}
+
+/** Energy cost of a card. */
+export function cardCost(cardId: string): number {
+  return CARD_BY_ID[cardId]?.cost ?? 0;
+}
+
+/** Total Energy a plan spends on plays. */
+export function planCost(plan: TurnPlan): number {
+  return plan.plays.reduce((s, pl) => s + cardCost(pl.cardId), 0);
 }
 
 /** Open Gate slots for `p` at a Location, after `planned` Characters already committed there. */
@@ -230,7 +240,8 @@ export interface LegalOptions {
   enters: string[];
   relocations: { uid: string; destinations: number[] }[];
   relocationsAllowed: number;
-  playsAllowed: number;
+  /** Energy available this turn. */
+  energy: number;
   confronts: ConfrontOption[];
   canStand: boolean;
   canStepOff: boolean;
@@ -300,7 +311,7 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
     enters,
     relocations,
     relocationsAllowed: relocationsAllowed(state, p),
-    playsAllowed: playsAllowed(state, p),
+    energy: energyFor(state, p),
     confronts,
     canStand,
     summonable: state.locations.filter((l) => l.revealed && !l.lost && !l.sanctified && l.threats.length > 0 && mine.some((c) => c.location === l.index)).map((l) => l.index),
@@ -315,7 +326,7 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
 export function validatePlan(state: GameState, p: PlayerId, plan: TurnPlan): string[] {
   const errors: string[] = [];
   const opts = legalOptions(state, p);
-  if (plan.plays.length > opts.playsAllowed) errors.push(`Only ${opts.playsAllowed} card play(s) allowed this turn.`);
+  if (planCost(plan) > opts.energy) errors.push(`Not enough Energy: this plan costs ${planCost(plan)} and you have ${opts.energy}.`);
   const usedCards = new Set<string>();
   const gateUse: Record<number, number> = {};
   for (const play of plan.plays) {

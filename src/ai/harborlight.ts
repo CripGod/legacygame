@@ -28,6 +28,8 @@ import {
   type TurnPlan,
   type PlayAction,
   type ConfrontOption,
+  planCost,
+  cardCost,
 } from '../engine';
 
 export interface AiCandidate {
@@ -80,7 +82,7 @@ const ESTABLISHED_VALUE: Record<string, number> = {
   blessNextEstablished: 0.9,
   gateInfluenceHere: 0.8,
   extraRelocation: 0.9,
-  extraPlay: 1.6,
+  extraEnergy: 1.6,
   opposingGateInfluence: 0.9,
   influenceOnThreatCleared: 0.7,
   forceAuraHere: 0.5,
@@ -403,29 +405,43 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
         reasons.push('hidden gamble');
       }
     }
-    const unused = Math.min(opts.playsAllowed, opts.plays.length) - plan.plays.length;
-    if (unused > 0) {
-      score -= 2 * unused;
-      reasons.push('holding a card');
+    const spent = planCost(plan);
+    const cheapestLeft = Math.min(...opts.plays.filter((o) => !plan.plays.some((pl) => pl.cardId === o.cardId)).map((o) => cardCost(o.cardId)), Infinity);
+    if (opts.energy - spent >= cheapestLeft) {
+      score -= 1.2 * (opts.energy - spent);
+      reasons.push('unspent Energy');
     }
     return { label: labelPlan(view, plan), plan, score, reasons };
   };
 
   // Stage 1: single plays with the default "enter everything" posture.
   const defaultEnters = enterVariants[enterVariants.length > 1 ? 1 : 0];
-  const singles: AiCandidate[] = plays.map((play) => scoreOf({ plays: [play], enters: defaultEnters, relocations: [], confronts }));
+  const affordable = plays.filter((play) => cardCost(play.cardId) <= opts.energy);
+  const singles: AiCandidate[] = affordable.map((play) => scoreOf({ plays: [play], enters: defaultEnters, relocations: [], confronts }));
   singles.sort((a, b) => b.score - a.score);
   const playSets: PlayAction[][] = [[], ...singles.slice(0, 6).map((c) => c.plan.plays)];
-  if (opts.playsAllowed >= 2) {
-    const top = singles.slice(0, 6).map((c) => c.plan.plays[0]);
+  {
+    const top = singles.slice(0, 7).map((c) => c.plan.plays[0]);
     for (let i = 0; i < top.length; i++) {
       for (let j = i + 1; j < top.length; j++) {
         const a = top[i];
         const b = top[j];
         if (a.cardId === b.cardId) continue;
+        if (cardCost(a.cardId) + cardCost(b.cardId) > opts.energy) continue;
         const bothChars = cardDef(a.cardId).kind === 'character' && cardDef(b.cardId).kind === 'character';
         if (bothChars && a.location === b.location && gateRoom(view, a.location, p) < 2) continue;
         playSets.push([a, b]);
+        // A third card when Energy allows and Gates are open for it.
+        for (let k = j + 1; k < top.length; k++) {
+          const c = top[k];
+          if (c.cardId === a.cardId || c.cardId === b.cardId) continue;
+          if (cardCost(a.cardId) + cardCost(b.cardId) + cardCost(c.cardId) > opts.energy) continue;
+          const chars = [a, b, c].filter((x) => cardDef(x.cardId).kind === 'character');
+          const perLoc: Record<number, number> = {};
+          for (const x of chars) perLoc[x.location] = (perLoc[x.location] ?? 0) + 1;
+          if (Object.entries(perLoc).some(([loc, n]) => n > gateRoom(view, Number(loc), p))) continue;
+          playSets.push([a, b, c]);
+        }
       }
     }
   }
