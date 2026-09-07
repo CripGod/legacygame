@@ -899,6 +899,7 @@ export function ShowdownSheet({ ev, view, onClose }: { ev: GameEvent; view: Game
 - }>{d.cleared ? 'NEUTRALIZED' : 'IT HOLDS'}</div>
         <div className="showdown-why">{why}</div>
         {!d.cleared && tdef && <div className="showdown-rule muted">While it stands: {tdef.text}</div>}
+        {!d.cleared && tdef && <div className="showdown-rule beat">{howToBeat({ kind: 'threat', id: d.defId }, 'held')}</div>}
         <div className="actions" style={{ justifyContent: 'center' }}>
           <button className="primary" onClick={onClose} autoFocus>
             Continue
@@ -936,6 +937,48 @@ export function PeekHandSheet({ cards, by, opponent, onClose }: { cards: string[
       </div>
     </div>
   );
+}
+
+
+/** One short line on how to beat or avoid what a modal just showed. Every event modal ends with one. */
+export function howToBeat(actor: { kind: 'character' | 'threat' | 'location' | 'event'; id: string; force?: number }, outcome: string): string {
+  if (actor.kind === 'threat') {
+    const t = THREAT_BY_ID[actor.id];
+    if (!t) return '';
+    const who = t.requiresBoth ? 'both players in the same turn' : t.split ? 'the player it targets (the other may Assist)' : 'either player, or both together';
+    const clock = t.lostAfterTurns ? 
+- ;
+  }
+  if (actor.kind === 'location') return 'To avoid it: Enter or Relocate before the turn ends. Direct Entry and Characters arriving Inside are safe.';
+  if (actor.kind === 'event') return 'To avoid it: Nanny of the Maroons Established there, or no Gate Character to take. A turned Character can be turned back the same way.';
+  const def = CARD_BY_ID[actor.id];
+  const eff = def?.kind === 'character' ? def.reveal?.effect.type : undefined;
+  const protect = 'Community Defense, Toussaint or The Tabernacle protect against it';
+  switch (eff) {
+    case 'challengeGate':
+      return 
+- ;
+    case 'challengeInside':
+      return 
+- ;
+    case 'challengeAllGates':
+      return 
+- ;
+    case 'displaceOpposingGate':
+      return 
+- ;
+    case 'blockOneOpposingGate':
+    case 'blockOpposingGatesHere':
+      return 'To beat it: Bessie Coleman Established, Community Defense or a sanctuary here means nobody is blocked. A blocked Character can try again next turn.';
+    case 'suppressInside':
+      return 'To beat it: Sojourner Truth Established here stops Suppression. It wears off at the end of next turn.';
+    case 'refreshOpposingGate':
+      return 'To beat it: protection only. Otherwise they are Ready again next turn.';
+    case 'stealGate':
+      return 'To beat it: Nanny of the Maroons Established here, or leave no Gate Character for her. A turned Character can be turned back.';
+    default:
+      return outcome === 'held' ? 'It held because the numbers or a protection said so. Same rules next time.' : '';
+  }
 }
 
 /** A Character knocks, blocks, holds off or turns another: the beat that explains the tally. */

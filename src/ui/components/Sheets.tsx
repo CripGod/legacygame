@@ -13,7 +13,7 @@ import {
   type PlayerId,
   type TurnPlan,
 } from '../../engine';
-import { cardName, initials, locationName, threatLabel, useDisplay } from '../display';
+import { cardName, initials, locationName, threatLabel, useDisplay, spawnText } from '../display';
 import { CardFace } from './CardFace';
 import { liveAbilities } from './Battlefield';
 import { Art } from './Art';
@@ -426,6 +426,7 @@ export function SpawnSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
       <div className="sheet fanfare">
         <div className={`stand-title ${mine ? 'pA' : 'pB'}`}>{def.name?.toUpperCase()}</div>
         <div className="center">{def.spawn?.headline}</div>
+        {(def as { spawn?: Parameters<typeof spawnText>[0] }).spawn && <div className="showdown-rule beat center">{mine ? 'Yours now. ' : 'Theirs. '}{spawnText((def as { spawn: Parameters<typeof spawnText>[0] }).spawn).replace('Not in any deck. ', '')}</div>}
         <div className="row" style={{ justifyContent: 'center' }}>
           <CardFace id={ev.cardId!} big />
         </div>
@@ -603,6 +604,7 @@ export function ShowdownSheet({ ev, view, onClose }: { ev: GameEvent; view: Game
         <div className={`verdict ${stage >= 2 ? 'show' : ''}`}>{d.cleared ? 'NEUTRALIZED' : 'IT HOLDS'}</div>
         <div className="showdown-why">{why}</div>
         {!d.cleared && tdef && <div className="showdown-rule muted">While it stands: {tdef.text}</div>}
+        {!d.cleared && tdef && <div className="showdown-rule beat">{howToBeat({ kind: 'threat', id: d.defId }, 'held')}</div>}
         <div className="actions" style={{ justifyContent: 'center' }}>
           <button className="primary" onClick={onClose} autoFocus>
             Continue
@@ -638,6 +640,44 @@ export function PeekHandSheet({ cards, by, opponent, onClose }: { cards: string[
       </div>
     </div>
   );
+}
+
+
+/** One short line on how to beat or avoid what a modal just showed. Every event modal ends with one. */
+export function howToBeat(actor: { kind: 'character' | 'threat' | 'location' | 'event'; id: string; force?: number }, outcome: string): string {
+  if (actor.kind === 'threat') {
+    const t = THREAT_BY_ID[actor.id];
+    if (!t) return '';
+    const who = t.requiresBoth ? 'both players in the same turn' : t.split ? 'the player it targets (the other may Assist)' : 'either player, or both together';
+    const clock = t.lostAfterTurns ? ` Unanswered for ${t.lostAfterTurns} turns and the Location is Lost.` : '';
+    return `To beat it: ${t.force} Force in one turn from ${who}. Drag Characters onto the Threat.${clock}`;
+  }
+  if (actor.kind === 'location') return 'To avoid it: Enter or Relocate before the turn ends. Direct Entry and Characters arriving Inside are safe.';
+  if (actor.kind === 'event') return 'To avoid it: Nanny of the Maroons Established there, or no Gate Character to take. A turned Character can be turned back the same way.';
+  const def = CARD_BY_ID[actor.id];
+  const eff = def?.kind === 'character' ? def.reveal?.effect.type : undefined;
+  const protect = 'Community Defense, Toussaint or The Tabernacle protect against it';
+  switch (eff) {
+    case 'challengeGate':
+      return `To beat it: a Gate Character with ${actor.force ?? 'more'} Force or more holds her off. ${protect}.`;
+    case 'challengeInside':
+      return `To beat it: an Established Character with ${actor.force ?? 'more'} Force or more holds him off, and full opposing Gates leave nowhere to send them. ${protect}.`;
+    case 'challengeAllGates':
+      return `To beat it: only Gate Characters with less than ${actor.force ?? 'his'} Force are moved. ${protect}.`;
+    case 'displaceOpposingGate':
+      return `To beat it: no Force check. Only protection stops her (${protect.replace(' protect against it', '')}).`;
+    case 'blockOneOpposingGate':
+    case 'blockOpposingGatesHere':
+      return 'To beat it: Bessie Coleman Established, Community Defense or a sanctuary here means nobody is blocked. A blocked Character can try again next turn.';
+    case 'suppressInside':
+      return 'To beat it: Sojourner Truth Established here stops Suppression. It wears off at the end of next turn.';
+    case 'refreshOpposingGate':
+      return 'To beat it: protection only. Otherwise they are Ready again next turn.';
+    case 'stealGate':
+      return 'To beat it: Nanny of the Maroons Established here, or leave no Gate Character for her. A turned Character can be turned back.';
+    default:
+      return outcome === 'held' ? 'It held because the numbers or a protection said so. Same rules next time.' : '';
+  }
 }
 
 /** A Character knocks, blocks, holds off or turns another: the beat that explains the tally. */
@@ -711,6 +751,7 @@ export function ClashSheet({ ev, view, onClose }: { ev: GameEvent; view: GameSta
           {d.note ? ` ${d.note}` : ''}
           {d.outcome === 'displaced' && whereText ? ` ${victimName} now waits Fresh at the Gates of ${whereText}.` : ''}
         </div>
+        {howToBeat(d.actor, d.outcome) && <div className="showdown-rule beat">{howToBeat(d.actor, d.outcome)}</div>}
         <div className="actions" style={{ justifyContent: 'center' }}>
           <button className="primary" onClick={onClose} autoFocus>
             Continue
