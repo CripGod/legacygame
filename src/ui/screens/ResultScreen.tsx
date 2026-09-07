@@ -18,7 +18,7 @@ export function ResultScreen({ state, onAgain, onRematch, onMenu, onBoard }: { s
           {r.winner ? `${state.players[r.winner].handle} wins` : 'Draw'}
         </div>
         <div className="center muted">
-          {reason[r.reason]} · {r.stakes} Stake{r.stakes > 1 ? 's' : ''} · ended on Turn {r.turn}
+          {reason[r.reason]} · {r.stakes} Legacy · ended on Turn {r.turn}
         </div>
         <div className="result-grid">
           {state.locations.map((l, i) => {

@@ -192,7 +192,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       return;
     }
     setPlan((p) => ({ ...p, standOnBusiness: true }));
-    feedback(`Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Stakes after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds an 8th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Step Off for ${view.stakes} or Stand back. You cannot Step Off once you stand, and this is once per match. Tap again to cancel.`, [], 'info');
+    feedback(`Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds an 8th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Step Off for ${view.stakes} or Stand back. You cannot Step Off once you stand, and this is once per match. Tap again to cancel.`, [], 'info');
   };
 
   /** Energy left after the plays already planned. */
@@ -716,7 +716,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       {sheet?.kind === 'stepOff' && (
         <ConfirmSheet
           title="Step Off?"
-          body={`Stepping off surrenders the match. ${view.players[other(me)].handle} wins ${opts.stepOffCost} Stake${opts.stepOffCost > 1 ? 's' : ''}.${raisedOnMe ? ` Stay and the match is worth ${opts.pendingStakes} from next turn.` : ''}`}
+          body={`Stepping off surrenders the match. ${view.players[other(me)].handle} wins ${opts.stepOffCost} Legacy.${raisedOnMe ? ` Stay and the match is worth ${opts.pendingStakes} from next turn.` : ''}`}
           confirmLabel="Step Off"
           danger
           onClose={() => setSheet(null)}

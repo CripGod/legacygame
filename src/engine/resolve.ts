@@ -57,6 +57,7 @@ function setback(state: GameState, p: PlayerId, reason: string, events: GameEven
 
 function isProtected(state: GameState, c: CharacterInstance): boolean {
   if (state.players[c.owner].defendedLocation === c.location) return true;
+  if (c.protectedTurn === state.turn) return true;
   if (hasEstablished(state, c.owner, c.location, 'noDisplaceHere').length) return true;
   if (hasEstablished(state, c.owner, c.location, 'sanctuary').length) return true;
   if (c.relocatedTurn === state.turn && hasEstablishedAnywhere(state, c.owner, 'relocatedNoDisplace').length) return true;
@@ -273,6 +274,11 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       }
       break;
     }
+    case 'holdSeat': {
+      c.protectedTurn = state.turn;
+      say('keeps her seat: she cannot be displaced this turn.');
+      break;
+    }
     case 'draw': {
       for (let i = 0; i < eff.count; i++) drawCard(state, p, events);
       say(`${state.players[p].handle} draws a card.`);
@@ -478,7 +484,7 @@ function playEvent(state: GameState, p: PlayerId, play: PlayAction, events: Game
       const bonus = Math.min(def.effect.max, ps.setbacks);
       const candidates = state.locations.filter((l) => !l.lost);
       if (!candidates.length || bonus === 0) {
-        events.push({ type: 'info', text: `${def.name}: no qualifying Setbacks this match.`, player: p });
+        events.push({ type: 'info', text: `${def.name}: no Setbacks this match.`, player: p });
         break;
       }
       const lowest = candidates
@@ -548,7 +554,7 @@ function endByStepOff(state: GameState, p: PlayerId, events: GameEvent[]): void 
     if (rec) rec.accepted = false;
   }
   state.pendingRaises = [];
-  events.push({ type: 'stepOff', text: `${state.players[p].handle} steps off. ${state.players[other(p)].handle} wins ${state.stakes} Stake(s).`, player: p });
+  events.push({ type: 'stepOff', text: `${state.players[p].handle} steps off. ${state.players[other(p)].handle} wins ${state.stakes} Legacy.`, player: p });
 }
 
 /** Resolve a full turn. Never mutates `input`. Illegal plans are replaced by a pass. */
@@ -590,7 +596,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     state.stats.standTurns.push({ player: p, turn: state.turn, proposed: to, accepted: true });
     const o = other(p);
     const escape = state.players[o].cannotStepOff ? `${state.players[o].handle} already stood, so there is no backing out.` : `${state.players[o].handle} has one turn to Step Off for ${state.stakes}.`;
-    events.push({ type: 'stand', text: `${state.players[p].handle} STANDS ON BUSINESS: ${from} → ${to} Stakes after next turn. ${escape}`, player: p, data: { from, to } });
+    events.push({ type: 'stand', text: `${state.players[p].handle} STANDS ON BUSINESS: ${from} → ${to} Legacy after next turn. ${escape}`, player: p, data: { from, to } });
     if (state.maxTurns < EXTENDED_TURNS) {
       state.maxTurns = EXTENDED_TURNS;
       events.push({ type: 'stand', text: `The match is extended to ${EXTENDED_TURNS} turns.`, data: { maxTurns: EXTENDED_TURNS } });
@@ -931,7 +937,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
   if (landing.length) {
     state.pendingRaises = state.pendingRaises.filter((r) => r.declaredTurn >= state.turn);
     state.stakes = Math.min(MAX_STAKES, state.stakes * 2 ** landing.length);
-    events.push({ type: 'stakes', text: `Nobody stepped off. The match is now worth ${state.stakes} Stake${state.stakes > 1 ? 's' : ''}.`, data: { stakes: state.stakes } });
+    events.push({ type: 'stakes', text: `Nobody stepped off. The match is now worth ${state.stakes} Legacy.`, data: { stakes: state.stakes } });
   }
 
   if (state.turn >= state.maxTurns) {

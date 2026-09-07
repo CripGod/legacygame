@@ -20,6 +20,7 @@ import {
   charDef,
   MAX_HAND,
   CARD_BY_ID,
+  charInfluence,
   spawnThreat,
   type GameEvent,
 } from '../src/engine';
@@ -449,6 +450,52 @@ describe('gatherings', () => {
   });
 });
 
+describe('new one-drops and The Justice System', () => {
+  it('The Justice System holds a Character Inside for two turns', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['justice_system', 'great_migration', 'gary_indiana'], revealAll: true });
+    s.turn = 3;
+    const og = addChar(s, 'og', 'A', 0, 'gate');
+    s = resolveTurn(s, { A: { ...pass(), enters: [og.uid] }, B: pass() }).state; // enters at end of turn 3
+    expect(s.characters[og.uid].zone).toBe('inside');
+    expect(s.turn).toBe(4);
+    expect(legalOptions(s, 'A').relocations.some((r) => r.uid === og.uid)).toBe(false);
+    s = resolveTurn(s, { A: pass(), B: pass() }).state; // turn 5: still held
+    expect(legalOptions(s, 'A').relocations.some((r) => r.uid === og.uid)).toBe(false);
+    s = resolveTurn(s, { A: pass(), B: pass() }).state; // turn 6: free
+    expect(legalOptions(s, 'A').relocations.some((r) => r.uid === og.uid)).toBe(true);
+  });
+  it('Barber makes departures free; Church Mother wants company', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true });
+    s.turn = 4;
+    addChar(s, 'barber', 'A', 0, 'inside');
+    const a = addChar(s, 'og', 'A', 0, 'inside');
+    const b = addChar(s, 'zora_neale_hurston', 'A', 0, 'inside');
+    // Two relocations out of the Barber's Location cost nothing against the limit of one.
+    expect(validatePlan(s, 'A', { ...pass(), relocations: [{ uid: a.uid, to: 1 }, { uid: b.uid, to: 2 }] })).toEqual([]);
+    const mother = addChar(s, 'church_mother', 'A', 1, 'inside');
+    expect(charInfluence(s, mother)).toBe(1);
+    addChar(s, 'pullman_porter', 'A', 1, 'gate');
+    expect(charInfluence(s, mother)).toBe(2);
+  });
+  it('Claudette Colvin keeps her seat at Sundown Town', () => {
+    let s = rig(createMatch({ seed: 2 }), {});
+    s.locations[0].defId = 'sundown_town';
+    s.revealOrder = [0, 1, 2];
+    s.players.A.hand = ['og', 'claudette_colvin', 'ida_b_wells', 'reparations', 'mansa_musa'];
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'og', location: 0 }] }, B: pass() }).state; // reveal turn
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'claudette_colvin', location: 0 }] }, B: pass() }).state;
+    const claudette = charsOf(s, 'A').find((c) => c.defId === 'claudette_colvin')!;
+    expect(claudette.location).toBe(0);
+    expect(s.players.A.setbacks).toBe(0);
+  });
+  it('every preset deck is legal and holds at least three 1-cost cards', () => {
+    for (const [key, deck] of Object.entries(PRESET_DECKS)) {
+      expect(validateDeck(deck.cards), key).toEqual([]);
+      expect(deck.cards.filter((id) => (CARD_BY_ID[id]?.cost ?? 0) <= 1).length, key).toBeGreaterThanOrEqual(3);
+    }
+  });
+});
+
 describe('home ground', () => {
   it('Lagos never gets a Housing Restriction', () => {
     const s = rig(createMatch({ seed: 2 }), { locations: ['lagos', 'gary_indiana', 'greenwood'], revealAll: true });
@@ -572,7 +619,7 @@ describe('AI vs AI smoke', () => {
       expect(s.result).toBeDefined();
     }
   });
-  it('all seven Locations are defined', () => {
-    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(8);
+  it('all pool Locations are defined', () => {
+    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(9);
   });
 });

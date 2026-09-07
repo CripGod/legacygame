@@ -63,7 +63,7 @@ export function Hud({ view, me, secondsLeft, paused, onProfile, onLog, hasLog, b
               {view.stakes}
               {view.pendingRaises.length > 0 && <em>→{effectiveStakes(view)}</em>}
             </span>
-            <small>stake{view.stakes > 1 ? 's' : ''}</small>
+            <small>legacy</small>
           </div>
           <button className="coin info" disabled={!hasLog} onClick={onLog} {...tip('What happened last turn, step by step.')} aria-label="Last turn log">
             i

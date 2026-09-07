@@ -13,7 +13,16 @@ import type {
 } from './types';
 import { GATE_CAPACITY, INSIDE_CAPACITY, PLAYERS, other, MAX_STAKES, EXTENDED_TURNS } from './types';
 
-/** Stakes once every pending Stand on Business has taken effect. */
+/** The Justice System: a Character that went Inside recently cannot relocate out yet. */
+export function isHeldInside(state: GameState, c: CharacterInstance): boolean {
+  if (c.zone !== 'inside') return false;
+  const loc = state.locations[c.location];
+  if (!loc.revealed) return false;
+  const eff = LOCATION_BY_ID[loc.defId]?.effect;
+  return eff?.type === 'lockInside' && state.turn - c.arrivedTurn <= eff.turns;
+}
+
+/** Legacy (the match's worth) once every pending Stand on Business has taken effect. */
 export function effectiveStakes(state: GameState): number {
   return Math.min(MAX_STAKES, state.stakes * 2 ** state.pendingRaises.length);
 }
@@ -101,6 +110,9 @@ export function charInfluence(state: GameState, c: CharacterInstance): number {
     }
     for (const k of hasEstablished(state, c.owner, c.location, 'cookout')) {
       if (k.uid !== c.uid) v += amountOf(k);
+    }
+    for (const m of hasEstablished(state, c.owner, c.location, 'allyBonus')) {
+      if (m.uid === c.uid && charsAt(state, c.location, c.owner).length >= 2) v += amountOf(m);
     }
   } else {
     if (threatActiveFor(state, c.location, 'zeroGateInfluence', c.owner) && !hasEstablished(state, c.owner, c.location, 'sanctuary').length) return 0;
@@ -289,7 +301,7 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
   const mine = charsOf(state, p);
   const enters = mine.filter((c) => c.zone === 'gate' && c.ready && !state.locations[c.location].lost).map((c) => c.uid);
   const relocations = mine
-    .filter((c) => c.zone === 'inside')
+    .filter((c) => c.zone === 'inside' && !isHeldInside(state, c))
     .map((c) => ({
       uid: c.uid,
       destinations: state.locations
@@ -359,7 +371,7 @@ export function validatePlan(state: GameState, p: PlayerId, plan: TurnPlan): str
   }
   const counted = plan.relocations.filter((r) => {
     const c = state.characters[r.uid];
-    return !(c && locDef(state, c.location).effect.type === 'hub');
+    return !(c && (locDef(state, c.location).effect.type === 'hub' || hasEstablished(state, c.owner, c.location, 'freeDeparture').length));
   });
   if (counted.length > opts.relocationsAllowed) errors.push(`Only ${opts.relocationsAllowed} Relocation(s) allowed this turn (Lagos departures are free).`);
   for (const r of plan.relocations) {

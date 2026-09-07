@@ -49,7 +49,8 @@ export type RevealEffect =
   | { type: 'moveFriendlyInsideHere' } // Yemoja — needs target
   | { type: 'confrontAllThreats'; bonus: number } // Ogun
   | { type: 'displaceOpposingGate' } // Mami Wata
-  | { type: 'sanctuaryReveal' }; // Black Jesus
+  | { type: 'sanctuaryReveal' } // Black Jesus
+  | { type: 'holdSeat' }; // Claudette Colvin: cannot be displaced this turn
 
 export type EstablishedEffect =
   | { type: 'readyRelocatedIn' } // Harriet
@@ -74,7 +75,9 @@ export type EstablishedEffect =
   | { type: 'relocatedInInside' } // Yemoja
   | { type: 'weakenThreatsHere'; amount: number } // Ogun
   | { type: 'sanctuary' } // Black Jesus
-  | { type: 'cookout'; amount: number }; // The Cookout: friends here +Influence, arrivals Ready
+  | { type: 'cookout'; amount: number } // The Cookout: friends here +Influence, arrivals Ready
+  | { type: 'freeDeparture' } // Barber: leaving here never counts against the Relocation limit
+  | { type: 'allyBonus'; amount: number }; // Church Mother: +Influence while another friendly Character is here
 
 /** Gatherings are never in a deck: they spawn on the board when the world earns them. */
 export type CharacterCategory = 'historical' | 'archetype' | 'mythic' | 'gathering';
@@ -140,7 +143,8 @@ export type LocationEffect =
   | { type: 'displaceFreshAtEnd' } // Sundown Town
   | { type: 'steelAndSoul'; force: number; fiveBonus: number } // Gary, Indiana
   | { type: 'relocatedInReady' } // Accra, Ghana
-  | { type: 'hub' }; // Lagos
+  | { type: 'hub' } // Lagos
+  | { type: 'lockInside'; turns: number }; // The Justice System
 
 export interface LocationDef {
   id: string;

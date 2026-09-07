@@ -7,7 +7,7 @@ export const EVENTS: EventDef[] = [
     name: 'Reparations',
     short: 'Reparations',
     cost: 1,
-    text: 'Your lowest-scoring Location gains +1 Influence this turn for each qualifying Setback suffered this match (max +4).',
+    text: 'Your lowest-scoring Location gains +1 Influence this turn for each Setback suffered this match (max +4).',
     effect: { type: 'reparations', max: 4 },
     needsLocation: false,
     blurb: 'Only neutral historical harm counts. What the opponent did to you is not the same thing.',

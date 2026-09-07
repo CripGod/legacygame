@@ -82,6 +82,15 @@ export const LOCATIONS: LocationDef[] = [
     blurb: 'Built by U.S. Steel, filled by the Great Migration. Joe Jackson ran a crane at Gary Works and drilled five boys in the living room at 2300 Jackson Street; in 1972 ten thousand people came for the National Black Political Convention.',
     effect: { type: 'steelAndSoul', force: 1, fiveBonus: 1 },
   },
+  {
+    id: 'justice_system',
+    name: 'The Justice System',
+    era: '1865–',
+    rule: 'Once a Character goes Inside here, it cannot relocate out for 2 turns.',
+    blurb: 'The Thirteenth Amendment kept one exception, "as a punishment for crime." Convict leasing, chain gangs and mass incarceration have run on it ever since.',
+    effect: { type: 'lockInside', turns: 2 },
+    weight: 0.6,
+  },
 ];
 
 export const UNKNOWN_LOCATION: LocationDef = {
