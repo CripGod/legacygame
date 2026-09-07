@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CARD_BY_ID, legalOptions, gateRoom, lockReason, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, other, MAX_HAND, EXTENDED_TURNS, planCost, cardCost } from '../../engine';
+import { CARD_BY_ID, legalOptions, gateRoom, lockReason, PLANNING_SECONDS, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, other, MAX_HAND, EXTENDED_TURNS, planCost, cardCost } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight } from '../components/Battlefield';
@@ -539,7 +539,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
 
   return (
     <div className="app">
-      <Hud view={view} me={me} secondsLeft={m.secondsLeft} paused={!planning} energy={{ have: opts.energy, left: planning ? energyLeft : opts.energy, max: Math.max(view.maxTurns, opts.energy) }} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} />
+      <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, flash: flash === 'stakes', onToggle: toggleStand }} />
       <div className="main-wrap">
         <Battlefield
           view={boardView}
@@ -612,21 +612,29 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
             {stepOffLabel}
           </button>
         </div>
-        <div className="lock-row">
+        <div className="lock-panel">
           {view.phase === 'ended' ? (
-            <button className="primary" onClick={onExit}>
+            <button className="primary lock-btn" onClick={onExit}>
               SEE RESULT
             </button>
           ) : (
-            <button className="primary" disabled={!planning} onClick={m.lockIn}>
-              LOCK IT IN
+            <button className={`primary lock-btn ${m.secondsLeft <= 5 && planning ? 'low' : ''}`} disabled={!planning} onClick={m.lockIn} title={HINTS.timer}>
+              <span>LOCK IN</span>
+              <i className="timer-bar" aria-hidden>
+                <b style={{ width: `${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 100}%` }} />
+              </i>
             </button>
           )}
-        </div>
-        <div className="actions-right">
-          <button className={`${plan.standOnBusiness ? 'primary' : ''} ${flash === 'stakes' ? 'ftue-flash' : ''}`} disabled={!planning || !opts.canStand} onClick={toggleStand}>
-            {plan.standOnBusiness ? 'Standing ✓' : 'Stand on Business'}
-          </button>
+          <div className="turn-panel" {...tip(HINTS.energy)}>
+            <div className="turn-text">
+              Turn {Math.min(view.turn, view.maxTurns)} / {view.maxTurns}
+            </div>
+            <div className="crystals" aria-label={`Energy ${planning ? energyLeft : opts.energy} of ${opts.energy}`}>
+              {Array.from({ length: Math.max(view.maxTurns, opts.energy) }, (_, i) => (
+                <i key={i} className={i < (planning ? energyLeft : opts.energy) ? 'on' : i < opts.energy ? 'used' : 'future'} />
+              ))}
+            </div>
+          </div>
         </div>
         <div className="mobile-actions">
           <button className={`danger ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}`} disabled={view.phase === 'ended' || !opts.canStepOff} onClick={() => setSheet({ kind: 'stepOff' })}>

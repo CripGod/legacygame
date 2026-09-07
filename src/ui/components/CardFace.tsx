@@ -3,6 +3,21 @@ import { abilityLines, cardName, cardShort, hueFor, initials, useDisplay } from 
 import { Art } from './Art';
 import { tip, HINTS } from '../tip';
 
+/** The one-word role under the name: Mythic, Curse, Event, or the card's most specific tag. */
+function ribbonFor(def: { kind: string; category?: string; tags?: string[]; curse?: boolean }): string {
+  if (def.kind === 'event') return def.curse ? 'Curse' : 'Event';
+  if (def.category === 'mythic') return 'Mythic';
+  if (def.category === 'gathering') return 'Gathering';
+  const t = (def.tags ?? []).filter((x) => x !== 'Black');
+  return t[t.length - 1] ?? 'Historical';
+}
+
+/** The short rules line printed on the small card. */
+function abilityFor(def: { kind: string; text?: string; reveal?: { text: string }; established?: { text: string }; passive?: { text: string } }): string {
+  if (def.kind === 'event') return def.text ?? '';
+  return def.reveal?.text ?? def.established?.text ?? def.passive?.text ?? '';
+}
+
 /** Full collectible card (hand, inspection). Always a 5:7 rigid rectangle. */
 export function CardFace({ id, big = false, onClick, cost, costWhy }: { id: string; big?: boolean; onClick?: () => void; /** Cost right now, after discounts (defaults to the printed cost). */ cost?: number; costWhy?: string[] }) {
   const { placeholders } = useDisplay();
@@ -33,6 +48,8 @@ export function CardFace({ id, big = false, onClick, cost, costWhy }: { id: stri
         {placeholders ? <span className="ini">{initials(id, true)}</span> : <Art kind={isChar ? 'characters' : 'events'} id={id} className="portrait-img" fallback={<span className="ini">{initials(id, false)}</span>} alt={def.name} />}
       </div>
       <div className="name">{cardName(id, placeholders)}</div>
+      {!placeholders && <div className="ribbon">{ribbonFor(def)}</div>}
+      {!big && !placeholders && <div className="ability">{abilityFor(def)}</div>}
       {isChar && def.category === 'mythic' && !placeholders && <div className="cat mythic">Mythic</div>}
       {isChar && def.category === 'gathering' && !placeholders && <div className="cat gathering">Gathering</div>}
       {curse && !placeholders && <div className="cat curse">Curse</div>}
@@ -62,12 +79,15 @@ export function Pic({
   strip,
   onClick,
   highlight,
+  badges,
 }: {
   state: GameState;
   c: CharacterInstance;
   strip?: string;
   onClick?: () => void;
   highlight?: boolean;
+  /** Gate tiles: show cost, Influence and Force like a small card. */
+  badges?: boolean;
 }) {
   const { placeholders } = useDisplay();
   const def = CARD_BY_ID[c.defId];
@@ -86,9 +106,23 @@ export function Pic({
       title={`${cardName(c.defId, placeholders)} · ${inf} Influence · ${def.force} Force`}
     >
       {placeholders ? <span className="ini">{initials(c.defId, true)}</span> : <Art kind="characters" id={c.defId} className="pic-img" fallback={<span className="ini">{initials(c.defId, false)}</span>} alt={def.name} />}
-      <span className="inf" {...tip(HINTS.currentInfluence)}>
-        {inf}
-      </span>
+      {badges ? (
+        <>
+          <span className="b b-cost" {...tip(HINTS.cost)}>
+            {def.cost}
+          </span>
+          <span className="b b-inf" {...tip(HINTS.currentInfluence)}>
+            {inf}
+          </span>
+          <span className="b b-force" {...tip(HINTS.force)}>
+            {def.force}
+          </span>
+        </>
+      ) : (
+        <span className="inf" {...tip(HINTS.currentInfluence)}>
+          {inf}
+        </span>
+      )}
       {label && (
         <span className={`strip ${cls}`} {...tip((HINTS as Record<string, string>)[cls] ?? label)}>
           {label}

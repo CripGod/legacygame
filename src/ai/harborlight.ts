@@ -30,6 +30,7 @@ import {
   type ConfrontOption,
   planCost,
   cardCost,
+  lockReason,
 } from '../engine';
 
 export interface AiCandidate {
@@ -212,6 +213,12 @@ export function evaluate(state: GameState, p: PlayerId): Evaluation {
   }
   // Card economy.
   score += 0.25 * state.players[p].hand.length;
+  // HELD: a Character that cannot leave is a liability, more so at the Gates where it does nothing but wait.
+  for (const c of charsOf(state, p)) {
+    if (!lockReason(state, c)) continue;
+    score -= c.zone === 'gate' ? 1.0 : 0.6;
+    reasons.push('held');
+  }
   // Reparations potential.
   if (state.players[p].hand.includes('reparations')) score += 0.4 * Math.min(4, state.players[p].setbacks);
   return { score, reasons };
@@ -411,6 +418,16 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
       if (hb !== undefined) {
         score += hb;
         reasons.push('hidden gamble');
+      }
+    }
+    // Harriet's rescue: pulling a held Character out is worth more than the plain move the simulation sees.
+    for (const pl of plan.plays) {
+      const def = cardDef(pl.cardId);
+      if (def.kind !== 'character' || def.reveal?.effect.type !== 'conductor' || !pl.target?.charUid) continue;
+      const t = view.characters[pl.target.charUid];
+      if (t && lockReason(view, t)) {
+        score += 1.5;
+        reasons.push('rescue');
       }
     }
     const spent = planCost(plan, view, p);

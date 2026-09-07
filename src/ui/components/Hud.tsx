@@ -1,32 +1,17 @@
-import { CARD_BY_ID, PLANNING_SECONDS, MAX_HAND, type GameState, type PlayerId, effectiveStakes } from '../../engine';
+import { CARD_BY_ID, MAX_HAND, type GameState, type PlayerId, effectiveStakes } from '../../engine';
 import { isNight } from '../../engine';
 import { initials, useDisplay } from '../display';
 import { tip, HINTS } from '../tip';
 import { Art } from './Art';
 
-function TimerRing({ seconds, paused }: { seconds: number; paused: boolean }) {
-  const r = 26;
-  const c = 2 * Math.PI * r;
-  const frac = paused ? 1 : seconds / PLANNING_SECONDS;
-  return (
-    <div className={`timer-ring ${seconds <= 5 && !paused ? 'low' : ''} ${paused ? 'paused' : ''}`} {...tip(HINTS.timer)}>
-      <svg viewBox="0 0 64 64">
-        <circle cx="32" cy="32" r={r} className="track" />
-        <circle cx="32" cy="32" r={r} className="prog" strokeDasharray={c} strokeDashoffset={c * (1 - frac)} />
-      </svg>
-      <div className="timer">{paused ? '·' : seconds >= 60 ? `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}` : seconds}</div>
-    </div>
-  );
-}
-
-export function Hud({ view, me, secondsLeft, paused, onProfile, bubbles, onChat, energy }: { view: GameState; me: PlayerId; secondsLeft: number; paused: boolean; onProfile: (p: PlayerId) => void; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void; energy?: { have: number; left: number; max: number } }) {
+export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: GameState; me: PlayerId; onProfile: (p: PlayerId) => void; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void; stand?: { on: boolean; disabled: boolean; flash?: boolean; onToggle: () => void } }) {
   const { placeholders } = useDisplay();
   const profile = (p: PlayerId, right: boolean) => {
     const ps = view.players[p];
     const av = CARD_BY_ID[ps.avatarDefId];
     return (
-      <div className={`profile ${right ? 'right' : ''} p${p}`} onClick={() => onProfile(p)} role="button">
-        <div className="avatar" title={av?.name} data-avatar={p}>
+      <div className={`profile ${right ? 'right' : ''} p${p} ${view.initiative === p ? 'first' : ''}`} onClick={() => onProfile(p)} role="button">
+        <div className="avatar" title={`${av?.name ?? ''}${view.initiative === p ? ' · goes first this turn' : ''}`} data-avatar={p} {...tip(view.initiative === p ? 'Initiative: this player\'s Reveals and moves resolve first this turn. It alternates every turn.' : 'Resolves second this turn.')}>
           {placeholders ? initials(ps.avatarDefId, true) : <Art kind="characters" id={ps.avatarDefId} className="avatar-img" fallback={initials(ps.avatarDefId, false)} alt={av?.name} />}
         </div>
         <div className="plate">
@@ -56,33 +41,21 @@ export function Hud({ view, me, secondsLeft, paused, onProfile, bubbles, onChat,
     <header className="hud">
       {profile('A', false)}
       <div className="hud-center">
-        <div className={`turn-label ${isNight(view) ? 'night' : 'day'}`} {...tip(HINTS.dayNight)}>
-          Turn {Math.min(view.turn, view.maxTurns)} / {view.maxTurns} · {isNight(view) ? '🌙 Night' : '☀ Day'}
-        </div>
-        <div className="hud-mid">
-          <TimerRing seconds={secondsLeft} paused={paused} />
-          <div className={`coin ${view.pendingRaises.length ? 'raised' : ''}`} {...tip(view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes)}>
-            <span>
-              {view.stakes}
-              {view.pendingRaises.length > 0 && <em>→{effectiveStakes(view)}</em>}
-            </span>
-            <small>legacy</small>
-          </div>
-        </div>
-        {energy && (
-          <div className={`energy-meter mana ${energy.left === 0 ? 'spent' : ''}`} {...tip(HINTS.energy)} aria-label={`Energy ${energy.left} of ${energy.have}`}>
-            <span className="bolt" aria-hidden>
-              ⚡
-            </span>
-            <b>{energy.left}</b>
-            <span className="of">/{energy.have}</span>
-            <span className="pips" aria-hidden>
-              {Array.from({ length: energy.max }, (_, i) => (
-                <i key={i} className={i < energy.left ? 'on' : i < energy.have ? 'used' : 'future'} />
-              ))}
-            </span>
-          </div>
+        {stand && (
+          <button className={`stand-btn ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''}`} disabled={stand.disabled} onClick={stand.onToggle} {...tip(view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes)}>
+            {stand.on ? 'Standing ✓' : 'Stand on Business'}
+          </button>
         )}
+        <div className="hud-sub">
+          <span className={`coin ${view.pendingRaises.length ? 'raised' : ''}`} {...tip(view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes)}>
+            {view.stakes}
+            {view.pendingRaises.length > 0 && <em>→{effectiveStakes(view)}</em>}
+            <small>legacy</small>
+          </span>
+          <span className={`turn-label ${isNight(view) ? 'night' : 'day'}`} {...tip(HINTS.dayNight)}>
+            {isNight(view) ? '🌙 Night' : '☀ Day'}
+          </span>
+        </div>
       </div>
       {profile('B', true)}
     </header>

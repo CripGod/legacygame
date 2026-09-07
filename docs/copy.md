@@ -679,6 +679,9 @@ Main menu
 - Sit Down${opts.canStepOff && view.phase !== 'ended' ? 
 - What happened last turn, step by step.
 - danger ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}
+- primary lock-btn ${m.secondsLeft <= 5 && planning ? 'low' : ''}
+- ${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 100}%
+- Energy ${planning ? energyLeft : opts.energy} of ${opts.energy}
 - ${plan.standOnBusiness ? 'primary' : ''} ${flash === 'stakes' ? 'ftue-flash' : ''}
 - Sitting down surrenders the match. ${view.players[other(me)].handle} wins ${opts.stepOffCost} Legacy.${raisedOnMe ? 
 - ${view.players[view.result.winner].handle} wins
@@ -956,15 +959,14 @@ export function PeekHandSheet({ cards, by, opponent, onClose }: { cards: string[
 
 ### src/ui/components/Hud.tsx
 
-- timer-ring ${seconds <= 5 && !paused ? 'low' : ''} ${paused ? 'paused' : ''}
-- ${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}
-- profile ${right ? 'right' : ''} p${p}
+- profile ${right ? 'right' : ''} p${p} ${view.initiative === p ? 'first' : ''}
+- ${av?.name ?? ''}${view.initiative === p ? ' · goes first this turn' : ''}
+- Initiative: this player's Reveals and moves resolve first this turn. It alternates every turn.
 - Quick chat: emotes and Summon.
 - bubble ${right ? 'right' : ''}
-- turn-label ${isNight(view) ? 'night' : 'day'}
+- stand-btn ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''}
 - coin ${view.pendingRaises.length ? 'raised' : ''}
-- energy-meter mana ${energy.left === 0 ? 'spent' : ''}
-- Energy ${energy.left} of ${energy.have}
+- turn-label ${isNight(view) ? 'night' : 'day'}
 
 ### src/ui/display.ts
 
