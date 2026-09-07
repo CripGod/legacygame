@@ -1114,7 +1114,7 @@ CHARACTERS.push(
     tags: ['Black', 'Haiti', 'Rebellion', 'Faith', 'Vodou'],
     keywords: [],
     reveal: {
-      text: 'Uprising: every Ready Character at your Gates, at every Location, enters Inside now.',
+      text: 'Uprising: every Character at your Gates, at every Location, enters Inside now, Ready or not. Only a block or a full Inside stops one.',
       effect: { type: 'massEnter' },
     },
     passive: {

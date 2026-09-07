@@ -601,11 +601,11 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
     case 'massEnter': {
       let n = 0;
       for (const x of charsOf(state, p)) {
-        if (x.uid === c.uid || x.zone !== 'gate' || !x.ready || state.locations[x.location].lost) continue;
+        if (x.uid === c.uid || x.zone !== 'gate' || state.locations[x.location].lost) continue;
         if (isBlockedFromEntering(state, x)) continue;
         if (enterInside(state, x, events, 'rises and enters (Boukman) at')) n++;
       }
-      say(n ? `uprising: ${n} Ready Character${n > 1 ? 's' : ''} enter${n > 1 ? '' : 's'} at once.` : 'calls for an uprising, but no Ready Character is waiting at any Gate.');
+      say(n ? `uprising: ${n} Character${n > 1 ? 's' : ''} at your Gates enter${n > 1 ? '' : 's'} at once, Ready or not.` : 'calls for an uprising, but nobody is waiting at any Gate (or every Inside is full or blocked).');
       break;
     }
     case 'stealGate': {

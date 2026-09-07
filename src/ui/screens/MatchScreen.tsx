@@ -10,7 +10,7 @@ import { Battlefield } from '../components/Battlefield';
 import { Hand } from '../components/Hand';
 import { Coach } from '../components/Coach';
 import { Spotlight } from '../components/Spotlight';
-import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, SpawnSheet, ThreatSheet, AncestorsSheet, ShowdownSheet, PeekHandSheet, ClashSheet } from '../components/Sheets';
+import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, SpawnSheet, ThreatSheet, AncestorsSheet, ShowdownSheet, PeekHandSheet, ClashSheet, TallySheet } from '../components/Sheets';
 import { guideDone, markGuideDone, suggest } from '../guide';
 import { EMOTES } from '../useMatch';
 import { cardName, locationName, useDisplay } from '../display';
@@ -637,9 +637,9 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
               </i>
             </button>
           )}
-          <div className="turn-panel" {...tip(HINTS.energy)}>
+          <div className={`turn-panel ${view.turn >= view.maxTurns && view.phase !== 'ended' ? 'final' : ''}`} {...tip(view.turn >= view.maxTurns ? HINTS.finalTurn : HINTS.energy)}>
             <div className="turn-text">
-              Turn {Math.min(view.turn, view.maxTurns)} / {view.maxTurns}
+              {view.turn >= view.maxTurns && view.phase !== 'ended' ? 'Final turn' : `Turn ${Math.min(view.turn, view.maxTurns)} / ${view.maxTurns}`}
             </div>
             <div className="crystals" aria-label={`Energy ${planning ? energyLeft : opts.energy} of ${opts.energy}`}>
               {Array.from({ length: Math.max(view.maxTurns, opts.energy) }, (_, i) => (
@@ -664,8 +664,8 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
               </i>
             </button>
           )}
-          <div className="turn-mini" {...tip(HINTS.energy)}>
-            <span className="turn-text">T{Math.min(view.turn, view.maxTurns)}/{view.maxTurns}</span>
+          <div className={`turn-mini ${view.turn >= view.maxTurns && view.phase !== 'ended' ? 'final' : ''}`} {...tip(HINTS.energy)}>
+            <span className="turn-text">{view.turn >= view.maxTurns && view.phase !== 'ended' ? 'FINAL' : `T${Math.min(view.turn, view.maxTurns)}/${view.maxTurns}`}</span>
             <span className="crystals">
               {Array.from({ length: Math.max(view.maxTurns, opts.energy) }, (_, i) => (
                 <i key={i} className={i < (planning ? energyLeft : opts.energy) ? 'on' : i < opts.energy ? 'used' : 'future'} />
@@ -774,24 +774,10 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           }}
         />
       )}
-      {clashes.length > 0 && !busy && <ClashSheet key={`${clashes[0].uid}-${clashes.length}`} ev={clashes[0]} view={view} onClose={() => setClashes((c) => c.slice(1))} />}
-      {clashes.length === 0 && showdowns.length > 0 && !busy && <ShowdownSheet ev={showdowns[0]} view={view} onClose={() => setShowdowns((s) => s.slice(1))} />}
+      {clashes.length > 0 && !busy && <ClashSheet key={`${clashes[0].uid}-${clashes.length}`} ev={clashes[0]} view={view} me={me} onClose={() => setClashes((c) => c.slice(1))} />}
+      {clashes.length === 0 && showdowns.length > 0 && !busy && <ShowdownSheet ev={showdowns[0]} view={view} me={me} onClose={() => setShowdowns((s) => s.slice(1))} />}
       {clashes.length === 0 && showdowns.length === 0 && fanfare.length > 0 && !busy && view.phase !== 'ended' && <SpawnSheet ev={fanfare[0]} view={view} me={me} onClose={() => setFanfare((f) => f.slice(1))} />}
-      {view.phase === 'ended' && !busy && !peek && (
-        <div className="scrim">
-          <div className="sheet center">
-            <div className="winner" style={{ color: view.result?.winner === 'A' ? 'var(--cA)' : view.result?.winner === 'B' ? 'var(--cB)' : 'var(--text)' }}>
-              {view.result?.winner ? `${view.players[view.result.winner].handle} wins` : 'Draw'}
-            </div>
-            <button className="primary" onClick={onExit}>
-              See result
-            </button>
-            <button className="ghost" onClick={() => setPeek(true)}>
-              Look at the board
-            </button>
-          </div>
-        </div>
-      )}
+      {view.phase === 'ended' && !busy && !peek && clashes.length === 0 && showdowns.length === 0 && <TallySheet view={view} me={me} onResult={onExit} onBoard={() => setPeek(true)} />}
     </div>
   );
 }

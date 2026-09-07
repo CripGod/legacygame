@@ -6,6 +6,8 @@ import {
   LOCATION_BY_ID,
   THREAT_BY_ID,
   confrontForce,
+  threatForceNeeded,
+  charsAt,
   legalOptions,
   locDef,
   other,
@@ -524,7 +526,7 @@ export function AncestorsSheet({ view, me, plan, onClose }: { view: GameState; m
 }
 
 /** A confrontation replayed as a showdown: fighters on one side, the Threat on the other, and a plain-words account of why it broke or held. */
-export function ShowdownSheet({ ev, view, onClose }: { ev: GameEvent; view: GameState; onClose: () => void }) {
+export function ShowdownSheet({ ev, view, me, onClose }: { ev: GameEvent; view: GameState; me: PlayerId; onClose: () => void }) {
   const { placeholders } = useDisplay();
   const d = ev.data as { threatUid: string; defId: string; needed: number; requiresBoth: boolean; force: { A: number; B: number }; fighters: { uid: string; defId: string; owner: PlayerId; force: number }[]; cleared: boolean };
   const tdef = THREAT_BY_ID[d.defId];
@@ -604,7 +606,7 @@ export function ShowdownSheet({ ev, view, onClose }: { ev: GameEvent; view: Game
         <div className={`verdict ${stage >= 2 ? 'show' : ''}`}>{d.cleared ? 'NEUTRALIZED' : 'IT HOLDS'}</div>
         <div className="showdown-why">{why}</div>
         {!d.cleared && tdef && <div className="showdown-rule muted">While it stands: {tdef.text}</div>}
-        {!d.cleared && tdef && <div className="showdown-rule beat">{howToBeat({ kind: 'threat', id: d.defId }, 'held')}</div>}
+        {!d.cleared && tdef && ev.location !== undefined && <div className="showdown-rule beat">{adviceFor(view, me, { kind: 'threat', id: d.defId }, 'held', ev.location, placeholders)}</div>}
         <div className="actions" style={{ justifyContent: 'center' }}>
           <button className="primary" onClick={onClose} autoFocus>
             Continue
@@ -643,45 +645,75 @@ export function PeekHandSheet({ cards, by, opponent, onClose }: { cards: string[
 }
 
 
-/** One short line on how to beat or avoid what a modal just showed. Every event modal ends with one. */
-export function howToBeat(actor: { kind: 'character' | 'threat' | 'location' | 'event'; id: string; force?: number }, outcome: string): string {
+/** Advice computed from the board and the viewer's hand: what it takes, and what you have for it. */
+export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'character' | 'threat' | 'location' | 'event'; id: string; force?: number }, outcome: string, location: number, placeholders: boolean): string {
+  const nm = (id: string) => cardName(id, placeholders);
+  const locName = locationName(view.locations[location].revealed ? view.locations[location].defId : 'unknown', placeholders);
+  const handChars = view.players[me].hand.filter((id) => id !== 'hidden' && CARD_BY_ID[id]?.kind === 'character').map((id) => CARD_BY_ID[id] as { id: string; force: number; cost: number });
+  const handHas = (id: string) => view.players[me].hand.includes(id);
+  const listForce = (min: number) => handChars.filter((c) => c.force >= min).map((c) => `${nm(c.id)} (${c.force})`);
   if (actor.kind === 'threat') {
-    const t = THREAT_BY_ID[actor.id];
-    if (!t) return '';
-    const who = t.requiresBoth ? 'both players in the same turn' : t.split ? 'the player it targets (the other may Assist)' : 'either player, or both together';
-    const clock = t.lostAfterTurns ? ` Unanswered for ${t.lostAfterTurns} turns and the Location is Lost.` : '';
-    return `To beat it: ${t.force} Force in one turn from ${who}. Drag Characters onto the Threat.${clock}`;
+    const t = view.locations[location].threats.find((x) => x.defId === actor.id);
+    const tdef = THREAT_BY_ID[actor.id];
+    if (!t || !tdef) return '';
+    const need = threatForceNeeded(view, t);
+    const mine = charsAt(view, location, me).map((c) => ({ c, f: confrontForce(view, c, t) })).filter((x) => x.f > 0);
+    const have = mine.reduce((sum, x) => sum + x.f, 0);
+    const names = mine.map((x) => `${nm(x.c.defId)} (${x.f})`).join(' + ');
+    if (tdef.requiresBoth) return `It only breaks if both players confront it in the same turn. Drag ${mine.length ? names : 'a Character'} onto it at ${locName} and hope ${view.players[other(me)].handle} does the same.`;
+    if (have >= need) return `You can clear it next turn: drag ${names} onto it at ${locName} for ${have} Force (it needs ${need}).`;
+    const gap = need - have;
+    const bring = listForce(gap);
+    const from = mine.length ? `${names} give you ${have} of ${need} Force at ${locName}; you need ${gap} more.` : `It needs ${need} Force in one turn at ${locName} and you have nobody there.`;
+    const how = bring.length ? ` In your hand: ${bring.slice(0, 3).join(', ')} would cover it.` : handChars.length ? ` Nothing in your hand covers ${gap} alone; bring two Characters, or Assist with your opponent.` : ' Draw into Characters, or let your opponent try.';
+    const clock = tdef.lostAfterTurns ? ` ${tdef.lostAfterTurns} unanswered turns and ${locName} is Lost.` : '';
+    return from + how + clock;
   }
-  if (actor.kind === 'location') return 'To avoid it: Enter or Relocate before the turn ends. Direct Entry and Characters arriving Inside are safe.';
-  if (actor.kind === 'event') return 'To avoid it: Nanny of the Maroons Established there, or no Gate Character to take. A turned Character can be turned back the same way.';
+  if (actor.kind === 'location') {
+    const fresh = charsAt(view, location, me, 'gate').filter((c) => !c.ready);
+    return fresh.length ? `Enter or move ${fresh.map((c) => nm(c.defId)).join(' and ')} before the turn ends, or it happens again.` : `Anyone you leave Fresh at the Gates of ${locName} is run out at the end of the turn. Enter, move, or arrive Inside.`;
+  }
+  if (actor.kind === 'event') {
+    const exposed = charsAt(view, location, me, 'gate');
+    const nanny = handHas('nanny_of_the_maroons') ? ` Nanny of the Maroons is in your hand: Establish her at ${locName} and nobody there can be targeted.` : '';
+    return (exposed.length ? `${exposed.map((c) => nm(c.defId)).join(' and ')} at the Gates of ${locName} can be taken the same way. Enter them or move them.` : `Nothing of yours is exposed at ${locName} right now.`) + nanny;
+  }
   const def = CARD_BY_ID[actor.id];
   const eff = def?.kind === 'character' ? def.reveal?.effect.type : undefined;
-  const protect = 'Community Defense, Toussaint or The Tabernacle protect against it';
+  const force = actor.force ?? 0;
+  const guard = handHas('community_defense') ? ' Community Defense is in your hand: play it at the Location that turn and nobody there can be moved.' : '';
   switch (eff) {
     case 'challengeGate':
-      return `To beat it: a Gate Character with ${actor.force ?? 'more'} Force or more holds her off. ${protect}.`;
-    case 'challengeInside':
-      return `To beat it: an Established Character with ${actor.force ?? 'more'} Force or more holds him off, and full opposing Gates leave nowhere to send them. ${protect}.`;
-    case 'challengeAllGates':
-      return `To beat it: only Gate Characters with less than ${actor.force ?? 'his'} Force are moved. ${protect}.`;
+    case 'challengeAllGates': {
+      const ok = listForce(force);
+      return `${nm(actor.id)} has ${force} Force: a Gate Character with ${force} or more holds ${eff === 'challengeGate' ? 'her' : 'him'} off.${ok.length ? ` In your hand: ${ok.slice(0, 3).join(', ')}.` : ' Nothing in your hand has that much yet.'}${guard}`;
+    }
+    case 'challengeInside': {
+      const ok = listForce(force);
+      return `${nm(actor.id)} has ${force} Force: an Established Character with ${force} or more holds him off, and full opposing Gates leave nowhere to send them.${ok.length ? ` In your hand: ${ok.slice(0, 3).join(', ')}.` : ' Nothing in your hand has that much yet.'}${guard}`;
+    }
     case 'displaceOpposingGate':
-      return `To beat it: no Force check. Only protection stops her (${protect.replace(' protect against it', '')}).`;
+      return `No Force check beats her. Only protection does.${guard || ' Community Defense, Toussaint Established, or The Tabernacle.'}`;
     case 'blockOneOpposingGate':
-    case 'blockOpposingGatesHere':
-      return 'To beat it: Bessie Coleman Established, Community Defense or a sanctuary here means nobody is blocked. A blocked Character can try again next turn.';
+    case 'blockOpposingGatesHere': {
+      const bessie = handHas('bessie_coleman') ? ` Bessie Coleman is in your hand: at ${locName} nobody of yours can be blocked.` : '';
+      return `Blocked Characters try again next turn.${bessie}${guard || (bessie ? '' : ' Community Defense or Bessie Coleman Established there prevent it.')}`;
+    }
     case 'suppressInside':
-      return 'To beat it: Sojourner Truth Established here stops Suppression. It wears off at the end of next turn.';
+      return `It wears off at the end of next turn.${handHas('sojourner_truth') ? ' Sojourner Truth is in your hand: Established, she stops Suppression there.' : ''}`;
     case 'refreshOpposingGate':
-      return 'To beat it: protection only. Otherwise they are Ready again next turn.';
-    case 'stealGate':
-      return 'To beat it: Nanny of the Maroons Established here, or leave no Gate Character for her. A turned Character can be turned back.';
+      return `They are Ready again next turn.${guard}`;
+    case 'stealGate': {
+      const exposed = charsAt(view, location, me, 'gate');
+      return `${exposed.length ? `${exposed.map((c) => nm(c.defId)).join(' and ')} at the Gates of ${locName} can be taken next.` : `Keep your Gates at ${locName} empty or Entered.`}${handHas('nanny_of_the_maroons') ? ' Nanny of the Maroons is in your hand: Establish her there and nobody can be targeted.' : ''}`;
+    }
     default:
-      return outcome === 'held' ? 'It held because the numbers or a protection said so. Same rules next time.' : '';
+      return outcome === 'held' ? '' : '';
   }
 }
 
 /** A Character knocks, blocks, holds off or turns another: the beat that explains the tally. */
-export function ClashSheet({ ev, view, onClose }: { ev: GameEvent; view: GameState; onClose: () => void }) {
+export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: GameState; me: PlayerId; onClose: () => void }) {
   const { placeholders } = useDisplay();
   const d = ev.data as {
     actor: { kind: 'character' | 'threat' | 'location' | 'event'; id: string; owner?: PlayerId; force?: number };
@@ -751,12 +783,88 @@ export function ClashSheet({ ev, view, onClose }: { ev: GameEvent; view: GameSta
           {d.note ? ` ${d.note}` : ''}
           {d.outcome === 'displaced' && whereText ? ` ${victimName} now waits Fresh at the Gates of ${whereText}.` : ''}
         </div>
-        {howToBeat(d.actor, d.outcome) && <div className="showdown-rule beat">{howToBeat(d.actor, d.outcome)}</div>}
+        {adviceFor(view, me, d.actor, d.outcome, d.from, placeholders) && <div className="showdown-rule beat">{adviceFor(view, me, d.actor, d.outcome, d.from, placeholders)}</div>}
         <div className="actions" style={{ justifyContent: 'center' }}>
           <button className="primary" onClick={onClose} autoFocus>
             Continue
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/** The reckoning: each Location resolves one at a time, the decisive one last, then the verdict. */
+export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; me: PlayerId; onResult: () => void; onBoard: () => void }) {
+  const { placeholders } = useDisplay();
+  const r = view.result;
+  const [stage, setStage] = useState(0);
+  const winner = r?.winner ?? null;
+  // Reveal the loser's Locations first so the last one shown is the one that decides it.
+  const order = [0, 1, 2].sort((a, b) => {
+    const rank = (i: number) => {
+      const w = r?.locationWinners[i];
+      if (winner && w === winner) return 2;
+      if (w === 'lost' || w === null) return 1;
+      return 0;
+    };
+    return rank(a) - rank(b) || a - b;
+  });
+  useEffect(() => {
+    const beats = [600, 1900, 3200, 4500, 5400];
+    const ts = beats.map((ms, i) => setTimeout(() => setStage(i + 1), ms));
+    return () => ts.forEach(clearTimeout);
+  }, []);
+  if (!r) return null;
+  const handle = (p: PlayerId) => view.players[p].handle;
+  const mineWon = winner === me;
+  const reasonText =
+    r.reason === 'locations' ? 'Two of three Locations.' : r.reason === 'tiebreak-influence' ? 'One Location each: total Influence decides.' : r.reason === 'tiebreak-force' ? 'Tied on Influence: total Force decides.' : r.reason === 'stepOff' ? 'The other side sat down.' : 'Nothing separates them.';
+  return (
+    <div className="scrim">
+      <div className={`sheet fanfare tally stage-${stage} ${stage >= 5 ? (winner ? (mineWon ? 'win' : 'loss') : 'draw') : ''}`}>
+        <div className="stand-title">{stage < 5 ? 'THE RECKONING' : winner ? (mineWon ? 'VICTORY' : 'DEFEAT') : 'DRAW'}</div>
+        <div className="center muted">{stage < 5 ? `Turn ${r.turn}. Three Locations, ${r.stakes} Legacy on the line.` : reasonText}</div>
+        <div className="tally-rows">
+          {order.map((i, k) => {
+            const shown = stage >= k + 1;
+            const a = r.influence.A[i];
+            const b = r.influence.B[i];
+            const w = r.locationWinners[i];
+            const loc = view.locations[i];
+            const total = a + b;
+            const fracA = shown ? (total === 0 ? 0.5 : a / total) : 0.5;
+            const label = !shown ? '' : w === 'lost' ? 'LOST' : w ? `${handle(w)} takes it` : 'Tied';
+            return (
+              <div key={i} className={`tally-row ${shown ? 'shown' : ''} ${shown && w && w !== 'lost' ? `won-${w}` : ''} ${shown && w === 'lost' ? 'lost' : ''} ${shown && w === me ? 'mine' : ''}`}>
+                <div className="tally-name">{locationName(loc.revealed ? loc.defId : 'unknown', placeholders)}</div>
+                <div className="tally-bar">
+                  <span className="score pA">{shown ? a : '·'}</span>
+                  <div className="line">
+                    <div className="fillA" style={{ width: `${fracA * 100}%` }} />
+                    <div className="fillB" style={{ width: `${(1 - fracA) * 100}%` }} />
+                    <div className="mark" style={{ left: `${fracA * 100}%` }} />
+                  </div>
+                  <span className="score pB">{shown ? b : '·'}</span>
+                </div>
+                <div className="tally-verdict">{label}</div>
+              </div>
+            );
+          })}
+        </div>
+        <div className={`verdict ${stage >= 5 ? 'show' : ''}`}>
+          {winner ? `${handle(winner)} wins ${r.stakes} Legacy` : 'Nobody wins the Legacy'}
+        </div>
+        {stage >= 5 && (
+          <div className="actions" style={{ justifyContent: 'center' }}>
+            <button className="primary" onClick={onResult} autoFocus>
+              See result
+            </button>
+            <button className="ghost" onClick={onBoard}>
+              Look at the board
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

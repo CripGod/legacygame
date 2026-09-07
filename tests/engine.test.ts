@@ -833,7 +833,7 @@ describe('cost flow', () => {
     const zones = Object.fromEntries(charsOf(s, 'A').map((c) => [c.defId, c.zone]));
     expect(zones.newsboy).toBe('inside');
     expect(zones.barber).toBe('inside');
-    expect(zones.organizer).toBe('gate');
+    expect(zones.organizer).toBe('inside'); // Fresh, but the Uprising takes everyone
     expect(zones.boukman_dutty).toBe('gate');
   });
 
