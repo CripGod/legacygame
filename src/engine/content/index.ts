@@ -64,12 +64,12 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
   },
   blackstar: {
     name: 'Black Star',
-    style: 'Mobility and disruption. Garvey, Green and Smalls relocate freely, Turner is strongest aboard The Black Star, Persuade steals a body.',
+    style: 'Mobility and return. Garvey, Green and Smalls relocate freely, Nehanda comes back when pushed out, Turner is strongest aboard The Black Star, Persuade drains the opposing Gates.',
     cards: [
       'marcus_garvey',
       'toussaint_louverture',
       'bessie_coleman',
-      'karen',
+      'nehanda',
       'ida_b_wells',
       'victor_hugo_green',
       'barber',
