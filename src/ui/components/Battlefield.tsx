@@ -158,14 +158,15 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
             const draggable =
               owner === me && dragProps ? dragProps(planned ? { kind: 'card', cardId: s.uid.slice(PLANNED_PREFIX.length) } : { kind: 'char', uid: s.uid }) : {};
             return (
-              <div
-                key={s.uid}
-                data-uid={s.uid}
-                data-place={`${index}:gate`}
-                className={`gate-slot filled owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''}`}
-                {...draggable}
-              >
-                <Pic state={view} c={s} badges focus={focus?.includes(s.uid)} strip={planned ? 'Planned' : moving ? 'Moving' : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockReason(view, s) ? 'Held' : undefined} onClick={() => onChar(s.uid)} />
+              <div key={s.uid} className={`tile-glow owner-${owner} ${focus?.includes(s.uid) ? 'focus' : ''}`}>
+                <div
+                  data-uid={s.uid}
+                  data-place={`${index}:gate`}
+                  className={`gate-slot filled owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''}`}
+                  {...draggable}
+                >
+                  <Pic state={view} c={s} badges focus={focus?.includes(s.uid)} strip={planned ? 'Planned' : moving ? 'Moving' : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockReason(view, s) ? 'Held' : undefined} onClick={() => onChar(s.uid)} />
+                </div>
               </div>
             );
           })}

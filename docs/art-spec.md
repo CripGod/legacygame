@@ -24,7 +24,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Missing
 
-### characters (25)
+### characters (24)
 
 - `newsboy` **Newsboy** (1905–1960): The Chicago Defender rode south in the bags of Pullman porters and the hands of kids on corners; a paper was the first thing many families bought.
 - `barber` **Barber** (Any Saturday): The barbershop was bank, newsroom, campaign office and town hall. Everybody passed through, and nobody stayed long.
@@ -34,7 +34,6 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `daniel_payne` **Daniel Payne** (1811–1893): Ran a school for Black children in Charleston until the state outlawed it. Later ran a university.
 - `henry_mcneal_turner` **Henry McNeal Turner** (1834–1915): Army chaplain, Georgia legislator expelled for being Black, AME bishop who told his people to leave.
 - `denmark_vesey` **Denmark Vesey** (c. 1767–1822): Won a lottery, bought his freedom, built a church and planned an uprising. Hanged with 34 others.
-- `nat_turner` **Nat Turner** (1800–1831): Preacher who saw signs in the sky. Two days in Southampton County in 1831 changed every law in the South.
 - `robert_smalls` **Robert Smalls** (1839–1915): Steered a Confederate steamer out of Charleston harbor with his family aboard and handed it to the Union.
 - `madam_cj_walker` **Madam C.J. Walker** (1867–1919): Orphaned laundress who built a hair-care company, thousands of sales agents and the first self-made fortune by an American woman.
 - `paul_laurence_dunbar` **Paul Laurence Dunbar** (1872–1906): The first Black poet with a national audience. "We Wear the Mask." Dead of tuberculosis at 33.

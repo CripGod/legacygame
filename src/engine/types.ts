@@ -117,6 +117,8 @@ export interface CharacterDef {
   force: number;
   tags: string[];
   keywords: Keyword[];
+  /** Kept in the content but out of decks, galleries and docs for now. */
+  hidden?: boolean;
   reveal?: { text: string; effect: RevealEffect; needsTarget?: 'friendlyCharAndLocation' | 'friendlyInsideChar' };
   established?: { text: string; effect: EstablishedEffect };
   /** Always-on quirks (Karen). */

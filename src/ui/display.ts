@@ -60,7 +60,7 @@ export function initials(id: string, placeholders: boolean): string {
 export function hueFor(id: string): string {
   let h = 0;
   for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 360;
-  return `hsl(${h} 55% 62%)`;
+  return `radial-gradient(circle at 50% 32%, hsl(${h} 22% 30%), hsl(${h} 30% 9%) 78%)`;
 }
 
 export function playerColor(p: PlayerId): string {

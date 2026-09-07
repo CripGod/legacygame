@@ -431,8 +431,10 @@ describe('locations', () => {
 });
 
 describe('gatherings', () => {
-  it('The Cookout arrives at Great Migration once you have two Established there, and feeds them', () => {
+  it('The Cookout arrives at Great Migration once you have three Established there (in the matches it exists), and feeds them', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['great_migration', 'gary_indiana', 'greenwood'], revealAll: true, handA: ['og', 'organizer', 'zora_neale_hurston'] });
+    s.spawnRolls.cookout = true;
+    addChar(s, 'barber', 'A', 0, 'inside');
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'og', location: 0 }] }, B: pass() }).state;
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'organizer', location: 0 }] }, B: pass() }).state;
     const og = Object.values(s.characters).find((c) => c.defId === 'og')!;
@@ -446,8 +448,12 @@ describe('gatherings', () => {
     expect(cookout!.zone).toBe('inside');
     expect(out.events.some((e) => e.type === 'spawned' && e.cardId === 'cookout')).toBe(true);
     expect(out.state.players.A.spawned).toContain('cookout');
-    // +1 Influence to the other two Established Characters here.
-    expect(influenceAt(out.state, 0).A).toBe(charDef('og').influence + charDef('organizer').influence + charDef('cookout').influence + 2);
+    // +1 Influence to the other three Established Characters here.
+    expect(influenceAt(out.state, 0).A).toBe(charDef('og').influence + charDef('organizer').influence + charDef('barber').influence + charDef('cookout').influence + 3);
+    // In the other half of matches it never comes.
+    const dry = structuredClone(s);
+    dry.spawnRolls.cookout = false;
+    expect(Object.values(resolveTurn(dry, { A: { ...pass(), enters: [org.uid] }, B: pass() }).state.characters).some((c) => c.defId === 'cookout')).toBe(false);
     // Only once per match.
     const again = resolveTurn(out.state, { A: pass(), B: pass() }).state;
     expect(Object.values(again.characters).filter((c) => c.defId === 'cookout')).toHaveLength(1);

@@ -47,7 +47,7 @@ const md: string[] = [];
 md.push('# Black History Card Battler: all copy', '', 'Everything a player reads, grouped by where it lives. Keep the `id` lines as they are; edit the text after the colons. Card `text` fields are rules text: keep numbers, keywords in CAPS, and the names of Locations, zones (Gates, Inside), and states (Ready, Fresh, Established, Suppressed, Setback, Legacy) unchanged.', '');
 
 md.push('## Characters', '');
-for (const c of CHARACTERS) {
+for (const c of CHARACTERS.filter((c) => !c.hidden)) {
   md.push(`### ${c.name} (\`${c.id}\`)`, `- cost ${c.cost} · Influence ${c.influence} · Force ${c.force} · ${c.category} · era: ${c.era}`);
   if (c.keywords.length) md.push(`- keywords: ${c.keywords.join(', ')}`);
   if (c.reveal) md.push(`- reveal: ${c.reveal.text}`);
@@ -105,7 +105,7 @@ fs.writeFileSync(path.join(root, 'docs/copy.md'), md.join('\n'));
 // ---------- art spec ----------
 const has = (kind: string, id: string) => fs.existsSync(path.join(root, 'public/art', kind, `${id}.jpg`));
 const missing = {
-  characters: CHARACTERS.filter((c) => !has('characters', c.id)),
+  characters: CHARACTERS.filter((c) => !c.hidden && !has('characters', c.id)),
   events: EVENTS.filter((e) => !has('events', e.id)),
   threats: THREATS.filter((t) => !has('threats', t.id)),
   locations: LOCATIONS.filter((l) => !has('locations', l.id)),

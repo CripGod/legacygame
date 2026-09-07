@@ -95,12 +95,6 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - blurb: Won a lottery, bought his freedom, built a church and planned an uprising. Hanged with 34 others.
 - history: Denmark Vesey was bought as a boy by a Bermuda slave captain, won $1,500 in a Charleston lottery in 1799 and purchased his own freedom, though not his family's. A carpenter and a founder of the city's AME church, he organized what would have been one of the largest slave uprisings in American history for the summer of 1822. It was betrayed before it began. Vesey and 34 others were hanged, the church was razed, and the state built a citadel to guard against the next attempt. The church rebuilt as Mother Emanuel.
 
-### Nat Turner (`nat_turner`)
-- cost 2 · Influence 2 · Force 4 · historical · era: 1800–1831
-- reveal: Challenge the opposing Established Character here with the highest Influence. Force decides.
-- blurb: Preacher who saw signs in the sky. Two days in Southampton County in 1831 changed every law in the South.
-- history: Nat Turner was born enslaved in Southampton County, Virginia, in 1800, taught to read as a child and known among the enslaved as a preacher who fasted, prayed and saw visions. On 21 August 1831 he led about seventy men across the county, killing around sixty white people in two days before militia scattered them. He hid for two months, was tried and hanged on 11 November, and Virginia and its neighbors answered with new laws against Black literacy, assembly and preaching. His jailhouse account, taken down by a white lawyer, is the only record in something like his own words.
-
 ### Robert Smalls (`robert_smalls`)
 - cost 2 · Influence 3 · Force 2 · historical · era: 1839–1915
 - reveal: The Planter: move one of your Gate Characters to another Location's open Gate for free, keeping its status. It does not use your Relocation and cannot break a curfew or a hold.
@@ -273,7 +267,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 ### The Cookout (`cookout`)
 - cost 2 · Influence 2 · Force 1 · gathering · era: Timeless
 - established: Everybody eats: your other Established Characters here gain +1 Influence, and your Characters arriving at this Gate are Ready at once.
-- arrives: You have two Characters Established at Great Migration. The Cookout arrives. / button: Continue
+- arrives: You have three Characters Established at Great Migration. The Cookout arrives. / button: Continue
 - blurb: Everybody eats. Bring a chair, fix a plate, you are in.
 - history: The Black cookout grows out of emancipation celebrations, church picnics and the Southern barbecue tradition that enslaved and freed Black pitmasters built. The Great Migration carried it to backyards and parks in every Northern city. "Invited to the cookout" became shorthand for being welcomed into the community.
 
@@ -494,15 +488,6 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ## Coach tips (first match)
 
-- `first`: Drag a card onto a Location to commit it. All three Locations are hidden on Turn 1.
-- `gates`: Characters wait one turn at the Gates. Next turn they become Ready and may enter.
-- `enter`: Drag a Ready Character from your Gates into the Location. Entering is free.
-- `influence`: Control two of the three Locations at the end of the last turn to win.
-- `move`: Drag a Character to another Location to relocate it. From the Gates it stays Ready; from Inside it arrives Fresh and waits again.
-- `final`: Last turn unless someone stands. After it the Locations are counted: win two of three. Commit everything that can enter; Reveals resolve before entries.
-- `night`: Night falls on even turns. Sundown Town locks everyone in until morning and a Curfew Threat holds a Location around the clock. Harriet Tubman is the only one who can get them out.
-- `threat`: Threats are neutral dangers. Drag a Character onto one to confront it. Some affect both players.
-- `stakes`: Stand on Business doubles the Legacy and adds an 8th turn. Once you stand, you cannot Sit Down.
 
 ## First-turn guide
 
@@ -1178,6 +1163,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - strip ${def.curse ? 'curse' : 'event'}
 - gates-left ${gOk ? 'drop-ok' : ''} ${gOver ? 'drop-over' : ''}
 - ${hd.name} ${s.held.why} when you Lock It In. The slot stays taken until then.
+- tile-glow owner-${owner} ${focus?.includes(s.uid) ? 'focus' : ''}
 - gate-slot filled owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''}
 - slots ${cap < INSIDE_CAPACITY ? 'restricted' : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''}
 - slot ${i >= cap ? 'locked' : ''}
@@ -1211,6 +1197,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 ### src/ui/display.ts
 
 - Figure ${String(cardIndex[id]).padStart(2, '0')}
+- radial-gradient(circle at 50% 32%, hsl(${h} 22% 30%), hsl(${h} 30% 9%) 78%)
 - May go Inside the turn it is played. Your choice: tap the planned card to switch between Gates and Inside.
 - Always goes Inside the turn it is played.
 -  Only ${Math.round(rule.chance * 100)}% of matches have it at all.

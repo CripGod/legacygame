@@ -45,7 +45,7 @@ export function isCharacterCard(id: string): boolean {
 export const PRESET_DECKS: Record<string, { name: string; style: string; cards: string[] }> = {
   railroad: {
     name: 'Railroad',
-    style: 'Movement and organizing. Harriet moves people, Douglass and the Organizer build a Location, Nat Turner breaks one open.',
+    style: 'Movement and organizing. Harriet moves people, Douglass and the Organizer build a Location, John Brown breaks a Threat.',
     cards: [
       'harriet_tubman',
       'frederick_douglass',
@@ -55,7 +55,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'queen_nzinga',
       'pullman_porter',
       'paul_laurence_dunbar',
-      'nat_turner',
+      'john_brown',
       'mansa_musa',
       'anansi',
       'reparations',
@@ -89,7 +89,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'cecile_fatiman',
       'booker_t_washington',
       'george_washington_carver',
-      'nat_turner',
+      'queen_nzinga',
       'denmark_vesey',
       'nanny_of_the_maroons',
       'nehanda',
@@ -145,7 +145,7 @@ export function randomDeck(pick: (n: number) => number): string[] {
   // Every deck carries at least one Mythic.
   const mythics = CHARACTERS.filter((c) => c.category === 'mythic' && !c.spawn).map((c) => c.id);
   const first = mythics[pick(mythics.length)];
-  const pool = CHARACTERS.filter((c) => c.category !== 'gathering' && !c.spawn && c.id !== first).map((c) => c.id);
+  const pool = CHARACTERS.filter((c) => c.category !== 'gathering' && !c.spawn && !c.hidden && c.id !== first).map((c) => c.id);
   const chosen: string[] = [first];
   while (chosen.length < DECK_SIZE - 2) chosen.push(pool.splice(pick(pool.length), 1)[0]);
   const ev = EVENTS.filter((e) => !e.spawn).map((e) => e.id);
@@ -167,6 +167,7 @@ export function validateDeck(cards: string[]): string[] {
     }
     if (def.kind === 'character') {
       if (def.category === 'gathering' || def.spawn) errors.push(`${def.name} arrives on its own and cannot be put in a deck.`);
+      if (def.hidden) errors.push(`${def.name} is not in the game right now.`);
       if (seen.has(id)) errors.push(`Duplicate Character ${def.name}.`);
       seen.add(id);
     } else {

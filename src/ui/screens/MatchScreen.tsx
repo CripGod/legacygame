@@ -3,7 +3,7 @@ import { CARD_BY_ID, legalOptions, gateRoom, lockReason, PLANNING_SECONDS, insid
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight } from '../components/Battlefield';
-import { previewPlan, isPlannedUid, PLANNED_PREFIX } from '../preview';
+import { previewPlan, remainingPlan, isPlannedUid, PLANNED_PREFIX } from '../preview';
 import type { MatchController } from '../useMatch';
 import { Hud } from '../components/Hud';
 import { Battlefield } from '../components/Battlefield';
@@ -140,14 +140,20 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   const [peek, setPeek] = useState(() => m.view.phase === 'ended');
   const [guideOn, setGuideOn] = useState(() => coach && m.mode === 'ai' && !guideDone());
   const opts = useMemo(() => legalOptions(view, me), [view, me]);
-  const boardView = useMemo(() => (view.phase === 'planning' && !locked ? previewPlan(view, me, plan) : view), [view, me, plan, locked]);
+  const step = m.replay ? m.replay.steps[m.replay.idx] : null;
+  /** During a replay your own moves stay where you put them; the board only re-animates what you could not see coming. */
+  const boardView = useMemo(() => {
+    if (m.replay && step) return previewPlan(view, me, remainingPlan(step.state, me, m.replay.plan));
+    return view.phase === 'planning' && !locked ? previewPlan(view, me, plan) : view;
+  }, [view, me, plan, locked, m.replay, step]);
+  /** Beats that only re-show one of your own planned moves are skipped. */
+  const ownBeat = !!step && !!m.replay && step.player === me && (step.kind === 'play' || step.kind === 'enter' || (step.kind === 'move' && m.replay.plan.relocations.some((r) => step.uids?.includes(r.uid))));
   /** Gatherings that arrived in the last resolution, shown one at a time with fanfare. */
   const [fanfare, setFanfare] = useState<GameEvent[]>([]);
   /** Confrontations from the last resolution, replayed as showdowns. */
   const [showdowns, setShowdowns] = useState<GameEvent[]>([]);
   /** Knocks, blocks and holds from the last resolution: replayed first, so the tally makes sense. */
   const [clashes, setClashes] = useState<GameEvent[]>([]);
-  const step = m.replay ? m.replay.steps[m.replay.idx] : null;
   /** Without a replay (Sit Down, or a resolution with no beats), the whole turn's sheets queue at once. */
   useEffect(() => {
     if (m.replay) return;
@@ -172,7 +178,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   /** Advance the replay once this beat's sheets are closed. */
   useEffect(() => {
     if (!step || clashes.length || showdowns.length || fanfare.length || sheet?.kind === 'peek') return;
-    const ms = BEAT_MS[step.kind] ?? 900;
+    const ms = ownBeat ? 0 : BEAT_MS[step.kind] ?? 900;
     const id = window.setTimeout(m.replayNext, ms);
     return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -622,7 +628,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
 
   return (
     <div className="app">
-      <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, flash: flash === 'stakes', onToggle: toggleStand }} />
+      <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, flash: flash === 'stakes' || flash === 'final', onToggle: toggleStand }} />
       <div className="main-wrap">
         <Battlefield
           view={boardView}
@@ -646,7 +652,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           glowLocation={guideLocation}
           summonLabel={summonState}
         />
-        {step && (
+        {step && !ownBeat && (
           <div className={`replay-banner kind-${step.kind}`} role="status">
             {BEAT_KIND[step.kind] && <span className="replay-kind">{BEAT_KIND[step.kind]}</span>}
             <span className="replay-text">{step.label}</span>
@@ -670,7 +676,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
         )}
       </div>
       <div className="bottom">
-        <Hand view={view} me={me} plan={plan} selected={selected} onSelect={selectCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} dragProps={dragProps} glow={guideCard} energyLeft={planning ? energyLeft : undefined} dropState={drop?.hand ? (drop.overKey === 'hand' ? 'over' : 'ok') : null} />
+        <Hand view={view} me={me} plan={m.replay ? m.replay.plan : plan} selected={selected} onSelect={selectCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} dragProps={dragProps} glow={guideCard} energyLeft={planning ? energyLeft : undefined} dropState={drop?.hand ? (drop.overKey === 'hand' ? 'over' : 'ok') : null} />
         <div className="hint">
           {selected && planning ? (
             <button className="small chip" onClick={() => setSheet({ kind: 'card', id: selected })}>

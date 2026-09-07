@@ -84,7 +84,7 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
           <div key={cat}>
             <h2>{cat === 'historical' ? 'Historical Characters' : cat === 'archetype' ? 'Archetypes' : cat === 'mythic' ? 'Mythic: African cosmology and diaspora spirituality' : 'Gatherings: they arrive on their own'}</h2>
             {cat === 'gathering' && <p className="muted">Gatherings are never in a deck. When the board earns one it appears with some fanfare and plays like any Character from then on. If a card ever returns one to your hand, you can replay it.</p>}
-            {CHARACTERS.filter((c) => c.category === cat).map((c) => (
+            {CHARACTERS.filter((c) => c.category === cat && !c.hidden).map((c) => (
               <div key={c.id} style={{ marginBottom: 8 }}>
                 <b>{c.name}</b> <span className="muted">{c.influence} Influence · {c.force} Force · {c.era}</span>
                 {abilityLines(c).map((l) => (

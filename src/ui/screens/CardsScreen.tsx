@@ -6,7 +6,7 @@ import { CardSheet } from '../components/Sheets';
 /** Every card by cost, then the ones the board hands out, then Locations and Threats. */
 export function CardsScreen({ onBack }: { onBack: () => void }) {
   const [open, setOpen] = useState<string | null>(null);
-  const inDecks: CardDef[] = [...CHARACTERS.filter((c) => c.category !== 'gathering' && !c.spawn), ...EVENTS.filter((e) => !e.spawn)];
+  const inDecks: CardDef[] = [...CHARACTERS.filter((c) => c.category !== 'gathering' && !c.spawn && !c.hidden), ...EVENTS.filter((e) => !e.spawn)];
   const arrivals: CardDef[] = [...CHARACTERS.filter((c) => c.category === 'gathering' || c.spawn), ...EVENTS.filter((e) => e.spawn)];
   const costs = [...new Set(inDecks.map((c) => c.cost))].sort((a, b) => a - b);
   return (

@@ -75,3 +75,18 @@ export function previewPlan(view: GameState, me: PlayerId, plan: TurnPlan): Game
 export function isPlannedUid(uid: string): boolean {
   return uid.startsWith(PLANNED_PREFIX);
 }
+
+/**
+ * The part of a locked plan a replay beat has not caught up with yet, so the board keeps
+ * showing the player's own moves where they put them instead of re-animating them.
+ */
+export function remainingPlan(state: GameState, me: PlayerId, plan: TurnPlan): TurnPlan {
+  const mine = Object.values(state.characters).filter((c) => c.owner === me);
+  return {
+    ...plan,
+    // Event plays are shown by the replay's own pending tiles.
+    plays: plan.plays.filter((pl) => CARD_BY_ID[pl.cardId]?.kind === 'character' && !mine.some((c) => c.defId === pl.cardId)),
+    enters: plan.enters.filter((uid) => state.characters[uid]?.zone === 'gate'),
+    relocations: plan.relocations.filter((r) => state.characters[r.uid] && state.characters[r.uid].location !== r.to),
+  };
+}

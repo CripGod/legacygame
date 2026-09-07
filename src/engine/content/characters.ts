@@ -327,6 +327,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'nat_turner',
+    hidden: true,
     cost: 2,
     identity: ['prophecy', 'rebellion', 'reckoning'],
     era: '1800–1831',
@@ -949,9 +950,10 @@ const GATHERINGS: CharacterDef[] = [
     spawn: {
       type: 'establishedAt',
       locationId: 'great_migration',
-      count: 2,
+      count: 3,
+      chance: 0.5,
       unique: true,
-      headline: 'You have two Characters Established at Great Migration. The Cookout arrives.',
+      headline: 'You have three Characters Established at Great Migration. The Cookout arrives.',
       cta: 'Continue',
     },
     identity: ['community', 'welcome', 'joy'],

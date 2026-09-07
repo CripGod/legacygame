@@ -60,8 +60,9 @@ export function Hand({
       <div className="hand">
         {visible.map((id, i) => {
           const off = i - mid;
-          const rot = compact ? off * 5 : 0;
-          const ty = compact ? Math.abs(off) * Math.abs(off) * 2 : 0;
+          // A fanned hand: each card leans out from the centre and sits a little lower the farther out it is.
+          const rot = off * (compact ? 5 : 4);
+          const ty = Math.abs(off) * Math.abs(off) * (compact ? 2 : 3.5);
           const sel = selected === id;
           const planned = plan.plays.some((pl) => pl.cardId === id);
           const dp = (dragProps && !planned ? dragProps({ kind: 'card', cardId: id }) : {}) as { style?: React.CSSProperties };
@@ -70,7 +71,7 @@ export function Hand({
             ...(dp.style ?? {}),
             ...(dealt >= 0 ? { animationDelay: `${dealt * 140}ms` } : {}),
             transform: `rotate(${rot}deg) translateY(${sel ? -26 : ty}px) scale(${sel ? 1.08 : 1})`,
-            marginLeft: i === 0 ? 0 : compact ? 'calc(var(--card-w) * -0.32)' : 6,
+            marginLeft: i === 0 ? 0 : compact ? 'calc(var(--card-w) * -0.4)' : 'calc(var(--card-w) * -0.1)',
             zIndex: sel ? 10 : i,
             position: 'relative',
           };
