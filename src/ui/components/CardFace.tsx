@@ -13,7 +13,8 @@ function ribbonFor(def: { kind: string; category?: string; tags?: string[]; curs
 }
 
 /** The short rules line printed on the small card. */
-function abilityFor(def: { kind: string; text?: string; reveal?: { text: string }; established?: { text: string }; passive?: { text: string } }): string {
+function abilityFor(def: { kind: string; text?: string; summary?: string; reveal?: { text: string }; established?: { text: string }; passive?: { text: string } }): string {
+  if (def.summary) return def.summary;
   if (def.kind === 'event') return def.text ?? '';
   return def.reveal?.text ?? def.established?.text ?? def.passive?.text ?? '';
 }
@@ -47,14 +48,16 @@ export function CardFace({ id, big = false, onClick, cost, costWhy }: { id: stri
       <div className="card-art" style={{ background: hueFor(id) }}>
         {placeholders ? <span className="ini">{initials(id, true)}</span> : <Art kind={isChar ? 'characters' : 'events'} id={id} className="portrait-img" fallback={<span className="ini">{initials(id, false)}</span>} alt={def.name} />}
       </div>
-      <div className="name">{cardName(id, placeholders)}</div>
-      {!placeholders && <div className="ribbon">{ribbonFor(def)}</div>}
-      {!big && !placeholders && <div className="ability">{abilityFor(def)}</div>}
-      {isChar && def.category === 'mythic' && !placeholders && <div className="cat mythic">Mythic</div>}
-      {isChar && def.category === 'gathering' && !placeholders && <div className="cat gathering">Gathering</div>}
-      {curse && !placeholders && <div className="cat curse">Curse</div>}
-      {big && isChar && !placeholders && <div className="era">{def.era}</div>}
-      <div className="text">
+      <div className="card-body">
+        <div className="name">{cardName(id, placeholders)}</div>
+        {!placeholders && <div className="ribbon">{ribbonFor(def)}</div>}
+        {!big && !placeholders && <div className="rule-line" aria-hidden />}
+        {!big && !placeholders && <div className="ability">{abilityFor(def)}</div>}
+        {isChar && def.category === 'mythic' && !placeholders && <div className="cat mythic">Mythic</div>}
+        {isChar && def.category === 'gathering' && !placeholders && <div className="cat gathering">Gathering</div>}
+        {curse && !placeholders && <div className="cat curse">Curse</div>}
+        {big && isChar && !placeholders && <div className="era">{def.era}</div>}
+        <div className="text">
         {big && abilityLines(def).map((l) => (
           <div key={l.label}>
             <span className="kw">{l.label}:</span> {l.text}
@@ -66,7 +69,7 @@ export function CardFace({ id, big = false, onClick, cost, costWhy }: { id: stri
             {def.tags.length ? def.tags.join(' · ') : ''}
           </div>
         )}
-
+        </div>
       </div>
     </div>
   );

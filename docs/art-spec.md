@@ -24,11 +24,11 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Missing
 
-### characters (24)
+### characters (29)
 
-- `newsboy` **Newsboy** (1905–1960): The Chicago Defender rode south in the bags of Pullman porters and the hands of kids on corners; a paper was the first thing many families bought.
-- `barber` **Barber** (Any Saturday): The barbershop was bank, newsroom, campaign office and town hall. Everybody passed through, and nobody stayed long.
-- `block_captain` **Block Captain** (1960s–): Knows every door on the street and who is behind it. When trouble comes, the block already has a plan.
+- `john_russwurm` **John Russwurm** (1799–1851): Co-founded Freedom's Journal in 1827, the first Black-owned newspaper in the United States. "We wish to plead our own cause."
+- `alonzo_herndon` **Alonzo Herndon** (1858–1927): Born enslaved, built the finest barbershop in Atlanta and then Atlanta Life Insurance. Everybody passed through his chairs.
+- `callie_house` **Callie House** (1861–1928): A Nashville washerwoman who built a 300,000-member movement demanding pensions for the formerly enslaved. The government jailed her for it.
 - `richard_allen` **Richard Allen** (1760–1831): Bought his own freedom, walked out of a segregated church and built his own denomination.
 - `absalom_jones` **Absalom Jones** (1746–1818): Bought his wife's freedom before his own. First Black priest in the Episcopal Church.
 - `daniel_payne` **Daniel Payne** (1811–1893): Ran a school for Black children in Charleston until the state outlawed it. Later ran a university.
@@ -40,7 +40,12 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `scott_joplin` **Scott Joplin** (1868–1917): The King of Ragtime. "Maple Leaf Rag" sold a million copies; his opera waited sixty years for a stage.
 - `claudette_colvin` **Claudette Colvin** (1939–): Fifteen years old, Montgomery, March 1955. Nine months before Rosa Parks, she refused to move and was dragged off the bus.
 - `bass_reeves` **Bass Reeves** (1838–1910): Born enslaved, fluent in several Native languages, one of the first Black deputy U.S. Marshals west of the Mississippi. Three thousand arrests, never wounded.
-- `neighbor_kid` **Neighbor Kid** (Any afternoon): Somebody's nephew. Runs the errand, holds the door, sees everything and tells his grandmother.
+- `bud_billiken` **Bud Billiken** (Chicago Defender, 1923): The Chicago Defender's mascot for its children's page: guardian of every Black kid, dreamed up in 1923.
+- `roger_taney` **Roger Taney** (1777–1864): Chief Justice who wrote Dred Scott: Black people had "no rights which the white man was bound to respect." Useful to whoever plays him for a turn, then a liability to whoever is winning.
+- `hubert_harrison` **Hubert Harrison** (1883–1927): The father of Harlem radicalism: a soapbox orator on Lenox Avenue who taught a generation how to organize.
+- `clara_brown` **Clara Brown** (1800–1885): "Aunt" Clara Brown, the Angel of the Rockies: nobody settled Central City without coming through her kitchen first.
+- `bud_billiken_parade` **Bud Billiken Parade** (Chicago, 1929–): The Defender's parade for the kids of the South Side, every August since 1929: the largest African American parade in the country.
+- `fisk_jubilee_singers` **Fisk Jubilee Singers** (Nashville, 1871–): Nine students who left Fisk in 1871 to sing the spirituals for the world, and saved the school doing it.
 - `booker_t_washington` **Booker T. Washington** (1856–1915): Built Tuskegee from a shanty and a church into a campus the students made with their own hands.
 - `george_washington_carver` **George Washington Carver** (c. 1864–1943): Taught the South to rest its soil and found three hundred uses for the peanut.
 - `marie_laveau` **Marie Laveau** (1801–1881): Hairdresser, healer and the most consulted woman in New Orleans.
@@ -75,7 +80,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Have
 
-- characters: anansi, bessie_coleman, black_jesus, chairteenth, cookout, frederick_douglass, harriet_tubman, ida_b_wells, john_brown, karen, katherine_johnson, mami_wata, mansa_musa, marcus_garvey, og, ogun, organizer, oshun, pullman_porter, queen_nzinga, shango, sojourner_truth, toussaint_louverture, victor_hugo_green, yemoja, zora_neale_hurston
+- characters: anansi, bessie_coleman, black_jesus, frederick_douglass, harriet_tubman, ida_b_wells, john_brown, katherine_johnson, mami_wata, mansa_musa, marcus_garvey, ogun, oshun, queen_nzinga, shango, sleeping_car_porters, sojourner_truth, toussaint_louverture, victor_hugo_green, yemoja, zora_neale_hurston
 - events: community_defense, reparations
 - threats: comfortable_complicity, housing_restriction, mob, paddy_roller, segregationist_patrol
 - locations: accra_ghana, black_star, gary_indiana, great_migration, greenwood, harpers_ferry, juneteenth, lagos, sundown_town

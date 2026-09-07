@@ -446,15 +446,17 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
   const singles: AiCandidate[] = affordable.map((play) => scoreOf({ plays: [play], enters: defaultEnters, relocations: [], confronts }));
   singles.sort((a, b) => b.score - a.score);
   const playSets: PlayAction[][] = [[], ...singles.slice(0, 6).map((c) => c.plan.plays)];
-  /** Gate slots per Location: every Character takes one, and an Event needs one left open. */
+  /** Gate slots per Location: every Character takes one. Events have their own slot: one per Location. */
   const fits = (set: PlayAction[]): boolean => {
     const chars: Record<number, number> = {};
-    for (const x of set) if (cardDef(x.cardId).kind === 'character') chars[x.location] = (chars[x.location] ?? 0) + 1;
+    const evs: Record<number, number> = {};
     for (const x of set) {
-      const room = gateRoom(view, x.location, p);
-      const n = chars[x.location] ?? 0;
-      if (n > room) return false;
-      if (cardDef(x.cardId).kind === 'event' && n >= room) return false;
+      if (cardDef(x.cardId).kind === 'character') chars[x.location] = (chars[x.location] ?? 0) + 1;
+      else evs[x.location] = (evs[x.location] ?? 0) + 1;
+    }
+    for (const x of set) {
+      if ((chars[x.location] ?? 0) > gateRoom(view, x.location, p)) return false;
+      if ((evs[x.location] ?? 0) > 1) return false;
     }
     return true;
   };

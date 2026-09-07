@@ -272,6 +272,13 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
   useEffect(() => {
     if (timerActive && secondsLeft === 0) lockIn();
   }, [secondsLeft, timerActive, lockIn]);
+  // Tutorial: the bar inside Lock In drains for show so the player learns what it means, then starts over. It never locks anyone in.
+  const showTimer = !!options.tutorial && trueState.phase === 'planning' && !locked && !busy && !handoff;
+  useEffect(() => {
+    if (!showTimer) return;
+    const id = setInterval(() => setSecondsLeft((s) => (s <= 0 ? PLANNING_SECONDS : s - 1)), 1000);
+    return () => clearInterval(id);
+  }, [showTimer, trueState.turn]);
 
   // Analytics on match end.
   useEffect(() => {

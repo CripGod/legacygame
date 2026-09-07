@@ -710,6 +710,7 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
     from: number;
     to?: number;
     theirForce?: number;
+    intent?: string;
     note?: string;
   };
   const [stage, setStage] = useState(0);
@@ -766,6 +767,7 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
           </div>
         </div>
         <div className={`verdict ${stage >= 3 ? 'show' : ''}`}>{title[d.outcome]}</div>
+        {d.intent && <div className="showdown-rule muted clash-intent">{d.intent}</div>}
         <div className="showdown-why">
           <b>{ev.text}</b>
           {d.note ? ` ${d.note}` : ''}

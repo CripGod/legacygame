@@ -48,7 +48,7 @@ export type Lesson =
 
 const LOCK: Lesson = {
   kind: 'do',
-  text: 'Press Lock In. Harborlight commits at the same time, then the turn plays out one beat at a time. Watch the banner: it says what is happening and why.',
+  text: 'Press Lock In. Once Harborlight commits, the turn plays out one beat at a time. Watch the banner: it says what is happening and why.',
   lock: true,
   done: () => false, // the turn advancing ends it
 };
@@ -95,7 +95,8 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
     return [
       { kind: 'read', title: 'Welcome', text: 'You and Harborlight are fighting over three Locations. Whoever leads Influence at two of them when Turn 7 ends wins. In the tutorial the clock is stopped: take all the time you want.' },
       { kind: 'read', title: 'Energy', text: `Energy buys cards. You have ${energy} Energy this turn; Energy equals the turn number, so it grows every turn. Every card costs Energy, the green circle in its corner. The cards you cannot afford are dimmed.` },
-      { kind: 'read', title: 'The board', text: 'Each column is a Location. The strip above it is Harborlight\'s Gates, the strip below is yours: a Character you play waits at the Gates one turn before it can go Inside. All three Locations are hidden on Turn 1, so the first commit is blind.' },
+      { kind: 'read', title: 'The board', text: 'Each column is a Location. The strip above it is Harborlight\'s Gates, the strip below is yours: a Character you play waits at the Gates one turn before it can go Inside. The purple dotted box beside your Gates is the Event slot. All three Locations are hidden on Turn 1, so the first commit is blind.' },
+      { kind: 'read', title: 'The clock', text: 'The bar inside Lock In is the turn clock. In a real match it drains over two minutes, flashes red near the end, and locks whatever you have planned when it runs out. In the tutorial it ticks for show and never locks you in.' },
       ...playLesson(view, me, placeholders, 'Its Influence counts from the Gates, so even a blind commit is worth something.'),
       LOCK,
     ];
@@ -126,7 +127,7 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
         },
       );
     }
-    lessons.push(...playLesson(view, me, placeholders, 'Reveals fire the moment a card lands, before anyone enters.'), LOCK);
+    lessons.push(...playLesson(view, me, placeholders, 'A card fires its Reveal the moment it lands, before anyone walks Inside.'), LOCK);
     return lessons;
   }
   if (turn === 4) {

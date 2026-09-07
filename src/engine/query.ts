@@ -21,6 +21,7 @@ export function isNight(state: GameState): boolean {
 
 /** Why a Character cannot relocate out right now (a curfew at night, or The Justice System's hold), or null when it is free to go. Harriet ignores both. */
 export function lockReason(state: GameState, c: CharacterInstance): string | null {
+  if (charDef(c.defId)?.passive?.curfewImmune) return null;
   const loc = state.locations[c.location];
   const def = loc.revealed ? LOCATION_BY_ID[loc.defId] : undefined;
   if (def?.curfew && isNight(state)) return `${def.name} is under curfew until morning`;
@@ -356,8 +357,8 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
       plays.push({
         cardId,
         kind: 'event',
-        // Events are played like Characters: at a Location with an open Gate slot. They do not keep the slot.
-        locations: state.locations.filter((l) => !l.lost && gateOpen(state, l.index, p)).map((l) => l.index),
+        // Events go in the Event slot under a Location: one per Location per player per turn.
+        locations: state.locations.filter((l) => !l.lost).map((l) => l.index),
         needsLocation: true,
         directEntry: false,
       });
@@ -409,6 +410,7 @@ export function validatePlan(state: GameState, p: PlayerId, plan: TurnPlan): str
   if (planCost(plan, state, p) > opts.energy) errors.push(`Not enough Energy: this plan costs ${planCost(plan, state, p)} and you have ${opts.energy}.`);
   const usedCards = new Set<string>();
   const gateUse: Record<number, number> = {};
+  const eventUse: Record<number, number> = {};
   for (const play of plan.plays) {
     if (play.enter) {
       const d = CARD_BY_ID[play.cardId];
@@ -425,8 +427,9 @@ export function validatePlan(state: GameState, p: PlayerId, plan: TurnPlan): str
     if (opt.kind === 'character') {
       gateUse[play.location] = (gateUse[play.location] ?? 0) + 1;
       if (gateRoom(state, play.location, p, gateUse[play.location] - 1) <= 0) errors.push('No open Gate slot for that card.');
-    } else if (gateRoom(state, play.location, p, gateUse[play.location] ?? 0) <= 0) {
-      errors.push('An Event needs an open Gate slot at its Location.');
+    } else {
+      eventUse[play.location] = (eventUse[play.location] ?? 0) + 1;
+      if (eventUse[play.location] > 1) errors.push('One Event per Location per turn: that Event slot is taken.');
     }
     if (opt.needsTarget === 'friendlyCharAndLocation' && play.target?.charUid) {
       const c = state.characters[play.target.charUid];

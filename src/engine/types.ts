@@ -113,6 +113,8 @@ export interface CharacterDef {
   cost: number;
   /** Short name used on thumbnails. */
   short: string;
+  /** One plain line for the small card; the full text shows on expand. */
+  summary?: string;
   influence: number;
   force: number;
   tags: string[];
@@ -132,6 +134,10 @@ export interface CharacterDef {
     tagDiscount?: { tag: string; amount: number };
     /** If displaced, returns to your hand and costs 0 the next time. */
     risesAgain?: boolean;
+    /** Curfew never holds this Character, and Sundown Town never runs them out. */
+    curfewImmune?: boolean;
+    /** Sundown Town: this many friendly Characters who would be run out hide with them overnight instead. */
+    shelter?: number;
   };
   /** Gatherings: how and where the card arrives on its own. */
   spawn?: SpawnRule;
@@ -142,7 +148,7 @@ export interface CharacterDef {
   history?: string;
 }
 
-/** Every Event is played at a Location with an open Gate slot. It resolves everywhere, and `bonus` says what the Location adds. */
+/** Every Event is played into the Event slot under a Location (one per Location per player per turn). It resolves everywhere, and `bonus` says what the Location adds. */
 export type EventEffect =
   | { type: 'reparations'; max: number; bonus: { region: 'africa' | 'americas' | 'atlantic'; influence: number } }
   | { type: 'communityDefense'; force: number }
@@ -157,6 +163,8 @@ export interface EventDef {
   short: string;
   /** Energy to play. */
   cost: number;
+  /** One plain line for the small card; the full text shows on expand. */
+  summary?: string;
   text: string;
   effect: EventEffect;
   needsLocation: boolean;

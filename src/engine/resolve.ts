@@ -93,7 +93,7 @@ function riseAgain(state: GameState, c: CharacterInstance, reason: string, event
 /** One Character (or Threat, Location, Event) acting on another: the story beat the UI replays before the tally. */
 type ClashActor = { kind: 'character' | 'threat' | 'location' | 'event'; id: string; owner?: PlayerId; force?: number };
 type ClashOutcome = 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose';
-function clash(state: GameState, events: GameEvent[], actor: ClashActor, victim: CharacterInstance, outcome: ClashOutcome, location: number, extra: { theirForce?: number; from?: number; to?: number; note?: string } = {}): void {
+function clash(state: GameState, events: GameEvent[], actor: ClashActor, victim: CharacterInstance, outcome: ClashOutcome, location: number, extra: { theirForce?: number; from?: number; to?: number; note?: string; intent?: string } = {}): void {
   const vdef = charDef(victim.defId);
   const alive = !!state.characters[victim.uid];
   const out: ClashOutcome = outcome === 'displaced' && !alive ? 'rose' : outcome;
@@ -465,13 +465,14 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       }
       const myForce = def.force;
       const theirForce = charDef(target.defId).force;
+      const intent = `${def.name} arrived to challenge the opposing Gate Character here with the most Force, ${charDef(target.defId).name}: with more Force, ${def.name} knocks them to another Location.`;
       if (myForce > theirForce && !isProtected(state, target)) {
         say(`challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}) and displaces them.`);
         displace(state, target, 'Nzinga', events);
-        clash(state, events, { kind: 'character', id: def.id, owner: p, force: myForce }, target, 'displaced', loc, { theirForce, to: target.location, note: `Force decides: ${myForce} against ${theirForce}.` });
+        clash(state, events, { kind: 'character', id: def.id, owner: p, force: myForce }, target, 'displaced', loc, { theirForce, to: target.location, intent, note: `Force decides: ${myForce} against ${theirForce}.` });
       } else {
         say(`challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}) and is held off.`);
-        clash(state, events, { kind: 'character', id: def.id, owner: p, force: myForce }, target, 'held', loc, { theirForce, note: isProtected(state, target) ? `${charDef(target.defId).name} is protected this turn.` : `Force decides: ${myForce} is not more than ${theirForce}.` });
+        clash(state, events, { kind: 'character', id: def.id, owner: p, force: myForce }, target, 'held', loc, { theirForce, intent, note: myForce <= theirForce ? `Force decides: ${myForce} is not more than ${theirForce}, so ${charDef(target.defId).name} stays put.` : `${charDef(target.defId).name} is protected this turn, so nothing can move them.` });
       }
       break;
     }
@@ -484,6 +485,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       }
       const myForce = def.force;
       const theirForce = charDef(target.defId).force;
+      const intent = `${def.name} arrived to challenge the opposing Established Character here with the most Influence, ${charDef(target.defId).name}: with more Force, ${def.name} sends them back to the Gates, Fresh, and their Influence stops counting Inside.`;
       if (myForce > theirForce && !isProtected(state, target) && gateOpen(state, loc, opp)) {
         target.zone = 'gate';
         target.ready = false;
@@ -491,10 +493,11 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
         target.blessedUid = undefined;
         say(`challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}); they return to the Gates, Fresh.`);
         events.push({ type: 'moved', text: '', uid: target.uid, location: loc, data: { from: loc, to: loc, reason: 'Toussaint' } });
-        clash(state, events, { kind: 'character', id: def.id, owner: p, force: myForce }, target, 'sentBack', loc, { theirForce, note: `Force decides: ${myForce} against ${theirForce}. They lose their seat Inside and wait at the Gates again.` });
+        clash(state, events, { kind: 'character', id: def.id, owner: p, force: myForce }, target, 'sentBack', loc, { theirForce, intent, note: `Force decides: ${myForce} against ${theirForce}. They lose their seat Inside and wait at the Gates again.` });
       } else {
         say(`challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}) and is held off.`);
-        clash(state, events, { kind: 'character', id: def.id, owner: p, force: myForce }, target, 'held', loc, { theirForce, note: myForce > theirForce ? `${charDef(target.defId).name} is protected, or the opposing Gates are full.` : `Force decides: ${myForce} is not more than ${theirForce}.` });
+        const why = myForce <= theirForce ? `Force decides: ${myForce} is not more than ${theirForce}, so ${charDef(target.defId).name} keeps the seat.` : isProtected(state, target) ? `${charDef(target.defId).name} is protected this turn, so nothing can move them.` : `${state.players[opp].handle}'s Gates here are full, so there is nowhere to send ${charDef(target.defId).name}.`;
+        clash(state, events, { kind: 'character', id: def.id, owner: p, force: myForce }, target, 'held', loc, { theirForce, intent, note: why });
       }
       break;
     }
@@ -1252,8 +1255,19 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
   for (const loc of state.locations) {
     if (!loc.revealed || LOCATION_BY_ID[loc.defId]?.effect.type !== 'displaceFreshAtEnd') continue;
     if (loc.revealedTurn === state.turn) continue; // nothing happens on the reveal turn
-    for (const c of charsAt(state, loc.index, undefined, 'gate')) {
-      if (c.ready || isProtected(state, c)) continue;
+    // John Brown: immune himself, and hides one friendly Character overnight.
+    const shelterLeft: Record<PlayerId, number> = { A: 0, B: 0 };
+    for (const c of charsAt(state, loc.index)) shelterLeft[c.owner] += charDef(c.defId).passive?.shelter ?? 0;
+    const atRisk = charsAt(state, loc.index, undefined, 'gate')
+      .filter((c) => !c.ready && !isProtected(state, c) && !charDef(c.defId).passive?.curfewImmune)
+      .sort((a, b) => charInfluence(state, b) - charInfluence(state, a));
+    for (const c of atRisk) {
+      if (shelterLeft[c.owner] > 0) {
+        shelterLeft[c.owner] -= 1;
+        const host = charsAt(state, loc.index, c.owner).find((h) => charDef(h.defId).passive?.shelter);
+        events.push({ type: 'info', text: `${charDef(host?.defId ?? c.defId).name} hides ${charDef(c.defId).name} overnight at ${locName(state, loc.index)}.`, uid: c.uid, location: loc.index, player: c.owner });
+        continue;
+      }
       const fromHere = loc.index;
       if (displace(state, c, 'Sundown Town', events)) {
         setback(state, c.owner, 'displaced by Sundown Town', events);

@@ -129,7 +129,7 @@ const TIPS: { key: string; when: (c: Ctx) => string | null }[] = [
     when: (c) => {
       if (c.v.turn < c.v.maxTurns) return null;
       const ready = myChars(c).filter((x) => x.zone === 'gate' && x.ready && !lockReason(c.v, x)).map((x) => c.nm(x.defId));
-      return `Last turn unless someone stands. Reveals resolve before entries, then the Locations are counted.${ready.length ? ` ${joinNames(ready)} ${ready.length > 1 ? 'are' : 'is'} Ready: send them Inside now.` : ''}`;
+      return `Last turn unless someone stands. When you lock in, new cards land and fire first, then Characters walk Inside, then every Location is counted.${ready.length ? ` ${joinNames(ready)} ${ready.length > 1 ? 'are' : 'is'} Ready: send them Inside now.` : ''}`;
     },
   },
 ];

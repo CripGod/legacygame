@@ -173,6 +173,12 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
           {eventTiles.map((t, n) => (
             <EventTile key={`ev:${t.cardId}:${n}`} cardId={t.cardId} state={t.state} hidden={t.hidden} onClick={owner === me && t.state === 'planned' ? () => onChar(`${PLANNED_PREFIX}${t.cardId}`) : undefined} />
           ))}
+          {eventTiles.length === 0 && (
+            <div className="gate-slot event-slot empty" {...tip(owner === me ? 'Your Event slot here: drop an Event card on this Location. One per Location per turn.' : "Harborlight's Event slot here.")}>
+              <span className="ini">✦</span>
+              <span className="ev-lbl">Event</span>
+            </div>
+          )}
         </div>
       </div>
       {right}
