@@ -99,6 +99,20 @@ export function createMatch(opts: MatchOptions): GameState {
 
   for (const p of PLAYERS) {
     for (let i = 0; i < STARTING_HAND; i++) drawCard(state, p);
+    // Turn 1 grants 1 Energy: make sure the opening hand holds a 1-cost Character when the deck has one
+    // (any 1-cost card failing that), so the first turn is never a forced pass.
+    const ps = state.players[p];
+    const cheap = (id: string) => (CARD_BY_ID[id]?.cost ?? 0) <= 1;
+    const cheapChar = (id: string) => cheap(id) && CARD_BY_ID[id]?.kind === 'character';
+    if (!ps.hand.some(cheapChar)) {
+      let i = ps.deck.findIndex(cheapChar);
+      if (i < 0 && !ps.hand.some(cheap)) i = ps.deck.findIndex(cheap);
+      if (i >= 0) {
+        const swapOut = ps.hand[ps.hand.length - 1];
+        ps.hand[ps.hand.length - 1] = ps.deck[i];
+        ps.deck[i] = swapOut;
+      }
+    }
   }
   const events: GameEvent[] = [];
   startTurn(state, events);
@@ -132,6 +146,7 @@ export function spawnThreat(state: GameState, location: number, threatId: string
   const loc = state.locations[location];
   if (!def || loc.lost || loc.sanctified) return;
   if (loc.revealed && LOCATION_BY_ID[loc.defId]?.noThreats) return;
+  if (LOCATION_BY_ID[loc.defId]?.immuneThreats?.includes(threatId)) return;
   const make = (target?: PlayerId): ThreatInstance => ({
     uid: `t${state.nextUid++}`,
     defId: threatId,

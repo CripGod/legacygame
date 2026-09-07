@@ -57,7 +57,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'john_brown',
-    cost: 3,
+    cost: 2,
     category: 'historical',
     name: 'John Brown',
     short: 'J. Brown',
@@ -120,6 +120,10 @@ export const CHARACTERS: CharacterDef[] = [
     established: {
       text: 'The next Character you Establish here gains +1 Influence while Mansa Musa remains here.',
       effect: { type: 'blessNextEstablished', amount: 1 },
+    },
+    passive: {
+      text: 'Gold of Mali: +1 Influence at African Locations (Lagos, Accra).',
+      regionBonus: { region: 'africa', influence: 1 },
     },
     identity: ['scale', 'prosperity', 'establishment', 'prestige'],
     era: 'c. 1280–1337',
@@ -439,7 +443,7 @@ const MYTHIC: CharacterDef[] = [
   {
     kind: 'character',
     id: 'shango',
-    cost: 4,
+    cost: 3,
     category: 'mythic',
     name: 'Shango',
     short: 'Shango',
@@ -512,7 +516,7 @@ const MYTHIC: CharacterDef[] = [
   {
     kind: 'character',
     id: 'ogun',
-    cost: 3,
+    cost: 2,
     category: 'mythic',
     name: 'Ogun',
     short: 'Ogun',
@@ -560,7 +564,7 @@ const MYTHIC: CharacterDef[] = [
   {
     kind: 'character',
     id: 'black_jesus',
-    cost: 5,
+    cost: 4,
     category: 'mythic',
     name: 'Black Jesus',
     short: 'Black Jesus',

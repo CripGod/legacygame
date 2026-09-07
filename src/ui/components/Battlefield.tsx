@@ -172,28 +172,40 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
   );
 }
 
-/** Established abilities currently live at a Location, per player. */
-function InEffect({ view, index, me }: { view: GameState; index: number; me: PlayerId }) {
-  const { placeholders } = useDisplay();
-  const rows = (['A', 'B'] as PlayerId[]).map((p) => {
-    const items = charsAt(view, index, p, 'inside')
-      .filter((c) => charDef(c.defId).established && !(c.suppressedUntilTurn !== undefined && c.suppressedUntilTurn >= view.turn))
-      .map((c) => `${placeholders ? charDef(c.defId).short : charDef(c.defId).short}: ${shortEffect(charDef(c.defId).established!.effect.type)}`);
-    return { p, items };
-  });
-  if (!rows.some((r) => r.items.length)) return <div className="in-effect empty" />;
+/** Established abilities live at a Location: a count per player; tap for the full list. */
+function InEffect({ view, index, me, onOpen }: { view: GameState; index: number; me: PlayerId; onOpen: () => void }) {
+  const counts = (['A', 'B'] as PlayerId[]).map((p) => ({ p, n: liveAbilities(view, index, p).length }));
+  const total = counts.reduce((s, c) => s + c.n, 0);
+  if (!total) return <div className="in-effect empty" />;
   return (
     <div className="in-effect">
-      {rows.map(
-        (r) =>
-          r.items.length > 0 && (
-            <div key={r.p} className={`p${r.p}`}>
-              <b>{r.p === me ? 'You' : view.players[r.p].handle}:</b> {r.items.join(' · ')}
-            </div>
-          ),
-      )}
+      <button
+        className="fx-chip"
+        title="Abilities in effect here (tap for details)"
+        onClick={(e) => {
+          e.stopPropagation();
+          onOpen();
+        }}
+      >
+        <span aria-hidden>✦</span>
+        {counts
+          .filter((c) => c.n > 0)
+          .map((c) => (
+            <span key={c.p} className={`p${c.p}`}>
+              {c.p === me ? 'You' : view.players[c.p].handle} {c.n}
+            </span>
+          ))}
+        <span className="muted">in effect ›</span>
+      </button>
     </div>
   );
+}
+
+/** Established abilities currently active for one player at a Location (suppressed ones excluded). */
+export function liveAbilities(view: GameState, index: number, p: PlayerId): { uid: string; defId: string; text: string; short: string }[] {
+  return charsAt(view, index, p, 'inside')
+    .filter((c) => charDef(c.defId).established && !(c.suppressedUntilTurn !== undefined && c.suppressedUntilTurn >= view.turn))
+    .map((c) => ({ uid: c.uid, defId: c.defId, text: charDef(c.defId).established!.text, short: shortEffect(charDef(c.defId).established!.effect.type) }));
 }
 
 function shortEffect(type: string): string {
@@ -331,7 +343,7 @@ export function Battlefield(props: BattlefieldProps) {
                   );
                 })}
               </div>
-              <InEffect view={view} index={loc.index} me={me} />
+              <InEffect view={view} index={loc.index} me={me} onOpen={() => onLocationInfo(loc.index)} />
               <div
                 className="loc-rule"
                 onClick={(e) => {

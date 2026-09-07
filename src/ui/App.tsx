@@ -69,6 +69,7 @@ function MatchHost({ seed, mode, dev, coach, decks, onMenu }: { seed: number; mo
             setScreen('match');
           }}
           onMenu={onMenu}
+          onBoard={() => setScreen('match')}
         />
       )}
       {dev && (

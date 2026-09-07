@@ -1,7 +1,7 @@
 import { influenceAt, type GameState } from '../../engine';
 import { locationName, useDisplay } from '../display';
 
-export function ResultScreen({ state, onAgain, onRematch, onMenu }: { state: GameState; onAgain: () => void; onRematch: () => void; onMenu: () => void }) {
+export function ResultScreen({ state, onAgain, onRematch, onMenu, onBoard }: { state: GameState; onAgain: () => void; onRematch: () => void; onMenu: () => void; onBoard: () => void }) {
   const { placeholders } = useDisplay();
   const r = state.result!;
   const reason: Record<string, string> = {
@@ -49,6 +49,7 @@ export function ResultScreen({ state, onAgain, onRematch, onMenu }: { state: Gam
           <button className="primary" onClick={onAgain}>
             Play again
           </button>
+          <button onClick={onBoard}>View the final board</button>
           <button onClick={onRematch}>Rematch (same seed {state.seed})</button>
           <button className="ghost" onClick={onMenu}>
             Main menu

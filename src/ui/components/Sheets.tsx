@@ -13,6 +13,7 @@ import {
 } from '../../engine';
 import { cardName, locationName, threatLabel, useDisplay } from '../display';
 import { CardFace } from './CardFace';
+import { liveAbilities } from './Battlefield';
 import { Art } from './Art';
 import { HINTS } from '../tip';
 
@@ -293,6 +294,20 @@ export function LocationSheet({ view, index, onClose }: { view: GameState; index
         <div className="pA">⛵ Arrives in {Math.max(0, loc.revealedTurn + def.transformsInto.afterTurns - view.turn)} turn(s) as {LOCATION_BY_ID[def.transformsInto.id]?.name}.</div>
       )}
       {loc.lost && <div style={{ color: 'var(--danger)' }}>LOST: {loc.lostReason ?? 'an unresolved crisis.'} Neither player can win this Location; its Influence no longer counts toward the match.</div>}
+      {(['A', 'B'] as PlayerId[]).map((p) => {
+        const items = liveAbilities(view, index, p);
+        if (!items.length) return null;
+        return (
+          <div key={p} className="fx-list">
+            <div className={`fx-title p${p}`}>✦ In effect · {p === (view.viewFor ?? 'A') ? 'You' : view.players[p].handle}</div>
+            {items.map((it) => (
+              <div key={it.uid} className="fx-row">
+                <b>{cardName(it.defId, placeholders)}</b> <span className="muted">{it.text}</span>
+              </div>
+            ))}
+          </div>
+        );
+      })}
       <div className="muted">
         Gates: 2 per player · Inside: 5 per player · Characters at both count toward Influence.
       </div>

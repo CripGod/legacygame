@@ -438,9 +438,14 @@ button.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 .card.big .hex.e { left: 49px; }
 .hand .card-wrap.unaffordable { opacity: 0.45; filter: saturate(0.5); }
 .hand .card-wrap.unaffordable .card { box-shadow: none; }
-.coin.energy { border-color: #2d7ff9; color: #9cc4ff; }
-.coin.energy em { font-style: normal; font-size: 10px; color: var(--muted); }
-.coin.energy.spent { opacity: 0.55; }
+.energy-meter { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 8px; border-radius: 999px; border: 1px solid #2d7ff9; background: rgba(45,127,249,0.12); color: #cfe2ff; font-size: 13px; }
+.energy-meter .bolt { font-size: 13px; }
+.energy-meter b { font-size: 15px; color: #fff; }
+.energy-meter .of { color: var(--muted); font-size: 12px; }
+.energy-meter .pips { display: inline-flex; gap: 3px; margin-left: 4px; }
+.energy-meter .pips i { width: 9px; height: 9px; border-radius: 50%; border: 1px solid #2d7ff9; background: transparent; }
+.energy-meter .pips i.on { background: #2d7ff9; box-shadow: 0 0 6px rgba(45,127,249,0.8); }
+.energy-meter.spent { opacity: 0.6; }
 .card .name { font-weight: 800; font-size: clamp(9px, 0.95vw, 13px); line-height: 1.15; text-align: center; padding: 6px 6px 4px; white-space: normal; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .card.big .name { font-size: 20px; white-space: normal; }
 .card .era { font-size: 11px; color: #5e6472; text-align: center; }
@@ -520,11 +525,24 @@ button.pulse { animation: pulse 1.6s ease-out infinite; }
 
 /* ---------- Coach ---------- */
 .coach {
-  position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
-  background: #fff; color: #111; border-radius: 10px; padding: 8px 12px; font-size: 13px; z-index: 15;
-  max-width: min(90vw, 480px); display: flex; gap: 10px; align-items: center; box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  background: #fff8e6; color: #111; border: 2px solid var(--cA); border-radius: 14px; padding: 10px 14px; font-size: 14px; line-height: 1.35; z-index: 15;
+  max-width: min(92vw, 560px); display: flex; gap: 12px; align-items: center;
+  box-shadow: 0 12px 34px rgba(0,0,0,0.6), 0 0 0 4px rgba(255,255,255,0.14);
+  animation: coach-in 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.2) both, coach-glow 2.4s ease-in-out 0.4s 3;
 }
-.coach button { min-height: 30px; padding: 4px 12px; background: #111; color: #fff; border: 0; }
+.coach .coach-icon { font-size: 22px; flex: none; }
+.coach .coach-body { display: grid; gap: 2px; min-width: 0; }
+.coach .coach-kicker { font-size: 10px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cA); }
+.coach button { min-height: 34px; padding: 6px 14px; background: #111; color: #fff; border: 0; flex: none; font-weight: 700; }
+@keyframes coach-in { from { opacity: 0; transform: translate(-50%, -14px) scale(0.94); } to { opacity: 1; transform: translate(-50%, 0) scale(1); } }
+@keyframes coach-glow { 0%, 100% { box-shadow: 0 12px 34px rgba(0,0,0,0.6), 0 0 0 4px rgba(255,255,255,0.14); } 50% { box-shadow: 0 12px 34px rgba(0,0,0,0.6), 0 0 0 8px rgba(255,255,255,0.05), 0 0 28px 6px rgba(255,220,120,0.55); } }
+@media (prefers-reduced-motion: reduce) { .coach { animation: none; } }
+/* While a coach callout holds the top of the board, feedback drops to the bottom edge so the two never overlap. */
+.coach ~ .toast { top: auto; bottom: 8px; }
+/* Tutorial spotlight: everything but the coached pieces goes dark. */
+.spotlight { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100dvh; z-index: 12; pointer-events: none; animation: spot-in 0.35s ease-out both; }
+@keyframes spot-in { from { opacity: 0; } to { opacity: 1; } }
 
 /* ---------- Screens ---------- */
 .screen { height: 100dvh; overflow: auto; display: grid; place-items: center; padding: 20px; }
@@ -612,7 +630,7 @@ body.dragging { cursor: grabbing; user-select: none; }
 .log-line.threatNeutralized, .log-line.entered { border-color: var(--ok); }
 .log-line.stand, .log-line.standResponse { border-color: var(--cA); }
 .log-line.turnStart { border-color: transparent; color: var(--muted); }
-.coach.guide { max-width: min(92vw, 620px); font-size: 14px; line-height: 1.35; background: #fff8e6; border: 2px solid var(--cA); }
+.coach.guide { max-width: min(92vw, 620px); }
 
 /* Lost Locations */
 .location.lost { filter: saturate(0.25); }
@@ -646,8 +664,13 @@ body.dragging { cursor: grabbing; user-select: none; }
 
 .avatar { overflow: hidden; }
 .avatar .avatar-img { width: 100%; height: 100%; object-fit: cover; }
-.in-effect { padding: 2px 8px; font-size: clamp(8px, 0.8vw, 12px); color: #c9cdd8; display: grid; gap: 1px; }
-.in-effect b { font-weight: 800; }
+.in-effect { padding: 1px 8px; font-size: clamp(8px, 0.8vw, 12px); color: #c9cdd8; display: flex; justify-content: flex-start; }
+.in-effect .fx-chip { min-height: 0; padding: 1px 8px; font-size: inherit; font-weight: 700; border-radius: 999px; background: rgba(0,0,0,0.45); border: 1px solid var(--line-2); color: #e6e9f2; display: inline-flex; gap: 6px; align-items: center; }
+.in-effect .fx-chip:hover { border-color: #fff; }
+.in-effect .fx-chip .muted { font-weight: 600; }
+.fx-list { display: grid; gap: 4px; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,0.05); }
+.fx-title { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.fx-row { font-size: 13px; line-height: 1.35; }
 @media (max-width: 700px) { .in-effect { display: none; } }
 
 .art .sail-tag { position: absolute; left: 6px; bottom: 3px; z-index: 1; font-size: clamp(8px, 0.75vw, 11px); font-weight: 700; color: #fff; background: rgba(0,0,0,0.55); border-radius: 999px; padding: 1px 7px; }

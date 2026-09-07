@@ -89,6 +89,8 @@ export function charInfluence(state: GameState, c: CharacterInstance): number {
   const loc = state.locations[c.location];
   const ldef = LOCATION_BY_ID[loc.revealed ? loc.defId : 'unknown'];
   if (ldef?.effect.type === 'steelAndSoul' && charsAt(state, c.location, c.owner).length >= 5) v += ldef.effect.fiveBonus;
+  const home = def.passive?.regionBonus;
+  if (home && ldef?.region === home.region) v += home.influence;
   if (c.zone === 'inside') {
     if (ldef?.effect.type === 'insideInfluence') v += ldef.effect.amount;
     for (const d of hasEstablished(state, c.owner, c.location, 'auraInfluenceOthersHere')) {

@@ -31,6 +31,7 @@ export const LOCATIONS: LocationDef[] = [
   {
     id: 'accra_ghana',
     name: 'Accra, Ghana',
+    region: 'africa',
     era: 'Independence, 1957',
     rule: 'The Black Star has landed. Characters relocated here arrive Ready, and Threats cannot appear here.',
     blurb: 'On 6 March 1957 Kwame Nkrumah raised a flag with a black star at its centre, in Garvey\'s honour, and named the new nation\'s shipping line the Black Star Line.',
@@ -67,9 +68,11 @@ export const LOCATIONS: LocationDef[] = [
     id: 'lagos',
     name: 'Lagos',
     era: 'Eko, today',
-    rule: 'Danfo: Relocations out of Lagos do not count against your Relocation limit, and Characters who leave arrive Ready. The city moves people.',
+    rule: 'Danfo: Relocations out of Lagos do not count against your Relocation limit, and Characters who leave arrive Ready. No Housing Restriction here.',
     blurb: 'Twenty million people, Nollywood, Afrobeats, Fela\'s Kalakuta Republic and the yellow danfo buses that never stop. Lagos no dey carry last.',
     effect: { type: 'hub' },
+    region: 'africa',
+    immuneThreats: ['housing_restriction'],
   },
   {
     id: 'gary_indiana',

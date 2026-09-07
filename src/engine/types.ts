@@ -9,13 +9,13 @@ export const other = (p: PlayerId): PlayerId => (p === 'A' ? 'B' : 'A');
 
 export type Zone = 'gate' | 'inside';
 
-export const TURNS = 9;
+export const TURNS = 7;
 /** Stand on Business extends the match to this many turns. */
-export const EXTENDED_TURNS = 10;
+export const EXTENDED_TURNS = 8;
 export const GATE_CAPACITY = 2;
 export const INSIDE_CAPACITY = 5;
 export const STARTING_HAND = 4;
-/** Deck size: opening hand plus one draw per turn for nine turns. */
+/** Deck size: opening hand plus one draw per turn, with a card to spare after an extended match. */
 export const DECK_SIZE = 13;
 /** Hand limit: a card drawn into a full hand is discarded. */
 export const MAX_HAND = 7;
@@ -99,7 +99,7 @@ export interface CharacterDef {
   reveal?: { text: string; effect: RevealEffect; needsTarget?: 'friendlyGateCharAndLocation' | 'friendlyInsideChar' };
   established?: { text: string; effect: EstablishedEffect };
   /** Always-on quirks (Karen). */
-  passive?: { text: string; unstable?: boolean; leaderPenalty?: number };
+  passive?: { text: string; unstable?: boolean; leaderPenalty?: number; regionBonus?: { region: 'africa' | 'americas' | 'atlantic'; influence: number } };
   /** Gatherings: how and where the card arrives on its own. */
   spawn?: SpawnRule;
   identity: string[];
@@ -159,6 +159,10 @@ export interface LocationDef {
   transformsInto?: { id: string; afterTurns: number };
   /** Neutral Threats never appear here. */
   noThreats?: boolean;
+  /** Threat ids that can never appear here. */
+  immuneThreats?: string[];
+  /** Broad region, for cards with a home-ground bonus. */
+  region?: 'africa' | 'americas' | 'atlantic';
   /** True only for the redacted placeholder used in player views. */
   hidden?: boolean;
 }

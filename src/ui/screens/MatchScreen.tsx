@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CARD_BY_ID, legalOptions, gateRoom, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, other, MAX_HAND, planCost, cardCost } from '../../engine';
+import { CARD_BY_ID, legalOptions, gateRoom, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, other, MAX_HAND, EXTENDED_TURNS, planCost, cardCost } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight } from '../components/Battlefield';
@@ -9,6 +9,7 @@ import { Hud } from '../components/Hud';
 import { Battlefield } from '../components/Battlefield';
 import { Hand } from '../components/Hand';
 import { Coach } from '../components/Coach';
+import { Spotlight } from '../components/Spotlight';
 import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, SpawnSheet, ThreatSheet } from '../components/Sheets';
 import { guideDone, markGuideDone, suggest } from '../guide';
 import { EMOTES } from '../useMatch';
@@ -78,6 +79,8 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   const [selected, setSelected] = useState<string | null>(null);
   const [sheet, setSheet] = useState<SheetState>(null);
   const [flash, setFlash] = useState<string | null>(null);
+  /** Match over and the player chose to look at the final board instead of the result card. */
+  const [peek, setPeek] = useState(() => m.view.phase === 'ended');
   const [guideOn, setGuideOn] = useState(() => coach && m.mode === 'ai' && !guideDone());
   const opts = useMemo(() => legalOptions(view, me), [view, me]);
   const boardView = useMemo(() => (view.phase === 'planning' && !locked ? previewPlan(view, me, plan) : view), [view, me, plan, locked]);
@@ -189,7 +192,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       return;
     }
     setPlan((p) => ({ ...p, standOnBusiness: true }));
-    feedback(`Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Stakes after next turn${view.maxTurns < 10 ? ' and extends to 10 turns' : ''}. ${view.players[other(me)].handle} gets one turn to Step Off for ${view.stakes} or Stand back. You cannot Step Off once you stand, and this is once per match. Tap again to cancel.`, [], 'info');
+    feedback(`Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Stakes after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds an 8th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Step Off for ${view.stakes} or Stand back. You cannot Step Off once you stand, and this is once per match. Tap again to cancel.`, [], 'info');
   };
 
   /** Energy left after the plays already planned. */
@@ -201,7 +204,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     const spent = current.reduce((s, pl) => s + cardCost(pl.cardId), 0);
     const cost = cardCost(play.cardId);
     if (spent + cost > opts.energy) {
-      feedback(`Not enough Energy. ${cardName(play.cardId, placeholders)} costs ${cost} and you have ${opts.energy - spent} left of ${opts.energy} this turn (Energy = the turn number). Remove a planned card or wait a turn.`, [`[data-hand-card="${play.cardId}"]`]);
+      feedback(`Not enough Energy. ${cardName(play.cardId, placeholders)} costs ${cost} and you have ${opts.energy - spent} left of ${opts.energy} this turn (Energy = the turn number). Remove a planned card or wait a turn.`, [`[data-hand-card="${play.cardId}"]`, '.energy-meter']);
       return;
     }
     setPlan((p) => ({ ...p, plays: [...p.plays.filter((pl) => pl.cardId !== play.cardId), play] }));
@@ -318,7 +321,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
         if (view.locations[i].lost) return { text: `${locNameAt(i)} is Lost. Nobody can win it, so nothing can be played there.`, shake: [`${col(i)} .art`] };
         if (!opt) return { text: `${nm} cannot be played right now.`, shake: [`[data-hand-card="${payload.cardId}"]`] };
         if (!plan.plays.some((pl) => pl.cardId === payload.cardId) && cardCost(payload.cardId) > opts.energy - planCost(plan))
-          return { text: `Not enough Energy: ${nm} costs ${cardCost(payload.cardId)} and you have ${opts.energy - planCost(plan)} left this turn. Energy equals the turn number, so it grows every turn.`, shake: [`[data-hand-card="${payload.cardId}"]`] };
+          return { text: `Not enough Energy: ${nm} costs ${cardCost(payload.cardId)} and you have ${opts.energy - planCost(plan)} left this turn. Energy equals the turn number, so it grows every turn.`, shake: [`[data-hand-card="${payload.cardId}"]`, '.energy-meter'] };
         if (opt.kind === 'character' && gateRoom(view, i, me, plannedAt(i, payload.cardId)) <= 0) {
           const leaving = reserved[i] ?? [];
           if (leaving.length)
@@ -497,7 +500,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   }, [plan, planning, view, placeholders, setPlan]);
 
   const hint = (() => {
-    if (view.phase === 'ended') return 'Match over.';
+    if (view.phase === 'ended') return `Match over: ${view.result?.winner ? `${view.players[view.result.winner].handle} wins` : 'a draw'}. Tap any card or Location for details.`;
     if (busy) return 'Harborlight moves…';
     if (locked) return m.mode === 'ai' ? 'Locked. Harborlight is deciding…' : 'Locked.';
     if (view.players[me].hand.length - plan.plays.length >= MAX_HAND && view.players[me].deckCount > 0 && !selected) return `Hand full (${MAX_HAND}). Play a card or your next draw is discarded.`;
@@ -505,8 +508,8 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     if (harrietPlay && !harrietPlay.target) return 'Harriet Tubman: drag a Gate Character to another Gate for a free move (optional).';
     if (yemojaPlay && !yemojaPlay.target) return `Yemoja: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : `Location ${yemojaPlay.location + 1}`} (optional).`;
     const affordable = opts.plays.filter((o) => !plan.plays.some((pl) => pl.cardId === o.cardId) && cardCost(o.cardId) <= energyLeft).length;
-    if (planItems.length) return affordable > 0 ? `⚡ ${energyLeft} Energy left` : '';
-    return `Drag a card onto a Location (or tap card, then Location). ⚡ ${opts.energy} Energy this turn; each card shows its cost.`;
+    if (planItems.length) return affordable > 0 ? '' : '';
+    return 'Drag a card onto a Location.';
   })();
 
   // The opponent Stood on Business and the raise has not landed yet: this is the one cheap turn to Step Off.
@@ -515,7 +518,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
 
   return (
     <div className="app">
-      <Hud view={view} me={me} energy={planning ? { left: energyLeft, total: opts.energy } : undefined} secondsLeft={m.secondsLeft} paused={!planning} onProfile={(p) => setSheet({ kind: 'profile', p })} onLog={() => setSheet({ kind: 'log' })} hasLog={m.lastTurn.length > 0} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} />
+      <Hud view={view} me={me} secondsLeft={m.secondsLeft} paused={!planning} onProfile={(p) => setSheet({ kind: 'profile', p })} onLog={() => setSheet({ kind: 'log' })} hasLog={m.lastTurn.length > 0} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} />
       <div className="main-wrap">
         <Battlefield
           view={boardView}
@@ -537,6 +540,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           summonLabel={summonState}
         />
         <Coach view={view} me={me} plan={plan} enabled={coach && planning && m.mode === 'ai' && !guide} onActive={setFlash} override={guideText} />
+        <Spotlight active={planning && !drag && (flash !== null || guide !== null)} />
         {toast && (
           <div className={`toast ${toastTone}`} role="status">
             {toast}
@@ -546,6 +550,18 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       <div className="bottom">
         <Hand view={view} me={me} plan={plan} selected={selected} onSelect={selectCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} dragProps={dragProps} glow={guideCard} energyLeft={planning ? energyLeft : undefined} dropState={drop?.hand ? (drop.overKey === 'hand' ? 'over' : 'ok') : null} />
         <div className="hint">
+          {planning && (
+            <div className={`energy-meter ${energyLeft === 0 ? 'spent' : ''}`} {...tip(HINTS.energy)}>
+              <span className="bolt">⚡</span>
+              <b>{energyLeft}</b>
+              <span className="of">/{opts.energy}</span>
+              <span className="pips" aria-hidden>
+                {Array.from({ length: opts.energy }, (_, i) => (
+                  <i key={i} className={i < energyLeft ? 'on' : ''} />
+                ))}
+              </span>
+            </div>
+          )}
           {selected && planning ? (
             <button className="small chip" onClick={() => setSheet({ kind: 'card', id: selected })}>
               ⓘ Inspect / send {cardName(selected, placeholders)}
@@ -580,9 +596,15 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           </button>
         </div>
         <div className="lock-row">
-          <button className="primary" disabled={!planning} onClick={m.lockIn}>
-            LOCK IT IN
-          </button>
+          {view.phase === 'ended' ? (
+            <button className="primary" onClick={onExit}>
+              SEE RESULT
+            </button>
+          ) : (
+            <button className="primary" disabled={!planning} onClick={m.lockIn}>
+              LOCK IT IN
+            </button>
+          )}
         </div>
         <div className="actions-right">
           <button className={`${plan.standOnBusiness ? 'primary' : ''} ${flash === 'stakes' ? 'ftue-flash' : ''}`} disabled={!planning || !opts.canStand} onClick={toggleStand}>
@@ -593,9 +615,15 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           <button className={`danger ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}`} disabled={view.phase === 'ended' || !opts.canStepOff} onClick={() => setSheet({ kind: 'stepOff' })}>
             {stepOffLabel}
           </button>
-          <button className="primary" disabled={!planning} onClick={m.lockIn}>
-            LOCK IT IN
-          </button>
+          {view.phase === 'ended' ? (
+            <button className="primary" onClick={onExit}>
+              SEE RESULT
+            </button>
+          ) : (
+            <button className="primary" disabled={!planning} onClick={m.lockIn}>
+              LOCK IT IN
+            </button>
+          )}
           <button className={`${plan.standOnBusiness ? 'primary' : ''} ${flash === 'stakes' ? 'ftue-flash' : ''}`} disabled={!planning || !opts.canStand} onClick={toggleStand}>
             {plan.standOnBusiness ? 'Standing ✓' : 'Stand'}
           </button>
@@ -700,7 +728,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
         />
       )}
       {fanfare.length > 0 && !busy && view.phase !== 'ended' && <SpawnSheet ev={fanfare[0]} view={view} me={me} onClose={() => setFanfare((f) => f.slice(1))} />}
-      {view.phase === 'ended' && !busy && (
+      {view.phase === 'ended' && !busy && !peek && (
         <div className="scrim">
           <div className="sheet center">
             <div className="winner" style={{ color: view.result?.winner === 'A' ? 'var(--cA)' : view.result?.winner === 'B' ? 'var(--cB)' : 'var(--text)' }}>
@@ -708,6 +736,9 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
             </div>
             <button className="primary" onClick={onExit}>
               See result
+            </button>
+            <button className="ghost" onClick={() => setPeek(true)}>
+              Look at the board
             </button>
           </div>
         </div>

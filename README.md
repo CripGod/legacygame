@@ -34,8 +34,8 @@ The engine never imports React. The UI never touches the true `GameState` except
 ## Playing
 
 - **Plan**: drag a card onto a Location, drag a Ready Character from your Gates into the Location, drag an Established Character to another Location, drag any Character onto a Threat. Tapping opens the same actions in a sheet. Then **Lock It In**. Two minutes per turn; timeout locks whatever you had.
-- **Win**: lead Influence at two of the three Locations after Turn 9.
-- **Stakes**: Stand on Business once per player to double the match (1 → 2 → 4). It also extends the match to ten turns, and whoever stood can no longer Step Off. The raise lands one turn later, Marvel Snap style: the other side gets a full turn to Step Off at the old price, keep playing, or Stand back.
+- **Win**: lead Influence at two of the three Locations after Turn 7.
+- **Stakes**: Stand on Business once per player to double the match (1 → 2 → 4). It also adds an 8th turn, and whoever stood can no longer Step Off. The raise lands one turn later, Marvel Snap style: the other side gets a full turn to Step Off at the old price, keep playing, or Stand back.
 
 Developer tools (`?dev=1` or the button on the start screen): fixed seeds, AI reasoning log (every candidate plan, score, chosen plan and tier), analytics summary/export, full event log, the true state, generic placeholder names (Test A), and a local two-player pass-the-device mode (Phase 2).
 
@@ -43,10 +43,10 @@ Developer tools (`?dev=1` or the button on the start screen): fixed seeds, AI re
 
 - **Energy**: every card has a cost (1 to 5). Each turn a player gets Energy equal to the turn number, plus +1 per Established Organizer; unspent Energy is lost. Cheap cards early, the big names later. Gate capacity (two per Location) is the other limit on how much you can drop at once.
 
-- **Nine turns** (ten after Stand on Business) with 13-card decks: four in the opening hand and one draw every turn through turn 9. Hands hold at most 7 cards; a draw into a full hand is discarded (logged in the turn log).
+- **Seven turns** (eight after Stand on Business) with 13-card decks: four in the opening hand and one draw every turn. Hands hold at most 7 cards; a draw into a full hand is discarded (logged in the turn log).
 
 - **Gate wait timing.** A Character played on turn N is Fresh through turn N+1's planning and becomes Ready at the end of N+1, so it can enter on N+2. This is the reading that makes "becomes Ready immediately" effects (Harriet, Organizer, Juneteenth) worth a full turn. If playtesting says the wait is too long, the one-line change is in the cleanup step of `resolve.ts`.
-- **Stand on Business** extends the match to ten turns and removes Step Off for the player who stood. The raise is part of the hidden plan and takes effect at the end of the *following* turn. Nobody is forced into a yes/no modal: the other player plans a normal turn with a banner showing the pending raise, and Stepping Off during that turn costs only the old Stakes. Standing back doubles again (max 4). A Stand on turn 9 extends to turn 10 and lands with the final result.
+- **Stand on Business** adds an 8th turn and removes Step Off for the player who stood. The raise is part of the hidden plan and takes effect at the end of the *following* turn. Nobody is forced into a yes/no modal: the other player plans a normal turn with a banner showing the pending raise, and Stepping Off during that turn costs only the old Stakes. Standing back doubles again (max 4). A Stand on turn 7 adds turn 8 and lands with the final result.
 - **Confrontation** is a planned action: commit Characters at a Threat's Location; they cannot enter or relocate that turn. Shared Threats sum both players' Force in one turn; split Threats need the owner first, then Assist is offered.
 - **"History moves"**: at the start of Turn 3 one random Threat (Patrol, Complicity or Housing Restriction) appears at a revealed Location without one. Greenwood spawns a Mob on Turn 4. Harpers Ferry reveals with Paddy Rollers.
 - **Reparations** counts for final scoring when played on the final turn (temporary Influence is scored before cleanup).

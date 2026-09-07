@@ -431,8 +431,9 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
         const bothChars = cardDef(a.cardId).kind === 'character' && cardDef(b.cardId).kind === 'character';
         if (bothChars && a.location === b.location && gateRoom(view, a.location, p) < 2) continue;
         playSets.push([a, b]);
-        // A third card when Energy allows and Gates are open for it.
-        for (let k = j + 1; k < top.length; k++) {
+        // A third card when Energy allows and Gates are open for it (drawn from the strongest singles only).
+        if (opts.energy < 3) continue;
+        for (let k = j + 1; k < Math.min(top.length, 5); k++) {
           const c = top[k];
           if (c.cardId === a.cardId || c.cardId === b.cardId) continue;
           if (cardCost(a.cardId) + cardCost(b.cardId) + cardCost(c.cardId) > opts.energy) continue;

@@ -18,7 +18,7 @@ function TimerRing({ seconds, paused }: { seconds: number; paused: boolean }) {
   );
 }
 
-export function Hud({ view, me, secondsLeft, paused, onProfile, onLog, hasLog, bubbles, onChat, energy }: { view: GameState; me: PlayerId; secondsLeft: number; paused: boolean; onProfile: (p: PlayerId) => void; onLog: () => void; hasLog: boolean; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void; energy?: { left: number; total: number } }) {
+export function Hud({ view, me, secondsLeft, paused, onProfile, onLog, hasLog, bubbles, onChat }: { view: GameState; me: PlayerId; secondsLeft: number; paused: boolean; onProfile: (p: PlayerId) => void; onLog: () => void; hasLog: boolean; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void }) {
   const { placeholders } = useDisplay();
   const profile = (p: PlayerId, right: boolean) => {
     const ps = view.players[p];
@@ -57,15 +57,6 @@ export function Hud({ view, me, secondsLeft, paused, onProfile, onLog, hasLog, b
       <div className="hud-center">
         <div className="turn-label">Turn {Math.min(view.turn, view.maxTurns)} / {view.maxTurns}</div>
         <div className="hud-mid">
-          {energy && (
-            <div className={`coin energy ${energy.left === 0 ? 'spent' : ''}`} {...tip(HINTS.energy)}>
-              <span>
-                {energy.left}
-                <em>/{energy.total}</em>
-              </span>
-              <small>energy</small>
-            </div>
-          )}
           <TimerRing seconds={secondsLeft} paused={paused} />
           <div className={`coin ${view.pendingRaises.length ? 'raised' : ''}`} {...tip(view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes)}>
             <span>

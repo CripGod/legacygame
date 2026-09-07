@@ -11,7 +11,7 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
         <h1 className="title">Rules</h1>
         <h2>The match</h2>
         <ul>
-          <li>Two players, three Locations, nine turns (ten if someone Stands on Business), 13-card decks. Four-card opening hand and one draw every turn. Hands hold at most seven cards: a draw into a full hand is discarded.</li>
+          <li>Two players, three Locations, seven turns (an 8th if someone Stands on Business), 13-card decks. Four-card opening hand and one draw every turn. Hands hold at most seven cards: a draw into a full hand is discarded.</li>
           <li>Both players plan at the same time, then <b>Lock It In</b>. Two minutes per turn.</li>
           <li>Win Influence at two of the three Locations to win the match.</li>
         </ul>
@@ -54,7 +54,7 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
         </ul>
         <h2>Stakes</h2>
         <ul>
-          <li>Matches start at 1 Stake. Either player may <b>Stand on Business</b> once to double it (1 → 2, then 2 → 4). Standing extends the match to <b>ten turns</b>, and whoever stood can no longer Step Off.</li>
+          <li>Matches start at 1 Stake. Either player may <b>Stand on Business</b> once to double it (1 → 2, then 2 → 4). Standing adds an <b>8th turn</b>, and whoever stood can no longer Step Off.</li>
           <li>A Stand is part of your hidden plan and lands <b>one turn later</b>. The other player is never forced to answer: they get a full turn to <b>Step Off</b> for the old Stakes, keep playing at the new Stakes, or <b>Stand back</b> and double it again.</li>
           <li><b>Step Off</b> is surrender at the current Stakes. Stepping off during the grace turn is the cheap exit.</li>
         </ul>

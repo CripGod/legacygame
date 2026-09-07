@@ -36,11 +36,11 @@ export const THREATS: ThreatDef[] = [
     id: 'mob',
     name: 'Mob',
     family: 'Crisis',
-    text: 'At the end of each turn, displaces the leading player\'s highest-Influence Character here. Unresolved for 2 turns: this Location is LOST. Neutralize with 6 Force in one turn (both players may contribute).',
+    text: 'At the end of each turn, displaces the leading player\'s highest-Influence Character here. Unresolved for 3 turns: this Location is LOST. Neutralize with 6 Force in one turn (both players may contribute).',
     split: false,
     force: 6,
     effect: 'mobDisplace',
-    lostAfterTurns: 2,
+    lostAfterTurns: 3,
     blurb: 'Tulsa, Wilmington, Rosewood, Elaine: organized violence aimed at exactly the people who were winning.',
   },
   {

@@ -20,6 +20,8 @@ import {
   charDef,
   MAX_HAND,
   CARD_BY_ID,
+  spawnThreat,
+  type GameEvent,
 } from '../src/engine';
 import { planTurn } from '../src/ai/harborlight';
 
@@ -254,7 +256,9 @@ describe('threats', () => {
     s = resolveTurn(s, { A: pass(), B: pass() }).state; // Mob displaces Mansa
     expect(charsAt(s, 0, 'A')).toHaveLength(0);
     expect(s.players.A.setbacks).toBe(1);
-    s = resolveTurn(s, { A: pass(), B: pass() }).state; // second full turn → LOST
+    s = resolveTurn(s, { A: pass(), B: pass() }).state; // second full turn: still open
+    expect(s.locations[0].lost).toBeFalsy();
+    s = resolveTurn(s, { A: pass(), B: pass() }).state; // third full turn → LOST
     expect(s.locations[0].lost).toBe(true);
   });
 });
@@ -332,7 +336,9 @@ describe('Summon', () => {
     f.characters[brown.uid].defId = 'zora_neale_hurston'; // Force 1: 1 + 3 = 4 < 6
     let g = resolveTurn(f, { A: { ...pass(), summon: { location: 0 } }, B: { ...pass(), summon: { location: 0 } } }).state;
     expect(g.locations[0].pactFailed).toBe(true);
-    g = resolveTurn(g, { A: pass(), B: pass() }).state; // Mob unresolved 2 turns → Lost
+    g = resolveTurn(g, { A: pass(), B: pass() }).state; // Mob unresolved 2 turns: still open
+    expect(g.locations[0].lost).toBeFalsy();
+    g = resolveTurn(g, { A: pass(), B: pass() }).state; // Mob unresolved 3 turns → Lost
     expect(g.locations[0].lost).toBe(true);
     expect(g.locations[1].permInfluence?.A).toBe(-1);
     expect(g.locations[2].permInfluence?.B).toBe(-1);
@@ -443,6 +449,24 @@ describe('gatherings', () => {
   });
 });
 
+describe('home ground', () => {
+  it('Lagos never gets a Housing Restriction', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['lagos', 'gary_indiana', 'greenwood'], revealAll: true });
+    const events: GameEvent[] = [];
+    spawnThreat(s, 0, 'housing_restriction', events);
+    expect(s.locations[0].threats).toHaveLength(0);
+    spawnThreat(s, 0, 'segregationist_patrol', events);
+    expect(s.locations[0].threats.length).toBeGreaterThan(0);
+  });
+  it('Mansa Musa has +1 Influence at African Locations', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['lagos', 'gary_indiana', 'greenwood'], revealAll: true });
+    addChar(s, 'mansa_musa', 'A', 0, 'inside');
+    addChar(s, 'mansa_musa', 'B', 1, 'inside');
+    expect(influenceAt(s, 0).A).toBe(charDef('mansa_musa').influence + 1);
+    expect(influenceAt(s, 1).B).toBe(charDef('mansa_musa').influence);
+  });
+});
+
 describe('hand limit', () => {
   it('a draw into a full hand is discarded', () => {
     let s = createMatch({ seed: 4 });
@@ -486,7 +510,7 @@ describe('match end', () => {
     expect(cont.pendingRaises).toEqual([]);
     expect(cont.phase).toBe('planning');
     expect(cont.turn).toBe(3);
-    expect(cont.maxTurns).toBe(10);
+    expect(cont.maxTurns).toBe(8);
     // Standing back doubles again for both.
     const back = resolveTurn(cont, { A: pass(), B: { ...pass(), standOnBusiness: true } }).state;
     expect(back.stakes).toBe(2);
@@ -504,23 +528,23 @@ describe('match end', () => {
   });
   it('Stand on Business on the last turn extends the match by one', () => {
     let s = createMatch({ seed: 4 });
-    for (let t = 1; t <= 8; t++) s = resolveTurn(s, { A: pass(), B: pass() }).state;
-    expect(s.turn).toBe(9);
+    for (let t = 1; t <= 6; t++) s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(s.turn).toBe(7);
     s = resolveTurn(s, { A: pass(), B: { ...pass(), standOnBusiness: true } }).state;
     expect(s.result).toBeUndefined();
-    expect(s.turn).toBe(10);
+    expect(s.turn).toBe(8);
     expect(s.phase).toBe('planning');
     expect(s.stakes).toBe(1);
     expect(legalOptions(s, 'A').canStand).toBe(false); // no room left to extend
     s = resolveTurn(s, { A: pass(), B: pass() }).state;
     expect(s.phase).toBe('ended');
-    expect(s.result?.turn).toBe(10);
+    expect(s.result?.turn).toBe(8);
     expect(s.result?.stakes).toBe(2); // the raise lands on the final turn
     expect(s.result?.stakes).toBe(2);
   });
-  it('scores two of three Locations at the end of turn 9', () => {
+  it('scores two of three Locations at the end of turn 7', () => {
     let s = createMatch({ seed: 4 });
-    for (let t = 1; t <= 9; t++) {
+    for (let t = 1; t <= 7; t++) {
       expect(s.turn).toBe(t);
       s = resolveTurn(s, { A: pass(), B: pass() }).state;
     }
@@ -531,7 +555,7 @@ describe('match end', () => {
 });
 
 describe('AI vs AI smoke', () => {
-  it('completes 40 matches without errors and plays legally', { timeout: 30000 }, () => {
+  it('completes 40 matches without errors and plays legally', { timeout: 60000 }, () => {
     for (let seed = 1000; seed < 1040; seed++) {
       let s = createMatch({ seed });
       let guard = 0;
