@@ -30,7 +30,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `block_captain` **Block Captain** (1960s–): Knows every door on the street and who is behind it. When trouble comes, the block already has a plan.
 - `sister_griffin` **Sister Griffin** (Every Sunday): First pew, white gloves, a plate for anyone who came alone. The church runs on the women who run the church.
 - `deacon_wells` **Deacon Wells** (Every Sunday): Opens the doors, counts the offering, knows who has not been seen in a while. Nothing moves in the building without him.
-- `the_bishop` **The Bishop** (Every Sunday): Three services, a radio hour and a seat at every table in the city. When the Bishop speaks, the room moves.
+- `richard_allen` **Richard Allen** (1760–1831): Bought his own freedom, walked out of a segregated church and built his own denomination.
 - `claudette_colvin` **Claudette Colvin** (1939–): Fifteen years old, Montgomery, March 1955. Nine months before Rosa Parks, she refused to move and was dragged off the bus.
 - `bass_reeves` **Bass Reeves** (1838–1910): Born enslaved, fluent in several Native languages, one of the first Black deputy U.S. Marshals west of the Mississippi. Three thousand arrests, never wounded.
 - `neighbor_kid` **Neighbor Kid** (Any afternoon): Somebody's nephew. Runs the errand, holds the door, sees everything and tells his grandmother.
@@ -46,10 +46,11 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - none
 
 
-### locations (2)
+### locations (3)
 
 - `justice_system` **The Justice System** (1865–): The Thirteenth Amendment kept one exception, "as a punishment for crime." Convict leasing, chain gangs and mass incarceration have run on it ever since.
 - `the_tabernacle` **The Tabernacle** (1794–): Mother Bethel, Philadelphia, 1794: Richard Allen walked out rather than pray in the back. The Black church has been meeting house, school, bank and headquarters ever since.
+- `montgomery` **Montgomery, Alabama** (1955–1956): For 381 days the buses ran empty. Forty thousand people walked, carpooled and waited, and the seats stopped being the point.
 
 ## Have
 

@@ -95,10 +95,19 @@ export const LOCATIONS: LocationDef[] = [
     id: 'the_tabernacle',
     name: 'The Tabernacle',
     era: '1794–',
-    rule: 'Sanctuary: your Characters here cannot be displaced. Establish Sister Griffin, Deacon Wells and The Bishop here and Black Jesus appears.',
+    rule: 'Sanctuary: your Characters here cannot be displaced. Establish Sister Griffin, Deacon Wells and Richard Allen here and Black Jesus appears.',
     blurb: 'Mother Bethel, Philadelphia, 1794: Richard Allen walked out rather than pray in the back. The Black church has been meeting house, school, bank and headquarters ever since.',
     effect: { type: 'noDisplace' },
     weight: 0.8,
+  },
+  {
+    id: 'montgomery',
+    name: 'Montgomery, Alabama',
+    era: '1955–1956',
+    rule: 'The boycott: Characters who relocate out of Montgomery arrive Ready.',
+    blurb: 'For 381 days the buses ran empty. Forty thousand people walked, carpooled and waited, and the seats stopped being the point.',
+    effect: { type: 'relocatedOutReady' },
+    weight: 0.9,
   },
 ];
 

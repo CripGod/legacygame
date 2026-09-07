@@ -441,8 +441,8 @@ describe('gatherings', () => {
     const again = resolveTurn(out.state, { A: pass(), B: pass() }).state;
     expect(Object.values(again.characters).filter((c) => c.defId === 'cookout')).toHaveLength(1);
   });
-  it('Chairteenth arrives Ready at both players\' Gates when Juneteenth reveals', () => {
-    const s = rig(createMatch({ seed: 2 }), { locations: ['juneteenth', 'gary_indiana', 'greenwood'] });
+  it('Chairteenth arrives Ready at both players\' Gates when Montgomery reveals', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['montgomery', 'gary_indiana', 'greenwood'] });
     s.spawnRolls.chairteenth = true;
     const out = resolveTurn(s, { A: pass(), B: pass() });
     const chairs = Object.values(out.state.characters).filter((c) => c.defId === 'chairteenth');
@@ -520,7 +520,7 @@ describe('special arrivals', () => {
     addChar(s, 'deacon_wells', 'A', 0, 'inside');
     const og = addChar(s, 'og', 'A', 1, 'inside');
     const before = charInfluence(s, og);
-    addChar(s, 'the_bishop', 'A', 0, 'inside');
+    addChar(s, 'richard_allen', 'A', 0, 'inside');
     s = resolveTurn(s, { A: pass(), B: pass() }).state;
     const bj = charsOf(s, 'A').find((c) => c.defId === 'black_jesus');
     expect(bj).toBeTruthy();
@@ -615,7 +615,7 @@ describe('arrival odds', () => {
     expect(ancestors).toBeLessThan(140);
   });
   it('a match that rolled no Chairteenth never gets one', () => {
-    const s = rig(createMatch({ seed: 2 }), { locations: ['juneteenth', 'gary_indiana', 'greenwood'] });
+    const s = rig(createMatch({ seed: 2 }), { locations: ['montgomery', 'gary_indiana', 'greenwood'] });
     s.spawnRolls.chairteenth = false;
     const out = resolveTurn(s, { A: pass(), B: pass() });
     expect(Object.values(out.state.characters).some((c) => c.defId === 'chairteenth')).toBe(false);
@@ -746,6 +746,6 @@ describe('AI vs AI smoke', () => {
     }
   });
   it('all pool Locations are defined', () => {
-    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(10);
+    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(11);
   });
 });

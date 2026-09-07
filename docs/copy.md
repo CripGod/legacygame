@@ -72,10 +72,11 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - established: Ushers: your Characters arriving at this Gate are Ready at the end of the turn.
 - blurb: Opens the doors, counts the offering, knows who has not been seen in a while. Nothing moves in the building without him.
 
-### The Bishop (`the_bishop`)
-- cost 2 · Influence 3 · Force 1 · archetype · era: Every Sunday
+### Richard Allen (`richard_allen`)
+- cost 2 · Influence 3 · Force 1 · historical · era: 1760–1831
 - established: The pulpit: your other Characters here gain +1 Influence.
-- blurb: Three services, a radio hour and a seat at every table in the city. When the Bishop speaks, the room moves.
+- blurb: Bought his own freedom, walked out of a segregated church and built his own denomination.
+- history: Richard Allen was born enslaved in Philadelphia in 1760, bought his freedom in his twenties and became a Methodist preacher. In 1787, after Black worshippers were pulled from their knees at St. George's Church, he and Absalom Jones founded the Free African Society, and in 1794 Allen opened Mother Bethel. In 1816 he brought several Black congregations together as the African Methodist Episcopal Church, the first independent Black denomination in the United States, and became its first bishop. Mother Bethel still stands on the oldest parcel of land continuously owned by Black Americans.
 
 ### Claudette Colvin (`claudette_colvin`)
 - cost 1 · Influence 2 · Force 1 · historical · era: 1939–
@@ -216,7 +217,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - cost 4 · Influence 5 · Force 0 · mythic · era: The Black church, every era
 - reveal: Sanctuary: every Block and Suppression at this Location ends, for both players, and every Gate Character here becomes Ready.
 - established: Threats at this Location cannot touch your Characters: no blocking, no silencing, no displacement. Blessing: every Character you control, at every Location, gains +1 Influence.
-- arrives: Sister Griffin, Deacon Wells and The Bishop are Established at The Tabernacle. Black Jesus appears. / button: Continue
+- arrives: Sister Griffin, Deacon Wells and Richard Allen are Established at The Tabernacle. Black Jesus appears. / button: Continue
 - blurb: The Christ of the Black church and of liberation theology: the one who sides with the captive. He never fights, and nothing hostile can act on those who stand with him.
 - history: Mythic (fantasy). The Black Christ is not a new idea: Coptic Ethiopian art depicted him so for centuries, and in the United States the image runs from the Black church's spirituals through Marcus Garvey's African Orthodox Church to James Cone's Black liberation theology of the 1960s, which held that God sides with the oppressed. The card draws on that tradition. He never fights; his power is sanctuary. The abilities are invention.
 
@@ -230,7 +231,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 ### Chairteenth (`chairteenth`)
 - cost 1 · Influence 1 · Force 3 · gathering · era: Montgomery, 2023
 - established: Your Characters here confront Threats with +1 Force.
-- arrives: Juneteenth is revealed. Chairteenth arrives at each player's Gates there. / button: Continue
+- arrives: Montgomery, Alabama is revealed. Chairteenth arrives at each player's Gates there. / button: Continue
 - blurb: Somebody grabbed a folding chair. The whole dock showed up.
 - history: On August 5, 2023, at Riverfront Park in Montgomery, Alabama, a group of white boaters attacked a Black riverboat co-captain who had asked them to move their pontoon from the Harriott II's docking space. Bystanders, most of them Black, rushed to his defense; one man swam across the river to join in, and a folding chair became the day's symbol. Videos went viral, several of the boaters were charged with assault, and the internet named the anniversary Chairteenth.
 
@@ -344,8 +345,13 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### The Tabernacle (`the_tabernacle`)
 - era: 1794–
-- rule: Sanctuary: your Characters here cannot be displaced. Establish Sister Griffin, Deacon Wells and The Bishop here and Black Jesus appears.
+- rule: Sanctuary: your Characters here cannot be displaced. Establish Sister Griffin, Deacon Wells and Richard Allen here and Black Jesus appears.
 - blurb: Mother Bethel, Philadelphia, 1794: Richard Allen walked out rather than pray in the back. The Black church has been meeting house, school, bank and headquarters ever since.
+
+### Montgomery, Alabama (`montgomery`)
+- era: 1955–1956
+- rule: The boycott: Characters who relocate out of Montgomery arrive Ready.
+- blurb: For 381 days the buses ran empty. Forty thousand people walked, carpooled and waited, and the seats stopped being the point.
 
 ## Hints (tap or hover explanations)
 
@@ -447,7 +453,7 @@ Rules
 ### Special arrivals
 - Straight Inside (Pullman Porter) always goes Inside the turn it is played. Direct Entry (Bessie Coleman) may: tap ⇅ on the planned move to choose Gates or Inside.
 - The Ancestors are never in a deck. In one match out of four, holding three Characters Inside at Accra, Ghana brings them to your hand. Play them while planning to see your opponent's plan for the turn and every danger the board is about to spring.
-- The Tabernacle protects your Characters from displacement. Establish Sister Griffin, Deacon Wells and The Bishop there and Black Jesus appears: sanctuary at his Location and +1 Influence to every Character you control.
+- The Tabernacle protects your Characters from displacement. Establish Sister Griffin, Deacon Wells and Richard Allen there and Black Jesus appears: sanctuary at his Location and +1 Influence to every Character you control.
 - The Justice System holds anyone who goes Inside for two turns: no relocating out.
 - Curses are dark Events that act on your opponent's Characters. Persuade turns the strongest opposing Gate Character at a Location to your side at −1 Influence. Some cards cost 0 Energy.
 - Every deck carries at least one Mythic. The full list, with costs, is under Cards on the start screen.

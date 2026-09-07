@@ -93,7 +93,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'ida_b_wells',
       'sojourner_truth',
       'deacon_wells',
-      'the_bishop',
+      'richard_allen',
       'neighbor_kid',
       'katherine_johnson',
       'word_of_mouth',
