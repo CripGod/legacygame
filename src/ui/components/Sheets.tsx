@@ -190,9 +190,9 @@ export function CharSheet({
           </button>
         </div>
       )}
-      {mine && c.zone === 'inside' && (
+      {mine && !view.locations[c.location].lost && (
         <div style={{ display: 'grid', gap: 6 }}>
-          <div className="muted">Relocate to another Location's Gates (arrives Fresh):</div>
+          <div className="muted">{c.zone === 'gate' ? `Relocate to another Location's Gates (stays ${c.ready ? 'Ready' : 'Fresh'}):` : "Relocate to another Location's Gates (arrives Fresh):"}</div>
           <div className="actions">
             {reloc?.destinations.map((d) => (
               <button key={d} className={current?.to === d ? 'primary' : ''} disabled={confronting || (!current && locDef(view, c.location).effect.type !== 'hub' && plan.relocations.length >= opts.relocationsAllowed)} onClick={() => onRelocate(uid, current?.to === d ? null : d)}>

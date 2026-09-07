@@ -862,20 +862,23 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
   for (const p of order) {
     for (const r of plans[p].relocations) {
       const c = state.characters[r.uid];
-      if (!c || c.owner !== p || c.zone !== 'inside') continue;
+      if (!c || c.owner !== p) continue;
       if (!gateOpen(state, r.to, p) || state.locations[r.to].lost) {
         events.push({ type: 'info', text: `${name(state, c)} cannot relocate: the Gate at ${locName(state, r.to)} is full.`, uid: c.uid });
         continue;
       }
       const from = c.location;
+      const wasGate = c.zone === 'gate';
       const outReady =
+        (wasGate && c.ready) ||
         hasEstablished(state, p, from, 'relocatedOutReady').length > 0 ||
         (state.locations[from].revealed && ['relocatedOutReady', 'hub'].includes(LOCATION_BY_ID[state.locations[from].defId]?.effect.type ?? ''));
-      const outInside = hasEstablished(state, p, from, 'relocatedOutInside').length > 0 && insideOpen(state, r.to, p);
+      const outInside = !wasGate && hasEstablished(state, p, from, 'relocatedOutInside').length > 0 && insideOpen(state, r.to, p);
       c.location = r.to;
       c.zone = 'gate';
       c.ready = outReady;
-      c.arrivedTurn = state.turn;
+      // A Gate Character keeps its waiting progress; an Inside one starts waiting again.
+      if (!wasGate) c.arrivedTurn = state.turn;
       c.relocatedTurn = state.turn;
       c.blessedUid = undefined;
       state.stats.relocations[p] += 1;
@@ -889,7 +892,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       }
       events.push({
         type: 'moved',
-        text: `${name(state, c)} relocates from ${locName(state, from)} to the Gates of ${locName(state, r.to)}${c.ready ? ' and is Ready' : ''}.`,
+        text: `${name(state, c)} relocates from ${wasGate ? 'the Gates of ' : ''}${locName(state, from)} to the Gates of ${locName(state, r.to)}${c.ready ? (wasGate ? ', still Ready' : ' and is Ready') : ' and waits again'}.`,
         uid: c.uid,
         location: r.to,
         player: p,

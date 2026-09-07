@@ -351,8 +351,9 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
   }
   const mine = charsOf(state, p);
   const enters = mine.filter((c) => c.zone === 'gate' && c.ready && !state.locations[c.location].lost).map((c) => c.uid);
+  // Inside Characters relocate and arrive Fresh; Gate Characters relocate too and stay as Ready as they were.
   const relocations = mine
-    .filter((c) => c.zone === 'inside' && !isHeldInside(state, c))
+    .filter((c) => !state.locations[c.location].lost && (c.zone === 'gate' || !isHeldInside(state, c)))
     .map((c) => ({
       uid: c.uid,
       destinations: state.locations
@@ -434,6 +435,7 @@ export function validatePlan(state: GameState, p: PlayerId, plan: TurnPlan): str
   for (const r of plan.relocations) {
     const opt = opts.relocations.find((o) => o.uid === r.uid);
     if (!opt || !opt.destinations.includes(r.to)) errors.push('Invalid Relocation.');
+    if (plan.enters.includes(r.uid)) errors.push('A Character cannot enter and relocate in the same turn.');
   }
   const busy = new Set<string>([...plan.enters, ...plan.relocations.map((r) => r.uid)]);
   const seen = new Set<string>();

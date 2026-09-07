@@ -301,7 +301,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
           out.inside = [c.location];
           out.locations = [c.location];
         }
-        if (c.zone === 'inside') {
+        if (!entering) {
           const r = opts.relocations.find((x) => x.uid === c.uid);
           const fromHub = locDef(view, c.location).effect.type === 'hub';
           const used = plan.relocations.filter((x) => locDef(view, view.characters[x.uid]?.location ?? -1).effect.type !== 'hub').length;
@@ -428,8 +428,9 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       if (reloc && idx === c.location) return setRelocation(c.uid, null);
       if (targeted && idx === c.location) return setTarget(c.zone === 'gate' ? 'friendlyGateCharAndLocation' : 'friendlyInsideChar', null);
       if (c.zone === 'gate' && !entering) {
-        if (idx !== c.location && harrietPlay && ok.gates.includes(idx)) return setTarget('friendlyGateCharAndLocation', { charUid: c.uid, location: idx });
+        if (idx !== c.location && harrietPlay && !harrietPlay.target && ok.gates.includes(idx)) return setTarget('friendlyGateCharAndLocation', { charUid: c.uid, location: idx });
         if (idx === c.location && ok.inside.includes(idx)) return toggleEnter(c.uid);
+        if (idx !== c.location && ok.locations.includes(idx)) return setRelocation(c.uid, idx);
         return fail();
       }
       if (c.zone === 'inside' && idx !== c.location && yemojaPlay?.location === idx && (target.type === 'inside' || ok.inside.includes(idx))) return setTarget('friendlyInsideChar', { charUid: c.uid, location: idx });

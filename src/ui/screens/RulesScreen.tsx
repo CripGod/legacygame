@@ -36,7 +36,7 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
         </ul>
         <h2>Movement</h2>
         <ul>
-          <li>Once per turn you may <b>Relocate</b> an Established Character to another Location's Gates. It arrives Fresh and waits again, unless an ability says otherwise.</li>
+          <li>Once per turn you may <b>Relocate</b> a Character to another Location's Gates. From Inside it arrives Fresh and waits again, unless an ability says otherwise. From the Gates it keeps its Ready status: a Ready Character waiting at the Gates is a flex piece you can commit late, wherever the fight turns out to be. The Inside is the committed zone; the Gates are the mobile one.</li>
           <li>Threats and abilities can <b>Displace</b> Characters against their will.</li>
         </ul>
         <h2>Threats</h2>

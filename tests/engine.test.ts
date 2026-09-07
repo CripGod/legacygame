@@ -915,3 +915,34 @@ describe('Events at Locations', () => {
     expect(out.events.some((e) => e.text.includes('lose 1 Influence this turn') || e.text.includes('loses 1 Influence this turn'))).toBe(true);
   });
 });
+
+describe('zone rule', () => {
+  it('Gate Characters relocate and stay Ready; Inside Characters arrive Fresh', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'harpers_ferry', 'gary_indiana'], revealAll: true });
+    const ready = addChar(s, 'newsboy', 'A', 0, 'gate', true);
+    const fresh = addChar(s, 'barber', 'A', 0, 'gate', false);
+    const settled = addChar(s, 'og', 'A', 1, 'inside');
+    s.players.A.energyBonus = 20;
+    const opts = legalOptions(s, 'A');
+    expect(opts.relocations.map((r) => r.uid).sort()).toEqual([ready.uid, fresh.uid, settled.uid].sort());
+    // Enter and relocate in the same turn is refused.
+    expect(validatePlan(s, 'A', { ...pass(), enters: [ready.uid], relocations: [{ uid: ready.uid, to: 2 }] })).not.toEqual([]);
+    s = resolveTurn(s, { A: { ...pass(), relocations: [{ uid: ready.uid, to: 2 }] }, B: pass() }).state;
+    expect(s.characters[ready.uid].location).toBe(2);
+    expect(s.characters[ready.uid].zone).toBe('gate');
+    expect(s.characters[ready.uid].ready).toBe(true);
+    // A Fresh Gate Character keeps its waiting progress when it moves.
+    let t = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'harpers_ferry', 'gary_indiana'], revealAll: true });
+    const f2 = addChar(t, 'barber', 'A', 0, 'gate', false);
+    f2.arrivedTurn = t.turn - 1; // waited one turn already: moving does not reset that
+    t = resolveTurn(t, { A: { ...pass(), relocations: [{ uid: f2.uid, to: 2 }] }, B: pass() }).state;
+    expect(t.characters[f2.uid].location).toBe(2);
+    expect(t.characters[f2.uid].ready).toBe(true);
+    // Inside → Gates still arrives Fresh.
+    let u = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'harpers_ferry', 'gary_indiana'], revealAll: true });
+    const inside = addChar(u, 'og', 'A', 1, 'inside');
+    u = resolveTurn(u, { A: { ...pass(), relocations: [{ uid: inside.uid, to: 2 }] }, B: pass() }).state;
+    expect(u.characters[inside.uid].zone).toBe('gate');
+    expect(u.characters[inside.uid].ready).toBe(false);
+  });
+});

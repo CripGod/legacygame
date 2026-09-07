@@ -17,7 +17,7 @@ export const CHARACTERS: CharacterDef[] = [
     tags: ['Black', 'Abolition'],
     keywords: [],
     reveal: {
-      text: "Move one friendly Gate Character to another Location's open Gate. Its waiting progress is preserved.",
+      text: "Move one friendly Gate Character to another Location's open Gate. It stays as Ready as it was, moves before anyone enters, and does not use your Relocation.",
       effect: { type: 'moveFriendlyGate' },
       needsTarget: 'friendlyGateCharAndLocation',
     },
