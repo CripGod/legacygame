@@ -421,8 +421,16 @@ body { font-family: var(--font); font-size: 16px; }
 .lock-btn span { text-align: center; }
 .lock-btn .timer-bar { display: block; height: 6px; background: rgba(26, 18, 0, 0.35); border-radius: 3px; overflow: hidden; }
 .lock-btn .timer-bar b { display: block; height: 100%; background: linear-gradient(90deg, #fff6d6, #ffe08a); transition: width 0.9s linear; }
-.lock-btn.low { --bc: var(--danger); }
-.lock-btn.low .timer-bar b { background: linear-gradient(90deg, #ff9c96, #e04a3f); }
+.lock-btn > * { position: relative; z-index: 1; }
+.lock-btn::before { content: ''; position: absolute; inset: 0; z-index: 0; background: var(--danger); opacity: 0; pointer-events: none; }
+.lock-btn.warn::before { animation: lock-flash 1.8s ease-in-out infinite; }
+.lock-btn.low::before { animation: lock-flash 0.9s ease-in-out infinite; }
+.lock-btn.crit::before { animation: lock-flash 0.4s ease-in-out infinite; }
+.lock-btn.warn .timer-bar b { background: linear-gradient(90deg, #ffd08a, #ff9a4a); }
+.lock-btn.low, .lock-btn.crit { --bc: var(--danger); }
+.lock-btn.low .timer-bar b, .lock-btn.crit .timer-bar b { background: linear-gradient(90deg, #ff9c96, #e04a3f); }
+@keyframes lock-flash { 0%, 100% { opacity: 0; } 50% { opacity: 0.55; } }
+@media (prefers-reduced-motion: reduce) { .lock-btn::before { animation: none !important; } .lock-btn.low::before, .lock-btn.crit::before { opacity: 0.4; } }
 .lock-btn:disabled { opacity: 0.55; }
 .turn-panel {
   --bfill: linear-gradient(180deg, #0f2036, #0a1626);

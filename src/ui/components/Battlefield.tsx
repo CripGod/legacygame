@@ -16,14 +16,12 @@ import {
 import { locationName, threatLabel, useDisplay } from '../display';
 import { Pic } from './CardFace';
 import { Art } from './Art';
-import { charDef, confrontForce, threatForceNeeded, isNight, lockReason, threatActiveFor, LOCATION_BY_ID } from '../../engine';
+import { charDef, confrontForce, threatForceNeeded, isNight, lockReason, LOCATION_BY_ID } from '../../engine';
 
-/** A Location where nobody relocates out right now: curfew at night, or a Curfew Threat. */
+/** A Location under curfew right now: a curfew Location at night. */
 function curfewOn(view: GameState, index: number): boolean {
   const loc = view.locations[index];
-  if (!loc.revealed) return false;
-  if (LOCATION_BY_ID[loc.defId]?.curfew && isNight(view)) return true;
-  return threatActiveFor(view, index, 'curfew', 'A') || threatActiveFor(view, index, 'curfew', 'B');
+  return loc.revealed && !!LOCATION_BY_ID[loc.defId]?.curfew && isNight(view);
 }
 import { isPlannedUid, PLANNED_PREFIX } from '../preview';
 import { tip, HINTS } from '../tip';

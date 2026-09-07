@@ -46,9 +46,11 @@ export function previewPlan(view: GameState, me: PlayerId, plan: TurnPlan): Game
       const t = v.characters[play.target.charUid];
       if (t && t.owner === me && (def.reveal.effect.type === 'conductor' || t.zone === 'gate')) {
         t.location = play.target.location;
-        if (t.zone === 'inside') {
-          t.zone = 'gate';
-          t.ready = true;
+        if (def.reveal.effect.type === 'conductor') {
+          // Harriet takes them straight Inside when there is room.
+          const room = insideOpen(v, play.target.location, me);
+          t.zone = room ? 'inside' : 'gate';
+          if (!room) t.ready = true;
         }
         t.relocatedTurn = v.turn;
       }

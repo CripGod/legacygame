@@ -324,24 +324,28 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
         say('nobody chosen to conduct.');
         break;
       }
-      if (!gateOpen(state, t.location, p) || state.locations[t.location].lost) {
-        say(`the Gate at ${locName(state, t.location)} is not open.`);
+      const roomInside = insideOpen(state, t.location, p) && !isBlockedFromEntering(state, { ...target, location: t.location });
+      if (state.locations[t.location].lost || (!roomInside && !gateOpen(state, t.location, p))) {
+        say(`${locName(state, t.location)} has no room for ${charDef(target.defId).name}.`);
         break;
       }
       const from = target.location;
       const held = lockReason(state, target);
-      const wasInside = target.zone === 'inside';
       target.location = t.location;
-      target.zone = 'gate';
-      if (wasInside) {
-        target.ready = true;
-        target.arrivedTurn = state.turn;
-      }
       target.relocatedTurn = state.turn;
       target.blessedUid = undefined;
-      if (LOCATION_BY_ID[state.locations[t.location].defId]?.effect.type === 'readyOnArrival' && state.locations[t.location].revealed) target.ready = true;
-      say(`conducts ${charDef(target.defId).name} ${held ? `out of ${locName(state, from)} (${held}) ` : `from ${locName(state, from)} `}to the Gates of ${locName(state, t.location)}${wasInside ? ', Ready to enter' : target.ready ? ', still Ready' : ', waiting progress kept'}.`);
-      events.push({ type: 'moved', text: '', uid: target.uid, location: t.location, data: { from, to: t.location, reason: 'Harriet', freed: !!held } });
+      target.arrivedTurn = state.turn;
+      if (roomInside) {
+        target.zone = 'inside';
+        target.ready = false;
+        say(`conducts ${charDef(target.defId).name} ${held ? `out of ${locName(state, from)} (${held}) ` : `from ${locName(state, from)} `}straight Inside ${locName(state, t.location)}.`);
+        events.push({ type: 'entered', text: `${name(state, target)} arrives Inside (Harriet) at ${locName(state, t.location)}.`, uid: target.uid, location: t.location, player: p });
+      } else {
+        target.zone = 'gate';
+        target.ready = true;
+        say(`conducts ${charDef(target.defId).name} ${held ? `out of ${locName(state, from)} (${held}) ` : `from ${locName(state, from)} `}to the Gates of ${locName(state, t.location)}, Ready: the Inside is full.`);
+      }
+      events.push({ type: 'moved', text: '', uid: target.uid, location: t.location, data: { from, to: t.location, reason: 'Harriet', freed: !!held, inside: roomInside } });
       break;
     }
     case 'tempInfluenceOther': {

@@ -36,8 +36,8 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
         </ul>
         <h2>Movement</h2>
         <ul>
-          <li><b>Day and night.</b> Odd turns are day, even turns are night. At night a Location with a <b>curfew</b> (Sundown Town) lets nobody relocate out until morning. A <b>Curfew</b> Threat holds a Location day and night until it is cleared with 3 Force. The Justice System holds anyone Inside for two turns. Held Characters show a red Held strip. Only a curfew Location shows the time of day, since nothing else changes at night.</li>
-          <li><b>Harriet Tubman</b> is the conductor: her Reveal moves one of your Characters, Gate or Inside, from anywhere to another open Gate, even out of a curfew or The Justice System. From the Gates it keeps its status; from Inside it arrives Ready. Free, and before anyone enters.</li>
+          <li><b>Day and night.</b> Odd turns are day, even turns are night. A <b>curfew</b> is a condition of a Location, not a Threat: at night nobody relocates out of Sundown Town until morning. Held Characters show a red Held strip. Only a curfew Location shows the time of day, since nothing else changes at night.</li>
+          <li><b>Harriet Tubman</b> is the conductor: her Reveal moves one of your Characters, Gate or Inside, from anywhere straight Inside another Location, or to its Gates Ready if the Inside is full, even out of Sundown Town's curfew or The Justice System's hold. Free, and before anyone enters.</li>
           <li>Once per turn you may <b>Relocate</b> a Character to another Location's Gates. From Inside it arrives Fresh and waits again, unless an ability says otherwise. From the Gates it keeps its Ready status: a Ready Character waiting at the Gates is a flex piece you can commit late, wherever the fight turns out to be. The Inside is the committed zone; the Gates are the mobile one.</li>
           <li>Threats and abilities can <b>Displace</b> Characters against their will.</li>
         </ul>

@@ -53,19 +53,9 @@ export const THREATS: ThreatDef[] = [
     effect: 'zeroGateInfluence',
     blurb: 'Paddy rollers were the slave patrols: armed riders who stopped Black people on the road and demanded a pass. After the Fugitive Slave Act of 1850, no free state was safe from them either.',
   },
-  {
-    id: 'curfew',
-    name: 'Curfew',
-    family: 'Systemic Pressure',
-    text: 'While active, no Character relocates out of this Location, day or night. Only Harriet Tubman can move them. Neutralize with 3 Force in one turn (either player, or both together).',
-    split: false,
-    force: 3,
-    effect: 'curfew',
-    blurb: 'Be off the street by dark. Enforced by whoever felt like enforcing it.',
-  },
 ];
 
 export const THREAT_BY_ID: Record<string, ThreatDef> = Object.fromEntries(THREATS.map((t) => [t.id, t]));
 
 /** Threats that may appear via the mid-match "history moves" trigger. */
-export const RANDOM_THREAT_POOL = ['segregationist_patrol', 'comfortable_complicity', 'housing_restriction', 'curfew'];
+export const RANDOM_THREAT_POOL = ['segregationist_patrol', 'comfortable_complicity', 'housing_restriction'];

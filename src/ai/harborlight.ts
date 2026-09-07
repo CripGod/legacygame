@@ -11,6 +11,7 @@ import {
   cardDef,
   charsAt,
   charsOf,
+  insideOpen,
   confrontForce,
   emptyPlan,
   gateRoom,
@@ -326,7 +327,7 @@ function playVariants(view: GameState, p: PlayerId): PlayAction[] {
           for (const dest of view.locations) {
             if (dest.index === c.location || dest.lost) continue;
             const gate = charsAt(view, dest.index, p, 'gate').length;
-            if (gate >= 2) continue;
+            if (gate >= 2 && !insideOpen(view, dest.index, p)) continue;
             out.push({ cardId: o.cardId, location, target: { charUid: c.uid, location: dest.index } });
             added = true;
           }

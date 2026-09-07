@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CARD_BY_ID, legalOptions, gateRoom, lockReason, PLANNING_SECONDS, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, other, MAX_HAND, EXTENDED_TURNS, planCost, cardCost } from '../../engine';
+import { CARD_BY_ID, legalOptions, gateRoom, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, other, MAX_HAND, EXTENDED_TURNS, planCost, cardCost } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight } from '../components/Battlefield';
@@ -28,6 +28,15 @@ type SheetState =
   | { kind: 'log' }
   | { kind: 'chat' }
   | null;
+
+/** How hard the Lock In button flashes as the planning timer drains. */
+function urgency(secondsLeft: number): string {
+  const frac = secondsLeft / PLANNING_SECONDS;
+  if (frac <= 0.1) return 'crit';
+  if (frac <= 0.25) return 'low';
+  if (frac <= 0.5) return 'warn';
+  return '';
+}
 
 function useCompact(): boolean {
   const [compact, setCompact] = useState(() => window.innerWidth <= 700);
@@ -237,7 +246,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   const tubmanDests = (uid: string) => {
     const c = view.characters[uid];
     if (!c || !harrietPlay) return [];
-    return view.locations.filter((l) => l.index !== c.location && !l.lost && gateRoom(view, l.index, me, plannedAt(l.index)) > 0).map((l) => l.index);
+    return view.locations.filter((l) => l.index !== c.location && !l.lost && (gateRoom(view, l.index, me, plannedAt(l.index)) > 0 || insideOpen(view, l.index, me))).map((l) => l.index);
   };
   const setTarget = (kind: 'friendlyCharAndLocation' | 'friendlyInsideChar', target: { charUid: string; location: number } | null) => {
     const play = targetPlay(kind);
@@ -529,7 +538,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     if (locked) return m.mode === 'ai' ? 'Locked. Harborlight is deciding…' : 'Locked.';
     if (view.players[me].hand.length - plan.plays.length >= MAX_HAND && view.players[me].deckCount > 0 && !selected) return `Hand full (${MAX_HAND}). Play a card or your next draw is discarded.`;
     if (selected) return `Tap a Location to commit ${cardName(selected, placeholders)}.`;
-    if (harrietPlay && !harrietPlay.target) return 'Harriet Tubman: drag any of your Characters to another Gate. Free, and she gets them out of a curfew (optional).';
+    if (harrietPlay && !harrietPlay.target) return 'Harriet Tubman: drag any of your Characters to another Location and she takes them straight Inside. Free, and she gets them out of a curfew (optional).';
     if (yemojaPlay && !yemojaPlay.target) return `Yemoja: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : `Location ${yemojaPlay.location + 1}`} (optional).`;
     const affordable = opts.plays.filter((o) => !plan.plays.some((pl) => pl.cardId === o.cardId) && cardCost(o.cardId, view, me) <= energyLeft).length;
     if (planItems.length) return affordable > 0 ? '' : '';
@@ -621,7 +630,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
               SEE RESULT
             </button>
           ) : (
-            <button className={`primary lock-btn ${m.secondsLeft <= 5 && planning ? 'low' : ''}`} disabled={!planning} onClick={m.lockIn} title={HINTS.timer}>
+            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''}`} disabled={!planning} onClick={m.lockIn} title={HINTS.timer}>
               <span>LOCK IN</span>
               <i className="timer-bar" aria-hidden>
                 <b style={{ width: `${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 100}%` }} />
@@ -648,7 +657,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
               SEE RESULT
             </button>
           ) : (
-            <button className={`primary lock-btn ${m.secondsLeft <= 5 && planning ? 'low' : ''}`} disabled={!planning} onClick={m.lockIn} title={HINTS.timer}>
+            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''}`} disabled={!planning} onClick={m.lockIn} title={HINTS.timer}>
               <span>LOCK IN</span>
               <i className="timer-bar" aria-hidden>
                 <b style={{ width: `${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 100}%` }} />

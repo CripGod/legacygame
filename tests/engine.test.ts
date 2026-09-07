@@ -182,12 +182,20 @@ describe('abilities', () => {
     // A leads 5 vs 1 → Karen's presence costs the leader 1.
     expect(influenceAt(s, 0)).toEqual({ A: 4, B: 1 });
   });
-  it('Harriet moves a friendly Gate Character preserving readiness', () => {
+  it('Harriet conducts a friendly Character straight Inside another Location, or to its Gates Ready when the Inside is full', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['black_star', 'great_migration', 'greenwood'], revealAll: true, handA: ['harriet_tubman'] });
     const og = addChar(s, 'og', 'A', 0, 'gate', true);
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'harriet_tubman', location: 0, target: { charUid: og.uid, location: 2 } }] }, B: pass() }).state;
     expect(s.characters[og.uid].location).toBe(2);
-    expect(s.characters[og.uid].ready).toBe(true);
+    expect(s.characters[og.uid].zone).toBe('inside');
+    // Full Inside: they wait at the Gates, Ready.
+    let f = rig(createMatch({ seed: 2 }), { locations: ['black_star', 'great_migration', 'greenwood'], revealAll: true, handA: ['harriet_tubman'] });
+    const kid = addChar(f, 'newsboy', 'A', 0, 'gate', false);
+    for (const id of ['organizer', 'barber', 'og', 'zora_neale_hurston', 'absalom_jones']) addChar(f, id, 'A', 2, 'inside');
+    f = resolveTurn(f, { A: { ...pass(), plays: [{ cardId: 'harriet_tubman', location: 0, target: { charUid: kid.uid, location: 2 } }] }, B: pass() }).state;
+    expect(f.characters[kid.uid].location).toBe(2);
+    expect(f.characters[kid.uid].zone).toBe('gate');
+    expect(f.characters[kid.uid].ready).toBe(true);
   });
   it('Direct Entry Characters enter the turn they are played', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['black_star', 'great_migration', 'greenwood'], revealAll: true, handB: ['pullman_porter'] });
@@ -506,15 +514,12 @@ describe('new one-drops and The Justice System', () => {
 });
 
 describe('special arrivals', () => {
-  it('Straight Inside always enters; Direct Entry is a choice', () => {
+  it('Straight Inside always enters: Porter and Bessie never wait at the Gates', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['pullman_porter', 'bessie_coleman', 'og'] });
     expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'og', location: 0, enter: true }] })).not.toEqual([]);
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'pullman_porter', location: 0 }, { cardId: 'bessie_coleman', location: 1 }] }, B: pass() }).state;
     expect(charsOf(s, 'A').find((c) => c.defId === 'pullman_porter')!.zone).toBe('inside');
-    expect(charsOf(s, 'A').find((c) => c.defId === 'bessie_coleman')!.zone).toBe('gate');
-    let t = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['bessie_coleman'] });
-    t = resolveTurn(t, { A: { ...pass(), plays: [{ cardId: 'bessie_coleman', location: 1, enter: true }] }, B: pass() }).state;
-    expect(charsOf(t, 'A').find((c) => c.defId === 'bessie_coleman')!.zone).toBe('inside');
+    expect(charsOf(s, 'A').find((c) => c.defId === 'bessie_coleman')!.zone).toBe('inside');
   });
   it('Black Jesus appears when the church fills The Tabernacle and blesses every Location', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['the_tabernacle', 'great_migration', 'gary_indiana'], revealAll: true });
@@ -958,22 +963,21 @@ describe('day and night', () => {
     expect(legalOptions(s, 'A').relocations.map((r) => r.uid)).not.toContain(stuck.uid);
     expect(legalOptions(s, 'A').relocations.map((r) => r.uid)).not.toContain(gateStuck.uid);
     expect(validatePlan(s, 'A', { ...pass(), relocations: [{ uid: stuck.uid, to: 1 }] })).not.toEqual([]);
-    // Harriet conducts the Established Newsboy out of the curfew: he arrives Ready at the destination Gates.
+    // Harriet conducts the Established Newsboy out of the curfew, straight Inside the destination.
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'harriet_tubman', location: 2, target: { charUid: stuck.uid, location: 1 } }] }, B: pass() }).state;
     expect(s.characters[stuck.uid].location).toBe(1);
-    expect(s.characters[stuck.uid].zone).toBe('gate');
-    expect(s.characters[stuck.uid].ready).toBe(true);
+    expect(s.characters[stuck.uid].zone).toBe('inside');
     // Turn 3 is day again: the Barber may leave.
     expect(s.turn).toBe(3);
     expect(legalOptions(s, 'A').relocations.map((r) => r.uid)).toContain(gateStuck.uid);
-    // A Curfew Threat holds a Location in daylight too.
-    let t = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'harpers_ferry', 'gary_indiana'], revealAll: true });
-    const held = addChar(t, 'og', 'A', 1, 'inside');
-    t.locations[1].threats.push({ uid: 'cf', defId: 'curfew', location: 1, forceRequired: 3, spawnedTurn: 1 });
-    expect(legalOptions(t, 'A').relocations.map((r) => r.uid)).not.toContain(held.uid);
-    t = resolveTurn(t, { A: { ...pass(), confronts: [{ uid: held.uid, threatUid: 'cf' }] }, B: pass() }).state;
-    expect(t.locations[1].threats).toHaveLength(0);
-    expect(legalOptions(t, 'A').relocations.map((r) => r.uid)).toContain(held.uid);
+    // The Justice System's hold is its own rule, not a curfew: Harriet still gets someone out, and Inside.
+    let j = rig(createMatch({ seed: 2 }), { locations: ['justice_system', 'harpers_ferry', 'gary_indiana'], revealAll: true, handA: ['harriet_tubman'] });
+    const jailed = addChar(j, 'og', 'A', 0, 'inside');
+    jailed.arrivedTurn = j.turn;
+    expect(legalOptions(j, 'A').relocations.map((r) => r.uid)).not.toContain(jailed.uid);
+    j = resolveTurn(j, { A: { ...pass(), plays: [{ cardId: 'harriet_tubman', location: 2, target: { charUid: jailed.uid, location: 1 } }] }, B: pass() }).state;
+    expect(j.characters[jailed.uid].location).toBe(1);
+    expect(j.characters[jailed.uid].zone).toBe('inside');
   });
 });
 

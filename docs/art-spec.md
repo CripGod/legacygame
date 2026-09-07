@@ -58,9 +58,10 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `word_of_mouth` **Word of Mouth**: Free, fast and usually right. It travels further where more of your people are.
 - `persuade` **Persuade**: Everybody has a price, a grievance or a cousin. Find the one that opens the door.
 
-### threats (1)
+### threats (0)
 
-- `curfew` **Curfew**: Be off the street by dark. Enforced by whoever felt like enforcing it.
+- none
+
 
 ### locations (4)
 

@@ -213,7 +213,7 @@ export interface LocationDef {
 
 export type ThreatFamily = 'Open Hostility' | 'Systemic Pressure' | 'Complicit Beneficiary' | 'Collaborator' | 'Crisis';
 
-export type ThreatEffect = 'blockEntry' | 'leaderBonus' | 'capacity' | 'mobDisplace' | 'zeroGateInfluence' | 'curfew';
+export type ThreatEffect = 'blockEntry' | 'leaderBonus' | 'capacity' | 'mobDisplace' | 'zeroGateInfluence';
 
 export interface ThreatDef {
   id: string;

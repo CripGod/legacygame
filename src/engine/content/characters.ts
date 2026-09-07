@@ -17,7 +17,7 @@ export const CHARACTERS: CharacterDef[] = [
     tags: ['Black', 'Abolition'],
     keywords: [],
     reveal: {
-      text: "Conductor: move one of your Characters, at the Gates or Inside, from any Location to another Location's open Gate, even out of a curfew, a Curfew Threat or The Justice System. From the Gates it keeps its status; from Inside it arrives Ready. Moves before anyone enters and does not use your Relocation.",
+      text: "Conductor: move one of your Characters, at the Gates or Inside, from any Location straight Inside another Location (or to its Gates, Ready, if the Inside is full), even out of Sundown Town's curfew or The Justice System's hold. Moves before anyone enters and does not use your Relocation.",
       effect: { type: 'conductor' },
       needsTarget: 'friendlyCharAndLocation',
     },
@@ -358,7 +358,7 @@ export const CHARACTERS: CharacterDef[] = [
     tags: ['Black', 'Sea', 'Politics'],
     keywords: [],
     reveal: {
-      text: 'The Planter: move one of your Gate Characters to another Location\'s open Gate for free, keeping its status. It does not use your Relocation and cannot break a curfew.',
+      text: 'The Planter: move one of your Gate Characters to another Location\'s open Gate for free, keeping its status. It does not use your Relocation and cannot break a curfew or a hold.',
       effect: { type: 'moveFriendlyGate' },
       needsTarget: 'friendlyCharAndLocation',
     },
@@ -687,7 +687,7 @@ export const CHARACTERS: CharacterDef[] = [
     influence: 2,
     force: 3,
     tags: ['Black', 'Aviator'],
-    keywords: ['DIRECT_ENTRY'],
+    keywords: ['STRAIGHT_INSIDE'],
     established: {
       text: 'Your Characters here cannot be blocked from entering.',
       effect: { type: 'noBlockHere' },
