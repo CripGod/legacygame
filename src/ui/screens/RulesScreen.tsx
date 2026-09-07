@@ -52,7 +52,7 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
           <li><b>The Ancestors</b> are never in a deck. In one match out of four, holding three Characters Inside at Accra, Ghana brings them to your hand. Play them while planning to see your opponent's plan for the turn and every danger the board is about to spring.</li>
           <li><b>The Tabernacle</b> protects your Characters from displacement. Establish Richard Allen, Absalom Jones and Daniel Payne there and <b>Black Jesus</b> appears: sanctuary at his Location and +1 Influence to every Character you control.</li>
           <li><b>The Justice System</b> holds anyone who goes Inside for two turns: no relocating out.</li>
-          <li><b>Curses</b> are dark Events that act on your opponent's Characters. <b>Persuade</b> turns the weakest opposing Gate Character at a Location to your side at −1 Influence; Marie Laveau's Reveal takes the strongest. Some cards cost 0 Energy.</li>
+          <li><b>Events</b> are played at a Location with an open Gate slot. They work everywhere and the Location adds a bonus: Reparations pays +1 more in the Americas, The Ancestors bless a Location in Africa, Word of Mouth draws two where you have a crowd, Community Defense adds Force where it lands, and <b>Persuade</b> (a <b>Curse</b>) drains every opposing Gate Character and turns the weakest one at its Location to your side at −1 Influence. Marie Laveau's Reveal takes the strongest. Some cards cost 0 Energy.</li>
           <li>Every deck carries at least one <b>Mythic</b>. The full list, with costs, is under <b>Cards</b> on the start screen.</li>
         </ul>
         <h2>Summon (cooperative)</h2>
@@ -105,6 +105,7 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
           </div>
         ))}
         <h2>Events</h2>
+        <p>An Event is dropped on a Location the same way a Character is: it needs an open Gate slot there, though it does not keep the slot. Its effect reaches the whole board, and the Location it lands on adds a bonus, so where you play it is a real choice.</p>
         {EVENTS.map((e) => (
           <div key={e.id} style={{ marginBottom: 6 }}>
             <b>{e.name}</b>: {e.text}

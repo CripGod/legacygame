@@ -177,7 +177,7 @@ export function confrontForce(state: GameState, c: CharacterInstance, threat: Th
   if (ldef.effect.type === 'steelAndSoul') f += ldef.effect.force;
   for (const n of hasEstablished(state, c.owner, c.location, 'forceAuraHere')) f += amountOf(n);
   for (const n of hasEstablished(state, c.owner, c.location, 'confrontForceHere')) f += amountOf(n);
-  if (state.players[c.owner].defendedLocation === c.location) f += 1;
+  if (state.players[c.owner].defendedLocation === c.location) f += 2;
   if (isAssist(threat, c.owner) && c.zone === 'inside' && !isSuppressed(state, c) && def.established?.effect.type === 'assistForceBonus') {
     f += def.established.effect.amount;
   }
@@ -273,7 +273,7 @@ export function relocationsAllowed(state: GameState, p: PlayerId): number {
 export function isBlockedFromEntering(state: GameState, c: CharacterInstance): string | null {
   if (hasEstablished(state, c.owner, c.location, 'noBlockHere').length) return null;
   if (hasEstablished(state, c.owner, c.location, 'sanctuary').length) return null;
-  if (state.players[c.owner].defendedLocation === c.location) return null;
+  if (state.players[c.owner].defendedTurn === state.turn) return null;
   if (c.blockedEnterTurn === state.turn) return 'blocked by an opposing Character';
   if (threatActiveFor(state, c.location, 'blockEntry', c.owner)) return 'blocked by Segregationist Patrol';
   return null;
@@ -342,8 +342,9 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
       plays.push({
         cardId,
         kind: 'event',
-        locations: def.needsLocation ? state.locations.filter((l) => !l.lost).map((l) => l.index) : [0],
-        needsLocation: def.needsLocation,
+        // Events are played like Characters: at a Location with an open Gate slot. They do not keep the slot.
+        locations: state.locations.filter((l) => !l.lost && gateOpen(state, l.index, p)).map((l) => l.index),
+        needsLocation: true,
         directEntry: false,
       });
     }
@@ -409,6 +410,8 @@ export function validatePlan(state: GameState, p: PlayerId, plan: TurnPlan): str
     if (opt.kind === 'character') {
       gateUse[play.location] = (gateUse[play.location] ?? 0) + 1;
       if (gateRoom(state, play.location, p, gateUse[play.location] - 1) <= 0) errors.push('No open Gate slot for that card.');
+    } else if (gateRoom(state, play.location, p, gateUse[play.location] ?? 0) <= 0) {
+      errors.push('An Event needs an open Gate slot at its Location.');
     }
     if (opt.needsTarget === 'friendlyGateCharAndLocation' && play.target?.charUid) {
       const c = state.characters[play.target.charUid];

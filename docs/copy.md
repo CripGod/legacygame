@@ -346,29 +346,29 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Reparations (`reparations`)
 - cost 1
-- text: Your lowest-scoring Location gains +1 Influence this turn for each Setback suffered this match (max +4).
-- blurb: Only neutral historical harm counts. What the opponent did to you is not the same thing.
+- text: Choose a Location with an open Gate slot: +1 Influence there this turn for each Setback suffered this match (max +4). In the Americas: +1 more.
+- blurb: Only neutral historical harm counts. What the opponent did to you is not the same thing. The debt is owed where it was run up.
 
 ### Community Defense (`community_defense`)
 - cost 2
-- text: Choose a Location. This turn your Characters there cannot be blocked or displaced, and they confront Threats with +1 Force.
+- text: This turn none of your Characters, anywhere, can be blocked or displaced. Choose a Location with an open Gate slot: your Characters there also confront Threats with +2 Force.
 - blurb: Deacons for Defense, armed porches, neighbors who showed up.
 - history: The Deacons for Defense and Justice formed in Jonesboro, Louisiana, in 1964 and spread to Bogalusa and beyond: armed Black men, many of them veterans, who escorted civil rights workers and guarded their neighborhoods against Klan attacks when the police would not. Their presence let nonviolent campaigns keep going.
 
 ### The Ancestors (`the_ancestors`)
 - cost 0
-- text: Play it while planning: the Ancestors show you your opponent's plan for this turn and every danger the board is about to spring.
+- text: Play it while planning: the Ancestors show you your opponent's plan for this turn and every danger the board is about to spring. Choose a Location with an open Gate slot. In Africa: your Characters there gain +1 Influence this turn.
 - blurb: Never in a deck. In one match out of four they come to whoever holds three Characters Inside at Accra, Ghana.
 - arrives: You have three Characters Inside at Accra, Ghana. The Ancestors come to your hand. / button: Continue
 
 ### Word of Mouth (`word_of_mouth`)
 - cost 0
-- text: Draw a card.
-- blurb: Free, fast and usually right.
+- text: Draw a card. Choose a Location with an open Gate slot: where you have 2 or more Characters, draw 2 instead.
+- blurb: Free, fast and usually right. It travels further where more of your people are.
 
 ### Persuade (`persuade`)
 - cost 3
-- text: Curse. Choose a Location: the opposing Gate Character there with the lowest Influence crosses over to your Gates at −1 Influence. You need an open Gate slot there.
+- text: Curse. Every opposing Gate Character loses 1 Influence this turn. Choose a Location with an open Gate slot: the opposing Gate Character there with the lowest Influence crosses over to your Gates at −1 Influence.
 - blurb: Everybody has a price, a grievance or a cousin. Find the one that opens the door.
 
 ## Threats
@@ -469,7 +469,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 - `influence`: Influence: how much this Character counts toward controlling its Location. Gate and Inside Characters both count.
 - `force`: Force: strength when confronting Threats or answering a challenge. Force never attacks players directly.
-- `event`: Event: a one-shot card. Playing it uses one of your card plays for the turn.
+- `event`: Event: a one-shot card. Drop it on a Location with an open Gate slot: it works everywhere, and the Location it lands on adds a little more.
 - `currentInfluence`: Influence this Character currently contributes here, including bonuses and penalties.
 - `ready`: Ready: waited a turn at the Gates. Tap to send it Inside this turn.
 - `fresh`: Fresh: arrived this turn. It waits one turn at the Gates before it can enter.
@@ -568,7 +568,7 @@ Rules
 - The Ancestors are never in a deck. In one match out of four, holding three Characters Inside at Accra, Ghana brings them to your hand. Play them while planning to see your opponent's plan for the turn and every danger the board is about to spring.
 - The Tabernacle protects your Characters from displacement. Establish Richard Allen, Absalom Jones and Daniel Payne there and Black Jesus appears: sanctuary at his Location and +1 Influence to every Character you control.
 - The Justice System holds anyone who goes Inside for two turns: no relocating out.
-- Curses are dark Events that act on your opponent's Characters. Persuade turns the weakest opposing Gate Character at a Location to your side at −1 Influence; Marie Laveau's Reveal takes the strongest. Some cards cost 0 Energy.
+- Events are played at a Location with an open Gate slot. They work everywhere and the Location adds a bonus: Reparations pays +1 more in the Americas, The Ancestors bless a Location in Africa, Word of Mouth draws two where you have a crowd, Community Defense adds Force where it lands, and Persuade (a Curse) drains every opposing Gate Character and turns the weakest one at its Location to your side at −1 Influence. Marie Laveau's Reveal takes the strongest. Some cards cost 0 Energy.
 - Every deck carries at least one Mythic. The full list, with costs, is under Cards on the start screen.
 ### Summon (cooperative)
 - Use quick chat (💬) to call Summon? at a Location with a Threat. If the other side answers Summon!, both of you commit that turn.
@@ -590,6 +590,7 @@ Rules
 … … Influence · … Force · …
 … … Influence · … Force · …
 ### Events
+An Event is dropped on a Location the same way a Character is: it needs an open Gate slot there, though it does not keep the slot. Its effect reaches the whole board, and the Location it lands on adds a bonus, so where you play it is a real choice.
 ### Locations
 ### Threats
 ← Back
@@ -939,7 +940,7 @@ export function PeekHandSheet({ cards, by, opponent, onClose }: { cards: string[
 
 - hand-wrap ${dropState === 'ok' ? 'drop-ok' : ''} ${dropState === 'over' ? 'drop-ok drop-over' : ''}
 - rotate(${rot}deg) translateY(${sel ? -26 : ty}px) scale(${sel ? 1.08 : 1})
-- card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''} ${glow === id ? 'ftue-flash' : ''} ${energyLeft !== undefined && cardCost(id, view, me) > energyLeft ? 'unaffordable' : ''}
+- card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''} ${glow === id ? 'ftue-flash' : ''} ${dealt >= 0 ? 'dealt' : ''} ${energyLeft !== undefined && cardCost(id, view, me) > energyLeft ? 'unaffordable' : ''}
 
 ### src/ui/components/Hud.tsx
 
@@ -1029,15 +1030,16 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${def.name}: ${state.players[opp].handle} is holding ${names.length ? names.join(', ') : 'nothing'}.
 - no card in hand left to make cheaper.
 - ${def.name}: ${CARD_BY_ID[best]?.name ?? best} in ${ps.handle}'s hand now costs ${eff.amount} less (${cardCost(best, state, p)}).
-- ${ps.handle} plays ${def.name}.
-- ${def.name}: no Setbacks this match.
-- ${def.name}: +${bonus} Influence at ${locName(state, lowest.index)} this turn (${ps.setbacks} Setbacks).
-- ${def.name}: ${ps.handle} has been warned.
-- ${def.name}: ${ps.handle} draws a card.
+- ${ps.handle} plays ${def.name} at ${locName(state, at)}.
+- ${def.name}: no Setbacks this match, and ${locName(state, at)} is not in the Americas.
+- ${def.name}: +${base + home} Influence at ${locName(state, at)} this turn (${ps.setbacks} Setback${ps.setbacks === 1 ? '' : 's'}${home ? 
+- ${def.name}: ${ps.handle} has been warned.${home ? 
+- ${def.name}: ${ps.handle} draws ${n} card${n > 1 ? 's' : ''}${crowd ? 
+- ${def.name}: ${drained} opposing Gate Character${drained > 1 ? 's' : ''} lose${drained > 1 ? '' : 's'} ${def.effect.drain} Influence this turn.
 - ${def.name}: no opposing Gate Character at ${locName(state, play.location)}.
 - ${def.name}: ${ps.handle}'s Gates at ${locName(state, play.location)} are full.
 - ${def.name}: ${name(state, target)} crosses over to ${ps.handle} at −1 Influence.
-- ${def.name}: ${ps.handle}'s Characters at ${locName(state, play.location)} are protected this turn.
+- ${def.name}: none of ${ps.handle}'s Characters can be blocked or displaced this turn, and those at ${locName(state, play.location)} confront with +${def.effect.force} Force.
 - ${state.players[p].handle} steps off. ${state.players[other(p)].handle} wins ${state.stakes} Legacy.
 - ${state.players[p].handle}'s plan was illegal (${errs[0]}) and became a pass.
 - ${state.players[p].handle} STANDS ON BUSINESS: ${from} → ${to} Legacy after next turn. ${escape}
@@ -1089,6 +1091,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - That card cannot be played.
 - That Location is not available for this card.
 - No open Gate slot for that card.
+- An Event needs an open Gate slot at its Location.
 - Invalid target Character.
 - Choose a different destination.
 - A Character selected to enter is not Ready.

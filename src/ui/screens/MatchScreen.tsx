@@ -156,7 +156,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
     if (!selected || !planning) return [];
     const opt = opts.plays.find((p) => p.cardId === selected);
     if (!opt) return [];
-    return opt.needsLocation ? opt.locations.filter((i) => opt.kind !== 'character' || gateRoom(view, i, me, plannedAt(i, selected)) > 0) : [];
+    return opt.locations.filter((i) => gateRoom(view, i, me, plannedAt(i, selected)) > 0);
   }, [selected, opts, planning, plan, view, me]);
 
   const selectCard = (cardId: string) => {
@@ -268,9 +268,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
         const alreadyPlanned = plan.plays.some((pl) => pl.cardId === payload.cardId);
         const affordable = alreadyPlanned || cardCost(payload.cardId, view, me) <= opts.energy - planCost(plan, view, me);
         if (opt && affordable) {
-          out.locations = opt.needsLocation
-            ? opt.locations.filter((i) => opt.kind !== 'character' || gateRoom(view, i, me, plannedAt(i, payload.cardId)) > 0)
-            : view.locations.map((l) => l.index);
+          out.locations = opt.locations.filter((i) => gateRoom(view, i, me, plannedAt(i, payload.cardId)) > 0);
         }
         out.hand = plan.plays.some((pl) => pl.cardId === payload.cardId);
         return out;
@@ -670,7 +668,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
             return {
               needsLocation: opt.needsLocation,
               options: opt.locations
-                .filter((i) => opt.kind !== 'character' || gateRoom(view, i, me, plannedAt(i, sheet.id)) > 0)
+                .filter((i) => gateRoom(view, i, me, plannedAt(i, sheet.id)) > 0)
                 .map((i) => ({
                   index: i,
                   label: view.locations[i].revealed ? cardLocationLabel(i) : `Location ${i + 1} (hidden)`,

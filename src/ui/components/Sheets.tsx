@@ -104,7 +104,7 @@ export function CardSheet({
                 Play {cardName(id, placeholders)}
               </button>
             )}
-            {sendTo.needsLocation && sendTo.options.length === 0 && <span className="muted">No Location has an open Gate for this card.</span>}
+            {sendTo.needsLocation && sendTo.options.length === 0 && <span className="muted">No Location has an open Gate slot for this card. Events need one too.</span>}
           </div>
         </div>
       )}

@@ -790,3 +790,16 @@ body.dragging { cursor: grabbing; user-select: none; }
 /* Energy discounts */
 .card .cost.discounted { background: #1fa24a; box-shadow: 0 0 0 2px #fff, 0 0 10px #1fa24acc; }
 .sheet .card-grid { justify-content: center; }
+
+/* Dealt in: a new card slides from the deck (off the right edge) into its place in the fan. */
+.hand .card-wrap.dealt { animation: deal 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes deal {
+  0% { opacity: 0; transform: translate(70vw, -12vh) rotate(24deg) scale(0.7); }
+  60% { opacity: 1; }
+}
+.hand .card-wrap.dealt .card { animation: deal-glow 0.9s ease-out both; }
+@keyframes deal-glow {
+  0% { box-shadow: 0 0 0 3px #fff, 0 0 28px 8px #ffffff99; }
+  100% { box-shadow: 0 8px 20px #00000073; }
+}
+@media (prefers-reduced-motion: reduce) { .hand .card-wrap.dealt, .hand .card-wrap.dealt .card { animation: none; } }

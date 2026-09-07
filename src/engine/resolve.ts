@@ -57,7 +57,7 @@ function setback(state: GameState, p: PlayerId, reason: string, events: GameEven
 }
 
 function isProtected(state: GameState, c: CharacterInstance): boolean {
-  if (state.players[c.owner].defendedLocation === c.location) return true;
+  if (state.players[c.owner].defendedTurn === state.turn) return true;
   if (c.protectedTurn === state.turn) return true;
   if (state.locations[c.location].revealed && LOCATION_BY_ID[state.locations[c.location].defId]?.effect.type === 'noDisplace') return true;
   if (hasEstablished(state, c.owner, c.location, 'noDisplaceHere').length) return true;
@@ -612,33 +612,44 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
 function playEvent(state: GameState, p: PlayerId, play: PlayAction, events: GameEvent[]): void {
   const def = eventDef(play.cardId);
   const ps = state.players[p];
-  events.push({ type: 'eventPlayed', text: `${ps.handle} plays ${def.name}.`, player: p, cardId: def.id, location: def.needsLocation ? play.location : undefined });
+  const at = play.location;
+  const here = state.locations[at];
+  const hereDef = here.revealed ? LOCATION_BY_ID[here.defId] : undefined;
+  events.push({ type: 'eventPlayed', text: `${ps.handle} plays ${def.name} at ${locName(state, at)}.`, player: p, cardId: def.id, location: at });
   switch (def.effect.type) {
     case 'reparations': {
-      const bonus = Math.min(def.effect.max, ps.setbacks);
-      const candidates = state.locations.filter((l) => !l.lost);
-      if (!candidates.length || bonus === 0) {
-        events.push({ type: 'info', text: `${def.name}: no Setbacks this match.`, player: p });
+      const base = Math.min(def.effect.max, ps.setbacks);
+      const home = hereDef?.region === def.effect.bonus.region ? def.effect.bonus.influence : 0;
+      if (base + home === 0) {
+        events.push({ type: 'info', text: `${def.name}: no Setbacks this match, and ${locName(state, at)} is not in the Americas.`, player: p, location: at });
         break;
       }
-      const lowest = candidates
-        .map((l) => ({ l, diff: influenceAt(state, l.index)[p] - influenceAt(state, l.index)[other(p)] }))
-        .sort((a, b) => a.diff - b.diff)[0].l;
-      lowest.tempInfluence[p] += bonus;
-      events.push({ type: 'info', text: `${def.name}: +${bonus} Influence at ${locName(state, lowest.index)} this turn (${ps.setbacks} Setbacks).`, player: p, location: lowest.index });
+      here.tempInfluence[p] += base + home;
+      events.push({ type: 'info', text: `${def.name}: +${base + home} Influence at ${locName(state, at)} this turn (${ps.setbacks} Setback${ps.setbacks === 1 ? '' : 's'}${home ? `, +${home} in the Americas` : ''}).`, player: p, location: at });
       break;
     }
     case 'ancestors': {
-      events.push({ type: 'info', text: `${def.name}: ${ps.handle} has been warned.`, player: p });
+      const home = hereDef?.region === def.effect.bonus.region ? def.effect.bonus.influence : 0;
+      if (home) here.tempInfluence[p] += home;
+      events.push({ type: 'info', text: `${def.name}: ${ps.handle} has been warned.${home ? ` In Africa: +${home} Influence at ${locName(state, at)} this turn.` : ''}`, player: p, location: at });
       break;
     }
     case 'draw': {
-      for (let i = 0; i < def.effect.count; i++) drawCard(state, p, events);
-      events.push({ type: 'info', text: `${def.name}: ${ps.handle} draws a card.`, player: p });
+      const crowd = charsAt(state, at, p).length >= def.effect.bonus.crowd;
+      const n = def.effect.count + (crowd ? def.effect.bonus.extra : 0);
+      for (let i = 0; i < n; i++) drawCard(state, p, events);
+      events.push({ type: 'info', text: `${def.name}: ${ps.handle} draws ${n} card${n > 1 ? 's' : ''}${crowd ? ` (${def.effect.bonus.crowd}+ Characters at ${locName(state, at)})` : ''}.`, player: p, location: at });
       break;
     }
     case 'persuade': {
       const opp = other(p);
+      let drained = 0;
+      for (const x of charsOf(state, opp)) {
+        if (x.zone !== 'gate' || shielded(state, x)) continue;
+        x.tempInfluence -= def.effect.drain;
+        drained++;
+      }
+      if (drained) events.push({ type: 'info', text: `${def.name}: ${drained} opposing Gate Character${drained > 1 ? 's' : ''} lose${drained > 1 ? '' : 's'} ${def.effect.drain} Influence this turn.`, player: p });
       const target = charsAt(state, play.location, opp, 'gate')
         .filter((x) => !shielded(state, x))
         .sort((a, b) => charInfluence(state, a) - charInfluence(state, b))[0];
@@ -660,7 +671,8 @@ function playEvent(state: GameState, p: PlayerId, play: PlayAction, events: Game
     }
     case 'communityDefense': {
       ps.defendedLocation = play.location;
-      events.push({ type: 'info', text: `${def.name}: ${ps.handle}'s Characters at ${locName(state, play.location)} are protected this turn.`, player: p, location: play.location });
+      ps.defendedTurn = state.turn;
+      events.push({ type: 'info', text: `${def.name}: none of ${ps.handle}'s Characters can be blocked or displaced this turn, and those at ${locName(state, play.location)} confront with +${def.effect.force} Force.`, player: p, location: play.location });
       break;
     }
   }

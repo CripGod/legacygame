@@ -428,6 +428,18 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
   const singles: AiCandidate[] = affordable.map((play) => scoreOf({ plays: [play], enters: defaultEnters, relocations: [], confronts }));
   singles.sort((a, b) => b.score - a.score);
   const playSets: PlayAction[][] = [[], ...singles.slice(0, 6).map((c) => c.plan.plays)];
+  /** Gate slots per Location: every Character takes one, and an Event needs one left open. */
+  const fits = (set: PlayAction[]): boolean => {
+    const chars: Record<number, number> = {};
+    for (const x of set) if (cardDef(x.cardId).kind === 'character') chars[x.location] = (chars[x.location] ?? 0) + 1;
+    for (const x of set) {
+      const room = gateRoom(view, x.location, p);
+      const n = chars[x.location] ?? 0;
+      if (n > room) return false;
+      if (cardDef(x.cardId).kind === 'event' && n >= room) return false;
+    }
+    return true;
+  };
   {
     const top = singles.slice(0, 7).map((c) => c.plan.plays[0]);
     for (let i = 0; i < top.length; i++) {
@@ -436,8 +448,7 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
         const b = top[j];
         if (a.cardId === b.cardId) continue;
         if (cardCost(a.cardId, view, p) + cardCost(b.cardId, view, p) > opts.energy) continue;
-        const bothChars = cardDef(a.cardId).kind === 'character' && cardDef(b.cardId).kind === 'character';
-        if (bothChars && a.location === b.location && gateRoom(view, a.location, p) < 2) continue;
+        if (!fits([a, b])) continue;
         playSets.push([a, b]);
         // A third card when Energy allows and Gates are open for it (drawn from the strongest singles only).
         if (opts.energy < 3) continue;
@@ -445,10 +456,7 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
           const c = top[k];
           if (c.cardId === a.cardId || c.cardId === b.cardId) continue;
           if (cardCost(a.cardId, view, p) + cardCost(b.cardId, view, p) + cardCost(c.cardId, view, p) > opts.energy) continue;
-          const chars = [a, b, c].filter((x) => cardDef(x.cardId).kind === 'character');
-          const perLoc: Record<number, number> = {};
-          for (const x of chars) perLoc[x.location] = (perLoc[x.location] ?? 0) + 1;
-          if (Object.entries(perLoc).some(([loc, n]) => n > gateRoom(view, Number(loc), p))) continue;
+          if (!fits([a, b, c])) continue;
           playSets.push([a, b, c]);
         }
       }

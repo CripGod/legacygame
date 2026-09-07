@@ -226,6 +226,7 @@ export function startTurn(state: GameState, events: GameEvent[]): void {
       privateTo: p,
     });
     state.players[p].defendedLocation = undefined;
+    state.players[p].defendedTurn = undefined;
     state.players[p].chairLocation = undefined;
   }
   for (const loc of state.locations) {

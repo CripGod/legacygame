@@ -234,10 +234,11 @@ describe('threats', () => {
     // Now A can Assist against B's Patrol.
     const opts = legalOptions(s, 'A');
     expect(opts.confronts.find((c) => c.threatUid === 't2')?.assist).toBe(true);
-    const before = influenceAt(s, 1).A;
-    const out = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'reparations', location: 0 }] }, B: pass() });
-    expect(out.events.some((e) => e.text.includes('Reparations: +1'))).toBe(true);
-    expect(before).toBe(0);
+    // Reparations at Great Migration (Americas): +1 per Setback, +1 more for the region.
+    const out = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'reparations', location: 1 }] }, B: pass() });
+    expect(out.events.some((e) => e.text.includes('Reparations: +') && e.text.includes('+1 in the Americas'))).toBe(true);
+    expect(out.state.locations[1].tempInfluence.A).toBe(0); // temporary: cleared at end of turn
+    expect((out.events.find((e) => e.type === 'influence' && e.location === 1)?.data as { A: number }).A).toBeGreaterThanOrEqual(2);
   });
   it('Comfortable Complicity needs both players and rewards the leader while active', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['black_star', 'great_migration', 'greenwood'], revealAll: true });
@@ -872,5 +873,45 @@ describe('cost flow', () => {
     expect(s.turn).toBe(3);
     expect(energyFor(s, 'A')).toBe(4);
     expect(energyFor(s, 'B')).toBe(3);
+  });
+});
+
+describe('Events at Locations', () => {
+  it('an Event needs an open Gate slot at its Location, but does not keep it', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['word_of_mouth', 'newsboy', 'barber'] });
+    addChar(s, 'og', 'A', 0, 'gate');
+    addChar(s, 'organizer', 'A', 0, 'gate');
+    expect(legalOptions(s, 'A').plays.find((p) => p.cardId === 'word_of_mouth')?.locations).toEqual([1, 2]);
+    expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'word_of_mouth', location: 0 }] })).not.toEqual([]);
+    // Two Characters planned at Location 1 fill it; the Event is refused there.
+    expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'newsboy', location: 1 }, { cardId: 'barber', location: 1 }, { cardId: 'word_of_mouth', location: 1 }] })).not.toEqual([]);
+    // One Character plus the Event share the slot count fine: the Event does not occupy a slot.
+    expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'newsboy', location: 1 }, { cardId: 'word_of_mouth', location: 1 }] })).toEqual([]);
+    expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'word_of_mouth', location: 1 }, { cardId: 'newsboy', location: 1 }, { cardId: 'barber', location: 1 }] })).toEqual([]);
+  });
+
+  it('Word of Mouth draws two with a crowd; The Ancestors bless Africa', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['accra_ghana', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['word_of_mouth', 'the_ancestors'] });
+    addChar(s, 'og', 'A', 1, 'inside');
+    addChar(s, 'organizer', 'A', 1, 'gate');
+    s.players.A.spawned = [];
+    const before = s.players.A.hand.length;
+    const out = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'word_of_mouth', location: 1 }, { cardId: 'the_ancestors', location: 0 }] }, B: pass() });
+    // −2 played, +2 from Word of Mouth, +1 turn draw.
+    expect(out.state.players.A.hand.length).toBe(before - 2 + 2 + 1);
+    expect(out.events.find((e) => e.type === 'influence' && e.location === 0)?.data).toMatchObject({ A: 1 });
+  });
+
+  it('Community Defense protects everywhere and adds Force where it lands; Persuade drains every opposing Gate Character', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['community_defense'], handB: ['mami_wata', 'persuade'] });
+    const kid = addChar(s, 'newsboy', 'A', 0, 'gate', true);
+    const barber = addChar(s, 'barber', 'A', 2, 'gate', true);
+    const out = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'community_defense', location: 1 }] }, B: { ...pass(), plays: [{ cardId: 'mami_wata', location: 0 }, { cardId: 'persuade', location: 2 }] } });
+    // Mami Wata's lure fails: A's Characters cannot be displaced anywhere this turn.
+    expect(out.state.characters[kid.uid].location).toBe(0);
+    expect(out.state.characters[kid.uid].owner).toBe('A');
+    // Persuade still turns the Barber (a Curse, not a displacement) and drained the Newsboy for the turn.
+    expect(out.state.characters[barber.uid].owner).toBe('B');
+    expect(out.events.some((e) => e.text.includes('lose 1 Influence this turn') || e.text.includes('loses 1 Influence this turn'))).toBe(true);
   });
 });

@@ -58,7 +58,7 @@ Developer tools (`?dev=1` or the button on the start screen): fixed seeds, AI re
 - **The Mob** closes a Location after four unanswered turns.
 - **Energy** shows as a Hearthstone-style crystal bar under the timer: lit crystals are unspent this turn, dim ones spent, hollow ones arrive on later turns.
 - `npm run docs` regenerates `docs/copy.md` (every player-facing string, for copy editing) and `docs/art-spec.md` (image specs plus the missing-art list).
-- **Events** are Reparations and Community Defense. Decks carry two.
+- **Events** are played at a Location with an open Gate slot (they do not keep it). Each works everywhere and gets a bonus from where it lands: Reparations +1 in the Americas, The Ancestors +1 Influence in Africa, Word of Mouth draws 2 with a crowd, Community Defense +2 Force at its Location, Persuade drains all opposing Gate Characters and turns the weakest at its Location. Decks carry at most two.
 - **Gatherings** are Characters that are never in a deck. **The Cookout** (2/1) arrives at Great Migration, Inside if there is room, once you have two Established Characters there; its other Established friends get +1 Influence and your arrivals there are Ready at once. **Chairteenth** (1/3, +1 Force to friendly confronters) arrives Ready at both players' Gates the moment Juneteenth is revealed. Each arrival opens a fanfare card. If a card ever returns a Gathering to hand, it can be replayed like any Character.
 - **Location scoring with two ties or a Lost Location**: whoever won more Locations wins; if equal, the brief's tiebreaks apply.
 - **Katherine Johnson's** private reveal is stored per player and redacted from the opponent's view; the AI is allowed to use it exactly as a human would.

@@ -9,6 +9,7 @@ export const LOCATIONS: LocationDef[] = [
     blurb: '"Black Wall Street" — a prosperous district destroyed by a white mob in 1921 while authorities looked away.',
     effect: { type: 'insideInfluence', amount: 1 },
     timedThreat: { turn: 4, threatId: 'mob' },
+    region: 'americas',
   },
   {
     id: 'harpers_ferry',
@@ -18,6 +19,7 @@ export const LOCATIONS: LocationDef[] = [
     blurb: 'Site of John Brown\'s raid on the federal armory, the spark that made the coming war unavoidable.',
     effect: { type: 'confrontForce', amount: 2 },
     spawnOnReveal: 'paddy_roller',
+    region: 'americas',
   },
   {
     id: 'black_star',
@@ -27,6 +29,7 @@ export const LOCATIONS: LocationDef[] = [
     blurb: 'Marcus Garvey\'s Black Star Line: ships owned by Black people, connecting the diaspora on its own terms. It never reached Africa, but the star did.',
     effect: { type: 'relocatedOutReady' },
     transformsInto: { id: 'accra_ghana', afterTurns: 3 },
+    region: 'atlantic',
   },
   {
     id: 'accra_ghana',
@@ -46,6 +49,7 @@ export const LOCATIONS: LocationDef[] = [
     rule: 'The first Character relocated here each turn enters immediately.',
     blurb: 'Six million people left the rural South for northern and western cities, remaking America.',
     effect: { type: 'firstRelocatedEnters' },
+    region: 'americas',
   },
   {
     id: 'juneteenth',
@@ -54,6 +58,7 @@ export const LOCATIONS: LocationDef[] = [
     rule: 'Gate Characters here become Ready the turn they arrive (including when this Location reveals).',
     blurb: 'June 19th, 1865: the day freedom finally reached Texas, two years after it was declared.',
     effect: { type: 'readyOnArrival' },
+    region: 'americas',
   },
   {
     id: 'sundown_town',
@@ -63,6 +68,7 @@ export const LOCATIONS: LocationDef[] = [
     blurb: 'Thousands of towns enforced, by sign, ordinance or violence, that Black people be gone by nightfall.',
     effect: { type: 'displaceFreshAtEnd' },
     weight: 0.35,
+    region: 'americas',
   },
   {
     id: 'lagos',
@@ -81,6 +87,7 @@ export const LOCATIONS: LocationDef[] = [
     rule: 'Steel: your Characters here gain +1 Force. Soul: a player with five Characters here (Gates and Inside) gains +1 Influence on each of them.',
     blurb: 'Built by U.S. Steel, filled by the Great Migration. Joe Jackson ran a crane at Gary Works and drilled five boys in the living room at 2300 Jackson Street; in 1972 ten thousand people came for the National Black Political Convention.',
     effect: { type: 'steelAndSoul', force: 1, fiveBonus: 1 },
+    region: 'americas',
   },
   {
     id: 'justice_system',
@@ -90,6 +97,7 @@ export const LOCATIONS: LocationDef[] = [
     blurb: 'The Thirteenth Amendment kept one exception, "as a punishment for crime." Convict leasing, chain gangs and mass incarceration have run on it ever since.',
     effect: { type: 'lockInside', turns: 2 },
     weight: 0.6,
+    region: 'americas',
   },
   {
     id: 'the_tabernacle',
@@ -99,6 +107,7 @@ export const LOCATIONS: LocationDef[] = [
     blurb: 'Mother Bethel, Philadelphia, 1794: Richard Allen walked out rather than pray in the back. The Black church has been meeting house, school, bank and headquarters ever since.',
     effect: { type: 'noDisplace' },
     weight: 0.8,
+    region: 'americas',
   },
   {
     id: 'montgomery',
@@ -108,6 +117,7 @@ export const LOCATIONS: LocationDef[] = [
     blurb: 'For 381 days the buses ran empty. Forty thousand people walked, carpooled and waited, and the seats stopped being the point.',
     effect: { type: 'relocatedOutReady' },
     weight: 0.9,
+    region: 'americas',
   },
   {
     id: 'oak_bluffs',

@@ -139,12 +139,13 @@ export interface CharacterDef {
   history?: string;
 }
 
+/** Every Event is played at a Location with an open Gate slot. It resolves everywhere, and `bonus` says what the Location adds. */
 export type EventEffect =
-  | { type: 'reparations'; max: number }
+  | { type: 'reparations'; max: number; bonus: { region: 'africa' | 'americas' | 'atlantic'; influence: number } }
   | { type: 'communityDefense'; force: number }
-  | { type: 'ancestors' }
-  | { type: 'draw'; count: number }
-  | { type: 'persuade' };
+  | { type: 'ancestors'; bonus: { region: 'africa' | 'americas' | 'atlantic'; influence: number } }
+  | { type: 'draw'; count: number; bonus: { crowd: number; extra: number } }
+  | { type: 'persuade'; drain: number };
 
 export interface EventDef {
   kind: 'event';
@@ -312,8 +313,10 @@ export interface PlayerState {
   solidarity: number;
   /** Katherine Johnson: index of the next Location to reveal. */
   knownNextReveal?: number;
-  /** Community Defense: location protected this turn. */
+  /** Community Defense: Location where your Characters confront with extra Force this turn. */
   defendedLocation?: number;
+  /** Community Defense: turn on which none of your Characters can be blocked or displaced. */
+  defendedTurn?: number;
   /** Chairteenth: location where +Force lands against one Threat this turn. */
   chairLocation?: number;
 }
