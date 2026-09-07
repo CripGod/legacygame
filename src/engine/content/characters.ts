@@ -17,9 +17,9 @@ export const CHARACTERS: CharacterDef[] = [
     tags: ['Black', 'Abolition'],
     keywords: [],
     reveal: {
-      text: "Move one friendly Gate Character to another Location's open Gate. It stays as Ready as it was, moves before anyone enters, and does not use your Relocation.",
-      effect: { type: 'moveFriendlyGate' },
-      needsTarget: 'friendlyGateCharAndLocation',
+      text: "Conductor: move one of your Characters, at the Gates or Inside, from any Location to another Location's open Gate, even out of a curfew, a Curfew Threat or The Justice System. From the Gates it keeps its status; from Inside it arrives Ready. Moves before anyone enters and does not use your Relocation.",
+      effect: { type: 'conductor' },
+      needsTarget: 'friendlyCharAndLocation',
     },
     established: {
       text: "The first friendly Character relocated into Harriet's Location each turn becomes Ready immediately.",
@@ -358,9 +358,9 @@ export const CHARACTERS: CharacterDef[] = [
     tags: ['Black', 'Sea', 'Politics'],
     keywords: [],
     reveal: {
-      text: 'The Planter: move one of your Gate Characters to another Location\'s Gates for free.',
+      text: 'The Planter: move one of your Gate Characters to another Location\'s open Gate for free, keeping its status. It does not use your Relocation and cannot break a curfew.',
       effect: { type: 'moveFriendlyGate' },
-      needsTarget: 'friendlyGateCharAndLocation',
+      needsTarget: 'friendlyCharAndLocation',
     },
     established: {
       text: 'Characters who relocate out of this Location arrive Ready.',

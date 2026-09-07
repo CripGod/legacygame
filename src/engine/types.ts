@@ -30,7 +30,8 @@ export type Keyword = 'DIRECT_ENTRY' | 'STRAIGHT_INSIDE';
 
 export type RevealEffect =
   | { type: 'none' }
-  | { type: 'moveFriendlyGate' } // Harriet — needs target
+  | { type: 'conductor' } // Harriet: move any friendly Character anywhere, even out of a locked Location — needs target
+  | { type: 'moveFriendlyGate' } // Robert Smalls: move a friendly Gate Character for free; cannot break a lock — needs target
   | { type: 'tempInfluenceOther'; amount: number } // Douglass
   | { type: 'tempInfluenceAllOthersHere'; amount: number } // Garvey
   | { type: 'confrontThreat'; bonus: number } // John Brown
@@ -116,7 +117,7 @@ export interface CharacterDef {
   force: number;
   tags: string[];
   keywords: Keyword[];
-  reveal?: { text: string; effect: RevealEffect; needsTarget?: 'friendlyGateCharAndLocation' | 'friendlyInsideChar' };
+  reveal?: { text: string; effect: RevealEffect; needsTarget?: 'friendlyCharAndLocation' | 'friendlyInsideChar' };
   established?: { text: string; effect: EstablishedEffect };
   /** Always-on quirks (Karen). */
   passive?: {
@@ -204,13 +205,15 @@ export interface LocationDef {
   immuneThreats?: string[];
   /** Broad region, for cards with a home-ground bonus. */
   region?: 'africa' | 'americas' | 'atlantic';
+  /** At night (even turns) nobody relocates out of here. Only Harriet Tubman can move them. */
+  curfew?: boolean;
   /** True only for the redacted placeholder used in player views. */
   hidden?: boolean;
 }
 
 export type ThreatFamily = 'Open Hostility' | 'Systemic Pressure' | 'Complicit Beneficiary' | 'Collaborator' | 'Crisis';
 
-export type ThreatEffect = 'blockEntry' | 'leaderBonus' | 'capacity' | 'mobDisplace' | 'zeroGateInfluence';
+export type ThreatEffect = 'blockEntry' | 'leaderBonus' | 'capacity' | 'mobDisplace' | 'zeroGateInfluence' | 'curfew';
 
 export interface ThreatDef {
   id: string;

@@ -1,4 +1,5 @@
 import { CARD_BY_ID, PLANNING_SECONDS, MAX_HAND, type GameState, type PlayerId, effectiveStakes } from '../../engine';
+import { isNight } from '../../engine';
 import { initials, useDisplay } from '../display';
 import { tip, HINTS } from '../tip';
 import { Art } from './Art';
@@ -55,7 +56,9 @@ export function Hud({ view, me, secondsLeft, paused, onProfile, bubbles, onChat,
     <header className="hud">
       {profile('A', false)}
       <div className="hud-center">
-        <div className="turn-label">Turn {Math.min(view.turn, view.maxTurns)} / {view.maxTurns}</div>
+        <div className={`turn-label ${isNight(view) ? 'night' : 'day'}`} {...tip(HINTS.dayNight)}>
+          Turn {Math.min(view.turn, view.maxTurns)} / {view.maxTurns} · {isNight(view) ? '🌙 Night' : '☀ Day'}
+        </div>
         <div className="hud-mid">
           <TimerRing seconds={secondsLeft} paused={paused} />
           <div className={`coin ${view.pendingRaises.length ? 'raised' : ''}`} {...tip(view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes)}>

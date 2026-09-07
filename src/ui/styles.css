@@ -803,3 +803,12 @@ body.dragging { cursor: grabbing; user-select: none; }
   100% { box-shadow: 0 8px 20px #00000073; }
 }
 @media (prefers-reduced-motion: reduce) { .hand .card-wrap.dealt, .hand .card-wrap.dealt .card { animation: none; } }
+
+/* Day and night */
+.turn-label.night { color: #b9c6ff; }
+.location.night .loc-bg .loc-bg-img { filter: brightness(0.5) saturate(0.6) hue-rotate(-20deg); }
+.location.night .loc-bg::after { background: linear-gradient(to bottom, #0a0d2acc 0%, #0a0d2a99 22%, #0c0e14c8 55%, #0c0e14e6 100%); }
+.location.night { border-color: #3a4a8a; }
+.location.curfew { border-color: var(--danger); box-shadow: 0 0 0 1px var(--danger), inset 0 0 40px #e5534b26; }
+.lost-tag.curfew { color: #ffb3ae; background: #e5534b33; border-radius: 999px; padding: 1px 7px; }
+.pic .strip.held { background: var(--danger); color: #fff; }

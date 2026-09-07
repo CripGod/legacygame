@@ -8,6 +8,7 @@ const TIPS: { key: string; text: string; when: (v: GameState, me: PlayerId, plan
   { key: 'enter', text: 'Drag a Ready Character from your Gates into the Location. Entering is free.', when: (v, me) => charsOf(v, me).some((c) => c.zone === 'gate' && c.ready) },
   { key: 'influence', text: 'Control two of the three Locations at the end of the last turn to win.', when: (v) => v.turn === 3 },
   { key: 'move', text: 'Drag a Character to another Location to relocate it. From the Gates it stays Ready; from Inside it arrives Fresh and waits again.', when: (v, me) => charsOf(v, me).length > 0 },
+  { key: 'night', text: 'Night falls on even turns. Sundown Town locks everyone in until morning and a Curfew Threat holds a Location around the clock. Harriet Tubman is the only one who can get them out.', when: (v) => v.turn === 2 },
   { key: 'threat', text: 'Threats are neutral dangers. Drag a Character onto one to confront it. Some affect both players.', when: (v) => v.locations.some((l) => l.threats.length > 0) },
   { key: 'stakes', text: 'Stand on Business doubles the Legacy and adds an 8th turn. Once you stand, you cannot Sit Down.', when: (v) => v.turn >= 5 },
 ];

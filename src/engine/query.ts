@@ -14,6 +14,21 @@ import type {
 import { GATE_CAPACITY, INSIDE_CAPACITY, PLAYERS, other, MAX_STAKES, EXTENDED_TURNS } from './types';
 
 /** The Justice System: a Character that went Inside recently cannot relocate out yet. */
+/** Even turns are night. Curfews bite at night. */
+export function isNight(state: GameState): boolean {
+  return state.turn % 2 === 0;
+}
+
+/** Why a Character cannot relocate out right now (curfew, a Curfew Threat, or The Justice System), or null when it is free to go. Harriet ignores all of it. */
+export function lockReason(state: GameState, c: CharacterInstance): string | null {
+  const loc = state.locations[c.location];
+  const def = loc.revealed ? LOCATION_BY_ID[loc.defId] : undefined;
+  if (def?.curfew && isNight(state)) return `${def.name} is under curfew until morning`;
+  if (threatActiveFor(state, c.location, 'curfew', c.owner)) return 'a Curfew holds this Location';
+  if (c.zone === 'inside' && isHeldInside(state, c)) return `${def?.name ?? 'this Location'} holds anyone Inside for two turns`;
+  return null;
+}
+
 export function isHeldInside(state: GameState, c: CharacterInstance): boolean {
   if (c.zone !== 'inside') return false;
   const loc = state.locations[c.location];
@@ -286,7 +301,7 @@ export interface PlayOption {
   kind: 'character' | 'event';
   locations: number[];
   needsLocation: boolean;
-  needsTarget?: 'friendlyGateCharAndLocation' | 'friendlyInsideChar';
+  needsTarget?: 'friendlyCharAndLocation' | 'friendlyInsideChar';
   directEntry: boolean;
   straightInside?: boolean;
 }
@@ -353,7 +368,7 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
   const enters = mine.filter((c) => c.zone === 'gate' && c.ready && !state.locations[c.location].lost).map((c) => c.uid);
   // Inside Characters relocate and arrive Fresh; Gate Characters relocate too and stay as Ready as they were.
   const relocations = mine
-    .filter((c) => !state.locations[c.location].lost && (c.zone === 'gate' || !isHeldInside(state, c)))
+    .filter((c) => !state.locations[c.location].lost && !lockReason(state, c))
     .map((c) => ({
       uid: c.uid,
       destinations: state.locations
@@ -414,9 +429,9 @@ export function validatePlan(state: GameState, p: PlayerId, plan: TurnPlan): str
     } else if (gateRoom(state, play.location, p, gateUse[play.location] ?? 0) <= 0) {
       errors.push('An Event needs an open Gate slot at its Location.');
     }
-    if (opt.needsTarget === 'friendlyGateCharAndLocation' && play.target?.charUid) {
+    if (opt.needsTarget === 'friendlyCharAndLocation' && play.target?.charUid) {
       const c = state.characters[play.target.charUid];
-      if (!c || c.owner !== p || c.zone !== 'gate') errors.push('Invalid target Character.');
+      if (!c || c.owner !== p) errors.push('Invalid target Character.');
       if (play.target.location === undefined || play.target.location === c?.location) errors.push('Choose a different destination.');
     }
     if (opt.needsTarget === 'friendlyInsideChar' && play.target?.charUid) {

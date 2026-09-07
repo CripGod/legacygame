@@ -946,3 +946,33 @@ describe('zone rule', () => {
     expect(u.characters[inside.uid].ready).toBe(false);
   });
 });
+
+describe('day and night', () => {
+  it('Sundown Town holds everyone at night; a Curfew Threat holds day and night; Harriet frees them', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['sundown_town', 'harpers_ferry', 'gary_indiana'], revealAll: true, handA: ['harriet_tubman'] });
+    const stuck = addChar(s, 'newsboy', 'A', 0, 'inside');
+    const gateStuck = addChar(s, 'barber', 'A', 0, 'gate', true);
+    // Turn 1 is day: both may relocate out.
+    expect(legalOptions(s, 'A').relocations.map((r) => r.uid)).toEqual(expect.arrayContaining([stuck.uid, gateStuck.uid]));
+    s.turn = 2; // night
+    expect(legalOptions(s, 'A').relocations.map((r) => r.uid)).not.toContain(stuck.uid);
+    expect(legalOptions(s, 'A').relocations.map((r) => r.uid)).not.toContain(gateStuck.uid);
+    expect(validatePlan(s, 'A', { ...pass(), relocations: [{ uid: stuck.uid, to: 1 }] })).not.toEqual([]);
+    // Harriet conducts the Established Newsboy out of the curfew: he arrives Ready at the destination Gates.
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'harriet_tubman', location: 2, target: { charUid: stuck.uid, location: 1 } }] }, B: pass() }).state;
+    expect(s.characters[stuck.uid].location).toBe(1);
+    expect(s.characters[stuck.uid].zone).toBe('gate');
+    expect(s.characters[stuck.uid].ready).toBe(true);
+    // Turn 3 is day again: the Barber may leave.
+    expect(s.turn).toBe(3);
+    expect(legalOptions(s, 'A').relocations.map((r) => r.uid)).toContain(gateStuck.uid);
+    // A Curfew Threat holds a Location in daylight too.
+    let t = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'harpers_ferry', 'gary_indiana'], revealAll: true });
+    const held = addChar(t, 'og', 'A', 1, 'inside');
+    t.locations[1].threats.push({ uid: 'cf', defId: 'curfew', location: 1, forceRequired: 3, spawnedTurn: 1 });
+    expect(legalOptions(t, 'A').relocations.map((r) => r.uid)).not.toContain(held.uid);
+    t = resolveTurn(t, { A: { ...pass(), confronts: [{ uid: held.uid, threatUid: 'cf' }] }, B: pass() }).state;
+    expect(t.locations[1].threats).toHaveLength(0);
+    expect(legalOptions(t, 'A').relocations.map((r) => r.uid)).toContain(held.uid);
+  });
+});

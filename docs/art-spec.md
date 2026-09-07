@@ -9,6 +9,7 @@ How every image is used, what to deliver, and what is still missing. File names 
 | Character | 1024×1024 or larger, square | 512×512 JPG | Hand card (the top 5:5 of the card), Gate tile (square), Inside tile (small square, about 40 px on phones), avatar (circle crop of the center) | Head and shoulders, face in the upper-middle third, eyes about 40% down. Plain or softly lit background. No text, no frame. Must read at 40 px. |
 | Threat | 1024×1024 square | 512×512 JPG | Threat chip (18 px round thumb), Threat sheet (220 px), confront animation | One clear silhouette, high contrast, a single strong color per Threat so the thumb is recognizable. Menace without gore. |
 | Event | 1024×1024 square | 512×512 JPG | Hand card, card sheet | Same crop as Characters; scene rather than portrait. |
+| Location (night) | Same as Location, file name `<id>_night` | 1024×1024 JPG | Replaces the Location background on even turns (night). | Same composition as the day image so the swap reads as time passing, not a new place: moon or lamplight, windows lit, streets empty. Curfew Locations should look shut. |
 | Location | 1536×1536 square (1024 minimum) | 1024×1024 JPG | Full background of the Location panel under a dark gradient. Desktop crops to about 3:2 landscape, phones crop to a tall portrait. | Keep the subject inside the central 50% both ways so both crops keep it. Wide establishing shot, no people in the foreground, no text or signage that must be legible. Mid-tone, not dark: we darken it. Low fine detail, because a rule box and character tiles sit on top of it. |
 
 Format: PNG or JPG, sRGB, no transparency, no borders, no watermark, no typography. Consistent painterly style across a kind so the board reads as one set.
@@ -57,10 +58,9 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `word_of_mouth` **Word of Mouth**: Free, fast and usually right. It travels further where more of your people are.
 - `persuade` **Persuade**: Everybody has a price, a grievance or a cousin. Find the one that opens the door.
 
-### threats (0)
+### threats (1)
 
-- none
-
+- `curfew` **Curfew**: Be off the street by dark. Enforced by whoever felt like enforcing it.
 
 ### locations (4)
 
@@ -68,6 +68,22 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `the_tabernacle` **The Tabernacle** (1794–): Mother Bethel, Philadelphia, 1794: Richard Allen walked out rather than pray in the back. The Black church has been meeting house, school, bank and headquarters ever since.
 - `montgomery` **Montgomery, Alabama** (1955–1956): For 381 days the buses ran empty. Forty thousand people walked, carpooled and waited, and the seats stopped being the point.
 - `oak_bluffs` **Oak Bluffs** (Martha's Vineyard, 1912–): Shearer Cottage opened to Black guests in 1912 when the island's hotels would not. A century of summers followed: the Inkwell, the gingerbread cottages, families who came back every August.
+
+### locations (night) (13)
+
+- `greenwood_night` **Greenwood District** (Tulsa, 1921): Night version of Greenwood District: same framing, after dark. Used on even turns.
+- `harpers_ferry_night` **Harpers Ferry** (Virginia, 1859): Night version of Harpers Ferry: same framing, after dark. Used on even turns.
+- `black_star_night` **The Black Star** (Atlantic, 1919): Night version of The Black Star: same framing, after dark. Used on even turns.
+- `accra_ghana_night` **Accra, Ghana** (Independence, 1957): Night version of Accra, Ghana: same framing, after dark. Used on even turns.
+- `great_migration_night` **Great Migration** (1916–1970): Night version of Great Migration: same framing, after dark. Used on even turns.
+- `juneteenth_night` **Juneteenth** (Galveston, 1865): Night version of Juneteenth: same framing, after dark. Used on even turns.
+- `sundown_town_night` **Sundown Town** (1890–1968): Night version of Sundown Town: same framing, after dark. Used on even turns. This Location has a curfew: show it shut, lit windows, nobody out.
+- `lagos_night` **Lagos** (Eko, today): Night version of Lagos: same framing, after dark. Used on even turns.
+- `gary_indiana_night` **Gary, Indiana** (Steel City, 1906–): Night version of Gary, Indiana: same framing, after dark. Used on even turns.
+- `justice_system_night` **The Justice System** (1865–): Night version of The Justice System: same framing, after dark. Used on even turns.
+- `the_tabernacle_night` **The Tabernacle** (1794–): Night version of The Tabernacle: same framing, after dark. Used on even turns.
+- `montgomery_night` **Montgomery, Alabama** (1955–1956): Night version of Montgomery, Alabama: same framing, after dark. Used on even turns.
+- `oak_bluffs_night` **Oak Bluffs** (Martha's Vineyard, 1912–): Night version of Oak Bluffs: same framing, after dark. Used on even turns.
 
 ## Have
 

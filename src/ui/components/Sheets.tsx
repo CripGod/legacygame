@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import type { GameEvent } from '../../engine';
 import {
+  lockReason,
   CARD_BY_ID,
   LOCATION_BY_ID,
   THREAT_BY_ID,
@@ -162,9 +163,9 @@ export function CharSheet({
         {c.permInfluence ? ` · +${c.permInfluence} Influence` : ''}
         {c.tempInfluence ? ` · +${c.tempInfluence} this turn` : ''}
       </div>
-      {mine && c.zone === 'gate' && tubman && !entering && !confronting && (
+      {mine && tubman && !entering && !confronting && (
         <div style={{ display: 'grid', gap: 6 }}>
-          <div className="muted">{tubman.name} can move this Character to another Gate for free (waiting progress kept):</div>
+          <div className="muted">{tubman.name} can conduct this Character to another Gate for free{lockReason(view, c) ? ', even though ' + lockReason(view, c) : ''} ({c.zone === 'inside' ? 'arrives Ready' : 'waiting progress kept'}):</div>
           <div className="actions">
             {tubman.dests.map((d) => (
               <button key={d} className={harrietMove?.target?.location === d ? 'primary' : ''} onClick={() => tubman.onMove(harrietMove?.target?.location === d ? null : d)}>
@@ -190,7 +191,10 @@ export function CharSheet({
           </button>
         </div>
       )}
-      {mine && !view.locations[c.location].lost && (
+      {mine && !view.locations[c.location].lost && lockReason(view, c) && !tubman && (
+        <div className="muted">Held: {lockReason(view, c)}. Only Harriet Tubman's Reveal can move this Character out.</div>
+      )}
+      {mine && !view.locations[c.location].lost && !lockReason(view, c) && (
         <div style={{ display: 'grid', gap: 6 }}>
           <div className="muted">{c.zone === 'gate' ? `Relocate to another Location's Gates (stays ${c.ready ? 'Ready' : 'Fresh'}):` : "Relocate to another Location's Gates (arrives Fresh):"}</div>
           <div className="actions">

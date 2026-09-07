@@ -33,6 +33,7 @@ import {
   threatForceNeeded,
   validatePlan,
   cardCost,
+  lockReason,
 } from './query';
 import type { CharacterDef, CharacterInstance, GameEvent, GameState, MatchResult, PlayAction, PlayerId, ResolveOutput, ThreatInstance, TurnPlan } from './types';
 import { MAX_STAKES, PLAYERS, EXTENDED_TURNS, MAX_HAND, other, emptyPlan } from './types';
@@ -259,8 +260,13 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
     case 'moveFriendlyGate': {
       const t = revealTarget;
       const target = t?.charUid ? state.characters[t.charUid] : undefined;
-      if (!target || target.owner !== p || target.zone !== 'gate' || t?.location === undefined || t.location === target.location) {
-        say('no Character to move.');
+      if (!target || target.owner !== p || target.zone !== 'gate' || target.uid === c.uid || t?.location === undefined || t.location === target.location) {
+        say('no Gate Character chosen to move.');
+        break;
+      }
+      const held = lockReason(state, target);
+      if (held) {
+        say(`cannot move ${charDef(target.defId).name}: ${held}.`);
         break;
       }
       if (!gateOpen(state, t.location, p) || state.locations[t.location].lost) {
@@ -270,9 +276,37 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       const from = target.location;
       target.location = t.location;
       target.relocatedTurn = state.turn;
+      target.blessedUid = undefined;
       if (LOCATION_BY_ID[state.locations[t.location].defId]?.effect.type === 'readyOnArrival' && state.locations[t.location].revealed) target.ready = true;
-      say(`moves ${charDef(target.defId).name} from ${locName(state, from)} to the Gates of ${locName(state, t.location)}, waiting progress preserved.`);
-      events.push({ type: 'moved', text: '', uid: target.uid, location: t.location, data: { from, to: t.location, reason: 'Harriet' } });
+      say(`moves ${charDef(target.defId).name} from ${locName(state, from)} to the Gates of ${locName(state, t.location)}${target.ready ? ', still Ready' : ', waiting progress kept'}.`);
+      events.push({ type: 'moved', text: '', uid: target.uid, location: t.location, data: { from, to: t.location, reason: 'Smalls' } });
+      break;
+    }
+    case 'conductor': {
+      const t = revealTarget;
+      const target = t?.charUid ? state.characters[t.charUid] : undefined;
+      if (!target || target.owner !== p || target.uid === c.uid || t?.location === undefined || t.location === target.location) {
+        say('nobody chosen to conduct.');
+        break;
+      }
+      if (!gateOpen(state, t.location, p) || state.locations[t.location].lost) {
+        say(`the Gate at ${locName(state, t.location)} is not open.`);
+        break;
+      }
+      const from = target.location;
+      const held = lockReason(state, target);
+      const wasInside = target.zone === 'inside';
+      target.location = t.location;
+      target.zone = 'gate';
+      if (wasInside) {
+        target.ready = true;
+        target.arrivedTurn = state.turn;
+      }
+      target.relocatedTurn = state.turn;
+      target.blessedUid = undefined;
+      if (LOCATION_BY_ID[state.locations[t.location].defId]?.effect.type === 'readyOnArrival' && state.locations[t.location].revealed) target.ready = true;
+      say(`conducts ${charDef(target.defId).name} ${held ? `out of ${locName(state, from)} (${held}) ` : `from ${locName(state, from)} `}to the Gates of ${locName(state, t.location)}${wasInside ? ', Ready to enter' : target.ready ? ', still Ready' : ', waiting progress kept'}.`);
+      events.push({ type: 'moved', text: '', uid: target.uid, location: t.location, data: { from, to: t.location, reason: 'Harriet', freed: !!held } });
       break;
     }
     case 'tempInfluenceOther': {

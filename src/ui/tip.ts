@@ -46,6 +46,8 @@ export function tip(text: string) {
 export const HINTS = {
   influence: 'Influence: how much this Character counts toward controlling its Location. Gate and Inside Characters both count.',
   force: 'Force: strength when confronting Threats or answering a challenge. Force never attacks players directly.',
+  dayNight: 'Odd turns are day, even turns are night. At night a Location with a curfew (Sundown Town) lets nobody relocate out until morning. A Curfew Threat holds a Location day and night. Harriet Tubman is the only one who can move a Character out.',
+  locked: 'Held here: cannot relocate out. Curfew, a Curfew Threat or The Justice System. Harriet Tubman can still move them.',
   event: 'Event: a one-shot card. Drop it on a Location with an open Gate slot: it works everywhere, and the Location it lands on adds a little more.',
   currentInfluence: 'Influence this Character currently contributes here, including bonuses and penalties.',
   ready: 'Ready: waited a turn at the Gates. Tap to send it Inside this turn.',

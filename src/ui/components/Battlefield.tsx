@@ -16,7 +16,15 @@ import {
 import { locationName, threatLabel, useDisplay } from '../display';
 import { Pic } from './CardFace';
 import { Art } from './Art';
-import { charDef, confrontForce, threatForceNeeded } from '../../engine';
+import { charDef, confrontForce, threatForceNeeded, isNight, lockReason, threatActiveFor, LOCATION_BY_ID } from '../../engine';
+
+/** A Location where nobody relocates out right now: curfew at night, or a Curfew Threat. */
+function curfewOn(view: GameState, index: number): boolean {
+  const loc = view.locations[index];
+  if (!loc.revealed) return false;
+  if (LOCATION_BY_ID[loc.defId]?.curfew && isNight(view)) return true;
+  return threatActiveFor(view, index, 'curfew', 'A') || threatActiveFor(view, index, 'curfew', 'B');
+}
 import { isPlannedUid, PLANNED_PREFIX } from '../preview';
 import { tip, HINTS } from '../tip';
 import type { DragPayload } from '../drag';
@@ -126,7 +134,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                 className={`gate-slot filled owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''}`}
                 {...draggable}
               >
-                <Pic state={view} c={s} strip={planned ? 'Planned' : moving ? 'Moving' : confronting ? 'Confront' : undefined} onClick={() => onChar(s.uid)} />
+                <Pic state={view} c={s} strip={planned ? 'Planned' : moving ? 'Moving' : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockReason(view, s) ? 'Held' : undefined} onClick={() => onChar(s.uid)} />
               </div>
             );
           })}
@@ -163,7 +171,7 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
             mine && dragProps ? dragProps(planned ? { kind: 'card', cardId: c.uid.slice(PLANNED_PREFIX.length) } : { kind: 'char', uid: c.uid }) : {};
           return (
             <div key={c.uid} data-uid={c.uid} data-place={`${index}:inside`} className={`slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''}`} {...draggable}>
-              <Pic state={view} c={c} highlight={confronting} strip={entering ? 'Entering' : brought ? 'Moving' : planned ? 'Planned' : confronting ? 'Confront' : undefined} onClick={() => onChar(c.uid)} />
+              <Pic state={view} c={c} highlight={confronting} strip={entering ? 'Entering' : brought ? 'Moving' : planned ? 'Planned' : confronting ? 'Confront' : lockReason(view, c) ? 'Held' : undefined} onClick={() => onChar(c.uid)} />
             </div>
           );
         })}
@@ -264,7 +272,7 @@ export function Battlefield(props: BattlefieldProps) {
         const isTarget = targetable.includes(loc.index);
         const dropOk = drop?.locations.includes(loc.index);
         const dropOver = dropOk && drop?.overKey === `location:${loc.index}`;
-        const cls = ['location', loc.revealed ? '' : 'hidden-loc', loc.lost ? 'lost' : '', loc.sanctified ? 'sanctified' : '', lead ? `lead-${lead}` : '', winner && winner !== 'lost' ? `won-${winner}` : ''].join(' ');
+        const cls = ['location', loc.revealed ? '' : 'hidden-loc', loc.lost ? 'lost' : '', loc.sanctified ? 'sanctified' : '', lead ? `lead-${lead}` : '', winner && winner !== 'lost' ? `won-${winner}` : '', isNight(view) ? 'night' : 'day', !loc.lost && curfewOn(view, loc.index) ? 'curfew' : ''].join(' ');
         const summon = summonLabel?.(loc.index);
         const title = loc.revealed ? (
           <div className="who">{locationName(loc.defId, placeholders)}</div>
@@ -285,7 +293,11 @@ export function Battlefield(props: BattlefieldProps) {
             <div className={cls}>
               {loc.revealed && !placeholders && (
                 <div className="loc-bg" aria-hidden>
-                  <Art kind="locations" id={loc.defId} className="loc-bg-img" fallback={null} alt="" />
+                  {isNight(view) ? (
+                    <Art kind="locations" id={`${loc.defId}_night`} className="loc-bg-img" fallback={<Art kind="locations" id={loc.defId} className="loc-bg-img" fallback={null} alt="" />} alt="" />
+                  ) : (
+                    <Art kind="locations" id={loc.defId} className="loc-bg-img" fallback={null} alt="" />
+                  )}
                 </div>
               )}
               <div
@@ -305,6 +317,7 @@ export function Battlefield(props: BattlefieldProps) {
                 )}
                 {loc.revealed && !placeholders && <span className="era-tag">{def.era}</span>}
                 {loc.lost && <span className="lost-tag">LOST</span>}
+                {!loc.lost && loc.revealed && curfewOn(view, loc.index) && <span className="lost-tag curfew" {...tip(HINTS.locked)}>CURFEW</span>}
                 {loc.sanctified && <span className="lost-tag sanct">OBATALA</span>}
                 {summon && <span className="summon-tag">{summon}</span>}
               </div>

@@ -6,7 +6,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Harriet Tubman (`harriet_tubman`)
 - cost 2 · Influence 3 · Force 2 · historical · era: 1822–1913
-- reveal: Move one friendly Gate Character to another Location's open Gate. It stays as Ready as it was, moves before anyone enters, and does not use your Relocation.
+- reveal: Conductor: move one of your Characters, at the Gates or Inside, from any Location to another Location's open Gate, even out of a curfew, a Curfew Threat or The Justice System. From the Gates it keeps its status; from Inside it arrives Ready. Moves before anyone enters and does not use your Relocation.
 - established: The first friendly Character relocated into Harriet's Location each turn becomes Ready immediately.
 - blurb: Conductor of the Underground Railroad who returned again and again to bring people out.
 - history: Born Araminta Ross into slavery in Dorchester County, Maryland, around 1822, Harriet Tubman escaped in 1849 and then returned to the South roughly thirteen times, guiding about seventy people to freedom on the Underground Railroad and never losing a passenger. During the Civil War she worked for the Union Army as a nurse, scout and spy, and in June 1863 she guided the Combahee River Raid that freed more than seven hundred people, the first woman to lead an armed assault in the war. She spent her later years in Auburn, New York, campaigning for women's suffrage and running a home for the elderly.
@@ -103,7 +103,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Robert Smalls (`robert_smalls`)
 - cost 2 · Influence 3 · Force 2 · historical · era: 1839–1915
-- reveal: The Planter: move one of your Gate Characters to another Location's Gates for free.
+- reveal: The Planter: move one of your Gate Characters to another Location's open Gate for free, keeping its status. It does not use your Relocation and cannot break a curfew.
 - established: Characters who relocate out of this Location arrive Ready.
 - blurb: Steered a Confederate steamer out of Charleston harbor with his family aboard and handed it to the Union.
 - history: Robert Smalls was born enslaved in Beaufort, South Carolina, in 1839 and worked the Charleston waterfront as a pilot. Before dawn on 13 May 1862, with the white officers ashore, he took the armed steamer Planter past five Confederate forts, giving the correct signals at each, picked up his wife and children and surrendered the ship to the Union blockade. He piloted for the Navy, served in the South Carolina legislature and five terms in Congress, wrote the state's first public school law, and bought the Beaufort house of the family that had owned him.
@@ -398,6 +398,11 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - text: A Paddy Roller is in the area. While active, Gate Characters here contribute no Influence for either player. Neutralize with 2 Force in one turn (either player, or both together).
 - blurb: Paddy rollers were the slave patrols: armed riders who stopped Black people on the road and demanded a pass. After the Fugitive Slave Act of 1850, no free state was safe from them either.
 
+### Curfew (`curfew`)
+- family: Systemic Pressure
+- text: While active, no Character relocates out of this Location, day or night. Only Harriet Tubman can move them. Neutralize with 3 Force in one turn (either player, or both together).
+- blurb: Be off the street by dark. Enforced by whoever felt like enforcing it.
+
 ## Locations
 
 ### Greenwood District (`greenwood`)
@@ -432,7 +437,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Sundown Town (`sundown_town`)
 - era: 1890–1968
-- rule: Characters arriving at these Gates are displaced to a random other Location at the end of the turn (Setback). Nothing happens on the turn it reveals. Direct Entry and Characters arriving Inside are safe.
+- rule: Characters arriving at these Gates are displaced to a random other Location at the end of the turn (Setback). At night (even turns) nobody relocates out: curfew until morning. Nothing happens on the turn it reveals. Direct Entry and Characters arriving Inside are safe.
 - blurb: Thousands of towns enforced, by sign, ordinance or violence, that Black people be gone by nightfall.
 
 ### Lagos (`lagos`)
@@ -469,6 +474,8 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 - `influence`: Influence: how much this Character counts toward controlling its Location. Gate and Inside Characters both count.
 - `force`: Force: strength when confronting Threats or answering a challenge. Force never attacks players directly.
+- `dayNight`: Odd turns are day, even turns are night. At night a Location with a curfew (Sundown Town) lets nobody relocate out until morning. A Curfew Threat holds a Location day and night. Harriet Tubman is the only one who can move a Character out.
+- `locked`: Held here: cannot relocate out. Curfew, a Curfew Threat or The Justice System. Harriet Tubman can still move them.
 - `event`: Event: a one-shot card. Drop it on a Location with an open Gate slot: it works everywhere, and the Location it lands on adds a little more.
 - `currentInfluence`: Influence this Character currently contributes here, including bonuses and penalties.
 - `ready`: Ready: waited a turn at the Gates. Tap to send it Inside this turn.
@@ -496,6 +503,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - `enter`: Drag a Ready Character from your Gates into the Location. Entering is free.
 - `influence`: Control two of the three Locations at the end of the last turn to win.
 - `move`: Drag a Character to another Location to relocate it. From the Gates it stays Ready; from Inside it arrives Fresh and waits again.
+- `night`: Night falls on even turns. Sundown Town locks everyone in until morning and a Curfew Threat holds a Location around the clock. Harriet Tubman is the only one who can get them out.
 - `threat`: Threats are neutral dangers. Drag a Character onto one to confront it. Some affect both players.
 - `stakes`: Stand on Business doubles the Legacy and adds an 8th turn. Once you stand, you cannot Sit Down.
 
@@ -556,6 +564,8 @@ Rules
 - Ties at a Location count for nobody. If the match ends 1–1 with a tie, total Influence, then total Force, break the tie.
 - Plan by dragging: a card onto a Location, a Ready Character into its Location, an Established Character to another Location, any Character onto a Threat. Tapping a card or tile opens the same actions. Drag a piece back to where it came from, or press Cmd/Ctrl+Z, to undo.
 ### Movement
+- Day and night. Odd turns are day, even turns are night. At night a Location with a curfew (Sundown Town) lets nobody relocate out until morning. A Curfew Threat holds a Location day and night until it is cleared with 3 Force. The Justice System holds anyone Inside for two turns. Held Characters show a red Held strip.
+- Harriet Tubman is the conductor: her Reveal moves one of your Characters, Gate or Inside, from anywhere to another open Gate, even out of a curfew or The Justice System. From the Gates it keeps its status; from Inside it arrives Ready. Free, and before anyone enters.
 - Once per turn you may Relocate a Character to another Location's Gates. From Inside it arrives Fresh and waits again, unless an ability says otherwise. From the Gates it keeps its Ready status: a Ready Character waiting at the Gates is a flex piece you can commit late, wherever the fight turns out to be. The Inside is the committed zone; the Gates are the mobile one.
 - Threats and abilities can Displace Characters against their will.
 ### Threats
@@ -649,6 +659,7 @@ Main menu
 - ${nm} cannot enter right now.
 - Your Gates at ${locNameAt(i)} are full; a relocated Character arrives at the Gates.
 - You get ${opts.relocationsAllowed} Relocation${opts.relocationsAllowed > 1 ? 's' : ''} per turn (Pullman Porter adds one). Drag the other one back to cancel it.
+- ${nm} cannot leave: ${held}. Only Harriet Tubman's Reveal can move them out.
 - ${nm} cannot relocate there right now.
 - SUMMON · You ${mine ? '✓' : '?'} · ${view.players[other(me)].handle} ${theirs ?? (mine ? '?' : '')}
 - ${cardName(pl.cardId, placeholders)}${where}${direct ? (pl.enter ? ' · Inside' : ' · Gates') : ''}
@@ -662,7 +673,7 @@ Main menu
 - Locked. Harborlight is deciding…
 - Hand full (${MAX_HAND}). Play a card or your next draw is discarded.
 - Tap a Location to commit ${cardName(selected, placeholders)}.
-- Harriet Tubman: drag a Gate Character to another Gate for a free move (optional).
+- Harriet Tubman: drag any of your Characters to another Gate. Free, and she gets them out of a curfew (optional).
 - Yemoja: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : 
 - Drag a card onto a Location.
 - Sit Down${opts.canStepOff && view.phase !== 'ended' ? 
@@ -950,6 +961,7 @@ export function PeekHandSheet({ cards, by, opponent, onClose }: { cards: string[
 - profile ${right ? 'right' : ''} p${p}
 - Quick chat: emotes and Summon.
 - bubble ${right ? 'right' : ''}
+- turn-label ${isNight(view) ? 'night' : 'day'}
 - coin ${view.pendingRaises.length ? 'raised' : ''}
 - energy-meter mana ${energy.left === 0 ? 'spent' : ''}
 - Energy ${energy.left} of ${energy.have}
@@ -984,9 +996,12 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${name(state, c)} is Ready (${def.name}).
 - ${name(state, c)} gains +${c.pendingRevealBonus} Influence as ${def.name} reveals.
 - ${def.name}: ${text}
-- no Character to move.
+- no Gate Character chosen to move.
+- cannot move ${charDef(target.defId).name}: ${held}.
 - the Gate at ${locName(state, t.location)} is not open.
-- moves ${charDef(target.defId).name} from ${locName(state, from)} to the Gates of ${locName(state, t.location)}, waiting progress preserved.
+- moves ${charDef(target.defId).name} from ${locName(state, from)} to the Gates of ${locName(state, t.location)}${target.ready ? ', still Ready' : ', waiting progress kept'}.
+- nobody chosen to conduct.
+- conducts ${charDef(target.defId).name} ${held ? 
 - no other friendly Character here.
 - ${charDef(best.defId).name} gains +${eff.amount} Influence this turn.
 - no Threat here to confront.

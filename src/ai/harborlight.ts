@@ -312,8 +312,8 @@ function playVariants(view: GameState, p: PlayerId): PlayAction[] {
   const out: PlayAction[] = [];
   for (const o of opts.plays) {
     for (const location of o.locations) {
-      if (o.needsTarget === 'friendlyGateCharAndLocation') {
-        const gateChars = charsOf(view, p).filter((c) => c.zone === 'gate');
+      if (o.needsTarget === 'friendlyCharAndLocation') {
+        const gateChars = charsOf(view, p);
         let added = false;
         for (const c of gateChars) {
           for (const dest of view.locations) {

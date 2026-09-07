@@ -42,10 +42,14 @@ export function previewPlan(view: GameState, me: PlayerId, plan: TurnPlan): Game
       }
     }
     // Harriet Tubman's Reveal: show the chosen Gate Character at its destination.
-    if (def.reveal?.effect.type === 'moveFriendlyGate' && play.target?.charUid && play.target.location !== undefined) {
+    if ((def.reveal?.effect.type === 'conductor' || def.reveal?.effect.type === 'moveFriendlyGate') && play.target?.charUid && play.target.location !== undefined) {
       const t = v.characters[play.target.charUid];
-      if (t && t.owner === me && t.zone === 'gate') {
+      if (t && t.owner === me && (def.reveal.effect.type === 'conductor' || t.zone === 'gate')) {
         t.location = play.target.location;
+        if (t.zone === 'inside') {
+          t.zone = 'gate';
+          t.ready = true;
+        }
         t.relocatedTurn = v.turn;
       }
     }
