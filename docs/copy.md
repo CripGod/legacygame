@@ -259,7 +259,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - blurb: Free, fast and usually right.
 
 ### Persuade (`persuade`)
-- cost 2
+- cost 3
 - text: Curse. Choose a Location: the opposing Gate Character there with the highest Influence crosses over to your Gates at −1 Influence. You need an open Gate slot there.
 - blurb: Everybody has a price, a grievance or a cousin. Find the one that opens the door.
 

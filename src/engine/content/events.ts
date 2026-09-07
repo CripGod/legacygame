@@ -53,7 +53,7 @@ export const EVENTS: EventDef[] = [
     id: 'persuade',
     name: 'Persuade',
     short: 'Persuade',
-    cost: 2,
+    cost: 3,
     curse: true,
     text: 'Curse. Choose a Location: the opposing Gate Character there with the highest Influence crosses over to your Gates at −1 Influence. You need an open Gate slot there.',
     effect: { type: 'persuade' },
