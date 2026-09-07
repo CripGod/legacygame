@@ -213,13 +213,13 @@ export const CHARACTERS: CharacterDef[] = [
   },
   {
     kind: 'character',
-    id: 'church_mother',
+    id: 'sister_griffin',
     cost: 1,
     identity: ['faith', 'care', 'order'],
     era: 'Every Sunday',
     category: 'archetype',
-    name: 'Church Mother',
-    short: 'Mother',
+    name: 'Sister Griffin',
+    short: 'Sister',
     influence: 1,
     force: 1,
     tags: ['Black', 'Archetype', 'Faith'],
@@ -228,7 +228,45 @@ export const CHARACTERS: CharacterDef[] = [
       text: 'Gains +1 Influence while another of your Characters is at this Location.',
       effect: { type: 'allyBonus', amount: 1 },
     },
-    blurb: 'First pew, white gloves, a plate for anyone who came alone. The church ran on the women who ran the church.',
+    blurb: 'First pew, white gloves, a plate for anyone who came alone. The church runs on the women who run the church.',
+  },
+  {
+    kind: 'character',
+    id: 'deacon_wells',
+    cost: 1,
+    identity: ['service', 'order', 'welcome'],
+    era: 'Every Sunday',
+    category: 'archetype',
+    name: 'Deacon Wells',
+    short: 'Deacon',
+    influence: 1,
+    force: 2,
+    tags: ['Black', 'Archetype', 'Faith'],
+    keywords: [],
+    established: {
+      text: 'Ushers: your Characters arriving at this Gate are Ready at the end of the turn.',
+      effect: { type: 'freshReadyHere' },
+    },
+    blurb: 'Opens the doors, counts the offering, knows who has not been seen in a while. Nothing moves in the building without him.',
+  },
+  {
+    kind: 'character',
+    id: 'the_bishop',
+    cost: 2,
+    identity: ['voice', 'authority', 'gathering'],
+    era: 'Every Sunday',
+    category: 'archetype',
+    name: 'The Bishop',
+    short: 'Bishop',
+    influence: 3,
+    force: 1,
+    tags: ['Black', 'Archetype', 'Faith'],
+    keywords: [],
+    established: {
+      text: 'The pulpit: your other Characters here gain +1 Influence.',
+      effect: { type: 'auraInfluenceOthersHere', amount: 1 },
+    },
+    blurb: 'Three services, a radio hour and a seat at every table in the city. When the Bishop speaks, the room moves.',
   },
   {
     kind: 'character',
@@ -305,7 +343,7 @@ export const CHARACTERS: CharacterDef[] = [
     influence: 2,
     force: 2,
     tags: ['Black', 'Archetype', 'Labor'],
-    keywords: ['DIRECT_ENTRY'],
+    keywords: ['STRAIGHT_INSIDE'],
     established: {
       text: 'You may make one additional Relocation each turn.',
       effect: { type: 'extraRelocation', amount: 1 },
@@ -693,8 +731,15 @@ const MYTHIC: CharacterDef[] = [
       effect: { type: 'sanctuaryReveal' },
     },
     established: {
-      text: 'Threats at this Location cannot touch your Characters: no blocking, no silencing, no displacement.',
-      effect: { type: 'sanctuary' },
+      text: 'Threats at this Location cannot touch your Characters: no blocking, no silencing, no displacement. Blessing: every Character you control, at every Location, gains +1 Influence.',
+      effect: { type: 'sanctuary', blessing: 1 },
+    },
+    spawn: {
+      type: 'setAt',
+      locationId: 'the_tabernacle',
+      cardIds: ['sister_griffin', 'deacon_wells', 'the_bishop'],
+      headline: 'The church is full. Black Jesus appears.',
+      cta: 'Amen',
     },
     identity: ['sanctuary', 'liberation', 'grace', 'the church'],
     era: 'The Black church, every era',
@@ -764,6 +809,7 @@ const GATHERINGS: CharacterDef[] = [
   },
 ];
 CHARACTERS.push(...GATHERINGS);
-export const GATHERING_DEFS = GATHERINGS;
+/** Every Character the board can spawn: Gatherings plus set pieces like Black Jesus. */
+export const GATHERING_DEFS: CharacterDef[] = CHARACTERS.filter((c) => c.spawn);
 
 export const CHARACTER_BY_ID: Record<string, CharacterDef> = Object.fromEntries(CHARACTERS.map((c) => [c.id, c]));

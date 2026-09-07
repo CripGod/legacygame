@@ -60,7 +60,7 @@ export function previewPlan(view: GameState, me: PlayerId, plan: TurnPlan): Game
       permInfluence: 0,
       tempInfluence: 0,
     };
-    if (def.keywords.includes('DIRECT_ENTRY') && insideOpen(v, c.location, me)) c.zone = 'inside';
+    if ((def.keywords.includes('STRAIGHT_INSIDE') || (def.keywords.includes('DIRECT_ENTRY') && play.enter)) && insideOpen(v, c.location, me)) c.zone = 'inside';
     v.characters[c.uid] = c;
   });
   return v;

@@ -54,7 +54,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'mansa_musa',
       'zora_neale_hurston',
       'organizer',
-      'church_mother',
+      'sister_griffin',
       'bass_reeves',
       'queen_nzinga',
       'pullman_porter',
@@ -91,7 +91,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'yemoja',
       'ogun',
       'mami_wata',
-      'black_jesus',
+      'mansa_musa',
       'harriet_tubman',
       'frederick_douglass',
       'block_captain',
@@ -113,7 +113,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'organizer',
       'newsboy',
       'queen_nzinga',
-      'church_mother',
+      'sister_griffin',
       'bessie_coleman',
       'reparations',
       'community_defense',
@@ -123,10 +123,10 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
 
 /** A seeded random 12-card deck: ten distinct Characters and both Events. */
 export function randomDeck(pick: (n: number) => number): string[] {
-  const pool = CHARACTERS.filter((c) => c.category !== 'gathering').map((c) => c.id);
+  const pool = CHARACTERS.filter((c) => c.category !== 'gathering' && !c.spawn).map((c) => c.id);
   const chosen: string[] = [];
   while (chosen.length < DECK_SIZE - 2) chosen.push(pool.splice(pick(pool.length), 1)[0]);
-  const ev = EVENTS.map((e) => e.id);
+  const ev = EVENTS.filter((e) => !e.spawn).map((e) => e.id);
   const picked: string[] = [];
   while (picked.length < 2) picked.push(ev.splice(pick(ev.length), 1)[0]);
   return [...chosen, ...picked];
@@ -144,7 +144,7 @@ export function validateDeck(cards: string[]): string[] {
       continue;
     }
     if (def.kind === 'character') {
-      if (def.category === 'gathering') errors.push(`${def.name} is a Gathering: it arrives on its own and cannot be put in a deck.`);
+      if (def.category === 'gathering' || def.spawn) errors.push(`${def.name} arrives on its own and cannot be put in a deck.`);
       if (seen.has(id)) errors.push(`Duplicate Character ${def.name}.`);
       seen.add(id);
     } else {

@@ -72,7 +72,8 @@ export function suggest(view: GameState, me: PlayerId, placeholders: boolean): S
     );
   }
   if (def.reveal?.effect.type === 'hiddenBonus' && allHidden) parts.push('His Reveal pays +1 Influence when played into a hidden Location, so blind is exactly where he wants to be.');
-  if (def.keywords.includes('DIRECT_ENTRY')) parts.push('Direct Entry means it goes straight Inside instead of waiting at the Gates.');
+  if (def.keywords.includes('STRAIGHT_INSIDE')) parts.push('It goes straight Inside instead of waiting at the Gates.');
+  if (def.keywords.includes('DIRECT_ENTRY')) parts.push('Direct Entry: it may go Inside right away instead of waiting at the Gates.');
   parts.push('Then press Lock It In.');
   return { plan, play, text: parts.join(' ') };
 }

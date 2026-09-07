@@ -91,6 +91,15 @@ export const LOCATIONS: LocationDef[] = [
     effect: { type: 'lockInside', turns: 2 },
     weight: 0.6,
   },
+  {
+    id: 'the_tabernacle',
+    name: 'The Tabernacle',
+    era: '1794–',
+    rule: 'Sanctuary: your Characters here cannot be displaced. Establish Sister Griffin, Deacon Wells and The Bishop here and Black Jesus appears.',
+    blurb: 'Mother Bethel, Philadelphia, 1794: Richard Allen walked out rather than pray in the back. The Black church has been meeting house, school, bank and headquarters ever since.',
+    effect: { type: 'noDisplace' },
+    weight: 0.8,
+  },
 ];
 
 export const UNKNOWN_LOCATION: LocationDef = {

@@ -231,10 +231,10 @@ button.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 .location .loc-bg .loc-bg-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
 .location .loc-bg::after {
   content: ''; position: absolute; inset: 0;
-  background: linear-gradient(to bottom, rgba(12,14,20,0.18) 0%, rgba(12,14,20,0.62) 22%, rgba(12,14,20,0.8) 55%, rgba(12,14,20,0.88) 100%);
+  background: linear-gradient(to bottom, rgba(12,14,20,0.1) 0%, rgba(12,14,20,0.5) 22%, rgba(12,14,20,0.72) 55%, rgba(12,14,20,0.84) 100%);
 }
-.location.lead-A .loc-bg::after { background: linear-gradient(to right, var(--cA-dim), transparent 55%), linear-gradient(to bottom, rgba(12,14,20,0.18) 0%, rgba(12,14,20,0.62) 22%, rgba(12,14,20,0.8) 55%, rgba(12,14,20,0.88) 100%); }
-.location.lead-B .loc-bg::after { background: linear-gradient(to left, var(--cB-dim), transparent 55%), linear-gradient(to bottom, rgba(12,14,20,0.18) 0%, rgba(12,14,20,0.62) 22%, rgba(12,14,20,0.8) 55%, rgba(12,14,20,0.88) 100%); }
+.location.lead-A .loc-bg::after { background: linear-gradient(to right, var(--cA-dim), transparent 55%), linear-gradient(to bottom, rgba(12,14,20,0.1) 0%, rgba(12,14,20,0.5) 22%, rgba(12,14,20,0.72) 55%, rgba(12,14,20,0.84) 100%); }
+.location.lead-B .loc-bg::after { background: linear-gradient(to left, var(--cB-dim), transparent 55%), linear-gradient(to bottom, rgba(12,14,20,0.1) 0%, rgba(12,14,20,0.5) 22%, rgba(12,14,20,0.72) 55%, rgba(12,14,20,0.84) 100%); }
 .location.lost .loc-bg .loc-bg-img { filter: grayscale(0.8) brightness(0.6); }
 .location .art { border-radius: calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0; }
 .location .loc-rule { margin-top: auto; }
@@ -299,7 +299,7 @@ button.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 .line.won-B .fillB { width: 100% !important; }
 .threats { display: flex; flex-wrap: wrap; gap: 3px; padding: 2px 6px; min-height: 0; }
 /* Reserved row so a Threat appearing never shifts the rest of the panel. */
-.threats { min-height: 26px; }
+.threats { min-height: 22px; }
 .in-effect { min-height: 16px; }
 .threat {
   border: 1px solid var(--danger);
@@ -446,6 +446,18 @@ button.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 .energy-meter .pips i { width: 9px; height: 9px; border-radius: 50%; border: 1px solid #2d7ff9; background: transparent; }
 .energy-meter .pips i.on { background: #2d7ff9; box-shadow: 0 0 6px rgba(45,127,249,0.8); }
 .energy-meter.spent { opacity: 0.6; }
+/* HUD mana bar: every crystal the match can give, filling in turn by turn. */
+.hud .energy-meter.mana { margin-top: 3px; padding: 2px 10px 2px 8px; font-size: 12px; }
+.hud .energy-meter.mana b { font-size: 14px; }
+.hud .energy-meter.mana .pips { gap: 2px; }
+.hud .energy-meter.mana .pips i { width: 11px; height: 11px; border-radius: 3px; transform: rotate(45deg) scale(0.82); border: 1px solid #2d7ff9; background: transparent; }
+.hud .energy-meter.mana .pips i.on { background: #2d7ff9; box-shadow: 0 0 6px rgba(45,127,249,0.8); }
+.hud .energy-meter.mana .pips i.used { background: rgba(45,127,249,0.28); border-color: rgba(45,127,249,0.6); }
+.hud .energy-meter.mana .pips i.future { border-color: rgba(45,127,249,0.35); border-style: dashed; }
+.hud .energy-meter.mana.spent { opacity: 0.85; }
+@media (max-width: 700px) { .hud .energy-meter.mana { padding: 1px 6px; font-size: 11px; } .hud .energy-meter.mana .pips i { width: 8px; height: 8px; } }
+.plan-chip .swap { color: #fff; }
+.who.hidden-title { min-height: 1em; }
 .card .name { font-weight: 800; font-size: clamp(9px, 0.95vw, 13px); line-height: 1.15; text-align: center; padding: 6px 6px 4px; white-space: normal; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .card.big .name { font-size: 20px; white-space: normal; }
 .card .era { font-size: 11px; color: #5e6472; text-align: center; }

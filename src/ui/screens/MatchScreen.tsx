@@ -10,7 +10,7 @@ import { Battlefield } from '../components/Battlefield';
 import { Hand } from '../components/Hand';
 import { Coach } from '../components/Coach';
 import { Spotlight } from '../components/Spotlight';
-import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, SpawnSheet, ThreatSheet } from '../components/Sheets';
+import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, SpawnSheet, ThreatSheet, AncestorsSheet } from '../components/Sheets';
 import { guideDone, markGuideDone, suggest } from '../guide';
 import { EMOTES } from '../useMatch';
 import { cardName, locationName, useDisplay } from '../display';
@@ -23,7 +23,8 @@ type SheetState =
   | { kind: 'location'; index: number }
   | { kind: 'profile'; p: PlayerId }
   | { kind: 'stepOff' }
-  | { kind: 'log' }
+  | { kind: 'ancestors' }
+    | { kind: 'log' }
   | { kind: 'chat' }
   | null;
 
@@ -199,7 +200,10 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
   const energyLeft = opts.energy - planCost(plan);
 
   /** Add or move a play. Refused when it would overspend this turn's Energy. */
-  function addPlay(play: { cardId: string; location: number; target?: { charUid?: string; location?: number } }) {
+  function addPlay(play: { cardId: string; location: number; target?: { charUid?: string; location?: number }; enter?: boolean }) {
+    const pdef = CARD_BY_ID[play.cardId];
+    const directEntry = pdef?.kind === 'character' && pdef.keywords.includes('DIRECT_ENTRY');
+    if (directEntry && play.enter === undefined) play = { ...play, enter: true };
     const current = planRef.current.plays.filter((pl) => pl.cardId !== play.cardId);
     const spent = current.reduce((s, pl) => s + cardCost(pl.cardId), 0);
     const cost = cardCost(play.cardId);
@@ -208,6 +212,8 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       return;
     }
     setPlan((p) => ({ ...p, plays: [...p.plays.filter((pl) => pl.cardId !== play.cardId), play] }));
+    if (directEntry) feedback(`${cardName(play.cardId, placeholders)} goes Inside right away (Direct Entry). Tap ⇅ on the planned move to wait at the Gates instead.`, [], 'info');
+    if (play.cardId === 'the_ancestors') setSheet({ kind: 'ancestors' });
     const needs = opts.plays.find((p) => p.cardId === play.cardId)?.needsTarget;
     if (needs === 'friendlyGateCharAndLocation' && !play.target) feedback(`${cardName(play.cardId, placeholders)} planned. Optional: drag one of your Gate Characters to another Location's Gates and she moves it there for free.`);
     if (needs === 'friendlyInsideChar' && !play.target) feedback(`${cardName(play.cardId, placeholders)} planned. Optional: drag one of your Established Characters from another Location onto hers and she brings them across.`);
@@ -472,11 +478,17 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
 
   const planItems = useMemo(() => {
     if (!planning) return [];
-    const items: { key: string; label: string; remove: () => void }[] = [];
+    const items: { key: string; label: string; remove: () => void; toggle?: () => void }[] = [];
     for (const pl of plan.plays) {
       const def = CARD_BY_ID[pl.cardId];
       const where = def?.kind === 'character' || def?.id === 'community_defense' ? ` → L${pl.location + 1}` : '';
-      items.push({ key: `play:${pl.cardId}`, label: `${cardName(pl.cardId, placeholders)}${where}`, remove: () => setPlan((p) => ({ ...p, plays: p.plays.filter((x) => x.cardId !== pl.cardId) })) });
+      const direct = def?.kind === 'character' && def.keywords.includes('DIRECT_ENTRY');
+      items.push({
+        key: `play:${pl.cardId}`,
+        label: `${cardName(pl.cardId, placeholders)}${where}${direct ? (pl.enter ? ' · Inside' : ' · Gates') : ''}`,
+        remove: () => setPlan((p) => ({ ...p, plays: p.plays.filter((x) => x.cardId !== pl.cardId) })),
+        toggle: direct ? () => setPlan((p) => ({ ...p, plays: p.plays.map((x) => (x.cardId === pl.cardId ? { ...x, enter: !x.enter } : x)) })) : undefined,
+      });
     }
     for (const uid of plan.enters) {
       const c = view.characters[uid];
@@ -518,7 +530,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
 
   return (
     <div className="app">
-      <Hud view={view} me={me} secondsLeft={m.secondsLeft} paused={!planning} onProfile={(p) => setSheet({ kind: 'profile', p })} onLog={() => setSheet({ kind: 'log' })} hasLog={m.lastTurn.length > 0} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} />
+      <Hud view={view} me={me} secondsLeft={m.secondsLeft} paused={!planning} energy={{ have: opts.energy, left: planning ? energyLeft : opts.energy, max: Math.max(view.maxTurns, opts.energy) }} onProfile={(p) => setSheet({ kind: 'profile', p })} onLog={() => setSheet({ kind: 'log' })} hasLog={m.lastTurn.length > 0} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} />
       <div className="main-wrap">
         <Battlefield
           view={boardView}
@@ -550,18 +562,6 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
       <div className="bottom">
         <Hand view={view} me={me} plan={plan} selected={selected} onSelect={selectCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} dragProps={dragProps} glow={guideCard} energyLeft={planning ? energyLeft : undefined} dropState={drop?.hand ? (drop.overKey === 'hand' ? 'over' : 'ok') : null} />
         <div className="hint">
-          {planning && (
-            <div className={`energy-meter ${energyLeft === 0 ? 'spent' : ''}`} {...tip(HINTS.energy)}>
-              <span className="bolt">⚡</span>
-              <b>{energyLeft}</b>
-              <span className="of">/{opts.energy}</span>
-              <span className="pips" aria-hidden>
-                {Array.from({ length: opts.energy }, (_, i) => (
-                  <i key={i} className={i < energyLeft ? 'on' : ''} />
-                ))}
-              </span>
-            </div>
-          )}
           {selected && planning ? (
             <button className="small chip" onClick={() => setSheet({ kind: 'card', id: selected })}>
               ⓘ Inspect / send {cardName(selected, placeholders)}
@@ -571,6 +571,11 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
               {planItems.map((it) => (
                 <span key={it.key} className="plan-chip">
                   {it.label}
+                  {it.toggle && (
+                    <button className="x swap" onClick={it.toggle} aria-label="Switch between Gates and Inside" title="Gates or Inside">
+                      ⇅
+                    </button>
+                  )}
                   <button className="x" onClick={it.remove} aria-label={`Remove ${it.label}`} title="Remove this move">
                     ✕
                   </button>
@@ -712,6 +717,7 @@ export function MatchScreen({ m, coach, onExit }: { m: MatchController; coach: b
         />
       )}
       {sheet?.kind === 'log' && <LogSheet events={m.lastTurn} turn={Math.max(1, view.turn - (view.phase === 'ended' ? 0 : 1))} onClose={() => setSheet(null)} />}
+      {sheet?.kind === 'ancestors' && <AncestorsSheet view={view} me={me} plan={m.peekAiPlan()} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'profile' && <ProfileSheet view={view} p={sheet.p} me={me} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'stepOff' && (
         <ConfirmSheet

@@ -7,7 +7,7 @@
  *   4 voluntary Relocations · 5 Gate→Inside · 6 Enter effects · 7 Established recalculation
  *   8 Threat actions · 9 Assists · 10 cleanup · 11 Influence update
  */
-import { charDef, cardDef, eventDef, LOCATION_BY_ID, THREAT_BY_ID, SUMMON } from './content';
+import { charDef, cardDef, eventDef, LOCATION_BY_ID, THREAT_BY_ID, SUMMON, EVENTS } from './content';
 import { nextFloat, pick } from './rng';
 import { drawCard, locName, spawnThreat, startTurn } from './setup';
 import {
@@ -58,6 +58,7 @@ function setback(state: GameState, p: PlayerId, reason: string, events: GameEven
 function isProtected(state: GameState, c: CharacterInstance): boolean {
   if (state.players[c.owner].defendedLocation === c.location) return true;
   if (c.protectedTurn === state.turn) return true;
+  if (state.locations[c.location].revealed && LOCATION_BY_ID[state.locations[c.location].defId]?.effect.type === 'noDisplace') return true;
   if (hasEstablished(state, c.owner, c.location, 'noDisplaceHere').length) return true;
   if (hasEstablished(state, c.owner, c.location, 'sanctuary').length) return true;
   if (c.relocatedTurn === state.turn && hasEstablishedAnywhere(state, c.owner, 'relocatedNoDisplace').length) return true;
@@ -153,6 +154,31 @@ function checkGatherings(state: GameState, events: GameEvent[], trigger: 'reveal
       if (rule.unique && PLAYERS.some((q) => state.players[q].spawned.includes(def.id))) continue;
       const earned = PLAYERS.filter((q) => charsAt(state, loc.index, q, 'inside').filter((c) => charDef(c.defId).category !== 'gathering').length >= rule.count);
       for (const q of earned) spawnGathering(state, q, def, loc.index, events);
+    }
+    if (rule.type === 'setAt' && trigger === 'cleanup') {
+      const loc = state.locations.find((l) => l.revealed && l.defId === rule.locationId);
+      if (!loc) continue;
+      for (const q of PLAYERS) {
+        const here = charsAt(state, loc.index, q, 'inside').map((c) => c.defId);
+        if (rule.cardIds.every((id) => here.includes(id))) spawnGathering(state, q, def, loc.index, events);
+      }
+    }
+  }
+  // Cards that come to the hand rather than the board.
+  if (trigger === 'cleanup') {
+    for (const def of EVENTS) {
+      const rule = def.spawn;
+      if (!rule || rule.type !== 'insideAt') continue;
+      const loc = state.locations.find((l) => l.revealed && l.defId === rule.locationId);
+      if (!loc) continue;
+      for (const q of PLAYERS) {
+        const ps = state.players[q];
+        if (ps.spawned.includes(def.id)) continue;
+        if (charsAt(state, loc.index, q, 'inside').length < rule.count) continue;
+        ps.spawned.push(def.id);
+        ps.hand.push(def.id);
+        events.push({ type: 'spawned', text: `${def.name} come to ${ps.handle}. ${rule.headline}`, player: q, cardId: def.id, location: loc.index, privateTo: q, data: { zone: 'hand' } });
+      }
     }
   }
 }
@@ -494,6 +520,10 @@ function playEvent(state: GameState, p: PlayerId, play: PlayAction, events: Game
       events.push({ type: 'info', text: `${def.name}: +${bonus} Influence at ${locName(state, lowest.index)} this turn (${ps.setbacks} Setbacks).`, player: p, location: lowest.index });
       break;
     }
+    case 'ancestors': {
+      events.push({ type: 'info', text: `${def.name}: ${ps.handle} has been warned.`, player: p });
+      break;
+    }
     case 'communityDefense': {
       ps.defendedLocation = play.location;
       events.push({ type: 'info', text: `${def.name}: ${ps.handle}'s Characters at ${locName(state, play.location)} are protected this turn.`, player: p, location: play.location });
@@ -615,7 +645,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
 
   // ---- 2. New plays: placement first, then Reveal abilities in initiative order ----
   const pendingConfronts: PendingConfront[] = [];
-  const newChars: { p: PlayerId; c: CharacterInstance; target: PlayAction['target'] }[] = [];
+  const newChars: { p: PlayerId; c: CharacterInstance; target: PlayAction['target']; enter?: boolean }[] = [];
   const eventPlays: { p: PlayerId; play: PlayAction }[] = [];
   for (const p of order) {
     for (const play of plans[p].plays) {
@@ -655,7 +685,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       drawCard(state, spider.owner, events);
       events.push({ type: 'info', text: `${charDef(spider.defId).name} spins a story: ${state.players[spider.owner].handle} draws a card.`, uid: spider.uid, player: spider.owner });
     }
-    newChars.push({ p, c, target: play.target });
+    newChars.push({ p, c, target: play.target, enter: play.enter });
     events.push({
       type: 'played',
       text: `${ps.handle} plays ${def.name} (${def.influence}/${def.force}) at the Gates of ${locName(state, play.location)}.`,
@@ -670,11 +700,12 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
   for (const { c, target } of newChars) {
     resolveReveal(state, c, target, events, pendingConfronts);
   }
-  // Direct Entry.
-  for (const { c } of newChars) {
+  // Straight Inside always enters; Direct Entry enters when the player chose to.
+  for (const { c, enter } of newChars) {
     if (!state.characters[c.uid] || c.zone !== 'gate') continue;
-    if (charDef(c.defId).keywords.includes('DIRECT_ENTRY')) {
-      if (!enterInside(state, c, events, 'enters immediately (Direct Entry) at')) {
+    const kw = charDef(c.defId).keywords;
+    if (kw.includes('STRAIGHT_INSIDE') || (kw.includes('DIRECT_ENTRY') && enter)) {
+      if (!enterInside(state, c, events, kw.includes('STRAIGHT_INSIDE') ? 'goes straight Inside at' : 'enters immediately (Direct Entry) at')) {
         events.push({ type: 'blocked', text: `${name(state, c)} cannot enter: no room Inside.`, uid: c.uid });
       }
     }

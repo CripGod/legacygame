@@ -25,6 +25,18 @@ export const EVENTS: EventDef[] = [
     history:
       'The Deacons for Defense and Justice formed in Jonesboro, Louisiana, in 1964 and spread to Bogalusa and beyond: armed Black men, many of them veterans, who escorted civil rights workers and guarded their neighborhoods against Klan attacks when the police would not. Their presence let nonviolent campaigns keep going.',
   },
+  {
+    kind: 'event',
+    id: 'the_ancestors',
+    name: 'The Ancestors',
+    short: 'Ancestors',
+    cost: 0,
+    text: 'Play it while planning: the Ancestors show you your opponent\'s plan for this turn and every danger the board is about to spring.',
+    effect: { type: 'ancestors' },
+    needsLocation: false,
+    blurb: 'Never in a deck. They come to whoever holds three Characters Inside at Accra, Ghana, once per match.',
+    spawn: { type: 'insideAt', locationId: 'accra_ghana', count: 3, headline: 'The Ancestors have something to say.', cta: 'Listen', into: 'hand' },
+  },
 ];
 
 export const EVENT_BY_ID: Record<string, EventDef> = Object.fromEntries(EVENTS.map((e) => [e.id, e]));

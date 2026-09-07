@@ -70,7 +70,8 @@ export function playerColor(p: PlayerId): string {
 export function abilityLines(def: CardDef): { label: string; text: string }[] {
   if (def.kind === 'event') return [{ label: 'Event', text: def.text }];
   const out: { label: string; text: string }[] = [];
-  if (def.keywords.includes('DIRECT_ENTRY')) out.push({ label: 'Direct Entry', text: 'May enter immediately after being played.' });
+  if (def.keywords.includes('DIRECT_ENTRY')) out.push({ label: 'Direct Entry', text: 'May go Inside the turn it is played. Your choice: tap the planned card to switch between Gates and Inside.' });
+  if (def.keywords.includes('STRAIGHT_INSIDE')) out.push({ label: 'Straight Inside', text: 'Always goes Inside the turn it is played.' });
   if (def.reveal) out.push({ label: 'Reveal', text: def.reveal.text });
   if (def.established) out.push({ label: 'Established', text: def.established.text });
   if (def.passive) out.push({ label: 'Always', text: def.passive.text });
@@ -81,5 +82,7 @@ export function abilityLines(def: CardDef): { label: string; text: string }[] {
 export function spawnText(rule: NonNullable<CharacterDef['spawn']>): string {
   const loc = LOCATION_BY_ID[rule.locationId]?.name ?? rule.locationId;
   if (rule.type === 'onReveal') return `Not in any deck. When ${loc} is revealed, one arrives Ready at each player's Gates there (if there is room).`;
+  if (rule.type === 'setAt') return `Not in any deck. When ${rule.cardIds.map((id) => CARD_BY_ID[id]?.name ?? id).join(', ')} are all Established at ${loc}, it appears there for you. Once per match.`;
+  if (rule.type === 'insideAt') return `Not in any deck. When you have ${rule.count} Characters Inside at ${loc}, it comes to your hand. Once per match.`;
   return `Not in any deck. When you have ${rule.count} Established Characters at ${loc}, it arrives there for you (Inside if there is room, else at the Gates). Once per match.`;
 }

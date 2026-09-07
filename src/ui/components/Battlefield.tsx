@@ -269,8 +269,8 @@ export function Battlefield(props: BattlefieldProps) {
         const title = loc.revealed ? (
           <div className="who">{locationName(loc.defId, placeholders)}</div>
         ) : (
-          <div className="pill hidden-pill">
-            <span aria-hidden>◌</span> Hidden Location
+          <div className="who hidden-title" aria-hidden>
+            &nbsp;
           </div>
         );
         return (

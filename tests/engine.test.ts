@@ -259,7 +259,9 @@ describe('threats', () => {
     expect(s.players.A.setbacks).toBe(1);
     s = resolveTurn(s, { A: pass(), B: pass() }).state; // second full turn: still open
     expect(s.locations[0].lost).toBeFalsy();
-    s = resolveTurn(s, { A: pass(), B: pass() }).state; // third full turn → LOST
+    s = resolveTurn(s, { A: pass(), B: pass() }).state; // third full turn: still open
+    expect(s.locations[0].lost).toBeFalsy();
+    s = resolveTurn(s, { A: pass(), B: pass() }).state; // fourth full turn → LOST
     expect(s.locations[0].lost).toBe(true);
   });
 });
@@ -339,7 +341,9 @@ describe('Summon', () => {
     expect(g.locations[0].pactFailed).toBe(true);
     g = resolveTurn(g, { A: pass(), B: pass() }).state; // Mob unresolved 2 turns: still open
     expect(g.locations[0].lost).toBeFalsy();
-    g = resolveTurn(g, { A: pass(), B: pass() }).state; // Mob unresolved 3 turns → Lost
+    g = resolveTurn(g, { A: pass(), B: pass() }).state; // Mob unresolved 3 turns: still open
+    expect(g.locations[0].lost).toBeFalsy();
+    g = resolveTurn(g, { A: pass(), B: pass() }).state; // Mob unresolved 4 turns → Lost
     expect(g.locations[0].lost).toBe(true);
     expect(g.locations[1].permInfluence?.A).toBe(-1);
     expect(g.locations[2].permInfluence?.B).toBe(-1);
@@ -472,7 +476,7 @@ describe('new one-drops and The Justice System', () => {
     const b = addChar(s, 'zora_neale_hurston', 'A', 0, 'inside');
     // Two relocations out of the Barber's Location cost nothing against the limit of one.
     expect(validatePlan(s, 'A', { ...pass(), relocations: [{ uid: a.uid, to: 1 }, { uid: b.uid, to: 2 }] })).toEqual([]);
-    const mother = addChar(s, 'church_mother', 'A', 1, 'inside');
+    const mother = addChar(s, 'sister_griffin', 'A', 1, 'inside');
     expect(charInfluence(s, mother)).toBe(1);
     addChar(s, 'pullman_porter', 'A', 1, 'gate');
     expect(charInfluence(s, mother)).toBe(2);
@@ -493,6 +497,59 @@ describe('new one-drops and The Justice System', () => {
       expect(validateDeck(deck.cards), key).toEqual([]);
       expect(deck.cards.filter((id) => (CARD_BY_ID[id]?.cost ?? 0) <= 1).length, key).toBeGreaterThanOrEqual(3);
     }
+  });
+});
+
+describe('special arrivals', () => {
+  it('Straight Inside always enters; Direct Entry is a choice', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['pullman_porter', 'bessie_coleman', 'og'] });
+    expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'og', location: 0, enter: true }] })).not.toEqual([]);
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'pullman_porter', location: 0 }, { cardId: 'bessie_coleman', location: 1 }] }, B: pass() }).state;
+    expect(charsOf(s, 'A').find((c) => c.defId === 'pullman_porter')!.zone).toBe('inside');
+    expect(charsOf(s, 'A').find((c) => c.defId === 'bessie_coleman')!.zone).toBe('gate');
+    let t = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['bessie_coleman'] });
+    t = resolveTurn(t, { A: { ...pass(), plays: [{ cardId: 'bessie_coleman', location: 1, enter: true }] }, B: pass() }).state;
+    expect(charsOf(t, 'A').find((c) => c.defId === 'bessie_coleman')!.zone).toBe('inside');
+  });
+  it('Black Jesus appears when the church fills The Tabernacle and blesses every Location', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['the_tabernacle', 'great_migration', 'gary_indiana'], revealAll: true });
+    s.turn = 4;
+    addChar(s, 'sister_griffin', 'A', 0, 'inside');
+    addChar(s, 'deacon_wells', 'A', 0, 'inside');
+    const og = addChar(s, 'og', 'A', 1, 'inside');
+    const before = charInfluence(s, og);
+    addChar(s, 'the_bishop', 'A', 0, 'inside');
+    s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    const bj = charsOf(s, 'A').find((c) => c.defId === 'black_jesus');
+    expect(bj).toBeTruthy();
+    expect(bj!.location).toBe(0);
+    expect(s.players.A.spawned).toContain('black_jesus');
+    expect(charInfluence(s, s.characters[og.uid])).toBe(before + 1);
+    s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(charsOf(s, 'A').filter((c) => c.defId === 'black_jesus')).toHaveLength(1);
+  });
+  it('The Ancestors come to your hand with three Characters Inside at Accra', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['accra_ghana', 'great_migration', 'gary_indiana'], revealAll: true });
+    s.turn = 4;
+    addChar(s, 'og', 'A', 0, 'inside');
+    addChar(s, 'zora_neale_hurston', 'A', 0, 'inside');
+    addChar(s, 'ida_b_wells', 'A', 0, 'inside');
+    s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(s.players.A.hand).toContain('the_ancestors');
+    expect(viewFor(s, 'B').players.A.hand).not.toContain('the_ancestors');
+    expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'the_ancestors', location: 0 }] })).toEqual([]);
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'the_ancestors', location: 0 }] }, B: pass() }).state;
+    expect(s.players.A.hand).not.toContain('the_ancestors');
+    expect(s.players.A.spawned).toContain('the_ancestors');
+  });
+  it('The Tabernacle keeps Characters from being displaced', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['the_tabernacle', 'great_migration', 'gary_indiana'], revealAll: true });
+    s.turn = 4;
+    const mansa = addChar(s, 'mansa_musa', 'A', 0, 'inside');
+    s.locations[0].threats.push({ uid: 'mob', defId: 'mob', location: 0, forceRequired: 6, spawnedTurn: 4 });
+    const t = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(t.characters[mansa.uid].location).toBe(0);
+    expect(t.players.A.setbacks).toBe(0);
   });
 });
 
@@ -620,6 +677,6 @@ describe('AI vs AI smoke', () => {
     }
   });
   it('all pool Locations are defined', () => {
-    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(9);
+    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(10);
   });
 });

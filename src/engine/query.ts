@@ -100,6 +100,10 @@ export function charInfluence(state: GameState, c: CharacterInstance): number {
   if (ldef?.effect.type === 'steelAndSoul' && charsAt(state, c.location, c.owner).length >= 5) v += ldef.effect.fiveBonus;
   const home = def.passive?.regionBonus;
   if (home && ldef?.region === home.region) v += home.influence;
+  for (const j of hasEstablishedAnywhere(state, c.owner, 'sanctuary')) {
+    const b = (charDef(j.defId).established?.effect as { blessing?: number }).blessing;
+    if (b) v += b;
+  }
   if (c.zone === 'inside') {
     if (ldef?.effect.type === 'insideInfluence') v += ldef.effect.amount;
     for (const d of hasEstablished(state, c.owner, c.location, 'auraInfluenceOthersHere')) {
@@ -240,6 +244,7 @@ export interface PlayOption {
   needsLocation: boolean;
   needsTarget?: 'friendlyGateCharAndLocation' | 'friendlyInsideChar';
   directEntry: boolean;
+  straightInside?: boolean;
 }
 
 export interface ConfrontOption {
@@ -286,6 +291,7 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
           needsLocation: true,
           needsTarget: def.reveal?.needsTarget,
           directEntry: def.keywords.includes('DIRECT_ENTRY'),
+          straightInside: def.keywords.includes('STRAIGHT_INSIDE'),
         });
       }
     } else {
@@ -344,6 +350,10 @@ export function validatePlan(state: GameState, p: PlayerId, plan: TurnPlan): str
   const usedCards = new Set<string>();
   const gateUse: Record<number, number> = {};
   for (const play of plan.plays) {
+    if (play.enter) {
+      const d = CARD_BY_ID[play.cardId];
+      if (!d || d.kind !== 'character' || !d.keywords.includes('DIRECT_ENTRY')) errors.push('Only a Direct Entry Character can enter the turn it is played.');
+    }
     if (usedCards.has(play.cardId)) errors.push('A card can only be played once.');
     usedCards.add(play.cardId);
     const opt = opts.plays.find((o) => o.cardId === play.cardId);

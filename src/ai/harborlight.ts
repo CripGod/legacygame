@@ -326,6 +326,7 @@ function playVariants(view: GameState, p: PlayerId): PlayAction[] {
         if (!insideChars.length) out.push({ cardId: o.cardId, location });
       } else {
         out.push({ cardId: o.cardId, location });
+        if (o.directEntry) out.push({ cardId: o.cardId, location, enter: true });
       }
     }
   }

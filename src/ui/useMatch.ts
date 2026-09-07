@@ -48,6 +48,8 @@ export interface MatchController {
   handoff: PlayerId | null;
   takeDevice: () => void;
   lockIn: () => void;
+  /** AI mode: Harborlight's plan for this turn (deterministic, so peeking changes nothing). */
+  peekAiPlan: () => TurnPlan | null;
   newMatch: (seed?: number) => void;
   seed: number;
   trueState: GameState;
@@ -139,6 +141,20 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
     [mode, finishResolution],
   );
 
+  const aiPlanRef = useRef<{ turn: number; decision: ReturnType<typeof planTurn> } | null>(null);
+  const aiDecision = useCallback(
+    (state: GameState) => {
+      if (aiPlanRef.current?.turn !== state.turn) aiPlanRef.current = { turn: state.turn, decision: planTurn(viewFor(state, 'B'), 'B', undefined, aiAgreedRef.current ?? undefined) };
+      return aiPlanRef.current.decision;
+    },
+    [],
+  );
+  const peekAiPlan = useCallback((): TurnPlan | null => {
+    const state = stateRef.current;
+    if (mode !== 'ai' || state.phase !== 'planning') return null;
+    return aiDecision(state).plan;
+  }, [mode, aiDecision]);
+
   const lockIn = useCallback(() => {
     const state = stateRef.current;
     if (state.phase !== 'planning' || locked || busy) return;
@@ -146,7 +162,7 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
     if (mode === 'ai') {
       // Let the UI paint the locked state before the AI thinks.
       setTimeout(() => {
-        const ai = planTurn(viewFor(state, 'B'), 'B', undefined, aiAgreedRef.current ?? undefined);
+        const ai = aiDecision(state);
         recordAi(ai.debug);
         resolveWithPlans(state, { A: plan, B: ai.plan });
       }, 60);
@@ -160,7 +176,7 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
       stashA.current = null;
       resolveWithPlans(state, { A: a, B: plan });
     }
-  }, [locked, busy, mode, plan, perspective, resolveWithPlans]);
+  }, [locked, busy, mode, plan, perspective, resolveWithPlans, aiDecision]);
 
   const takeDevice = useCallback(() => {
     if (!handoff) return;
@@ -284,6 +300,7 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
     handoff,
     takeDevice,
     lockIn,
+    peekAiPlan,
     newMatch,
     seed,
     trueState,

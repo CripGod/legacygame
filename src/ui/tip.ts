@@ -58,11 +58,11 @@ export const HINTS = {
   scoreA: 'Silverlake Slayer\'s Influence at this Location.',
   scoreB: 'Harborlight\'s Influence at this Location.',
   line: 'The Influence Line: leans toward whoever leads. Lead at two of three Locations after the final turn to win.',
-  energy: 'Energy: what you can spend on cards this turn. Each card shows its cost in the blue circle. Energy equals the turn number (Turn 3 = 3), Organizer adds +1, and unspent Energy does not carry over.',
+  energy: 'Energy: the crystals up here are what you can spend on cards this turn. You get one more each turn (Turn 3 = 3), Organizer adds one, and unspent Energy does not carry over. Lit crystals are still unspent; dim ones are spent; hollow ones come on later turns.',
   cost: 'Cost: the Energy this card takes to play. Energy equals the turn number, so expensive cards wait for later turns.',
   stakes: 'Legacy: what the match is worth. Stand on Business doubles it (1 → 2 → 4) one turn later, adds an 8th turn, and means you cannot Step Off. The other side gets one turn to Step Off at the old price.',
   stakesPending: 'Someone Stood on Business. The raise lands after this turn: Step Off now to lose only the current Legacy.',
   timer: 'Planning timer. At zero your current plan locks automatically.',
   noStepOff: 'You Stood on Business. There is no backing out of this match.',
-  directEntry: 'Direct Entry: may enter Inside the turn it is played.',
+  directEntry: 'Direct Entry: may go Inside the turn it is played. Tap ⇅ on the planned move to choose Gates or Inside.',
 };

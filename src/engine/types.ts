@@ -25,7 +25,8 @@ export const MAX_STAKES = 4;
 
 // ---------- Card definitions (data-driven) ----------
 
-export type Keyword = 'DIRECT_ENTRY';
+/** DIRECT_ENTRY: may enter Inside the turn it is played (the player chooses). STRAIGHT_INSIDE: always goes Inside when played. */
+export type Keyword = 'DIRECT_ENTRY' | 'STRAIGHT_INSIDE';
 
 export type RevealEffect =
   | { type: 'none' }
@@ -74,7 +75,7 @@ export type EstablishedEffect =
   | { type: 'freshReadyHere' } // Oshun
   | { type: 'relocatedInInside' } // Yemoja
   | { type: 'weakenThreatsHere'; amount: number } // Ogun
-  | { type: 'sanctuary' } // Black Jesus
+  | { type: 'sanctuary'; blessing?: number } // Black Jesus: Threats cannot touch you here; blessing = +Influence to all your Characters everywhere
   | { type: 'cookout'; amount: number } // The Cookout: friends here +Influence, arrivals Ready
   | { type: 'freeDeparture' } // Barber: leaving here never counts against the Relocation limit
   | { type: 'allyBonus'; amount: number }; // Church Mother: +Influence while another friendly Character is here
@@ -84,7 +85,11 @@ export type CharacterCategory = 'historical' | 'archetype' | 'mythic' | 'gatheri
 
 export type SpawnRule =
   | { type: 'establishedAt'; locationId: string; count: number; headline: string; cta: string; unique?: boolean }
-  | { type: 'onReveal'; locationId: string; headline: string; cta: string };
+  | { type: 'onReveal'; locationId: string; headline: string; cta: string }
+  /** A named set of Characters all Established at one Location (the church set). */
+  | { type: 'setAt'; locationId: string; cardIds: string[]; headline: string; cta: string }
+  /** Arrives in the hand once you have `count` Characters Inside at the Location. */
+  | { type: 'insideAt'; locationId: string; count: number; headline: string; cta: string; into: 'hand' };
 
 export interface CharacterDef {
   kind: 'character';
@@ -114,7 +119,8 @@ export interface CharacterDef {
 
 export type EventEffect =
   | { type: 'reparations'; max: number }
-  | { type: 'communityDefense'; force: number };
+  | { type: 'communityDefense'; force: number }
+  | { type: 'ancestors' };
 
 export interface EventDef {
   kind: 'event';
@@ -129,6 +135,8 @@ export interface EventDef {
   blurb: string;
   /** Where the card comes from. */
   history?: string;
+  /** Never in a deck: the board puts it in your hand. */
+  spawn?: SpawnRule;
 }
 
 export type CardDef = CharacterDef | EventDef;
@@ -144,7 +152,8 @@ export type LocationEffect =
   | { type: 'steelAndSoul'; force: number; fiveBonus: number } // Gary, Indiana
   | { type: 'relocatedInReady' } // Accra, Ghana
   | { type: 'hub' } // Lagos
-  | { type: 'lockInside'; turns: number }; // The Justice System
+  | { type: 'lockInside'; turns: number } // The Justice System
+  | { type: 'noDisplace' }; // The Tabernacle
 
 export interface LocationDef {
   id: string;
@@ -378,6 +387,8 @@ export interface PlayAction {
   cardId: string;
   location: number;
   target?: { charUid?: string; location?: number };
+  /** Direct Entry only: go Inside this turn instead of waiting at the Gates. */
+  enter?: boolean;
 }
 
 export interface TurnPlan {
