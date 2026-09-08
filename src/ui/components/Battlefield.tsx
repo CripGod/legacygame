@@ -355,6 +355,11 @@ export function Battlefield(props: BattlefieldProps) {
                 }}
               >
                 <span className="art-name">{loc.revealed ? locationName(loc.defId, placeholders) : '?'}</span>
+                {!loc.revealed && view.players[me].knownNextReveal === loc.index && (
+                  <span className="lost-tag next-tag" {...tip("Paul Laurence Dunbar's Reveal: this is the next Location to open. Only you know.")}>
+                    ✦ Reveals next
+                  </span>
+                )}
                 {loc.revealed && def.transformsInto && loc.revealedTurn !== undefined && (
                   <span className="sail-tag" {...tip(`${def.name} arrives in ${Math.max(0, loc.revealedTurn + def.transformsInto.afterTurns - view.turn)} turn(s): everyone aboard gains +1 Influence and Gate Characters walk straight in.`)}>
                     ⛵ arrives in {Math.max(0, loc.revealedTurn + def.transformsInto.afterTurns - view.turn)}

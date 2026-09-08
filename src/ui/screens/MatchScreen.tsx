@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CARD_BY_ID, legalOptions, gateRoom, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, planCost, cardCost, filterEvents } from '../../engine';
+import { CARD_BY_ID, legalOptions, validatePlan, gateRoom, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, planCost, cardCost, filterEvents } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight } from '../components/Battlefield';
@@ -45,11 +45,13 @@ const BEAT_MS: Record<string, number> = {
   spawn: 600,
   ready: 700,
   sundown: 1200,
+  turncoat: 1300,
   info: 500,
   tally: 1200,
   stakes: 1300,
 };
 const BEAT_KIND: Record<string, string> = {
+  turncoat: 'Charleston',
   stand: 'Stand',
   reveal: 'Location',
   play: 'Play',
@@ -198,6 +200,16 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     return out;
   }, [view, me, plan, locked, placeholders]);
   const planning = view.phase === 'planning' && !locked && !busy;
+  /** Lock In, unless the plan is illegal: then say why instead of letting the engine turn it into a pass. */
+  const lockNow = () => {
+    const errors = validatePlan(view, me, plan);
+    if (errors.length) {
+      setToast(errors[0]);
+      setToastTone('warn');
+      return;
+    }
+    m.lockIn();
+  };
   // Tutorial: one scripted lesson at a time; 'read' lessons modal the board out, 'do' lessons spotlight the target.
   const [tutIdx, setTutIdx] = useState(0);
   useEffect(() => setTutIdx(0), [view.turn]);
@@ -249,13 +261,21 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
 
 /** Gate room at a Location after the plays already planned there. */
   const plannedAt = (index: number, except?: string) =>
-    plan.plays.filter((pl) => pl.location === index && pl.cardId !== except && CARD_BY_ID[pl.cardId]?.kind === 'character').length;
+    plan.plays.filter((pl) => pl.location === index && pl.cardId !== except && CARD_BY_ID[pl.cardId]?.kind === 'character' && !(CARD_BY_ID[pl.cardId] as { keywords?: string[] }).keywords?.includes('INFORMANT')).length;
 
+  /** Can this card still go to Location i, given what is already planned there? Events use the Event slot, Informants the opponent's Gates, everyone else yours. */
+  const roomFor = (cardId: string, i: number): boolean => {
+    const def = CARD_BY_ID[cardId] as { kind?: string; keywords?: string[] } | undefined;
+    if (def?.kind === 'event') return !plan.plays.some((pl) => pl.location === i && pl.cardId !== cardId && CARD_BY_ID[pl.cardId]?.kind === 'event');
+    if (def?.keywords?.includes('INFORMANT')) return gateRoom(view, i, other(me), plan.plays.filter((pl) => pl.location === i && pl.cardId !== cardId && (CARD_BY_ID[pl.cardId] as { keywords?: string[] })?.keywords?.includes('INFORMANT')).length) > 0;
+    return gateRoom(view, i, me, plannedAt(i, cardId)) > 0;
+  };
   const targetable = useMemo(() => {
     if (!selected || !planning) return [];
     const opt = opts.plays.find((p) => p.cardId === selected);
     if (!opt) return [];
-    return opt.locations.filter((i) => gateRoom(view, i, me, plannedAt(i, selected)) > 0);
+    return opt.locations.filter((i) => roomFor(selected, i));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, opts, planning, plan, view, me]);
 
   const selectCard = (cardId: string) => {
@@ -332,7 +352,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   /** Gates with room for a Tubman move, counting the plays already planned there. */
   const tubmanDests = (uid: string) => {
     const c = view.characters[uid];
-    if (!c || !harrietPlay) return [];
+    if (!c || !harrietPlay || (CARD_BY_ID[c.defId] as { keywords?: string[] })?.keywords?.includes('INFORMANT')) return [];
     return view.locations.filter((l) => l.index !== c.location && !l.lost && (gateRoom(view, l.index, me, plannedAt(l.index)) > 0 || insideOpen(view, l.index, me))).map((l) => l.index);
   };
   const setTarget = (kind: 'friendlyCharAndLocation' | 'friendlyInsideChar', target: { charUid: string; location: number } | null) => {
@@ -367,7 +387,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         const alreadyPlanned = plan.plays.some((pl) => pl.cardId === payload.cardId);
         const affordable = alreadyPlanned || cardCost(payload.cardId, view, me) <= opts.energy - planCost(plan, view, me);
         if (opt && affordable) {
-          out.locations = opt.locations.filter((i) => gateRoom(view, i, me, plannedAt(i, payload.cardId)) > 0);
+          out.locations = opt.locations.filter((i) => roomFor(payload.cardId, i));
         }
         out.hand = plan.plays.some((pl) => pl.cardId === payload.cardId);
         return out;
@@ -431,6 +451,15 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         if (!opt) return { text: `${nm} cannot be played right now.`, shake: [`[data-hand-card="${payload.cardId}"]`] };
         if (!plan.plays.some((pl) => pl.cardId === payload.cardId) && cardCost(payload.cardId, view, me) > opts.energy - planCost(plan, view, me))
           return { text: `Not enough Energy: ${nm} costs ${cardCost(payload.cardId, view, me)} and you have ${opts.energy - planCost(plan, view, me)} left this turn. Energy equals the turn number, so it grows every turn.`, shake: [`[data-hand-card="${payload.cardId}"]`, '.energy-meter'] };
+        if (opt.kind === 'event' && !roomFor(payload.cardId, i)) {
+          const otherEv = plan.plays.find((pl) => pl.location === i && pl.cardId !== payload.cardId && CARD_BY_ID[pl.cardId]?.kind === 'event');
+          return { text: `The Event slot at ${locNameAt(i)} already holds ${otherEv ? cardName(otherEv.cardId, placeholders) : 'an Event'} this turn. One Event per Location per turn: play ${nm} somewhere else.`, shake: [`${col(i)} .event-slot`] };
+        }
+        if (opt.kind === 'character' && (CARD_BY_ID[payload.cardId] as { keywords?: string[] })?.keywords?.includes('INFORMANT')) {
+          if (gateRoom(view, i, other(me), plan.plays.filter((pl) => pl.location === i && pl.cardId !== payload.cardId && (CARD_BY_ID[pl.cardId] as { keywords?: string[] })?.keywords?.includes('INFORMANT')).length) <= 0)
+            return { text: `${view.players[other(me)].handle}'s Gates at ${locNameAt(i)} are full. An Informant needs one of their slots open: plant ${nm} where they have room.`, shake: [`${col(i)} .gates-left:not([data-drop]) .gate-slot`] };
+          return { text: `${nm} cannot go to ${locNameAt(i)}.`, shake: [] };
+        }
         if (opt.kind === 'character' && gateRoom(view, i, me, plannedAt(i, payload.cardId)) <= 0) {
           const leaving = reserved[i] ?? [];
           if (leaving.length)
@@ -462,6 +491,12 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           if (harrietPlay && (plan.enters.includes(c.uid) || plan.relocations.some((x) => x.uid === c.uid))) return { text: `${nm} is already moving this turn. Harriet Tubman can only move a Character that is staying put.`, shake: [tile] };
           if (harrietPlay && view.locations[i].lost) return { text: `${locNameAt(i)} is Lost. Nobody can win it.`, shake: [`${col(i)} .art`] };
           if (harrietPlay) return { text: `Your Gates at ${locNameAt(i)} are full, so Harriet Tubman cannot move ${nm} there.`, shake: [`${col(i)} .gates-left[data-drop="gates"] .gate-slot`] };
+          if ((CARD_BY_ID[c.defId] as { keywords?: string[] })?.keywords?.includes('INFORMANT')) {
+            const r = opts.relocations.find((x) => x.uid === c.uid);
+            if (!r) return { text: `${nm} cannot move right now: ${lockReason(view, c) ?? 'you have used your Relocation this turn'}.`, shake: [tile] };
+            if (!r.destinations.includes(i)) return { text: `Your Gates at ${locNameAt(i)} are full, so ${nm} cannot go there.`, shake: [`${col(i)} .gates-left[data-drop="gates"] .gate-slot`] };
+            return { text: `You have already used your Relocation this turn. Undo it to move ${nm} instead.`, shake: [tile] };
+          }
           return { text: `Gate Characters enter the Location they are waiting at. Play Harriet Tubman first and she can move one of them to another Gate.`, shake: [tile] };
         }
         if (!c.ready) return { text: `${nm} is Fresh: it arrived this turn and waits one turn at the Gates before it can enter.`, shake: [tile] };
@@ -748,7 +783,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
               SEE RESULT
             </button>
           ) : (
-            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning} onClick={m.lockIn} title={HINTS.timer}>
+            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning} onClick={lockNow} title={HINTS.timer}>
               <span>LOCK IN</span>
               <i className="timer-bar" aria-hidden>
                 <b style={{ width: `${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 100}%` }} />
@@ -775,7 +810,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
               SEE RESULT
             </button>
           ) : (
-            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning} onClick={m.lockIn} title={HINTS.timer}>
+            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning} onClick={lockNow} title={HINTS.timer}>
               <span>LOCK IN</span>
               <i className="timer-bar" aria-hidden>
                 <b style={{ width: `${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 100}%` }} />

@@ -16,7 +16,7 @@ export const GATE_CAPACITY = 2;
 export const INSIDE_CAPACITY = 5;
 export const STARTING_HAND = 4;
 /** Deck size: opening hand plus one draw per turn, with a card to spare after an extended match. */
-export const DECK_SIZE = 13;
+export const DECK_SIZE = 18;
 /** Hand limit: a card drawn into a full hand is discarded. */
 export const MAX_HAND = 7;
 export const MAX_EVENTS = 2;
@@ -26,7 +26,7 @@ export const MAX_STAKES = 4;
 // ---------- Card definitions (data-driven) ----------
 
 /** DIRECT_ENTRY: may enter Inside the turn it is played (the player chooses). STRAIGHT_INSIDE: always goes Inside when played. */
-export type Keyword = 'DIRECT_ENTRY' | 'STRAIGHT_INSIDE';
+export type Keyword = 'DIRECT_ENTRY' | 'STRAIGHT_INSIDE' | 'INFORMANT';
 
 export type RevealEffect =
   | { type: 'none' }
@@ -54,10 +54,16 @@ export type RevealEffect =
   | { type: 'sanctuaryReveal' } // Black Jesus
   | { type: 'holdSeat' } // Claudette Colvin: cannot be displaced this turn
   | { type: 'massEnter' } // Boukman Dutty: every Ready friendly Gate Character everywhere enters now
-  | { type: 'stealGate' } // Marie Laveau: the strongest opposing Gate Character here crosses over at −1
+  | { type: 'hexGate'; amount: number } // Marie Laveau: the strongest opposing Gate Character here loses Influence for good
   | { type: 'returnFriendlyToHand' } // Ayuba Suleiman Diallo: bounce an Established Character to hand at cost 0 — needs target
   | { type: 'peekHand' } // Omar ibn Said: see the opponent's hand
-  | { type: 'reduceHandCost'; amount: number }; // Cécile Fatiman: the most expensive card in hand costs less
+  | { type: 'reduceHandCost'; amount: number } // Cécile Fatiman: the most expensive card in hand costs less
+  | { type: 'monument'; amount: number; perOtherHere?: boolean; max?: number; everywhereEstablished?: boolean; americasBonus?: number } // Artists
+  | { type: 'dig'; count: number } // Zora: look at the top cards, keep the dearest, bottom the rest
+  | { type: 'energyNext'; amount: number } // Madam C.J. Walker: Energy next turn
+  | { type: 'nextCharacterDiscount'; amount: number } // Daniel Payne: your next Character costs less
+  | { type: 'relocationNextTurn'; amount: number } // Victor Hugo Green: extra Relocation next turn
+  | { type: 'drawPerFriendHere'; max: number }; // Denmark Vesey: draw per other friendly Character here: permanent Influence on the Location itself, which stays when the artist leaves
 
 export type EstablishedEffect =
   | { type: 'readyRelocatedIn' } // Harriet
@@ -89,10 +95,14 @@ export type EstablishedEffect =
   | { type: 'discountEvents'; amount: number } // Omar ibn Said: your Events cost less
   | { type: 'discountTag'; tag: string; amount: number } // Cécile Fatiman: Characters with a tag cost less
   | { type: 'ripen' } // George Washington Carver: each turn the most expensive card in hand gets cheaper
+  | { type: 'monumentEachTurn'; amount: number } // Henry Ossawa Tanner
+  | { type: 'drawOnEnterHere' } // Richard Allen: draw when one of yours goes Inside here
+  | { type: 'drawOnThreatCleared'; count: number } // Callie House: draw when a Threat here is neutralized
+  | { type: 'growLowestHere'; amount: number } // Oshun: each turn your weakest Character here grows: the Location gains permanent Influence for you every turn he stays
   | { type: 'shieldHere' }; // Nanny of the Maroons: opposing Reveals cannot target your Characters here
 
 /** Gatherings are never in a deck: they spawn on the board when the world earns them. */
-export type CharacterCategory = 'historical' | 'archetype' | 'mythic' | 'gathering';
+export type CharacterCategory = 'historical' | 'archetype' | 'mythic' | 'gathering' | 'artist';
 
 /** `chance`: the arrival only exists in that fraction of matches, rolled once when the match is created. */
 export type SpawnRule = { chance?: number } & (
@@ -153,8 +163,7 @@ export type EventEffect =
   | { type: 'reparations'; max: number; bonus: { region: 'africa' | 'americas' | 'atlantic'; influence: number } }
   | { type: 'communityDefense'; force: number }
   | { type: 'ancestors'; bonus: { region: 'africa' | 'americas' | 'atlantic'; influence: number } }
-  | { type: 'draw'; count: number; bonus: { crowd: number; extra: number } }
-  | { type: 'persuade'; drain: number };
+  | { type: 'draw'; count: number; bonus: { crowd: number; extra: number } };
 
 export interface EventDef {
   kind: 'event';
@@ -192,7 +201,8 @@ export type LocationEffect =
   | { type: 'hub' } // Lagos
   | { type: 'lockInside'; turns: number } // The Justice System
   | { type: 'noDisplace' } // The Tabernacle
-  | { type: 'restEnergy'; count: number; amount: number }; // Oak Bluffs: players with `count` Inside gain Energy next turn
+  | { type: 'restEnergy'; count: number; amount: number } // Oak Bluffs: players with `count` Inside gain Energy next turn
+  | { type: 'turncoatAtEnd' }; // Charleston, 1822: the Fresh Gate Character here with the lowest Influence changes sides at the end of the turn
 
 export interface LocationDef {
   id: string;
@@ -248,6 +258,8 @@ export interface CharacterInstance {
   uid: string;
   defId: string;
   owner: PlayerId;
+  /** Informants: the player who planted this Character on the other side. */
+  plantedBy?: PlayerId;
   location: number;
   zone: Zone;
   /** Gate only: may enter during planning. */
@@ -319,6 +331,13 @@ export interface PlayerState {
   energyBonus?: number;
   /** Extra Energy on the coming turn only (Oak Bluffs). */
   energyNextTurn?: number;
+  /** Energy granted by a Reveal this turn, paid out next turn (survives the end-of-turn reset). */
+  energyBanked?: number;
+  /** Daniel Payne: the next Character played on a later turn costs this much less. */
+  nextCharacterDiscount?: { amount: number; since: number };
+  /** Victor Hugo Green: extra Relocations granted for next turn, and the ones live this turn. */
+  relocationsNextTurn?: number;
+  relocationsBonus?: number;
   /** Energy discounts earned while a card sits in hand (card id → amount). Cleared when the card leaves the hand. */
   discounts?: Record<string, number>;
   /** Once you Stand on Business you cannot Sit Down. */
@@ -458,7 +477,7 @@ export const emptyPlan = (): TurnPlan => ({ plays: [], enters: [], relocations: 
 
 /** One beat of a turn's resolution, for the UI to replay: the board as it stood right after this beat. */
 export interface TraceStep {
-  kind: 'stand' | 'reveal' | 'play' | 'event' | 'revealFx' | 'enter' | 'move' | 'showdown' | 'summon' | 'threat' | 'spawn' | 'ready' | 'sundown' | 'info' | 'tally' | 'stakes';
+  kind: 'stand' | 'reveal' | 'play' | 'event' | 'revealFx' | 'enter' | 'move' | 'showdown' | 'summon' | 'threat' | 'spawn' | 'ready' | 'sundown' | 'turncoat' | 'info' | 'tally' | 'stakes';
   label: string;
   state: GameState;
   /** Events produced by this beat alone. */

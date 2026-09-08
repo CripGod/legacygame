@@ -92,21 +92,32 @@ function riseAgain(state: GameState, c: CharacterInstance, reason: string, event
 
 /** One Character (or Threat, Location, Event) acting on another: the story beat the UI replays before the tally. */
 type ClashActor = { kind: 'character' | 'threat' | 'location' | 'event'; id: string; owner?: PlayerId; force?: number };
-type ClashOutcome = 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose';
+type ClashOutcome = 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected';
+
+/** Informants are planted on the other side: never Ready, never Inside. */
+function isInformant(c: CharacterInstance): boolean {
+  return charDef(c.defId).keywords.includes('INFORMANT');
+}
+/** Mark a Gate Character Ready, unless it is an Informant (they wait forever). */
+function readyUp(c: CharacterInstance): void {
+  if (!isInformant(c)) c.ready = true;
+}
 function clash(state: GameState, events: GameEvent[], actor: ClashActor, victim: CharacterInstance, outcome: ClashOutcome, location: number, extra: { theirForce?: number; from?: number; to?: number; note?: string; intent?: string } = {}): void {
   const vdef = charDef(victim.defId);
   const alive = !!state.characters[victim.uid];
   const out: ClashOutcome = outcome === 'displaced' && !alive ? 'rose' : outcome;
   const who = actor.kind === 'character' ? charDef(actor.id).name : actor.kind === 'threat' ? THREAT_BY_ID[actor.id]?.name ?? actor.id : actor.kind === 'location' ? LOCATION_BY_ID[actor.id]?.name ?? actor.id : eventDef(actor.id).name;
+  const vs = actor.force !== undefined && extra.theirForce !== undefined ? ` (${actor.force} Force against ${extra.theirForce})` : '';
   const verb =
-    out === 'displaced' ? `knocks ${vdef.name} away to the Gates of ${extra.to !== undefined ? locName(state, extra.to) : 'another Location'}`
-    : out === 'held' ? `is held off by ${vdef.name}`
-    : out === 'blocked' ? `blocks ${vdef.name} from entering this turn`
-    : out === 'sentBack' ? `sends ${vdef.name} back to the Gates, Fresh`
-    : out === 'suppressed' ? `suppresses ${vdef.name}: no Influence, no abilities until the end of next turn`
-    : out === 'turned' ? `turns ${vdef.name}: they cross over at −1 Influence`
-    : out === 'tricked' ? `tricks ${vdef.name} into waiting again`
-    : `pushes ${vdef.name}, who rises again into the hand`;
+    out === 'displaced' ? `beats ${vdef.name}${vs} and knocks them away to the Gates of ${extra.to !== undefined ? locName(state, extra.to) : 'another Location'}`
+    : out === 'held' ? `is held off by ${vdef.name}${vs}: nothing moves`
+    : out === 'blocked' ? `blocks ${vdef.name}: they cannot go Inside this turn`
+    : out === 'sentBack' ? `beats ${vdef.name}${vs}: they lose their seat Inside and wait at the Gates again, Fresh`
+    : out === 'suppressed' ? `silences ${vdef.name}: no Influence and no abilities until the end of next turn`
+    : out === 'tricked' ? `tricks ${vdef.name}: they were Ready to go Inside, now they wait another turn`
+    : out === 'hexed' ? `hexes ${vdef.name}: −${extra.theirForce ?? 2} Influence for the rest of the match`
+    : out === 'defected' ? `turns ${vdef.name}: they change sides`
+    : `beats ${vdef.name}${vs} and knocks them off the board. ${vdef.name}'s own power: instead of landing at another Location, they go back to ${state.players[victim.owner].handle}'s hand and cost nothing the next time they are played`;
   events.push({
     type: 'clash',
     text: `${who} ${verb}.`,
@@ -153,8 +164,14 @@ function displace(state: GameState, c: CharacterInstance, reason: string, events
 }
 
 function enterInside(state: GameState, c: CharacterInstance, events: GameEvent[], how = 'enters'): boolean {
+  if (isInformant(c)) return false;
   if (!insideOpen(state, c.location, c.owner)) return false;
   c.zone = 'inside';
+  for (const pulpit of hasEstablished(state, c.owner, c.location, 'drawOnEnterHere')) {
+    if (pulpit.uid === c.uid) continue;
+    drawCard(state, c.owner, events);
+    events.push({ type: 'info', text: `${charDef(pulpit.defId).name}: the congregation grows; ${state.players[c.owner].handle} draws a card.`, uid: pulpit.uid, player: c.owner, location: c.location });
+  }
   c.ready = false;
   c.arrivedTurn = state.turn;
   events.push({ type: 'entered', text: `${name(state, c)} ${how} ${locName(state, c.location)}.`, uid: c.uid, location: c.location, player: c.owner });
@@ -256,8 +273,8 @@ function revealLocation(state: GameState, index: number, events: GameEvent[]): v
   if (def.spawnOnReveal) spawnThreat(state, index, def.spawnOnReveal, events);
   if (def.effect.type === 'readyOnArrival') {
     for (const c of charsAt(state, index, undefined, 'gate')) {
-      if (!c.ready) {
-        c.ready = true;
+      if (!c.ready && !isInformant(c)) {
+        readyUp(c);
         events.push({ type: 'ready', text: `${name(state, c)} is Ready (${def.name}).`, uid: c.uid });
       }
     }
@@ -312,7 +329,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       target.location = t.location;
       target.relocatedTurn = state.turn;
       target.blessedUid = undefined;
-      if (LOCATION_BY_ID[state.locations[t.location].defId]?.effect.type === 'readyOnArrival' && state.locations[t.location].revealed) target.ready = true;
+      if (LOCATION_BY_ID[state.locations[t.location].defId]?.effect.type === 'readyOnArrival' && state.locations[t.location].revealed) readyUp(target);
       say(`moves ${charDef(target.defId).name} from ${locName(state, from)} to the Gates of ${locName(state, t.location)}${target.ready ? ', still Ready' : ', waiting progress kept'}.`);
       events.push({ type: 'moved', text: '', uid: target.uid, location: t.location, data: { from, to: t.location, reason: 'Smalls' } });
       break;
@@ -342,7 +359,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
         events.push({ type: 'entered', text: `${name(state, target)} arrives Inside (Harriet) at ${locName(state, t.location)}.`, uid: target.uid, location: t.location, player: p });
       } else {
         target.zone = 'gate';
-        target.ready = true;
+        readyUp(target);
         say(`conducts ${charDef(target.defId).name} ${held ? `out of ${locName(state, from)} (${held}) ` : `from ${locName(state, from)} `}to the Gates of ${locName(state, t.location)}, Ready: the Inside is full.`);
       }
       events.push({ type: 'moved', text: '', uid: target.uid, location: t.location, data: { from, to: t.location, reason: 'Harriet', freed: !!held, inside: roomInside } });
@@ -383,7 +400,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
         break;
       }
       state.players[p].knownNextReveal = next;
-      events.push({ type: 'reveal', text: `${def.name}: privately learns that Location ${next + 1} reveals next.`, uid: c.uid, player: p, privateTo: p, data: { next } });
+      events.push({ type: 'reveal', text: `${def.name}: privately learns that Location ${next + 1} reveals next (it is marked on the board for you).`, uid: c.uid, player: p, privateTo: p, data: { next } });
       break;
     }
     case 'hiddenBonus': {
@@ -411,7 +428,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       break;
     }
     case 'blockOneOpposingGate': {
-      const targets = charsAt(state, loc, opp, 'gate').filter((x) => x.ready && !shielded(state, x));
+      const targets = charsAt(state, loc, opp, 'gate').filter((x) => !isInformant(x) && x.ready && !shielded(state, x));
       const target = targets.sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];
       if (target) {
         target.blockedEnterTurn = state.turn;
@@ -424,7 +441,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       break;
     }
     case 'blockOpposingGatesHere': {
-      const targets = charsAt(state, loc, opp, 'gate').filter((x) => !shielded(state, x));
+      const targets = charsAt(state, loc, opp, 'gate').filter((x) => !isInformant(x) && !shielded(state, x));
       for (const t of targets) {
         t.blockedEnterTurn = state.turn;
         clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, t, 'blocked', loc, { note: 'His Reveal blocks every opposing Gate Character here this turn.' });
@@ -433,11 +450,11 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       break;
     }
     case 'readyFriendly': {
-      const here = charsAt(state, loc, p, 'gate').filter((x) => x.uid !== c.uid && !x.ready);
-      const anywhere = charsOf(state, p).filter((x) => x.zone === 'gate' && x.uid !== c.uid && !x.ready);
+      const here = charsAt(state, loc, p, 'gate').filter((x) => x.uid !== c.uid && !x.ready && !isInformant(x));
+      const anywhere = charsOf(state, p).filter((x) => x.zone === 'gate' && x.uid !== c.uid && !x.ready && !isInformant(x));
       const target = here[0] ?? anywhere[0];
       if (target) {
-        target.ready = true;
+        readyUp(target);
         say(`${charDef(target.defId).name} becomes Ready.`);
         events.push({ type: 'ready', text: '', uid: target.uid });
       } else {
@@ -457,7 +474,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       break;
     }
     case 'challengeGate': {
-      const targets = charsAt(state, loc, opp, 'gate').filter((x) => !shielded(state, x));
+      const targets = charsAt(state, loc, opp, 'gate').filter((x) => !isInformant(x) && !shielded(state, x));
       const target = targets.sort((a, b) => charDef(b.defId).force - charDef(a.defId).force)[0];
       if (!target) {
         say('no opposing Gate Character to challenge.');
@@ -519,7 +536,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
     }
     case 'refreshOpposingGate': {
       drawCard(state, p, events);
-      const targets = charsAt(state, loc, opp, 'gate').filter((x) => x.ready && !shielded(state, x));
+      const targets = charsAt(state, loc, opp, 'gate').filter((x) => !isInformant(x) && x.ready && !shielded(state, x));
       const target = targets.sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];
       if (target && !isProtected(state, target)) {
         target.ready = false;
@@ -532,7 +549,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       break;
     }
     case 'challengeAllGates': {
-      const targets = charsAt(state, loc, opp, 'gate').filter((x) => !shielded(state, x));
+      const targets = charsAt(state, loc, opp, 'gate').filter((x) => !isInformant(x) && !shielded(state, x));
       let hits = 0;
       for (const t of targets) {
         if (def.force > charDef(t.defId).force && !isProtected(state, t) && displace(state, t, 'Shango', events)) {
@@ -570,7 +587,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
         say(`brings ${charDef(t.defId).name} across from ${locName(state, from)}, straight Inside.`);
       } else if (roomGate) {
         t.zone = 'gate';
-        t.ready = true;
+        readyUp(t);
         t.arrivedTurn = state.turn;
         say(`brings ${charDef(t.defId).name} across from ${locName(state, from)} to the Gates, Ready.`);
       } else {
@@ -592,7 +609,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       break;
     }
     case 'displaceOpposingGate': {
-      const targets = charsAt(state, loc, opp, 'gate').filter((x) => !shielded(state, x));
+      const targets = charsAt(state, loc, opp, 'gate').filter((x) => !isInformant(x) && !shielded(state, x));
       const target = targets.sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];
       if (target && !isProtected(state, target)) {
         say(`lures ${charDef(target.defId).name} away.`);
@@ -611,26 +628,18 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       say(n ? `uprising: ${n} Character${n > 1 ? 's' : ''} at your Gates enter${n > 1 ? '' : 's'} at once, Ready or not.` : 'calls for an uprising, but nobody is waiting at any Gate (or every Inside is full or blocked).');
       break;
     }
-    case 'stealGate': {
+    case 'hexGate': {
       const target = charsAt(state, loc, opp, 'gate')
-        .filter((x) => !shielded(state, x) && !isProtected(state, x))
+        .filter((x) => !isInformant(x) && !shielded(state, x) && !isProtected(state, x))
         .sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];
       if (!target) {
-        say('no opposing Gate Character here to turn.');
+        say('no opposing Gate Character here to hex.');
         break;
       }
-      if (!gateOpen(state, loc, p)) {
-        say(`${state.players[p].handle}'s Gates here are full, so nobody crosses over.`);
-        break;
-      }
-      target.owner = p;
-      target.permInfluence -= 1;
-      target.ready = false;
-      target.arrivedTurn = state.turn;
-      target.blessedUid = undefined;
-      say(`turns ${charDef(target.defId).name}: they cross over to ${state.players[p].handle} at −1 Influence.`);
-      events.push({ type: 'moved', text: '', uid: target.uid, location: loc, player: p, data: { from: loc, to: loc, reason: 'Laveau' } });
-      clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, target, 'turned', loc, { note: 'Her Reveal takes the opposing Gate Character here with the highest Influence. It needed an open Gate slot on her side.' });
+      const amount = def.reveal!.effect.type === 'hexGate' ? def.reveal!.effect.amount : 2;
+      target.permInfluence -= amount;
+      say(`hexes ${charDef(target.defId).name}: −${amount} Influence for the rest of the match.`);
+      clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, target, 'hexed', loc, { theirForce: amount, intent: `${def.name} arrived to hex the opposing Gate Character here with the most Influence, ${charDef(target.defId).name}.`, note: 'Gris-gris does not wear off. Only protection stops it.' });
       break;
     }
     case 'returnFriendlyToHand': {
@@ -683,6 +692,86 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       events.push({ type: 'reveal', text: `${def.name}: ${CARD_BY_ID[best]?.name ?? best} in ${ps.handle}'s hand now costs ${eff.amount} less (${cardCost(best, state, p)}).`, uid: c.uid, player: p, location: loc, privateTo: p });
       break;
     }
+    case 'monument': {
+      if (eff.type !== 'monument') break;
+      const mark = (index: number, amount: number, why: string) => {
+        const l = state.locations[index];
+        l.permInfluence = l.permInfluence ?? { A: 0, B: 0 };
+        l.permInfluence[p] += amount;
+        events.push({ type: 'info', text: `${def.name}: ${locName(state, index)} gains +${amount} lasting Influence for ${state.players[p].handle} (${why}). It stays even if ${def.short} leaves.`, uid: c.uid, player: p, location: index });
+      };
+      if (eff.everywhereEstablished) {
+        const spots = state.locations.filter((l) => l.revealed && !l.lost && charsAt(state, l.index, p, 'inside').length > 0);
+        if (!spots.length) {
+          say('no Location where you are Established to paint.');
+          break;
+        }
+        for (const l of spots) mark(l.index, eff.amount, 'a landscape of every place you have settled');
+        break;
+      }
+      let amount = eff.amount;
+      if (eff.perOtherHere) {
+        const others = charsAt(state, loc, p).filter((x) => x.uid !== c.uid).length;
+        amount = Math.min(eff.max ?? 99, eff.amount * others);
+        if (amount <= 0) {
+          say('nobody here to stitch into the quilt: no lasting Influence.');
+          break;
+        }
+      }
+      if (eff.americasBonus && LOCATION_BY_ID[state.locations[loc].defId]?.region === 'americas' && state.locations[loc].revealed) amount += eff.americasBonus;
+      mark(loc, amount, eff.perOtherHere ? 'one square per Character beside her' : 'a work that outlasts its maker');
+      break;
+    }
+    case 'dig': {
+      if (eff.type !== 'dig') break;
+      const ps = state.players[p];
+      const top = ps.deck.slice(0, eff.count);
+      if (!top.length) {
+        say('the deck is empty.');
+        break;
+      }
+      const keep = [...top].sort((a, b) => cardCost(b, state, p) - cardCost(a, state, p))[0];
+      ps.deck = ps.deck.slice(top.length);
+      ps.deck.push(...top.filter((id) => id !== keep));
+      if (ps.hand.length >= MAX_HAND) {
+        ps.discard.push(keep);
+        events.push({ type: 'info', text: `${ps.handle}'s hand is full (${MAX_HAND}): ${CARD_BY_ID[keep]?.name ?? keep} is discarded.`, player: p });
+      } else {
+        ps.hand.push(keep);
+      }
+      ps.deckCount = ps.deck.length;
+      events.push({ type: 'reveal', text: `${def.name}: looks at the top ${top.length} card${top.length > 1 ? 's' : ''} of the deck, keeps ${CARD_BY_ID[keep]?.name ?? keep} and puts the rest on the bottom.`, uid: c.uid, player: p, location: loc, privateTo: p });
+      break;
+    }
+    case 'energyNext': {
+      if (eff.type !== 'energyNext') break;
+      state.players[p].energyBanked = (state.players[p].energyBanked ?? 0) + eff.amount;
+      say(`+${eff.amount} Energy next turn.`);
+      break;
+    }
+    case 'nextCharacterDiscount': {
+      if (eff.type !== 'nextCharacterDiscount') break;
+      state.players[p].nextCharacterDiscount = { amount: eff.amount, since: state.turn };
+      say(`the next Character ${state.players[p].handle} plays costs ${eff.amount} less.`);
+      break;
+    }
+    case 'relocationNextTurn': {
+      if (eff.type !== 'relocationNextTurn') break;
+      state.players[p].relocationsNextTurn = (state.players[p].relocationsNextTurn ?? 0) + eff.amount;
+      say(`next turn ${state.players[p].handle} may make ${eff.amount} extra Relocation${eff.amount > 1 ? 's' : ''}.`);
+      break;
+    }
+    case 'drawPerFriendHere': {
+      if (eff.type !== 'drawPerFriendHere') break;
+      const n = Math.min(eff.max, charsAt(state, loc, p).filter((x) => x.uid !== c.uid).length);
+      if (!n) {
+        say('nobody else here to recruit: no cards drawn.');
+        break;
+      }
+      for (let i = 0; i < n; i++) drawCard(state, p, events);
+      say(`recruits: draws ${n} card${n > 1 ? 's' : ''}, one per friend here.`);
+      break;
+    }
     case 'sanctuaryReveal': {
       let n = 0;
       for (const x of charsAt(state, loc)) {
@@ -690,7 +779,8 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
         x.blockedEnterTurn = undefined;
         x.suppressedUntilTurn = undefined;
         if (x.zone === 'gate' && !x.ready) {
-          x.ready = true;
+          if (isInformant(x)) continue;
+          readyUp(x);
           n++;
         }
       }
@@ -715,8 +805,9 @@ function playEvent(state: GameState, p: PlayerId, play: PlayAction, events: Game
         events.push({ type: 'info', text: `${def.name}: no Setbacks this match, and ${locName(state, at)} is not in the Americas.`, player: p, location: at });
         break;
       }
-      here.tempInfluence[p] += base + home;
-      events.push({ type: 'info', text: `${def.name}: +${base + home} Influence at ${locName(state, at)} this turn (${ps.setbacks} Setback${ps.setbacks === 1 ? '' : 's'}${home ? `, +${home} in the Americas` : ''}).`, player: p, location: at });
+      here.permInfluence = here.permInfluence ?? { A: 0, B: 0 };
+      here.permInfluence[p] += base + home;
+      events.push({ type: 'info', text: `${def.name}: +${base + home} lasting Influence at ${locName(state, at)} (${ps.setbacks} Setback${ps.setbacks === 1 ? '' : 's'}${home ? `, +${home} in the Americas` : ''}). It counts at the end no matter when it was played.`, player: p, location: at });
       break;
     }
     case 'ancestors': {
@@ -730,35 +821,6 @@ function playEvent(state: GameState, p: PlayerId, play: PlayAction, events: Game
       const n = def.effect.count + (crowd ? def.effect.bonus.extra : 0);
       for (let i = 0; i < n; i++) drawCard(state, p, events);
       events.push({ type: 'info', text: `${def.name}: ${ps.handle} draws ${n} card${n > 1 ? 's' : ''}${crowd ? ` (${def.effect.bonus.crowd}+ Characters at ${locName(state, at)})` : ''}.`, player: p, location: at });
-      break;
-    }
-    case 'persuade': {
-      const opp = other(p);
-      let drained = 0;
-      for (const x of charsOf(state, opp)) {
-        if (x.zone !== 'gate' || shielded(state, x)) continue;
-        x.tempInfluence -= def.effect.drain;
-        drained++;
-      }
-      if (drained) events.push({ type: 'info', text: `${def.name}: ${drained} opposing Gate Character${drained > 1 ? 's' : ''} lose${drained > 1 ? '' : 's'} ${def.effect.drain} Influence this turn.`, player: p });
-      const target = charsAt(state, play.location, opp, 'gate')
-        .filter((x) => !shielded(state, x))
-        .sort((a, b) => charInfluence(state, a) - charInfluence(state, b))[0];
-      if (!target) {
-        events.push({ type: 'info', text: `${def.name}: no opposing Gate Character at ${locName(state, play.location)}.`, player: p, location: play.location });
-        break;
-      }
-      if (!gateOpen(state, play.location, p)) {
-        events.push({ type: 'info', text: `${def.name}: ${ps.handle}'s Gates at ${locName(state, play.location)} are full.`, player: p, location: play.location });
-        break;
-      }
-      target.owner = p;
-      target.permInfluence -= 1;
-      target.ready = false;
-      target.arrivedTurn = state.turn;
-      target.blessedUid = undefined;
-      events.push({ type: 'moved', text: `${def.name}: ${name(state, target)} crosses over to ${ps.handle} at −1 Influence.`, uid: target.uid, location: play.location, player: p, data: { from: play.location, to: play.location, reason: 'persuade' } });
-      clash(state, events, { kind: 'event', id: def.id, owner: p }, target, 'turned', play.location, { note: 'The Curse takes the opposing Gate Character here with the lowest Influence.' });
       break;
     }
     case 'communityDefense': {
@@ -902,8 +964,11 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
   const pendingConfronts: PendingConfront[] = [];
   const newChars: { p: PlayerId; c: CharacterInstance; target: PlayAction['target']; enter?: boolean }[] = [];
   const eventPlays: { p: PlayerId; play: PlayAction }[] = [];
-  for (const p of order) {
-    for (const play of plans[p].plays) {
+  const placementOrder: { p: PlayerId; play: PlayAction }[] = [];
+  for (const p of order) for (const play of plans[p].plays) if (!(cardDef(play.cardId).kind === 'character' && (cardDef(play.cardId) as CharacterDef).keywords.includes('INFORMANT'))) placementOrder.push({ p, play });
+  for (const p of order) for (const play of plans[p].plays) if (cardDef(play.cardId).kind === 'character' && (cardDef(play.cardId) as CharacterDef).keywords.includes('INFORMANT')) placementOrder.push({ p, play });
+  for (const { p, play } of placementOrder) {
+    {
     const ps = state.players[p];
     const idx = ps.hand.indexOf(play.cardId);
     if (idx < 0) continue;
@@ -916,16 +981,25 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       eventPlays.push({ p, play });
       continue;
     }
-    if (!gateOpen(state, play.location, p) || state.locations[play.location].lost) {
+    // Informants need a slot on the other side; everyone else needs one of yours.
+    const side = def.keywords.includes('INFORMANT') ? other(p) : p;
+    if (!gateOpen(state, play.location, side) || state.locations[play.location].lost) {
+      if (def.keywords.includes('INFORMANT') && ps.hand.length < MAX_HAND) {
+        ps.hand.push(def.id);
+        events.push({ type: 'info', text: `${ps.handle}'s ${def.name} found ${state.players[other(p)].handle}'s Gates at ${locName(state, play.location)} full and goes back to hand.`, player: p, location: play.location });
+        continue;
+      }
       ps.discard.push(def.id);
       events.push({ type: 'info', text: `${ps.handle}'s ${def.name} could not be placed and is discarded.`, player: p });
       continue;
     }
     const loc = state.locations[play.location];
+    const informant = def.keywords.includes('INFORMANT');
     const c: CharacterInstance = {
       uid: `c${state.nextUid++}`,
       defId: def.id,
-      owner: p,
+      owner: informant ? other(p) : p,
+      plantedBy: informant ? p : undefined,
       location: play.location,
       zone: 'gate',
       ready: false,
@@ -935,12 +1009,18 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       wasHiddenAtCommit: !loc.revealed || loc.revealedTurn === state.turn,
     };
     state.characters[c.uid] = c;
-    if (loc.revealed && LOCATION_BY_ID[loc.defId]?.effect.type === 'readyOnArrival') c.ready = true;
-    if (hasEstablished(state, p, play.location, 'cookout').length) c.ready = true;
+    if (ps.nextCharacterDiscount && state.turn > ps.nextCharacterDiscount.since) ps.nextCharacterDiscount = undefined;
     for (const spider of hasEstablished(state, other(p), play.location, 'drawOnOpposingPlay')) {
       drawCard(state, spider.owner, events);
       events.push({ type: 'info', text: `${charDef(spider.defId).name} spins a story: ${state.players[spider.owner].handle} draws a card.`, uid: spider.uid, player: spider.owner });
     }
+    if (informant) {
+      events.push({ type: 'played', text: `${ps.handle} plants ${def.name} (${def.influence}/${def.force}) at ${state.players[other(p)].handle}'s Gates of ${locName(state, play.location)}.`, player: p, cardId: def.id, uid: c.uid, location: play.location });
+      trace('play', `${ps.handle} plants ${def.name} at ${locName(state, play.location)}`, { uids: [c.uid], location: play.location, player: p, cardId: def.id });
+      continue;
+    }
+    if (loc.revealed && LOCATION_BY_ID[loc.defId]?.effect.type === 'readyOnArrival') readyUp(c);
+    if (hasEstablished(state, p, play.location, 'cookout').length) readyUp(c);
     newChars.push({ p, c, target: play.target, enter: play.enter });
     events.push({
       type: 'played',
@@ -997,7 +1077,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       const outInside = !wasGate && hasEstablished(state, p, from, 'relocatedOutInside').length > 0 && insideOpen(state, r.to, p);
       c.location = r.to;
       c.zone = 'gate';
-      c.ready = outReady;
+      c.ready = outReady && !isInformant(c);
       // A Gate Character keeps its waiting progress; an Inside one starts waiting again.
       if (!wasGate) c.arrivedTurn = state.turn;
       c.relocatedTurn = state.turn;
@@ -1005,11 +1085,11 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       state.stats.relocations[p] += 1;
       const dest = state.locations[r.to];
       const destDef = dest.revealed ? LOCATION_BY_ID[dest.defId] : undefined;
-      if (destDef?.effect.type === 'readyOnArrival' || destDef?.effect.type === 'relocatedInReady') c.ready = true;
+      if (destDef?.effect.type === 'readyOnArrival' || destDef?.effect.type === 'relocatedInReady') readyUp(c);
       const byOwner = dest.firstRelocatedByOwner ?? (dest.firstRelocatedByOwner = {});
       if (!byOwner[p]) {
         byOwner[p] = c.uid;
-        if (hasEstablished(state, p, r.to, 'readyRelocatedIn').length) c.ready = true;
+        if (hasEstablished(state, p, r.to, 'readyRelocatedIn').length) readyUp(c);
       }
       events.push({
         type: 'moved',
@@ -1113,6 +1193,11 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
           const amt = (charDef(ida.defId).established!.effect as { amount: number }).amount;
           ida.permInfluence += amt;
           events.push({ type: 'info', text: `${name(state, ida)} gains +${amt} Influence.`, uid: ida.uid });
+        }
+        for (const house of hasEstablished(state, p, loc.index, 'drawOnThreatCleared')) {
+          const n = (charDef(house.defId).established!.effect as { count: number }).count;
+          for (let i = 0; i < n; i++) drawCard(state, p, events);
+          events.push({ type: 'info', text: `${name(state, house)}: the association pays out; ${state.players[p].handle} draws ${n} card${n > 1 ? 's' : ''}.`, uid: house.uid, player: p });
         }
       }
     }
@@ -1218,12 +1303,12 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
   trace('spawn', events.slice(mark).find((e) => e.type === 'spawned')?.text ?? 'An arrival', {});
   // Fresh → Ready.
   for (const c of Object.values(state.characters)) {
-    if (c.zone !== 'gate' || c.ready) continue;
+    if (c.zone !== 'gate' || c.ready || isInformant(c)) continue;
     const loc = state.locations[c.location];
     const ldef = loc.revealed ? LOCATION_BY_ID[loc.defId] : undefined;
     const organized = hasEstablished(state, c.owner, c.location, 'freshReadyHere').length > 0 || hasEstablished(state, c.owner, c.location, 'cookout').length > 0;
     if (c.arrivedTurn < state.turn || organized || ldef?.effect.type === 'readyOnArrival') {
-      c.ready = true;
+      readyUp(c);
       events.push({ type: 'ready', text: `${name(state, c)} is Ready to enter ${locName(state, c.location)}.`, uid: c.uid, player: c.owner });
     }
   }
@@ -1239,8 +1324,37 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       events.push({ type: 'info', text: `${charDef(_farm.defId).name}: ${CARD_BY_ID[best]?.name ?? best} in ${ps.handle}'s hand now costs ${cardCost(best, state, p)}.`, uid: _farm.uid, player: p, privateTo: p });
     }
   }
-  // Oak Bluffs: a full house Inside pays out Energy next turn.
-  for (const p of PLAYERS) state.players[p].energyNextTurn = 0;
+  // Tanner: every turn he stays Established, the Location keeps a little more of him.
+  for (const p of PLAYERS) {
+    for (const painter of hasEstablishedAnywhere(state, p, 'monumentEachTurn')) {
+      const eff = charDef(painter.defId).established!.effect;
+      if (eff.type !== 'monumentEachTurn') continue;
+      const l = state.locations[painter.location];
+      if (l.lost) continue;
+      l.permInfluence = l.permInfluence ?? { A: 0, B: 0 };
+      l.permInfluence[p] += eff.amount;
+      events.push({ type: 'info', text: `${charDef(painter.defId).name}: ${locName(state, painter.location)} gains +${eff.amount} lasting Influence for ${state.players[p].handle}.`, uid: painter.uid, player: p, location: painter.location });
+    }
+  }
+  // Oshun: the river fills the shallowest cup.
+  for (const p of PLAYERS) {
+    for (const river of hasEstablishedAnywhere(state, p, 'growLowestHere')) {
+      const eff = charDef(river.defId).established!.effect;
+      if (eff.type !== 'growLowestHere') continue;
+      const low = charsAt(state, river.location, p).filter((x) => x.uid !== river.uid && !isInformant(x)).sort((a, b) => charInfluence(state, a) - charInfluence(state, b))[0];
+      if (!low) continue;
+      low.permInfluence += eff.amount;
+      events.push({ type: 'info', text: `${charDef(river.defId).name}: ${name(state, low)} gains +${eff.amount} Influence for good.`, uid: low.uid, player: p, location: river.location });
+    }
+  }
+  // Oak Bluffs: a full house Inside pays out Energy next turn. Energy banked by Reveals (Walker) rides along; so do Green's extra Relocations.
+  for (const p of PLAYERS) {
+    const ps = state.players[p];
+    ps.energyNextTurn = ps.energyBanked ?? 0;
+    ps.energyBanked = 0;
+    ps.relocationsBonus = ps.relocationsNextTurn ?? 0;
+    ps.relocationsNextTurn = 0;
+  }
   for (const loc of state.locations) {
     const ldef = loc.revealed ? LOCATION_BY_ID[loc.defId] : undefined;
     if (!ldef || ldef.effect.type !== 'restEnergy' || loc.lost) continue;
@@ -1259,7 +1373,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     const shelterLeft: Record<PlayerId, number> = { A: 0, B: 0 };
     for (const c of charsAt(state, loc.index)) shelterLeft[c.owner] += charDef(c.defId).passive?.shelter ?? 0;
     const atRisk = charsAt(state, loc.index, undefined, 'gate')
-      .filter((c) => !c.ready && !isProtected(state, c) && !charDef(c.defId).passive?.curfewImmune)
+      .filter((c) => !c.ready && !isProtected(state, c) && !charDef(c.defId).passive?.curfewImmune && !isInformant(c))
       .sort((a, b) => charInfluence(state, b) - charInfluence(state, a));
     for (const c of atRisk) {
       if (shelterLeft[c.owner] > 0) {
@@ -1275,6 +1389,46 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
         trace('sundown', `Sundown Town runs ${charDef(c.defId).name} out`, { uids: [c.uid], location: fromHere, player: c.owner });
       }
     }
+  }
+
+  // Charleston, 1822: the Fresh Gate Character here with the lowest Influence changes sides (a tie goes against the leader).
+  for (const loc of state.locations) {
+    if (!loc.revealed || loc.lost || LOCATION_BY_ID[loc.defId]?.effect.type !== 'turncoatAtEnd') continue;
+    if (loc.revealedTurn === state.turn) continue; // nothing happens on the reveal turn
+    const inf = influenceAt(state, loc.index);
+    const leader: PlayerId | null = inf.A === inf.B ? null : inf.A > inf.B ? 'A' : 'B';
+    const fresh = charsAt(state, loc.index, undefined, 'gate').filter((c) => !c.ready && !isProtected(state, c));
+    if (!fresh.length) continue;
+    fresh.sort((a, b) => charInfluence(state, a) - charInfluence(state, b) || (a.owner === leader ? -1 : b.owner === leader ? 1 : 0) || a.uid.localeCompare(b.uid));
+    // An Informant sent back to whoever planted it goes home to their hand; anyone else needs a Gate slot on the receiving side.
+    const t = fresh.find((c) => (c.plantedBy !== undefined && c.plantedBy === other(c.owner)) || gateOpen(state, loc.index, other(c.owner)));
+    if (!t) {
+      events.push({ type: 'info', text: `${locName(state, loc.index)}: ${charDef(fresh[0].defId).name} would change sides, but ${state.players[other(fresh[0].owner)].handle}'s Gates here are full.`, location: loc.index });
+      continue;
+    }
+    const was = charInfluence(state, t);
+    const from = t.owner;
+    if (t.plantedBy !== undefined && t.plantedBy === other(from)) {
+      const home = state.players[t.plantedBy];
+      delete state.characters[t.uid];
+      if (home.hand.length >= MAX_HAND) {
+        home.discard.push(t.defId);
+        events.push({ type: 'info', text: `${locName(state, loc.index)}: ${charDef(t.defId).name} is sent back to ${home.handle}, whose hand is full: discarded.`, location: loc.index, player: t.plantedBy });
+      } else {
+        home.hand.push(t.defId);
+        events.push({ type: 'info', text: `${locName(state, loc.index)}: ${charDef(t.defId).name} is found out and sent back to ${home.handle}'s hand.`, location: loc.index, player: t.plantedBy, uid: t.uid });
+      }
+      clash(state, events, { kind: 'location', id: loc.defId }, t, 'defected', loc.index, { note: `The Informant was the lowest Fresh Gate Character here (${was}). Found out, they go back to ${home.handle}'s hand and can be planted again.` });
+      trace('turncoat', `${locName(state, loc.index)}: ${charDef(t.defId).name} is sent home`, { uids: [t.uid], location: loc.index, player: t.plantedBy });
+      continue;
+    }
+    t.owner = other(from);
+    t.arrivedTurn = state.turn;
+    t.ready = false;
+    t.blessedUid = undefined;
+    events.push({ type: 'moved', text: '', uid: t.uid, location: loc.index, player: t.owner, data: { from: loc.index, to: loc.index, reason: 'Charleston' } });
+    clash(state, events, { kind: 'location', id: loc.defId }, t, 'defected', loc.index, { note: `The Fresh Gate Character here with the lowest Influence changes sides at the end of every turn; ${charDef(t.defId).name} (${was}) was the lowest. They can turn back later.` });
+    trace('turncoat', `${locName(state, loc.index)}: ${charDef(t.defId).name} changes sides`, { uids: [t.uid], location: loc.index, player: t.owner });
   }
 
   // ---- 11. Influence update & analytics ----

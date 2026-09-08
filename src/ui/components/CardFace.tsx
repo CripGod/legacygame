@@ -6,8 +6,10 @@ import { tip, HINTS } from '../tip';
 /** The one-word role under the name: Mythic, Curse, Event, or the card's most specific tag. */
 function ribbonFor(def: { kind: string; category?: string; tags?: string[]; curse?: boolean }): string {
   if (def.kind === 'event') return def.curse ? 'Curse' : 'Event';
+  if ((def as { keywords?: string[] }).keywords?.includes('INFORMANT')) return 'Informant';
   if (def.category === 'mythic') return 'Mythic';
   if (def.category === 'gathering') return 'Gathering';
+  if (def.category === 'artist') return 'Artist';
   const t = (def.tags ?? []).filter((x) => x !== 'Black');
   return t[t.length - 1] ?? 'Historical';
 }
@@ -27,7 +29,7 @@ export function CardFace({ id, big = false, onClick, cost, costWhy }: { id: stri
   const isChar = def.kind === 'character';
   const curse = !isChar && !!(def as { curse?: boolean }).curse;
   return (
-    <div className={`card ${big ? 'big' : ''} ${isChar ? '' : 'event'} ${curse ? 'curse' : ''}`} onClick={onClick} role={onClick ? 'button' : undefined}>
+    <div className={`card ${big ? 'big' : ''} ${isChar ? '' : 'event'} ${curse ? 'curse' : ''} ${isChar && def.keywords.includes('INFORMANT') ? 'informant' : ''} ${isChar && def.category === 'artist' ? 'artist' : ''}`} onClick={onClick} role={onClick ? 'button' : undefined}>
       <div className={`cost ${cost !== undefined && cost < def.cost ? 'discounted' : ''}`} {...tip(cost !== undefined && cost < def.cost ? `Costs ${cost} right now instead of ${def.cost}${costWhy?.length ? ': ' + costWhy.join(', ') : ''}.` : HINTS.cost)}>
         {cost ?? def.cost}
       </div>
@@ -53,9 +55,6 @@ export function CardFace({ id, big = false, onClick, cost, costWhy }: { id: stri
         {!placeholders && <div className="ribbon">{ribbonFor(def)}</div>}
         {!big && !placeholders && <div className="rule-line" aria-hidden />}
         {!big && !placeholders && <div className="ability">{abilityFor(def)}</div>}
-        {isChar && def.category === 'mythic' && !placeholders && <div className="cat mythic">Mythic</div>}
-        {isChar && def.category === 'gathering' && !placeholders && <div className="cat gathering">Gathering</div>}
-        {curse && !placeholders && <div className="cat curse">Curse</div>}
         {big && isChar && !placeholders && <div className="era">{def.era}</div>}
         <div className="text">
         {big && abilityLines(def).map((l) => (
@@ -101,7 +100,7 @@ export function Pic({
   const inf = charInfluence(state, c);
   let label = strip;
   if (!label && c.zone === 'gate') {
-    label = c.blockedEnterTurn === state.turn ? 'Blocked' : c.ready ? 'Ready' : 'Fresh';
+    label = def.keywords.includes('INFORMANT') ? 'Informant' : c.blockedEnterTurn === state.turn ? 'Blocked' : c.ready ? 'Ready' : 'Fresh';
   }
   const cls = label ? label.toLowerCase() : '';
   return (

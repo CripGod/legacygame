@@ -195,7 +195,7 @@ export function transformLocation(state: GameState, index: number, intoId: strin
   if (aboard.length) events.push({ type: 'info', text: `Everyone aboard gains +1 Influence (${aboard.length} Character${aboard.length > 1 ? 's' : ''}).`, location: index });
   const order: PlayerId[] = state.initiative === 'A' ? ['A', 'B'] : ['B', 'A'];
   for (const p of order) {
-    for (const c of aboard.filter((x) => x.owner === p && x.zone === 'gate')) {
+    for (const c of aboard.filter((x) => x.owner === p && x.zone === 'gate' && !CHARACTER_BY_ID[x.defId]?.keywords.includes('INFORMANT'))) {
       const inside = Object.values(state.characters).filter((x) => x.owner === p && x.location === index && x.zone === 'inside').length;
       if (inside >= 5) break;
       c.zone = 'inside';

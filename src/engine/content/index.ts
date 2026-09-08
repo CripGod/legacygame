@@ -41,30 +41,35 @@ export function isCharacterCard(id: string): boolean {
   return CARD_BY_ID[id]?.kind === 'character';
 }
 
-/** Preset 12-card decks. Both decks are legal: no duplicate Characters, max 2 Events. */
+/** Preset 18-card decks. Every deck is legal: no duplicate Characters, max 2 Events, at least one Mythic. */
 export const PRESET_DECKS: Record<string, { name: string; style: string; cards: string[] }> = {
   railroad: {
     name: 'Railroad',
-    style: 'Movement and organizing. Harriet moves people, Douglass and Hubert Harrison build a Location, John Brown breaks a Threat.',
+    style: 'Movement and organizing. Harriet moves people, Douglass and Organizer build a Location, John Brown breaks a Threat.',
     cards: [
       'harriet_tubman',
       'frederick_douglass',
-      'katherine_johnson',
+      'alonzo_herndon',
       'zora_neale_hurston',
-      'hubert_harrison',
+      'organizer',
       'queen_nzinga',
       'sleeping_car_porters',
-      'paul_laurence_dunbar',
-      'john_brown',
+      'edmonia_lewis',
+      'claudette_colvin',
       'mansa_musa',
       'anansi',
       'reparations',
-      'community_defense',
+      'word_of_mouth',
+      'paul_laurence_dunbar',
+      'bass_reeves',
+      'john_russwurm',
+      'bud_billiken',
+      'sojourner_truth',
     ],
   },
   blackstar: {
     name: 'Black Star',
-    style: 'Mobility and return. Garvey, Green and Smalls relocate freely, Nehanda comes back when pushed out, Turner is strongest aboard The Black Star, Persuade drains the opposing Gates.',
+    style: 'Mobility and return. Garvey, Green and Smalls relocate freely, Nehanda comes back when pushed out, Turner is strongest aboard The Black Star, and Peter Prioleau is planted on the other side to drain a Location.',
     cards: [
       'marcus_garvey',
       'toussaint_louverture',
@@ -72,13 +77,18 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'nehanda',
       'ida_b_wells',
       'victor_hugo_green',
-      'alonzo_herndon',
+      'katherine_johnson',
+      'scott_joplin',
       'john_russwurm',
-      'henry_mcneal_turner',
       'robert_smalls',
       'yemoja',
       'reparations',
-      'persuade',
+      'peter_prioleau',
+      'edward_bannister',
+      'robert_duncanson',
+      'harriet_powers',
+      'community_defense',
+      'mami_wata',
     ],
   },
   caiman: {
@@ -98,11 +108,16 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'bud_billiken',
       'ogun',
       'word_of_mouth',
+      'callie_house',
+      'edmonia_lewis',
+      'sojourner_truth',
+      'pharoah_and_tom',
+      'og',
     ],
   },
   pantheon: {
     name: 'Pantheon',
-    style: 'Four orisha with the church behind them: Allen, Jones and Payne can call Black Jesus, Vesey pays for it, Walker keeps the cards coming.',
+    style: 'Four orisha with the church behind them: Allen, Jones and Payne can call Black Jesus, Vesey pays for it, Walker keeps the cards coming, and Tanner paints the church into the ground it stands on.',
     cards: [
       'shango',
       'oshun',
@@ -116,7 +131,12 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'daniel_payne',
       'madam_cj_walker',
       'word_of_mouth',
-      'persuade',
+      'henry_ossawa_tanner',
+      'bud_billiken',
+      'ben_woolfolk',
+      'henry_mcneal_turner',
+      'sojourner_truth',
+      'reparations',
     ],
   },
   mirror: {
@@ -128,7 +148,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'omar_ibn_said',
       'mansa_musa',
       'ayuba_suleiman_diallo',
-      'hubert_harrison',
+      'organizer',
       'queen_nzinga',
       'john_russwurm',
       'absalom_jones',
@@ -136,11 +156,16 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'shango',
       'reparations',
       'community_defense',
+      'john_brown',
+      'edmonia_lewis',
+      'peter_prioleau',
+      'zora_neale_hurston',
+      'sleeping_car_porters',
     ],
   },
 };
 
-/** A seeded random 12-card deck: ten distinct Characters and both Events. */
+/** A seeded random deck: DECK_SIZE − 2 distinct Characters and two Events. */
 export function randomDeck(pick: (n: number) => number): string[] {
   // Every deck carries at least one Mythic.
   const mythics = CHARACTERS.filter((c) => c.category === 'mythic' && !c.spawn).map((c) => c.id);

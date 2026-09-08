@@ -3,6 +3,7 @@
  */
 import { charDef, cardDef, LOCATION_BY_ID, THREAT_BY_ID, CARD_BY_ID } from './content';
 import type {
+  CharacterDef,
   GameState,
   PlayerId,
   CharacterInstance,
@@ -140,7 +141,8 @@ export function charInfluence(state: GameState, c: CharacterInstance): number {
     for (const z of hasEstablished(state, c.owner, c.location, 'gateInfluenceHere')) v += amountOf(z);
     for (const o of hasEstablished(state, other(c.owner), c.location, 'opposingGateInfluence')) v -= amountOf(o);
   }
-  return Math.max(0, v);
+  // Informants count against the side that holds them; everyone else bottoms out at 0.
+  return def.keywords.includes('INFORMANT') ? Math.min(0, v) : Math.max(0, v);
 }
 
 /** Raw Influence per player at a Location, before leader-based modifiers. */
@@ -224,6 +226,7 @@ export function cardCost(cardId: string, state?: GameState, p?: PlayerId): numbe
     const ps = state.players[p];
     n -= ps.discounts?.[cardId] ?? 0;
     if (def.kind === 'character') {
+      if (ps.nextCharacterDiscount && state.turn > ps.nextCharacterDiscount.since) n -= ps.nextCharacterDiscount.amount;
       for (const c of hasEstablishedAnywhere(state, p, 'discountCharacters')) n -= amountOf(c);
       for (const c of hasEstablishedAnywhere(state, p, 'discountTag')) {
         const eff = charDef(c.defId).established!.effect as { tag: string; amount: number };
@@ -280,7 +283,7 @@ export function threatForceNeeded(state: GameState, t: ThreatInstance): number {
 }
 
 export function relocationsAllowed(state: GameState, p: PlayerId): number {
-  let n = 1;
+  let n = 1 + (state.players[p].relocationsBonus ?? 0);
   for (const c of hasEstablishedAnywhere(state, p, 'extraRelocation')) n += amountOf(c);
   return n;
 }
@@ -341,7 +344,9 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
     seen.add(cardId);
     const def = cardDef(cardId);
     if (def.kind === 'character') {
-      const locs = state.locations.filter((l) => !l.lost && gateOpen(state, l.index, p)).map((l) => l.index);
+      // Informants are planted on the other side: they need one of the opponent's Gate slots.
+      const side = def.keywords.includes('INFORMANT') ? other(p) : p;
+      const locs = state.locations.filter((l) => !l.lost && gateOpen(state, l.index, side)).map((l) => l.index);
       if (locs.length) {
         plays.push({
           cardId,
@@ -365,7 +370,7 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
     }
   }
   const mine = charsOf(state, p);
-  const enters = mine.filter((c) => c.zone === 'gate' && c.ready && !state.locations[c.location].lost).map((c) => c.uid);
+  const enters = mine.filter((c) => c.zone === 'gate' && c.ready && !state.locations[c.location].lost && !charDef(c.defId).keywords.includes('INFORMANT')).map((c) => c.uid);
   // Inside Characters relocate and arrive Fresh; Gate Characters relocate too and stay as Ready as they were.
   const relocations = mine
     .filter((c) => !state.locations[c.location].lost && !lockReason(state, c))
@@ -380,7 +385,7 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
   for (const loc of state.locations) {
     for (const t of loc.threats) {
       if (!canConfront(state, t, p)) continue;
-      const chars = mine.filter((c) => c.location === loc.index).map((c) => c.uid);
+      const chars = mine.filter((c) => c.location === loc.index && !charDef(c.defId).keywords.includes('INFORMANT')).map((c) => c.uid);
       if (!chars.length) continue;
       confronts.push({ threatUid: t.uid, location: loc.index, chars, assist: isAssist(t, p) });
     }
@@ -411,6 +416,7 @@ export function validatePlan(state: GameState, p: PlayerId, plan: TurnPlan): str
   const usedCards = new Set<string>();
   const gateUse: Record<number, number> = {};
   const eventUse: Record<number, number> = {};
+  const oppGateUse: Record<number, number> = {};
   for (const play of plan.plays) {
     if (play.enter) {
       const d = CARD_BY_ID[play.cardId];
@@ -424,7 +430,10 @@ export function validatePlan(state: GameState, p: PlayerId, plan: TurnPlan): str
       continue;
     }
     if (opt.needsLocation && !opt.locations.includes(play.location)) errors.push('That Location is not available for this card.');
-    if (opt.kind === 'character') {
+    if (opt.kind === 'character' && cardDef(play.cardId).kind === 'character' && (cardDef(play.cardId) as CharacterDef).keywords.includes('INFORMANT')) {
+      oppGateUse[play.location] = (oppGateUse[play.location] ?? 0) + 1;
+      if (gateRoom(state, play.location, other(p), oppGateUse[play.location] - 1) <= 0) errors.push("An Informant needs one of the opponent's Gate slots open at that Location.");
+    } else if (opt.kind === 'character') {
       gateUse[play.location] = (gateUse[play.location] ?? 0) + 1;
       if (gateRoom(state, play.location, p, gateUse[play.location] - 1) <= 0) errors.push('No open Gate slot for that card.');
     } else {
@@ -434,6 +443,7 @@ export function validatePlan(state: GameState, p: PlayerId, plan: TurnPlan): str
     if (opt.needsTarget === 'friendlyCharAndLocation' && play.target?.charUid) {
       const c = state.characters[play.target.charUid];
       if (!c || c.owner !== p) errors.push('Invalid target Character.');
+      else if (charDef(c.defId).keywords.includes('INFORMANT') && (cardDef(play.cardId) as CharacterDef).reveal?.effect.type === 'conductor') errors.push('Harriet will not conduct an Informant.');
       if (play.target.location !== undefined && state.locations[play.target.location].lost) errors.push('That Location is Lost.');
       if (play.target.location === undefined || play.target.location === c?.location) errors.push('Choose a different destination.');
     }

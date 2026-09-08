@@ -47,7 +47,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
       <div className="inner">
         <h1 className="title">
           Black History Card Battler
-          <small>Systems prototype · v0.2</small>
+          <small>Systems prototype · v0.3 · build {typeof __BUILD__ === 'string' ? __BUILD__ : 'dev'}</small>
         </h1>
         <div className="muted">
           Deploy heroes, legends and neighbors across three Locations. Win Influence at two of them. Seven turns. Ten minutes, give or take.

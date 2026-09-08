@@ -2,7 +2,7 @@
  * Apply the local player's draft plan to a view so the board shows their moves
  * immediately. Preview instances are visual only; the engine never sees them.
  */
-import { cloneState, CARD_BY_ID, insideOpen, type GameState, type PlayerId, type TurnPlan, type CharacterInstance } from '../engine';
+import { cloneState, CARD_BY_ID, insideOpen, other, type GameState, type PlayerId, type TurnPlan, type CharacterInstance } from '../engine';
 
 export const PLANNED_PREFIX = 'planned:';
 
@@ -55,10 +55,12 @@ export function previewPlan(view: GameState, me: PlayerId, plan: TurnPlan): Game
         t.relocatedTurn = v.turn;
       }
     }
+    const informant = def.keywords.includes('INFORMANT');
     const c: CharacterInstance = {
       uid: `${PLANNED_PREFIX}${def.id}`,
       defId: def.id,
-      owner: me,
+      owner: informant ? other(me) : me,
+      plantedBy: informant ? me : undefined,
       location: play.location,
       zone: 'gate',
       ready: false,
@@ -82,10 +84,11 @@ export function isPlannedUid(uid: string): boolean {
  */
 export function remainingPlan(state: GameState, me: PlayerId, plan: TurnPlan): TurnPlan {
   const mine = Object.values(state.characters).filter((c) => c.owner === me);
+  void mine;
   return {
     ...plan,
     // Event plays are shown by the replay's own pending tiles.
-    plays: plan.plays.filter((pl) => CARD_BY_ID[pl.cardId]?.kind === 'character' && !mine.some((c) => c.defId === pl.cardId)),
+    plays: plan.plays.filter((pl) => CARD_BY_ID[pl.cardId]?.kind === 'character' && !Object.values(state.characters).some((c) => c.defId === pl.cardId && (c.owner === me || c.plantedBy === me))),
     enters: plan.enters.filter((uid) => state.characters[uid]?.zone === 'gate'),
     relocations: plan.relocations.filter((r) => state.characters[r.uid] && state.characters[r.uid].location !== r.to),
   };

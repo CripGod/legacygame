@@ -1,0 +1,822 @@
+/*
+ * Compendium: the Cards screen as an illuminated atlas.
+ * Parchment plates in gold chamfered frames on the navy ground; Cinzel small caps for headings,
+ * Crimson Pro for the text. Loaded only by CardsScreen.tsx; every selector is prefixed cx-.
+ *
+ * One frame language: every surface (the title band, the parchment plates, the art frames, the cards and the
+ * card sheet) is cut with the same chamfer, --cx-cut. Controls (the close cross, the Day/Night switch, the
+ * buttons) use the half-size cut, --cx-cut-sm. Glows sit on plain wrappers as box-shadows, never as filters.
+ */
+.cx-inner {
+  --cx-parch: #f4ead4;
+  --cx-parch-2: #e9dcbe;
+  --cx-ink: #1b1a17;
+  --cx-ink-2: #3a3120;
+  --cx-ink-3: #5e5030;
+  --cx-navy: #12203a;
+  --cx-rule: rgba(138, 106, 20, 0.55);
+  --cx-rule-soft: rgba(138, 106, 20, 0.28);
+  --cx-cut: 14px;
+  --cx-cut-sm: 7px;
+  --cx-bw: 2.5px;
+  --card-w: clamp(120px, 10.5vw, 150px);
+  font-family: var(--font);
+  color: var(--parchment);
+}
+.screen .inner.cx-inner {
+  width: min(100%, 1240px);
+  gap: 0;
+  align-content: start;
+  padding-bottom: 60px;
+}
+@media (max-width: 700px) {
+  .screen:has(> .cx-inner) { padding: 10px 10px 30px; }
+  /* Two cards to a row, so the type on them stays readable. */
+  .cx-inner { --cx-cut: 8px; --cx-cut-sm: 5px; --card-w: min(calc(50vw - 27px), 190px); }
+}
+
+/* ---------- shared: chamfered octagons ---------- */
+.cx-oct {
+  clip-path: polygon(
+    var(--chamfer) 0, calc(100% - var(--chamfer)) 0, 100% var(--chamfer),
+    100% calc(100% - var(--chamfer)), calc(100% - var(--chamfer)) 100%, var(--chamfer) 100%,
+    0 calc(100% - var(--chamfer)), 0 var(--chamfer)
+  );
+}
+/* A framed surface: the element paints the gold and is cut to the octagon; its ::after paints the fill,
+ * inset by the frame width and cut a little tighter, so the gold runs along the diagonals too. */
+.cx-framed {
+  --chamfer: var(--cx-cut);
+  --bw: var(--cx-bw);
+  --fill: linear-gradient(180deg, var(--cx-parch) 0%, var(--cx-parch-2) 100%);
+  position: relative;
+  isolation: isolate;
+  background: var(--gold);
+  clip-path: polygon(
+    var(--chamfer) 0, calc(100% - var(--chamfer)) 0, 100% var(--chamfer),
+    100% calc(100% - var(--chamfer)), calc(100% - var(--chamfer)) 100%, var(--chamfer) 100%,
+    0 calc(100% - var(--chamfer)), 0 var(--chamfer)
+  );
+}
+.cx-framed::after {
+  content: '';
+  position: absolute;
+  inset: var(--bw);
+  z-index: -1;
+  pointer-events: none;
+  background: var(--fill);
+  clip-path: polygon(
+    calc(var(--chamfer) - var(--bw) * 0.6) 0, calc(100% - var(--chamfer) + var(--bw) * 0.6) 0, 100% calc(var(--chamfer) - var(--bw) * 0.6),
+    100% calc(100% - var(--chamfer) + var(--bw) * 0.6), calc(100% - var(--chamfer) + var(--bw) * 0.6) 100%, calc(var(--chamfer) - var(--bw) * 0.6) 100%,
+    0 calc(100% - var(--chamfer) + var(--bw) * 0.6), 0 calc(var(--chamfer) - var(--bw) * 0.6)
+  );
+}
+/* A control: a dark-gold rim one pixel wide, navy inside, the small cut. */
+.cx-ctl {
+  --chamfer: var(--cx-cut-sm);
+  position: relative;
+  isolation: isolate;
+  border: 0;
+  border-radius: 0;
+  background: var(--gold-dark);
+  clip-path: polygon(
+    var(--chamfer) 0, calc(100% - var(--chamfer)) 0, 100% var(--chamfer),
+    100% calc(100% - var(--chamfer)), calc(100% - var(--chamfer)) 100%, var(--chamfer) 100%,
+    0 calc(100% - var(--chamfer)), 0 var(--chamfer)
+  );
+}
+.cx-ctl::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(180deg, #16294a, #0c1a2e);
+  clip-path: polygon(
+    calc(var(--chamfer) - 0.6px) 0, calc(100% - var(--chamfer) + 0.6px) 0, 100% calc(var(--chamfer) - 0.6px),
+    100% calc(100% - var(--chamfer) + 0.6px), calc(100% - var(--chamfer) + 0.6px) 100%, calc(var(--chamfer) - 0.6px) 100%,
+    0 calc(100% - var(--chamfer) + 0.6px), 0 calc(var(--chamfer) - 0.6px)
+  );
+}
+.cx-glow { box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55); }
+.cx-glow.soft { box-shadow: 0 8px 18px rgba(0, 0, 0, 0.5); }
+
+/* The star rule: a hairline either side of a small star. Ink on parchment, gold on navy. */
+.cx-star {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  color: var(--gold);
+  font-size: 13px;
+  line-height: 1;
+  user-select: none;
+}
+.cx-star::before, .cx-star::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, currentColor 35%, currentColor);
+  opacity: 0.55;
+}
+.cx-star::after { background: linear-gradient(90deg, currentColor, currentColor 65%, transparent); }
+.cx-star.ink { color: var(--gold-dark); }
+
+/* ---------- title band ---------- */
+.cx-title {
+  --fill:
+    radial-gradient(120% 90% at 50% 0%, rgba(255, 255, 255, 0.45), transparent 60%),
+    repeating-linear-gradient(0deg, rgba(120, 90, 30, 0.035) 0 2px, transparent 2px 5px),
+    linear-gradient(180deg, var(--cx-parch) 0%, var(--cx-parch-2) 100%);
+  padding: clamp(24px, 3.4vw, 44px) clamp(18px, 4vw, 56px) clamp(22px, 3vw, 38px);
+  text-align: center;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+}
+.cx-title::before, .cx-page::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  z-index: 0;
+  border: 1px solid var(--cx-rule-soft);
+  pointer-events: none;
+  --hair: calc(var(--cx-cut) - 4.7px);
+  clip-path: polygon(var(--hair) 0, calc(100% - var(--hair)) 0, 100% var(--hair), 100% calc(100% - var(--hair)), calc(100% - var(--hair)) 100%, var(--hair) 100%, 0 calc(100% - var(--hair)), 0 var(--hair));
+}
+.cx-title::before { border-color: var(--cx-rule); }
+.cx-kicker {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(9px, 0.8vw, 11px);
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+}
+.cx-title h1 {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(30px, 5.4vw, 62px);
+  line-height: 1;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin: 0;
+  padding-left: 0.16em;
+  color: var(--cx-navy);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.cx-title .cx-star { max-width: 420px; margin-top: 4px; }
+.cx-title p {
+  margin: 0;
+  font-style: italic;
+  font-size: clamp(14px, 1.3vw, 18px);
+  line-height: 1.4;
+  color: var(--cx-ink-2);
+  max-width: 60ch;
+}
+
+/* ---------- sticky chapter nav: one row everywhere, Back pinned left, the chapters scroll sideways ---------- */
+.cx-nav {
+  position: sticky;
+  top: -1px;
+  z-index: 6;
+  display: flex;
+  align-items: stretch;
+  min-width: 0; /* a grid item: without this it would grow to the strip's full width and push the page sideways */
+  margin: 14px 0 0;
+  padding: 6px 8px;
+  background: linear-gradient(180deg, rgba(16, 34, 56, 0.98), rgba(8, 19, 31, 0.98));
+  border: 1px solid var(--gold-dark);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(233, 185, 58, 0.25);
+}
+.cx-nav::before, .cx-nav::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold) 20%, var(--gold) 80%, transparent);
+  opacity: 0.45;
+  pointer-events: none;
+}
+.cx-nav::before { top: 2px; }
+.cx-nav::after { bottom: 2px; }
+.cx-nav-track { position: relative; flex: 1; min-width: 0; }
+.cx-nav-track::before, .cx-nav-track::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 34px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.cx-nav-track::before { left: 0; background: linear-gradient(90deg, #0e1f35 20%, rgba(14, 31, 53, 0)); }
+.cx-nav-track::after { right: 0; background: linear-gradient(270deg, #0e1f35 20%, rgba(14, 31, 53, 0)); }
+.cx-nav-track.l::before, .cx-nav-track.r::after { opacity: 1; }
+.cx-nav-scroll {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.cx-nav-scroll::-webkit-scrollbar { display: none; }
+.cx-nav button {
+  position: relative;
+  flex: none;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(10px, 0.82vw, 12px);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #cfc3a6;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 8px 13px;
+  min-height: 38px;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+.cx-nav button.on { color: var(--gold-2); }
+.cx-nav button.on::after {
+  content: '';
+  position: absolute;
+  left: 11px;
+  right: 11px;
+  bottom: 4px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.cx-nav .cx-back {
+  color: var(--parchment);
+  letter-spacing: 0.08em;
+  text-transform: none;
+  font-size: clamp(11px, 0.9vw, 13px);
+  padding-left: 10px;
+  margin-right: 6px;
+  border-right: 1px solid var(--line-2);
+}
+@media (hover: hover) {
+  .cx-nav button:hover, .cx-nav .cx-back:hover { color: var(--gold-2); }
+}
+@media (max-width: 700px) {
+  .cx-nav { padding: 5px 6px; }
+  .cx-nav button { padding: 6px 10px; min-height: 34px; font-size: 10px; letter-spacing: 0.12em; }
+  .cx-nav button.on::after { left: 8px; right: 8px; bottom: 3px; }
+  .cx-nav .cx-back { padding-left: 8px; padding-right: 10px; margin-right: 4px; font-size: 11px; }
+}
+
+/* ---------- chapters ---------- */
+.cx-chapter {
+  scroll-margin-top: 62px;
+  padding-top: clamp(34px, 4vw, 56px);
+  display: grid;
+  gap: clamp(16px, 2vw, 26px);
+}
+.cx-chapter-head {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  text-align: center;
+  padding: 0 12px;
+}
+.cx-chapter-head .cx-kicker { color: var(--muted); }
+.cx-chapter-head h2 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(20px, 2.6vw, 34px);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin: 0;
+  padding-left: 0.2em;
+  color: var(--gold-2);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7), 0 0 30px rgba(233, 185, 58, 0.25);
+}
+.cx-chapter-head .cx-star { max-width: 360px; }
+.cx-chapter-head p {
+  margin: 2px 0 0;
+  font-style: italic;
+  font-size: clamp(14px, 1.2vw, 17px);
+  line-height: 1.45;
+  color: #cfc3a6;
+  max-width: 62ch;
+}
+
+/* A parchment plate: gold chamfered frame, hairline inside, parchment fill. */
+.cx-page {
+  --fill:
+    radial-gradient(90% 70% at 50% 0%, rgba(255, 255, 255, 0.4), transparent 60%),
+    radial-gradient(80% 60% at 50% 110%, rgba(120, 90, 30, 0.12), transparent 60%),
+    repeating-linear-gradient(0deg, rgba(120, 90, 30, 0.03) 0 2px, transparent 2px 5px),
+    linear-gradient(180deg, var(--cx-parch) 0%, var(--cx-parch-2) 100%);
+  color: var(--cx-ink);
+  padding: clamp(16px, 2.6vw, 36px);
+}
+@media (max-width: 700px) {
+  .cx-page { padding: 14px 12px 16px; }
+  .cx-title::before, .cx-page::before { inset: 6px; --hair: calc(var(--cx-cut) - 3.5px); }
+}
+
+/* ---------- card grids (Characters, Events) ---------- */
+.cx-group { display: grid; gap: 14px; }
+.cx-group + .cx-group { margin-top: clamp(18px, 2.4vw, 30px); }
+.cx-sub {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  padding: 0 4px;
+}
+.cx-sub::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--cx-rule), transparent); }
+.cx-sub b { font-weight: 800; color: var(--cx-navy); letter-spacing: 0.1em; }
+/* Every chapter ranks left, in the same columns as the Historical cost rows. */
+.cx-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, var(--card-w));
+  justify-content: start;
+  gap: clamp(10px, 1.3vw, 18px);
+  padding: 4px 0;
+}
+.cx-card { filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45)); }
+.cx-card .card { cursor: pointer; box-shadow: none; --chamfer: var(--cx-cut); }
+.cx-card .card::before {
+  inset: 5px;
+  --hair: calc(var(--cx-cut) - 2.9px);
+  clip-path: polygon(var(--hair) 0, calc(100% - var(--hair)) 0, 100% var(--hair), 100% calc(100% - var(--hair)), calc(100% - var(--hair)) 100%, var(--hair) 100%, 0 calc(100% - var(--hair)), 0 var(--hair));
+}
+/* Thumbnails print the name, the trait ribbon and the orbs. The rule text is unreadable at this size and lives
+ * in the sheet instead; the art takes the room, and the name may run to three lines before it is cut. */
+.cx-card .card .cat { display: none; }
+.cx-card .card .ability { -webkit-line-clamp: 2; }
+.cx-card .card .card-art { height: calc(var(--card-w) * 0.7); }
+/* Events carry their orbs at the top, so their panel needs no foot: the art takes it. */
+.cx-card .card.event .card-art { height: calc(var(--card-w) * 0.84); }
+.cx-card .card.event .card-body { padding-bottom: 6px; }
+.cx-card .card .card-body { grid-template-rows: auto auto auto; padding-bottom: calc(var(--card-w) * 0.2); }
+.cx-card .card .name { font-size: clamp(8.5px, calc(var(--card-w) * 0.076), 11.5px); line-height: 1.1; padding: 5px 4px 1px; -webkit-line-clamp: 3; }
+.cx-card .card .ribbon { max-width: calc(100% - 6px); letter-spacing: 0.1em; padding: 2px 8px; font-size: clamp(6.5px, calc(var(--card-w) * 0.053), 8px); }
+.cx-card .card .rule-line { margin: 6px 16px 0; }
+/* The few very long names (George Washington Carver) and traits (Harlem Renaissance) step down one size so the
+ * name keeps to two lines and the ribbon to one, instead of ending in an ellipsis. */
+.cx-card.long .card .name { font-size: clamp(7.5px, calc(var(--card-w) * 0.067), 10px); }
+.cx-card.wide .card .ribbon { font-size: clamp(5.5px, calc(var(--card-w) * 0.044), 6.6px); letter-spacing: 0.06em; }
+@media (hover: hover) {
+  .cx-card { transition: transform 0.18s ease; }
+  .cx-card:hover { transform: translateY(-5px); filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 10px rgba(233, 185, 58, 0.45)); }
+}
+@media (max-width: 700px) {
+  .cx-cards { gap: 10px; }
+}
+/* Curses keep the navy name on their lavender panel; the ribbon already says Curse, Mythic or Gathering. */
+.cx-inner .card.curse .name, .cx-inner .card.big.curse .name { color: #12203a; }
+.cx-inner .card .cat, .cx-inner .card.big .cat { display: none; }
+.cx-inner .card.big { --chamfer: var(--cx-cut); }
+.cx-inner .card.big::before {
+  inset: 5px;
+  --hair: calc(var(--cx-cut) - 2.9px);
+  clip-path: polygon(var(--hair) 0, calc(100% - var(--hair)) 0, 100% var(--hair), 100% calc(100% - var(--hair)), calc(100% - var(--hair)) 100%, var(--hair) 100%, 0 calc(100% - var(--hair)), 0 var(--hair));
+}
+
+/* Hover hints, where there is a pointer to hover with, wear the parchment while the atlas is open. */
+body:has(.cx-inner) .tip {
+  background: linear-gradient(180deg, #f8f0dc, #efe3c6);
+  color: #1e2a44;
+  border: 1px solid var(--gold-dark);
+  border-radius: 0;
+  box-shadow: inset 0 0 0 1px rgba(138, 106, 20, 0.35), 0 8px 22px rgba(0, 0, 0, 0.5);
+  font-family: var(--font);
+  font-size: 13.5px;
+  line-height: 1.35;
+  font-weight: 500;
+  padding: 7px 11px;
+  max-width: 280px;
+}
+@media (hover: none), (pointer: coarse) {
+  body:has(.cx-inner) .tip { display: none !important; }
+}
+
+/* ---------- framed art (Locations, Threats) ---------- */
+.cx-frame {
+  --bw: var(--cx-bw);
+  --chamfer: var(--cx-cut);
+  background: var(--gold);
+  padding: var(--bw);
+}
+.cx-frame-in {
+  --c2: calc(var(--chamfer) - var(--bw) * 0.6);
+  position: relative;
+  overflow: hidden;
+  background: #0a1626;
+  clip-path: polygon(var(--c2) 0, calc(100% - var(--c2)) 0, 100% var(--c2), 100% calc(100% - var(--c2)), calc(100% - var(--c2)) 100%, var(--c2) 100%, 0 calc(100% - var(--c2)), 0 var(--c2));
+}
+.cx-frame-in::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.55), inset 0 0 46px rgba(8, 19, 31, 0.35);
+}
+.cx-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--focus, 50% 42%);
+  display: block;
+  transition: filter 0.4s ease;
+}
+.cx-img-night { z-index: 1; }
+/* Blue hour: the day painting under a navy multiply, with the shadows lifted toward blue so the horizon glow
+ * and the rooflines stay legible. Used when there is no night painting of the place. */
+.cx-img.dusk { filter: saturate(0.82) brightness(0.94); }
+.cx-veil, .cx-veil-lift {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.cx-veil {
+  z-index: 1;
+  mix-blend-mode: multiply;
+  opacity: 0.6;
+  background: linear-gradient(180deg, #1c3164 0%, #223a6e 30%, #45578a 46%, #1a2f5c 64%, #0e1d3c 100%);
+}
+.cx-veil-lift {
+  z-index: 2;
+  mix-blend-mode: screen;
+  background: linear-gradient(180deg, rgba(34, 58, 120, 0.3) 0%, rgba(28, 48, 104, 0.2) 55%, rgba(22, 40, 92, 0.24) 100%);
+}
+/* Placeholder: a dark medallion with the initials in gold, until the painting arrives. */
+.cx-medal {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 50% 40%, #16304f 0%, #0a1626 60%, #060d17 100%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0 3px, transparent 3px 8px);
+}
+.cx-medal::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(135deg, rgba(233, 185, 58, 0.05) 0 3px, transparent 3px 10px);
+}
+.cx-medal span {
+  position: relative;
+  width: var(--medal, 28%);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(20px, 3vw, 46px);
+  letter-spacing: 0.06em;
+  color: var(--gold-2);
+  text-shadow: 0 2px 6px #000, 0 0 14px rgba(233, 185, 58, 0.35);
+  background: radial-gradient(circle at 50% 30%, #17304e, #08131f 75%);
+  border: 1.5px solid rgba(233, 185, 58, 0.6);
+  box-shadow: inset 0 0 0 3px #08131f, inset 0 0 0 4px rgba(233, 185, 58, 0.3), 0 0 26px rgba(0, 0, 0, 0.7);
+}
+.cx-medal small {
+  position: absolute;
+  bottom: 9%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--display);
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(233, 185, 58, 0.55);
+}
+
+/* ---------- Locations: one plate each ----------
+ * The painting runs as a wide band and sets the plate's height; the caption starts level with its top edge. */
+.cx-loc {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(14px, 2vw, 26px);
+  align-items: start;
+}
+.cx-loc-art { min-width: 0; }
+.cx-loc-art .cx-frame-in { aspect-ratio: 16 / 9; }
+.cx-loc-art .cx-medal { --medal: 24%; }
+@media (min-width: 900px) {
+  .cx-loc { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+  .cx-loc.flip { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+  .cx-loc.flip .cx-loc-art { order: 2; }
+  .cx-loc-art .cx-frame-in { aspect-ratio: 2 / 1; }
+}
+.cx-daynight { display: inline-flex; padding: 1px; }
+.cx-daynight button {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #cfc3a6;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  min-height: 26px;
+  transition: background 0.15s, color 0.15s;
+}
+.cx-daynight button + button { border-left: 1px solid var(--gold-dark); }
+.cx-daynight button.on { background: linear-gradient(180deg, #f6d77a, #d7a422 60%, #b4851a); color: #1a1200; }
+.cx-loc-body {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-width: 0;
+}
+.cx-plate-no {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+}
+.cx-loc-body h3 {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(22px, 2.5vw, 34px);
+  line-height: 1.05;
+  margin: 0;
+  color: var(--cx-navy);
+}
+.cx-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 0;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+}
+.cx-meta span + span::before { content: '✦'; margin: 0 10px; font-size: 8px; opacity: 0.7; position: relative; top: -1px; }
+.cx-rule {
+  position: relative;
+  border-left: 3px solid var(--gold);
+  background: linear-gradient(90deg, rgba(233, 185, 58, 0.14), rgba(233, 185, 58, 0.04));
+  padding: 9px 14px 10px;
+  font-weight: 600;
+  font-size: clamp(14.5px, 1.15vw, 16px);
+  line-height: 1.42;
+  color: #1e2a44;
+}
+.cx-kw {
+  display: block;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 9.5px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  margin-bottom: 3px;
+}
+.cx-blurb {
+  margin: 0;
+  font-style: italic;
+  font-size: clamp(15px, 1.2vw, 17px);
+  line-height: 1.5;
+  color: var(--cx-ink-2);
+}
+.cx-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; padding-top: 2px; }
+.cx-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border: 1px solid var(--cx-rule);
+  color: var(--cx-ink-3);
+  background: rgba(255, 255, 255, 0.35);
+  line-height: 1.2;
+}
+.cx-chip.warn { border-color: rgba(224, 74, 63, 0.55); color: #8f1d15; background: rgba(224, 74, 63, 0.08); }
+.cx-chip.good { border-color: rgba(31, 122, 58, 0.5); color: #1f5a30; background: rgba(79, 196, 111, 0.1); }
+
+/* ---------- Threats: a bestiary in two columns; an odd last entry runs across both ---------- */
+.cx-threats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr));
+  gap: clamp(18px, 2.4vw, 32px) 40px;
+  container-type: inline-size;
+}
+.cx-threat {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: 'art head' 'art rest' 'art blurb';
+  column-gap: clamp(12px, 1.6vw, 20px);
+  row-gap: 7px;
+  align-items: start;
+  color: var(--cx-ink);
+}
+/* Two columns (960px: two 460px entries and the gap) and an odd count: the last entry runs across both,
+ * its story set beside its rule rather than leaving an empty cell. */
+@container (min-width: 960px) {
+  .cx-threat:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: 'art head head' 'art rest blurb';
+  }
+  .cx-threat:last-child:nth-child(odd) .cx-threat-blurb { padding-left: 20px; border-left: 1px solid var(--cx-rule-soft); }
+}
+.cx-threat-blurb { grid-area: blurb; }
+.cx-threat-art { grid-area: art; width: clamp(92px, 10vw, 136px); }
+.cx-threat-art .cx-frame-in { aspect-ratio: 1; }
+.cx-threat-art .cx-medal { --medal: 56%; }
+.cx-threat-art .cx-medal span { font-size: clamp(18px, 2vw, 28px); }
+.cx-threat-art .cx-medal small { display: none; }
+.cx-threat-head { grid-area: head; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.cx-threat-rest { grid-area: rest; display: grid; gap: 7px; align-content: start; min-width: 0; max-width: 72ch; }
+.cx-threat-head h3 {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(18px, 1.6vw, 22px);
+  line-height: 1.1;
+  margin: 0;
+  color: var(--cx-navy);
+}
+.cx-family {
+  justify-self: start;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #fff;
+  padding: 3px 14px;
+  background: linear-gradient(180deg, #d1352a, #8f1d15);
+  clip-path: polygon(6px 0, calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 6px 100%, 0 50%);
+  white-space: nowrap;
+}
+.cx-family.systemic { background: linear-gradient(180deg, #2f66c9, #163a8c); }
+.cx-family.complicit { background: linear-gradient(180deg, #7a4ccf, #4a2c8a); }
+.cx-family.crisis { background: linear-gradient(180deg, #3b3b3b, #121212); }
+.cx-threat-text {
+  margin: 0;
+  font-weight: 600;
+  font-size: clamp(14.5px, 1.1vw, 15.5px);
+  line-height: 1.45;
+  color: #1e2a44;
+}
+.cx-stats { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.cx-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cx-ink-3);
+}
+.cx-orb {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 14px;
+  color: #fff;
+  text-shadow: 0 1px 2px #000;
+  background: radial-gradient(circle at 40% 35%, #ff8a7a, #c41f16 55%, #6b0f0a);
+  border: 2px solid var(--gold-2);
+  box-shadow: 0 0 0 1.5px #5a4010, 0 3px 8px rgba(0, 0, 0, 0.5), inset 0 -3px 6px rgba(0, 0, 0, 0.35), inset 0 3px 6px rgba(255, 255, 255, 0.35);
+}
+.cx-orb.cost { background: radial-gradient(circle at 40% 35%, #7ef0a0, #1f9a48 55%, #0d5a2a); }
+.cx-orb.inf { background: radial-gradient(circle at 40% 35%, #ffe28a, #d59a1c 55%, #7a5210); }
+.cx-orb.ev { background: radial-gradient(circle at 40% 35%, #b79cff, #5a35b8 55%, #2c1a5e); font-size: 11px; }
+.cx-threat .cx-blurb { font-size: clamp(14px, 1.1vw, 15.5px); }
+/* Phones: the thumbnail sits beside the title and its family; the entry text runs full width beneath. */
+@media (max-width: 480px) {
+  .cx-threat { grid-template-areas: 'art head' 'rest rest' 'blurb blurb'; column-gap: 12px; row-gap: 9px; }
+  .cx-threat-art { width: 84px; }
+  .cx-threat-head { align-self: center; }
+}
+
+/* ---------- the card sheet: a parchment plate, labelled by chapter ---------- */
+.cx-scrim { background: rgba(4, 10, 20, 0.74); place-items: center; padding: 10px; }
+.cx-sheet {
+  --fill:
+    radial-gradient(90% 70% at 50% 0%, rgba(255, 255, 255, 0.4), transparent 60%),
+    repeating-linear-gradient(0deg, rgba(120, 90, 30, 0.03) 0 2px, transparent 2px 5px),
+    linear-gradient(180deg, var(--cx-parch) 0%, var(--cx-parch-2) 100%);
+  width: min(100%, 460px);
+  max-height: min(92dvh, 900px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  color: var(--cx-ink);
+  font-family: var(--font);
+}
+.cx-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 12px 0 20px;
+}
+.cx-sheet-head .cx-kicker { font-size: 10px; }
+.cx-x {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  min-height: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  color: var(--parchment);
+  font-family: var(--display);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+.cx-sheet-body {
+  overflow: auto;
+  scrollbar-width: thin;
+  padding: 10px 16px 20px;
+  display: grid;
+  grid-auto-rows: max-content; /* the card keeps its full height and the body scrolls, rather than the rows shrinking */
+  gap: 12px;
+  justify-items: center;
+}
+.cx-sheet-body .card.big { box-shadow: none; }
+.cx-sheet-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.cx-btn {
+  color: var(--parchment);
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 8px 18px;
+  min-height: 36px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.cx-btn.on { color: #1a1200; }
+.cx-btn.on::after { background: linear-gradient(180deg, #f6d77a, #d7a422 60%, #b4851a); }
+@media (hover: hover) {
+  .cx-btn:not(.on):hover, .cx-x:hover { color: var(--gold-2); }
+}
+.cx-note {
+  width: 100%;
+  max-width: 380px;
+  border-left: 3px solid var(--gold);
+  background: linear-gradient(90deg, rgba(233, 185, 58, 0.14), rgba(233, 185, 58, 0.04));
+  padding: 10px 14px 12px;
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--cx-ink-2);
+  display: grid;
+  gap: 8px;
+}
+.cx-note p { margin: 0; }
+.cx-note .cx-kw { margin: 0; }
+.cx-note-tag { font-family: var(--display); font-size: 10.5px; letter-spacing: 0.06em; color: #4a2c8a; }
+.cx-legend { display: grid; gap: 10px; }
+.cx-legend > div { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; align-items: start; }
+.cx-legend .cx-orb { margin-top: 1px; }
+
+/* ---------- colophon ---------- */
+.cx-colophon {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  text-align: center;
+  padding: clamp(34px, 4vw, 56px) 12px 0;
+  color: var(--muted);
+  font-style: italic;
+  font-size: 14px;
+}
+.cx-colophon .cx-star { max-width: 260px; }
+.cx-colophon .cx-btn { margin-top: 4px; }

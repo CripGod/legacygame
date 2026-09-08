@@ -44,7 +44,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Zora Neale Hurston (`zora_neale_hurston`)
 - cost 2 · Influence 3 · Force 1 · historical · era: 1891–1960
-- reveal: Draw a card.
+- reveal: Folklore: look at the top two cards of your deck. Keep the more expensive one; the other goes to the bottom.
 - established: Your Gate Characters here gain +1 Influence.
 - blurb: Novelist and anthropologist who recorded the folklore of the rural South and wrote Their Eyes Were Watching God.
 - history: Zora Neale Hurston (1891–1960) grew up in Eatonville, Florida, one of the first all-Black incorporated towns in the country. Trained in anthropology under Franz Boas at Barnard, she collected folklore across the rural South and the Caribbean and published it in Mules and Men. Her 1937 novel Their Eyes Were Watching God was dismissed by some contemporaries and rediscovered decades later, largely through Alice Walker, and is now a cornerstone of American literature.
@@ -63,13 +63,13 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Callie House (`callie_house`)
 - cost 1 · Influence 1 · Force 3 · historical · era: 1861–1928
-- established: Your Characters here confront Threats with +1 Force.
+- established: Mutual relief: whenever a Threat at this Location is neutralized, draw 2 cards.
 - blurb: A Nashville washerwoman who built a 300,000-member movement demanding pensions for the formerly enslaved. The government jailed her for it.
 - history: Callie Guy House was born enslaved near Nashville in 1861 and supported five children as a laundress. In the 1890s she helped found the National Ex-Slave Mutual Relief, Bounty and Pension Association, traveling the South to organize local chapters and petition Congress for pensions for freedpeople. The Post Office and Pension Bureau harassed the movement for years; in 1917 she was convicted of mail fraud on thin evidence and served nearly a year in Jefferson City. She died in 1928.
 
 ### Richard Allen (`richard_allen`)
 - cost 2 · Influence 3 · Force 1 · historical · era: 1760–1831
-- established: The pulpit: your other Characters here gain +1 Influence.
+- established: Mother Bethel: whenever another of your Characters goes Inside here, draw a card.
 - blurb: Bought his own freedom, walked out of a segregated church and built his own denomination.
 - history: Richard Allen was born enslaved in Philadelphia in 1760, bought his freedom in his twenties and became a Methodist preacher. In 1787, after Black worshippers were pulled from their knees at St. George's Church, he and Absalom Jones founded the Free African Society, and in 1794 Allen opened Mother Bethel. In 1816 he brought several Black congregations together as the African Methodist Episcopal Church, the first independent Black denomination in the United States, and became its first bishop. Mother Bethel still stands on the oldest parcel of land continuously owned by Black Americans.
 
@@ -81,7 +81,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Daniel Payne (`daniel_payne`)
 - cost 1 · Influence 1 · Force 1 · historical · era: 1811–1893
-- reveal: Schoolmaster: draw a card.
+- reveal: Scholarship: the next Character you play (from next turn on) costs 1 less.
 - established: Wilberforce: gains +1 Influence while another of your Characters is at this Location.
 - blurb: Ran a school for Black children in Charleston until the state outlawed it. Later ran a university.
 - history: Daniel Alexander Payne was born free in Charleston in 1811 and opened a school for Black children at nineteen. South Carolina closed it by law in 1835, and he left for the North, was ordained in the AME Church and became a bishop in 1852. In 1863 he purchased Wilberforce University for the church and served as its president, the first Black president of a college in the United States. He spent decades pushing an educated ministry on a church that did not always want one.
@@ -95,7 +95,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Denmark Vesey (`denmark_vesey`)
 - cost 3 · Influence 3 · Force 4 · historical · era: c. 1767–1822
-- reveal: Challenge the opposing Gate Character here with the highest Influence. Force decides.
+- reveal: Recruiting: draw a card for each of your other Characters at this Location (max 2).
 - established: The plan: you have +1 Energy each turn.
 - blurb: Won a lottery, bought his freedom, built a church and planned an uprising. Hanged with 34 others.
 - history: Denmark Vesey was bought as a boy by a Bermuda slave captain, won $1,500 in a Charleston lottery in 1799 and purchased his own freedom, though not his family's. A carpenter and a founder of the city's AME church, he organized what would have been one of the largest slave uprisings in American history for the summer of 1822. It was betrayed before it began. Vesey and 34 others were hanged, the church was razed, and the state built a citadel to guard against the next attempt. The church rebuilt as Mother Emanuel.
@@ -109,7 +109,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Madam C.J. Walker (`madam_cj_walker`)
 - cost 3 · Influence 4 · Force 1 · historical · era: 1867–1919
-- reveal: Agents: draw a card.
+- reveal: Agents: +2 Energy next turn.
 - established: The next Character you Establish here gains +1 Influence.
 - blurb: Orphaned laundress who built a hair-care company, thousands of sales agents and the first self-made fortune by an American woman.
 - history: Sarah Breedlove was born on a Louisiana plantation in 1867, orphaned at seven, married at fourteen and widowed at twenty. Working as a laundress in St. Louis, she developed a line of hair-care products, renamed herself Madam C.J. Walker and built a company with a factory in Indianapolis and thousands of trained sales agents. By her death in 1919 she was reckoned the first self-made woman millionaire in the country. She funded the NAACP's anti-lynching campaign, the Tuskegee Institute and scholarships, and told her agents that their first duty was to their communities.
@@ -157,19 +157,19 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - blurb: The Brotherhood of Sleeping Car Porters: the men who rode every line in the country and carried the Defender and the news of the Great Migration with them.
 - history: The Pullman Company hired formerly enslaved men as porters from 1867 and became the largest employer of Black men in the country, on low pay and 400-hour months. In 1925 the porters organized the Brotherhood of Sleeping Car Porters under A. Philip Randolph, the first Black-led union to win a contract with a major American company, in 1937. Porters smuggled the Chicago Defender south in their bags and spread word of Northern jobs town by town.
 
-### Hubert Harrison (`hubert_harrison`)
-- cost 1 · Influence 2 · Force 2 · historical · era: 1883–1927
+### Organizer (`organizer`)
+- cost 1 · Influence 2 · Force 2 · archetype · era: Timeless
 - reveal: Another friendly Fresh Gate Character (here if possible) becomes Ready.
 - established: You have +1 Energy each turn.
-- blurb: The father of Harlem radicalism: a soapbox orator on Lenox Avenue who taught a generation how to organize.
-- history: Born in St. Croix in 1883, Hubert Henry Harrison came to New York at seventeen and became the most brilliant street speaker in Harlem, lecturing on socialism, race and science from a stepladder on Lenox Avenue. He founded the Liberty League and The Voice in 1917, the first organization and newspaper of the New Negro movement, and edited Marcus Garvey's Negro World before breaking with him. He died after an appendectomy in 1927, aged forty-four.
+- blurb: The person with the clipboard, the church basement and the phone tree.
+- history: An archetype. The organizer is the person who runs the meeting, keeps the list and makes the phone calls: Ella Baker, who built the NAACP's Southern branches and mentored SNCC; Fannie Lou Hamer registering voters in Mississippi; the thousands of unnamed people who made the Montgomery bus boycott run for 381 days. The game's Organizer represents that role rather than one person.
 
-### Clara Brown (`clara_brown`)
-- cost 2 · Influence 3 · Force 3 · historical · era: 1800–1885
+### OG (`og`)
+- cost 2 · Influence 3 · Force 3 · archetype · era: Timeless
 - reveal: Opposing Gate Characters here cannot enter this turn.
 - established: Opposing Gate Characters here contribute 1 less Influence.
-- blurb: "Aunt" Clara Brown, the Angel of the Rockies: nobody settled Central City without coming through her kitchen first.
-- history: Clara Brown was born enslaved in Virginia around 1800, sold apart from her husband and children, and bought her freedom in Kentucky in 1856. She cooked her way west on a wagon train to Colorado in 1859, opened a laundry in Central City during the gold rush, bought mining claims and property, and used the money to bring dozens of freedpeople west after the war and to search for her daughter, whom she found in 1882. Colorado made her a member of its Society of Pioneers.
+- blurb: Everybody on the block knows who you talk to first.
+- history: An archetype. 'OG' (original gangster, now simply 'original') is the elder on the block whose standing comes from having been there first and stayed. The game uses the figure for territorial respect: the person you talk to before you do anything on that corner. No single historical figure is intended.
 
 ### Ida B. Wells (`ida_b_wells`)
 - cost 3 · Influence 4 · Force 1 · historical · era: 1862–1931
@@ -215,7 +215,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Victor Hugo Green (`victor_hugo_green`)
 - cost 2 · Influence 3 · Force 1 · historical · era: 1892–1960
-- reveal: Draw a card.
+- reveal: The Green Book: next turn you may make one extra Relocation.
 - established: Characters you relocate out of this Location arrive Inside their destination (Established), not at the Gates.
 - blurb: Publisher of the Green Book, the guide that told Black travelers where they could eat, sleep and buy gas without danger, including how to get through sundown towns.
 - history: Victor Hugo Green (1892–1960), a postal worker in Harlem, published The Negro Motorist Green Book from 1936 to 1966. It listed the hotels, restaurants, gas stations and private homes where Black travellers could safely stop, state by state, at a time when a wrong turn at dusk could be dangerous. Green gathered listings through fellow postal workers and readers. The guide stopped publication after the Civil Rights Act of 1964, its stated hope fulfilled: a day when it would no longer be needed.
@@ -237,7 +237,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 ### Oshun (`oshun`)
 - cost 3 · Influence 4 · Force 1 · mythic · era: Yoruba, Osogbo
 - reveal: Sweet water: another friendly Character here gains +1 Influence permanently.
-- established: Your Characters arriving at this Gate become Ready at the end of the turn they arrive.
+- established: The river: at the end of each turn, your Character here with the lowest Influence gains +1 permanently.
 - blurb: Orisha of the river Osun, of fresh water, beauty and wealth. When the other orisha ignored her, the world dried up until they asked her back.
 - history: Mythic (fantasy). Oshun is the Yoruba orisha of fresh water, love, fertility and prosperity, associated with the river Osun in Nigeria, where the annual Osun-Osogbo festival draws pilgrims to her sacred grove. In one story the male orisha tried to build the world without her and failed until she was asked back. She is Ochún in Cuba and Oxum in Brazil. The card's abilities are invention in her spirit.
 
@@ -277,12 +277,76 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - blurb: The Defender's parade for the kids of the South Side, every August since 1929: the largest African American parade in the country.
 - history: The Chicago Defender staged the first Bud Billiken Day parade on August 11, 1929, to celebrate the paper's newsboys and the children of the Great Migration. It runs down Martin Luther King Drive (then South Parkway) to Washington Park, with bands, drill teams and floats, and has drawn Duke Ellington, Muhammad Ali and sitting presidents. It has marched every year since, the largest African American parade in the United States.
 
-### Fisk Jubilee Singers (`fisk_jubilee_singers`)
-- cost 1 · Influence 1 · Force 3 · gathering · era: Nashville, 1871–
+### Chairteenth (`chairteenth`)
+- cost 1 · Influence 1 · Force 3 · gathering · era: Montgomery, 2023
 - established: Your Characters here confront Threats with +1 Force.
-- arrives: Montgomery, Alabama is revealed. The Fisk Jubilee Singers arrive at each player's Gates there. / button: Continue
-- blurb: Nine students who left Fisk in 1871 to sing the spirituals for the world, and saved the school doing it.
-- history: In October 1871, with Fisk University near bankruptcy, treasurer George White took nine students on a fundraising tour of the North. They sang the spirituals their parents had sung in bondage, songs white audiences had never heard on a concert stage, and raised enough to build Jubilee Hall. They sang for President Grant and Queen Victoria, and the ensemble still performs today.
+- arrives: Montgomery, Alabama is revealed. Chairteenth arrives at each player's Gates there. / button: Continue
+- blurb: Somebody grabbed a folding chair. The whole dock showed up.
+- history: On August 5, 2023, at Riverfront Park in Montgomery, Alabama, a group of white boaters attacked a Black riverboat co-captain who had asked them to move their pontoon from the riverboat's docking space. Bystanders, most of them Black, rushed to his defense; a teenage deckhand jumped off the riverboat and swam to the dock to join in, and a folding chair became the day's symbol. Videos went viral, several of the boaters were charged with assault, and the internet named the anniversary Chairteenth.
+
+### Peter Prioleau (`peter_prioleau`)
+- cost 2 · Influence -3 · Force 0 · historical · era: Charleston, 1822
+- keywords: INFORMANT
+- passive: Informant: play onto your opponent's Gates at a Location with one of their slots open. It is theirs: its Influence counts against them, it never becomes Ready and never goes Inside. They can relocate it, slide it with Robert Smalls, or let a Threat knock it away; Harriet will not conduct it. At Charleston, 1822 it is found out and sent back to your hand.
+- blurb: The enslaved cook who told his master about the Vesey plot. Freed by the state for it, with a pension.
+- history: Peter Prioleau (also written Devany or Desverneys) was enslaved by Colonel John Prioleau of Charleston. On 30 May 1822 he reported that an enslaved man named William Paul had tried to recruit him into a rising planned for July. The city arrested Denmark Vesey and dozens of others; thirty-five were hanged. The South Carolina legislature freed Prioleau and granted him an annual pension of fifty dollars, and he lived out his life as a free man of color in Charleston.
+
+### George Wilson (`george_wilson`)
+- cost 1 · Influence -2 · Force 0 · historical · era: Charleston, 1822
+- keywords: INFORMANT
+- passive: Informant: play onto your opponent's Gates at a Location with one of their slots open. It is theirs: its Influence counts against them, it never becomes Ready and never goes Inside. They can relocate it, slide it with Robert Smalls, or let a Threat knock it away; Harriet will not conduct it. At Charleston, 1822 it is found out and sent back to your hand.
+- blurb: A class leader in the African church who confirmed the plot to his master. Freed, and never at peace with it.
+- history: George Wilson was enslaved by Major John Wilson and was a class leader in the African Methodist congregation many of the plotters belonged to. Approached by Rolla Bennett in June 1822, he tried to talk Rolla out of it and then told his master on 14 June, which confirmed the earlier report and set the arrests in motion. The legislature freed him and voted him a pension. Contemporaries recorded that he was later tormented by what the confession had cost, and he was said to have taken his own life.
+
+### Pharoah and Tom (`pharoah_and_tom`)
+- cost 2 · Influence -3 · Force 0 · historical · era: Richmond, 1800
+- keywords: INFORMANT
+- passive: Informant: play onto your opponent's Gates at a Location with one of their slots open. It is theirs: its Influence counts against them, it never becomes Ready and never goes Inside. They can relocate it, slide it with Robert Smalls, or let a Threat knock it away; Harriet will not conduct it. At Charleston, 1822 it is found out and sent back to your hand.
+- blurb: Two enslaved men on Mosby Sheppard's place who gave up Gabriel's rising on the day it was to begin.
+- history: Pharoah and Tom were enslaved on the Meadow Farm plantation of Mosby Sheppard in Henrico County, Virginia. On 30 August 1800, the day Gabriel's rising was to march on Richmond, they told Sheppard of the plan; that night a storm washed out the roads and bridges. Governor James Monroe called out the militia, Gabriel and about twenty-five others were hanged, and the Virginia legislature bought Pharoah and Tom for five hundred dollars each and freed them.
+
+### Ben Woolfolk (`ben_woolfolk`)
+- cost 1 · Influence -2 · Force 0 · historical · era: Richmond, 1800
+- keywords: INFORMANT
+- passive: Informant: play onto your opponent's Gates at a Location with one of their slots open. It is theirs: its Influence counts against them, it never becomes Ready and never goes Inside. They can relocate it, slide it with Robert Smalls, or let a Threat knock it away; Harriet will not conduct it. At Charleston, 1822 it is found out and sent back to your hand.
+- blurb: A recruiter for Gabriel's rising who turned state's witness and testified against the men he had enlisted.
+- history: Ben Woolfolk was an enslaved man hired out near Richmond who became one of the most active recruiters for Gabriel's conspiracy in the summer of 1800, carrying the plan out into Caroline County. Arrested after the betrayal, he agreed to testify for the Commonwealth, and his detailed accounts of the meetings sent many of the accused to the gallows. He was pardoned for it. His testimony is the fullest surviving record of what Gabriel planned.
+
+### Edmonia Lewis (`edmonia_lewis`)
+- cost 3 · Influence 2 · Force 1 · artist · era: 1844–1907
+- reveal: Forever Free: this Location gains +2 lasting Influence for you. It stays even if she leaves.
+- blurb: Sculptor of Ojibwe and Haitian descent who carved Forever Free and The Death of Cleopatra in Rome, on her own terms.
+- history: Mary Edmonia Lewis was born in 1844 in upstate New York to a Haitian father and an Ojibwe mother, was raised among her mother's people, and studied at Oberlin until a poisoning accusation and a beating drove her out. She learned to carve in Boston, sold busts of Robert Gould Shaw to pay her way to Rome in 1866, and there made Forever Free (1867), Hagar and The Death of Cleopatra (1876), which drew crowds at the Philadelphia Centennial. She worked in marble without assistants so nobody could say the work was not hers, and died in London in 1907.
+
+### Henry Ossawa Tanner (`henry_ossawa_tanner`)
+- cost 3 · Influence 3 · Force 1 · artist · era: 1859–1937
+- established: The Banjo Lesson: at the end of each turn he is Established here, this Location gains +1 lasting Influence for you.
+- blurb: Painter of The Banjo Lesson and The Annunciation; son of an AME bishop, first Black artist honored by the Paris Salon.
+- history: Henry Ossawa Tanner was born in Pittsburgh in 1859, the son of AME bishop Benjamin Tanner and Sarah Tanner, who had escaped slavery on the Underground Railroad. He studied under Thomas Eakins at the Pennsylvania Academy, painted The Banjo Lesson in 1893, and moved to Paris the next year to work free of American racism. The Raising of Lazarus won a medal at the 1897 Salon and was bought by the French state; he was made a knight of the Legion of Honor in 1923 and died in Paris in 1937.
+
+### Robert Duncanson (`robert_duncanson`)
+- cost 2 · Influence 2 · Force 1 · artist · era: 1821–1872
+- reveal: Landscape: every Location where you have an Established Character gains +1 lasting Influence for you.
+- blurb: Hudson River School painter of the Ohio valley; the first Black artist to win an international reputation.
+- history: Robert Seldon Duncanson was born in 1821 in Fayette, New York, to a family of free Black house painters, and settled in Cincinnati, the busiest art market west of the mountains. Abolitionist patrons commissioned his murals and landscapes; Blue Hole, Little Miami River (1851) and Land of the Lotus Eaters (1861) made his name, and he toured Canada and Britain during the Civil War, where the Duchess of Sutherland and Tennyson received him. He died in Detroit in 1872.
+
+### Edward Bannister (`edward_bannister`)
+- cost 2 · Influence 2 · Force 1 · artist · era: 1828–1901
+- reveal: Under the Oaks: this Location gains +1 lasting Influence for you, +1 more if it is in the Americas.
+- blurb: Providence landscape painter whose Under the Oaks won the 1876 Centennial medal; the judges tried to revoke it when they saw who he was.
+- history: Edward Mitchell Bannister was born in St. Andrews, New Brunswick, in 1828, worked as a barber in Boston, and took up painting after reading a newspaper claim that Black people could appreciate art but not make it. Under the Oaks took first prize at the Philadelphia Centennial Exposition in 1876; officials tried to reconsider when he came forward, and the other artists insisted he keep it. He co-founded the Providence Art Club and died in 1901.
+
+### Harriet Powers (`harriet_powers`)
+- cost 2 · Influence 2 · Force 1 · artist · era: 1837–1910
+- reveal: Bible Quilt: this Location gains +1 lasting Influence for you for each of your other Characters here (max 3).
+- blurb: Quilter from Athens, Georgia, whose two surviving story quilts hang in the Smithsonian and the Museum of Fine Arts, Boston.
+- history: Harriet Powers was born enslaved in Georgia in 1837 and farmed near Athens after emancipation. She exhibited her Bible Quilt at the Athens Cotton Fair in 1886 and, hard up in 1891, sold it for five dollars to Jennie Smith, an art teacher who wrote down Powers's own explanation of every panel. A second quilt, the Pictorial Quilt (about 1898), mixes Bible stories with remembered events like the 1833 meteor shower. The two are the only known works by her; the first is at the National Museum of American History, the second in Boston.
+
+### David Drake (`dave_the_potter`)
+- cost 1 · Influence 1 · Force 2 · artist · era: c. 1801–c. 1875
+- reveal: Inscribed jar: this Location gains +1 lasting Influence for you. It stays even if he leaves.
+- blurb: "Dave the Potter" of Edgefield, South Carolina: an enslaved man who signed, dated and wrote verses on forty-gallon jars when literacy was a crime.
+- history: David Drake was born enslaved around 1801 and turned pots in the Edgefield district of South Carolina for the Landrum and Miles families. From the 1830s he signed and dated his jars and cut couplets into the wet clay: "I wonder where is all my relation / friendship to all and every nation" (1857). South Carolina had outlawed teaching enslaved people to write in 1834. He is recorded as a free man named Dave Drake in the 1870 census; his jars are in the Smithsonian, the Met and the Museum of Fine Arts, Boston.
 
 ### Booker T. Washington (`booker_t_washington`)
 - cost 3 · Influence 4 · Force 2 · historical · era: 1856–1915
@@ -299,7 +363,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Marie Laveau (`marie_laveau`)
 - cost 3 · Influence 3 · Force 2 · historical · era: 1801–1881
-- reveal: The opposing Gate Character here with the highest Influence crosses over to your Gates at −1 Influence. You need an open Gate slot.
+- reveal: Gris-gris: the opposing Gate Character here with the highest Influence loses 2 Influence for the rest of the match.
 - blurb: Hairdresser, healer and the most consulted woman in New Orleans.
 - history: Marie Catherine Laveau was born free in New Orleans in 1801, a Creole of African, French and Native descent. A hairdresser to wealthy households, she became the city's best-known Vodou practitioner, leading ceremonies at Congo Square and on Lake Pontchartrain, nursing yellow fever patients and visiting prisoners on death row. Clients across every class came to her for charms, advice and intercession. She died in 1881; her tomb in St. Louis Cemetery No. 1 is still visited.
 
@@ -346,7 +410,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Reparations (`reparations`)
 - cost 1
-- text: Choose a Location: +1 Influence there this turn for each Setback suffered this match (max +4). In the Americas: +1 more.
+- text: Choose a Location: +1 lasting Influence there for each Setback you have suffered this match (max +4). It counts at the end no matter when you play it. In the Americas: +1 more.
 - blurb: Only neutral historical harm counts. What the opponent did to you is not the same thing. The debt is owed where it was run up.
 
 ### Community Defense (`community_defense`)
@@ -365,11 +429,6 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - cost 0
 - text: Draw a card. Choose a Location: where you have 2 or more Characters, draw 2 instead.
 - blurb: Free, fast and usually right. It travels further where more of your people are.
-
-### Persuade (`persuade`)
-- cost 3
-- text: Curse. Every opposing Gate Character loses 1 Influence this turn. Choose a Location: the opposing Gate Character there with the lowest Influence crosses over to your Gates at −1 Influence.
-- blurb: Everybody has a price, a grievance or a cousin. Find the one that opens the door.
 
 ## Threats
 
@@ -435,6 +494,11 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - rule: Characters arriving at these Gates are displaced to a random other Location at the end of the turn (Setback). At night (even turns) nobody relocates out: curfew until morning. Nothing happens on the turn it reveals. Direct Entry and Characters arriving Inside are safe.
 - blurb: Thousands of towns enforced, by sign, ordinance or violence, that Black people be gone by nightfall.
 
+### Charleston, 1822 (`charleston_1822`)
+- era: South Carolina, 1822
+- rule: The plot is betrayed: at the end of each turn, the Fresh Gate Character here with the lowest Influence changes sides (a tie goes against the leader). A turncoat can turn back later. Nothing happens on the turn it reveals.
+- blurb: Denmark Vesey's rising was set for July. Two informants ended it in June, and thirty-five people hanged.
+
 ### Lagos (`lagos`)
 - era: Eko, today
 - rule: Danfo: Relocations out of Lagos do not count against your Relocation limit, and Characters who leave arrive Ready. No Housing Restriction here.
@@ -472,6 +536,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - `finalTurn`: Last scheduled turn. A Stand on Business now adds an 8th turn; otherwise whatever stands after this one is counted: two Locations of three, then total Influence, then total Force.
 - `dayNight`: This Location has a curfew. Odd turns are day, even turns are night: at night nobody relocates out until morning. Harriet Tubman is the only one who can move a Character out.
 - `locked`: Held here: cannot relocate out. A curfew at night, or The Justice System. Harriet Tubman can still move them.
+- `informant`: Informant: a Character played onto the other side's Gates. It is theirs, its Influence counts against them there, it never becomes Ready and never enters. Relocate it, slide it with Robert Smalls, or dump it at Charleston, 1822, where it is found out and sent back to the planter's hand.
 - `event`: Event: a one-shot card. Drop it on a Location: it goes in the purple Event slot beside your Gates (one per Location per turn), works everywhere, and the Location it lands on adds a little more.
 - `currentInfluence`: Influence this Character currently contributes here, including bonuses and penalties.
 - `ready`: Ready: waited a turn at the Gates. Tap to send it Inside this turn.
@@ -484,7 +549,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - `scoreA`: Silverlake Slayer's Influence at this Location.
 - `scoreB`: Harborlight's Influence at this Location.
 - `line`: The Influence Line: leans toward whoever leads. Lead at two of three Locations after the final turn to win.
-- `energy`: Energy: the crystals up here are what you can spend on cards this turn. You get one more each turn (Turn 3 = 3), Hubert Harrison adds one, and unspent Energy does not carry over. Lit crystals are still unspent; dim ones are spent; hollow ones come on later turns.
+- `energy`: Energy: the crystals up here are what you can spend on cards this turn. You get one more each turn (Turn 3 = 3), Organizer adds one, and unspent Energy does not carry over. Lit crystals are still unspent; dim ones are spent; hollow ones come on later turns.
 - `cost`: Cost: the Energy this card takes to play. Energy equals the turn number, so expensive cards wait for later turns, unless something brings the price down: a green cost means a discount is on right now.
 - `stakes`: Legacy: what the match is worth. Stand on Business doubles it (1 → 2 → 4) one turn later, adds an 8th turn, and means you cannot Sit Down. The other side gets one turn to Sit Down at the old price.
 - `stakesPending`: Someone Stood on Business. The raise lands after this turn: Sit Down now to lose only the current Legacy.
@@ -516,7 +581,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 onChange(o.key)}>
 {d.cards.length > 0 && …}
 Black History Card Battler
-Systems prototype · v0.2
+Systems prototype · v0.3 · build …
 Deploy heroes, legends and neighbors across three Locations. Win Influence at two of them. Seven turns. Ten minutes, give or take.
 onPlay(opts('ai'))}>
 Play vs Harborlight
@@ -537,11 +602,11 @@ In-match: the ⚙ button opens AI reasoning, analytics and the event log. Also e
 ← Back
 Rules
 ### The match
-- Two players, three Locations, seven turns (an 8th if someone Stands on Business), 13-card decks. Four-card opening hand and one draw every turn. Hands hold at most seven cards: a draw into a full hand is discarded.
+- Two players, three Locations, seven turns (an 8th if someone Stands on Business), 18-card decks. Four-card opening hand and one draw every turn. Hands hold at most seven cards: a draw into a full hand is discarded.
 - Both players plan at the same time, then Lock It In. Two minutes per turn.
 - Win Influence at two of the three Locations to win the match.
 ### Playing Characters
-- Every card has an Energy cost. Each turn you get Energy equal to the turn number (Turn 1: 1, Turn 5: 5); Hubert Harrison and Denmark Vesey add +1 while Established, Oak Bluffs pays +1 next turn, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your two Gate slots at a Location. Its Reveal ability triggers there.
+- Every card has an Energy cost. Each turn you get Energy equal to the turn number (Turn 1: 1, Turn 5: 5); Organizer and Denmark Vesey add +1 while Established, Oak Bluffs pays +1 next turn, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your two Gate slots at a Location. Its Reveal ability triggers there.
 - Discounts. Some cards cost more than you will ever have on your own: Boukman Dutty is 7. Prices come down while a card waits in your hand. Booker T. Washington makes every Character 1 cheaper, Cécile Fatiman takes 2 off your most expensive card and 1 off every Rebellion Character, George Washington Carver knocks 1 off your priciest card at the end of each turn, and Boukman himself costs 1 less for each Rebellion Character you have on the board. A green cost on a card in your hand means it is discounted right now; a card never costs less than 0.
 - Gate Characters count toward Influence but are Fresh for the turn they arrive and the following turn. Then they are Ready and may enter Inside (up to five per player).
 - Inside, a Character is Established: its Established ability is live and it is safe from Gate-only effects.
@@ -561,14 +626,15 @@ Rules
 ### Threats
 - Threats are neutral dangers generated by Locations and by history moving on Turn 3. Tap a Threat to commit Characters' Force against it.
 - Some Threats come one per player. Once yours is gone you may Assist against your opponent's, earning Solidarity (cosmetic only).
-- A Setback is a loss suffered at the hands of injustice: a Threat or a hostile Location working against you. Your opponent's cards never cause one. Reparations converts Setbacks into Influence.
+- A Setback is a loss suffered at the hands of injustice: a Threat or a hostile Location working against you. Your opponent's cards never cause one. Reparations converts Setbacks into lasting Influence on a Location; it counts at the end no matter when you play it.
 - Unresolved crises can make a Location Lost: nobody wins it.
 ### Special arrivals
 - Straight Inside (Sleeping Car Porters) always goes Inside the turn it is played. Direct Entry (Bessie Coleman) may: tap ⇅ on the planned move to choose Gates or Inside.
 - The Ancestors are never in a deck. In one match out of four, holding three Characters Inside at Accra, Ghana brings them to your hand. Play them while planning to see your opponent's plan for the turn and every danger the board is about to spring.
 - The Tabernacle protects your Characters from displacement. Establish Richard Allen, Absalom Jones and Daniel Payne there and Black Jesus appears: sanctuary at his Location and +1 Influence to every Character you control.
 - The Justice System holds anyone who goes Inside for two turns: no relocating out.
-- Events are played into the purple Event slot under a Location (one per Location per turn; the Gates can be full). They work everywhere and the Location adds a bonus: Reparations pays +1 more in the Americas, The Ancestors bless a Location in Africa, Word of Mouth draws two where you have a crowd, Community Defense adds Force where it lands, and Persuade (a Curse) drains every opposing Gate Character and turns the weakest one at its Location to your side at −1 Influence. Marie Laveau's Reveal takes the strongest. Some cards cost 0 Energy.
+- Events are played into the purple Event slot under a Location (one per Location per turn; the Gates can be full). They work everywhere and the Location adds a bonus: Reparations pays +1 more in the Americas, The Ancestors bless a Location in Africa, Word of Mouth draws two where you have a crowd, Community Defense adds Force where it lands. Some cards cost 0 Energy.
+- Informants (Peter Prioleau, George Wilson, Pharoah and Tom, Ben Woolfolk) are Characters you play onto your opponent's Gates at a Location with one of their slots open. They are theirs: their negative Influence counts against them there, they take one of their Gate slots, and they never become Ready or go Inside. Relocate one away, slide it with Robert Smalls, or let a Threat knock it away; Harriet Tubman will not conduct one. Or drop it at Charleston, 1822, where at the end of every turn the Fresh Gate Character with the lowest Influence changes sides (a tie goes against the leader): an Informant there is found out and goes back to the hand of whoever planted it. Marie Laveau's Reveal hexes the strongest opposing Gate Character at her Location: −2 Influence for the rest of the match.
 - Every deck carries at least one Mythic. The full list, with costs, is under Cards on the start screen.
 ### Summon (cooperative)
 - Use quick chat (💬) to call Summon? at a Location with a Threat. If the other side answers Summon!, both of you commit that turn.
@@ -626,11 +692,14 @@ Main menu
 - ${locNameAt(i)} is Lost. Nobody can win it, so nothing can be played there.
 - ${nm} cannot be played right now.
 - Not enough Energy: ${nm} costs ${cardCost(payload.cardId, view, me)} and you have ${opts.energy - planCost(plan, view, me)} left this turn. Energy equals the turn number, so it grows every turn.
+- The Event slot at ${locNameAt(i)} already holds ${otherEv ? cardName(otherEv.cardId, placeholders) : 'an Event'} this turn. One Event per Location per turn: play ${nm} somewhere else.
+- ${view.players[other(me)].handle}'s Gates at ${locNameAt(i)} are full. An Informant needs one of their slots open: plant ${nm} where they have room.
+- ${col(i)} .gates-left:not([data-drop]) .gate-slot
+- ${nm} cannot go to ${locNameAt(i)}.
 - ${leaving.map((h) => cardName(h.defId, placeholders)).join(' and ')} still hold${leaving.length > 1 ? '' : 's'} a Gate slot at ${locNameAt(i)} until the turn resolves (new arrivals are placed before anyone enters). Play ${nm} there next turn.
 - ${col(i)} .gate-slot.reserved
 - Both of your Gate slots at ${locNameAt(i)} are taken. Send someone Inside or relocate them first.
 - ${col(i)} .gates-left[data-drop="gates"] .gate-slot
-- ${nm} cannot go to ${locNameAt(i)}.
 - ${nm} is already on the board; cards only return to your hand before they are played.
 - ${nm} is not at ${locNameAt(loc.index)}. Only Characters at a Threat's Location can confront it.
 - ${nm} is moving this turn. A Character cannot move and confront in the same turn.
@@ -640,6 +709,9 @@ Main menu
 - ${nm} is already moving this turn. Harriet Tubman can only move a Character that is staying put.
 - ${locNameAt(i)} is Lost. Nobody can win it.
 - Your Gates at ${locNameAt(i)} are full, so Harriet Tubman cannot move ${nm} there.
+- ${nm} cannot move right now: ${lockReason(view, c) ?? 'you have used your Relocation this turn'}.
+- Your Gates at ${locNameAt(i)} are full, so ${nm} cannot go there.
+- You have already used your Relocation this turn. Undo it to move ${nm} instead.
 - Gate Characters enter the Location they are waiting at. Play Harriet Tubman first and she can move one of them to another Gate.
 - ${nm} is Fresh: it arrived this turn and waits one turn at the Gates before it can enter.
 - Segregationist Patrol blocks your entries at ${locNameAt(i)}. Neutralize it with ${patrol?.forceRequired ?? 3} Force in one turn.
@@ -686,13 +758,14 @@ Main menu
 
 - ghost info ${open ? 'on' : ''}
 - Moving with Harriet Tubman to Location ${(harrietMove.target!.location ?? 0) + 1} when you Lock It In
+- At the Gates · ${HINTS.informant}
 - Established: Inside, Established ability active
 - At the Gates · ${HINTS.blocked}
 - At the Gates · ${HINTS.ready}
 - At the Gates · ${HINTS.fresh}
 - ${cardName(c.defId, placeholders)} · ${view.players[c.owner].handle}
--  · +${c.permInfluence} Influence
--  · +${c.tempInfluence} this turn
+-  · ${c.permInfluence > 0 ? '+' : ''}${c.permInfluence} Influence
+-  · ${c.tempInfluence > 0 ? '+' : ''}${c.tempInfluence} this turn
 - Coming with ${yemoja.name} ✓ (tap to cancel)
 - Bring across with ${yemoja.name}
 - Relocate to another Location's Gates (stays ${c.ready ? 'Ready' : 'Fresh'}):
@@ -964,7 +1037,11 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
 - ;
   }
   if (actor.kind === 'location') {
-    const fresh = charsAt(view, location, me, 'gate').filter((c) => !c.ready);
+    const fresh = charsAt(view, location, me, 'gate').filter((c) => !c.ready && !(CARD_BY_ID[c.defId] as { keywords?: string[] } | undefined)?.keywords?.includes('INFORMANT'));
+    if (LOCATION_BY_ID[actor.id]?.effect.type === 'turncoatAtEnd') {
+      return fresh.length ? 
+- ;
+    }
     return fresh.length ? 
 -  : '';
   }
@@ -993,10 +1070,10 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
       return 'It wears off at the end of next turn.';
     case 'refreshOpposingGate':
       return 'They are Ready again next turn.';
-    case 'stealGate': {
+    case 'hexGate': {
       const exposed = charsAt(view, location, me, 'gate');
       return exposed.length ? 
--  : '';
+-  : 'Gris-gris does not wear off.';
     }
     default:
       return '';
@@ -1009,7 +1086,7 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
   const d = ev.data as {
     actor: { kind: 'character' | 'threat' | 'location' | 'event'; id: string; owner?: PlayerId; force?: number };
     victim: { uid: string; defId: string; owner: PlayerId; force: number };
-    outcome: 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose';
+    outcome: 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected';
     from: number;
     to?: number;
     theirForce?: number;
@@ -1038,7 +1115,9 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
     suppressed: 'SUPPRESSED',
     turned: 'TURNED',
     tricked: 'TRICKED',
-    rose: 'RISES AGAIN',
+    rose: 'BACK TO HAND',
+    hexed: 'HEXED',
+    defected: 'CHANGES SIDES',
   };
   const attackerWins = d.outcome !== 'held';
   const artKind = d.actor.kind === 'character' ? 'characters' : d.actor.kind === 'threat' ? 'threats' : d.actor.kind === 'location' ? 'locations' : 'events';
@@ -1071,7 +1150,7 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
               {placeholders ? <span className="ini">{initials(d.victim.defId, true)}</span> : <Art kind="characters" id={d.victim.defId} className="fighter-img" fallback={<span className="ini">{initials(d.victim.defId, false)}</span>} alt={victimName} />}
             </div>
             <b>{victimName}</b>
-            <small>{owner(d.victim.owner)}{d.theirForce !== undefined ? 
+            <small>{owner(d.victim.owner)}{d.theirForce !== undefined && d.outcome !== 'hexed' ? 
 - }</small>
           </div>
         </div>
@@ -1230,6 +1309,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${who} ${verb}.
 - ${name(state, c)} could not be displaced: no open Gate.
 - ${name(state, c)} is displaced from ${locName(state, from)} to the Gates of ${locName(state, dest)} (${reason}).
+- ${charDef(pulpit.defId).name}: the congregation grows; ${state.players[c.owner].handle} draws a card.
 - ${name(state, c)} ${how} ${locName(state, c.location)}.
 - ${charDef(m.defId).name} grants +1 Influence to ${charDef(c.defId).name}.
 - ${def.name} arrives ${where === 'Inside' ? 'Inside' : 'at the Gates of'} ${locName(state, location)} for ${ps.handle}. ${def.spawn?.headline ?? ''}
@@ -1251,7 +1331,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - no Threat here to confront.
 - confronts ${threatName(state, own)} with +${eff.bonus} Force.
 - all Locations are already revealed.
-- ${def.name}: privately learns that Location ${next + 1} reveals next.
+- ${def.name}: privately learns that Location ${next + 1} reveals next (it is marked on the board for you).
 - was played into a known Location.
 - gains +${eff.amount} Influence as the Location reveals.
 - will gain +${eff.amount} Influence when this Location reveals.
@@ -1281,31 +1361,39 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - confronts every Threat here with +${eff.bonus} Force.
 - lures ${charDef(target.defId).name} away.
 - nobody here to lure.
-- no opposing Gate Character here to turn.
-- ${state.players[p].handle}'s Gates here are full, so nobody crosses over.
-- turns ${charDef(target.defId).name}: they cross over to ${state.players[p].handle} at −1 Influence.
+- no opposing Gate Character here to hex.
+- hexes ${charDef(target.defId).name}: −${amount} Influence for the rest of the match.
 - no Established Character chosen to bring home.
 - writes home for ${tdef.name}, but the hand is full: the card is discarded.
 - brings ${tdef.name} home from ${locName(state, target.location)}: back in hand and free to play again. ${ps.handle} draws a card.
 - ${def.name}: ${state.players[opp].handle} is holding ${names.length ? names.join(', ') : 'nothing'}.
 - no card in hand left to make cheaper.
 - ${def.name}: ${CARD_BY_ID[best]?.name ?? best} in ${ps.handle}'s hand now costs ${eff.amount} less (${cardCost(best, state, p)}).
+- ${def.name}: ${locName(state, index)} gains +${amount} lasting Influence for ${state.players[p].handle} (${why}). It stays even if ${def.short} leaves.
+- no Location where you are Established to paint.
+- nobody here to stitch into the quilt: no lasting Influence.
+- the deck is empty.
+- ${ps.handle}'s hand is full (${MAX_HAND}): ${CARD_BY_ID[keep]?.name ?? keep} is discarded.
+- ${def.name}: looks at the top ${top.length} card${top.length > 1 ? 's' : ''} of the deck, keeps ${CARD_BY_ID[keep]?.name ?? keep} and puts the rest on the bottom.
+- +${eff.amount} Energy next turn.
+- the next Character ${state.players[p].handle} plays costs ${eff.amount} less.
+- next turn ${state.players[p].handle} may make ${eff.amount} extra Relocation${eff.amount > 1 ? 's' : ''}.
+- nobody else here to recruit: no cards drawn.
+- recruits: draws ${n} card${n > 1 ? 's' : ''}, one per friend here.
 - ${ps.handle} plays ${def.name} at ${locName(state, at)}.
 - ${def.name}: no Setbacks this match, and ${locName(state, at)} is not in the Americas.
-- ${def.name}: +${base + home} Influence at ${locName(state, at)} this turn (${ps.setbacks} Setback${ps.setbacks === 1 ? '' : 's'}${home ? 
+- ${def.name}: +${base + home} lasting Influence at ${locName(state, at)} (${ps.setbacks} Setback${ps.setbacks === 1 ? '' : 's'}${home ? 
 - ${def.name}: ${ps.handle} has been warned.${home ? 
 - ${def.name}: ${ps.handle} draws ${n} card${n > 1 ? 's' : ''}${crowd ? 
-- ${def.name}: ${drained} opposing Gate Character${drained > 1 ? 's' : ''} lose${drained > 1 ? '' : 's'} ${def.effect.drain} Influence this turn.
-- ${def.name}: no opposing Gate Character at ${locName(state, play.location)}.
-- ${def.name}: ${ps.handle}'s Gates at ${locName(state, play.location)} are full.
-- ${def.name}: ${name(state, target)} crosses over to ${ps.handle} at −1 Influence.
 - ${def.name}: none of ${ps.handle}'s Characters can be blocked or displaced this turn, and those at ${locName(state, play.location)} confront with +${def.effect.force} Force.
 - ${state.players[p].handle} steps off. ${state.players[other(p)].handle} wins ${state.stakes} Legacy.
 - ${state.players[p].handle}'s plan was illegal (${errs[0]}) and became a pass.
 - ${state.players[p].handle} STANDS ON BUSINESS: ${from} → ${to} Legacy after next turn. ${escape}
 - The match is extended to ${EXTENDED_TURNS} turns.
+- ${ps.handle}'s ${def.name} found ${state.players[other(p)].handle}'s Gates at ${locName(state, play.location)} full and goes back to hand.
 - ${ps.handle}'s ${def.name} could not be placed and is discarded.
 - ${charDef(spider.defId).name} spins a story: ${state.players[spider.owner].handle} draws a card.
+- ${ps.handle} plants ${def.name} (${def.influence}/${def.force}) at ${state.players[other(p)].handle}'s Gates of ${locName(state, play.location)}.
 - ${ps.handle} plays ${def.name} (${def.influence}/${def.force}) at the Gates of ${locName(state, play.location)}.
 - ${name(state, c)} cannot enter: no room Inside.
 - ${name(state, c)} cannot relocate: the Gate at ${locName(state, r.to)} is full.
@@ -1318,6 +1406,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${threatName(state, t)} at ${locName(state, loc.index)} is neutralized.
 - ${name(state, c)} earns Solidarity.
 - ${name(state, ida)} gains +${amt} Influence.
+- ${name(state, house)}: the association pays out; ${state.players[p].handle} draws ${n} card${n > 1 ? 's' : ''}.
 - Both players call on ${SUMMON.name} at ${locName(state, sA)}: ${state.players.A.handle} ${contrib.A} Force, ${state.players.B.handle} ${contrib.B} Force (${total}/${SUMMON.force}).
 - ${threatName(state, t)} at ${locName(state, sA)} dissolves before ${SUMMON.name}.
 - ${SUMMON.name} manifests at ${locName(state, sA)}. Every Character there gains +1 Influence, both players draw a card, and this Location can never be Lost.
@@ -1328,8 +1417,13 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - Broken pact: both players lose 1 Influence at each of their other Locations.
 - ${name(state, c)} is Ready to enter ${locName(state, c.location)}.
 - ${charDef(_farm.defId).name}: ${CARD_BY_ID[best]?.name ?? best} in ${ps.handle}'s hand now costs ${cardCost(best, state, p)}.
+- ${charDef(painter.defId).name}: ${locName(state, painter.location)} gains +${eff.amount} lasting Influence for ${state.players[p].handle}.
+- ${charDef(river.defId).name}: ${name(state, low)} gains +${eff.amount} Influence for good.
 - ${ldef.name}: ${state.players[p].handle} has ${ldef.effect.count}+ Characters Inside and gains +${ldef.effect.amount} Energy next turn.
 - ${charDef(host?.defId ?? c.defId).name} hides ${charDef(c.defId).name} overnight at ${locName(state, loc.index)}.
+- ${locName(state, loc.index)}: ${charDef(fresh[0].defId).name} would change sides, but ${state.players[other(fresh[0].owner)].handle}'s Gates here are full.
+- ${locName(state, loc.index)}: ${charDef(t.defId).name} is sent back to ${home.handle}, whose hand is full: discarded.
+- ${locName(state, loc.index)}: ${charDef(t.defId).name} is found out and sent back to ${home.handle}'s hand.
 - ${locName(state, l.index)}: ${state.players.A.handle} ${inf.A} · ${state.players.B.handle} ${inf.B}${l.lost ? ' (LOST)' : ''}.
 - Nobody sat down. The match is now worth ${state.stakes} Legacy.
 
@@ -1354,6 +1448,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - No open Gate slot for that card.
 - One Event per Location per turn: that Event slot is taken.
 - Invalid target Character.
+- Harriet will not conduct an Informant.
 - That Location is Lost.
 - Choose a different destination.
 - A Character selected to enter is not Ready.

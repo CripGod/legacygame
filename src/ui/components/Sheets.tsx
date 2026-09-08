@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import type { GameEvent } from '../../engine';
 import {
+  isNight,
   lockReason,
   CARD_BY_ID,
   LOCATION_BY_ID,
@@ -152,7 +153,8 @@ export function CharSheet({
   const entering = plan.enters.includes(uid);
   const confronting = plan.confronts.some((x) => x.uid === uid);
   const harrietMove = plan.plays.find((pl) => pl.target?.charUid === uid);
-  const status = harrietMove ? `Moving with Harriet Tubman to Location ${(harrietMove.target!.location ?? 0) + 1} when you Lock It In` : c.zone === 'inside' ? 'Established: Inside, Established ability active' : c.blockedEnterTurn === view.turn ? `At the Gates · ${HINTS.blocked}` : c.ready ? `At the Gates · ${HINTS.ready}` : `At the Gates · ${HINTS.fresh}`;
+  const informant = !!(CARD_BY_ID[c.defId] as { keywords?: string[] } | undefined)?.keywords?.includes('INFORMANT');
+  const status = harrietMove ? `Moving with Harriet Tubman to Location ${(harrietMove.target!.location ?? 0) + 1} when you Lock It In` : informant ? `At the Gates · ${HINTS.informant}` : c.zone === 'inside' ? 'Established: Inside, Established ability active' : c.blockedEnterTurn === view.turn ? `At the Gates · ${HINTS.blocked}` : c.ready ? `At the Gates · ${HINTS.ready}` : `At the Gates · ${HINTS.fresh}`;
   return (
     <Sheet onClose={onClose} title={`${cardName(c.defId, placeholders)} · ${view.players[c.owner].handle}`}>
       <div className="row" style={{ justifyContent: 'center' }}>
@@ -162,10 +164,10 @@ export function CharSheet({
       <div className="muted center">
         {status} at {locationName(locDef(view, c.location).id, placeholders)}
         {c.suppressedUntilTurn !== undefined && c.suppressedUntilTurn >= view.turn ? ' · Suppressed' : ''}
-        {c.permInfluence ? ` · +${c.permInfluence} Influence` : ''}
-        {c.tempInfluence ? ` · +${c.tempInfluence} this turn` : ''}
+        {c.permInfluence ? ` · ${c.permInfluence > 0 ? '+' : ''}${c.permInfluence} Influence` : ''}
+        {c.tempInfluence ? ` · ${c.tempInfluence > 0 ? '+' : ''}${c.tempInfluence} this turn` : ''}
       </div>
-      {mine && tubman && !entering && !confronting && (
+      {mine && tubman && !informant && !entering && !confronting && (
         <div style={{ display: 'grid', gap: 6 }}>
           <div className="muted">{tubman.name} can conduct this Character to another Gate for free{lockReason(view, c) ? ', even though ' + lockReason(view, c) : ''} ({c.zone === 'inside' ? 'arrives Ready' : 'waiting progress kept'}):</div>
           <div className="actions">
@@ -186,7 +188,7 @@ export function CharSheet({
           </button>
         </div>
       )}
-      {mine && c.zone === 'gate' && (
+      {mine && c.zone === 'gate' && !informant && (
         <div className="actions">
           <button className={entering ? 'primary' : ''} disabled={!canEnter && !entering || confronting} onClick={() => onToggleEnter(uid)}>
             {entering ? 'Entering ✓ (tap to cancel)' : canEnter ? 'Enter this Location' : 'Not Ready yet'}
@@ -293,10 +295,23 @@ export function LocationSheet({ view, index, onClose }: { view: GameState; index
   const known = view.players[view.viewFor ?? 'A'].knownNextReveal;
   return (
     <Sheet onClose={onClose} title={loc.revealed ? locationName(def.id, placeholders) : `Location ${index + 1} (hidden)`}>
-      {loc.revealed && !placeholders && <div className="muted">{def.era}</div>}
+      {loc.revealed && !placeholders && (
+        <div className="sheet-art loc-glow">
+          {def.curfew && isNight(view) ? (
+            <Art kind="locations" id={`${def.id}_night`} className="sheet-art-img" fallback={<Art kind="locations" id={def.id} className="sheet-art-img" fallback={<div className="sheet-art-fallback">{def.name}</div>} alt="" />} alt={def.name} />
+          ) : (
+            <Art kind="locations" id={def.id} className="sheet-art-img" fallback={<div className="sheet-art-fallback">{def.name}</div>} alt={def.name} />
+          )}
+          <div className="sheet-art-cap">
+            <span>{def.era}</span>
+            {def.region && <span className="muted">{def.region === 'americas' ? 'The Americas' : def.region === 'africa' ? 'Africa' : 'The Atlantic'}</span>}
+            {def.curfew && <span className={isNight(view) ? 'nighttag' : 'daytag'}>{isNight(view) ? '🌙 Night' : '☀ Day'}</span>}
+          </div>
+        </div>
+      )}
       <div>{def.rule}</div>
       {loc.revealed && !placeholders && <div className="muted" style={{ fontStyle: 'italic' }}>{def.blurb}</div>}
-      {!loc.revealed && known === index && <div className="pA">Katherine Johnson: this Location reveals next.</div>}
+      {!loc.revealed && known === index && <div className="pA">✦ Paul Laurence Dunbar: this Location reveals next. Only you know.</div>}
       {loc.revealed && def.transformsInto && loc.revealedTurn !== undefined && (
         <div className="pA">⛵ Arrives in {Math.max(0, loc.revealedTurn + def.transformsInto.afterTurns - view.turn)} turn(s) as {LOCATION_BY_ID[def.transformsInto.id]?.name}.</div>
       )}
@@ -666,7 +681,10 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
     return mine.length ? `${names} give${mine.length > 1 ? '' : 's'} you ${have} of ${need} Force at ${locName}; you need ${need - have} more.` : `It needs ${need} Force in one turn at ${locName}; you have nobody there.`;
   }
   if (actor.kind === 'location') {
-    const fresh = charsAt(view, location, me, 'gate').filter((c) => !c.ready);
+    const fresh = charsAt(view, location, me, 'gate').filter((c) => !c.ready && !(CARD_BY_ID[c.defId] as { keywords?: string[] } | undefined)?.keywords?.includes('INFORMANT'));
+    if (LOCATION_BY_ID[actor.id]?.effect.type === 'turncoatAtEnd') {
+      return fresh.length ? `At the end of next turn the lowest Fresh Gate Character here changes sides again. ${fresh.map((c) => nm(c.defId)).join(' and ')} ${fresh.length > 1 ? 'are' : 'is'} Fresh at ${locName}: send them Inside or move them, or keep something lower beside them.` : `Anything Fresh at the Gates of ${locName} at the end of a turn is at risk; the lowest Influence goes.`;
+    }
     return fresh.length ? `${fresh.map((c) => nm(c.defId)).join(' and ')} will be run out too unless they enter or move.` : '';
   }
   if (actor.kind === 'event') {
@@ -691,9 +709,9 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
       return 'It wears off at the end of next turn.';
     case 'refreshOpposingGate':
       return 'They are Ready again next turn.';
-    case 'stealGate': {
+    case 'hexGate': {
       const exposed = charsAt(view, location, me, 'gate');
-      return exposed.length ? `${exposed.map((c) => nm(c.defId)).join(' and ')} at the Gates of ${locName} can be taken next.` : '';
+      return exposed.length ? `Gris-gris does not wear off. ${exposed.map((c) => nm(c.defId)).join(' and ')} at the Gates of ${locName} could be next.` : 'Gris-gris does not wear off.';
     }
     default:
       return '';
@@ -706,7 +724,7 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
   const d = ev.data as {
     actor: { kind: 'character' | 'threat' | 'location' | 'event'; id: string; owner?: PlayerId; force?: number };
     victim: { uid: string; defId: string; owner: PlayerId; force: number };
-    outcome: 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose';
+    outcome: 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected';
     from: number;
     to?: number;
     theirForce?: number;
@@ -735,7 +753,9 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
     suppressed: 'SUPPRESSED',
     turned: 'TURNED',
     tricked: 'TRICKED',
-    rose: 'RISES AGAIN',
+    rose: 'BACK TO HAND',
+    hexed: 'HEXED',
+    defected: 'CHANGES SIDES',
   };
   const attackerWins = d.outcome !== 'held';
   const artKind = d.actor.kind === 'character' ? 'characters' : d.actor.kind === 'threat' ? 'threats' : d.actor.kind === 'location' ? 'locations' : 'events';
@@ -763,7 +783,7 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
               {placeholders ? <span className="ini">{initials(d.victim.defId, true)}</span> : <Art kind="characters" id={d.victim.defId} className="fighter-img" fallback={<span className="ini">{initials(d.victim.defId, false)}</span>} alt={victimName} />}
             </div>
             <b>{victimName}</b>
-            <small>{owner(d.victim.owner)}{d.theirForce !== undefined ? ` · ${d.theirForce} Force` : ` · ${d.victim.force} Force`}</small>
+            <small>{owner(d.victim.owner)}{d.theirForce !== undefined && d.outcome !== 'hexed' ? ` · ${d.theirForce} Force` : ` · ${d.victim.force} Force`}</small>
           </div>
         </div>
         <div className={`verdict ${stage >= 3 ? 'show' : ''}`}>{title[d.outcome]}</div>

@@ -77,6 +77,10 @@ export const DEFAULT_TUNING: AiTuning = {
 };
 
 const ESTABLISHED_VALUE: Record<string, number> = {
+  drawOnEnterHere: 0.9,
+  drawOnThreatCleared: 0.4,
+  growLowestHere: 1.1,
+  monumentEachTurn: 1.4,
   auraInfluenceOthersHere: 1.6,
   readyRelocatedIn: 0.8,
   assistForceBonus: 0.3,
@@ -204,13 +208,14 @@ export function evaluate(state: GameState, p: PlayerId): Evaluation {
       score += 0.2;
     }
   }
-  // CROWD: a full Gate means no new plays there.
+  // CROWD: a full Gate means no new plays there; the opponent's full Gate is their problem (an Informant makes one).
   for (const l of state.locations) {
     if (l.lost) continue;
     if (charsAt(state, l.index, p, 'gate').length >= 2) {
       score -= 1.5;
       reasons.push(`Gate full at L${l.index + 1}`);
     }
+    if (charsAt(state, l.index, opp, 'gate').length >= 2) score += 1.0;
   }
   // Card economy.
   score += 0.25 * state.players[p].hand.length;
@@ -321,7 +326,7 @@ function playVariants(view: GameState, p: PlayerId): PlayAction[] {
   for (const o of opts.plays) {
     for (const location of o.locations) {
       if (o.needsTarget === 'friendlyCharAndLocation') {
-        const gateChars = charsOf(view, p);
+        const gateChars = charsOf(view, p).filter((c) => !charDef(c.defId).keywords.includes('INFORMANT'));
         let added = false;
         for (const c of gateChars) {
           for (const dest of view.locations) {
@@ -414,7 +419,8 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
     let score = ev.score;
     const reasons = [...ev.reasons];
     for (const pl of plan.plays) {
-      if (cardDef(pl.cardId).kind !== 'character') continue;
+      const pd = cardDef(pl.cardId);
+      if (pd.kind !== 'character' || pd.keywords.includes('INFORMANT')) continue;
       const hb = hiddenBonus.get(pl.location);
       if (hb !== undefined) {
         score += hb;
@@ -449,13 +455,17 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
   /** Gate slots per Location: every Character takes one. Events have their own slot: one per Location. */
   const fits = (set: PlayAction[]): boolean => {
     const chars: Record<number, number> = {};
+    const planted: Record<number, number> = {};
     const evs: Record<number, number> = {};
     for (const x of set) {
-      if (cardDef(x.cardId).kind === 'character') chars[x.location] = (chars[x.location] ?? 0) + 1;
-      else evs[x.location] = (evs[x.location] ?? 0) + 1;
+      const d = cardDef(x.cardId);
+      if (d.kind !== 'character') evs[x.location] = (evs[x.location] ?? 0) + 1;
+      else if (d.keywords.includes('INFORMANT')) planted[x.location] = (planted[x.location] ?? 0) + 1;
+      else chars[x.location] = (chars[x.location] ?? 0) + 1;
     }
     for (const x of set) {
       if ((chars[x.location] ?? 0) > gateRoom(view, x.location, p)) return false;
+      if ((planted[x.location] ?? 0) > gateRoom(view, x.location, other(p))) return false;
       if ((evs[x.location] ?? 0) > 1) return false;
     }
     return true;

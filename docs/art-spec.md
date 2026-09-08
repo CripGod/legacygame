@@ -24,7 +24,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Missing
 
-### characters (29)
+### characters (36)
 
 - `john_russwurm` **John Russwurm** (1799–1851): Co-founded Freedom's Journal in 1827, the first Black-owned newspaper in the United States. "We wish to plead our own cause."
 - `alonzo_herndon` **Alonzo Herndon** (1858–1927): Born enslaved, built the finest barbershop in Atlanta and then Atlanta Life Insurance. Everybody passed through his chairs.
@@ -42,10 +42,17 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `bass_reeves` **Bass Reeves** (1838–1910): Born enslaved, fluent in several Native languages, one of the first Black deputy U.S. Marshals west of the Mississippi. Three thousand arrests, never wounded.
 - `bud_billiken` **Bud Billiken** (Chicago Defender, 1923): The Chicago Defender's mascot for its children's page: guardian of every Black kid, dreamed up in 1923.
 - `roger_taney` **Roger Taney** (1777–1864): Chief Justice who wrote Dred Scott: Black people had "no rights which the white man was bound to respect." Useful to whoever plays him for a turn, then a liability to whoever is winning.
-- `hubert_harrison` **Hubert Harrison** (1883–1927): The father of Harlem radicalism: a soapbox orator on Lenox Avenue who taught a generation how to organize.
-- `clara_brown` **Clara Brown** (1800–1885): "Aunt" Clara Brown, the Angel of the Rockies: nobody settled Central City without coming through her kitchen first.
 - `bud_billiken_parade` **Bud Billiken Parade** (Chicago, 1929–): The Defender's parade for the kids of the South Side, every August since 1929: the largest African American parade in the country.
-- `fisk_jubilee_singers` **Fisk Jubilee Singers** (Nashville, 1871–): Nine students who left Fisk in 1871 to sing the spirituals for the world, and saved the school doing it.
+- `peter_prioleau` **Peter Prioleau** (Charleston, 1822): The enslaved cook who told his master about the Vesey plot. Freed by the state for it, with a pension.
+- `george_wilson` **George Wilson** (Charleston, 1822): A class leader in the African church who confirmed the plot to his master. Freed, and never at peace with it.
+- `pharoah_and_tom` **Pharoah and Tom** (Richmond, 1800): Two enslaved men on Mosby Sheppard's place who gave up Gabriel's rising on the day it was to begin.
+- `ben_woolfolk` **Ben Woolfolk** (Richmond, 1800): A recruiter for Gabriel's rising who turned state's witness and testified against the men he had enlisted.
+- `edmonia_lewis` **Edmonia Lewis** (1844–1907): Sculptor of Ojibwe and Haitian descent who carved Forever Free and The Death of Cleopatra in Rome, on her own terms.
+- `henry_ossawa_tanner` **Henry Ossawa Tanner** (1859–1937): Painter of The Banjo Lesson and The Annunciation; son of an AME bishop, first Black artist honored by the Paris Salon.
+- `robert_duncanson` **Robert Duncanson** (1821–1872): Hudson River School painter of the Ohio valley; the first Black artist to win an international reputation.
+- `edward_bannister` **Edward Bannister** (1828–1901): Providence landscape painter whose Under the Oaks won the 1876 Centennial medal; the judges tried to revoke it when they saw who he was.
+- `harriet_powers` **Harriet Powers** (1837–1910): Quilter from Athens, Georgia, whose two surviving story quilts hang in the Smithsonian and the Museum of Fine Arts, Boston.
+- `dave_the_potter` **David Drake** (c. 1801–c. 1875): "Dave the Potter" of Edgefield, South Carolina: an enslaved man who signed, dated and wrote verses on forty-gallon jars when literacy was a crime.
 - `booker_t_washington` **Booker T. Washington** (1856–1915): Built Tuskegee from a shanty and a church into a campus the students made with their own hands.
 - `george_washington_carver` **George Washington Carver** (c. 1864–1943): Taught the South to rest its soil and found three hundred uses for the peanut.
 - `marie_laveau` **Marie Laveau** (1801–1881): Hairdresser, healer and the most consulted woman in New Orleans.
@@ -56,19 +63,19 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `ayuba_suleiman_diallo` **Ayuba Suleiman Diallo** (1701–1773): Wrote a letter in Arabic from a Maryland tobacco farm and it carried him home.
 - `omar_ibn_said` **Omar ibn Said** (c. 1770–1864): Twenty-five years a scholar in Futa Toro, fifty-six years enslaved in Carolina, and he kept writing.
 
-### events (3)
+### events (2)
 
 - `the_ancestors` **The Ancestors**: Never in a deck. In one match out of four they come to whoever holds three Characters Inside at Accra, Ghana.
 - `word_of_mouth` **Word of Mouth**: Free, fast and usually right. It travels further where more of your people are.
-- `persuade` **Persuade**: Everybody has a price, a grievance or a cousin. Find the one that opens the door.
 
 ### threats (0)
 
 - none
 
 
-### locations (4)
+### locations (5)
 
+- `charleston_1822` **Charleston, 1822** (South Carolina, 1822): Denmark Vesey's rising was set for July. Two informants ended it in June, and thirty-five people hanged.
 - `justice_system` **The Justice System** (1865–): The Thirteenth Amendment kept one exception, "as a punishment for crime." Convict leasing, chain gangs and mass incarceration have run on it ever since.
 - `the_tabernacle` **The Tabernacle** (1794–): Mother Bethel, Philadelphia, 1794: Richard Allen walked out rather than pray in the back. The Black church has been meeting house, school, bank and headquarters ever since.
 - `montgomery` **Montgomery, Alabama** (1955–1956): For 381 days the buses ran empty. Forty thousand people walked, carpooled and waited, and the seats stopped being the point.
@@ -80,7 +87,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Have
 
-- characters: anansi, bessie_coleman, black_jesus, frederick_douglass, harriet_tubman, ida_b_wells, john_brown, katherine_johnson, mami_wata, mansa_musa, marcus_garvey, ogun, oshun, queen_nzinga, shango, sleeping_car_porters, sojourner_truth, toussaint_louverture, victor_hugo_green, yemoja, zora_neale_hurston
+- characters: anansi, bessie_coleman, black_jesus, chairteenth, frederick_douglass, harriet_tubman, ida_b_wells, john_brown, katherine_johnson, mami_wata, mansa_musa, marcus_garvey, og, ogun, organizer, oshun, queen_nzinga, shango, sleeping_car_porters, sojourner_truth, toussaint_louverture, victor_hugo_green, yemoja, zora_neale_hurston
 - events: community_defense, reparations
 - threats: comfortable_complicity, housing_restriction, mob, paddy_roller, segregationist_patrol
 - locations: accra_ghana, black_star, gary_indiana, great_migration, greenwood, harpers_ferry, juneteenth, lagos, sundown_town
