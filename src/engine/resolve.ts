@@ -718,8 +718,8 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
           break;
         }
       }
-      if (eff.americasBonus && LOCATION_BY_ID[state.locations[loc].defId]?.region === 'americas' && state.locations[loc].revealed) amount += eff.americasBonus;
-      mark(loc, amount, eff.perOtherHere ? 'one square per Character beside her' : 'a work that outlasts its maker');
+      if (eff.underdogBonus && influenceAt(state, loc)[p] < influenceAt(state, loc)[other(p)]) amount += eff.underdogBonus;
+      mark(loc, amount, eff.perOtherHere ? 'one square per Character beside her' : eff.underdogBonus && amount > eff.amount ? 'the prize they tried to take back' : 'a work that outlasts its maker');
       break;
     }
     case 'dig': {

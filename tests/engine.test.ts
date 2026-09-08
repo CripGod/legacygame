@@ -1126,7 +1126,8 @@ describe('artists', () => {
   it("an artist's work is lasting Influence on the Location itself, and it stays when the artist leaves", () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'lagos'], revealAll: true, handA: ['edmonia_lewis', 'edward_bannister', 'harriet_powers', 'robert_duncanson', 'dave_the_potter'], handB: ['queen_nzinga'] });
     s.turn = 3;
-    // Lewis: +2 at Greenwood (the Americas); Bannister: +1 +1 (Americas) at Great Migration.
+    // Lewis: +2 at Greenwood; Bannister: +1, +1 more because A is behind at Great Migration.
+    addChar(s, 'og', 'B', 1, 'inside');
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'edmonia_lewis', location: 0 }, { cardId: 'edward_bannister', location: 1 }] }, B: pass() }).state;
     expect(s.locations[0].permInfluence?.A).toBe(2);
     expect(s.locations[1].permInfluence?.A).toBe(2);
@@ -1136,7 +1137,7 @@ describe('artists', () => {
     expect(lewis.location).not.toBe(0);
     expect(s.locations[0].permInfluence?.A).toBe(2);
     expect(influenceAt(s, 0).A).toBe(2);
-    // Powers: one square per other friendly Character at her Location, capped at 3. Bannister at Lagos: no Americas bonus.
+    // Powers: one square per other friendly Character at her Location, capped at 3.
     addChar(s, 'john_russwurm', 'A', 2, 'gate', true);
     addChar(s, 'alonzo_herndon', 'A', 2, 'inside');
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'harriet_powers', location: 2 }] }, B: pass() }).state;

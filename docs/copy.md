@@ -332,7 +332,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Edward Bannister (`edward_bannister`)
 - cost 2 · Influence 2 · Force 1 · artist · era: 1828–1901
-- reveal: Under the Oaks: this Location gains +1 lasting Influence for you, +1 more if it is in the Americas.
+- reveal: Under the Oaks: this Location gains +1 lasting Influence for you, or +2 if you are behind here when he arrives. The prize they tried to take back.
 - blurb: Providence landscape painter whose Under the Oaks won the 1876 Centennial medal; the judges tried to revoke it when they saw who he was.
 - history: Edward Mitchell Bannister was born in St. Andrews, New Brunswick, in 1828, worked as a barber in Boston, and took up painting after reading a newspaper claim that Black people could appreciate art but not make it. Under the Oaks took first prize at the Philadelphia Centennial Exposition in 1876; officials tried to reconsider when he came forward, and the other artists insisted he keep it. He co-founded the Providence Art Club and died in 1901.
 

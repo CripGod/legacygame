@@ -58,7 +58,7 @@ export type RevealEffect =
   | { type: 'returnFriendlyToHand' } // Ayuba Suleiman Diallo: bounce an Established Character to hand at cost 0 — needs target
   | { type: 'peekHand' } // Omar ibn Said: see the opponent's hand
   | { type: 'reduceHandCost'; amount: number } // Cécile Fatiman: the most expensive card in hand costs less
-  | { type: 'monument'; amount: number; perOtherHere?: boolean; max?: number; everywhereEstablished?: boolean; americasBonus?: number } // Artists
+  | { type: 'monument'; amount: number; perOtherHere?: boolean; max?: number; everywhereEstablished?: boolean; underdogBonus?: number } // Artists: underdogBonus applies when the player trails at the Location
   | { type: 'dig'; count: number } // Zora: look at the top cards, keep the dearest, bottom the rest
   | { type: 'energyNext'; amount: number } // Madam C.J. Walker: Energy next turn
   | { type: 'nextCharacterDiscount'; amount: number } // Daniel Payne: your next Character costs less
