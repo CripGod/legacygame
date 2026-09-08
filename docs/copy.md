@@ -590,6 +590,8 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 onChange(o.key)}>
 {d.cards.length > 0 && …}
+<span
+aria-label="Stand on Business"
 Black History Card Battler
 Systems prototype · v0.3 · build …
 Deploy heroes, legends and neighbors across three Locations. Win Influence at two of them. Seven turns. Ten minutes, give or take.

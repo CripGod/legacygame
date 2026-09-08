@@ -997,3 +997,26 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
   .gate-slot.event-slot.empty .ini { font-size: 12px; }
   .gate-slot.event-slot .pic-img { object-position: center 30%; }
 }
+
+/* ---------- Landing wordmark ---------- */
+/* The 'Stand on Business' script is an alpha mask; the gold gradient paints it so it sits with the frames. */
+h1.logo-title { display: grid; justify-items: center; text-align: center; gap: 0; font-size: 16px; }
+.logo-title .logo {
+  display: block;
+  width: min(72vw, 420px);
+  background: linear-gradient(170deg, #fbe7a3 0%, var(--gold-2) 35%, var(--gold) 62%, #c8901e 100%);
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-size: contain; mask-size: contain;
+  -webkit-mask-position: center; mask-position: center;
+  filter: drop-shadow(0 2px 0 rgba(90, 60, 8, 0.55)) drop-shadow(0 6px 18px rgba(233, 185, 58, 0.28));
+}
+.logo-title .logo-sub {
+  display: block;
+  margin-top: 14px;
+  font-size: clamp(12px, 2.2vw, 15px);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--gold-2);
+}
+h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em; }
+@media (width <= 700px) { .logo-title .logo { width: min(80vw, 340px); } h1.logo-title small { font-size: 10px; letter-spacing: 0.08em; } }
