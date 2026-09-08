@@ -72,6 +72,19 @@ export const LOCATIONS: LocationDef[] = [
     region: 'americas',
   },
   {
+    id: 'middle_passage',
+    name: 'The Middle Passage',
+    era: 'Atlantic, 1526–1867',
+    rule: 'The crossing. Nobody goes Inside here. At the end of each turn every Character at these Gates loses 1 Influence for good (never below 0). Characters who leave here arrive Ready: whoever survives the crossing lands standing. The DeWolf Trade ships people here.',
+    blurb: 'Twelve and a half million people were carried across the Atlantic in chains. Nearly two million did not survive the voyage.',
+    history:
+      'Between 1526 and 1867 about 12.5 million Africans were forced aboard ships bound for the Americas; roughly 10.7 million survived the crossing. Voyages took one to three months, with people chained below decks in spaces too low to sit upright, and dysentery, smallpox and despair killed one in eight on average. Olaudah Equiano, Ottobah Cugoano and the survivors of the Amistad left the first-hand accounts; the ledgers of the traders, the DeWolfs among them, left the numbers.',
+    effect: { type: 'crossing', toll: 1 },
+    noThreats: true,
+    weight: 0.3,
+    region: 'atlantic',
+  },
+  {
     id: 'charleston_1822',
     name: 'Charleston, 1822',
     era: 'South Carolina, 1822',

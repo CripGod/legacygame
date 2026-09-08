@@ -1073,7 +1073,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       const outReady =
         (wasGate && c.ready) ||
         hasEstablished(state, p, from, 'relocatedOutReady').length > 0 ||
-        (state.locations[from].revealed && ['relocatedOutReady', 'hub'].includes(LOCATION_BY_ID[state.locations[from].defId]?.effect.type ?? ''));
+        (state.locations[from].revealed && ['relocatedOutReady', 'hub', 'crossing'].includes(LOCATION_BY_ID[state.locations[from].defId]?.effect.type ?? ''));
       const outInside = !wasGate && hasEstablished(state, p, from, 'relocatedOutInside').length > 0 && insideOpen(state, r.to, p);
       c.location = r.to;
       c.zone = 'gate';
@@ -1255,6 +1255,21 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
           if (charsAt(state, loc.index, p, 'gate').length) setback(state, p, `${def.name} silences Gate Characters at ${locName(state, loc.index)}`, events);
         }
       }
+      if (def.effect === 'shipsAway') {
+        const leader = leaderAt(state, loc.index);
+        const fresh = charsAt(state, loc.index, undefined, 'gate')
+          .filter((c) => !c.ready && !isProtected(state, c) && !isInformant(c))
+          .sort((a, b) => charInfluence(state, a) - charInfluence(state, b) || (a.owner === leader ? -1 : b.owner === leader ? 1 : 0) || a.uid.localeCompare(b.uid));
+        const victim = fresh[0];
+        if (victim) {
+          const passage = state.locations.find((l) => l.revealed && !l.lost && l.index !== loc.index && LOCATION_BY_ID[l.defId]?.effect.type === 'crossing' && gateOpen(state, l.index, victim.owner));
+          events.push({ type: 'threatActs', text: `${def.name} takes ${name(state, victim)}.`, location: loc.index, uid: victim.uid });
+          if (displace(state, victim, def.name, events, passage?.index)) {
+            setback(state, victim.owner, `${def.name} shipped ${charDef(victim.defId).name} away`, events);
+            clash(state, events, { kind: 'threat', id: def.id }, victim, 'displaced', loc.index, { to: victim.location, note: passage && victim.location === passage.index ? `The trade ships the lowest Fresh Gate Character here to The Middle Passage. A Setback for ${state.players[victim.owner].handle}.` : `The trade ships the lowest Fresh Gate Character here to a random Location. A Setback for ${state.players[victim.owner].handle}.` });
+          }
+        }
+      }
       if (def.effect === 'mobDisplace') {
         const leader = leaderAt(state, loc.index);
         if (leader) {
@@ -1365,6 +1380,21 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     }
   }
   trace('info', 'End of turn', {});
+  // The Middle Passage: everyone at these Gates pays the toll.
+  for (const loc of state.locations) {
+    const ldef = loc.revealed ? LOCATION_BY_ID[loc.defId] : undefined;
+    if (!ldef || ldef.effect.type !== 'crossing' || loc.lost) continue;
+    const toll = ldef.effect.toll;
+    const paid: string[] = [];
+    for (const c of charsAt(state, loc.index, undefined, 'gate')) {
+      if (isInformant(c)) continue;
+      const floor = -charDef(c.defId).influence;
+      if (c.permInfluence <= floor) continue;
+      c.permInfluence = Math.max(floor, c.permInfluence - toll);
+      paid.push(name(state, c));
+    }
+    if (paid.length) events.push({ type: 'info', text: `${ldef.name}: ${paid.join(', ')} lose${paid.length === 1 ? 's' : ''} ${toll} Influence for good.`, location: loc.index });
+  }
   // Sundown Town displaces Fresh Gate Characters.
   for (const loc of state.locations) {
     if (!loc.revealed || LOCATION_BY_ID[loc.defId]?.effect.type !== 'displaceFreshAtEnd') continue;

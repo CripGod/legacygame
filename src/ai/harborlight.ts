@@ -191,6 +191,9 @@ export function evaluate(state: GameState, p: PlayerId): Evaluation {
           if (leader === p) reasons.push(`Mob threatens my lead at L${l.index + 1}`);
           break;
         }
+        case 'shipsAway':
+          if (mine.some((c) => c.zone === 'gate' && !c.ready)) score -= 2;
+          break;
         case 'leaderBonus':
           break;
       }
@@ -302,7 +305,7 @@ function decideConfronts(view: GameState, p: PlayerId, rand: () => number, reaso
       }
 
       const harmsMe =
-        def.effect === 'mobDisplace' ? (leader === p ? 3 : 1) : def.effect === 'capacity' ? 1 : def.effect === 'blockEntry' ? 2 : def.effect === 'zeroGateInfluence' ? 2 : 1;
+        def.effect === 'mobDisplace' ? (leader === p ? 3 : 1) : def.effect === 'shipsAway' ? (charsAt(view, threat.location, p, 'gate').some((c) => !c.ready) ? 2 : 1) : def.effect === 'capacity' ? 1 : def.effect === 'blockEntry' ? 2 : def.effect === 'zeroGateInfluence' ? 2 : 1;
       const canAlone = total >= threat.forceRequired;
       const worthTrying = !def.split && total >= threat.forceRequired / 2 && harmsMe >= 2;
       if (canAlone || worthTrying) {

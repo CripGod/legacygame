@@ -53,9 +53,19 @@ export const THREATS: ThreatDef[] = [
     effect: 'zeroGateInfluence',
     blurb: 'Paddy rollers were the slave patrols: armed riders who stopped Black people on the road and demanded a pass. After the Fugitive Slave Act of 1850, no free state was safe from them either.',
   },
+  {
+    id: 'dewolf_trade',
+    name: 'The DeWolf Trade',
+    family: 'Complicit Beneficiary',
+    text: 'At the end of each turn, the Fresh Gate Character here with the lowest Influence is shipped away: to The Middle Passage if it is in play, otherwise to a random Location. A Setback for its player. Neutralize with 5 Force in one turn (either player, or both together).',
+    split: false,
+    force: 5,
+    effect: 'shipsAway',
+    blurb: 'The DeWolfs of Bristol, Rhode Island, ran more slaving voyages than any family in American history: about ninety between 1769 and 1820, some ten thousand people. James DeWolf kept at it after the 1808 ban, sat in the United States Senate, and died one of the richest men in the country.',
+  },
 ];
 
 export const THREAT_BY_ID: Record<string, ThreatDef> = Object.fromEntries(THREATS.map((t) => [t.id, t]));
 
 /** Threats that may appear via the mid-match "history moves" trigger. */
-export const RANDOM_THREAT_POOL = ['segregationist_patrol', 'comfortable_complicity', 'housing_restriction'];
+export const RANDOM_THREAT_POOL = ['segregationist_patrol', 'comfortable_complicity', 'housing_restriction', 'dewolf_trade'];

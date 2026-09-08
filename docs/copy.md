@@ -457,6 +457,11 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - text: A Paddy Roller is in the area. While active, Gate Characters here contribute no Influence for either player. Neutralize with 2 Force in one turn (either player, or both together).
 - blurb: Paddy rollers were the slave patrols: armed riders who stopped Black people on the road and demanded a pass. After the Fugitive Slave Act of 1850, no free state was safe from them either.
 
+### The DeWolf Trade (`dewolf_trade`)
+- family: Complicit Beneficiary
+- text: At the end of each turn, the Fresh Gate Character here with the lowest Influence is shipped away: to The Middle Passage if it is in play, otherwise to a random Location. A Setback for its player. Neutralize with 5 Force in one turn (either player, or both together).
+- blurb: The DeWolfs of Bristol, Rhode Island, ran more slaving voyages than any family in American history: about ninety between 1769 and 1820, some ten thousand people. James DeWolf kept at it after the 1808 ban, sat in the United States Senate, and died one of the richest men in the country.
+
 ## Locations
 
 ### Greenwood District (`greenwood`)
@@ -493,6 +498,11 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - era: 1890–1968
 - rule: Characters arriving at these Gates are displaced to a random other Location at the end of the turn (Setback). At night (even turns) nobody relocates out: curfew until morning. Nothing happens on the turn it reveals. Direct Entry and Characters arriving Inside are safe.
 - blurb: Thousands of towns enforced, by sign, ordinance or violence, that Black people be gone by nightfall.
+
+### The Middle Passage (`middle_passage`)
+- era: Atlantic, 1526–1867
+- rule: The crossing. Nobody goes Inside here. At the end of each turn every Character at these Gates loses 1 Influence for good (never below 0). Characters who leave here arrive Ready: whoever survives the crossing lands standing. The DeWolf Trade ships people here.
+- blurb: Twelve and a half million people were carried across the Atlantic in chains. Nearly two million did not survive the voyage.
 
 ### Charleston, 1822 (`charleston_1822`)
 - era: South Carolina, 1822
@@ -634,6 +644,7 @@ Rules
 - The Tabernacle protects your Characters from displacement. Establish Richard Allen, Absalom Jones and Daniel Payne there and Black Jesus appears: sanctuary at his Location and +1 Influence to every Character you control.
 - The Justice System holds anyone who goes Inside for two turns: no relocating out.
 - Events are played into the purple Event slot under a Location (one per Location per turn; the Gates can be full). They work everywhere and the Location adds a bonus: Reparations pays +1 more in the Americas, The Ancestors bless a Location in Africa, Word of Mouth draws two where you have a crowd, Community Defense adds Force where it lands. Some cards cost 0 Energy.
+- The Middle Passage has no Inside: everyone at its Gates loses 1 Influence for good each turn, and whoever leaves arrives Ready. The DeWolf Trade (a Threat, 5 Force) ships the lowest Fresh Gate Character at its Location there, or to a random Location, with a Setback.
 - Informants (Peter Prioleau, George Wilson, Pharoah and Tom, Ben Woolfolk) are Characters you play onto your opponent's Gates at a Location with one of their slots open. They are theirs: their negative Influence counts against them there, they take one of their Gate slots, and they never become Ready or go Inside. Relocate one away, slide it with Robert Smalls, or let a Threat knock it away; Harriet Tubman will not conduct one. Or drop it at Charleston, 1822, where at the end of every turn the Fresh Gate Character with the lowest Influence changes sides (a tie goes against the leader): an Informant there is found out and goes back to the hand of whoever planted it. Marie Laveau's Reveal hexes the strongest opposing Gate Character at her Location: −2 Influence for the rest of the match.
 - Every deck carries at least one Mythic. The full list, with costs, is under Cards on the start screen.
 ### Summon (cooperative)
@@ -1412,6 +1423,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${SUMMON.name} manifests at ${locName(state, sA)}. Every Character there gains +1 Influence, both players draw a card, and this Location can never be Lost.
 - The Summon at ${locName(state, sA)} fails${loc.lost ? '' : 
 - ${state.players[by].handle} called for a Summon at ${locName(state, at)}, but ${state.players[other(by)].handle} did not join.
+- ${def.name} takes ${name(state, victim)}.
 - ${def.name} targets ${name(state, victim)}.
 - ${locName(state, loc.index)} is LOST: ${loc.lostReason} Neither player can win it.
 - Broken pact: both players lose 1 Influence at each of their other Locations.
@@ -1420,6 +1432,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${charDef(painter.defId).name}: ${locName(state, painter.location)} gains +${eff.amount} lasting Influence for ${state.players[p].handle}.
 - ${charDef(river.defId).name}: ${name(state, low)} gains +${eff.amount} Influence for good.
 - ${ldef.name}: ${state.players[p].handle} has ${ldef.effect.count}+ Characters Inside and gains +${ldef.effect.amount} Energy next turn.
+- ${ldef.name}: ${paid.join(', ')} lose${paid.length === 1 ? 's' : ''} ${toll} Influence for good.
 - ${charDef(host?.defId ?? c.defId).name} hides ${charDef(c.defId).name} overnight at ${locName(state, loc.index)}.
 - ${locName(state, loc.index)}: ${charDef(fresh[0].defId).name} would change sides, but ${state.players[other(fresh[0].owner)].handle}'s Gates here are full.
 - ${locName(state, loc.index)}: ${charDef(t.defId).name} is sent back to ${home.handle}, whose hand is full: discarded.

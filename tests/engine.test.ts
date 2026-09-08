@@ -25,6 +25,7 @@ import {
   MAX_HAND,
   CARD_BY_ID,
   charInfluence,
+  insideCapacity,
   spawnThreat,
   type GameEvent,
   cardCost,
@@ -836,7 +837,7 @@ describe('AI vs AI smoke', () => {
     }
   });
   it('all pool Locations are defined', () => {
-    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(13);
+    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(14);
   });
 });
 
@@ -1341,5 +1342,44 @@ describe('Informant edge cases (from review)', () => {
     s.locations[1].threats.push({ uid: 'mob1', defId: 'segregationist_patrol', location: 1, target: 'A', forceRequired: 4, spawnedTurn: s.turn });
     const out = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'community_defense', location: 1 }], confronts: [{ uid: barber.uid, threatUid: 'mob1' }] }, B: pass() });
     expect(out.state.locations[1].threats).toHaveLength(0);
+  });
+});
+
+describe('The Middle Passage and the DeWolf Trade', () => {
+  it('the trade ships the lowest Fresh Gate Character to the Passage, where the toll is paid and nobody goes Inside', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'middle_passage', 'gary_indiana'], revealAll: true, handA: [], handB: [] });
+    s.turn = 3;
+    s.locations[0].threats.push({ uid: 'dw', defId: 'dewolf_trade', location: 0, forceRequired: 5, spawnedTurn: 2 });
+    const low = addChar(s, 'john_russwurm', 'A', 0, 'gate', false); // Influence 1, Fresh
+    low.arrivedTurn = 3;
+    const high = addChar(s, 'og', 'B', 0, 'gate', false); // Influence 3, Fresh
+    high.arrivedTurn = 3;
+    const out = resolveTurn(s, { A: pass(), B: pass() });
+    expect(out.state.characters[low.uid].location).toBe(1);
+    expect(out.state.characters[high.uid].location).toBe(0);
+    expect(out.state.players.A.setbacks).toBe(1);
+    expect(out.events.some((e) => e.type === 'clash' && (e.data as { actor: { id: string } }).actor.id === 'dewolf_trade')).toBe(true);
+    // The toll: −1 for good at the end of the turn he arrives is not charged (he was displaced after the toll); next turn it is.
+    let t = out.state;
+    t = resolveTurn(t, { A: pass(), B: pass() }).state;
+    expect(t.characters[low.uid].permInfluence).toBe(-1);
+    expect(charInfluence(t, t.characters[low.uid])).toBe(0);
+    // No Inside here, ever; and it never goes below zero.
+    expect(insideCapacity(t, 1)).toBe(0);
+    expect(legalOptions(t, 'A').enters).not.toContain(low.uid);
+    t = resolveTurn(t, { A: pass(), B: pass() }).state;
+    expect(charInfluence(t, t.characters[low.uid])).toBe(0);
+    // Leaving the Passage: arrives Ready.
+    t = resolveTurn(t, { A: { ...pass(), relocations: [{ uid: low.uid, to: 2 }] }, B: pass() }).state;
+    expect(t.characters[low.uid].location).toBe(2);
+    expect(t.characters[low.uid].ready).toBe(true);
+    // Without a Passage in play the trade ships to a random Location.
+    let u = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: [], handB: [] });
+    u.turn = 3;
+    u.locations[0].threats.push({ uid: 'dw', defId: 'dewolf_trade', location: 0, forceRequired: 5, spawnedTurn: 2 });
+    const v = addChar(u, 'john_russwurm', 'A', 0, 'gate', false);
+    v.arrivedTurn = 3;
+    const uo = resolveTurn(u, { A: pass(), B: pass() }).state;
+    expect(uo.characters[v.uid].location).not.toBe(0);
   });
 });

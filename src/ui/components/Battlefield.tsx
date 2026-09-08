@@ -195,7 +195,7 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
   return (
     <>
       <div className="row-lbl">
-        {label} ({chars.length}–{INSIDE_CAPACITY})
+        {label} ({cap === 0 ? 'no Inside here' : `${chars.length}–${cap}`})
       </div>
       <div
         className={`slots ${cap < INSIDE_CAPACITY ? 'restricted' : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''}`}

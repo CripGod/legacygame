@@ -202,7 +202,8 @@ export type LocationEffect =
   | { type: 'lockInside'; turns: number } // The Justice System
   | { type: 'noDisplace' } // The Tabernacle
   | { type: 'restEnergy'; count: number; amount: number } // Oak Bluffs: players with `count` Inside gain Energy next turn
-  | { type: 'turncoatAtEnd' }; // Charleston, 1822: the Fresh Gate Character here with the lowest Influence changes sides at the end of the turn
+  | { type: 'turncoatAtEnd' } // Charleston, 1822: the Fresh Gate Character here with the lowest Influence changes sides at the end of the turn
+  | { type: 'crossing'; toll: number }; // The Middle Passage: no Inside, every Gate Character pays the toll each turn, leavers arrive Ready
 
 export interface LocationDef {
   id: string;
@@ -221,6 +222,8 @@ export interface LocationDef {
   transformsInto?: { id: string; afterTurns: number };
   /** Neutral Threats never appear here. */
   noThreats?: boolean;
+  /** The longer story behind the place, for the Compendium. */
+  history?: string;
   /** Threat ids that can never appear here. */
   immuneThreats?: string[];
   /** Broad region, for cards with a home-ground bonus. */
@@ -233,7 +236,7 @@ export interface LocationDef {
 
 export type ThreatFamily = 'Open Hostility' | 'Systemic Pressure' | 'Complicit Beneficiary' | 'Collaborator' | 'Crisis';
 
-export type ThreatEffect = 'blockEntry' | 'leaderBonus' | 'capacity' | 'mobDisplace' | 'zeroGateInfluence';
+export type ThreatEffect = 'blockEntry' | 'leaderBonus' | 'capacity' | 'mobDisplace' | 'zeroGateInfluence' | 'shipsAway';
 
 export interface ThreatDef {
   id: string;

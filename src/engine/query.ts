@@ -91,6 +91,8 @@ export function threatActiveFor(state: GameState, location: number, effect: stri
 }
 
 export function insideCapacity(state: GameState, location: number): number {
+  const loc = state.locations[location];
+  if (loc.revealed && LOCATION_BY_ID[loc.defId]?.effect.type === 'crossing') return 0;
   return threatActiveFor(state, location, 'capacity', 'A') ? 2 : INSIDE_CAPACITY;
 }
 
@@ -370,7 +372,7 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
     }
   }
   const mine = charsOf(state, p);
-  const enters = mine.filter((c) => c.zone === 'gate' && c.ready && !state.locations[c.location].lost && !charDef(c.defId).keywords.includes('INFORMANT')).map((c) => c.uid);
+  const enters = mine.filter((c) => c.zone === 'gate' && c.ready && !state.locations[c.location].lost && insideCapacity(state, c.location) > 0 && !charDef(c.defId).keywords.includes('INFORMANT')).map((c) => c.uid);
   // Inside Characters relocate and arrive Fresh; Gate Characters relocate too and stay as Ready as they were.
   const relocations = mine
     .filter((c) => !state.locations[c.location].lost && !lockReason(state, c))
