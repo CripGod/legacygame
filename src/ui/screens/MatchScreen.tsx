@@ -230,12 +230,6 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     if (lesson?.kind === 'do' && lesson.done(view, plan)) setTutIdx((i) => i + 1);
   }, [lesson, view, plan]);
   const doing = lesson?.kind === 'do' ? lesson : null;
-  /** Back: the previous point (a 'read'); an action already taken skips forward again on its own. */
-  const prevRead = (() => {
-    for (let j = tutIdx - 1; j >= 0; j--) if (lessons[j]?.kind === 'read') return j;
-    return -1;
-  })();
-  const tutBack = prevRead >= 0 ? () => setTutIdx(prevRead) : undefined;
   /** Sheets show while the board is settled, or beat by beat during a replay. */
   const sheetsOk = !busy || !!m.replay;
 
@@ -736,13 +730,6 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
             </div>
             <h3>Your move</h3>
             <p>{doing.text}</p>
-            {tutBack && (
-              <div className="actions" style={{ justifyContent: 'center' }}>
-                <button className="ghost small" onClick={tutBack}>
-                  ‹ Back
-                </button>
-              </div>
-            )}
           </div>
         )}
         {lesson?.kind === 'read' && (
@@ -754,11 +741,6 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
               <h3>{lesson.title}</h3>
               <p>{lesson.text}</p>
               <div className="actions" style={{ justifyContent: 'center' }}>
-                {tutBack && (
-                  <button className="ghost" onClick={tutBack}>
-                    ‹ Back
-                  </button>
-                )}
                 <button className="primary" autoFocus onClick={() => setTutIdx((i) => i + 1)}>
                   Next
                 </button>
