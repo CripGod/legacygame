@@ -254,7 +254,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     if (plan.plays.length) return `That works too. Or ${guide.text.charAt(0).toLowerCase()}${guide.text.slice(1)}`;
     return guide.text;
   }, [guide, plan]);
-  const guideCard = doing ? doing.card ?? null : guide?.play && !plan.plays.length ? guide.play.cardId : null;
+  const guideCard: string | string[] | null = doing ? doing.cards ?? doing.card ?? null : guide?.play && !plan.plays.length ? guide.play.cardId : null;
   const guideLocation = doing ? doing.location ?? null : guide?.play && !plan.plays.length && CARD_BY_ID[guide.play.cardId]?.kind === 'character' ? guide.play.location : null;
   useEffect(() => {
     if (guideOn && view.turn > 1) {

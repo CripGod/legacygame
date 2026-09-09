@@ -6,7 +6,7 @@
  */
 import {
   CARD_BY_ID,
-  charInfluence,
+  cardCost,
   charsOf,
   confrontForce,
   influenceAt,
@@ -21,7 +21,6 @@ import {
   type TurnPlan,
 } from '../engine';
 import { cardName, locationName, threatLabel } from './display';
-import { suggest } from './guide';
 
 /** Seed 7 with Railroad vs Black Star: Greenwood reveals first (its Mob arrives on Turn 4), a 1-cost opener is in hand. */
 export const TUTORIAL_SEED = 7;
@@ -36,6 +35,8 @@ export type Lesson =
       text: string;
       /** Hand card to spotlight. */
       card?: string;
+      /** Several hand cards to spotlight (every card the player can afford, say). */
+      cards?: string[];
       /** Location column to spotlight. */
       location?: number;
       /** Battlefield flash key: 'enter' lights Ready Gate tiles, 'threat' lights Threats. */
@@ -56,18 +57,16 @@ function lock(text = 'Press Lock In. Once Harborlight commits, the turn plays ou
  * spotlight only points at one affordable card so the player knows where to start. Null when nothing is
  * playable, so the point before it is dropped too.
  */
-function playLesson(view: GameState, me: PlayerId, placeholders: boolean, why: string): Lesson | null {
-  const s = suggest(view, me, placeholders);
-  const play = s.play;
-  if (!play) return null;
-  const def = CARD_BY_ID[play.cardId];
-  if (!def) return null;
-  const name = cardName(play.cardId, placeholders);
-  const cost = def.cost;
+function playLesson(view: GameState, me: PlayerId, _placeholders: boolean, why: string): Lesson | null {
+  const energy = Math.min(view.turn, 10) + (view.players[me].energyBonus ?? 0);
+  const playable = new Set(legalOptions(view, me).plays.map((p) => p.cardId));
+  const affordable = [...new Set(view.players[me].hand.filter((id) => playable.has(id) && cardCost(id, view, me) <= energy))];
+  if (!affordable.length) return null;
+  const all = affordable.length === view.players[me].hand.length;
   return {
     kind: 'do',
-    text: `Drag a card onto a Location. ${name}'s card costs ${cost}, so it is playable now; any Location will do. ${why}`.trim(),
-    card: play.cardId,
+    text: `Drag one of the lit cards onto a Location. ${all ? 'Every card in your hand' : `Everything costing ${energy} or less`} is lit: that is what your ${energy} Energy buys this turn. Any Location will do. ${why}`.trim(),
+    cards: affordable,
     done: (_v, plan) => plan.plays.length > 0,
   };
 }
@@ -108,7 +107,7 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
 
   if (turn === 1) {
     const play = playLesson(view, me, placeholders, '');
-    const played = play?.kind === 'do' && play.card ? CARD_BY_ID[play.card] : undefined;
+    const played = play?.kind === 'do' && play.cards?.length === 1 ? CARD_BY_ID[play.cards[0]] : undefined;
     const straight = played?.kind === 'character' && played.keywords.includes('STRAIGHT_INSIDE');
     const who = played ? `${nm(played.id)}'s card` : 'Your card';
     return script([
@@ -125,20 +124,25 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
     ]);
   }
   if (turn === 2) {
-    const fresh = mine.find((c) => c.zone === 'gate' && !c.ready);
-    const revealed = view.locations.find((l) => l.revealed);
+    const opp = other(me);
+    const ev = view.lastEvents ?? [];
+    const oppPlays = ev.filter((e) => e.type === 'played' && e.player === opp && e.cardId && e.location !== undefined);
+    const oppGate = charsOf(view, opp).filter((c) => c.zone === 'gate');
+    const opened = view.locations.filter((l) => l.revealed);
+    const handle = view.players[opp].handle;
+    const what = oppPlays.length
+      ? `${handle} played ${oppPlays.map((e) => `${nm(e.cardId!)} at ${ln(e.location!)}`).join(' and ')}.`
+      : `${handle} played nothing.`;
+    const where = oppGate.length ? ` You can see ${oppGate.length > 1 ? 'those cards' : 'that card'} in the strip above ${ln(oppGate[0].location)}: ${handle}'s Gates are always the top strip of a Location, yours the bottom.` : '';
+    const reveal = opened.length ? ` Then ${ln(opened[0].index)} was revealed.` : '';
     const play = playLesson(view, me, placeholders, '');
     return script([
       {
-        point: read('Energy', `You have ${energy} Energy now, one more than last turn: Energy equals the turn number, so it grows every turn. Every card costs Energy, the green circle in its corner, and the cards you cannot afford are dimmed.`),
+        point: read('What just happened', `${what}${where}${reveal} The i button at the left edge replays any turn beat by beat whenever you want it.`),
         act: play,
       },
       {
-        point: revealed
-          ? read('A Location revealed', `${ln(revealed.index)} opened at the end of last turn: ${locDef(view, revealed.index).rule} Tap any Location's title bar to read its rule again. One more opens each turn until all three are showing.`)
-          : fresh
-            ? read('Fresh', `${nm(fresh.defId)}'s card is Fresh at the Gates of ${ln(fresh.location)} and already counts ${charInfluence(view, fresh)} Influence there. At the end of this turn it turns Ready.`)
-            : undefined,
+        point: read('Energy', `Energy equals the turn number, so it grows every turn: ${energy} now, ${energy + 1} next turn. Every card costs Energy, the green circle in its corner, and the cards you cannot afford are dimmed.`),
         act: lock(),
       },
     ]);
@@ -157,10 +161,14 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
     };
   };
   if (turn === 3) {
-    const play = playLesson(view, me, placeholders, 'Watch the banner when it lands.');
+    const opened = view.locations.filter((l) => l.revealed && l.revealedTurn === turn - 1)[0] ?? view.locations.filter((l) => l.revealed)[0];
+    const play = playLesson(view, me, placeholders, "A card's Reveal fires the moment it lands at the Gates, before anyone walks Inside: watch the banner.");
     return script([
       enterBeat(),
-      { point: read('Reveal', 'A card fires its Reveal the moment it lands at the Gates, before anyone walks Inside. That is why the order of a turn matters: plays first, then entering, then the Threats act.'), act: play },
+      {
+        point: opened ? read('A Location revealed', `${ln(opened.index)} is open: ${locDef(view, opened.index).rule} Tap any Location's title bar to read its rule again. One more opens each turn until all three are showing.`) : undefined,
+        act: play,
+      },
       { act: lock() },
     ]);
   }

@@ -40,7 +40,7 @@ export function Spotlight({ active }: { active: boolean }) {
         const minX = Math.min(...local.map((c) => c[0]));
         const minY = Math.min(...local.map((c) => c[1]));
         const pts = local.map(([x, y]) => [r.left + (x - minX), r.top + (y - minY)] as [number, number]);
-        next.push({ x: r.left, y: r.top, w: r.width, h: r.height, pts });
+        next.push({ x: r.left, y: r.top, w: r.width, h: r.height, pts: el.closest('.hand') ? pts : undefined });
       });
       const key = next.map((b) => (b.pts ?? [[b.x, b.y], [b.w, b.h]]).map(([x, y]) => `${Math.round(x)},${Math.round(y)}`).join(';')).join('|');
       if (key !== last) {
@@ -62,14 +62,19 @@ export function Spotlight({ active }: { active: boolean }) {
         </filter>
         <mask id="spot-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%">
           <rect width="100%" height="100%" fill="#fff" />
-          <g filter="url(#spot-soft)">
+          <g>
             {boxes.map((b, i) =>
               b.pts ? (
-                <polygon key={i} points={b.pts.map(([x, y]) => `${x},${y}`).join(' ')} fill="#000" stroke="#000" strokeWidth={pad * 2} strokeLinejoin="round" />
+                <polygon key={i} points={b.pts.map(([x, y]) => `${x},${y}`).join(' ')} fill="#000" />
               ) : (
                 <rect key={i} x={b.x - pad} y={b.y - pad} width={b.w + pad * 2} height={b.h + pad * 2} rx={12} fill="#000" />
               ),
             )}
+          </g>
+          <g filter="url(#spot-soft)">
+            {boxes.filter((b) => !b.pts).map((b, i) => (
+              <rect key={`s${i}`} x={b.x - pad} y={b.y - pad} width={b.w + pad * 2} height={b.h + pad * 2} rx={12} fill="#000" />
+            ))}
           </g>
         </mask>
       </defs>

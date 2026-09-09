@@ -1144,3 +1144,8 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .tut-do p { font-size: 15px; }
 .tut-do .actions { margin-top: 2px; }
 @media (width <= 700px) { .tut-do { top: 60px; width: 94vw; } .tut-do p { font-size: 13px; } }
+
+/* Tutorial: a lit hand card brightens instead of throwing a ring, so the glow never bleeds onto the fanned neighbours. */
+.hand .card-wrap.ftue-flash { animation: ftue-bright 0.9s ease-in-out infinite; box-shadow: none; }
+@keyframes ftue-bright { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.18); } }
+@media (prefers-reduced-motion: reduce) { .hand .card-wrap.ftue-flash { animation: none; filter: brightness(1.1); box-shadow: none; } }

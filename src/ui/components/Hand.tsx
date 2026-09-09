@@ -27,7 +27,7 @@ export function Hand({
   onInspect: (cardId: string) => void;
   compact: boolean;
   dragProps?: (payload: DragPayload) => Record<string, unknown>;
-  glow?: string | null;
+  glow?: string | string[] | null;
   /** Energy still unspent this turn; cards above it are dimmed. */
   energyLeft?: number;
   dropState?: 'ok' | 'over' | null;
@@ -79,7 +79,7 @@ export function Hand({
             <div
               key={`${id}-${i}`}
               data-hand-card={id}
-              className={`card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''} ${glow === id ? 'ftue-flash' : ''} ${dealt >= 0 ? 'dealt' : ''} ${energyLeft !== undefined && cardCost(id, view, me) > energyLeft ? 'unaffordable' : ''}`}
+              className={`card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''} ${(Array.isArray(glow) ? glow.includes(id) : glow === id) ? 'ftue-flash' : ''} ${dealt >= 0 ? 'dealt' : ''} ${energyLeft !== undefined && cardCost(id, view, me) > energyLeft ? 'unaffordable' : ''}`}
               {...dp}
               style={style}
               onClick={() => onSelect(id)}
