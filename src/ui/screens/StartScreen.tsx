@@ -180,8 +180,8 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
   /** The Mob on the landing page: 'up' until clicked, 'falling' through the explosion, 'down' with the message, then it re-forms. */
   const [mobState, setMobState] = useState<'hidden' | 'up' | 'falling' | 'down'>('hidden');
   const [burst, setBurst] = useState(0);
-  const MOB_DELAY = 15000;
-  // Fifteen seconds in, the Mob shows up and the page drains to grey until it is broken; then it comes back later.
+  const MOB_DELAY = 30000;
+  // Thirty seconds in, the Mob shows up and the page drains to grey until it is broken; then it comes back later.
   useEffect(() => {
     const id = window.setTimeout(() => setMobState('up'), MOB_DELAY);
     return () => window.clearTimeout(id);
