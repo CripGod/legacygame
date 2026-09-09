@@ -49,7 +49,7 @@ const TIPS: { key: string; when: (c: Ctx) => string | null }[] = [
       const spy = myChars(c).find((x) => charDef(x.defId).keywords.includes('INFORMANT'));
       if (!spy) return null;
       const charleston = c.v.locations.find((l) => l.revealed && !l.lost && LOCATION_BY_ID[l.defId]?.effect.type === 'turncoatAtEnd' && l.index !== spy.location);
-      if (spy.plantedBy === c.me) return `${c.nm(spy.defId)} came back to you at ${c.ln(spy.location)}: ${charInfluence(c.v, spy)} Influence for you there until you move it. Relocate it, or plant it again from your hand when it is sent home.`;
+      if (spy.plantedBy === c.me) return `${c.nm(spy.defId)}'s card came back to you at ${c.ln(spy.location)}: ${charInfluence(c.v, spy)} Influence for you there until you move it. Relocate it, or plant it again from your hand when it is sent home.`;
       return `${c.v.players[other(c.me)].handle} planted ${c.nm(spy.defId)} at your Gates of ${c.ln(spy.location)}: ${charInfluence(c.v, spy)} Influence for you there, and it holds one of your two slots. It never becomes Ready. Drag it to a Location where it hurts less${charleston ? `, or to ${c.ln(charleston.index)}, where the lowest Fresh Gate Character changes sides at the end of the turn and it goes back to them` : ''}.`;
     },
   },
@@ -58,7 +58,7 @@ const TIPS: { key: string; when: (c: Ctx) => string | null }[] = [
     when: (c) => {
       const fresh = myChars(c).find((x) => x.zone === 'gate' && !x.ready && !charDef(x.defId).keywords.includes('INFORMANT'));
       if (!fresh || c.v.turn < 2) return null;
-      return `${c.nm(fresh.defId)} waits at the Gates of ${c.ln(fresh.location)} this turn, still counting ${charInfluence(c.v, fresh)} Influence there. At the end of the turn the tile turns Ready, and next turn it can go Inside.`;
+      return `${c.nm(fresh.defId)}'s card waits at the Gates of ${c.ln(fresh.location)} this turn, still counting ${charInfluence(c.v, fresh)} Influence there. At the end of the turn the tile turns Ready, and next turn the card can go Inside.`;
     },
   },
   {
