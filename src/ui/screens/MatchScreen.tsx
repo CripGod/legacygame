@@ -168,10 +168,26 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [m.lastTurn]);
   /** During a replay each beat queues only its own sheets. */
+  /** The clash beat plays on the board first (strike, knock), then its Clash card explains it. */
+  const [fx, setFx] = useState<{ actor?: string; victim: string; outcome?: string } | null>(null);
   useEffect(() => {
     if (!step) return;
     const evs = filterEvents(step.events, me);
-    setClashes(evs.filter((e) => e.type === 'clash'));
+    const clashEvs = evs.filter((e) => e.type === 'clash');
+    const first = clashEvs[0]?.data as { actor?: { uid?: string }; victim: { uid: string }; outcome?: string } | undefined;
+    if (first && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setFx({ actor: first.actor?.uid, victim: first.victim.uid, outcome: first.outcome });
+      setClashes([]);
+      const id = window.setTimeout(() => {
+        setFx(null);
+        setClashes(clashEvs);
+      }, 1250);
+      setShowdowns(evs.filter((e) => e.type === 'showdown'));
+      setFanfare(evs.filter((e) => e.type === 'spawned'));
+      return () => window.clearTimeout(id);
+    }
+    setFx(null);
+    setClashes(clashEvs);
     setShowdowns(evs.filter((e) => e.type === 'showdown'));
     setFanfare(evs.filter((e) => e.type === 'spawned'));
     const peek = evs.find((e) => e.player === me && Array.isArray((e.data as { peekHand?: string[] } | undefined)?.peekHand));
@@ -180,12 +196,12 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   }, [m.replay?.idx, m.replay?.steps]);
   /** Advance the replay once this beat's sheets are closed. */
   useEffect(() => {
-    if (!step || clashes.length || showdowns.length || fanfare.length || sheet?.kind === 'peek') return;
+    if (!step || fx || clashes.length || showdowns.length || fanfare.length || sheet?.kind === 'peek') return;
     const ms = ownBeat ? 0 : BEAT_MS[step.kind] ?? 900;
     const id = window.setTimeout(m.replayNext, ms);
     return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [m.replay?.idx, m.replay?.steps, clashes.length, showdowns.length, fanfare.length, sheet?.kind]);
+  }, [m.replay?.idx, m.replay?.steps, clashes.length, showdowns.length, fanfare.length, sheet?.kind, fx]);
   /** Gate slots my departing Characters still hold this turn (the preview shows them elsewhere). */
   const reserved = useMemo(() => {
     const out: Record<number, { uid: string; defId: string; why: string }[]> = {};
@@ -700,7 +716,8 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           dragProps={dragProps}
           drop={drop}
           reserved={reserved}
-          delays={m.delays}
+          delays={fx ? { ...m.delays, [fx.victim]: 380 } : m.delays}
+          fx={fx}
           resolving={busy}
           focus={step?.uids}
           eventFx={step?.kind === 'event' && step.cardId && step.player ? { cardId: step.cardId, owner: step.player, location: step.location ?? 0 } : undefined}

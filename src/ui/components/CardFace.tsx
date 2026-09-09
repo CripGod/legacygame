@@ -91,12 +91,15 @@ export function Pic({
   highlight,
   badges,
   focus,
+  fx,
 }: {
   state: GameState;
   c: CharacterInstance;
   strip?: string;
   onClick?: () => void;
   highlight?: boolean;
+  /** Board animation for a clash beat: the striker lunges, the victim is knocked away. */
+  fx?: 'strike' | 'knocked' | 'hexed';
   /** Gate tiles: show cost, Influence and Force like a small card. */
   badges?: boolean;
   /** Replay: this piece is the one acting in the current beat. */
@@ -115,8 +118,8 @@ export function Pic({
   const atHome = !!def.home && locNow?.revealed && def.home.locations.includes(locNow.defId);
   return (
     <div
-      className={`pic ${c.owner} ${isSuppressed(state, c) ? 'suppressed' : ''} ${highlight ? 'highlight' : ''} ${focus ? 'focus' : ''} ${atHome ? 'home' : ''}`}
-      style={{ background: hueFor(c.defId) }}
+      className={`pic ${c.owner} ${isSuppressed(state, c) ? 'suppressed' : ''} ${highlight ? 'highlight' : ''} ${focus ? 'focus' : ''} ${atHome ? 'home' : ''} ${fx ? `fx-${fx}` : ''}`}
+      style={{ background: hueFor(c.defId), ...(fx === 'strike' ? { ['--fx-dy' as string]: c.owner === state.viewFor ? -1 : 1 } : {}) }}
       onClick={onClick}
       title={`${cardName(c.defId, placeholders)} · ${inf} Influence · ${def.force} Force`}
     >

@@ -54,6 +54,8 @@ export interface BattlefieldProps {
   drop?: DropHighlight | null;
   /** Per-tile animation stagger (ms) for the latest resolution. */
   delays?: Record<string, number>;
+  /** A clash on this beat: who struck and who was knocked away. */
+  fx?: { actor?: string; victim: string; outcome?: string } | null;
   /** Gate slots still occupied until the turn resolves, keyed by Location: Characters leaving the Gates this turn. */
   reserved?: Record<number, { uid: string; defId: string; why: string }[]>;
   /** Replay: the pieces this beat is about. */
@@ -95,7 +97,7 @@ function Score({ p, value }: { p: PlayerId; value: number }) {
   );
 }
 
-type Common = Pick<BattlefieldProps, 'view' | 'me' | 'plan' | 'onChar' | 'flash' | 'dragProps' | 'drop' | 'reserved' | 'focus' | 'eventFx' | 'pendingEvents'>;
+type Common = Pick<BattlefieldProps, 'view' | 'me' | 'plan' | 'onChar' | 'flash' | 'dragProps' | 'drop' | 'reserved' | 'focus' | 'eventFx' | 'pendingEvents' | 'fx'>;
 
 /** An Event card sitting at the Gates: planned, waiting to resolve, or resolving now. */
 function EventTile({ cardId, state, hidden, onClick }: { cardId: string; state: 'planned' | 'pending' | 'trigger'; hidden?: boolean; onClick?: () => void }) {
@@ -119,7 +121,7 @@ function EventTile({ cardId, state, hidden, onClick }: { cardId: string; state: 
   );
 }
 
-function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, dragProps, drop, reserved, focus, eventFx, pendingEvents }: Common & { owner: PlayerId; index: number; label: string; right?: React.ReactNode }) {
+function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, dragProps, drop, reserved, focus, eventFx, pendingEvents, fx }: Common & { owner: PlayerId; index: number; label: string; right?: React.ReactNode }) {
   const gOk = owner === me && drop?.gates.includes(index);
   const gOver = gOk && drop?.overKey === `gates:${index}`;
   const chars = charsAt(view, index, owner, 'gate').sort((a, b) => a.arrivedTurn - b.arrivedTurn);
@@ -168,7 +170,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                   className={`gate-slot filled owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''}`}
                   {...draggable}
                 >
-                  <Pic state={view} c={s} badges focus={focus?.includes(s.uid)} strip={planned ? 'Planned' : moving ? 'Moving' : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockReason(view, s) ? 'Held' : undefined} onClick={() => onChar(s.uid)} />
+                  <Pic state={view} c={s} badges fx={fx?.actor === s.uid ? 'strike' : fx?.victim === s.uid ? (fx.outcome === 'hexed' ? 'hexed' : 'knocked') : undefined} focus={focus?.includes(s.uid)} strip={planned ? 'Planned' : moving ? 'Moving' : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockReason(view, s) ? 'Held' : undefined} onClick={() => onChar(s.uid)} />
                 </div>
               </div>
             );
@@ -189,7 +191,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
   );
 }
 
-function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragProps, drop, focus }: Common & { owner: PlayerId; index: number; label: string }) {
+function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragProps, drop, focus, fx }: Common & { owner: PlayerId; index: number; label: string }) {
   const chars = charsAt(view, index, owner, 'inside').sort((a, b) => a.arrivedTurn - b.arrivedTurn);
   const cap = insideCapacity(view, index);
   const mine = owner === me;
@@ -215,7 +217,7 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
             mine && dragProps ? dragProps(planned ? { kind: 'card', cardId: c.uid.slice(PLANNED_PREFIX.length) } : { kind: 'char', uid: c.uid }) : {};
           return (
             <div key={c.uid} data-uid={c.uid} data-place={`${index}:inside`} className={`slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''}`} {...draggable}>
-              <Pic state={view} c={c} highlight={confronting} focus={focus?.includes(c.uid)} strip={entering ? 'Entering' : brought ? 'Moving' : planned ? 'Planned' : confronting ? 'Confront' : lockReason(view, c) ? 'Held' : undefined} onClick={() => onChar(c.uid)} />
+              <Pic state={view} c={c} highlight={confronting} fx={fx?.actor === c.uid ? 'strike' : fx?.victim === c.uid ? (fx.outcome === 'hexed' ? 'hexed' : 'knocked') : undefined} focus={focus?.includes(c.uid)} strip={entering ? 'Entering' : brought ? 'Moving' : planned ? 'Planned' : confronting ? 'Confront' : lockReason(view, c) ? 'Held' : undefined} onClick={() => onChar(c.uid)} />
             </div>
           );
         })}
@@ -331,7 +333,7 @@ function shortEffect(type: string): string {
 }
 
 export function Battlefield(props: BattlefieldProps) {
-  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onThreat, flash, dragProps, drop, delays, resolving, glowLocation, summonLabel, reserved, focus, eventFx, pendingEvents, neutralized } = props;
+  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onThreat, flash, dragProps, drop, delays, resolving, glowLocation, summonLabel, reserved, focus, eventFx, pendingEvents, neutralized, fx } = props;
   const { placeholders } = useDisplay();
   const opp = other(me);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -339,9 +341,9 @@ export function Battlefield(props: BattlefieldProps) {
     version: view,
     delayFor: (uid) => delays?.[uid] ?? 0,
     // Your own moves snap quickly; the opponent's resolution moves glide.
-    durationFor: (uid) => (view.characters[uid]?.owner === me || isPlannedUid(uid) ? (resolving ? 0 : 220) : 620),
+    durationFor: (uid) => (uid === fx?.victim ? 760 : view.characters[uid]?.owner === me || isPlannedUid(uid) ? (resolving ? 0 : 220) : 620),
   });
-  const common: Common = { view, me, plan, onChar, flash, dragProps, drop, reserved, focus, eventFx, pendingEvents };
+  const common: Common = { view, me, plan, onChar, flash, dragProps, drop, reserved, focus, eventFx, pendingEvents, fx };
   return (
     <div className="battlefield" ref={rootRef}>
       {view.locations.map((loc) => {
