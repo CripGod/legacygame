@@ -4,6 +4,9 @@ import { resetGuide } from '../guide';
 import { PRESET_DECKS, CARD_BY_ID } from '../../engine';
 import { TUTORIAL_SEED, TUTORIAL_DECKS } from '../tutorial';
 import { Wordmark } from '../components/Wordmark';
+import { CardFace } from '../components/CardFace';
+import { CodexSheet } from '../components/CodexSheet';
+import '../compendium.css';
 
 export interface StartOptions {
   seed?: number;
@@ -24,6 +27,14 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
   const [coach, setCoach] = useState(true);
   const [deckA, setDeckA] = useState('railroad');
   const [deckB, setDeckB] = useState('blackstar');
+  /** A deck card tapped on the landing page opens the full Compendium sheet for it. */
+  const [open, setOpen] = useState<string | null>(null);
+  const labelFor = (id: string) => {
+    const def = CARD_BY_ID[id];
+    if (!def) return 'Card';
+    if (def.kind === 'event') return 'Event';
+    return def.category === 'artist' ? 'Artists' : def.category.charAt(0).toUpperCase() + def.category.slice(1);
+  };
   const opts = (mode: 'ai' | 'hotseat'): StartOptions => ({ seed: seed.trim() ? Number(seed) : undefined, mode, placeholders, dev, coach, deckA, deckB });
   const deckOptions = [...Object.entries(PRESET_DECKS).map(([k, d]) => ({ key: k, name: d.name, style: d.style, cards: d.cards })), { key: 'random', name: 'Random draft', style: 'Ten random Characters from the whole pool plus both Events. Different every match.', cards: [] as string[] }];
   const DeckPicker = ({ label, value, onChange }: { label: string; value: string; onChange: (k: string) => void }) => {
@@ -39,7 +50,13 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
           ))}
         </div>
         <div className="muted" style={{ fontSize: 13 }}>{d.style}</div>
-        {d.cards.length > 0 && <div className="muted" style={{ fontSize: 12 }}>{d.cards.map((id) => CARD_BY_ID[id]?.name ?? id).join(' · ')}</div>}
+        {d.cards.length > 0 && (
+          <div className="deck-cards">
+            {d.cards.map((id) => (
+              <CardFace key={id} id={id} onClick={() => setOpen(id)} />
+            ))}
+          </div>
+        )}
       </div>
     );
   };
@@ -92,6 +109,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
           </div>
         )}
       </div>
+      {open && <CodexSheet id={open} label={labelFor(open)} onClose={() => setOpen(null)} />}
     </div>
   );
 }

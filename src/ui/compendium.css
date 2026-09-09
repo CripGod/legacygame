@@ -7,7 +7,8 @@
  * card sheet) is cut with the same chamfer, --cx-cut. Controls (the close cross, the Day/Night switch, the
  * buttons) use the half-size cut, --cx-cut-sm. Glows sit on plain wrappers as box-shadows, never as filters.
  */
-.cx-inner {
+/* The card sheet also opens from the landing page, so the tokens live on the scrim too. */
+.cx-inner, .cx-scrim {
   --cx-parch: #f4ead4;
   --cx-parch-2: #e9dcbe;
   --cx-ink: #1b1a17;
@@ -32,7 +33,7 @@
 @media (max-width: 700px) {
   .screen:has(> .cx-inner) { padding: 10px 10px 30px; }
   /* Two cards to a row, so the type on them stays readable. */
-  .cx-inner { --cx-cut: 8px; --cx-cut-sm: 5px; --card-w: min(calc(50vw - 27px), 190px); }
+  .cx-inner, .cx-scrim { --cx-cut: 8px; --cx-cut-sm: 5px; --card-w: min(calc(50vw - 27px), 190px); }
 }
 
 /* ---------- shared: chamfered octagons ---------- */
