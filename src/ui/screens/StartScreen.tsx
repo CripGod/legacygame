@@ -171,6 +171,9 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
         <div className="bg-plate left" style={{ backgroundImage: `url(${artUrl('landing', 'harriet')})` }} />
         <div className="bg-plate right" style={{ backgroundImage: `url(${artUrl('landing', 'frederick')})` }} />
         <div className="bg-fade" />
+        <div className="bg-floor" />
+        <div className="fg books" style={{ backgroundImage: `url(${artUrl('landing', 'books', 'webp')})` }} />
+        <div className="fg rocks" style={{ backgroundImage: `url(${artUrl('landing', 'rocks', 'webp')})` }} />
         <Embers />
       </div>
 

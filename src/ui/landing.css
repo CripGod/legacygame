@@ -41,6 +41,13 @@
     linear-gradient(to bottom, rgba(5, 12, 21, 0.15) 0%, rgba(5, 12, 21, 0) 25%, rgba(5, 12, 21, 0.55) 60%, rgba(5, 12, 21, 0.96) 100%),
     radial-gradient(60% 50% at 50% 30%, rgba(5, 12, 21, 0) 0%, rgba(5, 12, 21, 0.35) 100%);
 }
+/* Reflective floor: a faint lit plane along the bottom the foreground pieces stand on. */
+.bg-floor { position: absolute; left: 0; right: 0; bottom: 0; height: 32%; background: linear-gradient(to top, rgba(40, 70, 110, 0.35) 0%, rgba(20, 40, 70, 0.18) 40%, transparent 100%); }
+.bg-floor::after { content: ''; position: absolute; left: 10%; right: 10%; bottom: 0; height: 60%; background: radial-gradient(60% 100% at 50% 100%, rgba(120, 170, 255, 0.14), transparent 70%); }
+/* Foreground cutouts move faster than the plates: books bottom left, rocks bottom right. */
+.fg { position: absolute; bottom: -1%; background-size: contain; background-repeat: no-repeat; background-position: bottom; will-change: transform; transition: transform 0.25s ease-out; filter: drop-shadow(0 -6px 30px rgba(0, 0, 0, 0.6)); }
+.fg.books { left: -1%; width: clamp(240px, 24vw, 460px); aspect-ratio: 900 / 634; transform: translate(calc(var(--mx) * -26px), calc(var(--my) * -12px)); }
+.fg.rocks { right: -2%; width: clamp(320px, 34vw, 640px); aspect-ratio: 1100 / 528; transform: translate(calc(var(--mx) * 26px), calc(var(--my) * -12px)); }
 .embers { position: absolute; inset: 0; width: 100%; height: 100%; mix-blend-mode: screen; opacity: 0.85; }
 
 /* Everything in front of the plates. */
@@ -136,7 +143,7 @@
 .hero-foot .dev { width: min(100%, 720px); background: rgba(5, 12, 21, 0.8); }
 
 @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .hero, .hero-actions, .decks, .hero-foot, .corner { animation: none; } .bg-plate { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .hero, .hero-actions, .decks, .hero-foot, .corner { animation: none; } .bg-plate, .fg { transition: none; } }
 
 /* Narrow: stack the decks, drop the corners. */
 @media (width <= 1100px) {
@@ -144,6 +151,7 @@
   .vs { justify-self: center; font-size: 40px; padding: 2px 0; }
   .corner { display: none; }
   .bg-plate { width: 60%; opacity: 0.75; }
+  .fg { opacity: 0.6; }
 }
 @media (width <= 700px) {
   .landing { padding: 12px 10px 20px; }

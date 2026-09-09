@@ -13,10 +13,10 @@ declare global {
   }
 }
 
-export function artUrl(kind: ArtKind, id: string): string {
+export function artUrl(kind: ArtKind, id: string, ext?: 'jpg' | 'webp' | 'png' | 'svg'): string {
   const inline = typeof window !== 'undefined' ? window.__ART__?.[`${kind}/${id}`] : undefined;
   if (inline) return inline;
-  return `${import.meta.env.BASE_URL}art/${kind}/${id}.jpg`;
+  return `${import.meta.env.BASE_URL}art/${kind}/${id}.${ext ?? 'jpg'}`;
 }
 
 export function artKnownMissing(kind: ArtKind, id: string): boolean {
