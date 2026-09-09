@@ -22,18 +22,19 @@
   will-change: transform; transition: transform 0.25s ease-out;
 }
 .bg-plate.left { background-position: 20% top; }
-.bg-plate.right { background-position: 100% top; }
+.bg-plate.right { background-position: 0% top; }
 .bg-plate.left {
   left: -3%;
   -webkit-mask-image: linear-gradient(to right, #000 0%, #000 45%, transparent 100%);
   mask-image: linear-gradient(to right, #000 0%, #000 45%, transparent 100%);
   transform: translate(calc(var(--mx) * -14px), calc(var(--my) * -8px)) scale(1.04);
 }
+/* Mirrored, so Douglass faces the other way; the mask flips with the element, so it is written 'to right'. */
 .bg-plate.right {
   right: -3%;
-  -webkit-mask-image: linear-gradient(to left, #000 0%, #000 45%, transparent 100%);
-  mask-image: linear-gradient(to left, #000 0%, #000 45%, transparent 100%);
-  transform: translate(calc(var(--mx) * 14px), calc(var(--my) * -8px)) scale(1.04);
+  -webkit-mask-image: linear-gradient(to right, #000 0%, #000 45%, transparent 100%);
+  mask-image: linear-gradient(to right, #000 0%, #000 45%, transparent 100%);
+  transform: translate(calc(var(--mx) * 14px), calc(var(--my) * -8px)) scale(-1.04, 1.04);
 }
 .bg-fade {
   position: absolute; inset: 0;
