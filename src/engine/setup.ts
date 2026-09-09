@@ -142,6 +142,10 @@ export function drawCard(state: GameState, p: PlayerId, events?: GameEvent[]): s
   return card;
 }
 
+/** Turn 5: a second random Threat arrives in this share of matches. */
+export const SECOND_WAVE_TURN = 5;
+export const SECOND_WAVE_CHANCE = 0.6;
+
 export function spawnThreat(state: GameState, location: number, threatId: string, events: GameEvent[]): void {
   const def = THREAT_BY_ID[threatId];
   const loc = state.locations[location];
@@ -244,8 +248,10 @@ export function startTurn(state: GameState, events: GameEvent[]): void {
       spawnThreat(state, loc.index, def.timedThreat.threatId, events);
     }
   }
-  // "History moves": on Turn 3 a random neutral Threat appears at a revealed Location without one.
-  if (state.turn === 3 && state.revealOrder.length > 0) {
+  // "History moves": on Turn 3 a random neutral Threat appears at a revealed Location without one,
+  // and on Turn 5 history moves again in most matches (SECOND_WAVE_CHANCE).
+  const wave = state.turn === 3 || (state.turn === SECOND_WAVE_TURN && nextFloat(state.rng) < SECOND_WAVE_CHANCE);
+  if (wave && state.revealOrder.length > 0) {
     const candidates = state.locations.filter((l) => l.revealed && !l.lost && l.threats.length === 0);
     if (candidates.length) {
       const loc = pick(state.rng, candidates);

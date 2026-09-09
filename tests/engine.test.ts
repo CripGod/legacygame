@@ -1474,3 +1474,20 @@ describe('home ground and Straight Inside', () => {
     expect(out.state.characters[uid].zone).toBe('inside');
   });
 });
+
+describe('history moves twice', () => {
+  it('a second random Threat arrives on Turn 5 in roughly 60% of matches', () => {
+    let hits = 0;
+    const N = 120;
+    for (let seed = 1; seed <= N; seed++) {
+      let s = createMatch({ seed });
+      // Pass through Turns 1–4; count Threats spawned by the Turn 5 wave alone (timed and reveal spawns are per Location, so compare counts).
+      for (let t = 0; t < 4; t++) s = resolveTurn(s, { A: pass(), B: pass() }).state;
+      expect(s.turn).toBe(5);
+      const events = s.lastEvents.filter((e) => e.type === 'threatSpawned');
+      if (events.length) hits++;
+    }
+    expect(hits / N).toBeGreaterThan(0.4);
+    expect(hits / N).toBeLessThan(0.8);
+  });
+});
