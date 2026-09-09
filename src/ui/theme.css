@@ -1130,3 +1130,6 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .card.big .name { font-size: 22px; }
 .card.big .name.long { font-size: 19px; }
 .card.big .name.xlong { font-size: 17px; }
+/* Landing-page miniatures drop the category ribbon: the name gets the whole box, the rule line closes it. */
+.deck-cards .card .ribbon { display: none; }
+.deck-cards .card .name { padding-bottom: 4px; }
