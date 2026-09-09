@@ -180,9 +180,11 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
   /** The Mob on the landing page: 'up' until clicked, 'falling' through the explosion, 'down' with the message, then it re-forms. */
   const [mobState, setMobState] = useState<'hidden' | 'up' | 'falling' | 'down'>('hidden');
   const [burst, setBurst] = useState(0);
-  const MOB_DELAY = 30000; // hidden → up
+  const MOB_FIRST = 30000; // hidden → up, the first time
+  const MOB_AGAIN = 60000; // hidden → up, every time after
   const MOB_STANDS = 15000; // up → breaks on its own if nobody clicks
   const MOB_MESSAGE = 10000; // down → the message fades and it is hidden again
+  const mobVisits = useRef(0);
   const defeatMob = () => {
     setMobState((m) => {
       if (m !== 'up') return m;
@@ -191,10 +193,14 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
     });
   };
   // The cycle: thirty seconds in, the Mob rises and the page drains to grey; it breaks on a click or after fifteen
-  // seconds on its own; the message stays ten seconds; thirty seconds later it rises again.
+  // seconds on its own; the message stays ten seconds; then it lies low for sixty seconds before rising again.
   useEffect(() => {
-    const wait = mobState === 'hidden' ? MOB_DELAY : mobState === 'up' ? MOB_STANDS : mobState === 'falling' ? 700 : MOB_MESSAGE;
-    const next = mobState === 'hidden' ? () => setMobState('up') : mobState === 'up' ? defeatMob : mobState === 'falling' ? () => setMobState('down') : () => setMobState('hidden');
+    const wait = mobState === 'hidden' ? (mobVisits.current === 0 ? MOB_FIRST : MOB_AGAIN) : mobState === 'up' ? MOB_STANDS : mobState === 'falling' ? 700 : MOB_MESSAGE;
+    const rise = () => {
+      mobVisits.current += 1;
+      setMobState('up');
+    };
+    const next = mobState === 'hidden' ? rise : mobState === 'up' ? defeatMob : mobState === 'falling' ? () => setMobState('down') : () => setMobState('hidden');
     const id = window.setTimeout(next, wait);
     return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
