@@ -94,8 +94,12 @@ function Embers() {
 }
 
 /** Sparks shed by the Mob card: red and orange motes rising off its edges. */
-function MobSparks() {
+function MobSparks({ burst }: { burst: number }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const burstRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    if (burst > 0) burstRef.current();
+  }, [burst]);
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -123,6 +127,14 @@ function MobSparks() {
       p.life = Math.random() * p.max;
       ps.push(p);
     }
+    // The explosion: a ring of fast, hot motes thrown out from the card's centre.
+    burstRef.current = () => {
+      for (let i = 0; i < 140; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const sp = 2 + Math.random() * 7;
+        ps.push({ x: w * 0.5, y: h * 0.62, r: 1 + Math.random() * 2.6, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1.5, life: 0, max: 40 + Math.random() * 50, hue: Math.random() * 40 });
+      }
+    };
     let raf = 0;
     const tick = () => {
       ctx.clearRect(0, 0, w, h);
@@ -130,6 +142,7 @@ function MobSparks() {
         const p = ps[i];
         p.x += p.vx + Math.sin((p.life + i) * 0.08) * 0.25;
         p.y += p.vy;
+        p.vy += 0.04; // a little gravity so the burst arcs
         p.life += 1;
         const t = p.life / p.max;
         const a = t < 0.15 ? t / 0.15 : 1 - (t - 0.15) / 0.85;
@@ -139,7 +152,10 @@ function MobSparks() {
         ctx.shadowBlur = 10;
         ctx.shadowColor = `hsla(${p.hue}, 100%, 55%, 0.9)`;
         ctx.fill();
-        if (p.life >= p.max) ps[i] = spawn();
+        if (p.life >= p.max) {
+          if (ps.length > 40) ps.splice(i, 1);
+          else ps[i] = spawn();
+        }
       }
       raf = requestAnimationFrame(tick);
     };
@@ -161,6 +177,16 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
   const [deckB, setDeckB] = useState('blackstar');
   /** A deck card tapped on the landing page opens the full Compendium sheet for it. */
   const [open, setOpen] = useState<string | null>(null);
+  /** The Mob on the landing page: 'up' until clicked, 'falling' through the explosion, 'down' with the message, then it re-forms. */
+  const [mobState, setMobState] = useState<'up' | 'falling' | 'down'>('up');
+  const [burst, setBurst] = useState(0);
+  const defeatMob = () => {
+    if (mobState !== 'up') return;
+    setBurst((b) => b + 1);
+    setMobState('falling');
+    window.setTimeout(() => setMobState('down'), 700);
+    window.setTimeout(() => setMobState('up'), 14000);
+  };
   const root = useRef<HTMLDivElement>(null);
   // Parallax: the plates and the hero drift a few pixels against the pointer.
   useEffect(() => {
@@ -284,27 +310,37 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
       </nav>
 
       <div className="decks">
-        {/* Same width as the Threat card on the right, so the two panels match and the VS sits on the centre line. */}
-        <div className="deck-spacer" aria-hidden />
         <DeckPanel side="mine" label="Your deck" note="Justice arcs forward." value={deckA} onChange={setDeckA} />
-        <div className="vs" aria-hidden>
-          VS
+        <div className={`vs-col ${mobState}`}>
+          <div className="vs" aria-hidden>
+            VS
+          </div>
+          {mob && mobState !== 'down' && (
+            <button className={`threat-spot ${mobState}`} aria-label="The Mob. Click to neutralize it together." onClick={defeatMob}>
+              <MobSparks burst={burst} />
+              <span className="mob-shape">
+                <span className="mob-inner">
+                  <span className="threat-spot-art">
+                    <Art kind="threats" id={mob.id} className="threat-spot-img" fallback={<span className="ini">⚠</span>} alt="" />
+                  </span>
+                  <span className="threat-spot-body">
+                    <span className="threat-spot-name">The {mob.name}</span>
+                    <span className="threat-spot-text">Organized violence aimed at exactly the people who are winning. It needs {mob.force} Force in one turn to break.</span>
+                    <span className="threat-spot-rule">Work together to overcome.</span>
+                    <small>Both players may contribute Force.</small>
+                  </span>
+                </span>
+              </span>
+            </button>
+          )}
+          {mobState === 'down' && (
+            <div className="mob-msg" role="status">
+              <div className="mob-msg-title">Defeated together</div>
+              <div className="mob-msg-text">Neither side had {mob?.force ?? 6} Force alone. Both stood up in the same turn, and the Mob broke.</div>
+            </div>
+          )}
         </div>
         <DeckPanel side="theirs" label="Harborlight's deck" note="Different paths. Same goals." value={deckB} onChange={setDeckB} />
-        {mob && (
-          <aside className="threat-spot" aria-label="Threat">
-            <MobSparks />
-            <div className="threat-spot-art">
-              <Art kind="threats" id={mob.id} className="threat-spot-img" fallback={<span className="ini">⚠</span>} alt="" />
-            </div>
-            <div className="threat-spot-body">
-              <div className="threat-spot-name">The {mob.name}</div>
-              <p>Organized violence aimed at exactly the people who are winning. It needs {mob.force} Force in one turn to break.</p>
-              <div className="threat-spot-rule">Work together to overcome.</div>
-              <small>Both players may contribute Force.</small>
-            </div>
-          </aside>
-        )}
       </div>
 
       <footer className="hero-foot">
