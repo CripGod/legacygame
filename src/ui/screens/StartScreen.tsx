@@ -180,19 +180,25 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
   /** The Mob on the landing page: 'up' until clicked, 'falling' through the explosion, 'down' with the message, then it re-forms. */
   const [mobState, setMobState] = useState<'hidden' | 'up' | 'falling' | 'down'>('hidden');
   const [burst, setBurst] = useState(0);
-  const MOB_DELAY = 30000;
-  // Thirty seconds in, the Mob shows up and the page drains to grey until it is broken; then it comes back later.
-  useEffect(() => {
-    const id = window.setTimeout(() => setMobState('up'), MOB_DELAY);
-    return () => window.clearTimeout(id);
-  }, []);
+  const MOB_DELAY = 30000; // hidden → up
+  const MOB_STANDS = 15000; // up → breaks on its own if nobody clicks
+  const MOB_MESSAGE = 10000; // down → the message fades and it is hidden again
   const defeatMob = () => {
-    if (mobState !== 'up') return;
-    setBurst((b) => b + 1);
-    setMobState('falling');
-    window.setTimeout(() => setMobState('down'), 700);
-    window.setTimeout(() => setMobState('up'), MOB_DELAY + 700);
+    setMobState((m) => {
+      if (m !== 'up') return m;
+      setBurst((b) => b + 1);
+      return 'falling';
+    });
   };
+  // The cycle: thirty seconds in, the Mob rises and the page drains to grey; it breaks on a click or after fifteen
+  // seconds on its own; the message stays ten seconds; thirty seconds later it rises again.
+  useEffect(() => {
+    const wait = mobState === 'hidden' ? MOB_DELAY : mobState === 'up' ? MOB_STANDS : mobState === 'falling' ? 700 : MOB_MESSAGE;
+    const next = mobState === 'hidden' ? () => setMobState('up') : mobState === 'up' ? defeatMob : mobState === 'falling' ? () => setMobState('down') : () => setMobState('hidden');
+    const id = window.setTimeout(next, wait);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mobState]);
   const root = useRef<HTMLDivElement>(null);
   // Parallax: the plates and the hero drift a few pixels against the pointer.
   useEffect(() => {
