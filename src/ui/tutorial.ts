@@ -176,11 +176,14 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
         const one = !tdef.requiresBoth ? here.find((c) => confrontForce(view, c, t) >= need) : undefined;
         if (one) {
           const who: CharacterInstance = one;
+          const base = CARD_BY_ID[who.defId]?.kind === 'character' ? (CARD_BY_ID[who.defId] as { force: number }).force : 0;
+          const eff = confrontForce(view, who, t);
+          const forceLine = eff > base ? `${nm(who.defId)}'s card shows ${base} Force, and ${ln(loc.index)} adds +${eff - base} to anyone confronting here: ${eff} in all, enough on its own.` : `${nm(who.defId)}'s card has ${eff} Force, enough on its own.`;
           beats.push({
             point: read('A Threat', `${label} arrived at ${ln(loc.index)}. Threats are neutral: nobody owns them and either player can fight them. This one needs ${need} Force in one turn. While it stands: ${tdef.text}`),
             act: {
               kind: 'do',
-              text: `${nm(who.defId)}'s card has ${confrontForce(view, who, t)} Force, enough on its own. Drag the tile onto the Threat to confront it. Confronting is free; Force is the red number.`,
+              text: `${forceLine} Drag the tile onto the Threat to confront it. Confronting is free; Force is the red number.`,
               flash: 'threat',
               location: loc.index,
               done: (_v, plan) => plan.confronts.some((k) => k.uid === who.uid && k.threatUid === t.uid),
