@@ -137,6 +137,12 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - blurb: Born enslaved, fluent in several Native languages, one of the first Black deputy U.S. Marshals west of the Mississippi. Three thousand arrests, never wounded.
 - history: Bass Reeves was born enslaved in Arkansas in 1838 and escaped into Indian Territory during the Civil War. In 1875 Judge Isaac Parker made him a deputy U.S. Marshal, one of the first Black deputies west of the Mississippi. Over thirty-two years he made roughly three thousand arrests, including of his own son, and was never wounded despite many gunfights. Some argue he was the inspiration for the Lone Ranger.
 
+### Tom Bass (`tom_bass`)
+- cost 2 · Influence 2 · Force 1 · historical · era: 1859–1934
+- established: The Bass bit: gentle hands, full control. While Tom Bass is Established here, opposing Characters at this Location cannot relocate out. Harriet Tubman still can.
+- blurb: The greatest saddle-horse trainer of his day. Invented a bit that never hurt the horse and refused to patent it.
+- history: Tom Bass was born enslaved in Boone County, Missouri, in 1859 and grew up handling horses on the farm where his grandfather trained them. Working out of Mexico, Missouri, he became the most celebrated saddle-horse trainer in the country: his horses performed for Buffalo Bill Cody, at the 1893 World's Columbian Exposition in Chicago, and before Presidents Cleveland, McKinley, Theodore Roosevelt and Coolidge; his mare Belle Beach was called the greatest show horse of her time. He designed the Bass bit, which controlled a horse without cutting its mouth, and would not patent it so that any rider could use it. It is still made. He died in 1934, and Will Rogers marked the death in his newspaper column.
+
 ### Bud Billiken (`bud_billiken`)
 - cost 0 · Influence 1 · Force 1 · historical · era: Chicago Defender, 1923
 - reveal: Bud Billiken Club: each of your other Characters at this Location that costs 1 or less gains +1 Influence.
@@ -589,22 +595,72 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ## Start screen
 
+cancelAnimationFrame(raf);
+window.removeEventListener('resize', resize);
+type P = …;
+w = canvas.width = canvas.offsetWidth;
+h = canvas.height = canvas.offsetHeight;
+resize();
+window.addEventListener('resize', resize);
+for (let i = 0; i < 40; i++) {
+p.life = Math.random() * p.max;
+ps.push(p);
+for (let i = 0; i < 140; i++) {
+ps.push(…);
+ctx.clearRect(0, 0, w, h);
+for (let i = 0; i < ps.length; i++) {
+p.x += p.vx + Math.sin((p.life + i) * 0.08) * 0.25;
+p.vy += 0.04; // a little gravity so the burst arcs
+p.life += 1;
+ctx.beginPath();
+ctx.arc(p.x, p.y, p.r * (1 - t * 0.5), 0, Math.PI * 2);
+ctx.fillStyle = `hsla($…, 100%, $…%, $…)`;
+ctx.shadowBlur = 10;
+ctx.shadowColor = `hsla($…, 100%, 55%, 0.9)`;
+ctx.fill();
+else ps[i] = spawn();
+raf = requestAnimationFrame(tick);
+raf = requestAnimationFrame(tick);
+cancelAnimationFrame(raf);
+window.removeEventListener('resize', resize);
+el.style.setProperty('--mx', x.toFixed(3));
+el.style.setProperty('--my', y.toFixed(3));
+window.addEventListener('pointermove', onMove, …);
 onChange(o.key)}>
-{d.cards.length > 0 && …}
-Black History Card Battler
-Systems prototype · v0.3 · build …
-Deploy heroes, legends and neighbors across three Locations. Win Influence at two of them. Seven turns. Ten minutes, give or take.
+setOpen(id)} />
+A fresh hand every match: ten Characters drawn from the whole pool, plus both Events.
+Strategy
+builds
+legacy
+Real people.
+Real Locations.
+Real history.
+The Black History Card Battler
+People. Strategy. A stronger tomorrow.
 onPlay(opts('ai'))}>
-Play vs Harborlight
+Play match
 onPlay(…)}>
-Tutorial · learn in five turns
-Rules
+Tutorial
 Cards
+Learn the rules
+⚠} alt="" />
+The …
+Organized violence aimed at exactly the people who are winning. It needs … Force in one turn to break.
+Work together to overcome.
+Both players may contribute Force.
+Defeated together
+Neither side had … Force alone. Both stood up in the same turn, and the Mob broke.
+Who has the better plan for the future?
+Compete for Influence.
+Systems prototype · v0.3 · build …
 Seed  setSeed(e.target.value)} placeholder="random" />
 setPlaceholders(e.target.checked)} /> Generic placeholder names (Test A: is it still fun?)
 setCoach(e.target.checked)} /> First-match coach tips
 onPlay(opts('hotseat'))}>
 Local two-player debug (pass the device)
+<button
+resetCoach();
+resetGuide();
 Reset coach tips
 In-match: the ⚙ button opens AI reasoning, analytics and the event log. Also enabled with ?dev=1.
 

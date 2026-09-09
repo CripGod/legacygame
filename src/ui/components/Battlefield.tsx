@@ -322,6 +322,7 @@ function shortEffect(type: string): string {
     relocatedInInside: 'relocations arrive Inside',
     weakenThreatsHere: 'Threats need 1 less',
     sanctuary: 'sanctuary from Threats',
+    bridleHere: 'rivals cannot relocate out',
     freeDeparture: 'leaving is free',
     allyBonus: '+1 with company',
     cookout: 'everybody eats',

@@ -77,6 +77,7 @@ export const DEFAULT_TUNING: AiTuning = {
 };
 
 const ESTABLISHED_VALUE: Record<string, number> = {
+  bridleHere: 0.8,
   drawOnEnterHere: 0.9,
   drawOnThreatCleared: 0.4,
   growLowestHere: 1.1,

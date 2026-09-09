@@ -24,7 +24,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Missing
 
-### characters (36)
+### characters (37)
 
 - `john_russwurm` **John Russwurm** (1799–1851): Co-founded Freedom's Journal in 1827, the first Black-owned newspaper in the United States. "We wish to plead our own cause."
 - `alonzo_herndon` **Alonzo Herndon** (1858–1927): Born enslaved, built the finest barbershop in Atlanta and then Atlanta Life Insurance. Everybody passed through his chairs.
@@ -40,6 +40,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `scott_joplin` **Scott Joplin** (1868–1917): The King of Ragtime. "Maple Leaf Rag" sold a million copies; his opera waited sixty years for a stage.
 - `claudette_colvin` **Claudette Colvin** (1939–): Fifteen years old, Montgomery, March 1955. Nine months before Rosa Parks, she refused to move and was dragged off the bus.
 - `bass_reeves` **Bass Reeves** (1838–1910): Born enslaved, fluent in several Native languages, one of the first Black deputy U.S. Marshals west of the Mississippi. Three thousand arrests, never wounded.
+- `tom_bass` **Tom Bass** (1859–1934): The greatest saddle-horse trainer of his day. Invented a bit that never hurt the horse and refused to patent it.
 - `bud_billiken` **Bud Billiken** (Chicago Defender, 1923): The Chicago Defender's mascot for its children's page: guardian of every Black kid, dreamed up in 1923.
 - `roger_taney` **Roger Taney** (1777–1864): Chief Justice who wrote Dred Scott: Black people had "no rights which the white man was bound to respect." Useful to whoever plays him for a turn, then a liability to whoever is winning.
 - `the_stroll` **The Stroll** (Chicago, 1910s–20s): State Street from 26th to 39th, the Black Belt's night strip in the 1910s and 20s: theaters, cabarets, and everybody out walking.

@@ -34,6 +34,7 @@ export const HOMES: Record<string, HomeGround> = {
   scott_joplin: { locations: ['juneteenth'], why: 'Born in Texas in 1868, three years after Galveston.', thematic: true },
   claudette_colvin: { locations: ['montgomery'], why: 'March 2, 1955: she would not give up her seat, nine months before Rosa Parks.' },
   bass_reeves: { locations: ['justice_system'], why: 'Deputy U.S. Marshal for Judge Parker\'s court at Fort Smith for thirty-two years.' },
+  tom_bass: { locations: ['juneteenth'], why: 'Born enslaved in Missouri in 1859; a free boy after 1865. Mexico, Missouri, is not on the board.', thematic: true },
   bud_billiken: { locations: ['great_migration'], why: 'The Chicago Defender, the paper that called the Migration north.' },
   roger_taney: { locations: ['justice_system'], why: 'Dred Scott v. Sandford, 1857.' },
   sleeping_car_porters: { locations: ['great_migration'], why: 'They carried the Defender south in their bags and organized in Chicago in 1925.' },

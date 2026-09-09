@@ -1491,3 +1491,23 @@ describe('history moves twice', () => {
     expect(hits / N).toBeLessThan(0.8);
   });
 });
+
+describe('Tom Bass', () => {
+  it('holds opposing Characters at his Location; Harriet still leaves', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['gary_indiana', 'greenwood', 'harpers_ferry'], revealAll: true });
+    addChar(s, 'tom_bass', 'A', 0, 'inside');
+    const held = addChar(s, 'og', 'B', 0, 'inside');
+    const harriet = addChar(s, 'harriet_tubman', 'B', 0, 'inside');
+    const free = addChar(s, 'organizer', 'B', 1, 'inside');
+    const friend = addChar(s, 'organizer', 'A', 0, 'inside');
+    expect(lockReason(s, held)).toMatch(/Tom Bass/);
+    expect(lockReason(s, harriet)).toBeNull();
+    expect(lockReason(s, free)).toBeNull();
+    expect(lockReason(s, friend)).toBeNull();
+    const opts = legalOptions(s, 'B');
+    expect(opts.relocations.some((r) => r.uid === held.uid)).toBe(false);
+    expect(opts.relocations.some((r) => r.uid === harriet.uid)).toBe(true);
+    // The plan is refused too.
+    expect(validatePlan(s, 'B', { ...pass(), relocations: [{ uid: held.uid, to: 1 }] }).length).toBeGreaterThan(0);
+  });
+});

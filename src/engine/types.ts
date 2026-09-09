@@ -68,6 +68,7 @@ export type RevealEffect =
 
 export type EstablishedEffect =
   | { type: 'readyRelocatedIn' } // Harriet
+  | { type: 'bridleHere' } // Tom Bass: opposing Characters at this Location cannot relocate out (Harriet still can)
   | { type: 'auraInfluenceOthersHere'; amount: number } // Douglass
   | { type: 'assistForceBonus'; amount: number } // John Brown
   | { type: 'relocatedNoDisplace' } // Katherine

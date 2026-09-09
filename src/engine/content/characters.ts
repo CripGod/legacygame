@@ -509,6 +509,28 @@ export const CHARACTERS: CharacterDef[] = [
   },
   {
     kind: 'character',
+    id: 'tom_bass',
+    cost: 2,
+    identity: ['horsemanship', 'gentle control', 'the Bass bit'],
+    era: '1859–1934',
+    category: 'historical',
+    name: 'Tom Bass',
+    short: 'Bass',
+    summary: 'Opposing Characters here cannot relocate out.',
+    influence: 2,
+    force: 1,
+    tags: ['Black', 'Horsemanship', 'Missouri'],
+    keywords: [],
+    established: {
+      text: 'The Bass bit: gentle hands, full control. While Tom Bass is Established here, opposing Characters at this Location cannot relocate out. Harriet Tubman still can.',
+      effect: { type: 'bridleHere' },
+    },
+    blurb: 'The greatest saddle-horse trainer of his day. Invented a bit that never hurt the horse and refused to patent it.',
+    history:
+      'Tom Bass was born enslaved in Boone County, Missouri, in 1859 and grew up handling horses on the farm where his grandfather trained them. Working out of Mexico, Missouri, he became the most celebrated saddle-horse trainer in the country: his horses performed for Buffalo Bill Cody, at the 1893 World\'s Columbian Exposition in Chicago, and before Presidents Cleveland, McKinley, Theodore Roosevelt and Coolidge; his mare Belle Beach was called the greatest show horse of her time. He designed the Bass bit, which controlled a horse without cutting its mouth, and would not patent it so that any rider could use it. It is still made. He died in 1934, and Will Rogers marked the death in his newspaper column.',
+  },
+  {
+    kind: 'character',
     id: 'bud_billiken',
     cost: 0,
     identity: ['youth', 'mascot', 'the kids\' page'],

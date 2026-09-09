@@ -26,6 +26,7 @@ export function lockReason(state: GameState, c: CharacterInstance): string | nul
   const loc = state.locations[c.location];
   const def = loc.revealed ? LOCATION_BY_ID[loc.defId] : undefined;
   if (def?.curfew && isNight(state)) return `${def.name} is under curfew until morning`;
+  if (hasEstablished(state, other(c.owner), c.location, 'bridleHere').length) return 'Tom Bass holds the reins here: nobody relocates out against him';
   if (c.zone === 'inside' && isHeldInside(state, c)) return `${def?.name ?? 'this Location'} holds anyone Inside for two turns`;
   return null;
 }
