@@ -137,8 +137,8 @@
   transition: transform 0.2s;
 }
 .threat-spot:hover { animation-play-state: paused; transform: translateX(-50%) rotate(-2deg) scale(1.1); }
-/* Devil horns: two spikes off the top corners, a dip between them, chamfered feet. */
-.threat-spot .mob-shape, .threat-spot .mob-inner { display: block; clip-path: polygon(0 16%, 9% 0, 24% 11%, 50% 7%, 76% 11%, 91% 0, 100% 16%, 100% 95%, 94% 100%, 6% 100%, 0 95%); }
+/* Hard notched silhouette: the same chamfered corners top and bottom. */
+.threat-spot .mob-shape, .threat-spot .mob-inner { display: block; clip-path: polygon(6% 0, 94% 0, 100% 5%, 100% 95%, 94% 100%, 6% 100%, 0 95%, 0 5%); }
 .threat-spot .mob-shape { background: linear-gradient(180deg, #ff8a7a, #a3261b 40%, #ff5a48 100%); padding: 2px; }
 .threat-spot .mob-inner { background: #120d10; display: grid; grid-template-rows: auto 1fr; }
 .threat-spot .mob-sparks { position: absolute; left: -60%; right: -60%; top: -70%; bottom: -25%; width: 220%; height: 195%; pointer-events: none; mix-blend-mode: screen; }
