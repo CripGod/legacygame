@@ -1,0 +1,156 @@
+/*
+ * Landing page: a cinematic plate on each side (Harriet warm at left, Douglass cool at right) fading into the
+ * navy ground, the wordmark centred, one row of actions, then the two decks facing each other across a VS.
+ * Motion: plates drift against the pointer (--mx/--my), embers rise on a canvas, blocks fade up on load.
+ */
+.landing {
+  --mx: 0; --my: 0;
+  --script: 'Kaushan Script', 'Brush Script MT', cursive;
+  position: relative; min-height: 100dvh; overflow-x: hidden; overflow-y: auto;
+  background: radial-gradient(120% 70% at 50% 0%, #10253d 0%, #08131f 55%, #050c15 100%);
+  color: var(--text);
+  display: grid; grid-template-rows: auto auto auto 1fr auto; justify-items: center;
+  padding: clamp(14px, 2vw, 28px) clamp(14px, 3vw, 40px) 24px;
+  gap: clamp(10px, 1.6vw, 22px);
+}
+
+/* ---- plates ---- */
+.bg-plates { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.bg-plate {
+  position: absolute; top: 0; bottom: 0; width: 46%;
+  background-size: cover; background-position: center top; background-repeat: no-repeat;
+  will-change: transform; transition: transform 0.25s ease-out;
+}
+.bg-plate.left { background-position: 20% top; }
+.bg-plate.right { background-position: 100% top; }
+.bg-plate.left {
+  left: -3%;
+  -webkit-mask-image: linear-gradient(to right, #000 0%, #000 45%, transparent 100%);
+  mask-image: linear-gradient(to right, #000 0%, #000 45%, transparent 100%);
+  transform: translate(calc(var(--mx) * -14px), calc(var(--my) * -8px)) scale(1.04);
+}
+.bg-plate.right {
+  right: -3%;
+  -webkit-mask-image: linear-gradient(to left, #000 0%, #000 45%, transparent 100%);
+  mask-image: linear-gradient(to left, #000 0%, #000 45%, transparent 100%);
+  transform: translate(calc(var(--mx) * 14px), calc(var(--my) * -8px)) scale(1.04);
+}
+.bg-fade {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(to bottom, rgba(5, 12, 21, 0.15) 0%, rgba(5, 12, 21, 0) 25%, rgba(5, 12, 21, 0.55) 60%, rgba(5, 12, 21, 0.96) 100%),
+    radial-gradient(60% 50% at 50% 30%, rgba(5, 12, 21, 0) 0%, rgba(5, 12, 21, 0.35) 100%);
+}
+.embers { position: absolute; inset: 0; width: 100%; height: 100%; mix-blend-mode: screen; opacity: 0.85; }
+
+/* Everything in front of the plates. */
+.landing > *:not(.bg-plates) { position: relative; z-index: 1; }
+
+/* ---- corners ---- */
+.landing > .corner {
+  position: absolute; top: clamp(44px, 6vw, 80px); z-index: 1;
+  font-family: var(--display); font-weight: 700; font-size: clamp(9px, 0.85vw, 13px); letter-spacing: 0.28em; text-transform: uppercase; line-height: 1.7;
+  color: var(--gold-2); text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  animation: rise 0.9s ease-out both 0.5s;
+}
+.corner.left { left: clamp(14px, 3vw, 44px); }
+.corner.right { right: clamp(14px, 3vw, 44px); text-align: right; }
+.corner::after { content: ''; display: block; width: 46px; height: 1px; background: var(--gold); margin-top: 8px; opacity: 0.7; }
+.corner.right::after { margin-left: auto; }
+
+/* ---- hero ---- */
+.hero { display: grid; justify-items: center; text-align: center; gap: 6px; margin-top: clamp(6px, 1.5vw, 18px); animation: rise 0.9s ease-out both; transform: translate(calc(var(--mx) * 6px), calc(var(--my) * 4px)); }
+.hero .hero-mark {
+  display: block; width: min(52vw, 400px);
+  background: linear-gradient(170deg, #fbe7a3 0%, var(--gold-2) 35%, var(--gold) 62%, #c8901e 100%);
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-position: center; mask-position: center;
+  filter: drop-shadow(0 2px 0 rgba(90, 60, 8, 0.55)) drop-shadow(0 8px 26px rgba(233, 185, 58, 0.35));
+}
+.hero-sub { font-family: var(--display); font-weight: 700; font-size: clamp(11px, 1.15vw, 16px); letter-spacing: 0.34em; text-transform: uppercase; color: var(--gold-2); margin-top: 8px; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8); }
+.hero-tag { font-family: var(--display); font-weight: 600; font-size: clamp(9px, 0.8vw, 11.5px); letter-spacing: 0.3em; text-transform: uppercase; color: #cfd6e2; opacity: 0.9; }
+.hero-tag::before, .hero-tag::after { content: '—'; color: var(--gold-dark); margin: 0 10px; }
+
+/* ---- actions ---- */
+.hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; animation: rise 0.9s ease-out both 0.15s; }
+.cta {
+  --chamfer: 10px;
+  font-family: var(--display); font-weight: 700; font-size: clamp(11px, 1vw, 14px); letter-spacing: 0.22em; text-transform: uppercase;
+  padding: 14px 26px; min-width: 200px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+  background: linear-gradient(180deg, rgba(10, 26, 46, 0.85), rgba(6, 15, 28, 0.9)); color: #bfe0ff; border: 1.5px solid rgba(120, 180, 255, 0.55);
+  box-shadow: 0 0 0 1px rgba(47, 123, 255, 0.15), 0 0 24px rgba(47, 123, 255, 0.25), inset 0 0 18px rgba(47, 123, 255, 0.12);
+  transition: transform 0.15s, box-shadow 0.2s, filter 0.2s; cursor: pointer;
+}
+.cta:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(120, 180, 255, 0.4), 0 0 32px rgba(47, 123, 255, 0.45), inset 0 0 18px rgba(47, 123, 255, 0.2); }
+.cta.play { color: #1a1200; background: linear-gradient(180deg, #fbe7a3 0%, #f0c95a 45%, #d7a52c 100%); border-color: #fff2c4; box-shadow: 0 0 0 1px rgba(233, 185, 58, 0.3), 0 0 32px rgba(233, 185, 58, 0.45), 0 8px 18px rgba(0, 0, 0, 0.55); min-width: 260px; font-size: clamp(12px, 1.1vw, 16px); }
+.cta.play:hover { box-shadow: 0 0 0 1px rgba(233, 185, 58, 0.5), 0 0 44px rgba(233, 185, 58, 0.65), 0 10px 20px rgba(0, 0, 0, 0.55); }
+.cta .cta-ico { font-size: 0.95em; opacity: 0.9; }
+
+/* ---- decks ---- */
+.decks { width: min(100%, 1480px); display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: start; gap: 10px; animation: rise 0.9s ease-out both 0.3s; }
+.deck-panel {
+  --pc: var(--gold); --pc-soft: rgba(233, 185, 58, 0.35);
+  position: relative; padding: 14px 16px 16px; border: 1.5px solid var(--pc); border-radius: 14px;
+  background: linear-gradient(180deg, rgba(8, 19, 31, 0.78), rgba(5, 12, 21, 0.9));
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 0 28px var(--pc-soft), inset 0 0 40px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  display: grid; gap: 10px; align-content: start; min-width: 0;
+}
+.deck-panel.theirs { --pc: #5aa2ff; --pc-soft: rgba(47, 123, 255, 0.35); }
+.deck-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: start; }
+.deck-panel .lbl { font-family: var(--display); font-weight: 700; font-size: clamp(11px, 1vw, 14px); letter-spacing: 0.3em; text-transform: uppercase; color: #f4e9d0; }
+.deck-style { margin: 4px 0 0; font-size: clamp(11px, 0.85vw, 13px); line-height: 1.35; color: #cfd6e2; }
+.deck-note { font-family: var(--script); font-size: clamp(16px, 1.5vw, 24px); color: var(--gold-2); transform: rotate(-8deg); white-space: nowrap; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8); margin: 4px 6px 0 0; }
+.deck-panel.theirs .deck-note { color: #9fc8ff; }
+.deck-panel .deck-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.deck-panel .deck-tabs button { font-family: var(--display); letter-spacing: 0.08em; font-size: 11px; }
+.deck-panel.theirs .deck-tabs button.primary { background: linear-gradient(180deg, #a9d0ff, #4d8fe6); border-color: #cfe4ff; color: #04162e; }
+.deck-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: start; }
+.deck-panel .deck-cards { align-items: flex-start; }
+.deck-panel .deck-cards { margin-top: 0; padding: 8px 2px 10px; }
+/* The first card leads: a touch bigger, glowing. */
+.deck-panel .deck-cards .card:first-child { transform: translateY(-4px) scale(1.05); box-shadow: 0 12px 22px rgba(0, 0, 0, 0.65), 0 0 0 1.5px var(--gold-2), 0 0 18px var(--pc-soft); margin: 0 4px; }
+.deck-panel.theirs .deck-cards .card:first-child { box-shadow: 0 12px 22px rgba(0, 0, 0, 0.65), 0 0 0 1.5px #bfe0ff, 0 0 18px var(--pc-soft); }
+.deck-random { align-self: center; padding: 16px; font-style: italic; color: #cfd6e2; }
+.vs { align-self: center; margin-top: 120px; font-family: var(--display); font-weight: 800; font-size: clamp(36px, 4.4vw, 68px); color: var(--gold-2); text-shadow: 0 0 24px rgba(233, 185, 58, 0.65), 0 4px 0 rgba(90, 60, 8, 0.7); padding: 0 6px; }
+
+/* Threat spotlight: a tall card at the foot of Harborlight's panel. */
+.threat-spot {
+  width: clamp(120px, 11vw, 168px); border: 1.5px solid var(--gold); border-radius: 10px; overflow: hidden;
+  background: #120d10; box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 0, 0, 0.6);
+  display: grid; grid-template-rows: auto 1fr;
+}
+.threat-spot-art { position: relative; height: clamp(90px, 7.5vw, 120px); background: #2a1216; overflow: hidden; display: grid; place-items: center; }
+.threat-spot-art .threat-spot-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.threat-spot-art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 55%, #120d10 100%); }
+.threat-spot-body { padding: 8px 10px 10px; text-align: center; display: grid; gap: 5px; align-content: start; }
+.threat-spot-name { font-family: var(--display); font-weight: 800; font-size: clamp(11px, 1vw, 14px); letter-spacing: 0.12em; text-transform: uppercase; color: #f4e9d0; }
+.threat-spot-body p { margin: 0; font-size: clamp(9.5px, 0.78vw, 11.5px); line-height: 1.3; color: #d5d8e0; }
+.threat-spot-rule { font-family: var(--display); font-weight: 700; font-size: clamp(9px, 0.78vw, 11px); letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-2); border-top: 1px solid rgba(233, 185, 58, 0.4); border-bottom: 1px solid rgba(233, 185, 58, 0.4); padding: 5px 0; margin-top: 2px; }
+.threat-spot-body small { font-size: 8.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+
+/* ---- foot ---- */
+.hero-foot { width: min(100%, 1480px); display: grid; justify-items: center; gap: 10px; animation: rise 0.9s ease-out both 0.45s; }
+.foot-quote { font-family: var(--script); font-size: clamp(18px, 1.7vw, 26px); text-align: center; color: #e9e2cf; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.85); line-height: 1.3; }
+.foot-meta { display: flex; gap: 16px; align-items: center; font-family: var(--display); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.foot-meta .link { background: none; border: 0; padding: 0; color: var(--gold-dark); font: inherit; letter-spacing: inherit; text-transform: inherit; cursor: pointer; text-decoration: underline dotted; }
+.hero-foot .dev { width: min(100%, 720px); background: rgba(5, 12, 21, 0.8); }
+
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .hero, .hero-actions, .decks, .hero-foot, .corner { animation: none; } .bg-plate { transition: none; } }
+
+/* Narrow: stack the decks, drop the corners. */
+@media (width <= 1100px) {
+  .decks { grid-template-columns: 1fr; }
+  .vs { justify-self: center; font-size: 40px; padding: 2px 0; }
+  .corner { display: none; }
+  .bg-plate { width: 60%; opacity: 0.75; }
+}
+@media (width <= 700px) {
+  .landing { padding: 12px 10px 20px; }
+  .hero .hero-mark { width: min(78vw, 340px); }
+  .cta { min-width: 0; flex: 1 1 45%; padding: 12px 14px; }
+  .cta.play { flex-basis: 100%; }
+  .deck-row { grid-template-columns: 1fr; }
+  .threat-spot { width: 100%; grid-template-columns: 110px 1fr; grid-template-rows: none; }
+  .threat-spot-art { height: 100%; }
+}

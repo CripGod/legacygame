@@ -2,7 +2,7 @@
  * Artwork lookup. Files live in public/art/<kind>/<id>.jpg (see docs/ART_SPEC.md).
  * Missing files fall back to the generated initials tile.
  */
-export type ArtKind = 'characters' | 'locations' | 'threats' | 'events';
+export type ArtKind = 'characters' | 'locations' | 'threats' | 'events' | 'landing';
 
 const missing = new Set<string>();
 
