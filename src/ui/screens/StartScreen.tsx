@@ -23,7 +23,16 @@ export interface StartOptions {
   tutorial?: boolean;
 }
 
-const RANDOM_DECK = { key: 'random', name: 'Random draft', style: 'Ten random Characters from the whole pool plus both Events. Different every match.', cards: [] as string[] };
+const RANDOM_DECK = { key: 'random', name: 'Random', style: 'Ten random Characters from the whole pool plus both Events. Different every match.', cards: [] as string[] };
+/** One-line deck descriptions for the landing page; the full text lives on the deck itself. */
+const TAGLINE: Record<string, string> = {
+  railroad: 'Movement and organizing. Harriet moves people, John Brown breaks Threats.',
+  blackstar: 'Mobility and return. Relocate freely, come back when pushed out.',
+  caiman: 'The cost flow. Prices fall, then the Uprising sends everyone Inside.',
+  pantheon: 'Four orisha with the church behind them. Call Black Jesus.',
+  mirror: 'Both players get the same cards. The cleanest test.',
+  random: 'Ten random Characters plus both Events. Different every match.',
+};
 /** The Threat spotlighted at the foot of Harborlight's panel. */
 const SPOTLIGHT_THREAT = 'mob';
 
@@ -84,6 +93,65 @@ function Embers() {
   return <canvas ref={ref} className="embers" aria-hidden />;
 }
 
+/** Sparks shed by the Mob card: red and orange motes rising off its edges. */
+function MobSparks() {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    let w = 0;
+    let h = 0;
+    // The card occupies the middle of the canvas: x 27%–73%, y 36%–87%.
+    type P = { x: number; y: number; r: number; vx: number; vy: number; life: number; max: number; hue: number };
+    const ps: P[] = [];
+    const spawn = (): P => {
+      const side = Math.random();
+      const x = side < 0.5 ? w * (0.27 + Math.random() * 0.46) : side < 0.75 ? w * 0.27 : w * 0.73;
+      const y = side < 0.5 ? h * 0.87 : h * (0.36 + Math.random() * 0.51);
+      return { x, y, r: 0.6 + Math.random() * 1.6, vx: (Math.random() - 0.5) * 0.5, vy: -(0.35 + Math.random() * 0.8), life: 0, max: 80 + Math.random() * 90, hue: 8 + Math.random() * 30 };
+    };
+    const resize = () => {
+      w = canvas.width = canvas.offsetWidth;
+      h = canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+    for (let i = 0; i < 40; i++) {
+      const p = spawn();
+      p.life = Math.random() * p.max;
+      ps.push(p);
+    }
+    let raf = 0;
+    const tick = () => {
+      ctx.clearRect(0, 0, w, h);
+      for (let i = 0; i < ps.length; i++) {
+        const p = ps[i];
+        p.x += p.vx + Math.sin((p.life + i) * 0.08) * 0.25;
+        p.y += p.vy;
+        p.life += 1;
+        const t = p.life / p.max;
+        const a = t < 0.15 ? t / 0.15 : 1 - (t - 0.15) / 0.85;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r * (1 - t * 0.5), 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${p.hue}, 100%, ${60 + t * 25}%, ${Math.max(0, a)})`;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = `hsla(${p.hue}, 100%, 55%, 0.9)`;
+        ctx.fill();
+        if (p.life >= p.max) ps[i] = spawn();
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
+  return <canvas ref={ref} className="mob-sparks" aria-hidden />;
+}
+
 export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: (o: StartOptions) => void; onRules: () => void; onCards: () => void; initialDev: boolean }) {
   const [dev, setDev] = useState(initialDev);
   const [seed, setSeed] = useState('');
@@ -124,7 +192,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
         <div className="deck-head">
           <div>
             <div className="lbl">{label}</div>
-            <p className="deck-style">{d.style}</p>
+            <p className="deck-style" title={d.style}>{TAGLINE[d.key] ?? d.style}</p>
           </div>
           <span className="deck-note" aria-hidden>
             {note}
@@ -159,9 +227,12 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
         <div className="bg-plate right" style={{ backgroundImage: `url(${artUrl('landing', 'frederick')})` }} />
         <div className="bg-fade" />
         <div className="bg-floor" />
+        <Embers />
+      </div>
+      {/* Foreground cutouts paint over the panels; only the Threat card stands above the rocks. */}
+      <div className="fg-layer" aria-hidden>
         <div className="fg books" style={{ backgroundImage: `url(${artUrl('landing', 'books', 'webp')})` }} />
         <div className="fg rocks" style={{ backgroundImage: `url(${artUrl('landing', 'rocks', 'webp')})` }} />
-        <Embers />
       </div>
 
       <div className="corner left">
@@ -213,6 +284,8 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
       </nav>
 
       <div className="decks">
+        {/* Same width as the Threat card on the right, so the two panels match and the VS sits on the centre line. */}
+        <div className="deck-spacer" aria-hidden />
         <DeckPanel side="mine" label="Your deck" note="Justice arcs forward." value={deckA} onChange={setDeckA} />
         <div className="vs" aria-hidden>
           VS
@@ -220,6 +293,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
         <DeckPanel side="theirs" label="Harborlight's deck" note="Different paths. Same goals." value={deckB} onChange={setDeckB} />
         {mob && (
           <aside className="threat-spot" aria-label="Threat">
+            <MobSparks />
             <div className="threat-spot-art">
               <Art kind="threats" id={mob.id} className="threat-spot-img" fallback={<span className="ini">⚠</span>} alt="" />
             </div>
