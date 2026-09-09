@@ -1023,16 +1023,17 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 
 /* ---------- Threat tiles ---------- */
 /* A Threat is a portrait tile beside the Inside rows: art, the Force it needs, its name, who it is aimed at. */
-/* The slots never change size or shape; the Threat column takes whatever width is left beside them. */
-.inside-block { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: stretch; }
-.inside-rows { display: grid; grid-template-rows: auto auto; }
-.threat-col { display: grid; grid-auto-rows: minmax(0, 1fr); gap: 4px; padding: 4px 8px 4px 0; align-content: stretch; min-width: 0; box-sizing: border-box; }
+/* The Threat column is a fixed width and always present, so the five slots beside it have one size and shape
+   in every state: with a Threat, without one (the art shows through the empty column), or with the stamp. */
+.inside-block { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; }
+.inside-rows { min-width: 0; display: grid; grid-template-rows: auto auto; }
+.inside-row { min-width: 0; }
+.inside-block .slots { grid-template-columns: repeat(5, minmax(0, var(--slot))); }
+.inside-block .slot { width: auto; }
+.threat-col { display: grid; grid-auto-rows: minmax(0, 1fr); gap: 4px; padding: 4px 10px 4px 0; align-content: stretch; width: calc(var(--slot) * 1.4 + 10px); box-sizing: border-box; }
 .threat-col .threat-tile { width: 100%; }
-.threat-col { container-type: inline-size; }
-/* A narrow leftover column keeps the badge, the art and who it is aimed at; the name waits for the tap. */
-@container (max-width: 62px) { .threat-tile .threat-name { display: none; } .threat-tile .threat-who { padding-top: 8px; background: linear-gradient(to top, rgba(8, 19, 31, 0.96), rgba(8, 19, 31, 0.5)); } .threat-tile .threat-need { min-width: 18px; height: 18px; font-size: 10px; } }
 .threat-tile {
-  position: relative; width: calc(var(--slot) * 1.4); min-width: 34px; min-height: calc(var(--slot-h) + 20px);
+  position: relative; width: calc(var(--slot) * 1.4); min-height: calc(var(--slot-h) + 20px);
   border: 2px solid var(--danger); border-radius: 4px; overflow: hidden; background: #1a0d10; cursor: pointer;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6); display: flex; flex-direction: column; justify-content: flex-end;
   transition: transform 0.2s, box-shadow 0.2s;
