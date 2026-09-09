@@ -147,19 +147,6 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
           ) : (
             <div className="deck-random">A fresh hand every match: ten Characters drawn from the whole pool, plus both Events.</div>
           )}
-          {side === 'theirs' && mob && (
-            <aside className="threat-spot" aria-label="Threat">
-              <div className="threat-spot-art">
-                <Art kind="threats" id={mob.id} className="threat-spot-img" fallback={<span className="ini">⚠</span>} alt="" />
-              </div>
-              <div className="threat-spot-body">
-                <div className="threat-spot-name">The {mob.name}</div>
-                <p>Organized violence aimed at exactly the people who are winning. It needs {mob.force} Force in one turn to break.</p>
-                <div className="threat-spot-rule">Work together to overcome.</div>
-                <small>Both players may contribute Force.</small>
-              </div>
-            </aside>
-          )}
         </div>
       </section>
     );
@@ -231,6 +218,19 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
           VS
         </div>
         <DeckPanel side="theirs" label="Harborlight's deck" note="Different paths. Same goals." value={deckB} onChange={setDeckB} />
+        {mob && (
+          <aside className="threat-spot" aria-label="Threat">
+            <div className="threat-spot-art">
+              <Art kind="threats" id={mob.id} className="threat-spot-img" fallback={<span className="ini">⚠</span>} alt="" />
+            </div>
+            <div className="threat-spot-body">
+              <div className="threat-spot-name">The {mob.name}</div>
+              <p>Organized violence aimed at exactly the people who are winning. It needs {mob.force} Force in one turn to break.</p>
+              <div className="threat-spot-rule">Work together to overcome.</div>
+              <small>Both players may contribute Force.</small>
+            </div>
+          </aside>
+        )}
       </div>
 
       <footer className="hero-foot">

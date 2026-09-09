@@ -93,7 +93,7 @@
 .cta .cta-ico { font-size: 0.95em; opacity: 0.9; }
 
 /* ---- decks ---- */
-.decks { width: min(100%, 1480px); display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: start; gap: 10px; animation: rise 0.9s ease-out both 0.3s; }
+.decks { width: min(100%, 1560px); display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto; align-items: start; gap: 12px; animation: rise 0.9s ease-out both 0.3s; }
 .deck-panel {
   --pc: var(--gold); --pc-soft: rgba(233, 185, 58, 0.35);
   position: relative; padding: 14px 16px 16px; border: 1.5px solid var(--pc); border-radius: 14px;
@@ -111,7 +111,7 @@
 .deck-panel .deck-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
 .deck-panel .deck-tabs button { font-family: var(--display); letter-spacing: 0.08em; font-size: 11px; }
 .deck-panel.theirs .deck-tabs button.primary { background: linear-gradient(180deg, #a9d0ff, #4d8fe6); border-color: #cfe4ff; color: #04162e; }
-.deck-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: start; }
+.deck-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; align-items: start; }
 .deck-panel .deck-cards { align-items: flex-start; }
 .deck-panel .deck-cards { margin-top: 0; padding: 8px 2px 10px; }
 /* The first card leads: a touch bigger, glowing. */
@@ -121,8 +121,9 @@
 .vs { align-self: center; margin-top: 120px; font-family: var(--display); font-weight: 800; font-size: clamp(36px, 4.4vw, 68px); color: var(--gold-2); text-shadow: 0 0 24px rgba(233, 185, 58, 0.65), 0 4px 0 rgba(90, 60, 8, 0.7); padding: 0 6px; }
 
 /* Threat spotlight: a tall card at the foot of Harborlight's panel. */
+/* It stands on its own past Harborlight's panel, on the rocks. */
 .threat-spot {
-  width: clamp(120px, 11vw, 168px); border: 1.5px solid var(--gold); border-radius: 10px; overflow: hidden;
+  align-self: end; margin-top: 40px; transform: rotate(2deg); width: clamp(130px, 11.5vw, 180px); border: 1.5px solid var(--gold); border-radius: 10px; overflow: hidden;
   background: #120d10; box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 0, 0, 0.6);
   display: grid; grid-template-rows: auto 1fr;
 }
@@ -148,6 +149,7 @@
 /* Narrow: stack the decks, drop the corners. */
 @media (width <= 1100px) {
   .decks { grid-template-columns: 1fr; }
+  .threat-spot { justify-self: center; transform: none; margin-top: 0; }
   .vs { justify-self: center; font-size: 40px; padding: 2px 0; }
   .corner { display: none; }
   .bg-plate { width: 60%; opacity: 0.75; }
@@ -158,7 +160,6 @@
   .hero .hero-mark { width: min(78vw, 340px); }
   .cta { min-width: 0; flex: 1 1 45%; padding: 12px 14px; }
   .cta.play { flex-basis: 100%; }
-  .deck-row { grid-template-columns: 1fr; }
   .threat-spot { width: 100%; grid-template-columns: 110px 1fr; grid-template-rows: none; }
   .threat-spot-art { height: 100%; }
 }
