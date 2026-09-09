@@ -111,7 +111,7 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
     const straight = played?.kind === 'character' && played.keywords.includes('STRAIGHT_INSIDE');
     const who = played ? `${nm(played.id)}'s card` : 'Your card';
     return script([
-      { point: read('Welcome', 'You and your opponent (Harborlight) are fighting over three Locations. Whoever leads Influence at two of them when Turn 7 ends wins. The clock is stopped in here, so take your time.'), act: play },
+      { point: read('Welcome', 'You and your opponent (Harborlight) are vying for control of three Locations. Whoever leads Influence at two of them when Turn 7 ends wins. The clock is stopped in here, so take your time.'), act: play },
       {
         point: read(
           'The Gates',
