@@ -42,7 +42,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `bass_reeves` **Bass Reeves** (1838–1910): Born enslaved, fluent in several Native languages, one of the first Black deputy U.S. Marshals west of the Mississippi. Three thousand arrests, never wounded.
 - `bud_billiken` **Bud Billiken** (Chicago Defender, 1923): The Chicago Defender's mascot for its children's page: guardian of every Black kid, dreamed up in 1923.
 - `roger_taney` **Roger Taney** (1777–1864): Chief Justice who wrote Dred Scott: Black people had "no rights which the white man was bound to respect." Useful to whoever plays him for a turn, then a liability to whoever is winning.
-- `bud_billiken_parade` **Bud Billiken Parade** (Chicago, 1929–): The Defender's parade for the kids of the South Side, every August since 1929: the largest African American parade in the country.
+- `the_stroll` **The Stroll** (Chicago, 1910s–20s): State Street from 26th to 39th, the Black Belt's night strip in the 1910s and 20s: theaters, cabarets, and everybody out walking.
 - `peter_prioleau` **Peter Prioleau** (Charleston, 1822): The enslaved cook who told his master about the Vesey plot. Freed by the state for it, with a pension.
 - `george_wilson` **George Wilson** (Charleston, 1822): A class leader in the African church who confirmed the plot to his master. Freed, and never at peace with it.
 - `pharoah_and_tom` **Pharoah and Tom** (Richmond, 1800): Two enslaved men on Mosby Sheppard's place who gave up Gabriel's rising on the day it was to begin.

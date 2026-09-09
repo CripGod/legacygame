@@ -53,7 +53,7 @@ export const HOMES: Record<string, HomeGround> = {
   ogun: { locations: ['lagos'], why: 'Yoruba. Lagos is a Yoruba city.' },
   mami_wata: { locations: ['lagos', 'middle_passage'], why: 'A water spirit on both sides of the Atlantic.' },
   black_jesus: { locations: ['the_tabernacle'], why: 'The church.' },
-  bud_billiken_parade: { locations: ['great_migration'], why: 'South Parkway, Chicago, every August since 1929.' },
+  the_stroll: { locations: ['great_migration'], why: 'State Street, Chicago, in the Migration years.' },
   chairteenth: { locations: ['juneteenth'], why: 'The name says it.' },
   peter_prioleau: { locations: ['charleston_1822'], why: 'The plot he told.' },
   george_wilson: { locations: ['charleston_1822'], why: 'The plot he told.' },

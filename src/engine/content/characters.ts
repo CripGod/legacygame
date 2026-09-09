@@ -527,7 +527,7 @@ export const CHARACTERS: CharacterDef[] = [
     },
     blurb: 'The Chicago Defender\'s mascot for its children\'s page: guardian of every Black kid, dreamed up in 1923.',
     history:
-      'Bud Billiken was invented in 1923 by Robert S. Abbott and Lucius Harper of the Chicago Defender as the cartoon patron of the paper\'s youth section, the Defender Junior. Kids joined the Bud Billiken Club by the thousands; a ten-year-old Willard Motley, later the novelist, was among the first to write the column. In 1929 the paper gave the character a parade down South Parkway, and it has marched every August since.',
+      'Bud Billiken was invented in 1923 by Robert S. Abbott and Lucius Harper of the Chicago Defender as the cartoon patron of the paper\'s youth section, the Defender Junior. Kids joined the Bud Billiken Club by the thousands; a ten-year-old Willard Motley, later the novelist, was among the first to write the column.',
   },
   {
     kind: 'character',
@@ -993,11 +993,11 @@ CHARACTERS.push(...MYTHIC);
 const GATHERINGS: CharacterDef[] = [
   {
     kind: 'character',
-    id: 'bud_billiken_parade',
+    id: 'the_stroll',
     cost: 2,
     category: 'gathering',
-    name: 'Bud Billiken Parade',
-    short: 'Parade',
+    name: 'The Stroll',
+    short: 'Stroll',
     summary: 'Your other Established here get +1 Influence; arrivals are Ready.',
     influence: 2,
     force: 1,
@@ -1013,14 +1013,14 @@ const GATHERINGS: CharacterDef[] = [
       count: 3,
       chance: 0.5,
       unique: true,
-      headline: 'You have three Characters Established at Great Migration. The Bud Billiken Parade comes down the avenue.',
+      headline: 'You have three Characters Established at Great Migration. State Street is out tonight: the Stroll.',
       cta: 'Continue',
     },
     identity: ['community', 'welcome', 'joy'],
-    era: 'Chicago, 1929–',
-    blurb: 'The Defender\'s parade for the kids of the South Side, every August since 1929: the largest African American parade in the country.',
+    era: 'Chicago, 1910s–20s',
+    blurb: 'State Street from 26th to 39th, the Black Belt\'s night strip in the 1910s and 20s: theaters, cabarets, and everybody out walking.',
     history:
-      'The Chicago Defender staged the first Bud Billiken Day parade on August 11, 1929, to celebrate the paper\'s newsboys and the children of the Great Migration. It runs down Martin Luther King Drive (then South Parkway) to Washington Park, with bands, drill teams and floats, and has drawn Duke Ellington, Muhammad Ali and sitting presidents. It has marched every year since, the largest African American parade in the United States.',
+      'The Stroll was State Street between about 26th and 39th, the heart of Chicago\'s Black Belt in the 1910s and 1920s. Newcomers from the South found the Pekin Theatre, the Vendome, the Dreamland Café and the Royal Gardens, where King Oliver\'s band played and a young Louis Armstrong joined in 1922. Langston Hughes remembered South State Street "in its glory then, a teeming Negro street with crowded theaters, restaurants, and cabarets." By the thirties the action had moved south to 47th Street.',
   },
   {
     kind: 'character',

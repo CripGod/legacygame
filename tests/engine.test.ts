@@ -436,34 +436,34 @@ describe('locations', () => {
 });
 
 describe('gatherings', () => {
-  it('The Bud Billiken Parade arrives at Great Migration once you have three Established there (in the matches it exists), and feeds them', () => {
+  it('The Stroll arrives at Great Migration once you have three Established there (in the matches it exists), and feeds them', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['great_migration', 'gary_indiana', 'greenwood'], revealAll: true, handA: ['og', 'organizer', 'zora_neale_hurston'] });
-    s.spawnRolls.bud_billiken_parade = true;
+    s.spawnRolls.the_stroll = true;
     addChar(s, 'alonzo_herndon', 'A', 0, 'inside');
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'og', location: 0 }] }, B: pass() }).state;
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'organizer', location: 0 }] }, B: pass() }).state;
     const og = Object.values(s.characters).find((c) => c.defId === 'og')!;
     for (const l of s.locations) l.threats = []; // a random Threat must not block the entries this test is about
     s = resolveTurn(s, { A: { ...pass(), enters: [og.uid] }, B: pass() }).state;
-    expect(Object.values(s.characters).some((c) => c.defId === 'bud_billiken_parade')).toBe(false);
+    expect(Object.values(s.characters).some((c) => c.defId === 'the_stroll')).toBe(false);
     const org = Object.values(s.characters).find((c) => c.defId === 'organizer')!;
     for (const l of s.locations) l.threats = [];
     const out = resolveTurn(s, { A: { ...pass(), enters: [org.uid] }, B: pass() });
-    const cookout = Object.values(out.state.characters).find((c) => c.defId === 'bud_billiken_parade');
+    const cookout = Object.values(out.state.characters).find((c) => c.defId === 'the_stroll');
     expect(cookout).toBeDefined();
     expect(cookout!.owner).toBe('A');
     expect(cookout!.zone).toBe('inside');
-    expect(out.events.some((e) => e.type === 'spawned' && e.cardId === 'bud_billiken_parade')).toBe(true);
-    expect(out.state.players.A.spawned).toContain('bud_billiken_parade');
-    // +1 Influence to the other three Established Characters here, and the Parade is on home ground (+1).
-    expect(influenceAt(out.state, 0).A).toBe(charDef('og').influence + charDef('organizer').influence + charDef('alonzo_herndon').influence + charDef('bud_billiken_parade').influence + 3 + 1);
+    expect(out.events.some((e) => e.type === 'spawned' && e.cardId === 'the_stroll')).toBe(true);
+    expect(out.state.players.A.spawned).toContain('the_stroll');
+    // +1 Influence to the other three Established Characters here, and the Stroll is on home ground (+1).
+    expect(influenceAt(out.state, 0).A).toBe(charDef('og').influence + charDef('organizer').influence + charDef('alonzo_herndon').influence + charDef('the_stroll').influence + 3 + 1);
     // In the other half of matches it never comes.
     const dry = structuredClone(s);
-    dry.spawnRolls.bud_billiken_parade = false;
-    expect(Object.values(resolveTurn(dry, { A: { ...pass(), enters: [org.uid] }, B: pass() }).state.characters).some((c) => c.defId === 'bud_billiken_parade')).toBe(false);
+    dry.spawnRolls.the_stroll = false;
+    expect(Object.values(resolveTurn(dry, { A: { ...pass(), enters: [org.uid] }, B: pass() }).state.characters).some((c) => c.defId === 'the_stroll')).toBe(false);
     // Only once per match.
     const again = resolveTurn(out.state, { A: pass(), B: pass() }).state;
-    expect(Object.values(again.characters).filter((c) => c.defId === 'bud_billiken_parade')).toHaveLength(1);
+    expect(Object.values(again.characters).filter((c) => c.defId === 'the_stroll')).toHaveLength(1);
   });
   it('Chairteenth arrives Ready at both players\' Gates when Montgomery reveals', () => {
     const s = rig(createMatch({ seed: 2 }), { locations: ['montgomery', 'gary_indiana', 'greenwood'] });

@@ -141,7 +141,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - cost 0 · Influence 1 · Force 1 · historical · era: Chicago Defender, 1923
 - reveal: Bud Billiken Club: each of your other Characters at this Location that costs 1 or less gains +1 Influence.
 - blurb: The Chicago Defender's mascot for its children's page: guardian of every Black kid, dreamed up in 1923.
-- history: Bud Billiken was invented in 1923 by Robert S. Abbott and Lucius Harper of the Chicago Defender as the cartoon patron of the paper's youth section, the Defender Junior. Kids joined the Bud Billiken Club by the thousands; a ten-year-old Willard Motley, later the novelist, was among the first to write the column. In 1929 the paper gave the character a parade down South Parkway, and it has marched every August since.
+- history: Bud Billiken was invented in 1923 by Robert S. Abbott and Lucius Harper of the Chicago Defender as the cartoon patron of the paper's youth section, the Defender Junior. Kids joined the Bud Billiken Club by the thousands; a ten-year-old Willard Motley, later the novelist, was among the first to write the column.
 
 ### Roger Taney (`roger_taney`)
 - cost 1 · Influence 1 · Force 1 · historical · era: 1777–1864
@@ -270,12 +270,12 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - blurb: The Christ of the Black church and of liberation theology: the one who sides with the captive. He never fights, and nothing hostile can act on those who stand with him.
 - history: Mythic (fantasy). The Black Christ is not a new idea: Coptic Ethiopian art depicted him so for centuries, and in the United States the image runs from the Black church's spirituals through Marcus Garvey's African Orthodox Church to James Cone's Black liberation theology of the 1960s, which held that God sides with the oppressed. The card draws on that tradition. He never fights; his power is sanctuary. The abilities are invention.
 
-### Bud Billiken Parade (`bud_billiken_parade`)
-- cost 2 · Influence 2 · Force 1 · gathering · era: Chicago, 1929–
+### The Stroll (`the_stroll`)
+- cost 2 · Influence 2 · Force 1 · gathering · era: Chicago, 1910s–20s
 - established: Everybody's out: your other Established Characters here gain +1 Influence, and your Characters arriving at this Gate are Ready at once.
-- arrives: You have three Characters Established at Great Migration. The Bud Billiken Parade comes down the avenue. / button: Continue
-- blurb: The Defender's parade for the kids of the South Side, every August since 1929: the largest African American parade in the country.
-- history: The Chicago Defender staged the first Bud Billiken Day parade on August 11, 1929, to celebrate the paper's newsboys and the children of the Great Migration. It runs down Martin Luther King Drive (then South Parkway) to Washington Park, with bands, drill teams and floats, and has drawn Duke Ellington, Muhammad Ali and sitting presidents. It has marched every year since, the largest African American parade in the United States.
+- arrives: You have three Characters Established at Great Migration. State Street is out tonight: the Stroll. / button: Continue
+- blurb: State Street from 26th to 39th, the Black Belt's night strip in the 1910s and 20s: theaters, cabarets, and everybody out walking.
+- history: The Stroll was State Street between about 26th and 39th, the heart of Chicago's Black Belt in the 1910s and 1920s. Newcomers from the South found the Pekin Theatre, the Vendome, the Dreamland Café and the Royal Gardens, where King Oliver's band played and a young Louis Armstrong joined in 1922. Langston Hughes remembered South State Street "in its glory then, a teeming Negro street with crowded theaters, restaurants, and cabarets." By the thirties the action had moved south to 47th Street.
 
 ### Chairteenth (`chairteenth`)
 - cost 1 · Influence 1 · Force 3 · gathering · era: Montgomery, 2023
