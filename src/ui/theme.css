@@ -1099,3 +1099,9 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .pic .home-mark { position: absolute; top: 2px; left: 2px; z-index: 2; width: 14px; height: 14px; border-radius: 3px; display: grid; place-items: center; font-size: 10px; line-height: 1; color: #1a1200; background: radial-gradient(circle at 35% 35%, #fbe7a3, var(--gold)); border: 1px solid var(--gold-dark); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); }
 .gate-slot .pic .home-mark { top: 2px; left: auto; right: 2px; }
 .pic.home .inf { border-color: var(--gold); box-shadow: 0 0 6px rgba(233, 185, 58, 0.5); }
+
+/* Inside tiles: the number sits at the bottom right and the house mark at the bottom left, leaving the face clear.
+   When a status strip (Entering, Planned, Held…) runs along the bottom, both lift to sit just above it. */
+.slot .pic .inf { top: auto; bottom: 2px; right: 2px; }
+.slot .pic .home-mark { top: auto; bottom: 2px; left: 2px; }
+.slot .pic:has(.strip) .inf, .slot .pic:has(.strip) .home-mark { bottom: 16px; }
