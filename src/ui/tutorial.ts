@@ -10,8 +10,8 @@ import {
   charsOf,
   confrontForce,
   influenceAt,
+  legalOptions,
   locDef,
-  lockReason,
   other,
   threatForceNeeded,
   THREAT_BY_ID,
@@ -46,31 +46,28 @@ export type Lesson =
       done: (view: GameState, plan: TurnPlan) => boolean;
     };
 
-const LOCK: Lesson = {
-  kind: 'do',
-  text: 'Press Lock In. Once Harborlight commits, the turn plays out one beat at a time. Watch the banner: it says what is happening and why.',
-  lock: true,
-  done: () => false, // the turn advancing ends it
-};
+/** Press Lock In. The text can carry one more sentence of context for the beat that follows. */
+function lock(text = 'Press Lock In. Once Harborlight commits, the turn plays out one beat at a time; the banner says what is happening.'): Lesson {
+  return { kind: 'do', text, lock: true, done: () => false }; // the turn advancing ends it
+}
 
-function playLesson(view: GameState, me: PlayerId, placeholders: boolean, why: string): Lesson[] {
+/** Drag the suggested card onto its Location. Null when there is nothing to play, so the point before it is dropped too. */
+function playLesson(view: GameState, me: PlayerId, placeholders: boolean, why: string): Lesson | null {
   const s = suggest(view, me, placeholders);
   const play = s.play;
-  if (!play) return [];
+  if (!play) return null;
   const def = CARD_BY_ID[play.cardId];
-  if (!def) return [];
+  if (!def) return null;
   const name = cardName(play.cardId, placeholders);
   const loc = view.locations[play.location].revealed ? locationName(view.locations[play.location].defId, placeholders) : `Location ${play.location + 1}`;
   const stats = def.kind === 'character' ? ` ${name} brings ${def.influence} Influence and ${def.force} Force.` : ` ${def.text}`;
-  return [
-    {
-      kind: 'do',
-      text: `Drag ${name} onto ${loc}.${stats} ${why}`.trim(),
-      card: play.cardId,
-      location: play.location,
-      done: (_v, plan) => plan.plays.some((p) => p.cardId === play.cardId),
-    },
-  ];
+  return {
+    kind: 'do',
+    text: `Drag ${name} onto ${loc}.${stats} ${why}`.trim(),
+    card: play.cardId,
+    location: play.location,
+    done: (_v, plan) => plan.plays.some((p) => p.cardId === play.cardId),
+  };
 }
 
 function standing(view: GameState, me: PlayerId, placeholders: boolean): string {
@@ -84,97 +81,151 @@ function standing(view: GameState, me: PlayerId, placeholders: boolean): string 
   return parts.length ? parts.join('; ') + '.' : '';
 }
 
+/**
+ * One point, then the player does something. A `read` is only kept when the `do` after it exists,
+ * so the script never shows two points in a row and never teaches something the board is not showing.
+ */
+type Beat = { point?: Lesson; act: Lesson | null };
+function script(beats: Beat[]): Lesson[] {
+  const out: Lesson[] = [];
+  for (const b of beats) {
+    if (!b.act) continue;
+    if (b.point) out.push(b.point);
+    out.push(b.act);
+  }
+  return out;
+}
+
 export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean): Lesson[] {
   const nm = (id: string) => cardName(id, placeholders);
   const ln = (i: number) => (view.locations[i].revealed ? locationName(view.locations[i].defId, placeholders) : `Location ${i + 1}`);
   const mine = charsOf(view, me);
   const turn = view.turn;
   const energy = Math.min(turn, 10) + (view.players[me].energyBonus ?? 0);
+  const read = (title: string, text: string): Lesson => ({ kind: 'read', title, text });
 
   if (turn === 1) {
-    return [
-      { kind: 'read', title: 'Welcome', text: 'You and Harborlight are fighting over three Locations. Whoever leads Influence at two of them when Turn 7 ends wins. In the tutorial the clock is stopped: take all the time you want.' },
-      { kind: 'read', title: 'Energy', text: `Energy buys cards. You have ${energy} Energy this turn; Energy equals the turn number, so it grows every turn. Every card costs Energy, the green circle in its corner. The cards you cannot afford are dimmed.` },
-      { kind: 'read', title: 'The board', text: 'Each column is a Location. The strip above it is Harborlight\'s Gates, the strip below is yours: a Character you play waits at the Gates one turn before it can go Inside. The purple dotted box beside your Gates is the Event slot. All three Locations are hidden on Turn 1, so the first commit is blind.' },
-      { kind: 'read', title: 'The clock', text: 'The bar inside Lock In is the turn clock. In a real match it drains over two minutes, flashes red near the end, and locks whatever you have planned when it runs out. In the tutorial it ticks for show and never locks you in.' },
-      ...playLesson(view, me, placeholders, 'Its Influence counts from the Gates, so even a blind commit is worth something.'),
-      LOCK,
-    ];
+    const play = playLesson(view, me, placeholders, 'Its Influence counts from the Gates, so even a blind commit is worth something.');
+    const played = play?.kind === 'do' && play.card ? CARD_BY_ID[play.card] : undefined;
+    const straight = played?.kind === 'character' && played.keywords.includes('STRAIGHT_INSIDE');
+    const who = played ? nm(played.id) : 'Your Character';
+    return script([
+      { point: read('Welcome', 'You and Harborlight are fighting over three Locations. Whoever leads Influence at two of them when Turn 7 ends wins. The clock is stopped in here, so take your time.'), act: play },
+      {
+        point: read(
+          'The Gates',
+          straight
+            ? `Most Characters wait a turn at the Gates, the strip below the Location, and count their Influence from there. ${who} is the exception: Straight Inside means it walks in the moment it lands. All three Locations are still hidden, so this first commit is blind for both players.`
+            : `${who} now waits at the Gates, the strip below the Location. It counts its Influence from there this turn. All three Locations are still hidden, so this first commit is blind for both players.`,
+        ),
+        act: lock('Press Lock In. The bar inside the button is the turn clock: in a real match it drains over two minutes and locks whatever you have planned. In here it only ticks for show.'),
+      },
+    ]);
   }
   if (turn === 2) {
     const fresh = mine.find((c) => c.zone === 'gate' && !c.ready);
     const revealed = view.locations.find((l) => l.revealed);
-    const lessons: Lesson[] = [];
-    if (revealed) lessons.push({ kind: 'read', title: 'A Location revealed', text: `${ln(revealed.index)} is revealed: ${locDef(view, revealed.index).rule} Tap any Location's title bar to read its rule again. One more reveals each turn until all three are open.` });
-    if (fresh) lessons.push({ kind: 'read', title: 'Fresh and Ready', text: `${nm(fresh.defId)} is Fresh at the Gates of ${ln(fresh.location)} and still counts ${charInfluence(view, fresh)} Influence there. At the end of this turn the tile turns Ready; next turn it can go Inside.` });
-    lessons.push(...playLesson(view, me, placeholders, 'A second body means two Locations in play.'), LOCK);
-    return lessons;
+    const play = playLesson(view, me, placeholders, 'A second body means two Locations in play.');
+    return script([
+      {
+        point: read('Energy', `You have ${energy} Energy now, one more than last turn: Energy equals the turn number, so it grows every turn. Every card costs Energy, the green circle in its corner, and the cards you cannot afford are dimmed.`),
+        act: play,
+      },
+      {
+        point: revealed
+          ? read('A Location revealed', `${ln(revealed.index)} opened at the end of last turn: ${locDef(view, revealed.index).rule} Tap any Location's title bar to read its rule again. One more opens each turn until all three are showing.`)
+          : fresh
+            ? read('Fresh', `${nm(fresh.defId)} is Fresh at the Gates of ${ln(fresh.location)} and already counts ${charInfluence(view, fresh)} Influence there. At the end of this turn it turns Ready.`)
+            : undefined,
+        act: lock(),
+      },
+    ]);
   }
+  /** Entering, taught the first time a Ready Character of yours can actually go Inside (Turn 3 or later). */
+  const enterBeat = (): Beat => {
+    if (mine.some((c) => { const d = CARD_BY_ID[c.defId]; return c.zone === 'inside' && !(d?.kind === 'character' && d.keywords.includes('STRAIGHT_INSIDE')); })) return { act: null };
+    const legal = legalOptions(view, me).enters;
+    const ready = mine.find((c) => c.zone === 'gate' && c.ready && legal.includes(c.uid));
+    if (!ready) return { act: null };
+    const def = CARD_BY_ID[ready.defId];
+    const standingText = def?.kind === 'character' && def.established ? ` Inside, ${nm(ready.defId)} becomes Established and its standing ability turns on: ${def.established.text}` : ' Inside is where a Character is safe from what happens at the Gates.';
+    return {
+      point: read('Ready', `${nm(ready.defId)} was Fresh when it arrived and is Ready now, so it can go Inside.${standingText}`),
+      act: { kind: 'do', text: `Drag ${nm(ready.defId)} from the Gates into ${ln(ready.location)}. Entering is free and does not use your card for the turn.`, flash: 'enter', location: ready.location, done: (_v, plan) => plan.enters.includes(ready.uid) },
+    };
+  };
   if (turn === 3) {
-    const ready = mine.find((c) => c.zone === 'gate' && c.ready && !lockReason(view, c));
-    const lessons: Lesson[] = [];
-    if (ready) {
-      const def = CARD_BY_ID[ready.defId];
-      const standingText = def?.kind === 'character' && def.established ? ` Inside, ${nm(ready.defId)} becomes Established and the standing ability turns on: ${def.established.text}` : ' Inside is where a Character is safe from what happens at the Gates.';
-      lessons.push(
-        { kind: 'read', title: 'Entering', text: `${nm(ready.defId)} is Ready. Entering is free and does not use your card for the turn.${standingText}` },
-        {
-          kind: 'do',
-          text: `Drag ${nm(ready.defId)} from the Gates into ${ln(ready.location)}.`,
-          flash: 'enter',
-          location: ready.location,
-          done: (_v, plan) => plan.enters.includes(ready.uid),
-        },
-      );
-    }
-    lessons.push(...playLesson(view, me, placeholders, 'A card fires its Reveal the moment it lands, before anyone walks Inside.'), LOCK);
-    return lessons;
+    const play = playLesson(view, me, placeholders, 'Watch the banner when it lands.');
+    return script([
+      enterBeat(),
+      { point: read('Reveal', 'A card fires its Reveal the moment it lands at the Gates, before anyone walks Inside. That is why the order of a turn matters: plays first, then entering, then the Threats act.'), act: play },
+      { act: lock() },
+    ]);
   }
   if (turn === 4) {
-    const lessons: Lesson[] = [{ kind: 'read', title: 'Where you stand', text: `${standing(view, me, placeholders)} Two of three is the target; a Location you cannot win is one to stop feeding.` }];
-    let threatLesson = false;
+    const beats: Beat[] = [enterBeat()];
+    let threatDone = false;
     for (const loc of view.locations) {
       for (const t of loc.threats) {
         const tdef = THREAT_BY_ID[t.defId];
         const label = threatLabel(t.defId, placeholders);
-        if (tdef.requiresBoth) {
-          lessons.push({ kind: 'read', title: 'A Threat', text: `${label} sits at ${ln(loc.index)}. It only breaks if both players confront it in the same turn. While it stands: ${tdef.text}` });
-          threatLesson = true;
-          break;
-        }
         const need = threatForceNeeded(view, t);
         const here = mine.filter((c) => c.location === loc.index);
-        const one = here.find((c) => confrontForce(view, c, t) >= need);
-        lessons.push({ kind: 'read', title: 'A Threat', text: `${label} arrived at ${ln(loc.index)}. Threats are neutral: nobody owns them, and either player can fight them. This one needs ${need} Force. While it stands: ${tdef.text}` });
+        const one = !tdef.requiresBoth ? here.find((c) => confrontForce(view, c, t) >= need) : undefined;
         if (one) {
           const who: CharacterInstance = one;
-          lessons.push({
-            kind: 'do',
-            text: `${nm(who.defId)} has ${confrontForce(view, who, t)} Force, enough on its own. Drag the tile onto the Threat to confront it. Confronting is free, and Force is the red number.`,
-            flash: 'threat',
-            location: loc.index,
-            done: (_v, plan) => plan.confronts.some((k) => k.uid === who.uid && k.threatUid === t.uid),
+          beats.push({
+            point: read('A Threat', `${label} arrived at ${ln(loc.index)}. Threats are neutral: nobody owns them and either player can fight them. This one needs ${need} Force in one turn. While it stands: ${tdef.text}`),
+            act: {
+              kind: 'do',
+              text: `${nm(who.defId)} has ${confrontForce(view, who, t)} Force, enough on its own. Drag the tile onto the Threat to confront it. Confronting is free; Force is the red number.`,
+              flash: 'threat',
+              location: loc.index,
+              done: (_v, plan) => plan.confronts.some((k) => k.uid === who.uid && k.threatUid === t.uid),
+            },
           });
-        } else {
-          lessons.push({ kind: 'read', title: 'Not yet', text: `Nobody of yours at ${ln(loc.index)} has ${need} Force${here.length ? ` (${here.map((c) => `${nm(c.defId)} ${confrontForce(view, c, t)}`).join(', ')})` : ''}. Several Characters can add their Force together, or a strong one can arrive next turn.` });
+          threatDone = true;
         }
-        threatLesson = true;
         break;
       }
-      if (threatLesson) break;
+      if (threatDone) break;
     }
-    lessons.push(...playLesson(view, me, placeholders, ''), LOCK);
-    return lessons;
+    const firstThreat = view.locations.flatMap((l) => l.threats.map((t) => ({ l, t })))[0];
+    const play = playLesson(view, me, placeholders, '');
+    if (!threatDone && firstThreat) {
+      const { l, t } = firstThreat;
+      const tdef = THREAT_BY_ID[t.defId];
+      const need = threatForceNeeded(view, t);
+      const here = mine.filter((c) => c.location === l.index);
+      beats.push({
+        point: read(
+          'A Threat',
+          tdef.requiresBoth
+            ? `${threatLabel(t.defId, placeholders)} sits at ${ln(l.index)}. It only breaks when both players confront it in the same turn. While it stands: ${tdef.text}`
+            : `${threatLabel(t.defId, placeholders)} arrived at ${ln(l.index)} and needs ${need} Force in one turn. Nobody of yours there has that yet${here.length ? ` (${here.map((c) => `${nm(c.defId)} ${confrontForce(view, c, t)}`).join(', ')})` : ''}: Characters can add their Force together, or a stronger one can arrive.`,
+        ),
+        act: play,
+      });
+      beats.push({ point: read('Where you stand', `${standing(view, me, placeholders)} Two of three is the target; a Location you cannot win is one to stop feeding.`), act: lock() });
+    } else {
+      beats.push({ point: read('Where you stand', `${standing(view, me, placeholders)} Two of three is the target; a Location you cannot win is one to stop feeding.`), act: play });
+      beats.push({ act: lock() });
+    }
+    return script(beats);
   }
   if (turn === 5) {
-    return [
-      { kind: 'read', title: 'Stand on Business', text: `${standing(view, me, placeholders)} The blue button doubles the Legacy the match is worth and adds an 8th turn. Harborlight then gets one turn to Sit Down at the old price, keep playing, or stand back. Once you stand, you cannot Sit Down. Stand when you lead two Locations and can hold them.` },
-      ...playLesson(view, me, placeholders, ''),
-      LOCK,
-    ];
+    const play = playLesson(view, me, placeholders, '');
+    return script([
+      enterBeat(),
+      {
+        point: read('Stand on Business', `${standing(view, me, placeholders)} The red button doubles the Legacy this match is worth and adds an 8th turn. Harborlight then gets one turn to Sit Down at the old price, keep playing, or stand back. Once you stand, you cannot Sit Down. Stand when you lead two Locations and can hold them.`),
+        act: play ?? lock(),
+      },
+      { act: play ? lock() : null },
+    ]);
   }
   if (turn === TUTORIAL_LAST_TURN + 1) {
-    return [{ kind: 'read', title: 'On your own', text: `${standing(view, me, placeholders)} You have the basics: Energy, Gates, entering, Threats and the Stand. Finish the match on your own. The coach bubble will still point at things worth knowing, and the clock stays stopped.` }];
+    return [read('On your own', `${standing(view, me, placeholders)} You have the basics: Energy, Gates, entering, Threats and the Stand. Finish the match on your own. The coach bubble will still point at things worth knowing, and the clock stays stopped.`)];
   }
   return [];
 }

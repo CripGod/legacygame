@@ -155,7 +155,7 @@ function readDone(): Set<string> {
   }
 }
 
-export function Coach({ view, me, plan, enabled, onActive, override, overrideKicker }: { view: GameState; me: PlayerId; plan: TurnPlan; enabled: boolean; onActive?: (key: string | null) => void; override?: string | null; overrideKicker?: string }) {
+export function Coach({ view, me, plan, enabled, onActive, override, overrideKicker, onBack }: { view: GameState; me: PlayerId; plan: TurnPlan; enabled: boolean; onActive?: (key: string | null) => void; override?: string | null; overrideKicker?: string; onBack?: () => void }) {
   const { placeholders } = useDisplay();
   const [done, setDone] = useState<Set<string>>(() => readDone());
   const [current, setCurrent] = useState<string | null>(null);
@@ -188,7 +188,14 @@ export function Coach({ view, me, plan, enabled, onActive, override, overrideKic
           💡
         </span>
         <div className="coach-body">
-          <div className="coach-kicker">{overrideKicker ?? 'Coach · First turn'}</div>
+          <div className="coach-kicker">
+            {overrideKicker ?? 'Coach · First turn'}
+            {onBack && (
+              <button className="coach-back" onClick={onBack} aria-label="Back to the previous point">
+                ‹ Back
+              </button>
+            )}
+          </div>
           <span>{override}</span>
         </div>
       </div>

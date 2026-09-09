@@ -437,7 +437,7 @@ export function Battlefield(props: BattlefieldProps) {
                     {/* The column is always reserved, so the rows never change shape; empty, it shows the Location's art. */}
                     <div className={`threat-col ${has ? '' : 'empty'}`} aria-hidden={!has}>
                       {live.map((t) => (
-                        <ThreatTile key={t.uid} t={t} view={view} me={me} plan={plan} drop={drop} flash={flash} onThreat={onThreat} />
+                        <ThreatTile key={t.uid} t={t} view={view} me={me} plan={plan} drop={drop} flash={flash === 'threat' && glowLocation !== null && glowLocation !== undefined && glowLocation !== loc.index ? null : flash} onThreat={onThreat} />
                       ))}
                       {ghosts.map((t) => (
                         <ThreatTile key={`gone:${t.uid}`} t={t} view={view} me={me} plan={plan} onThreat={onThreat} gone />

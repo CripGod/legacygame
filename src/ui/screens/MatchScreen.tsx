@@ -230,6 +230,12 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     if (lesson?.kind === 'do' && lesson.done(view, plan)) setTutIdx((i) => i + 1);
   }, [lesson, view, plan]);
   const doing = lesson?.kind === 'do' ? lesson : null;
+  /** Back: the previous point (a 'read'); an action already taken skips forward again on its own. */
+  const prevRead = (() => {
+    for (let j = tutIdx - 1; j >= 0; j--) if (lessons[j]?.kind === 'read') return j;
+    return -1;
+  })();
+  const tutBack = prevRead >= 0 ? () => setTutIdx(prevRead) : undefined;
   /** Sheets show while the board is settled, or beat by beat during a replay. */
   const sheetsOk = !busy || !!m.replay;
 
@@ -721,7 +727,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
             </button>
           </div>
         )}
-        <Coach view={view} me={me} plan={plan} enabled={coach && planning && m.mode === 'ai' && !guide && !lesson} onActive={setFlash} override={doing ? doing.text : guideText} overrideKicker={doing ? `Tutorial · ${tutIdx + 1} of ${lessons.length}` : undefined} />
+        <Coach view={view} me={me} plan={plan} enabled={coach && planning && m.mode === 'ai' && !guide && !lesson} onActive={setFlash} override={doing ? doing.text : guideText} overrideKicker={doing ? `Tutorial · ${tutIdx + 1} of ${lessons.length}` : undefined} onBack={doing ? tutBack : undefined} />
         <Spotlight active={planning && !drag && (flash !== null || guide !== null || !!doing)} />
         {lesson?.kind === 'read' && (
           <div className="scrim tut-scrim">
@@ -732,6 +738,11 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
               <h3>{lesson.title}</h3>
               <p>{lesson.text}</p>
               <div className="actions" style={{ justifyContent: 'center' }}>
+                {tutBack && (
+                  <button className="ghost" onClick={tutBack}>
+                    ‹ Back
+                  </button>
+                )}
                 <button className="primary" autoFocus onClick={() => setTutIdx((i) => i + 1)}>
                   Next
                 </button>

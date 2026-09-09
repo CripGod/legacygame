@@ -1133,3 +1133,7 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 /* Landing-page miniatures drop the category ribbon: the name gets the whole box, the rule line closes it. */
 .deck-cards .card .ribbon { display: none; }
 .deck-cards .card .name { padding-bottom: 4px; }
+
+/* Tutorial: a way back to the point before. */
+.coach .coach-back { margin-left: 10px; background: none; border: 0; padding: 0; font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--gold-dark); cursor: pointer; text-decoration: underline dotted; }
+.coach .coach-back:hover { color: var(--gold-2); }
