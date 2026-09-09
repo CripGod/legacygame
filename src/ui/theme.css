@@ -1121,3 +1121,12 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .deck-cards .card { flex: none; scroll-snap-align: start; cursor: pointer; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.55); transition: transform 0.15s, box-shadow 0.15s; }
 .deck-cards .card:hover { transform: translateY(-3px); box-shadow: 0 10px 18px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--gold-2); }
 @media (width <= 700px) { .deck-cards { --card-w: 96px; gap: 6px; } .deck-cards .card .ability { display: block; } }
+
+/* ---------- Card names scale with the card, not the window ---------- */
+/* Two lines at most; long names and long single words step down so nothing is cut off by the ribbon. */
+.card .name { font-size: calc(var(--card-w) * 0.088); letter-spacing: 0.01em; }
+.card .name.long { font-size: calc(var(--card-w) * 0.076); }
+.card .name.xlong { font-size: calc(var(--card-w) * 0.066); letter-spacing: 0; }
+.card.big .name { font-size: 22px; }
+.card.big .name.long { font-size: 19px; }
+.card.big .name.xlong { font-size: 17px; }

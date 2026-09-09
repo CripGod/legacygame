@@ -21,6 +21,14 @@ function abilityFor(def: { kind: string; text?: string; summary?: string; reveal
   return def.reveal?.text ?? def.established?.text ?? def.passive?.text ?? '';
 }
 
+/** Long names step down a size so they never outgrow the two-line name box. */
+function nameSize(name: string): string {
+  const longest = Math.max(...name.split(/\s+/).map((w) => w.length));
+  if (name.length > 22 || longest > 11) return 'xlong';
+  if (name.length > 15 || longest > 9) return 'long';
+  return '';
+}
+
 /** Full collectible card (hand, inspection). Always a 5:7 rigid rectangle. */
 export function CardFace({ id, big = false, onClick, cost, costWhy }: { id: string; big?: boolean; onClick?: () => void; /** Cost right now, after discounts (defaults to the printed cost). */ cost?: number; costWhy?: string[] }) {
   const { placeholders } = useDisplay();
@@ -51,7 +59,7 @@ export function CardFace({ id, big = false, onClick, cost, costWhy }: { id: stri
         {placeholders ? <span className="ini">{initials(id, true)}</span> : <Art kind={isChar ? 'characters' : 'events'} id={id} className="portrait-img" fallback={<span className="ini">{initials(id, false)}</span>} alt={def.name} />}
       </div>
       <div className="card-body">
-        <div className="name">{cardName(id, placeholders)}</div>
+        <div className={`name ${nameSize(cardName(id, placeholders))}`}>{cardName(id, placeholders)}</div>
         {!placeholders && <div className="ribbon">{ribbonFor(def)}</div>}
         {!big && !placeholders && <div className="rule-line" aria-hidden />}
         {!big && !placeholders && <div className="ability">{abilityFor(def)}</div>}
