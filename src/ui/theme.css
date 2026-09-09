@@ -1026,9 +1026,10 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .inside-block { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; }
 .inside-rows { min-width: 0; display: grid; grid-template-rows: auto auto; }
 .inside-row { min-width: 0; }
-.inside-block.has-threat .slots { grid-template-columns: repeat(5, minmax(0, var(--slot))); }
-.inside-block.has-threat .slot { width: auto; }
-.threat-col { display: grid; grid-auto-rows: minmax(0, 1fr); gap: 4px; padding: 4px 10px 4px 0; align-content: stretch; }
+.inside-block .slots { grid-template-columns: repeat(5, minmax(0, var(--slot))); }
+.inside-block .slot { width: auto; }
+/* Always the same width, tiles or not: the rows keep one shape and an empty column lets the art breathe. */
+.threat-col { display: grid; grid-auto-rows: minmax(0, 1fr); gap: 4px; padding: 4px 10px 4px 0; align-content: stretch; min-width: calc(var(--slot) * 1.4 + 10px); box-sizing: border-box; }
 .threat-tile {
   position: relative; width: calc(var(--slot) * 1.4); min-height: calc(var(--slot-h) + 20px);
   border: 2px solid var(--danger); border-radius: 4px; overflow: hidden; background: #1a0d10; cursor: pointer;
@@ -1082,9 +1083,10 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .showdown .fighter-pic.big.neutralized { border-color: #9a9a9a; box-shadow: none; }
 .showdown .fighter-pic.big.neutralized .fighter-img, .showdown .fighter-pic.big.neutralized .ini { filter: grayscale(1) brightness(0.55); }
 @media (width <= 700px) {
-  .threat-col { padding: 3px 4px 3px 0; gap: 3px; }
-  .threat-tile { width: calc(var(--slot) * 1.45); }
-  .threat-tile .threat-name { font-size: 6.5px; padding-top: 6px; }
+  .threat-col { padding: 3px 4px 3px 0; gap: 3px; min-width: calc(var(--slot) * 1.2 + 4px); }
+  .threat-tile { width: calc(var(--slot) * 1.2); min-height: calc(var(--slot-h) + 12px); }
+  .threat-tile .threat-name { display: none; }
+  .threat-tile .threat-who { padding-top: 8px; background: linear-gradient(to top, rgba(8, 19, 31, 0.96), rgba(8, 19, 31, 0.5)); }
 }
 @media (prefers-reduced-motion: reduce) { .threat-tile.fresh { animation: none; box-shadow: 0 0 0 3px rgba(224, 74, 63, 0.7); } }
 

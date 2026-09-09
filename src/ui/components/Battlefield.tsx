@@ -429,21 +429,20 @@ export function Battlefield(props: BattlefieldProps) {
                 const ghosts = (neutralized ?? []).filter((g) => g.location === loc.index && !loc.threats.some((t) => t.uid === g.uid)).map((g): ThreatInstance => ({ uid: g.uid, defId: g.defId, location: g.location, target: g.target, forceRequired: THREAT_BY_ID[g.defId]?.force ?? 0, spawnedTurn: -1 }));
                 const has = live.length + ghosts.length > 0;
                 return (
-                  <div className={`inside-block ${has ? 'has-threat' : ''}`}>
+                  <div className="inside-block">
                     <div className="inside-rows">
                       <InsideRow {...common} owner={opp} index={loc.index} label="Opponent Characters" />
                       <InsideRow {...common} owner={me} index={loc.index} label="Your Characters" />
                     </div>
-                    {has && (
-                      <div className="threat-col">
-                        {live.map((t) => (
-                          <ThreatTile key={t.uid} t={t} view={view} me={me} plan={plan} drop={drop} flash={flash} onThreat={onThreat} />
-                        ))}
-                        {ghosts.map((t) => (
-                          <ThreatTile key={`gone:${t.uid}`} t={t} view={view} me={me} plan={plan} onThreat={onThreat} gone />
-                        ))}
-                      </div>
-                    )}
+                    {/* The column is always reserved, so the rows never change shape; empty, it shows the Location's art. */}
+                    <div className={`threat-col ${has ? '' : 'empty'}`} aria-hidden={!has}>
+                      {live.map((t) => (
+                        <ThreatTile key={t.uid} t={t} view={view} me={me} plan={plan} drop={drop} flash={flash} onThreat={onThreat} />
+                      ))}
+                      {ghosts.map((t) => (
+                        <ThreatTile key={`gone:${t.uid}`} t={t} view={view} me={me} plan={plan} onThreat={onThreat} gone />
+                      ))}
+                    </div>
                   </div>
                 );
               })()}
