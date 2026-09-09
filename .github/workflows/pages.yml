@@ -2,7 +2,7 @@ name: Deploy preview to GitHub Pages
 
 on:
   push:
-    branches: [main, 'claude/black-history-card-game-y6yegq']
+    branches: [main] # the feature branch is fast-forwarded into main, so deploying both only made the runs cancel each other
   workflow_dispatch:
 
 permissions:
@@ -12,7 +12,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false # let a deploy finish; the next push queues behind it
 
 jobs:
   build:
