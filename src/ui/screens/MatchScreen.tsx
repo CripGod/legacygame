@@ -727,8 +727,24 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
             </button>
           </div>
         )}
-        <Coach view={view} me={me} plan={plan} enabled={coach && planning && m.mode === 'ai' && !guide && !lesson} onActive={setFlash} override={doing ? doing.text : guideText} overrideKicker={doing ? `Tutorial · ${tutIdx + 1} of ${lessons.length}` : undefined} onBack={doing ? tutBack : undefined} />
+        <Coach view={view} me={me} plan={plan} enabled={coach && planning && m.mode === 'ai' && !guide && !lesson} onActive={setFlash} override={doing ? null : guideText} />
         <Spotlight active={planning && !drag && (flash !== null || guide !== null || !!doing)} />
+        {doing && (
+          <div className="sheet tut-sheet tut-do" role="status" aria-label="Tutorial">
+            <div className="tut-kicker">
+              Tutorial · {tutIdx + 1} of {lessons.length}
+            </div>
+            <h3>Your move</h3>
+            <p>{doing.text}</p>
+            {tutBack && (
+              <div className="actions" style={{ justifyContent: 'center' }}>
+                <button className="ghost small" onClick={tutBack}>
+                  ‹ Back
+                </button>
+              </div>
+            )}
+          </div>
+        )}
         {lesson?.kind === 'read' && (
           <div className="scrim tut-scrim">
             <div className="sheet tut-sheet" role="dialog" aria-label={lesson.title}>
