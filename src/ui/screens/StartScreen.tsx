@@ -3,7 +3,7 @@ import { resetCoach } from '../components/Coach';
 import { resetGuide } from '../guide';
 import { PRESET_DECKS, CARD_BY_ID } from '../../engine';
 import { TUTORIAL_SEED, TUTORIAL_DECKS } from '../tutorial';
-import { LOGO_MASK, LOGO_RATIO } from '../logo';
+import { Wordmark } from '../components/Wordmark';
 
 export interface StartOptions {
   seed?: number;
@@ -47,12 +47,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
     <div className="screen">
       <div className="inner">
         <h1 className="title logo-title">
-          <span
-            className="logo"
-            role="img"
-            aria-label="Stand on Business"
-            style={{ WebkitMaskImage: `url(${LOGO_MASK})`, maskImage: `url(${LOGO_MASK})`, aspectRatio: String(LOGO_RATIO) }}
-          />
+          <Wordmark />
           <span className="logo-sub">Black History Card Battler</span>
           <small>Systems prototype · v0.3 · build {typeof __BUILD__ === 'string' ? __BUILD__ : 'dev'}</small>
         </h1>

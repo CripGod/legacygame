@@ -1,4 +1,5 @@
 import type { CharacterDef } from '../types';
+import { HOMES } from './homes';
 
 /**
  * Prototype Character pool. Ability text is the source of truth for players;
@@ -134,10 +135,6 @@ export const CHARACTERS: CharacterDef[] = [
     established: {
       text: 'The next Character you Establish here gains +1 Influence while Mansa Musa remains here.',
       effect: { type: 'blessNextEstablished', amount: 1 },
-    },
-    passive: {
-      text: 'Gold of Mali: +1 Influence at African Locations (Lagos, Accra).',
-      regionBonus: { region: 'africa', influence: 1 },
     },
     identity: ['scale', 'prosperity', 'establishment', 'prestige'],
     era: 'c. 1280–1337',
@@ -435,13 +432,13 @@ export const CHARACTERS: CharacterDef[] = [
     category: 'historical',
     name: 'Paul Laurence Dunbar',
     short: 'Dunbar',
-    summary: 'Learn which Location reveals next.',
+    summary: 'Learn which Location opens after this turn.',
     influence: 2,
     force: 1,
     tags: ['Black', 'Letters'],
     keywords: [],
     reveal: {
-      text: 'If any Locations remain hidden, privately learn which Location will reveal next.',
+      text: 'Privately learn which Location opens at the end of next turn (marked on the board for you). If none would, nothing happens.',
       effect: { type: 'peekNextReveal' },
     },
     blurb: 'The first Black poet with a national audience. "We Wear the Mask." Dead of tuberculosis at 33.',
@@ -519,11 +516,15 @@ export const CHARACTERS: CharacterDef[] = [
     category: 'historical',
     name: 'Bud Billiken',
     short: 'Bud',
-    summary: 'No ability. Costs nothing.',
+    summary: 'Your other 0–1 cost Characters here get +1 Influence.',
     influence: 1,
     force: 1,
     tags: ['Black', 'Youth', 'Brand'],
     keywords: [],
+    reveal: {
+      text: 'Bud Billiken Club: each of your other Characters at this Location that costs 1 or less gains +1 Influence.',
+      effect: { type: 'clubHere', maxCost: 1, amount: 1 },
+    },
     blurb: 'The Chicago Defender\'s mascot for its children\'s page: guardian of every Black kid, dreamed up in 1923.',
     history:
       'Bud Billiken was invented in 1923 by Robert S. Abbott and Lucius Harper of the Chicago Defender as the cartoon patron of the paper\'s youth section, the Defender Junior. Kids joined the Bud Billiken Club by the thousands; a ten-year-old Willard Motley, later the novelist, was among the first to write the column. In 1929 the paper gave the character a parade down South Parkway, and it has marched every August since.',
@@ -1485,6 +1486,8 @@ CHARACTERS.push(
       'Omar ibn Said was born around 1770 in Futa Toro on the Senegal River, studied for twenty-five years and was captured and shipped to Charleston in 1807. He escaped a harsh owner, was jailed in Fayetteville, North Carolina, where he wrote on the cell walls in Arabic, and was then held by the Owen family until his death in 1864. His 1831 autobiography, the only known Arabic-language slave narrative written in the United States, opens with a chapter of the Qur\'an and is held by the Library of Congress.',
   },
 );
+
+for (const c of CHARACTERS) c.home = HOMES[c.id];
 
 /** Every Character the board can spawn: Gatherings plus set pieces like Black Jesus. */
 export const GATHERING_DEFS: CharacterDef[] = CHARACTERS.filter((c) => c.spawn);

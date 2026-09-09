@@ -311,7 +311,7 @@ export function LocationSheet({ view, index, onClose }: { view: GameState; index
       )}
       <div>{def.rule}</div>
       {loc.revealed && !placeholders && <div className="muted" style={{ fontStyle: 'italic' }}>{def.blurb}</div>}
-      {!loc.revealed && known === index && <div className="pA">✦ Paul Laurence Dunbar: this Location reveals next. Only you know.</div>}
+      {!loc.revealed && known === index && <div className="pA">✦ Paul Laurence Dunbar: this Location opens at the end of next turn. Only you know.</div>}
       {loc.revealed && def.transformsInto && loc.revealedTurn !== undefined && (
         <div className="pA">⛵ Arrives in {Math.max(0, loc.revealedTurn + def.transformsInto.afterTurns - view.turn)} turn(s) as {LOCATION_BY_ID[def.transformsInto.id]?.name}.</div>
       )}
@@ -597,7 +597,10 @@ export function ShowdownSheet({ ev, view, me, onClose }: { ev: GameEvent; view: 
           </div>
           <div className="showdown-vs">VS</div>
           <div className="showdown-side threat-side">
-            <div className="fighter-pic big">{placeholders ? <span className="ini">{initials(d.defId, true)}</span> : <Art kind="threats" id={d.defId} className="fighter-img" fallback={<span className="ini">{initials(d.defId, false)}</span>} alt={tdef?.name} />}</div>
+            <div className={`fighter-pic big ${d.cleared && stage >= 2 ? 'neutralized' : ''}`}>
+              {placeholders ? <span className="ini">{initials(d.defId, true)}</span> : <Art kind="threats" id={d.defId} className="fighter-img" fallback={<span className="ini">{initials(d.defId, false)}</span>} alt={tdef?.name} />}
+              {d.cleared && stage >= 2 && <div className="stamp big">Neutralized</div>}
+            </div>
             <b>{d.requiresBoth ? 'both' : d.needed}</b>
             <small>{d.requiresBoth ? 'needs both players' : `needs ${d.needed} Force`}</small>
           </div>

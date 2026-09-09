@@ -1020,3 +1020,76 @@ h1.logo-title { display: grid; justify-items: center; text-align: center; gap: 0
 }
 h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em; }
 @media (width <= 700px) { .logo-title .logo { width: min(80vw, 340px); } h1.logo-title small { font-size: 10px; letter-spacing: 0.08em; } }
+
+/* ---------- Threat tiles ---------- */
+/* A Threat is a portrait tile beside the Inside rows: art, the Force it needs, its name, who it is aimed at. */
+.inside-block { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; }
+.inside-rows { min-width: 0; display: grid; grid-template-rows: auto auto; }
+.inside-row { min-width: 0; }
+.inside-block.has-threat .slots { grid-template-columns: repeat(5, minmax(0, var(--slot))); }
+.inside-block.has-threat .slot { width: auto; }
+.threat-col { display: grid; grid-auto-rows: minmax(0, 1fr); gap: 4px; padding: 4px 10px 4px 0; align-content: stretch; }
+.threat-tile {
+  position: relative; width: calc(var(--slot) * 1.4); min-height: calc(var(--slot-h) + 20px);
+  border: 2px solid var(--danger); border-radius: 4px; overflow: hidden; background: #1a0d10; cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6); display: flex; flex-direction: column; justify-content: flex-end;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.threat-tile .threat-art { position: absolute; inset: 0; display: grid; place-items: center; background: linear-gradient(160deg, #3a1a1e, #120709); }
+.threat-tile .threat-art .ini { font-weight: 900; color: #ffb3ae; font-size: calc(var(--slot) * 0.32); }
+.threat-tile .threat-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.threat-tile .threat-need { position: absolute; top: 3px; right: 3px; z-index: 2; min-width: 22px; height: 22px; padding: 0 4px; border-radius: 12px; background: #08131f; border: 2px solid var(--danger); color: #fff; font-family: var(--display); font-weight: 700; font-size: clamp(9px, 0.85vw, 12px); display: grid; place-items: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6); }
+.threat-tile .threat-name { position: relative; z-index: 1; font-family: var(--display); font-weight: 600; font-size: clamp(6.5px, 0.56vw, 8.5px); overflow-wrap: normal; hyphens: manual; letter-spacing: 0.04em; line-height: 1.1; text-align: center; text-transform: uppercase; color: #f4e9d0; background: linear-gradient(to top, rgba(8, 19, 31, 0.96), rgba(8, 19, 31, 0.55)); padding: 8px 3px 1px; }
+.threat-tile .threat-who { position: relative; z-index: 1; font-family: var(--display); font-weight: 700; font-size: clamp(6px, 0.5vw, 7.5px); letter-spacing: 0.16em; text-transform: uppercase; text-align: center; color: #ff9c96; background: rgba(8, 19, 31, 0.96); padding: 0 2px 3px; }
+.threat-tile.yours { border-color: var(--gold); }
+.threat-tile.yours .threat-need { border-color: var(--gold); color: var(--gold-2); }
+.threat-tile.yours .threat-who { color: var(--gold-2); }
+.threat-tile.confronting { box-shadow: 0 0 0 2px var(--ok), 0 3px 10px rgba(0, 0, 0, 0.6); }
+.threat-tile.armed { border-color: var(--ok); }
+.threat-tile.armed .threat-need { border-color: var(--ok); color: var(--ok); }
+.threat-tile.drop-ok { border-color: var(--ok); box-shadow: 0 0 0 2px rgba(109, 212, 139, 0.5), 0 3px 10px rgba(0, 0, 0, 0.6); }
+.threat-tile.drop-over { transform: scale(1.06); }
+/* Arrival: slams in oversized and keeps pulsing red for a few beats so it cannot be missed. */
+.threat-tile.fresh { animation: threat-arrive 0.9s cubic-bezier(0.2, 0.9, 0.3, 1.3) both, threat-pulse 1.6s ease-in-out 0.9s 5; }
+@keyframes threat-arrive {
+  0% { transform: scale(2.6) rotate(-8deg); opacity: 0; filter: brightness(3); }
+  55% { transform: scale(0.94) rotate(2deg); opacity: 1; filter: brightness(1.7); }
+  100% { transform: none; filter: none; }
+}
+@keyframes threat-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(224, 74, 63, 0), 0 3px 10px rgba(0, 0, 0, 0.6); }
+  50% { box-shadow: 0 0 0 5px rgba(224, 74, 63, 0.6), 0 0 28px rgba(224, 74, 63, 0.8); }
+}
+/* Neutralized: the tile goes grey and the stamp lands; it holds for the whole beat, then the next beat clears it. */
+.threat-tile.gone { pointer-events: none; border-color: #8c8c8c; }
+.threat-tile.gone .threat-art { filter: grayscale(1) brightness(0.55); }
+.threat-tile.gone .threat-need { border-color: #9a9a9a; color: #e6e6e6; }
+.threat-tile.gone .threat-who, .threat-tile.gone .threat-name { color: #cfcfcf; }
+.stamp {
+  position: absolute; left: 50%; top: 44%; z-index: 3; transform: translate(-50%, -50%) rotate(-14deg);
+  border: 3px solid #f4f4f4; border-radius: 4px; padding: 1px 5px; white-space: nowrap;
+  font-family: var(--display); font-weight: 800; font-size: clamp(8px, 0.72vw, 11px); letter-spacing: 0.08em; text-transform: uppercase;
+  color: #fff; background: rgba(120, 18, 18, 0.72); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(0, 0, 0, 0.6);
+  animation: stamp-in 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.4) 0.15s both;
+}
+.stamp.big { font-size: 15px; padding: 3px 10px; border-width: 4px; top: 50%; }
+@keyframes stamp-in {
+  from { transform: translate(-50%, -50%) rotate(-14deg) scale(3.2); opacity: 0; }
+  to { transform: translate(-50%, -50%) rotate(-14deg) scale(1); opacity: 1; }
+}
+.showdown .fighter-pic.big { position: relative; overflow: visible; }
+.showdown .fighter-pic.big .fighter-img { border-radius: 8px; }
+.showdown .fighter-pic.big.neutralized { border-color: #9a9a9a; box-shadow: none; }
+.showdown .fighter-pic.big.neutralized .fighter-img, .showdown .fighter-pic.big.neutralized .ini { filter: grayscale(1) brightness(0.55); }
+@media (width <= 700px) {
+  .threat-col { padding: 3px 4px 3px 0; gap: 3px; }
+  .threat-tile { width: calc(var(--slot) * 1.45); }
+  .threat-tile .threat-name { font-size: 6.5px; padding-top: 6px; }
+}
+@media (prefers-reduced-motion: reduce) { .threat-tile.fresh { animation: none; box-shadow: 0 0 0 3px rgba(224, 74, 63, 0.7); } }
+
+/* ---------- Home ground ---------- */
+/* A Character standing where its story happened: a small gold house mark, and +1 Influence in the number. */
+.pic .home-mark { position: absolute; top: 2px; left: 2px; z-index: 2; width: 14px; height: 14px; border-radius: 3px; display: grid; place-items: center; font-size: 10px; line-height: 1; color: #1a1200; background: radial-gradient(circle at 35% 35%, #fbe7a3, var(--gold)); border: 1px solid var(--gold-dark); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); }
+.gate-slot .pic .home-mark { top: 2px; left: auto; right: 2px; }
+.pic.home .inf { border-color: var(--gold); box-shadow: 0 0 6px rgba(233, 185, 58, 0.5); }

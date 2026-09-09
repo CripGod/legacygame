@@ -35,7 +35,8 @@ export type RevealEffect =
   | { type: 'tempInfluenceOther'; amount: number } // Douglass
   | { type: 'tempInfluenceAllOthersHere'; amount: number } // Garvey
   | { type: 'confrontThreat'; bonus: number } // John Brown
-  | { type: 'peekNextReveal' } // Katherine Johnson
+  | { type: 'peekNextReveal' } // Paul Laurence Dunbar: learn which Location opens at the end of next turn
+  | { type: 'clubHere'; maxCost: number; amount: number } // Bud Billiken: your other cheap Characters here grow
   | { type: 'hiddenBonus'; amount: number } // Mansa Musa
   | { type: 'draw'; count: number } // Zora
   | { type: 'blockOneOpposingGate' } // Karen
@@ -119,6 +120,8 @@ export interface CharacterDef {
   id: string;
   name: string;
   category: CharacterCategory;
+  /** Home ground: where the story happened. +1 Influence at these Locations (an Informant counts one more against its holder). */
+  home?: { locations: string[]; why: string; thematic?: boolean };
   /** Energy to play. Energy each turn equals the turn number. */
   cost: number;
   /** Short name used on thumbnails. */

@@ -52,6 +52,7 @@ export const HINTS = {
   informant: 'Informant: a Character played onto the other side\'s Gates. It is theirs, its Influence counts against them there, it never becomes Ready and never enters. Relocate it, slide it with Robert Smalls, or dump it at Charleston, 1822, where it is found out and sent back to the planter\'s hand.',
   event: 'Event: a one-shot card. Drop it on a Location: it goes in the purple Event slot beside your Gates (one per Location per turn), works everywhere, and the Location it lands on adds a little more.',
   currentInfluence: 'Influence this Character currently contributes here, including bonuses and penalties.',
+  home: 'Home ground: this is where the story happened, so the Character counts +1 Influence here.',
   ready: 'Ready: waited a turn at the Gates. Tap to send it Inside this turn.',
   fresh: 'Fresh: arrived this turn. It waits one turn at the Gates before it can enter.',
   blocked: 'Blocked: an effect stops this Character from entering this turn.',

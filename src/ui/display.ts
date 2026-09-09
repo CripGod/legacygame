@@ -79,6 +79,14 @@ export function abilityLines(def: CardDef): { label: string; text: string }[] {
   return out;
 }
 
+/** 'Harpers Ferry: +1 Influence there. Why.' */
+export function homeText(def: CharacterDef): string {
+  if (!def.home) return '';
+  const names = def.home.locations.map((id) => LOCATION_BY_ID[id]?.name ?? id).join(' or ');
+  const sign = def.keywords.includes('INFORMANT') ? 'one more against the side that holds it' : '+1 Influence';
+  return `${names}: ${sign} there. ${def.home.why}`;
+}
+
 export function spawnText(rule: NonNullable<CharacterDef['spawn']>): string {
   const loc = LOCATION_BY_ID[rule.locationId]?.name ?? rule.locationId;
   const odds = rule.chance !== undefined ? ` Only ${Math.round(rule.chance * 100)}% of matches have it at all.` : '';

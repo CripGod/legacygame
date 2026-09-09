@@ -6,6 +6,7 @@ import { CodexSheet } from '../components/CodexSheet';
 import { Art } from '../components/Art';
 import { artMissing, artUrl, markArtMissing } from '../art';
 import { locationName, threatLabel, useDisplay } from '../display';
+import { Wordmark } from '../components/Wordmark';
 
 /** The chapters, in reading order. `short` is the label in the sticky nav. */
 const CHAPTERS = [
@@ -370,6 +371,7 @@ export function CardsScreen({ onBack }: { onBack: () => void }) {
     <div className="screen">
       <div className="inner cx-inner" ref={rootRef}>
         <header className="cx-title cx-framed">
+          <Wordmark className="cx-logo" />
           <div className="cx-kicker">Black History Card Battler</div>
           <h1>Compendium</h1>
           <StarRule className="ink" />

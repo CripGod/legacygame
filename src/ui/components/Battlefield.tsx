@@ -8,6 +8,7 @@ import {
   type PlayerId,
   type TurnPlan,
   type CharacterInstance,
+  type ThreatInstance,
   other,
   GATE_CAPACITY,
   INSIDE_CAPACITY,
@@ -61,6 +62,8 @@ export interface BattlefieldProps {
   eventFx?: { cardId: string; owner: PlayerId; location: number };
   /** Replay: Event cards played this turn that have not resolved yet; they wait at the Gates. */
   pendingEvents?: { cardId: string; player: PlayerId; location: number }[];
+  /** Threats neutralized on this replay beat: they linger with a stamp before they go. */
+  neutralized?: { uid: string; defId: string; location: number; target?: PlayerId }[];
   /** True while the opponent's resolution is animating: the player's own tiles snap. */
   resolving?: boolean;
   /** First-turn guide: Location to glow. */
@@ -193,7 +196,7 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
   const dropOk = mine && drop?.inside.includes(index);
   const dropOver = dropOk && drop?.overKey === `inside:${index}`;
   return (
-    <>
+    <div className="inside-row">
       <div className="row-lbl">
         {label} ({cap === 0 ? 'no Inside here' : `${chars.length}–${cap}`})
       </div>
@@ -217,7 +220,45 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
           );
         })}
       </div>
-    </>
+    </div>
+  );
+}
+
+/** A Threat as a portrait tile beside the Inside rows: art, the Force it needs, its name, and who it is aimed at. */
+function ThreatTile({ t, view, me, plan, drop, flash, onThreat, gone }: { t: ThreatInstance; view: GameState; me: PlayerId; plan: TurnPlan; drop?: BattlefieldProps['drop']; flash?: BattlefieldProps['flash']; onThreat: (uid: string) => void; gone?: boolean }) {
+  const { placeholders } = useDisplay();
+  const tdef = THREAT_BY_ID[t.defId];
+  const confronting = !gone && plan.confronts.some((c) => c.threatUid === t.uid);
+  const committed = gone
+    ? 0
+    : plan.confronts
+        .filter((c) => c.threatUid === t.uid)
+        .map((c) => view.characters[c.uid])
+        .filter((c): c is CharacterInstance => !!c)
+        .reduce((s, c) => s + confrontForce(view, c, t), 0);
+  const need = threatForceNeeded(view, t);
+  const armed = !gone && !tdef.requiresBoth && committed >= need;
+  const tOk = !gone && drop?.threats.includes(t.uid);
+  const tOver = tOk && drop?.overKey === `threat:${t.uid}`;
+  const who = tdef.split && t.target ? (t.target === me ? 'yours' : 'theirs') : 'area';
+  const fresh = !gone && t.spawnedTurn === view.turn;
+  return (
+    <div
+      data-drop={gone ? undefined : 'threat'}
+      data-threat={t.uid}
+      className={`threat-tile ${who} ${fresh ? 'fresh' : ''} ${gone ? 'gone' : ''} ${confronting ? 'confronting' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' && !gone ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''}`}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (!gone) onThreat(t.uid);
+      }}
+      {...(gone ? {} : tip(who === 'area' ? `${tdef.name}: in the area, either player can confront it. ${tdef.text}` : who === 'yours' ? `${tdef.name}, aimed at you. ${tdef.text}` : `${tdef.name}, aimed at ${view.players[other(me)].handle}. ${tdef.text}`))}
+    >
+      <div className="threat-art">{placeholders ? <span className="ini">{initials(t.defId, true)}</span> : <Art kind="threats" id={t.defId} className="threat-img" fallback={<span className="ini">{initials(t.defId, false)}</span>} alt="" />}</div>
+      <b className="threat-need">{tdef.requiresBoth ? 'both' : committed > 0 ? `${committed}/${need}` : need}</b>
+      <div className="threat-name">{threatLabel(t.defId, placeholders)}</div>
+      <div className="threat-who">{who === 'yours' ? 'Yours' : who === 'theirs' ? 'Theirs' : 'In the area'}</div>
+      {gone && <div className="stamp">Neutralized</div>}
+    </div>
   );
 }
 
@@ -289,7 +330,7 @@ function shortEffect(type: string): string {
 }
 
 export function Battlefield(props: BattlefieldProps) {
-  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onThreat, flash, dragProps, drop, delays, resolving, glowLocation, summonLabel, reserved, focus, eventFx, pendingEvents } = props;
+  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onThreat, flash, dragProps, drop, delays, resolving, glowLocation, summonLabel, reserved, focus, eventFx, pendingEvents, neutralized } = props;
   const { placeholders } = useDisplay();
   const opp = other(me);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -356,8 +397,8 @@ export function Battlefield(props: BattlefieldProps) {
               >
                 <span className="art-name">{loc.revealed ? locationName(loc.defId, placeholders) : '?'}</span>
                 {!loc.revealed && view.players[me].knownNextReveal === loc.index && (
-                  <span className="lost-tag next-tag" {...tip("Paul Laurence Dunbar's Reveal: this is the next Location to open. Only you know.")}>
-                    ✦ Reveals next
+                  <span className="lost-tag next-tag" {...tip("Paul Laurence Dunbar's Reveal: this Location opens at the end of next turn. Only you know.")}>
+                    ✦ Opens next
                   </span>
                 )}
                 {loc.revealed && def.transformsInto && loc.revealedTurn !== undefined && (
@@ -373,7 +414,6 @@ export function Battlefield(props: BattlefieldProps) {
                 {loc.sanctified && <span className="lost-tag sanct">OBATALA</span>}
                 {summon && <span className="summon-tag">{summon}</span>}
               </div>
-              <InsideRow {...common} owner={opp} index={loc.index} label="Opponent Characters" />
               <div className="influence">
                 <Score p="A" value={inf.A} />
                 <div className={`line ${winner && winner !== 'lost' ? `won-${winner}` : ''}`} {...tip(HINTS.line)}>
@@ -383,41 +423,30 @@ export function Battlefield(props: BattlefieldProps) {
                 </div>
                 <Score p="B" value={inf.B} />
               </div>
-              <InsideRow {...common} owner={me} index={loc.index} label="Your Characters" />
-              <div className="threats">
-                {loc.threats.map((t) => {
-                  const tdef = THREAT_BY_ID[t.defId];
-                  const confronting = plan.confronts.some((c) => c.threatUid === t.uid);
-                  const committed = plan.confronts
-                    .filter((c) => c.threatUid === t.uid)
-                    .map((c) => view.characters[c.uid])
-                    .filter((c): c is CharacterInstance => !!c)
-                    .reduce((s, c) => s + confrontForce(view, c, t), 0);
-                  const need = threatForceNeeded(view, t);
-                  const armed = !tdef.requiresBoth && committed >= need;
-                  const tOk = drop?.threats.includes(t.uid);
-                  const tOver = tOk && drop?.overKey === `threat:${t.uid}`;
-                  return (
-                    <div
-                      key={t.uid}
-                      data-drop="threat"
-                      data-threat={t.uid}
-                      className={`threat ${confronting ? 'confronting' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onThreat(t.uid);
-                      }}
-                    >
-                      {!placeholders && <Art kind="threats" id={t.defId} className="threat-thumb" fallback={null} alt="" />}
-                      <span>
-                        ⚠ {threatLabel(t.defId, placeholders)}
-                        {tdef.split && t.target ? ` · ${t.target === me ? 'yours' : 'theirs'}` : ' · in the area'}
-                      </span>
-                      <b>{tdef.requiresBoth ? 'both' : committed > 0 ? `${committed}/${need}` : need}</b>
+              {(() => {
+                const rank = (t: ThreatInstance) => (t.target ? (t.target === me ? 2 : 0) : 1);
+                const live = [...loc.threats].sort((a, b) => rank(a) - rank(b));
+                const ghosts = (neutralized ?? []).filter((g) => g.location === loc.index && !loc.threats.some((t) => t.uid === g.uid)).map((g): ThreatInstance => ({ uid: g.uid, defId: g.defId, location: g.location, target: g.target, forceRequired: THREAT_BY_ID[g.defId]?.force ?? 0, spawnedTurn: -1 }));
+                const has = live.length + ghosts.length > 0;
+                return (
+                  <div className={`inside-block ${has ? 'has-threat' : ''}`}>
+                    <div className="inside-rows">
+                      <InsideRow {...common} owner={opp} index={loc.index} label="Opponent Characters" />
+                      <InsideRow {...common} owner={me} index={loc.index} label="Your Characters" />
                     </div>
-                  );
-                })}
-              </div>
+                    {has && (
+                      <div className="threat-col">
+                        {live.map((t) => (
+                          <ThreatTile key={t.uid} t={t} view={view} me={me} plan={plan} drop={drop} flash={flash} onThreat={onThreat} />
+                        ))}
+                        {ghosts.map((t) => (
+                          <ThreatTile key={`gone:${t.uid}`} t={t} view={view} me={me} plan={plan} onThreat={onThreat} gone />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
               <InEffect view={view} index={loc.index} me={me} onOpen={() => onLocationInfo(loc.index)} />
               <div
                 className="loc-rule"

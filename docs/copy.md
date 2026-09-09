@@ -38,7 +38,6 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - cost 4 · Influence 5 · Force 3 · historical · era: c. 1280–1337
 - reveal: If played into a hidden Location, gain +1 Influence when that Location reveals.
 - established: The next Character you Establish here gains +1 Influence while Mansa Musa remains here.
-- passive: Gold of Mali: +1 Influence at African Locations (Lagos, Accra).
 - blurb: Emperor of Mali whose pilgrimage to Mecca spent so much gold it depressed prices across the Mediterranean.
 - history: Mansa Musa ruled the Mali Empire from about 1312 to 1337, at the height of its control over the West African gold and salt trade. His 1324 pilgrimage to Mecca, with a caravan reported at tens of thousands of people, spent so much gold in Cairo that the metal's value there dropped for years. He returned with scholars and architects, built mosques and madrasas in Timbuktu and Gao, and made Timbuktu a centre of Islamic learning. European maps of the era show him holding a gold nugget.
 
@@ -116,7 +115,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Paul Laurence Dunbar (`paul_laurence_dunbar`)
 - cost 1 · Influence 2 · Force 1 · historical · era: 1872–1906
-- reveal: If any Locations remain hidden, privately learn which Location will reveal next.
+- reveal: Privately learn which Location opens at the end of next turn (marked on the board for you). If none would, nothing happens.
 - blurb: The first Black poet with a national audience. "We Wear the Mask." Dead of tuberculosis at 33.
 - history: Paul Laurence Dunbar was born in Dayton, Ohio, in 1872 to parents who had been enslaved in Kentucky. The only Black student in his high school class, he edited the school paper and ran an elevator to pay for printing his first book. Majors and Minors and Lyrics of Lowly Life made him famous by 25; he wrote novels, songs for the Broadway show Clorindy and the poems "Sympathy" and "We Wear the Mask." He died of tuberculosis in 1906, at 33.
 
@@ -140,6 +139,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Bud Billiken (`bud_billiken`)
 - cost 0 · Influence 1 · Force 1 · historical · era: Chicago Defender, 1923
+- reveal: Bud Billiken Club: each of your other Characters at this Location that costs 1 or less gains +1 Influence.
 - blurb: The Chicago Defender's mascot for its children's page: guardian of every Black kid, dreamed up in 1923.
 - history: Bud Billiken was invented in 1923 by Robert S. Abbott and Lucius Harper of the Chicago Defender as the cartoon patron of the paper's youth section, the Defender Junior. Kids joined the Bud Billiken Club by the thousands; a ten-year-old Willard Motley, later the novelist, was among the first to write the column. In 1929 the paper gave the character a parade down South Parkway, and it has marched every August since.
 
@@ -549,6 +549,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - `informant`: Informant: a Character played onto the other side's Gates. It is theirs, its Influence counts against them there, it never becomes Ready and never enters. Relocate it, slide it with Robert Smalls, or dump it at Charleston, 1822, where it is found out and sent back to the planter's hand.
 - `event`: Event: a one-shot card. Drop it on a Location: it goes in the purple Event slot beside your Gates (one per Location per turn), works everywhere, and the Location it lands on adds a little more.
 - `currentInfluence`: Influence this Character currently contributes here, including bonuses and penalties.
+- `home`: Home ground: this is where the story happened, so the Character counts +1 Influence here.
 - `ready`: Ready: waited a turn at the Gates. Tap to send it Inside this turn.
 - `fresh`: Fresh: arrived this turn. It waits one turn at the Gates before it can enter.
 - `blocked`: Blocked: an effect stops this Character from entering this turn.
@@ -590,8 +591,6 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 onChange(o.key)}>
 {d.cards.length > 0 && …}
-<span
-aria-label="Stand on Business"
 Black History Card Battler
 Systems prototype · v0.3 · build …
 Deploy heroes, legends and neighbors across three Locations. Win Influence at two of them. Seven turns. Ten minutes, give or take.
@@ -957,7 +956,11 @@ export function ShowdownSheet({ ev, view, me, onClose }: { ev: GameEvent; view: 
           </div>
           <div className="showdown-vs">VS</div>
           <div className="showdown-side threat-side">
-            <div className="fighter-pic big">{placeholders ? <span className="ini">{initials(d.defId, true)}</span> : <Art kind="threats" id={d.defId} className="fighter-img" fallback={<span className="ini">{initials(d.defId, false)}</span>} alt={tdef?.name} />}</div>
+            <div className={
+- }>
+              {placeholders ? <span className="ini">{initials(d.defId, true)}</span> : <Art kind="threats" id={d.defId} className="fighter-img" fallback={<span className="ini">{initials(d.defId, false)}</span>} alt={tdef?.name} />}
+              {d.cleared && stage >= 2 && <div className="stamp big">Neutralized</div>}
+            </div>
             <b>{d.requiresBoth ? 'both' : d.needed}</b>
             <small>{d.requiresBoth ? 'needs both players' : 
 - }</small>
@@ -1272,13 +1275,16 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - slots ${cap < INSIDE_CAPACITY ? 'restricted' : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''}
 - slot ${i >= cap ? 'locked' : ''}
 - slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''}
+- threat-tile ${who} ${fresh ? 'fresh' : ''} ${gone ? 'gone' : ''} ${confronting ? 'confronting' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' && !gone ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''}
+- ${tdef.name}: in the area, either player can confront it. ${tdef.text}
+- ${tdef.name}, aimed at you. ${tdef.text}
+- ${tdef.name}, aimed at ${view.players[other(me)].handle}. ${tdef.text}
 -  : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''}
 - art ${loc.revealed ? 'reveal-anim' : 'hidden-art'}
 - linear-gradient(135deg, hsl(${(loc.defId.length * 47) % 360} 30% 24%), hsl(${(loc.defId.length * 47 + 60) % 360} 30% 14%))
 - ${def.name} arrives in ${Math.max(0, loc.revealedTurn + def.transformsInto.afterTurns - view.turn)} turn(s): everyone aboard gains +1 Influence and Gate Characters walk straight in.
 - line ${winner && winner !== 'lost' ? 
-- threat ${confronting ? 'confronting' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''}
--  · ${t.target === me ? 'yours' : 'theirs'}
+- inside-block ${has ? 'has-threat' : ''}
 - LOST: ${loc.lostReason ?? 'an unresolved crisis'} Neither player can win here.
 - Hidden until revealed. Commit blind.
 
@@ -1304,6 +1310,9 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - radial-gradient(circle at 50% 32%, hsl(${h} 22% 30%), hsl(${h} 30% 9%) 78%)
 - May go Inside the turn it is played. Your choice: tap the planned card to switch between Gates and Inside.
 - Always goes Inside the turn it is played.
+- Harpers Ferry: +1 Influence there. Why.
+- one more against the side that holds it
+- ${names}: ${sign} there. ${def.home.why}
 -  Only ${Math.round(rule.chance * 100)}% of matches have it at all.
 - Not in any deck. When ${loc} is revealed, one arrives Ready at each player's Gates there (if there is room).${odds}
 - Not in any deck. When ${rule.cardIds.map((id) => CARD_BY_ID[id]?.name ?? id).join(', ')} are all Established at ${loc}, it appears there for you. Once per match.
@@ -1343,8 +1352,9 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${charDef(best.defId).name} gains +${eff.amount} Influence this turn.
 - no Threat here to confront.
 - confronts ${threatName(state, own)} with +${eff.bonus} Force.
-- all Locations are already revealed.
-- ${def.name}: privately learns that Location ${next + 1} reveals next (it is marked on the board for you).
+- ${def.name}: privately learns that Location ${next + 1} opens at the end of next turn (it is marked on the board for you).
+- nobody here costs ${eff.maxCost} or less, so the club has no members yet.
+- signs up ${kids.map((k) => name(state, k)).join(', ')}: +${eff.amount} Influence each.
 - was played into a known Location.
 - gains +${eff.amount} Influence as the Location reveals.
 - will gain +${eff.amount} Influence when this Location reveals.

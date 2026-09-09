@@ -39,7 +39,7 @@ const BEAT_MS: Record<string, number> = {
   revealFx: 1400,
   enter: 800,
   move: 900,
-  showdown: 600,
+  showdown: 1500,
   summon: 1200,
   threat: 1200,
   spawn: 600,
@@ -199,6 +199,17 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     for (const pl of plan.plays) if (pl.target?.charUid && pl.target.location !== undefined) add(pl.target.charUid, `moves with ${cardName(pl.cardId, placeholders)}`);
     return out;
   }, [view, me, plan, locked, placeholders]);
+  /** Threats that fell on this beat: the board keeps their tile up, stamped, until the beat ends. */
+  const neutralized = useMemo(
+    () =>
+      (step?.events ?? [])
+        .filter((e) => e.type === 'threatNeutralized' && e.location !== undefined && !!(e.data as { threatUid?: string } | undefined)?.threatUid)
+        .map((e) => {
+          const d = e.data as { threatUid: string; defId: string; target?: PlayerId };
+          return { uid: d.threatUid, defId: d.defId, location: e.location!, target: d.target };
+        }),
+    [step],
+  );
   const planning = view.phase === 'planning' && !locked && !busy;
   /** Lock In, unless the plan is illegal: then say why instead of letting the engine turn it into a pass. */
   const lockNow = () => {
@@ -694,6 +705,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           focus={step?.uids}
           eventFx={step?.kind === 'event' && step.cardId && step.player ? { cardId: step.cardId, owner: step.player, location: step.location ?? 0 } : undefined}
           pendingEvents={step?.pendingEvents}
+          neutralized={neutralized}
           glowLocation={guideLocation}
           summonLabel={summonState}
         />

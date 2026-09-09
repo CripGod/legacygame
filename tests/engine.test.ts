@@ -14,6 +14,7 @@ import {
   PRESET_DECKS,
   validateDeck,
   CHARACTERS,
+  LOCATION_BY_ID,
   lockReason,
   randomDeck,
   threatForceNeeded,
@@ -454,8 +455,8 @@ describe('gatherings', () => {
     expect(cookout!.zone).toBe('inside');
     expect(out.events.some((e) => e.type === 'spawned' && e.cardId === 'bud_billiken_parade')).toBe(true);
     expect(out.state.players.A.spawned).toContain('bud_billiken_parade');
-    // +1 Influence to the other three Established Characters here.
-    expect(influenceAt(out.state, 0).A).toBe(charDef('og').influence + charDef('organizer').influence + charDef('alonzo_herndon').influence + charDef('bud_billiken_parade').influence + 3);
+    // +1 Influence to the other three Established Characters here, and the Parade is on home ground (+1).
+    expect(influenceAt(out.state, 0).A).toBe(charDef('og').influence + charDef('organizer').influence + charDef('alonzo_herndon').influence + charDef('bud_billiken_parade').influence + 3 + 1);
     // In the other half of matches it never comes.
     const dry = structuredClone(s);
     dry.spawnRolls.bud_billiken_parade = false;
@@ -1381,5 +1382,95 @@ describe('The Middle Passage and the DeWolf Trade', () => {
     v.arrivedTurn = 3;
     const uo = resolveTurn(u, { A: pass(), B: pass() }).state;
     expect(uo.characters[v.uid].location).not.toBe(0);
+  });
+});
+
+describe('Dunbar, Bud Billiken and the neutralized stamp', () => {
+  it('Dunbar marks the Location that opens at the end of NEXT turn, and the mark survives this turn\'s reveal', () => {
+    let s = rig(createMatch({ seed: 5 }), { handA: ['paul_laurence_dunbar'], handB: [] });
+    expect(s.turn).toBe(1);
+    const order = s.revealOrder;
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'paul_laurence_dunbar', location: 0 }] }, B: pass() }).state;
+    // Turn 1's reveal (order[0]) has happened; the secret is order[1], still hidden and still marked.
+    expect(s.locations[order[0]].revealed).toBe(true);
+    expect(s.players.A.knownNextReveal).toBe(order[1]);
+    expect(s.locations[order[1]].revealed).toBe(false);
+    expect(s.players.B.knownNextReveal).toBeUndefined();
+    s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(s.locations[order[1]].revealed).toBe(true);
+    expect(s.players.A.knownNextReveal).toBeUndefined();
+  });
+  it('Dunbar on Turn 3 has nothing left to learn', () => {
+    let s = rig(createMatch({ seed: 5 }), { handA: ['paul_laurence_dunbar'], handB: [] });
+    s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(s.turn).toBe(3);
+    const out = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'paul_laurence_dunbar', location: 0 }] }, B: pass() });
+    expect(out.state.players.A.knownNextReveal).toBeUndefined();
+    expect(out.events.some((e) => e.text.includes('every Location is open by the end of this turn'))).toBe(true);
+  });
+  it('Bud Billiken signs up your other 0–1 cost Characters here, not the expensive ones or the informants', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['bud_billiken'], handB: [] });
+    const kid = addChar(s, 'claudette_colvin', 'A', 0, 'inside'); // cost 1
+    const grown = addChar(s, 'og', 'A', 0, 'inside'); // cost 2+
+    const spy = addChar(s, 'peter_prioleau', 'A', 0, 'gate', false); // an informant B planted on A: owner A, cost 0
+    spy.plantedBy = 'B';
+    const elsewhere = addChar(s, 'claudette_colvin', 'A', 1, 'inside');
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'bud_billiken', location: 0 }] }, B: pass() }).state;
+    expect(s.characters[kid.uid].permInfluence).toBe(1);
+    expect(s.characters[grown.uid].permInfluence).toBe(0);
+    expect(s.characters[spy.uid].permInfluence).toBe(0);
+    expect(s.characters[elsewhere.uid].permInfluence).toBe(0);
+  });
+  it('a neutralized Threat names itself in the event so the board can stamp it', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['gary_indiana', 'great_migration', 'greenwood'], revealAll: true, handA: [], handB: [] });
+    const og = addChar(s, 'og', 'A', 0, 'inside');
+    s.locations[0].threats.push({ uid: 't9', defId: 'segregationist_patrol', location: 0, target: 'B', forceRequired: 3, spawnedTurn: 1 });
+    const out = resolveTurn(s, { A: { ...pass(), confronts: [{ uid: og.uid, threatUid: 't9' }] }, B: pass() }, { trace: true });
+    const ev = out.events.find((e) => e.type === 'threatNeutralized')!;
+    expect(ev.data).toMatchObject({ threatUid: 't9', defId: 'segregationist_patrol', target: 'B' });
+    const beat = out.trace!.find((t) => t.kind === 'showdown')!;
+    expect(beat.events.some((e) => e.type === 'threatNeutralized')).toBe(true);
+    expect(beat.state.locations[0].threats).toHaveLength(0);
+  });
+});
+
+describe('home ground and Straight Inside', () => {
+  it('every Character has a home on the board, and the home Locations exist', () => {
+    for (const c of CHARACTERS) {
+      expect(c.home, c.id).toBeDefined();
+      expect(c.home!.locations.length, c.id).toBeGreaterThan(0);
+      for (const l of c.home!.locations) expect(LOCATION_BY_ID[l], `${c.id} → ${l}`).toBeDefined();
+      expect(c.home!.why.length, c.id).toBeGreaterThan(8);
+    }
+  });
+  it('+1 Influence at home, at the Gates or Inside, and only once the Location is revealed', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['harpers_ferry', 'gary_indiana', 'greenwood'], revealAll: true });
+    const jb = addChar(s, 'john_brown', 'A', 0, 'gate');
+    const away = addChar(s, 'john_brown', 'B', 1, 'inside');
+    expect(charInfluence(s, jb)).toBe(charDef('john_brown').influence + 1);
+    expect(charInfluence(s, away)).toBe(charDef('john_brown').influence);
+    s.locations[0].revealed = false;
+    expect(charInfluence(s, jb)).toBe(charDef('john_brown').influence);
+  });
+  it('an Informant at home drains one more', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['charleston_1822', 'gary_indiana', 'greenwood'], revealAll: true });
+    const spy = addChar(s, 'peter_prioleau', 'B', 0, 'gate', false);
+    spy.plantedBy = 'A';
+    expect(charInfluence(s, spy)).toBe(charDef('peter_prioleau').influence - 1);
+  });
+  it('Mansa Musa keeps his +1 in Africa through home ground', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['accra_ghana', 'gary_indiana', 'greenwood'], revealAll: true });
+    const mm = addChar(s, 'mansa_musa', 'A', 0, 'inside');
+    expect(charInfluence(s, mm)).toBe(charDef('mansa_musa').influence + 1);
+  });
+  it('Sleeping Car Porters are Inside from the play beat on: the replay never shows them at the Gates', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['gary_indiana', 'greenwood', 'harpers_ferry'], revealAll: true, handA: ['sleeping_car_porters'], handB: [] });
+    const out = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'sleeping_car_porters', location: 0 }] }, B: pass() }, { trace: true });
+    const play = out.trace!.find((t) => t.kind === 'play' && t.cardId === 'sleeping_car_porters')!;
+    const uid = play.uids![0];
+    expect(play.state.characters[uid].zone).toBe('inside');
+    expect(out.trace!.some((t) => t.kind === 'enter' && t.uids?.includes(uid))).toBe(false);
+    expect(out.state.characters[uid].zone).toBe('inside');
   });
 });

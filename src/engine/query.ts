@@ -118,6 +118,8 @@ export function charInfluence(state: GameState, c: CharacterInstance): number {
   if (ldef?.effect.type === 'steelAndSoul' && charsAt(state, c.location, c.owner).length >= 5) v += ldef.effect.fiveBonus;
   const home = def.passive?.regionBonus;
   if (home && ldef?.region === home.region) v += home.influence;
+  // Home ground: +1 where the story happened. An Informant is worth one more against its holder there.
+  if (def.home && loc.revealed && def.home.locations.includes(loc.defId)) v += def.keywords.includes('INFORMANT') ? -1 : 1;
   const spot = def.passive?.locationBonus;
   if (spot && loc.revealed && loc.defId === spot.locationId) v += spot.influence;
   for (const j of hasEstablishedAnywhere(state, c.owner, 'sanctuary')) {

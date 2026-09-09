@@ -394,13 +394,26 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       break;
     }
     case 'peekNextReveal': {
-      const next = state.revealOrder.find((i) => !state.locations[i].revealed);
+      // One Location opens at the end of every turn up to Turn 3 (revealOrder[turn - 1]); this turn's is moments away,
+      // so the useful secret is the one after it: the Location that opens at the end of NEXT turn.
+      const next = state.revealOrder.slice(state.turn).find((i) => !state.locations[i].revealed);
       if (next === undefined) {
-        say('all Locations are already revealed.');
+        say(state.turn >= 3 ? 'every Location is open by the end of this turn.' : 'all Locations are already revealed.');
         break;
       }
       state.players[p].knownNextReveal = next;
-      events.push({ type: 'reveal', text: `${def.name}: privately learns that Location ${next + 1} reveals next (it is marked on the board for you).`, uid: c.uid, player: p, privateTo: p, data: { next } });
+      events.push({ type: 'reveal', text: `${def.name}: privately learns that Location ${next + 1} opens at the end of next turn (it is marked on the board for you).`, uid: c.uid, player: p, privateTo: p, data: { next } });
+      break;
+    }
+    case 'clubHere': {
+      if (eff.type !== 'clubHere') break;
+      const kids = charsAt(state, loc, p).filter((k) => k.uid !== c.uid && !isInformant(k) && charDef(k.defId).cost <= eff.maxCost);
+      if (!kids.length) {
+        say(`nobody here costs ${eff.maxCost} or less, so the club has no members yet.`);
+        break;
+      }
+      for (const k of kids) k.permInfluence += eff.amount;
+      say(`signs up ${kids.map((k) => name(state, k)).join(', ')}: +${eff.amount} Influence each.`);
       break;
     }
     case 'hiddenBonus': {
@@ -1030,7 +1043,15 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       uid: c.uid,
       location: play.location,
     });
-    trace('play', `${ps.handle} plays ${def.name} at ${locName(state, play.location)}`, { uids: [c.uid], location: play.location, player: p, cardId: def.id });
+    // Straight Inside always enters; Direct Entry enters when the player chose to. It happens as the card
+    // lands, so the board (and the replay) never show such a Character waiting at the Gates.
+    const kw = def.keywords;
+    let straightIn = false;
+    if (kw.includes('STRAIGHT_INSIDE') || (kw.includes('DIRECT_ENTRY') && play.enter)) {
+      straightIn = enterInside(state, c, events, kw.includes('STRAIGHT_INSIDE') ? 'goes straight Inside at' : 'enters immediately (Direct Entry) at');
+      if (!straightIn) events.push({ type: 'blocked', text: `${name(state, c)} cannot enter: no room Inside.`, uid: c.uid });
+    }
+    trace('play', `${ps.handle} plays ${def.name} ${straightIn ? 'straight Inside' : 'at'} ${locName(state, play.location)}`, { uids: [c.uid], location: play.location, player: p, cardId: def.id });
     }
   }
   for (const { p, play } of eventPlays) {
@@ -1045,17 +1066,6 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       const said = events.slice(before).find((e) => e.type === 'reveal');
       const touched = events.slice(before).map((e) => e.uid).filter((u): u is string => !!u);
       trace('revealFx', said?.text ?? `${charDef(c.defId).name} reveals`, { uids: [c.uid, ...touched], location: c.location, player: c.owner, cardId: c.defId });
-    }
-  }
-  // Straight Inside always enters; Direct Entry enters when the player chose to.
-  for (const { c, enter } of newChars) {
-    if (!state.characters[c.uid] || c.zone !== 'gate') continue;
-    const kw = charDef(c.defId).keywords;
-    if (kw.includes('STRAIGHT_INSIDE') || (kw.includes('DIRECT_ENTRY') && enter)) {
-      if (!enterInside(state, c, events, kw.includes('STRAIGHT_INSIDE') ? 'goes straight Inside at' : 'enters immediately (Direct Entry) at')) {
-        events.push({ type: 'blocked', text: `${name(state, c)} cannot enter: no room Inside.`, uid: c.uid });
-      }
-      trace('enter', `${charDef(c.defId).name} goes straight Inside ${locName(state, c.location)}`, { uids: [c.uid], location: c.location, player: c.owner });
     }
   }
 
@@ -1180,7 +1190,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
         continue;
       }
       const by = PLAYERS.filter((p) => (f![p] ?? 0) > 0);
-      events.push({ type: 'threatNeutralized', text: `${threatName(state, t)} at ${locName(state, loc.index)} is neutralized.`, location: loc.index, data: { by } });
+      events.push({ type: 'threatNeutralized', text: `${threatName(state, t)} at ${locName(state, loc.index)} is neutralized.`, location: loc.index, data: { by, threatUid: t.uid, defId: t.defId, target: t.target } });
       for (const uid of f!.assists) {
         const c = state.characters[uid];
         if (!c) continue;

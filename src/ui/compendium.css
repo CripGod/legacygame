@@ -820,3 +820,15 @@ body:has(.cx-inner) .tip {
 }
 .cx-colophon .cx-star { max-width: 260px; }
 .cx-colophon .cx-btn { margin-top: 4px; }
+
+/* The wordmark, inked in navy on the parchment title page. */
+.cx-title .cx-logo {
+  display: block;
+  width: min(60vw, 300px);
+  background: linear-gradient(170deg, #1e3557 0%, var(--cx-navy) 55%, #0a1626 100%);
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-size: contain; mask-size: contain;
+  -webkit-mask-position: center; mask-position: center;
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.55));
+  margin-bottom: 2px;
+}

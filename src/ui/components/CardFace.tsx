@@ -103,9 +103,11 @@ export function Pic({
     label = def.keywords.includes('INFORMANT') ? 'Informant' : c.blockedEnterTurn === state.turn ? 'Blocked' : c.ready ? 'Ready' : 'Fresh';
   }
   const cls = label ? label.toLowerCase() : '';
+  const locNow = state.locations[c.location];
+  const atHome = !!def.home && locNow?.revealed && def.home.locations.includes(locNow.defId);
   return (
     <div
-      className={`pic ${c.owner} ${isSuppressed(state, c) ? 'suppressed' : ''} ${highlight ? 'highlight' : ''} ${focus ? 'focus' : ''}`}
+      className={`pic ${c.owner} ${isSuppressed(state, c) ? 'suppressed' : ''} ${highlight ? 'highlight' : ''} ${focus ? 'focus' : ''} ${atHome ? 'home' : ''}`}
       style={{ background: hueFor(c.defId) }}
       onClick={onClick}
       title={`${cardName(c.defId, placeholders)} · ${inf} Influence · ${def.force} Force`}
@@ -126,6 +128,11 @@ export function Pic({
       ) : (
         <span className="inf" {...tip(HINTS.currentInfluence)}>
           {inf}
+        </span>
+      )}
+      {atHome && (
+        <span className="home-mark" {...tip(HINTS.home)}>
+          ⌂
         </span>
       )}
       {label && (
