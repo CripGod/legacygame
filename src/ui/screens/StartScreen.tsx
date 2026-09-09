@@ -285,7 +285,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
         <br />
         Real Locations.
         <br />
-        Real consequences.
+        Real history.
       </div>
 
       <header className="hero">
