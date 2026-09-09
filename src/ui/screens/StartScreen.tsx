@@ -178,14 +178,20 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
   /** A deck card tapped on the landing page opens the full Compendium sheet for it. */
   const [open, setOpen] = useState<string | null>(null);
   /** The Mob on the landing page: 'up' until clicked, 'falling' through the explosion, 'down' with the message, then it re-forms. */
-  const [mobState, setMobState] = useState<'up' | 'falling' | 'down'>('up');
+  const [mobState, setMobState] = useState<'hidden' | 'up' | 'falling' | 'down'>('hidden');
   const [burst, setBurst] = useState(0);
+  const MOB_DELAY = 15000;
+  // Fifteen seconds in, the Mob shows up and the page drains to grey until it is broken; then it comes back later.
+  useEffect(() => {
+    const id = window.setTimeout(() => setMobState('up'), MOB_DELAY);
+    return () => window.clearTimeout(id);
+  }, []);
   const defeatMob = () => {
     if (mobState !== 'up') return;
     setBurst((b) => b + 1);
     setMobState('falling');
     window.setTimeout(() => setMobState('down'), 700);
-    window.setTimeout(() => setMobState('up'), 14000);
+    window.setTimeout(() => setMobState('up'), MOB_DELAY + 700);
   };
   const root = useRef<HTMLDivElement>(null);
   // Parallax: the plates and the hero drift a few pixels against the pointer.
@@ -247,7 +253,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
   };
 
   return (
-    <div className="landing" ref={root}>
+    <div className={`landing ${mobState === 'up' ? 'siege' : ''}`} ref={root}>
       <div className="bg-plates" aria-hidden>
         <div className="bg-plate left" style={{ backgroundImage: `url(${artUrl('landing', 'harriet')})` }} />
         <div className="bg-plate right" style={{ backgroundImage: `url(${artUrl('landing', 'frederick')})` }} />
@@ -315,7 +321,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
           <div className="vs" aria-hidden>
             VS
           </div>
-          {mob && mobState !== 'down' && (
+          {mob && (mobState === 'up' || mobState === 'falling') && (
             <button className={`threat-spot ${mobState}`} aria-label="The Mob. Click to neutralize it together." onClick={defeatMob}>
               <MobSparks burst={burst} />
               <span className="mob-shape">
