@@ -377,7 +377,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
       </nav>
 
       <div className="decks">
-        <DeckPanel side="mine" label="Your deck" note="Justice arcs forward." value={deckA} onChange={setDeckA} />
+        <DeckPanel side="mine" label="Your cards" note="Justice arcs forward." value={deckA} onChange={setDeckA} />
         <div className={`vs-col ${mobState}`}>
           <div className="vs-flourish" aria-hidden />
           <div className="vs" aria-hidden>
@@ -415,7 +415,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
             </div>
           )}
         </div>
-        <DeckPanel side="theirs" label="Harborlight's deck" note="Different paths. Same goals." value={deckB} onChange={setDeckB} />
+        <DeckPanel side="theirs" label="Opponent's cards" note="Different paths. Same goals." value={deckB} onChange={setDeckB} />
       </div>
 
       <footer className="hero-foot">
