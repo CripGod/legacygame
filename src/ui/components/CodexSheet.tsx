@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { CARD_BY_ID } from '../../engine';
 import { CardFace } from './CardFace';
-import { HINTS } from '../tip';
 import { cardName, useDisplay } from '../display';
 
-type Note = 'orbs' | 'history';
+type Note = 'history';
 
 /**
  * The Compendium's card sheet: a parchment plate holding the full card, a note that explains the orbs
@@ -39,43 +38,12 @@ export function CodexSheet({ id, label, onClose }: { id: string; label: string; 
         <div className="cx-sheet-body">
           <CardFace id={id} big />
           <div className="cx-sheet-actions">
-            <button className={`cx-btn cx-ctl ${note === 'orbs' ? 'on' : ''}`} onClick={() => toggle('orbs')} aria-expanded={note === 'orbs'}>
-              Reading the orbs
-            </button>
             {history && (
               <button className={`cx-btn cx-ctl ${note === 'history' ? 'on' : ''}`} onClick={() => toggle('history')} aria-expanded={note === 'history'}>
                 {historyLabel}
               </button>
             )}
           </div>
-          {note === 'orbs' && (
-            <div className="cx-note">
-              <span className="cx-kw">Reading the orbs</span>
-              <div className="cx-legend">
-                <div>
-                  <i className="cx-orb cost">{def.cost}</i>
-                  <span>{HINTS.cost}</span>
-                </div>
-                {def.kind === 'character' ? (
-                  <>
-                    <div>
-                      <i className="cx-orb inf">{def.influence}</i>
-                      <span>{HINTS.influence}</span>
-                    </div>
-                    <div>
-                      <i className="cx-orb">{def.force}</i>
-                      <span>{HINTS.force}</span>
-                    </div>
-                  </>
-                ) : (
-                  <div>
-                    <i className="cx-orb ev">EV</i>
-                    <span>{HINTS.event}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
           {note === 'history' && history && (
             <div className="cx-note">
               <span className="cx-kw">{historyLabel}</span>

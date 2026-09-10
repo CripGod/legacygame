@@ -1,4 +1,5 @@
 import '../compendium.css';
+import { HINTS } from '../tip';
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { CHARACTERS, EVENTS, LOCATIONS, LOCATION_BY_ID, THREATS, type CardDef, type LocationDef, type ThreatDef } from '../../engine';
 import { CardFace } from '../components/CardFace';
@@ -379,6 +380,28 @@ export function CardsScreen({ onBack }: { onBack: () => void }) {
             An illuminated atlas of the whole game: {total} cards, {locations.length} Locations and {THREATS.length} Threats, with the history behind each.
           </p>
         </header>
+
+        <section className="cx-legend-plate cx-framed" aria-label="Reading the orbs">
+          <div className="cx-kicker">Reading the orbs</div>
+          <div className="cx-legend row">
+            <div>
+              <i className="cx-orb cost">3</i>
+              <span>{HINTS.cost}</span>
+            </div>
+            <div>
+              <i className="cx-orb inf">2</i>
+              <span>{HINTS.influence}</span>
+            </div>
+            <div>
+              <i className="cx-orb">1</i>
+              <span>{HINTS.force}</span>
+            </div>
+            <div>
+              <i className="cx-orb ev">EV</i>
+              <span>{HINTS.event}</span>
+            </div>
+          </div>
+        </section>
 
         <nav className="cx-nav" aria-label="Chapters">
           <button className="cx-back" onClick={onBack}>

@@ -833,3 +833,8 @@ body:has(.cx-inner) .tip {
   filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.55));
   margin-bottom: 2px;
 }
+
+/* The orb legend, once, under the title page; the card sheet no longer repeats it. */
+.cx-legend-plate { --fill: linear-gradient(180deg, var(--cx-parch) 0%, var(--cx-parch-2) 100%); padding: 14px clamp(16px, 3vw, 40px) 16px; display: grid; gap: 10px; color: var(--cx-ink); }
+.cx-legend.row { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.cx-legend.row > div { display: flex; align-items: center; gap: 10px; font-size: 14px; line-height: 1.3; }
