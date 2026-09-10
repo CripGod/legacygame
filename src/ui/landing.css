@@ -207,8 +207,8 @@
 /* ---------- The fist bump ---------- */
 /* Two fists, one in each player's colour, come in from either side and meet at the card: only together does it break. */
 .fists { position: absolute; left: 50%; top: 58%; width: 0; height: 0; z-index: 4; pointer-events: none; }
-.fist { position: absolute; top: -50px; width: 120px; height: 100px; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.7)); }
-.fist.left { left: -190px; filter: drop-shadow(0 0 14px rgba(233, 185, 58, 0.8)) drop-shadow(0 6px 10px rgba(0, 0, 0, 0.7)); animation: fist-left 1.2s cubic-bezier(0.3, 0, 0.2, 1) both; }
+.fist { position: absolute; top: -66px; width: 150px; height: 133px; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.7)); }
+.fist.left { left: -220px; filter: drop-shadow(0 0 14px rgba(233, 185, 58, 0.8)) drop-shadow(0 6px 10px rgba(0, 0, 0, 0.7)); animation: fist-left 1.2s cubic-bezier(0.3, 0, 0.2, 1) both; }
 .fist.right { left: 70px; transform: scaleX(-1); filter: drop-shadow(0 0 14px rgba(47, 123, 255, 0.85)) drop-shadow(0 6px 10px rgba(0, 0, 0, 0.7)); animation: fist-right 1.2s cubic-bezier(0.3, 0, 0.2, 1) both; }
 @keyframes fist-left {
   0% { transform: translateX(-60vw) rotate(-10deg); opacity: 0; }

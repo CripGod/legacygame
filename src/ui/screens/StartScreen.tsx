@@ -182,9 +182,13 @@ function useSmallScreen(): boolean {
 }
 
 /** A fist, palm side, knuckles leading; painted in a player's colour. */
+/** The fist mark (supplied art). Knuckles lead to the right; the right-hand fist is mirrored in CSS. */
+const FIST_PATH =
+  'M365.8,395l73.8,2.7-9.7,41.4-48.9-1.6-14.5-27.1-.7-15.4h0ZM483.2,181.1l14.7,30.2,1,37-7,4.9,7.3,4.5,1.7,63.3-7.1,5-16,2.5,5.3,8-17.8,52.3-16-1.1,5.1,10.5-22.7,56.4-163.2,16.3-53.7-37.4-40.7-4.5,44.6-16.2,49.3,28.7,96.6-2.8-44.1-82.5-17.8,11.3,35.9-97.9-127.2,111.5,132.8-169.6-7.7-39,29,30.2,17.4,3.2,9.2-5.7,3.5,24.5,25.4,52.4,24.9.3,11.2-7.3-4.8-66.8-20-41.1-117.7-29.3c-13.8,8.7-27.6,17.4-41.4,26.2l-100.7,112.6-96-44.5,86-2.6,95.9-82.8,58.8-37.1,125,39.5,17.4,35.8,23.7,1.3h0ZM364.9,357.5l3.7-31c27.7,1.5,55.4,2.9,83.1,4.5,4.9,3.9,9.7,7.8,14.6,11.8l-11.9,38c-20.6-1.1-41.2-2.3-61.8-3.4l-27.8-18.8v-1h.1ZM377.7,259.9l23.5.6,12.9,26.6,35.1-.8,15.4-10-.9-15.2,21.3-.4,1.1,51.8c-4,.9-7.9,1.8-11.9,2.7-21.3-1.2-42.7-2.4-64-3.6-12.5-5.5-25-10.9-37.5-16.4l3.5-35.4h1.5ZM463.2,245.9l-2.6-53.4,23.2,11.8.8,42.9h-21.2c0,.1,0-1.3,0-1.3h0Z';
+
 function Fist({ side }: { side: 'left' | 'right' }) {
   return (
-    <svg className={`fist ${side}`} viewBox="0 0 120 100" aria-hidden>
+    <svg className={`fist ${side}`} viewBox="70 90 440 390" aria-hidden>
       <defs>
         <linearGradient id={`fist-${side}`} x1="0" x2="1">
           {side === 'left' ? (
@@ -200,17 +204,7 @@ function Fist({ side }: { side: 'left' | 'right' }) {
           )}
         </linearGradient>
       </defs>
-      <g fill={`url(#fist-${side})`} stroke="rgba(0,0,0,0.55)" strokeWidth="2.5" strokeLinejoin="round">
-        {/* wrist and palm */}
-        <path d="M0 34 H40 Q52 30 62 34 V82 Q62 92 50 92 H0 Z" />
-        {/* four knuckles leading */}
-        <rect x="56" y="30" width="44" height="17" rx="8.5" />
-        <rect x="58" y="47" width="46" height="17" rx="8.5" />
-        <rect x="56" y="64" width="42" height="16" rx="8" />
-        <rect x="52" y="80" width="34" height="13" rx="6.5" />
-        {/* thumb folded over */}
-        <path d="M22 34 Q22 16 38 14 H70 Q84 14 84 27 Q84 36 72 36 H40 Q30 36 26 40 Z" />
-      </g>
+      <path d={FIST_PATH} fill={`url(#fist-${side})`} fillRule="evenodd" stroke="rgba(0,0,0,0.55)" strokeWidth="6" strokeLinejoin="round" />
     </svg>
   );
 }
