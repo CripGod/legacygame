@@ -276,13 +276,6 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - blurb: The Christ of the Black church and of liberation theology: the one who sides with the captive. He never fights, and nothing hostile can act on those who stand with him.
 - history: Mythic (fantasy). The Black Christ is not a new idea: Coptic Ethiopian art depicted him so for centuries, and in the United States the image runs from the Black church's spirituals through Marcus Garvey's African Orthodox Church to James Cone's Black liberation theology of the 1960s, which held that God sides with the oppressed. The card draws on that tradition. He never fights; his power is sanctuary. The abilities are invention.
 
-### The Stroll (`the_stroll`)
-- cost 2 · Influence 2 · Force 1 · gathering · era: Chicago, 1910s–20s
-- established: Everybody's out: your other Established Characters here gain +1 Influence, and your Characters arriving at this Gate are Ready at once.
-- arrives: You have three Characters Established at Great Migration. State Street is out tonight: the Stroll. / button: Continue
-- blurb: State Street from 26th to 39th, the Black Belt's night strip in the 1910s and 20s: theaters, cabarets, and everybody out walking.
-- history: The Stroll was State Street between about 26th and 39th, the heart of Chicago's Black Belt in the 1910s and 1920s. Newcomers from the South found the Pekin Theatre, the Vendome, the Dreamland Café and the Royal Gardens, where King Oliver's band played and a young Louis Armstrong joined in 1922. Langston Hughes remembered South State Street "in its glory then, a teeming Negro street with crowded theaters, restaurants, and cabarets." By the thirties the action had moved south to 47th Street.
-
 ### Chairteenth (`chairteenth`)
 - cost 1 · Influence 1 · Force 3 · gathering · era: Montgomery, 2023
 - established: Your Characters here confront Threats with +1 Force.
@@ -545,6 +538,11 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - rule: The Inkwell: at the end of each turn, each player with 2 or more Characters Inside here gains +1 Energy next turn. Threats never appear here.
 - blurb: Shearer Cottage opened to Black guests in 1912 when the island's hotels would not. A century of summers followed: the Inkwell, the gingerbread cottages, families who came back every August.
 
+### The Stroll (`the_stroll`)
+- era: Chicago, 1910s–20s
+- rule: After dark (even turns) your Characters Inside here gain +1 Influence. By day it is just a street.
+- blurb: State Street from 26th to 39th, the Black Belt's night strip: theaters, cabarets, and everybody out walking.
+
 ## Hints (tap or hover explanations)
 
 - `influence`: Influence: how much this Character counts toward controlling its Location. Gate and Inside Characters both count.
@@ -623,6 +621,8 @@ raf = requestAnimationFrame(tick);
 raf = requestAnimationFrame(tick);
 cancelAnimationFrame(raf);
 window.removeEventListener('resize', resize);
+mobVisits.current += 1;
+setMobState('up');
 el.style.setProperty('--mx', x.toFixed(3));
 el.style.setProperty('--my', y.toFixed(3));
 window.addEventListener('pointermove', onMove, …);
@@ -748,6 +748,7 @@ Main menu
 ### src/ui/screens/MatchScreen.tsx
 
 - Last turn unless someone stands
+- (prefers-reduced-motion: reduce)
 - moves with ${cardName(pl.cardId, placeholders)}
 - That is the move. Press Lock It In.
 - That works too. Or ${guide.text.charAt(0).toLowerCase()}${guide.text.slice(1)}
@@ -809,7 +810,6 @@ Main menu
 - Drag a card onto a Location.
 - Sit Down${opts.canStepOff && view.phase !== 'ended' ? 
 - replay-banner kind-${step.kind}
-- Tutorial · ${tutIdx + 1} of ${lessons.length}
 - What happened last turn, step by step.
 - danger ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}
 - primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${doing?.lock ? 'ftue-flash' : ''}
@@ -821,6 +821,10 @@ Main menu
 - turn-mini ${finalTurnLabel(view) ? 'final' : ''}
 - T${Math.min(view.turn, view.maxTurns)}/${view.maxTurns}
 - Sitting down surrenders the match. ${view.players[other(me)].handle} wins ${opts.stepOffCost} Legacy.${raisedOnMe ? 
+- rep-readout ${n > 0 ? 'live' : ''}
+- Nothing owed yet. Every Setback you suffer from here on adds +1 (up to +4).
+- Played now: +${base} lasting Influence at the Location you choose${base < n ? ' (the cap is 4)' : ''}, and +1 more in the Americas${americas.length ? 
+-  : ''}. It counts at the end no matter when you play it.
 
 ### src/ui/components/Sheets.tsx
 
@@ -1348,7 +1352,8 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 
 - hand-wrap ${dropState === 'ok' ? 'drop-ok' : ''} ${dropState === 'over' ? 'drop-ok drop-over' : ''}
 - rotate(${rot}deg) translateY(${sel ? -26 : ty}px) scale(${sel ? 1.08 : 1})
-- card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''} ${glow === id ? 'ftue-flash' : ''} ${dealt >= 0 ? 'dealt' : ''} ${energyLeft !== undefined && cardCost(id, view, me) > energyLeft ? 'unaffordable' : ''}
+- card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''} ${(Array.isArray(glow) ? glow.includes(id) : glow === id) ? 'ftue-flash' : ''} ${dealt >= 0 ? 'dealt' : ''} ${energyLeft !== undefined && cardCost(id, view, me) > energyLeft ? 'unaffordable' : ''} ${id === 'reparations' && view.players[me].setbacks > 0 ? 'reparations-live' : ''}
+- ${view.players[me].setbacks} Setback${view.players[me].setbacks === 1 ? '' : 's'}
 
 ### src/ui/components/Hud.tsx
 

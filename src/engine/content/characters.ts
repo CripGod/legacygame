@@ -1015,37 +1015,6 @@ CHARACTERS.push(...MYTHIC);
 const GATHERINGS: CharacterDef[] = [
   {
     kind: 'character',
-    id: 'the_stroll',
-    cost: 2,
-    category: 'gathering',
-    name: 'The Stroll',
-    short: 'Stroll',
-    summary: 'Your other Established here get +1 Influence; arrivals are Ready.',
-    influence: 2,
-    force: 1,
-    tags: ['Gathering', 'Community', 'Chicago'],
-    keywords: [],
-    established: {
-      text: 'Everybody\'s out: your other Established Characters here gain +1 Influence, and your Characters arriving at this Gate are Ready at once.',
-      effect: { type: 'cookout', amount: 1 },
-    },
-    spawn: {
-      type: 'establishedAt',
-      locationId: 'great_migration',
-      count: 3,
-      chance: 0.5,
-      unique: true,
-      headline: 'You have three Characters Established at Great Migration. State Street is out tonight: the Stroll.',
-      cta: 'Continue',
-    },
-    identity: ['community', 'welcome', 'joy'],
-    era: 'Chicago, 1910s–20s',
-    blurb: 'State Street from 26th to 39th, the Black Belt\'s night strip in the 1910s and 20s: theaters, cabarets, and everybody out walking.',
-    history:
-      'The Stroll was State Street between about 26th and 39th, the heart of Chicago\'s Black Belt in the 1910s and 1920s. Newcomers from the South found the Pekin Theatre, the Vendome, the Dreamland Café and the Royal Gardens, where King Oliver\'s band played and a young Louis Armstrong joined in 1922. Langston Hughes remembered South State Street "in its glory then, a teeming Negro street with crowded theaters, restaurants, and cabarets." By the thirties the action had moved south to 47th Street.',
-  },
-  {
-    kind: 'character',
     id: 'chairteenth',
     cost: 1,
     category: 'gathering',

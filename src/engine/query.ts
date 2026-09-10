@@ -129,6 +129,7 @@ export function charInfluence(state: GameState, c: CharacterInstance): number {
   }
   if (c.zone === 'inside') {
     if (ldef?.effect.type === 'insideInfluence') v += ldef.effect.amount;
+    if (ldef?.effect.type === 'nightInside' && isNight(state)) v += ldef.effect.amount;
     for (const d of hasEstablished(state, c.owner, c.location, 'auraInfluenceOthersHere')) {
       if (d.uid !== c.uid) v += amountOf(d);
     }

@@ -436,35 +436,6 @@ describe('locations', () => {
 });
 
 describe('gatherings', () => {
-  it('The Stroll arrives at Great Migration once you have three Established there (in the matches it exists), and feeds them', () => {
-    let s = rig(createMatch({ seed: 2 }), { locations: ['great_migration', 'gary_indiana', 'greenwood'], revealAll: true, handA: ['og', 'organizer', 'zora_neale_hurston'] });
-    s.spawnRolls.the_stroll = true;
-    addChar(s, 'alonzo_herndon', 'A', 0, 'inside');
-    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'og', location: 0 }] }, B: pass() }).state;
-    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'organizer', location: 0 }] }, B: pass() }).state;
-    const og = Object.values(s.characters).find((c) => c.defId === 'og')!;
-    for (const l of s.locations) l.threats = []; // a random Threat must not block the entries this test is about
-    s = resolveTurn(s, { A: { ...pass(), enters: [og.uid] }, B: pass() }).state;
-    expect(Object.values(s.characters).some((c) => c.defId === 'the_stroll')).toBe(false);
-    const org = Object.values(s.characters).find((c) => c.defId === 'organizer')!;
-    for (const l of s.locations) l.threats = [];
-    const out = resolveTurn(s, { A: { ...pass(), enters: [org.uid] }, B: pass() });
-    const cookout = Object.values(out.state.characters).find((c) => c.defId === 'the_stroll');
-    expect(cookout).toBeDefined();
-    expect(cookout!.owner).toBe('A');
-    expect(cookout!.zone).toBe('inside');
-    expect(out.events.some((e) => e.type === 'spawned' && e.cardId === 'the_stroll')).toBe(true);
-    expect(out.state.players.A.spawned).toContain('the_stroll');
-    // +1 Influence to the other three Established Characters here, and the Stroll is on home ground (+1).
-    expect(influenceAt(out.state, 0).A).toBe(charDef('og').influence + charDef('organizer').influence + charDef('alonzo_herndon').influence + charDef('the_stroll').influence + 3 + 1);
-    // In the other half of matches it never comes.
-    const dry = structuredClone(s);
-    dry.spawnRolls.the_stroll = false;
-    expect(Object.values(resolveTurn(dry, { A: { ...pass(), enters: [org.uid] }, B: pass() }).state.characters).some((c) => c.defId === 'the_stroll')).toBe(false);
-    // Only once per match.
-    const again = resolveTurn(out.state, { A: pass(), B: pass() }).state;
-    expect(Object.values(again.characters).filter((c) => c.defId === 'the_stroll')).toHaveLength(1);
-  });
   it('Chairteenth arrives Ready at both players\' Gates when Montgomery reveals', () => {
     const s = rig(createMatch({ seed: 2 }), { locations: ['montgomery', 'gary_indiana', 'greenwood'] });
     s.spawnRolls.chairteenth = true;
@@ -838,7 +809,7 @@ describe('AI vs AI smoke', () => {
     }
   });
   it('all pool Locations are defined', () => {
-    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(14);
+    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(15);
   });
 });
 
@@ -1509,5 +1480,18 @@ describe('Tom Bass', () => {
     expect(opts.relocations.some((r) => r.uid === harriet.uid)).toBe(true);
     // The plan is refused too.
     expect(validatePlan(s, 'B', { ...pass(), relocations: [{ uid: held.uid, to: 1 }] }).length).toBeGreaterThan(0);
+  });
+});
+
+describe('The Stroll', () => {
+  it('lights up after dark: +1 Influence Inside on even turns only', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['the_stroll', 'gary_indiana', 'greenwood'], revealAll: true });
+    const inside = addChar(s, 'og', 'A', 0, 'inside');
+    const gate = addChar(s, 'organizer', 'A', 0, 'gate');
+    s.turn = 2;
+    expect(charInfluence(s, inside)).toBe(charDef('og').influence + 1);
+    expect(charInfluence(s, gate)).toBe(charDef('organizer').influence);
+    s.turn = 3;
+    expect(charInfluence(s, inside)).toBe(charDef('og').influence);
   });
 });

@@ -154,6 +154,18 @@ export const LOCATIONS: LocationDef[] = [
     region: 'americas',
     weight: 0.9,
   },
+  {
+    id: 'the_stroll',
+    name: 'The Stroll',
+    era: 'Chicago, 1910s–20s',
+    rule: 'After dark (even turns) your Characters Inside here gain +1 Influence. By day it is just a street.',
+    blurb: "State Street from 26th to 39th, the Black Belt's night strip: theaters, cabarets, and everybody out walking.",
+    history:
+      "The Stroll was State Street between about 26th and 39th, the heart of Chicago's Black Belt in the 1910s and 1920s. Newcomers from the South found the Pekin Theatre, the Vendome, the Dreamland Café and the Royal Gardens, where King Oliver's band played and a young Louis Armstrong joined in 1922. Langston Hughes remembered South State Street \"in its glory then, a teeming Negro street with crowded theaters, restaurants, and cabarets.\" By the thirties the action had moved south to 47th Street.",
+    effect: { type: 'nightInside', amount: 1 },
+    region: 'americas',
+    weight: 0.9,
+  },
 ];
 
 export const UNKNOWN_LOCATION: LocationDef = {
