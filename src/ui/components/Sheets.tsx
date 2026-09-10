@@ -68,6 +68,7 @@ export function CardSheet({
   sendTo,
   planned,
   onCancelPlay,
+  extra,
 }: {
   id: string;
   onClose: () => void;
@@ -75,6 +76,8 @@ export function CardSheet({
   sendTo?: { options: { index: number; label: string }[]; needsLocation: boolean; onSend: (index: number) => void };
   planned?: boolean;
   onCancelPlay?: () => void;
+  /** A live readout for cards that track the match (Reparations: what it would pay right now). */
+  extra?: React.ReactNode;
 }) {
   const { placeholders } = useDisplay();
   return (
@@ -82,6 +85,7 @@ export function CardSheet({
       <div className="row" style={{ justifyContent: 'center' }}>
         <CardFace id={id} big />
       </div>
+      {extra}
       <HistoryNote id={id} />
       {planned && (
         <div className="actions">

@@ -79,13 +79,13 @@ export function Hand({
             <div
               key={`${id}-${i}`}
               data-hand-card={id}
-              className={`card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''} ${(Array.isArray(glow) ? glow.includes(id) : glow === id) ? 'ftue-flash' : ''} ${dealt >= 0 ? 'dealt' : ''} ${energyLeft !== undefined && cardCost(id, view, me) > energyLeft ? 'unaffordable' : ''}`}
+              className={`card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''} ${(Array.isArray(glow) ? glow.includes(id) : glow === id) ? 'ftue-flash' : ''} ${dealt >= 0 ? 'dealt' : ''} ${energyLeft !== undefined && cardCost(id, view, me) > energyLeft ? 'unaffordable' : ''} ${id === 'reparations' && view.players[me].setbacks > 0 ? 'reparations-live' : ''}`}
               {...dp}
               style={style}
               onClick={() => onSelect(id)}
               onDoubleClick={() => onInspect(id)}
             >
-              <CardFace id={id} cost={cardCost(id, view, me)} costWhy={costBreakdown(view, me, id)} />
+              <CardFace id={id} cost={cardCost(id, view, me)} costWhy={costBreakdown(view, me, id)}  note={id === 'reparations' && view.players[me].setbacks > 0 ? `${view.players[me].setbacks} Setback${view.players[me].setbacks === 1 ? '' : 's'}` : undefined} />
             </div>
           );
         })}

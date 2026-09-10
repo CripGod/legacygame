@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CARD_BY_ID, legalOptions, validatePlan, gateRoom, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, planCost, cardCost, filterEvents } from '../../engine';
+import { CARD_BY_ID, legalOptions, validatePlan, gateRoom, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, planCost, cardCost, filterEvents, LOCATION_BY_ID } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight } from '../components/Battlefield';
@@ -881,6 +881,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         <CardSheet
           id={sheet.id}
           onClose={() => setSheet(null)}
+          extra={sheet.id === 'reparations' ? <ReparationsReadout view={view} me={me} placeholders={placeholders} /> : undefined}
           planned={plan.plays.some((pl) => pl.cardId === sheet.id)}
           onCancelPlay={() => {
             setPlan((p) => ({ ...p, plays: p.plays.filter((pl) => pl.cardId !== sheet.id) }));
@@ -969,6 +970,25 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       {clashes.length === 0 && showdowns.length > 0 && sheetsOk && <ShowdownSheet ev={showdowns[0]} view={view} me={me} onClose={() => setShowdowns((s) => s.slice(1))} />}
       {clashes.length === 0 && showdowns.length === 0 && fanfare.length > 0 && sheetsOk && view.phase !== 'ended' && <SpawnSheet ev={fanfare[0]} view={view} me={me} onClose={() => setFanfare((f) => f.slice(1))} />}
       {view.phase === 'ended' && !busy && !peek && clashes.length === 0 && showdowns.length === 0 && <TallySheet view={view} me={me} onResult={onExit} onBoard={() => setPeek(true)} />}
+    </div>
+  );
+}
+
+/** What Reparations would pay if played now: Setbacks so far (max 4), plus one in the Americas. */
+function ReparationsReadout({ view, me, placeholders }: { view: GameState; me: PlayerId; placeholders: boolean }) {
+  const n = view.players[me].setbacks;
+  const base = Math.min(4, n);
+  const americas = view.locations.filter((l) => l.revealed && LOCATION_BY_ID[l.defId]?.region === 'americas').map((l) => locationName(l.defId, placeholders));
+  return (
+    <div className={`rep-readout ${n > 0 ? 'live' : ''}`}>
+      <div className="rep-count">
+        <b>{n}</b> Setback{n === 1 ? '' : 's'} so far
+      </div>
+      <div>
+        {n === 0
+          ? 'Nothing owed yet. Every Setback you suffer from here on adds +1 (up to +4).'
+          : `Played now: +${base} lasting Influence at the Location you choose${base < n ? ' (the cap is 4)' : ''}, and +1 more in the Americas${americas.length ? ` (${americas.join(', ')})` : ''}. It counts at the end no matter when you play it.`}
+      </div>
     </div>
   );
 }

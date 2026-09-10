@@ -30,7 +30,7 @@ function nameSize(name: string): string {
 }
 
 /** Full collectible card (hand, inspection). Always a 5:7 rigid rectangle. */
-export function CardFace({ id, big = false, onClick, cost, costWhy }: { id: string; big?: boolean; onClick?: () => void; /** Cost right now, after discounts (defaults to the printed cost). */ cost?: number; costWhy?: string[] }) {
+export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id: string; big?: boolean; onClick?: () => void; /** Cost right now, after discounts (defaults to the printed cost). */ cost?: number; costWhy?: string[]; /** A live chip over the art (Reparations: the Setback count). */ note?: string }) {
   const { placeholders } = useDisplay();
   const def = CARD_BY_ID[id];
   if (!def) return null;
@@ -57,6 +57,7 @@ export function CardFace({ id, big = false, onClick, cost, costWhy }: { id: stri
       )}
       <div className="card-art" style={{ background: hueFor(id) }}>
         {placeholders ? <span className="ini">{initials(id, true)}</span> : <Art kind={isChar ? 'characters' : 'events'} id={id} className="portrait-img" fallback={<span className="ini">{initials(id, false)}</span>} alt={def.name} />}
+        {note && <span className="card-note">{note}</span>}
       </div>
       <div className="card-body">
         <div className={`name ${nameSize(cardName(id, placeholders))}`}>{cardName(id, placeholders)}</div>
