@@ -72,8 +72,9 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 - `dewolf_trade` **The DeWolf Trade**: The DeWolfs of Bristol, Rhode Island, ran more slaving voyages than any family in American history: about ninety between 1769 and 1820, some ten thousand people. James DeWolf kept at it after the 1808 ban, sat in the United States Senate, and died one of the richest men in the country.
 
-### locations (7)
+### locations (8)
 
+- `anansis_web` **Anansi's Web** (Every story, at once): Anansi bought every story in the world from the sky god with nothing but wit. Where his web is spun, the little ones win.
 - `middle_passage` **The Middle Passage** (Atlantic, 1526–1867): Twelve and a half million people were carried across the Atlantic in chains. Nearly two million did not survive the voyage.
 - `charleston_1822` **Charleston, 1822** (South Carolina, 1822): Denmark Vesey's rising was set for July. Two informants ended it in June, and thirty-five people hanged.
 - `justice_system` **The Justice System** (1865–): The Thirteenth Amendment kept one exception, "as a punishment for crime." Convict leasing, chain gangs and mass incarceration have run on it ever since.

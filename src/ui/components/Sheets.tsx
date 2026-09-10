@@ -16,6 +16,7 @@ import {
   type TurnPlan,
 } from '../../engine';
 import { cardName, initials, locationName, threatLabel, useDisplay, spawnText } from '../display';
+import { RECONSTRUCTION_TURNS } from '../../engine/types';
 import { CardFace } from './CardFace';
 import { CodexSheet } from './CodexSheet';
 import { liveAbilities } from './Battlefield';
@@ -159,7 +160,8 @@ export function LocationSheet({ view, index, onClose }: { view: GameState; index
       {loc.revealed && def.transformsInto && loc.revealedTurn !== undefined && (
         <div className="pA">⛵ Arrives in {Math.max(0, loc.revealedTurn + def.transformsInto.afterTurns - view.turn)} turn(s) as {LOCATION_BY_ID[def.transformsInto.id]?.name}.</div>
       )}
-      {loc.lost && <div style={{ color: 'var(--danger)' }}>LOST: {loc.lostReason ?? 'an unresolved crisis.'} Neither player can win this Location; its Influence no longer counts toward the match.</div>}
+      {loc.lost && <div style={{ color: 'var(--danger)' }}>LOST: {loc.lostReason ?? 'an unresolved crisis.'} Neither player can win this Location; its Influence no longer counts toward the match. The people who stayed rebuild it in {Math.max(1, (loc.lostTurn ?? view.turn) + RECONSTRUCTION_TURNS - view.turn)} turn(s).</div>}
+      {!loc.lost && loc.rebuilt && <div className="pA">🔨 Rebuilt on Turn {loc.rebuiltTurn}: it was Lost, and the people who stayed put it back up. Back in play, everyone who stayed one Influence stronger.</div>}
       {(['A', 'B'] as PlayerId[]).map((p) => {
         const items = liveAbilities(view, index, p);
         if (!items.length) return null;

@@ -9,7 +9,7 @@
  */
 import { charDef, cardDef, eventDef, LOCATION_BY_ID, THREAT_BY_ID, SUMMON, EVENTS, CARD_BY_ID } from './content';
 import { nextFloat, pick } from './rng';
-import { drawCard, locName, spawnThreat, startTurn } from './setup';
+import { drawCard, locName, spawnThreat, startTurn, retellLocation } from './setup';
 import {
   charsAt,
   charsOf,
@@ -544,6 +544,16 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
         clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, target, 'suppressed', loc, { note: 'Her Reveal picks the opposing Established Character here with the highest Influence.' });
       } else {
         say('no opposing Established Character to suppress.');
+      }
+      break;
+    }
+    case 'retellLocation': {
+      drawCard(state, p, events);
+      const into = LOCATION_BY_ID[eff.into];
+      if (retellLocation(state, loc, eff.into, events)) {
+        say(`draws a card and retells this Location: it is now ${into?.name ?? eff.into}.`);
+      } else {
+        say(state.locations[loc].defId === eff.into ? 'draws a card. This story is already his.' : 'draws a card. This story is not his to retell.');
       }
       break;
     }
@@ -1254,8 +1264,9 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
 
   trace('summon', 'Summon', {});
 
-  // Threat actions.
+  // Threat actions. A Lost Location's Threats have done their work: they lie dormant until the people rebuild it.
   for (const loc of state.locations) {
+    if (loc.lost) continue;
     for (const t of loc.threats.slice()) {
       const def = THREAT_BY_ID[t.defId];
       if (def.effect === 'zeroGateInfluence') {
@@ -1295,6 +1306,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
         }
         if (def.lostAfterTurns && state.turn - t.spawnedTurn + 1 >= def.lostAfterTurns && !loc.lost && !loc.sanctified) {
           loc.lost = true;
+          loc.lostTurn = state.turn;
           loc.lostReason = `${def.name} went unanswered for ${def.lostAfterTurns} turns (it needed ${t.forceRequired} Force in one turn, from either player or both).`;
           events.push({ type: 'locationLost', text: `${locName(state, loc.index)} is LOST: ${loc.lostReason} Neither player can win it.`, location: loc.index });
           if (loc.pactFailed) {

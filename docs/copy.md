@@ -228,7 +228,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Anansi (`anansi`)
 - cost 1 · Influence 2 · Force 1 · mythic · era: Akan, timeless
-- reveal: Draw a card. The opposing Ready Gate Character here with the highest Influence is tricked into waiting again (it becomes Fresh).
+- reveal: Draw a card. Retell this Location as Anansi's Web: Characters that cost 1 or less gain +2 Influence here and Characters that cost 3 or more lose 1, for both players. Threats stay, and a Mob that was coming still comes.
 - established: Whenever your opponent plays a Character at this Location, draw a card.
 - blurb: The spider who bought all the stories in the world from the sky god with wit alone, and carried them across the Atlantic in the holds of slave ships.
 - history: Mythic (fantasy). Anansi is the spider trickster of the Akan people of Ghana and Côte d'Ivoire, the keeper of all stories, which he won from the sky god Nyame by trapping a python, a leopard, hornets and a fairy with wit alone. Enslaved Akan people carried the tales across the Atlantic, where he became Anancy in Jamaica, Nancy in the Carolina Sea Islands and Aunt Nancy in the American South. The card's abilities are invention in his spirit.
@@ -483,6 +483,11 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - rule: The Black Star has landed. Characters relocated here arrive Ready, and Threats cannot appear here.
 - blurb: On 6 March 1957 Kwame Nkrumah raised a flag with a black star at its centre, in Garvey's honour, and named the new nation's shipping line the Black Star Line.
 
+### Anansi's Web (`anansis_web`)
+- era: Every story, at once
+- rule: The small against the large: Characters that cost 1 or less gain +2 Influence here, and Characters that cost 3 or more lose 1. Only Anansi can spin this Location.
+- blurb: Anansi bought every story in the world from the sky god with nothing but wit. Where his web is spun, the little ones win.
+
 ### Great Migration (`great_migration`)
 - era: 1916–1970
 - rule: The first Character relocated here each turn enters immediately.
@@ -547,7 +552,8 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 - `influence`: Influence: how much this Character counts toward controlling its Location. Gate and Inside Characters both count.
 - `force`: Force: strength when confronting Threats or answering a challenge. Force never attacks players directly.
-- `finalTurn`: Last scheduled turn. A Stand on Business now adds an 8th turn; otherwise whatever stands after this one is counted: two Locations of three, then total Influence, then total Force.
+- `rebuilt`: Rebuilt: this Location was Lost, and the people who stayed put it back up. It is back in play, and everyone who stayed gained +1 Influence.
+- `finalTurn`: Last scheduled turn. A Stand on Business now adds a 10th turn; otherwise whatever stands after this one is counted: two Locations of three, then total Influence, then total Force.
 - `dayNight`: This Location has a curfew. Odd turns are day, even turns are night: at night nobody relocates out until morning. Harriet Tubman is the only one who can move a Character out.
 - `locked`: Held here: cannot relocate out. A curfew at night, or The Justice System. Harriet Tubman can still move them.
 - `informant`: Informant: a Character played onto the other side's Gates. It is theirs, its Influence counts against them there, it never becomes Ready and never enters. Relocate it, slide it with Robert Smalls, or dump it at Charleston, 1822, where it is found out and sent back to the planter's hand.
@@ -566,7 +572,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - `line`: The Influence Line: leans toward whoever leads. Lead at two of three Locations after the final turn to win.
 - `energy`: Energy: the crystals up here are what you can spend on cards this turn. You get one more each turn (Turn 3 = 3), Organizer adds one, and unspent Energy does not carry over. Lit crystals are still unspent; dim ones are spent; hollow ones come on later turns.
 - `cost`: Cost: the Energy this card takes to play. Energy equals the turn number, so expensive cards wait for later turns, unless something brings the price down: a green cost means a discount is on right now.
-- `stakes`: Legacy: what the match is worth. Stand on Business doubles it (1 → 2 → 4) one turn later, adds an 8th turn, and means you cannot Sit Down. The other side gets one turn to Sit Down at the old price.
+- `stakes`: Legacy: what the match is worth. Stand on Business doubles it (1 → 2 → 4) one turn later, adds a 10th turn, and means you cannot Sit Down. The other side gets one turn to Sit Down at the old price.
 - `stakesPending`: Someone Stood on Business. The raise lands after this turn: Sit Down now to lose only the current Legacy.
 - `timer`: Planning timer. At zero your current plan locks automatically.
 - `noStepOff`: You Stood on Business. There is no backing out of this match.
@@ -672,7 +678,7 @@ In-match: the ⚙ button opens AI reasoning, analytics and the event log. Also e
 ← Back
 Rules
 ### The match
-- Two players, three Locations, seven turns (an 8th if someone Stands on Business), 18-card decks. Four-card opening hand and one draw every turn. Hands hold at most seven cards: a draw into a full hand is discarded.
+- Two players, three Locations, nine turns (a 10th if someone Stands on Business), 22-card decks. Four-card opening hand and one draw every turn. Hands hold at most seven cards: a draw into a full hand is discarded.
 - Both players plan at the same time, then Lock It In. Two minutes per turn.
 - Win Influence at two of the three Locations to win the match.
 ### Playing Characters
@@ -694,7 +700,7 @@ Rules
 - Once per turn you may Relocate a Character to another Location's Gates. From Inside it arrives Fresh and waits again, unless an ability says otherwise. From the Gates it keeps its Ready status: a Ready Character waiting at the Gates is a flex piece you can commit late, wherever the fight turns out to be. The Inside is the committed zone; the Gates are the mobile one.
 - Threats and abilities can Displace Characters against their will.
 ### Threats
-- Threats are neutral dangers generated by Locations and by history moving on Turn 3 (and, most matches, again on Turn 5). Tap a Threat to commit Characters' Force against it.
+- Threats are neutral dangers generated by Locations and by history moving on Turn 3 (and, most matches, again on Turn 5 and Turn 7). A Location that is Lost to a Threat is not gone for good: two turns later the people who stayed rebuild it, and it is back in play with everyone there one Influence stronger. Tap a Threat to commit Characters' Force against it.
 - Some Threats come one per player. Once yours is gone you may Assist against your opponent's, earning Solidarity (cosmetic only).
 - A Setback is a loss suffered at the hands of injustice: a Threat or a hostile Location working against you. Your opponent's cards never cause one. Reparations converts Setbacks into lasting Influence on a Location; it counts at the end no matter when you play it.
 - Unresolved crises can make a Location Lost: nobody wins it.
@@ -713,7 +719,7 @@ Rules
 - If the Summon fails and that Location is later Lost, both players lose 1 Influence at each of their other Locations. A broken pact costs everyone.
 - Mythic content is fantasy drawn from real traditions; the abilities are invention.
 ### Legacy
-- Matches start at 1 Legacy. Either player may Stand on Business once to double it (1 → 2, then 2 → 4). Standing adds an 8th turn, and whoever stood can no longer Sit Down.
+- Matches start at 1 Legacy. Either player may Stand on Business once to double it (1 → 2, then 2 → 4). Standing adds a 10th turn, and whoever stood can no longer Sit Down.
 - A Stand is part of your hidden plan and lands one turn later. The other player is never forced to answer: they get a full turn to Sit Down for the old Legacy, keep playing at the new Legacy, or Stand back and double it again.
 - Sit Down is surrender at the current Legacy. Sitting down during the grace turn is the cheap exit.
 ### Resolution order
@@ -756,7 +762,7 @@ Main menu
 - relocates to ${view.locations[r.to].revealed ? locationName(view.locations[r.to].defId, placeholders) : 
 - That is the move. Press Lock It In.
 - That works too. Or ${guide.text.charAt(0).toLowerCase()}${guide.text.slice(1)}
-- Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds an 8th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.
+- Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds a 10th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.
 - Not enough Energy. ${cardName(play.cardId, placeholders)} costs ${cost} and you have ${opts.energy - spent} left of ${opts.energy} this turn (Energy = the turn number). Remove a planned card or wait a turn.
 - ${cardName(play.cardId, placeholders)} goes Inside right away (Direct Entry). Tap ⇅ on the planned move to wait at the Gates instead.
 - ${cardName(play.cardId, placeholders)} planned. Optional: drag one of your Gate Characters to another Location's Gates and she moves it there for free.
@@ -1427,6 +1433,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - the opposing Characters here cannot be Suppressed.
 - suppresses ${charDef(target.defId).name} until the end of next turn.
 - no opposing Established Character to suppress.
+- draws a card and retells this Location: it is now ${into?.name ?? eff.into}.
 - draws a card and tricks ${charDef(target.defId).name} into waiting again.
 - draws a card.
 - ${charDef(best.defId).name} gains +${eff.amount} Influence permanently.
@@ -1509,12 +1516,15 @@ Template fields in `${...}` are filled in by the game. Keep them.
 
 - ${ps.handle}'s hand is full (${MAX_HAND}): ${CARD_BY_ID[card]?.name ?? card} is discarded.
 - ${def.name} appears at ${locName(state, location)}.
+- Anansi retells ${from?.name ?? 'the Location'}: it is now ${into.name}.
 - ${from?.name ?? 'The Location'} arrives: it is now ${into.name}.
 - ${THREAT_BY_ID[t.defId]?.name ?? 'The Threat'} at ${into.name} is left behind.
 - Everyone aboard gains +1 Influence (${aboard.length} Character${aboard.length > 1 ? 's' : ''}).
 - ${CHARACTER_BY_ID[c.defId]?.name ?? c.defId} (${state.players[p].handle}) walks straight into ${into.name}.
 - Turn ${state.turn} begins.
 - ${state.players[p].handle} draws a card.
+- ${THREAT_BY_ID[t.defId]?.name ?? 'The Threat'} at ${locName(state, loc.index)} has moved on.
+- ${locName(state, loc.index)} is REBUILT: the people who stayed put it back up. It is back in play${stayed.length ? 
 
 ### src/engine/query.ts
 

@@ -132,7 +132,7 @@ const TIPS: { key: string; when: (c: Ctx) => string | null }[] = [
       if (c.v.turn < 5 || c.v.players[c.me].standUsed || c.plan.standOnBusiness) return null;
       const ahead = c.v.locations.filter((l) => l.revealed && !l.lost && lead(c, l.index) > 0);
       if (ahead.length < 2) return null;
-      return `You lead ${ahead.length} of 3. Stand on Business doubles the Legacy and adds an 8th turn; Harborlight gets one turn to Sit Down at the old price. Once you stand, you cannot Sit Down.`;
+      return `You lead ${ahead.length} of 3. Stand on Business doubles the Legacy and adds a 10th turn; Harborlight gets one turn to Sit Down at the old price. Once you stand, you cannot Sit Down.`;
     },
   },
   {

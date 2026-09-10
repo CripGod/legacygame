@@ -429,6 +429,7 @@ export function Battlefield(props: BattlefieldProps) {
                 )}
                 {loc.revealed && !placeholders && <span className="era-tag">{def.era}</span>}
                 {loc.lost && <span className="lost-tag">LOST</span>}
+                {!loc.lost && loc.rebuilt && <span className="lost-tag rebuilt" {...tip(HINTS.rebuilt)}>REBUILT</span>}
                 {!loc.lost && loc.revealed && curfewOn(view, loc.index) && <span className="lost-tag curfew" {...tip(HINTS.locked)}>CURFEW</span>}
                 {!loc.lost && hasCurfew && !curfewOn(view, loc.index) && <span className="lost-tag daytag" {...tip(HINTS.dayNight)}>☀ DAY</span>}
                 {!loc.lost && nightHere && <span className="lost-tag nighttag" {...tip(HINTS.dayNight)}>🌙 NIGHT</span>}

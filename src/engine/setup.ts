@@ -2,7 +2,7 @@ import { makeRng, shuffle, nextInt, nextFloat, pick, hashSeed } from './rng';
 import { CHARACTERS, EVENTS, LOCATIONS, PRESET_DECKS, randomDeck, validateDeck, THREAT_BY_ID, RANDOM_THREAT_POOL, LOCATION_BY_ID, CHARACTER_BY_ID } from './content';
 import type { GameState, PlayerId, PlayerState, LocationState, GameEvent, ThreatInstance } from './types';
 import { CARD_BY_ID } from './content';
-import { STARTING_HAND, PLAYERS, TURNS, MAX_HAND } from './types';
+import { STARTING_HAND, PLAYERS, TURNS, MAX_HAND, RECONSTRUCTION_TURNS } from './types';
 
 export interface MatchOptions {
   seed: number;
@@ -142,9 +142,11 @@ export function drawCard(state: GameState, p: PlayerId, events?: GameEvent[]): s
   return card;
 }
 
-/** Turn 5: a second random Threat arrives in this share of matches. */
+/** Turn 5: a second random Threat arrives in this share of matches; Turn 7: a third, in this share. */
 export const SECOND_WAVE_TURN = 5;
 export const SECOND_WAVE_CHANCE = 0.6;
+export const THIRD_WAVE_TURN = 7;
+export const THIRD_WAVE_CHANCE = 0.75;
 
 export function spawnThreat(state: GameState, location: number, threatId: string, events: GameEvent[]): void {
   const def = THREAT_BY_ID[threatId];
@@ -175,6 +177,22 @@ export function spawnThreat(state: GameState, location: number, threatId: string
     location,
     data: { threatId },
   });
+}
+
+/**
+ * Anansi retells a Location: it becomes another story (Anansi's Web). Characters, Influence and Threats stay where
+ * they are; a timed Threat the old story had not yet delivered (Greenwood's Mob) still comes.
+ */
+export function retellLocation(state: GameState, index: number, intoId: string, events: GameEvent[]): boolean {
+  const loc = state.locations[index];
+  const from = LOCATION_BY_ID[loc.defId];
+  const into = LOCATION_BY_ID[intoId];
+  if (!into || !loc.revealed || loc.lost || loc.defId === intoId) return false;
+  if (from?.timedThreat && from.timedThreat.turn > state.turn && !loc.threats.some((t) => t.defId === from.timedThreat!.threatId)) loc.pendingTimedThreat = from.timedThreat;
+  loc.defId = intoId;
+  loc.revealedTurn = state.turn;
+  events.push({ type: 'locationTransformed', text: `Anansi retells ${from?.name ?? 'the Location'}: it is now ${into.name}.`, location: index, data: { from: from?.id, to: intoId, retold: true } });
+  return true;
 }
 
 export function locName(state: GameState, index: number): string {
@@ -233,6 +251,19 @@ export function startTurn(state: GameState, events: GameEvent[]): void {
     state.players[p].defendedTurn = undefined;
     state.players[p].chairLocation = undefined;
   }
+  // Reconstruction: a Lost Location comes back when the people who stayed rebuild it.
+  for (const loc of state.locations) {
+    if (!loc.lost || loc.lostTurn === undefined || state.turn - loc.lostTurn < RECONSTRUCTION_TURNS) continue;
+    loc.lost = false;
+    loc.lostReason = undefined;
+    loc.rebuilt = true;
+    loc.rebuiltTurn = state.turn;
+    for (const t of loc.threats) events.push({ type: 'threatNeutralized', text: `${THREAT_BY_ID[t.defId]?.name ?? 'The Threat'} at ${locName(state, loc.index)} has moved on.`, location: loc.index, data: { threatUid: t.uid, defId: t.defId, target: t.target } });
+    loc.threats = [];
+    const stayed = Object.values(state.characters).filter((c) => c.location === loc.index && !CHARACTER_BY_ID[c.defId]?.keywords.includes('INFORMANT'));
+    for (const c of stayed) c.permInfluence += 1;
+    events.push({ type: 'locationRebuilt', text: `${locName(state, loc.index)} is REBUILT: the people who stayed put it back up. It is back in play${stayed.length ? `, and everyone here gains +1 Influence (${stayed.length} Character${stayed.length > 1 ? 's' : ''})` : ''}.`, location: loc.index, data: { stayed: stayed.length } });
+  }
   for (const loc of state.locations) {
     const before = LOCATION_BY_ID[loc.defId];
     if (loc.revealed && !loc.lost && before?.transformsInto && loc.revealedTurn !== undefined && state.turn >= loc.revealedTurn + before.transformsInto.afterTurns) {
@@ -247,10 +278,14 @@ export function startTurn(state: GameState, events: GameEvent[]): void {
     if (loc.revealed && def?.timedThreat && def.timedThreat.turn === state.turn) {
       spawnThreat(state, loc.index, def.timedThreat.threatId, events);
     }
+    if (loc.pendingTimedThreat && loc.pendingTimedThreat.turn === state.turn) {
+      spawnThreat(state, loc.index, loc.pendingTimedThreat.threatId, events);
+      loc.pendingTimedThreat = undefined;
+    }
   }
   // "History moves": on Turn 3 a random neutral Threat appears at a revealed Location without one,
-  // and on Turn 5 history moves again in most matches (SECOND_WAVE_CHANCE).
-  const wave = state.turn === 3 || (state.turn === SECOND_WAVE_TURN && nextFloat(state.rng) < SECOND_WAVE_CHANCE);
+  // on Turn 5 history moves again in most matches (SECOND_WAVE_CHANCE), and on Turn 7 a third time (THIRD_WAVE_CHANCE).
+  const wave = state.turn === 3 || (state.turn === SECOND_WAVE_TURN && nextFloat(state.rng) < SECOND_WAVE_CHANCE) || (state.turn === THIRD_WAVE_TURN && nextFloat(state.rng) < THIRD_WAVE_CHANCE);
   if (wave && state.revealOrder.length > 0) {
     const candidates = state.locations.filter((l) => l.revealed && !l.lost && l.threats.length === 0);
     if (candidates.length) {

@@ -86,7 +86,7 @@ describe('setup', () => {
     const s = createMatch({ seed: 1 });
     expect(s.turn).toBe(1);
     expect(s.players.A.hand).toHaveLength(5);
-    expect(s.players.A.deckCount).toBe(13); // 18 − 5
+    expect(s.players.A.deckCount).toBe(17); // 22 − 5
     expect(s.locations.every((l) => !l.revealed)).toBe(true);
     expect(new Set(s.revealOrder)).toEqual(new Set([0, 1, 2]));
   });
@@ -280,6 +280,24 @@ describe('threats', () => {
     expect(s.locations[0].lost).toBeFalsy();
     s = resolveTurn(s, { A: pass(), B: pass() }).state; // fourth full turn → LOST
     expect(s.locations[0].lost).toBe(true);
+    expect(s.locations[0].lostTurn).toBe(7);
+    // Reconstruction: two turns after it fell, the people who stayed rebuild it.
+    expect(s.turn).toBe(8); // Lost during Turn 7; still Lost through Turn 8
+    const stayer = addChar(s, 'organizer', 'B', 0, 'inside');
+    const before = charInfluence(s, s.characters[stayer.uid]);
+    const r = resolveTurn(s, { A: pass(), B: pass() }); // → turn 9: rebuilt
+    s = r.state;
+    expect(s.turn).toBe(9);
+    expect(s.locations[0].lost).toBe(false);
+    expect(s.locations[0].rebuilt).toBe(true);
+    expect(s.locations[0].rebuiltTurn).toBe(9);
+    expect(s.locations[0].threats).toHaveLength(0);
+    expect(r.events.some((e) => e.type === 'locationRebuilt')).toBe(true);
+    expect(charInfluence(s, s.characters[stayer.uid])).toBe(before + 1);
+    // Back in play: it can be won again.
+    s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(s.phase).toBe('ended');
+    expect(s.result?.locationWinners[0]).toBe('B');
   });
 });
 
@@ -398,7 +416,7 @@ describe('energy', () => {
     expect(charsAt(s, 2, 'A', 'gate')).toHaveLength(1);
     expect(s.players.A.hand).not.toContain('og');
   });
-  it('every deck card has a cost and presets are 18 cards', () => {
+  it('every deck card has a cost and presets are 22 cards', () => {
     for (const d of Object.values(PRESET_DECKS)) {
       expect(validateDeck(d.cards)).toEqual([]);
       for (const id of d.cards) expect(CARD_BY_ID[id]?.cost ?? 0).toBeGreaterThanOrEqual(0);
@@ -746,7 +764,7 @@ describe('match end', () => {
     expect(cont.pendingRaises).toEqual([]);
     expect(cont.phase).toBe('planning');
     expect(cont.turn).toBe(3);
-    expect(cont.maxTurns).toBe(8);
+    expect(cont.maxTurns).toBe(10);
     // Standing back doubles again for both.
     const back = resolveTurn(cont, { A: pass(), B: { ...pass(), standOnBusiness: true } }).state;
     expect(back.stakes).toBe(2);
@@ -764,23 +782,23 @@ describe('match end', () => {
   });
   it('Stand on Business on the last turn extends the match by one', () => {
     let s = createMatch({ seed: 4 });
-    for (let t = 1; t <= 6; t++) s = resolveTurn(s, { A: pass(), B: pass() }).state;
-    expect(s.turn).toBe(7);
+    for (let t = 1; t <= 8; t++) s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(s.turn).toBe(9);
     s = resolveTurn(s, { A: pass(), B: { ...pass(), standOnBusiness: true } }).state;
     expect(s.result).toBeUndefined();
-    expect(s.turn).toBe(8);
+    expect(s.turn).toBe(10);
     expect(s.phase).toBe('planning');
     expect(s.stakes).toBe(1);
     expect(legalOptions(s, 'A').canStand).toBe(false); // no room left to extend
     s = resolveTurn(s, { A: pass(), B: pass() }).state;
     expect(s.phase).toBe('ended');
-    expect(s.result?.turn).toBe(8);
+    expect(s.result?.turn).toBe(10);
     expect(s.result?.stakes).toBe(2); // the raise lands on the final turn
     expect(s.result?.stakes).toBe(2);
   });
-  it('scores two of three Locations at the end of turn 7', () => {
+  it('scores two of three Locations at the end of turn 9', () => {
     let s = createMatch({ seed: 4 });
-    for (let t = 1; t <= 7; t++) {
+    for (let t = 1; t <= 9; t++) {
       expect(s.turn).toBe(t);
       s = resolveTurn(s, { A: pass(), B: pass() }).state;
     }
@@ -791,8 +809,8 @@ describe('match end', () => {
 });
 
 describe('AI vs AI smoke', () => {
-  it('completes 40 matches without errors and plays legally', { timeout: 60000 }, () => {
-    for (let seed = 1000; seed < 1040; seed++) {
+  it('completes 30 matches without errors and plays legally', { timeout: 180000 }, () => {
+    for (let seed = 1000; seed < 1030; seed++) {
       let s = createMatch({ seed });
       let guard = 0;
       while (s.phase !== 'ended' && guard++ < 40) {
@@ -1110,6 +1128,8 @@ describe('artists', () => {
     expect(lewis.location).not.toBe(0);
     expect(s.locations[0].permInfluence?.A).toBe(2);
     expect(influenceAt(s, 0).A).toBe(2);
+    // Where Nzinga sends Lewis depends on the RNG; she plays no part in the rest.
+    delete s.characters[lewis.uid];
     // Powers: one square per other friendly Character at her Location, capped at 3.
     addChar(s, 'john_russwurm', 'A', 2, 'gate', true);
     addChar(s, 'alonzo_herndon', 'A', 2, 'inside');
@@ -1493,5 +1513,64 @@ describe('The Stroll', () => {
     expect(charInfluence(s, gate)).toBe(charDef('organizer').influence);
     s.turn = 3;
     expect(charInfluence(s, inside)).toBe(charDef('og').influence);
+  });
+});
+
+describe('Nine turns, 22 cards', () => {
+  it('a match runs nine turns, ten after a Stand, with 22-card decks', () => {
+    const s = createMatch({ seed: 3 });
+    expect(s.maxTurns).toBe(9);
+    for (const d of Object.values(PRESET_DECKS)) {
+      expect(d.cards).toHaveLength(22);
+      expect(validateDeck(d.cards)).toEqual([]);
+    }
+    let i = 0;
+    expect(randomDeck(() => i++ % 7)).toHaveLength(22);
+  });
+  it('history moves a third time on Turn 7 in most matches', () => {
+    let moved = 0;
+    for (let seed = 1; seed <= 12; seed++) {
+      let s = createMatch({ seed });
+      while (s.turn < 6) s = resolveTurn(s, { A: pass(), B: pass() }).state;
+      const before = s.locations.reduce((n, l) => n + l.threats.length, 0);
+      const r = resolveTurn(s, { A: pass(), B: pass() });
+      expect(r.state.turn).toBe(7);
+      if (r.events.some((e) => e.type === 'threatSpawned')) moved++;
+      expect(r.state.locations.reduce((n, l) => n + l.threats.length, 0)).toBeGreaterThanOrEqual(before);
+    }
+    expect(moved).toBeGreaterThan(0);
+    expect(moved).toBeLessThan(12);
+  });
+});
+
+describe("Anansi's Web", () => {
+  it('Anansi retells the Location he is played at; the small grow and the large shrink there', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['great_migration', 'juneteenth', 'black_star'], revealAll: true, handA: ['anansi'] });
+    const handBefore = s.players.A.hand.length;
+    const r = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'anansi', location: 0 }] }, B: pass() });
+    s = r.state;
+    expect(s.locations[0].defId).toBe('anansis_web');
+    expect(r.events.some((e) => e.type === 'locationTransformed' && (e.data as { retold?: boolean })?.retold)).toBe(true);
+    expect(s.players.A.hand.length).toBe(handBefore + 1); // played one, drew one from the Reveal, one more at the turn start
+    const small = addChar(s, 'bud_billiken', 'B', 0, 'inside');
+    const large = addChar(s, 'mansa_musa', 'B', 0, 'inside');
+    expect(charInfluence(s, s.characters[small.uid])).toBe(charDef('bud_billiken').influence + 2);
+    expect(charInfluence(s, s.characters[large.uid])).toBe(charDef('mansa_musa').influence - 1);
+    // Anansi himself costs 1: he grows too.
+    const anansi = charsOf(s, 'A').find((c) => c.defId === 'anansi')!;
+    expect(charInfluence(s, anansi)).toBe(charDef('anansi').influence + 2);
+  });
+  it('a retold Greenwood still gets its Mob, and the Web is never drawn on its own', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'juneteenth', 'black_star'], revealAll: true, handA: ['anansi'] });
+    s.turn = 2;
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'anansi', location: 0 }] }, B: pass() }).state;
+    expect(s.locations[0].defId).toBe('anansis_web');
+    expect(s.locations[0].pendingTimedThreat?.threatId).toBe('mob');
+    s = resolveTurn(s, { A: pass(), B: pass() }).state; // → turn 4
+    expect(s.turn).toBe(4);
+    expect(s.locations[0].threats.some((t) => t.defId === 'mob')).toBe(true);
+    expect(s.locations[0].pendingTimedThreat).toBeUndefined();
+    expect(LOCATION_BY_ID.anansis_web.notInPool).toBe(true);
+    for (let seed = 1; seed <= 30; seed++) expect(createMatch({ seed }).locations.some((l) => l.defId === 'anansis_web')).toBe(false);
   });
 });

@@ -127,6 +127,11 @@ export function charInfluence(state: GameState, c: CharacterInstance): number {
     const b = (charDef(j.defId).established?.effect as { blessing?: number }).blessing;
     if (b) v += b;
   }
+  // Anansi's Web: the small against the large. Cheap Characters grow here, expensive ones shrink.
+  if (ldef?.effect.type === 'smallAgainstLarge' && !def.keywords.includes('INFORMANT')) {
+    if (def.cost <= 1) v += ldef.effect.small;
+    else if (def.cost >= 3) v -= ldef.effect.large;
+  }
   if (c.zone === 'inside') {
     if (ldef?.effect.type === 'insideInfluence') v += ldef.effect.amount;
     if (ldef?.effect.type === 'nightInside' && isNight(state)) v += ldef.effect.amount;

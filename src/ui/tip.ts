@@ -46,7 +46,8 @@ export function tip(text: string) {
 export const HINTS = {
   influence: 'Influence: how much this Character counts toward controlling its Location. Gate and Inside Characters both count.',
   force: 'Force: strength when confronting Threats or answering a challenge. Force never attacks players directly.',
-  finalTurn: 'Last scheduled turn. A Stand on Business now adds an 8th turn; otherwise whatever stands after this one is counted: two Locations of three, then total Influence, then total Force.',
+  rebuilt: 'Rebuilt: this Location was Lost, and the people who stayed put it back up. It is back in play, and everyone who stayed gained +1 Influence.',
+  finalTurn: 'Last scheduled turn. A Stand on Business now adds a 10th turn; otherwise whatever stands after this one is counted: two Locations of three, then total Influence, then total Force.',
   dayNight: 'This Location has a curfew. Odd turns are day, even turns are night: at night nobody relocates out until morning. Harriet Tubman is the only one who can move a Character out.',
   locked: 'Held here: cannot relocate out. A curfew at night, or The Justice System. Harriet Tubman can still move them.',
   informant: 'Informant: a Character played onto the other side\'s Gates. It is theirs, its Influence counts against them there, it never becomes Ready and never enters. Relocate it, slide it with Robert Smalls, or dump it at Charleston, 1822, where it is found out and sent back to the planter\'s hand.',
@@ -65,7 +66,7 @@ export const HINTS = {
   line: 'The Influence Line: leans toward whoever leads. Lead at two of three Locations after the final turn to win.',
   energy: 'Energy: the crystals up here are what you can spend on cards this turn. You get one more each turn (Turn 3 = 3), Organizer adds one, and unspent Energy does not carry over. Lit crystals are still unspent; dim ones are spent; hollow ones come on later turns.',
   cost: 'Cost: the Energy this card takes to play. Energy equals the turn number, so expensive cards wait for later turns, unless something brings the price down: a green cost means a discount is on right now.',
-  stakes: 'Legacy: what the match is worth. Stand on Business doubles it (1 → 2 → 4) one turn later, adds an 8th turn, and means you cannot Sit Down. The other side gets one turn to Sit Down at the old price.',
+  stakes: 'Legacy: what the match is worth. Stand on Business doubles it (1 → 2 → 4) one turn later, adds a 10th turn, and means you cannot Sit Down. The other side gets one turn to Sit Down at the old price.',
   stakesPending: 'Someone Stood on Business. The raise lands after this turn: Sit Down now to lose only the current Legacy.',
   timer: 'Planning timer. At zero your current plan locks automatically.',
   noStepOff: 'You Stood on Business. There is no backing out of this match.',

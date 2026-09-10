@@ -9,14 +9,16 @@ export const other = (p: PlayerId): PlayerId => (p === 'A' ? 'B' : 'A');
 
 export type Zone = 'gate' | 'inside';
 
-export const TURNS = 7;
+export const TURNS = 9;
 /** Stand on Business extends the match to this many turns. */
-export const EXTENDED_TURNS = 8;
+export const EXTENDED_TURNS = 10;
+/** A Lost Location is rebuilt by the people who stayed this many turns after it fell. */
+export const RECONSTRUCTION_TURNS = 2;
 export const GATE_CAPACITY = 2;
 export const INSIDE_CAPACITY = 5;
 export const STARTING_HAND = 4;
 /** Deck size: opening hand plus one draw per turn, with a card to spare after an extended match. */
-export const DECK_SIZE = 18;
+export const DECK_SIZE = 22;
 /** Hand limit: a card drawn into a full hand is discarded. */
 export const MAX_HAND = 7;
 export const MAX_EVENTS = 2;
@@ -46,7 +48,8 @@ export type RevealEffect =
   | { type: 'challengeGate' } // Nzinga
   | { type: 'challengeInside' } // Toussaint
   | { type: 'suppressInside' } // Sojourner Truth
-  | { type: 'refreshOpposingGate' } // Anansi
+  | { type: 'retellLocation'; into: string } // Anansi: draw a card and retell this Location as another (Anansi's Web)
+  | { type: 'refreshOpposingGate' } // (unused) trick the opposing Ready Gate Character into waiting again
   | { type: 'challengeAllGates' } // Shango
   | { type: 'permInfluenceOther'; amount: number } // Oshun
   | { type: 'moveFriendlyInsideHere' } // Yemoja — needs target
@@ -208,7 +211,8 @@ export type LocationEffect =
   | { type: 'restEnergy'; count: number; amount: number } // Oak Bluffs: players with `count` Inside gain Energy next turn
   | { type: 'turncoatAtEnd' } // Charleston, 1822: the Fresh Gate Character here with the lowest Influence changes sides at the end of the turn
   | { type: 'nightInside'; amount: number } // The Stroll: after dark (even turns) your Characters Inside here gain Influence
-  | { type: 'crossing'; toll: number }; // The Middle Passage: no Inside, every Gate Character pays the toll each turn, leavers arrive Ready
+  | { type: 'crossing'; toll: number } // The Middle Passage: no Inside, every Gate Character pays the toll each turn, leavers arrive Ready
+  | { type: 'smallAgainstLarge'; small: number; large: number }; // Anansi's Web: cheap Characters grow here, expensive ones shrink
 
 export interface LocationDef {
   id: string;
@@ -309,6 +313,13 @@ export interface LocationState {
   lost: boolean;
   /** Why the Location became Lost. */
   lostReason?: string;
+  /** The turn it was Lost; RECONSTRUCTION_TURNS later the people rebuild it. */
+  lostTurn?: number;
+  /** Rebuilt after being Lost: back in play, everyone who stayed one Influence stronger. */
+  rebuilt?: boolean;
+  rebuiltTurn?: number;
+  /** A timed Threat carried over from a retold Location (the Mob still comes to a retold Greenwood). */
+  pendingTimedThreat?: { turn: number; threatId: string };
   /** Great Migration: uid of first relocated Character this turn. */
   firstRelocatedThisTurn?: string;
   /** Harriet: uid of first relocated Character per owner this turn. */
@@ -378,6 +389,7 @@ export interface GameEvent {
     | 'draw'
     | 'locationRevealed'
     | 'locationTransformed'
+    | 'locationRebuilt'
     | 'summon'
     | 'played'
     | 'eventPlayed'

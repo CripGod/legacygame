@@ -832,14 +832,14 @@ const MYTHIC: CharacterDef[] = [
     category: 'mythic',
     name: 'Anansi',
     short: 'Anansi',
-    summary: 'Draw a card. Their best Ready Character has to wait again.',
+    summary: "Draw a card. This Location becomes Anansi's Web.",
     influence: 2,
     force: 1,
     tags: ['Mythic', 'Akan', 'Trickster'],
     keywords: [],
     reveal: {
-      text: 'Draw a card. The opposing Ready Gate Character here with the highest Influence is tricked into waiting again (it becomes Fresh).',
-      effect: { type: 'refreshOpposingGate' },
+      text: "Draw a card. Retell this Location as Anansi's Web: Characters that cost 1 or less gain +2 Influence here and Characters that cost 3 or more lose 1, for both players. Threats stay, and a Mob that was coming still comes.",
+      effect: { type: 'retellLocation', into: 'anansis_web' },
     },
     established: {
       text: 'Whenever your opponent plays a Character at this Location, draw a card.',

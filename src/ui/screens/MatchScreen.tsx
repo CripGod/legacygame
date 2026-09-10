@@ -348,7 +348,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       return;
     }
     setPlan((p) => ({ ...p, standOnBusiness: true }));
-    feedback(`Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds an 8th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.`, [], 'info');
+    feedback(`Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds a 10th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.`, [], 'info');
   };
 
   /** Energy left after the plays already planned. */

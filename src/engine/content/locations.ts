@@ -43,6 +43,16 @@ export const LOCATIONS: LocationDef[] = [
     noThreats: true,
   },
   {
+    id: 'anansis_web',
+    name: "Anansi's Web",
+    era: 'Every story, at once',
+    rule: 'The small against the large: Characters that cost 1 or less gain +2 Influence here, and Characters that cost 3 or more lose 1. Only Anansi can spin this Location.',
+    blurb: 'Anansi bought every story in the world from the sky god with nothing but wit. Where his web is spun, the little ones win.',
+    history: 'Mythic (fantasy). In the Akan tales Anansi the spider wins all the stories of the world from Nyame the sky god by capturing a python, a leopard, a swarm of hornets and a fairy with tricks alone, and the stories become Anansesem, "spider stories". This Location is an invention in that spirit: it only exists when Anansi retells a real place as one of his, and there the smallest cards count for the most. It is never drawn into a match on its own.',
+    effect: { type: 'smallAgainstLarge', small: 2, large: 1 },
+    notInPool: true,
+  },
+  {
     id: 'great_migration',
     name: 'Great Migration',
     era: '1916–1970',
