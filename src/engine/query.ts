@@ -12,7 +12,7 @@ import type {
   EstablishedEffect,
   LocationDef,
 } from './types';
-import { GATE_CAPACITY, INSIDE_CAPACITY, PLAYERS, other, MAX_STAKES, EXTENDED_TURNS } from './types';
+import { ENERGY_CAP, GATE_CAPACITY, INSIDE_CAPACITY, PLAYERS, other, MAX_STAKES, EXTENDED_TURNS } from './types';
 
 /** The Justice System: a Character that went Inside recently cannot relocate out yet. */
 /** Even turns are night. Curfews bite at night. */
@@ -221,9 +221,9 @@ export function canConfront(state: GameState, threat: ThreatInstance, p: PlayerI
   return !own;
 }
 
-/** Energy this turn: the turn number, plus Organizer-style bonuses. Unspent Energy does not carry over. */
+/** Energy this turn: the turn number up to ENERGY_CAP, plus Organizer-style bonuses. Unspent Energy does not carry over. */
 export function energyFor(state: GameState, p: PlayerId): number {
-  let n = state.turn + (state.players[p].energyBonus ?? 0) + (state.players[p].energyNextTurn ?? 0);
+  let n = Math.min(state.turn, ENERGY_CAP) + (state.players[p].energyBonus ?? 0) + (state.players[p].energyNextTurn ?? 0);
   for (const c of hasEstablishedAnywhere(state, p, 'extraEnergy')) n += amountOf(c);
   return n;
 }

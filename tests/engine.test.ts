@@ -1517,6 +1517,16 @@ describe('The Stroll', () => {
 });
 
 describe('Nine turns, 22 cards', () => {
+  it('base Energy stops at 7; bonuses still stack on top', () => {
+    let s = createMatch({ seed: 3 });
+    while (s.turn < 9) s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(s.turn).toBe(9);
+    expect(energyFor(s, 'A')).toBe(7);
+    s.players.A.energyBonus = 1;
+    expect(energyFor(s, 'A')).toBe(8);
+    const early = createMatch({ seed: 3 });
+    expect(energyFor(early, 'A')).toBe(1);
+  });
   it('a match runs nine turns, ten after a Stand, with 22-card decks', () => {
     const s = createMatch({ seed: 3 });
     expect(s.maxTurns).toBe(9);

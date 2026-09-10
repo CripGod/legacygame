@@ -12,6 +12,8 @@ export type Zone = 'gate' | 'inside';
 export const TURNS = 9;
 /** Stand on Business extends the match to this many turns. */
 export const EXTENDED_TURNS = 10;
+/** Base Energy stops growing here: Turn 8, 9 and 10 pay 7, plus bonuses. */
+export const ENERGY_CAP = 7;
 /** A Lost Location is rebuilt by the people who stayed this many turns after it fell. */
 export const RECONSTRUCTION_TURNS = 2;
 export const GATE_CAPACITY = 2;
@@ -126,7 +128,7 @@ export interface CharacterDef {
   category: CharacterCategory;
   /** Home ground: where the story happened. +1 Influence at these Locations (an Informant counts one more against its holder). */
   home?: { locations: string[]; why: string; thematic?: boolean };
-  /** Energy to play. Energy each turn equals the turn number. */
+  /** Energy to play. Energy each turn equals the turn number, capped at ENERGY_CAP. */
   cost: number;
   /** Short name used on thumbnails. */
   short: string;

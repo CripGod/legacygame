@@ -571,7 +571,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - `scoreB`: Harborlight's Influence at this Location.
 - `line`: The Influence Line: leans toward whoever leads. Lead at two of three Locations after the final turn to win.
 - `energy`: Energy: the crystals up here are what you can spend on cards this turn. You get one more each turn (Turn 3 = 3), Organizer adds one, and unspent Energy does not carry over. Lit crystals are still unspent; dim ones are spent; hollow ones come on later turns.
-- `cost`: Cost: the Energy this card takes to play. Energy equals the turn number, so expensive cards wait for later turns, unless something brings the price down: a green cost means a discount is on right now.
+- `cost`: Cost: the Energy this card takes to play. Energy equals the turn number (up to 7), so expensive cards wait for later turns, unless something brings the price down: a green cost means a discount is on right now.
 - `stakes`: Legacy: what the match is worth. Stand on Business doubles it (1 → 2 → 4) one turn later, adds a 10th turn, and means you cannot Sit Down. The other side gets one turn to Sit Down at the old price.
 - `stakesPending`: Someone Stood on Business. The raise lands after this turn: Sit Down now to lose only the current Legacy.
 - `timer`: Planning timer. At zero your current plan locks automatically.
@@ -682,7 +682,7 @@ Rules
 - Both players plan at the same time, then Lock It In. Two minutes per turn.
 - Win Influence at two of the three Locations to win the match.
 ### Playing Characters
-- Every card has an Energy cost. Each turn you get Energy equal to the turn number (Turn 1: 1, Turn 5: 5); Organizer and Denmark Vesey add +1 while Established, Oak Bluffs pays +1 next turn, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your two Gate slots at a Location. Its Reveal ability triggers there.
+- Every card has an Energy cost. Each turn you get Energy equal to the turn number, up to 7 (Turn 1: 1, Turn 5: 5, Turns 7 to 10: 7); Organizer and Denmark Vesey add +1 while Established, Oak Bluffs pays +1 next turn, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your two Gate slots at a Location. Its Reveal ability triggers there.
 - Discounts. Some cards cost more than you will ever have on your own: Boukman Dutty is 7. Prices come down while a card waits in your hand. Booker T. Washington makes every Character 1 cheaper, Cécile Fatiman takes 2 off your most expensive card and 1 off every Rebellion Character, George Washington Carver knocks 1 off your priciest card at the end of each turn, and Boukman himself costs 1 less for each Rebellion Character you have on the board. A green cost on a card in your hand means it is discounted right now; a card never costs less than 0.
 - Gate Characters count toward Influence but are Fresh for the turn they arrive and the following turn. Then they are Ready and may enter Inside (up to five per player).
 - Inside, a Character is Established: its Established ability is live and it is safe from Gate-only effects.

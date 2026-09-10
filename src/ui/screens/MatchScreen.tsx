@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CARD_BY_ID, legalOptions, validatePlan, gateRoom, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, planCost, cardCost, filterEvents, LOCATION_BY_ID } from '../../engine';
+import { CARD_BY_ID, legalOptions, validatePlan, gateRoom, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, filterEvents, LOCATION_BY_ID } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight } from '../components/Battlefield';
@@ -836,7 +836,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
               {finalTurnLabel(view) ?? `Turn ${Math.min(view.turn, view.maxTurns)} / ${view.maxTurns}`}
             </div>
             <div className="crystals" aria-label={`Energy ${planning ? energyLeft : opts.energy} of ${opts.energy}`}>
-              {Array.from({ length: Math.max(view.maxTurns, opts.energy) }, (_, i) => (
+              {Array.from({ length: Math.max(ENERGY_CAP, opts.energy) }, (_, i) => (
                 <i key={i} className={i < (planning ? energyLeft : opts.energy) ? 'on' : i < opts.energy ? 'used' : 'future'} />
               ))}
             </div>
@@ -861,7 +861,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           <div className={`turn-mini ${finalTurnLabel(view) ? 'final' : ''}`} {...tip(HINTS.energy)}>
             <span className="turn-text">{finalTurnLabel(view, true) ?? `T${Math.min(view.turn, view.maxTurns)}/${view.maxTurns}`}</span>
             <span className="crystals">
-              {Array.from({ length: Math.max(view.maxTurns, opts.energy) }, (_, i) => (
+              {Array.from({ length: Math.max(ENERGY_CAP, opts.energy) }, (_, i) => (
                 <i key={i} className={i < (planning ? energyLeft : opts.energy) ? 'on' : i < opts.energy ? 'used' : 'future'} />
               ))}
             </span>

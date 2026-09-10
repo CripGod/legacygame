@@ -142,7 +142,7 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
         act: play,
       },
       {
-        point: read('Energy', `Energy equals the turn number, so it grows every turn: ${energy} now, ${energy + 1} next turn. Every card costs Energy, the green circle in its corner, and the cards you cannot afford are dimmed.`),
+        point: read('Energy', `Energy equals the turn number, so it grows every turn until it settles at 7: ${energy} now, ${energy + 1} next turn. Every card costs Energy, the green circle in its corner, and the cards you cannot afford are dimmed.`),
         act: lock(),
       },
     ]);
