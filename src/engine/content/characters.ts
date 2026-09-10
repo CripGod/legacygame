@@ -151,7 +151,7 @@ export const CHARACTERS: CharacterDef[] = [
     summary: 'Look at your top 2 cards, keep the dearer one. Gate friends here get +1 Influence.',
     influence: 3,
     force: 1,
-    tags: ['Black', 'Writer', 'Harlem Renaissance'],
+    tags: ['Black', 'Harlem Renaissance', 'Writer'],
     keywords: [],
     reveal: {
       text: 'Folklore: look at the top two cards of your deck. Keep the more expensive one; the other goes to the bottom.',
@@ -311,7 +311,7 @@ export const CHARACTERS: CharacterDef[] = [
     summary: '+1 Force against Threats here. +2 Influence aboard The Black Star.',
     influence: 2,
     force: 3,
-    tags: ['Black', 'Faith', 'Politics'],
+    tags: ['Black', 'Politics', 'Faith', 'Bishop'],
     keywords: [],
     established: {
       text: 'Chaplain: your Characters here confront Threats with +1 Force.',
@@ -337,7 +337,7 @@ export const CHARACTERS: CharacterDef[] = [
     summary: 'Draw a card per other friend here (max 2). Established: +1 Energy.',
     influence: 3,
     force: 4,
-    tags: ['Black', 'Rebellion', 'Faith'],
+    tags: ['Black', 'Faith', 'Rebellion'],
     keywords: [],
     reveal: {
       text: 'Recruiting: draw a card for each of your other Characters at this Location (max 2).',
@@ -363,7 +363,7 @@ export const CHARACTERS: CharacterDef[] = [
     summary: 'Challenges their best Established Character. Force decides.',
     influence: 2,
     force: 4,
-    tags: ['Black', 'Rebellion', 'Faith'],
+    tags: ['Black', 'Faith', 'Rebellion'],
     keywords: [],
     reveal: {
       text: 'Challenge the opposing Established Character here with the highest Influence. Force decides.',
@@ -435,7 +435,7 @@ export const CHARACTERS: CharacterDef[] = [
     summary: 'Learn which Location opens after this turn.',
     influence: 2,
     force: 1,
-    tags: ['Black', 'Letters'],
+    tags: ['Black', 'Letters', 'Poet'],
     keywords: [],
     reveal: {
       text: 'Privately learn which Location opens at the end of next turn (marked on the board for you). If none would, nothing happens.',
@@ -498,7 +498,7 @@ export const CHARACTERS: CharacterDef[] = [
     summary: 'Fights a Threat here with +1 Force.',
     influence: 1,
     force: 3,
-    tags: ['Black', 'Law'],
+    tags: ['Black', 'Law', 'Marshal'],
     keywords: [],
     reveal: {
       text: 'Confront one neutral Threat here with +1 Force.',
@@ -519,7 +519,7 @@ export const CHARACTERS: CharacterDef[] = [
     summary: 'Opposing Characters here cannot relocate out.',
     influence: 2,
     force: 1,
-    tags: ['Black', 'Horsemanship', 'Missouri'],
+    tags: ['Black', 'Missouri', 'Horseman'],
     keywords: [],
     established: {
       text: 'The Bass bit: gentle hands, full control. While Tom Bass is Established here, opposing Characters at this Location cannot relocate out. Harriet Tubman still can.',
@@ -541,7 +541,7 @@ export const CHARACTERS: CharacterDef[] = [
     summary: 'Your other 0–1 cost Characters here get +1 Influence.',
     influence: 1,
     force: 1,
-    tags: ['Black', 'Youth', 'Brand'],
+    tags: ['Black', 'Chicago', 'Youth'],
     keywords: [],
     reveal: {
       text: 'Bud Billiken Club: each of your other Characters at this Location that costs 1 or less gains +1 Influence.',
@@ -561,7 +561,7 @@ export const CHARACTERS: CharacterDef[] = [
     summary: "Their best Ready Character can't enter this turn. Then he wanders.",
     influence: 1,
     force: 1,
-    tags: ['Law', 'Disruption'],
+    tags: ['Disruption', 'Law', 'Judge'],
     keywords: [],
     reveal: {
       text: 'The opposing Ready Gate Character here with the highest Influence cannot enter this turn. Then Taney becomes unstable.',
@@ -660,7 +660,7 @@ export const CHARACTERS: CharacterDef[] = [
     summary: 'A Threat here needs 2 less Force, for good.',
     influence: 4,
     force: 1,
-    tags: ['Black', 'Journalist', 'Anti-lynching'],
+    tags: ['Black', 'Anti-lynching', 'Journalist'],
     keywords: [],
     reveal: {
       text: 'EXPOSE: a Threat here permanently needs 2 less Force to neutralize.',
@@ -685,7 +685,7 @@ export const CHARACTERS: CharacterDef[] = [
     summary: 'Challenges their strongest Gate Character: more Force knocks it away.',
     influence: 3,
     force: 4,
-    tags: ['Black', 'Ndongo', 'Ruler', 'Military'],
+    tags: ['Black', 'Ndongo', 'Military', 'Ruler'],
     keywords: [],
     reveal: {
       text: "CHALLENGE the opposing Gate Character here with the highest Force. If Nzinga's Force is higher, DISPLACE it to a random other Location's Gate.",
@@ -710,7 +710,7 @@ export const CHARACTERS: CharacterDef[] = [
     summary: 'Challenges their best Established Character: more Force sends it back to the Gates.',
     influence: 4,
     force: 4,
-    tags: ['Black', 'Haiti', 'Revolution', 'Rebellion', 'Military'],
+    tags: ['Black', 'Haiti', 'Rebellion', 'Military', 'Revolution'],
     keywords: [],
     reveal: {
       text: "CHALLENGE the opposing Established Character here with the highest Influence. If Toussaint's Force is higher, it returns to its Gate, Fresh.",
@@ -1297,7 +1297,7 @@ CHARACTERS.push(
     summary: 'Each turn your priciest card costs 1 less.',
     influence: 2,
     force: 2,
-    tags: ['Black', 'Science', 'Education'],
+    tags: ['Black', 'Education', 'Science'],
     keywords: [],
     reveal: { text: 'Draw a card.', effect: { type: 'draw', count: 1 } },
     established: {
@@ -1320,7 +1320,7 @@ CHARACTERS.push(
     summary: 'Their best Gate Character here loses 2 Influence for good.',
     influence: 3,
     force: 2,
-    tags: ['Black', 'Faith', 'Vodou'],
+    tags: ['Black', 'Faith', 'Vodou', 'Priestess'],
     keywords: [],
     reveal: {
       text: 'Gris-gris: the opposing Gate Character here with the highest Influence loses 2 Influence for the rest of the match.',
@@ -1342,7 +1342,7 @@ CHARACTERS.push(
     summary: "Opposing Reveals can't target your Characters here.",
     influence: 3,
     force: 4,
-    tags: ['Black', 'Jamaica', 'Rebellion', 'Faith'],
+    tags: ['Black', 'Jamaica', 'Faith', 'Rebellion'],
     keywords: [],
     established: {
       text: 'Nanny Town: opposing Reveal abilities cannot target your Characters here.',
@@ -1364,7 +1364,7 @@ CHARACTERS.push(
     summary: 'If knocked away she returns to your hand, free.',
     influence: 3,
     force: 3,
-    tags: ['Black', 'Zimbabwe', 'Rebellion', 'Faith'],
+    tags: ['Black', 'Zimbabwe', 'Faith', 'Rebellion'],
     keywords: [],
     passive: {
       text: 'My bones will rise: if she is displaced she returns to your hand instead, and costs 0 the next time you play her. +1 Influence at any Location in Africa.',
@@ -1387,7 +1387,7 @@ CHARACTERS.push(
     summary: 'Uprising: all your Gate Characters, everywhere, enter now.',
     influence: 4,
     force: 6,
-    tags: ['Black', 'Haiti', 'Rebellion', 'Faith', 'Vodou'],
+    tags: ['Black', 'Haiti', 'Faith', 'Vodou', 'Rebellion', 'Revolution'],
     keywords: [],
     reveal: {
       text: 'Uprising: every Character at your Gates, at every Location, enters Inside now, Ready or not. Only a block or a full Inside stops one.',
@@ -1413,7 +1413,7 @@ CHARACTERS.push(
     summary: 'Your priciest card costs 2 less. Rebellion cards cost 1 less.',
     influence: 2,
     force: 2,
-    tags: ['Black', 'Haiti', 'Rebellion', 'Faith', 'Vodou'],
+    tags: ['Black', 'Haiti', 'Faith', 'Vodou', 'Rebellion', 'Revolution'],
     keywords: [],
     reveal: {
       text: 'Ceremony: the most expensive card in your hand costs 2 less.',
@@ -1439,7 +1439,7 @@ CHARACTERS.push(
     summary: 'Return an Established friend to hand, free to replay. Draw a card.',
     influence: 2,
     force: 1,
-    tags: ['Black', 'Faith', 'Islam', 'Travel'],
+    tags: ['Black', 'Faith', 'Islam', 'Travel', 'Scholar'],
     keywords: [],
     reveal: {
       text: 'Letter home: return one of your Established Characters at another Location to your hand; it costs 0 the next time you play it. Draw a card.',

@@ -621,6 +621,7 @@ raf = requestAnimationFrame(tick);
 raf = requestAnimationFrame(tick);
 cancelAnimationFrame(raf);
 window.removeEventListener('resize', resize);
+m.addEventListener('change', on);
 mobVisits.current += 1;
 setMobState('up');
 el.style.setProperty('--mx', x.toFixed(3));
@@ -637,9 +638,11 @@ Real Locations.
 Real history.
 The Black History Card Battler
 People. Strategy. A stronger tomorrow.
-onPlay(opts('ai'))}>
+Built for the desk, for now
+The match is desktop-only while it is in development. Open this on a laptop or desktop browser to play. The cards and the rules are open here.
+onPlay(opts('ai'))} disabled=… title=…>
 Play match
-onPlay(…)}>
+onPlay(…)} disabled=… title=…>
 Tutorial
 Cards
 Learn the rules
@@ -750,6 +753,7 @@ Main menu
 - Last turn unless someone stands
 - (prefers-reduced-motion: reduce)
 - moves with ${cardName(pl.cardId, placeholders)}
+- relocates to ${view.locations[r.to].revealed ? locationName(view.locations[r.to].defId, placeholders) : 
 - That is the move. Press Lock It In.
 - That works too. Or ${guide.text.charAt(0).toLowerCase()}${guide.text.slice(1)}
 - Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds an 8th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.
@@ -828,19 +832,6 @@ Main menu
 
 ### src/ui/components/Sheets.tsx
 
-- ghost info ${open ? 'on' : ''}
-- Moving with Harriet Tubman to Location ${(harrietMove.target!.location ?? 0) + 1} when you Lock It In
-- At the Gates · ${HINTS.informant}
-- Established: Inside, Established ability active
-- At the Gates · ${HINTS.blocked}
-- At the Gates · ${HINTS.ready}
-- At the Gates · ${HINTS.fresh}
-- ${cardName(c.defId, placeholders)} · ${view.players[c.owner].handle}
--  · ${c.permInfluence > 0 ? '+' : ''}${c.permInfluence} Influence
--  · ${c.tempInfluence > 0 ? '+' : ''}${c.tempInfluence} this turn
-- Coming with ${yemoja.name} ✓ (tap to cancel)
-- Bring across with ${yemoja.name}
-- Relocate to another Location's Gates (stays ${c.ready ? 'Ready' : 'Fresh'}):
 - ${threatLabel(t.defId, placeholders)}${t.target ? 
 - at least 1 Force from each player in the same turn
 - ${t.forceRequired} Force in one turn
@@ -1333,6 +1324,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - gate-slot filled owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''}
 - Your Event slot here: drop an Event card on this Location. One per Location per turn.
 - slots ${cap < INSIDE_CAPACITY ? 'restricted' : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''}
+- ${gd.name} ${g.why} when you Lock In.
 - slot ${i >= cap ? 'locked' : ''}
 - slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''}
 - threat-tile ${who} ${fresh ? 'fresh' : ''} ${gone ? 'gone' : ''} ${confronting ? 'confronting' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' && !gone ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''}
