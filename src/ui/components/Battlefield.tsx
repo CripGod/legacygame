@@ -57,7 +57,9 @@ export interface BattlefieldProps {
   /** A clash on this beat: who struck and who was knocked away. */
   fx?: { actor?: string; victim: string; outcome?: string } | null;
   /** Gate slots still occupied until the turn resolves, keyed by Location: Characters leaving the Gates this turn. */
-  reserved?: Record<number, { uid: string; defId: string; why: string }[]>;
+  /** Pieces leaving a Location in the preview: ghosted at their old place with an arrow toward where they go. */
+  reserved?: Record<number, { uid: string; defId: string; why: string; zone: 'gate' | 'inside'; dir: 'left' | 'right' | 'up' }[]>;
+
   /** Replay: the pieces this beat is about. */
   focus?: string[];
   /** Replay: an Event card resolving right now, flaring at its Gates. */
@@ -125,8 +127,8 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
   const gOk = owner === me && drop?.gates.includes(index);
   const gOver = gOk && drop?.overKey === `gates:${index}`;
   const chars = charsAt(view, index, owner, 'gate').sort((a, b) => a.arrivedTurn - b.arrivedTurn);
-  const held = owner === me ? reserved?.[index] ?? [] : [];
-  const slots: (CharacterInstance | { held: { uid: string; defId: string; why: string } } | null)[] = [...chars, ...held.map((h) => ({ held: h }))];
+  const held = owner === me ? (reserved?.[index] ?? []).filter((h) => h.zone === 'gate') : [];
+  const slots: (CharacterInstance | { held: { uid: string; defId: string; why: string; dir: 'left' | 'right' | 'up' } } | null)[] = [...chars, ...held.map((h) => ({ held: h }))];
   while (slots.length < GATE_CAPACITY) slots.push(null);
   // Event cards at these Gates: planned by me, or (in a replay) waiting to resolve or resolving now.
   const eventTiles: { cardId: string; state: 'planned' | 'pending' | 'trigger'; hidden?: boolean }[] = [];
@@ -153,6 +155,9 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
               return (
                 <div key={`held:${s.held.uid}`} className="gate-slot reserved" data-reserved={s.held.uid} onClick={() => onChar(s.held.uid)} {...tip(`${hd.name} ${s.held.why} when you Lock It In. The slot stays taken until then.`)}>
                   <Art kind="characters" id={s.held.defId} className="pic-img" fallback={<span className="ini">{hd.name.slice(0, 2)}</span>} alt="" />
+                  <span className={`ghost-arrow ${s.held.dir}`} aria-hidden>
+                    ›
+                  </span>
                   <span className="strip leaving">Leaving</span>
                 </div>
               );
@@ -191,8 +196,9 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
   );
 }
 
-function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragProps, drop, focus, fx }: Common & { owner: PlayerId; index: number; label: string }) {
+function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragProps, drop, focus, fx, reserved }: Common & { owner: PlayerId; index: number; label: string }) {
   const chars = charsAt(view, index, owner, 'inside').sort((a, b) => a.arrivedTurn - b.arrivedTurn);
+  const ghosts = owner === me ? (reserved?.[index] ?? []).filter((h) => h.zone === 'inside') : [];
   const cap = insideCapacity(view, index);
   const mine = owner === me;
   const dropOk = mine && drop?.inside.includes(index);
@@ -208,6 +214,18 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
       >
         {Array.from({ length: INSIDE_CAPACITY }).map((_, i) => {
           const c = chars[i];
+          const g = !c ? ghosts[i - chars.length] : undefined;
+          if (!c && g) {
+            const gd = charDef(g.defId);
+            return (
+              <div key={`ghost:${g.uid}`} className="slot ghost" onClick={() => onChar(g.uid)} {...tip(`${gd.name} ${g.why} when you Lock In.`)}>
+                <Art kind="characters" id={g.defId} className="pic-img" fallback={<span className="ini">{gd.name.slice(0, 2)}</span>} alt="" />
+                <span className={`ghost-arrow ${g.dir}`} aria-hidden>
+                  ›
+                </span>
+              </div>
+            );
+          }
           if (!c) return <div key={i} className={`slot ${i >= cap ? 'locked' : ''}`} />;
           const entering = plan.enters.includes(c.uid);
           const brought = plan.plays.some((pl) => pl.target?.charUid === c.uid);

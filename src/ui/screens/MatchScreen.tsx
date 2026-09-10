@@ -204,15 +204,18 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   }, [m.replay?.idx, m.replay?.steps, clashes.length, showdowns.length, fanfare.length, sheet?.kind, fx]);
   /** Gate slots my departing Characters still hold this turn (the preview shows them elsewhere). */
   const reserved = useMemo(() => {
-    const out: Record<number, { uid: string; defId: string; why: string }[]> = {};
+    const out: Record<number, { uid: string; defId: string; why: string; zone: 'gate' | 'inside'; dir: 'left' | 'right' | 'up' }[]> = {};
     if (view.phase !== 'planning' || locked) return out;
-    const add = (uid: string, why: string) => {
+    const add = (uid: string, why: string, to?: number) => {
       const c = view.characters[uid];
-      if (!c || c.owner !== me || c.zone !== 'gate') return;
-      (out[c.location] ??= []).push({ uid, defId: c.defId, why });
+      if (!c || c.owner !== me) return;
+      const dir = to === undefined || to === c.location ? 'up' : to < c.location ? 'left' : 'right';
+      (out[c.location] ??= []).push({ uid, defId: c.defId, why, zone: c.zone, dir });
     };
+    // Gate slots stay taken until the turn resolves; Inside ghosts just show where a piece is going.
     for (const uid of plan.enters) add(uid, 'enters');
-    for (const pl of plan.plays) if (pl.target?.charUid && pl.target.location !== undefined) add(pl.target.charUid, `moves with ${cardName(pl.cardId, placeholders)}`);
+    for (const pl of plan.plays) if (pl.target?.charUid && pl.target.location !== undefined) add(pl.target.charUid, `moves with ${cardName(pl.cardId, placeholders)}`, pl.target.location);
+    for (const r of plan.relocations) add(r.uid, `relocates to ${view.locations[r.to].revealed ? locationName(view.locations[r.to].defId, placeholders) : `Location ${r.to + 1}`}`, r.to);
     return out;
   }, [view, me, plan, locked, placeholders]);
   /** Threats that fell on this beat: the board keeps their tile up, stamped, until the beat ends. */

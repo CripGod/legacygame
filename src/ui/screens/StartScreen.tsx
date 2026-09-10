@@ -168,8 +168,56 @@ function MobSparks({ burst }: { burst: number }) {
   return <canvas ref={ref} className="mob-sparks" aria-hidden />;
 }
 
+/** True on phones and small tablets: the match is desktop-only for now; the landing page and Compendium still work. */
+function useSmallScreen(): boolean {
+  const q = '(max-width: 820px), ((pointer: coarse) and (max-width: 1100px))';
+  const [small, setSmall] = useState(() => (typeof window !== 'undefined' ? window.matchMedia(q).matches : false));
+  useEffect(() => {
+    const m = window.matchMedia(q);
+    const on = () => setSmall(m.matches);
+    m.addEventListener('change', on);
+    return () => m.removeEventListener('change', on);
+  }, []);
+  return small;
+}
+
+/** A fist, palm side, knuckles leading; painted in a player's colour. */
+function Fist({ side }: { side: 'left' | 'right' }) {
+  return (
+    <svg className={`fist ${side}`} viewBox="0 0 120 100" aria-hidden>
+      <defs>
+        <linearGradient id={`fist-${side}`} x1="0" x2="1">
+          {side === 'left' ? (
+            <>
+              <stop offset="0" stopColor="#c8901e" />
+              <stop offset="1" stopColor="#fbe7a3" />
+            </>
+          ) : (
+            <>
+              <stop offset="0" stopColor="#bfe0ff" />
+              <stop offset="1" stopColor="#2f7bff" />
+            </>
+          )}
+        </linearGradient>
+      </defs>
+      <g fill={`url(#fist-${side})`} stroke="rgba(0,0,0,0.55)" strokeWidth="2.5" strokeLinejoin="round">
+        {/* wrist and palm */}
+        <path d="M0 34 H40 Q52 30 62 34 V82 Q62 92 50 92 H0 Z" />
+        {/* four knuckles leading */}
+        <rect x="56" y="30" width="44" height="17" rx="8.5" />
+        <rect x="58" y="47" width="46" height="17" rx="8.5" />
+        <rect x="56" y="64" width="42" height="16" rx="8" />
+        <rect x="52" y="80" width="34" height="13" rx="6.5" />
+        {/* thumb folded over */}
+        <path d="M22 34 Q22 16 38 14 H70 Q84 14 84 27 Q84 36 72 36 H40 Q30 36 26 40 Z" />
+      </g>
+    </svg>
+  );
+}
+
 export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: (o: StartOptions) => void; onRules: () => void; onCards: () => void; initialDev: boolean }) {
   const [dev, setDev] = useState(initialDev);
+  const small = useSmallScreen();
   const [seed, setSeed] = useState('');
   const [placeholders, setPlaceholders] = useState(false);
   const [coach, setCoach] = useState(true);
@@ -185,17 +233,18 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
   const MOB_STANDS = 15000; // up → breaks on its own if nobody clicks
   const MOB_MESSAGE = 10000; // down → the message fades and it is hidden again
   const mobVisits = useRef(0);
+  const FIST_IMPACT = 480; // ms after the fists start moving, they meet at the card
   const defeatMob = () => {
     setMobState((m) => {
       if (m !== 'up') return m;
-      setBurst((b) => b + 1);
+      window.setTimeout(() => setBurst((b) => b + 1), FIST_IMPACT);
       return 'falling';
     });
   };
   // The cycle: thirty seconds in, the Mob rises and the page drains to grey; it breaks on a click or after fifteen
   // seconds on its own; the message stays ten seconds; then it lies low for sixty seconds before rising again.
   useEffect(() => {
-    const wait = mobState === 'hidden' ? (mobVisits.current === 0 ? MOB_FIRST : MOB_AGAIN) : mobState === 'up' ? MOB_STANDS : mobState === 'falling' ? 700 : MOB_MESSAGE;
+    const wait = mobState === 'hidden' ? (mobVisits.current === 0 ? MOB_FIRST : MOB_AGAIN) : mobState === 'up' ? MOB_STANDS : mobState === 'falling' ? FIST_IMPACT + 750 : MOB_MESSAGE;
     const rise = () => {
       mobVisits.current += 1;
       setMobState('up');
@@ -300,14 +349,20 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
         <div className="hero-tag">People. Strategy. A stronger tomorrow.</div>
       </header>
 
+      {small && (
+        <div className="desktop-note" role="note">
+          <div className="desktop-note-title">Built for the desk, for now</div>
+          <div>The match is desktop-only while it is in development. Open this on a laptop or desktop browser to play. The cards and the rules are open here.</div>
+        </div>
+      )}
       <nav className="hero-actions" aria-label="Start">
-        <button className="cta play" onClick={() => onPlay(opts('ai'))}>
+        <button className="cta play" onClick={() => onPlay(opts('ai'))} disabled={small} title={small ? 'Desktop only for now' : undefined}>
           <span className="cta-ico" aria-hidden>
             ▶
           </span>
           Play match
         </button>
-        <button className="cta" onClick={() => onPlay({ ...opts('ai'), seed: TUTORIAL_SEED, deckA: TUTORIAL_DECKS.A, deckB: TUTORIAL_DECKS.B, coach: true, tutorial: true })}>
+        <button className="cta" onClick={() => onPlay({ ...opts('ai'), seed: TUTORIAL_SEED, deckA: TUTORIAL_DECKS.A, deckB: TUTORIAL_DECKS.B, coach: true, tutorial: true })} disabled={small} title={small ? 'Desktop only for now' : undefined}>
           <span className="cta-ico" aria-hidden>
             ✦
           </span>
@@ -330,9 +385,17 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
       <div className="decks">
         <DeckPanel side="mine" label="Your deck" note="Justice arcs forward." value={deckA} onChange={setDeckA} />
         <div className={`vs-col ${mobState}`}>
+          <div className="vs-flourish" aria-hidden />
           <div className="vs" aria-hidden>
             VS
           </div>
+          {mobState === 'falling' && (
+            <div className="fists" aria-hidden>
+              <Fist side="left" />
+              <Fist side="right" />
+              <span className="fist-flash" />
+            </div>
+          )}
           {mob && (mobState === 'up' || mobState === 'falling') && (
             <button className={`threat-spot ${mobState}`} aria-label="The Mob. Click to neutralize it together." onClick={defeatMob}>
               <MobSparks burst={burst} />

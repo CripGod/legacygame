@@ -77,6 +77,12 @@ Developer tools (`?dev=1` or the button on the start screen): fixed seeds, AI re
 - **Sundown Town** is drawn about a third as often as other Locations and does nothing on the turn it reveals. **Gary, Indiana** (Steel and Soul) joins the pool. **Paddy Roller** is one shared Threat "in the area" rather than one per player.
 - Player Gates are shown under each Location panel (the wireframe omitted them; the brief requires them).
 
+## Design intents to keep
+
+Things that play well and should survive any rebalancing:
+
+- **Greenwood is hard on purpose.** The Mob arrives on Turn 4 and needs 6 Force in one turn, more than either side usually has alone, so both players have to fight it together or lose the Location. When Greenwood is the last Location to reveal, players who know it start stocking up in anticipation, which is exactly the feeling we want. Do not soften the Mob, its timing, or the 6.
+
 ## Harborlight
 
 Harborlight receives `viewFor(state, 'B')`: no opponent hand, no unrevealed Location identities, no draw order, no RNG. It decides confrontations heuristically, then enumerates plays × entries × relocations, simulates each with `resolveTurn` (opponent passing) and scores the resulting board (win probability from per-Location Influence gaps that steepen toward the final turn, projected Established value, Threat exposure, Gate crowding). It picks the best plan ~70% of the time, a sensible alternative ~20%, and an imperfect legal plan ~10%. Stand on Business triggers above ~65% / ~80% estimated win chance with a ~7% bluff rate near even. Tuning constants are in `DEFAULT_TUNING`.
