@@ -238,7 +238,7 @@
 .vs::after { bottom: -12px; }
 
 /* ---------- Desktop only ---------- */
-.desktop-note { width: min(92vw, 560px); text-align: center; padding: 12px 18px; border: 1px solid var(--gold); border-radius: 12px; background: rgba(8, 19, 31, 0.85); color: #e9e2cf; font-size: 14px; line-height: 1.4; }
+.landing > .desktop-note { position: relative; z-index: 1; width: min(92vw, 560px); text-align: center; padding: 12px 18px; border: 1px solid var(--gold); border-radius: 12px; background: rgba(8, 19, 31, 0.96); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6); color: #e9e2cf; font-size: 14px; line-height: 1.4; }
 .desktop-note-title { font-family: var(--display); font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-2); font-size: 12px; margin-bottom: 4px; }
 .cta:disabled { opacity: 0.45; cursor: not-allowed; filter: saturate(0.5); }
 .cta:disabled:hover { transform: none; }
