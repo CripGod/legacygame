@@ -838,3 +838,36 @@ body:has(.cx-inner) .tip {
 .cx-legend-plate { --fill: linear-gradient(180deg, var(--cx-parch) 0%, var(--cx-parch-2) 100%); padding: 14px clamp(16px, 3vw, 40px) 16px; display: grid; gap: 10px; color: var(--cx-ink); }
 .cx-legend.row { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 .cx-legend.row > div { display: flex; align-items: center; gap: 10px; font-size: 14px; line-height: 1.3; }
+
+/* ---------- The card sheet: just the card, in 3D, with the story beside it ---------- */
+.cx-stage { position: relative; display: flex; align-items: stretch; gap: 0; max-width: 96vw; }
+.cx-stage-x { position: absolute; top: -14px; right: -14px; z-index: 5; }
+.cx-card3d { position: relative; display: grid; justify-items: center; gap: 14px; flex: none; }
+.cx-card3d-inner { position: relative; animation: cx-card-in 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; filter: drop-shadow(0 30px 40px rgba(0, 0, 0, 0.7)); }
+.cx-card3d .card.big { box-shadow: 0 0 0 1px rgba(233, 185, 58, 0.5); }
+@keyframes cx-card-in { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.cx-history-btn { min-width: 140px; }
+/* The story: closed it has no width; open it grows beside the card, which slides left as the stage widens. */
+.cx-history {
+  width: 0; opacity: 0; overflow: hidden; margin-left: 0;
+  transition: width 0.55s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease 0.1s, margin-left 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+  max-height: calc(min(78vw, 400px) * 1.4 + 60px);
+}
+.cx-stage.open .cx-history { width: min(460px, 46vw); opacity: 1; margin-left: 28px; }
+.cx-history-scroll {
+  height: 100%; max-height: calc(min(78vw, 400px) * 1.4 + 60px); overflow: auto; padding: 6px 12px 12px 4px; width: min(460px, 46vw);
+  color: var(--parchment); scrollbar-width: thin; scrollbar-color: var(--gold-dark) transparent;
+}
+.cx-history-scroll .cx-kicker { color: var(--gold-2); }
+.cx-history-scroll h3 { font-family: var(--display); font-size: 24px; letter-spacing: 0.04em; margin: 6px 0 12px; color: #fff; }
+.cx-history-scroll p { font-family: var(--font); font-size: 17px; line-height: 1.55; color: #e9e2cf; margin: 0; }
+.cx-history-tag { font-style: italic; color: #cfd6e2; margin-bottom: 10px; font-size: 14px; }
+@media (width <= 700px) {
+  .cx-stage { flex-direction: column; align-items: center; }
+  .cx-stage.open .cx-history { width: min(92vw, 360px); margin-left: 0; margin-top: 16px; max-height: 40vh; }
+  .cx-history-scroll { width: auto; max-height: 40vh; }
+  .cx-card3d-inner { animation: none; }
+}
+@media (prefers-reduced-motion: reduce) { .cx-card3d-inner { animation: none; } .cx-history { transition: none; } }
+/* Darker, blurred ground behind the card sheet so the story reads over whatever page opened it. */
+.cx-scrim { background: rgba(4, 8, 14, 0.88); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
