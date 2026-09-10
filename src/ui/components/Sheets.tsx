@@ -18,6 +18,7 @@ import {
 } from '../../engine';
 import { cardName, initials, locationName, threatLabel, useDisplay, spawnText } from '../display';
 import { CardFace } from './CardFace';
+import { CodexSheet } from './CodexSheet';
 import { liveAbilities } from './Battlefield';
 import { Art } from './Art';
 import { HINTS } from '../tip';
@@ -39,29 +40,6 @@ export function Sheet({ children, onClose, title }: { children: ReactNode; onClo
 }
 
 /** Inspect a hand card and, while planning, send it straight to a Location. */
-/** ⓘ History: the real story behind a Character, or the origins of a Mythic figure. */
-export function HistoryNote({ id }: { id: string }) {
-  const [open, setOpen] = useState(false);
-  const { placeholders } = useDisplay();
-  const def = CARD_BY_ID[id] as { kind?: string; category?: string; history?: string } | undefined;
-  if (!def || placeholders || !def.history) return null;
-  const mythic = def.category === 'mythic';
-  const label = mythic ? 'Origins' : 'History';
-  return (
-    <div className="history">
-      <button className={`ghost info ${open ? 'on' : ''}`} onClick={() => setOpen((o) => !o)} aria-expanded={open}>
-        ⓘ {label}
-      </button>
-      {open && (
-        <div className="history-body">
-          {mythic && <div className="history-tag">Mythic · a figure of faith and folklore, not a historical person. Here is where the story comes from.</div>}
-          <p>{def.history}</p>
-        </div>
-      )}
-    </div>
-  );
-}
-
 export function CardSheet({
   id,
   onClose,
@@ -80,43 +58,44 @@ export function CardSheet({
   extra?: React.ReactNode;
 }) {
   const { placeholders } = useDisplay();
+  const tray = planned || sendTo || extra;
   return (
-    <Sheet onClose={onClose} title={cardName(id, placeholders)}>
-      <div className="row" style={{ justifyContent: 'center' }}>
-        <CardFace id={id} big />
-      </div>
-      {extra}
-      <HistoryNote id={id} />
-      {planned && (
-        <div className="actions">
-          <span className="muted">Planned for this turn.</span>
-          {onCancelPlay && (
-            <button className="ghost" onClick={onCancelPlay}>
-              Cancel play
-            </button>
-          )}
-        </div>
-      )}
-      {!planned && sendTo && (
-        <div style={{ display: 'grid', gap: 6 }}>
-          <div style={{ fontWeight: 800 }}>{sendTo.needsLocation ? 'Send to:' : 'Play this Event:'}</div>
-          <div className="actions">
-            {sendTo.needsLocation ? (
-              sendTo.options.map((o) => (
-                <button key={o.index} className="primary" onClick={() => sendTo.onSend(o.index)}>
-                  {o.label}
+    <CodexSheet id={id} label="In hand" onClose={onClose}>
+      {tray && (
+        <>
+          {extra}
+          {planned && (
+            <div className="actions center">
+              <span className="muted">Planned for this turn.</span>
+              {onCancelPlay && (
+                <button className="ghost" onClick={onCancelPlay}>
+                  Cancel play
                 </button>
-              ))
-            ) : (
-              <button className="primary" onClick={() => sendTo.onSend(0)}>
-                Play {cardName(id, placeholders)}
-              </button>
-            )}
-            {sendTo.needsLocation && sendTo.options.length === 0 && <span className="muted">No Location has an open Gate slot for this card. Events need one too.</span>}
-          </div>
-        </div>
+              )}
+            </div>
+          )}
+          {!planned && sendTo && (
+            <div style={{ display: 'grid', gap: 6 }}>
+              <div className="cx-tray-lbl">{sendTo.needsLocation ? 'Send to' : 'Play this Event'}</div>
+              <div className="actions center">
+                {sendTo.needsLocation ? (
+                  sendTo.options.map((o) => (
+                    <button key={o.index} className="primary" onClick={() => sendTo.onSend(o.index)}>
+                      {o.label}
+                    </button>
+                  ))
+                ) : (
+                  <button className="primary" onClick={() => sendTo.onSend(0)}>
+                    Play {cardName(id, placeholders)}
+                  </button>
+                )}
+                {sendTo.needsLocation && sendTo.options.length === 0 && <span className="muted">No Location has an open Gate slot for this card. Events need one too.</span>}
+              </div>
+            </div>
+          )}
+        </>
       )}
-    </Sheet>
+    </CodexSheet>
   );
 }
 
@@ -160,13 +139,9 @@ export function CharSheet({
   const informant = !!(CARD_BY_ID[c.defId] as { keywords?: string[] } | undefined)?.keywords?.includes('INFORMANT');
   const status = harrietMove ? `Moving with Harriet Tubman to Location ${(harrietMove.target!.location ?? 0) + 1} when you Lock It In` : informant ? `At the Gates · ${HINTS.informant}` : c.zone === 'inside' ? 'Established: Inside, Established ability active' : c.blockedEnterTurn === view.turn ? `At the Gates · ${HINTS.blocked}` : c.ready ? `At the Gates · ${HINTS.ready}` : `At the Gates · ${HINTS.fresh}`;
   return (
-    <Sheet onClose={onClose} title={`${cardName(c.defId, placeholders)} · ${view.players[c.owner].handle}`}>
-      <div className="row" style={{ justifyContent: 'center' }}>
-        <CardFace id={c.defId} big />
-      </div>
-      <HistoryNote id={c.defId} />
+    <CodexSheet id={c.defId} label={view.players[c.owner].handle} onClose={onClose}>
       <div className="muted center">
-        {status} at {locationName(locDef(view, c.location).id, placeholders)}
+        <b className={c.owner === me ? 'pA' : 'pB'}>{view.players[c.owner].handle}</b> · {status} at {locationName(locDef(view, c.location).id, placeholders)}
         {c.suppressedUntilTurn !== undefined && c.suppressedUntilTurn >= view.turn ? ' · Suppressed' : ''}
         {c.permInfluence ? ` · ${c.permInfluence > 0 ? '+' : ''}${c.permInfluence} Influence` : ''}
         {c.tempInfluence ? ` · ${c.tempInfluence > 0 ? '+' : ''}${c.tempInfluence} this turn` : ''}
@@ -218,7 +193,7 @@ export function CharSheet({
         </div>
       )}
       {confronting && <div className="muted center">This Character is confronting a Threat this turn and cannot move.</div>}
-    </Sheet>
+    </CodexSheet>
   );
 }
 

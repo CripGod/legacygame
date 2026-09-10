@@ -1,13 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { CARD_BY_ID } from '../../engine';
 import { CardFace } from './CardFace';
 import { cardName, useDisplay } from '../display';
+import '../compendium.css';
 
 /**
  * The card, alone, on the dark. "History" slides the card to the left and opens the story beside it,
  * light text on the dark ground, scrolling when it runs long.
+ *
+ * The same stage serves the match: `children` is an action tray under the card (send it somewhere, enter,
+ * relocate, a live readout), so a card reads the same wherever it opens.
  */
-export function CodexSheet({ id, label, onClose }: { id: string; label: string; onClose: () => void }) {
+export function CodexSheet({ id, label, onClose, children }: { id: string; label: string; onClose: () => void; children?: ReactNode }) {
   const { placeholders } = useDisplay();
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -23,7 +27,7 @@ export function CodexSheet({ id, label, onClose }: { id: string; label: string; 
   const history = placeholders ? undefined : def.history;
   return (
     <div className="scrim cx-scrim" onClick={onClose}>
-      <div className={`cx-stage ${open ? 'open' : ''}`} role="dialog" aria-modal="true" aria-label={cardName(id, placeholders)} onClick={(e) => e.stopPropagation()}>
+      <div className={`cx-stage ${open ? 'open' : ''} ${children ? 'has-tray' : ''}`} role="dialog" aria-modal="true" aria-label={cardName(id, placeholders)} onClick={(e) => e.stopPropagation()}>
         <button className="cx-x cx-ctl cx-stage-x" onClick={onClose} aria-label="Close">
           ✕
         </button>
@@ -36,6 +40,7 @@ export function CodexSheet({ id, label, onClose }: { id: string; label: string; 
               {open ? 'Close' : mythic ? 'Origins' : 'History'}
             </button>
           )}
+          {children && <div className="cx-tray">{children}</div>}
         </div>
         {history && (
           <aside className="cx-history" aria-hidden={!open}>
