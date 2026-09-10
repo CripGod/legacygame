@@ -782,7 +782,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         <div className="hint">
           {selected && planning ? (
             <button className="small chip" onClick={() => setSheet({ kind: 'card', id: selected })}>
-              ⓘ Inspect / send {cardName(selected, placeholders)}
+              ⓘ Inspect {cardName(selected, placeholders)}
             </button>
           ) : (
             <>
@@ -880,46 +880,8 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           ) : null}
         </div>
       )}
-      {sheet?.kind === 'card' && (
-        <CardSheet
-          id={sheet.id}
-          onClose={() => setSheet(null)}
-          extra={sheet.id === 'reparations' ? <ReparationsReadout view={view} me={me} placeholders={placeholders} /> : undefined}
-          planned={plan.plays.some((pl) => pl.cardId === sheet.id)}
-          onCancelPlay={() => {
-            setPlan((p) => ({ ...p, plays: p.plays.filter((pl) => pl.cardId !== sheet.id) }));
-            setSheet(null);
-          }}
-          sendTo={(() => {
-            const opt = planning ? opts.plays.find((p) => p.cardId === sheet.id) : undefined;
-            if (!opt) return undefined;
-            return {
-              needsLocation: opt.needsLocation,
-              options: opt.locations
-                .filter((i) => gateRoom(view, i, me, plannedAt(i, sheet.id)) > 0)
-                .map((i) => ({
-                  index: i,
-                  label: view.locations[i].revealed ? cardLocationLabel(i) : `Location ${i + 1} (hidden)`,
-                })),
-              onSend: (i: number) => commitPlay(i, sheet.id),
-            };
-          })()}
-        />
-      )}
-      {sheet?.kind === 'char' && (
-        <CharSheet
-          view={view}
-          me={me}
-          uid={sheet.uid}
-          plan={plan}
-          locked={!planning}
-          onClose={() => setSheet(null)}
-          onToggleEnter={toggleEnter}
-          onRelocate={setRelocation}
-          tubman={harrietPlay ? { name: cardName(harrietPlay.cardId, placeholders), dests: tubmanDests(sheet.uid), onMove: (to) => setTarget('friendlyCharAndLocation', to === null ? null : { charUid: sheet.uid, location: to }) } : undefined}
-          yemoja={yemojaPlay ? { name: cardName(yemojaPlay.cardId, placeholders), location: yemojaPlay.location, onBring: (on) => setTarget('friendlyInsideChar', on ? { charUid: sheet.uid, location: yemojaPlay.location } : null) } : undefined}
-        />
-      )}
+      {sheet?.kind === 'card' && <CardSheet id={sheet.id} onClose={() => setSheet(null)} extra={sheet.id === 'reparations' ? <ReparationsReadout view={view} me={me} placeholders={placeholders} /> : undefined} />}
+      {sheet?.kind === 'char' && <CharSheet view={view} uid={sheet.uid} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'threat' && <ThreatSheet view={view} me={me} threatUid={sheet.uid} plan={plan} locked={!planning} onClose={() => setSheet(null)} onToggle={toggleConfront} />}
       {sheet?.kind === 'location' && <LocationSheet view={view} index={sheet.index} onClose={() => setSheet(null)} />}
       {m.pendingProposal && m.pendingProposal.from !== me && planning && (
