@@ -230,7 +230,6 @@
 /* ---------- VS flourish ---------- */
 /* A gold hairline runs the column with a break for the letters, ticks above and below, and a glow behind. */
 .vs-flourish { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
-.vs-flourish::before { content: ''; position: absolute; left: 50%; top: 6%; bottom: 6%; width: 1px; background: linear-gradient(to bottom, transparent, var(--gold) 20%, var(--gold) 36%, transparent 40%, transparent 60%, var(--gold) 64%, var(--gold) 80%, transparent); opacity: 0.8; }
 .vs-flourish::after { content: ''; position: absolute; left: 50%; top: 50%; width: 140px; height: 140px; transform: translate(-50%, -50%); background: radial-gradient(circle, rgba(233, 185, 58, 0.3), transparent 65%); }
 .vs { position: relative; z-index: 1; }
 .vs::before, .vs::after { content: ''; position: absolute; left: 50%; width: 56px; height: 2px; transform: translateX(-50%); background: linear-gradient(to right, transparent, var(--gold-2), transparent); box-shadow: 0 0 10px rgba(233, 185, 58, 0.8); }
