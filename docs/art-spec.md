@@ -24,7 +24,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Missing
 
-### characters (40)
+### characters (50)
 
 - `john_russwurm` **John Russwurm** (1799–1851): Co-founded Freedom's Journal in 1827, the first Black-owned newspaper in the United States. "We wish to plead our own cause."
 - `alonzo_herndon` **Alonzo Herndon** (1858–1927): Born enslaved, built the finest barbershop in Atlanta and then Atlanta Life Insurance. Everybody passed through his chairs.
@@ -47,6 +47,16 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `william_lloyd_garrison` **William Lloyd Garrison** (1805–1879): Printed The Liberator every week for thirty-five years and would not retreat a single inch. 'I will be heard.'
 - `thaddeus_stevens` **Thaddeus Stevens** (1792–1868): The Radical who ran the House: carried the Fourteenth Amendment, asked for forty acres for the freedpeople and was refused, and was buried in the one Lancaster cemetery that took everybody.
 - `charles_sumner` **Charles Sumner** (1811–1874): Beaten nearly to death at his Senate desk for a speech against slavery. Came back three years later. His last words were to take care of the civil rights bill; it passed a year after he died.
+- `mary_ann_shadd_cary` **Mary Ann Shadd Cary** (1823–1893): Founded the Provincial Freeman in 1853, the first newspaper published by a Black woman in North America, a year after A Plea for Emigration told Black America to come to Canada. In her sixtieth year she took a law degree.
+- `elizabeth_freeman` **Elizabeth Freeman** (c. 1744–1829): Sued for her freedom in 1781 under the year-old Massachusetts constitution and won. Slavery in the state did not survive the decade.
+- `cathay_williams` **Cathay Williams** (c. 1844–c. 1893): Enlisted in 1866 as William Cathay and served two years in the 38th Infantry, a Buffalo Soldier regiment: the first Black woman known to have enlisted in the U.S. Army, and the only documented woman among the Buffalo Soldiers.
+- `james_lafayette` **James Lafayette** (c. 1748–1830): Went into Cornwallis's camp as a runaway and sent out word of every move the army made. Virginia freed him for it, five years after Yorktown.
+- `mary_ellen_pleasant` **Mary Ellen Pleasant** (c. 1814–1904): Boardinghouses, stock tips and a fortune nobody could quite count. She sued the streetcars until they carried Black riders, and her gravestone says she was a friend of John Brown.
+- `mary_seacole` **Mary Seacole** (1805–1881): Jamaican doctress refused by the War Office, who sailed anyway and built a hotel and dispensary within sound of the guns.
+- `samuel_ajayi_crowther` **Samuel Ajayi Crowther** (c. 1809–1891): Taken from Osogun at twelve, freed from a slaver at thirteen, and consecrated at Canterbury in 1864 as the first African bishop of the Anglican Church.
+- `yaa_asantewaa` **Yaa Asantewaa** (c. 1840–1921): Queen Mother of Ejisu who shamed the Asante chiefs into war in 1900 and besieged the British garrison in its fort at Kumasi for three months.
+- `zumbi_dos_palmares` **Zumbi dos Palmares** (c. 1655–1695): Last leader of Palmares, the maroon state in the Brazilian hills that held off Portugal and the Dutch for most of a century.
+- `menelik_ii` **Menelik II** (1844–1913): Emperor who repudiated the Italian treaty and broke an Italian army at Adwa in 1896, the victory that kept Ethiopia its own.
 - `peter_prioleau` **Peter Prioleau** (Charleston, 1822): The enslaved cook who told his master about the Vesey plot. Freed by the state for it, with a pension.
 - `george_wilson` **George Wilson** (Charleston, 1822): A class leader in the African church who confirmed the plot to his master. Freed, and never at peace with it.
 - `pharoah_and_tom` **Pharoah and Tom** (Richmond, 1800): Two enslaved men on Mosby Sheppard's place who gave up Gabriel's rising on the day it was to begin.

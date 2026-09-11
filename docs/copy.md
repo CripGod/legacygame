@@ -251,6 +251,76 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - blurb: Beaten nearly to death at his Senate desk for a speech against slavery. Came back three years later. His last words were to take care of the civil rights bill; it passed a year after he died.
 - history: A white Massachusetts lawyer and senator, Charles Sumner (1811–1874) argued Roberts v. Boston in 1849 with the Black lawyer Robert Morris, against segregated schools, and lost; his phrase, 'equality before the law', became his life. Elected to the Senate in 1851, he gave 'The Crime Against Kansas' on 19–20 May 1856, and two days later Congressman Preston Brooks beat him with a cane on the Senate floor. Massachusetts re-elected him in January 1857 rather than replace him, and apart from brief appearances his desk stood empty until December 1859. He pressed Lincoln toward emancipation and fought for the June 1864 act that gave Black soldiers equal pay; after the war he fought for Black suffrage and introduced in 1870 the civil-rights bill that passed, stripped of its schools clause, as the Civil Rights Act of 1875, a year after his death. His break with Grant over Santo Domingo in 1870 cost him the Foreign Relations chair in 1871; the Court struck the Act down in 1883.
 
+### Mary Ann Shadd Cary (`mary_ann_shadd_cary`)
+- cost 4 · Influence 4 · Force 2 · historical · era: 1823–1893
+- reveal: The Provincial Freeman: draw 2 cards.
+- established: Canada West: every Character you relocate into this Location arrives Ready.
+- blurb: Founded the Provincial Freeman in 1853, the first newspaper published by a Black woman in North America, a year after A Plea for Emigration told Black America to come to Canada. In her sixtieth year she took a law degree.
+- history: Mary Ann Shadd was born free in Wilmington, Delaware, on 9 October 1823, the daughter of Abraham Shadd, an abolitionist and agent for the anti-slavery press. After the Fugitive Slave Act of 1850 she moved to Windsor, Canada West, opened a school, and published A Plea for Emigration (1852), urging Black Americans to follow. On 24 March 1853 she launched the Provincial Freeman, the first newspaper published by a Black woman in North America, with Samuel Ringgold Ward's name on the masthead as editor and her own withheld; she did the work. Osborne Perry Anderson set type for the paper in Chatham, sat in John Brown's Chatham Convention of May 1858 beside her brother Isaac, and was the only Black raider to escape Harpers Ferry; in 1861 she edited his A Voice from Harper's Ferry, printed for the author in Boston. She married Thomas F. Cary in 1856. During the Civil War she recruited Black soldiers for the Union with Martin Delany and, from August 1864, as Indiana's commissioned recruiting officer. She moved to Washington, taught school, and in 1883, in her sixtieth year, took a law degree from Howard University, the second Black woman in the country to do so. She died in Washington on 5 June 1893.
+
+### Elizabeth Freeman (`elizabeth_freeman`)
+- cost 4 · Influence 4 · Force 2 · historical · era: c. 1744–1829
+- reveal: Brom and Bett v. Ashley: the two of your other Characters here with the most Influence gain +1 Influence for the rest of the match.
+- established: Born free and equal: your Characters here cannot be blocked from entering.
+- blurb: Sued for her freedom in 1781 under the year-old Massachusetts constitution and won. Slavery in the state did not survive the decade.
+- history: Elizabeth Freeman, called Mum Bett, was born enslaved around 1744 in Claverack, New York, and was held for decades by Colonel John Ashley of Sheffield, Massachusetts. In 1781, after the new state constitution declared that all men are born free and equal, she asked the lawyer Theodore Sedgwick to test it in court. Brom and Bett v. Ashley went to a jury in Great Barrington on 21 August 1781; the jury found that she and the enslaved man Brom were free and awarded thirty shillings in damages. With the Quock Walker cases of 1781 to 1783, the verdict helped end slavery in Massachusetts. She took the name Elizabeth Freeman, worked for wages in the Sedgwick household as housekeeper and nurse to the children, served the town as midwife and healer, bought her own house and land in Stockbridge, and died there on 28 December 1829. She is buried in the Sedgwick family plot, the only person there who was not a Sedgwick. Catharine Sedgwick remembered her saying she would take one minute of freedom even if she died at the end of it.
+
+### Cathay Williams (`cathay_williams`)
+- cost 4 · Influence 4 · Force 4 · historical · era: c. 1844–c. 1893
+- reveal: Garrison duty: confront every Threat here with +1 Force.
+- established: Buffalo Soldiers: your Characters here confront Threats with +1 Force.
+- blurb: Enlisted in 1866 as William Cathay and served two years in the 38th Infantry, a Buffalo Soldier regiment: the first Black woman known to have enlisted in the U.S. Army, and the only documented woman among the Buffalo Soldiers.
+- history: Cathay Williams was born enslaved around 1844 near Independence, Missouri. When Union troops took Jefferson City in 1861 she was taken along as a cook and laundress and travelled with the army through the war. On 15 November 1866 she enlisted in St. Louis as William Cathay (the papers spell it Cathey), a private in Company A of the 38th United States Infantry, one of the new Black regular regiments that history remembers as the Buffalo Soldiers, and went with it to Kansas and New Mexico Territory, where the regiment guarded the Santa Fe Trail and garrisoned the forts along it. Hospitalized repeatedly, she was discharged on a surgeon's certificate of disability at Fort Bayard on 14 October 1868. She told her story to the St. Louis Daily Times, which printed it on 2 January 1876. Her application for a disability pension in 1891 was rejected in February 1892; no record of her survives after that, and she is conventionally said to have died around 1893 in Trinidad, Colorado.
+
+### James Lafayette (`james_lafayette`)
+- cost 4 · Influence 4 · Force 2 · historical · era: c. 1748–1830
+- reveal: False reports: draw a card, and the opposing Ready Gate Character here with the highest Influence is tricked into waiting again (Fresh).
+- established: In their camp: whenever your opponent plays a Character at this Location, draw a card.
+- blurb: Went into Cornwallis's camp as a runaway and sent out word of every move the army made. Virginia freed him for it, five years after Yorktown.
+- history: James was born enslaved around 1748 in New Kent County, Virginia, held by William Armistead; no record from his lifetime calls him James Armistead, a name later writers gave him. In 1781, with his enslaver's consent, he volunteered under the Marquis de Lafayette and, posing as a runaway, found his way into the British camp during Cornwallis's march through Virginia, where he waited on the headquarters table and listened. He reported British strength and movements to Lafayette, who credited him with 'some important commissions'; later tradition says these included carrying false reports back to Cornwallis. His intelligence helped close the trap at Yorktown in October 1781. The act that freed enslaved soldiers after the war did not cover spies; Lafayette wrote him a testimonial in November 1784, and the Virginia General Assembly emancipated him by a special act on 9 January 1787. He took Lafayette's name, farmed in New Kent County, was granted a state pension in 1819, and was embraced by Lafayette in Richmond during the 1824 tour. He died in 1830.
+
+### Mary Ellen Pleasant (`mary_ellen_pleasant`)
+- cost 5 · Influence 5 · Force 2 · historical · era: c. 1814–1904
+- reveal: Bankroll: +3 Energy next turn.
+- established: Friend of John Brown: your Characters here confront Threats with +2 Force.
+- blurb: Boardinghouses, stock tips and a fortune nobody could quite count. She sued the streetcars until they carried Black riders, and her gravestone says she was a friend of John Brown.
+- history: Mary Ellen Pleasant gave her birth date as 19 August 1814; where she was born, and to whom, she told differently at different times. She worked as a girl for a Quaker family in Nantucket, by her own account married a wealthy abolitionist named James Smith who left her money, and reached San Francisco in 1852 (some accounts say 1849), where she ran boardinghouses, placed her money through the banker Thomas Bell, and was reputed to be one of the richest people in the city, though nobody, then or since, has counted the fortune. She said she gave John Brown $30,000 toward the Harpers Ferry raid. In 1866 two streetcar lines refused her and she sued both: the Omnibus company gave in and agreed to carry Black riders; against the North Beach & Mission line a jury gave her $500 in 1867, which the California Supreme Court struck in 1868, and the cases are credited with ending the exclusion of Black riders on the city's streetcars. She died in San Francisco on 11 January 1904.
+
+### Mary Seacole (`mary_seacole`)
+- cost 5 · Influence 5 · Force 2 · historical · era: 1805–1881
+- reveal: Mother Seacole: she tends both sides. Every Block and Suppression at this Location ends, for both players, and every Gate Character here becomes Ready.
+- established: The British Hotel: your other Established Characters here gain +1 Influence, and your Characters arriving at these Gates are Ready.
+- blurb: Jamaican doctress refused by the War Office, who sailed anyway and built a hotel and dispensary within sound of the guns.
+- history: Mary Jane Grant was born in Kingston, Jamaica, in 1805, to a Scottish soldier and a free Jamaican doctress who kept a boarding house and taught her Creole medicine. She nursed cholera in Kingston in 1850 and in Cruces, Panama, in 1851, and yellow fever in Jamaica in 1853. Refused by the War Office and by Nightingale's recruiters in 1854, she sailed to the Crimea at her own expense and with Thomas Day built the British Hotel at Spring Hill, near Balaclava, in 1855: a store and canteen where she doctored the sick each morning and from which she rode to the battlefields with bandages, tending the wounded of both sides. Bankrupt after the peace of 1856, she was honored with a four-day festival at the Royal Surrey Gardens in 1857 and published Wonderful Adventures of Mrs. Seacole in Many Lands, the first autobiography written by a Black woman in Britain (Mary Prince's 1831 narrative had been dictated) and a bestseller. She died in London on 14 May 1881.
+
+### Samuel Ajayi Crowther (`samuel_ajayi_crowther`)
+- cost 5 · Influence 5 · Force 1 · historical · era: c. 1809–1891
+- reveal: Return: bring one friendly Established Character from another Location here. It arrives Inside if there is room, otherwise Ready at the Gates.
+- established: Christ Church: Threats at this Location cannot touch your Characters: no blocking, no silencing, no displacement.
+- blurb: Taken from Osogun at twelve, freed from a slaver at thirteen, and consecrated at Canterbury in 1864 as the first African bishop of the Anglican Church.
+- history: Ajayi was born around 1809 at Osogun, in Yoruba country, was seized by raiders in 1821 and sold to a Portuguese slaver; on 7 April 1822 HMS Myrmidon and Iphigenia took the ship off Lagos, and in June he was landed at Freetown. Baptized Samuel Crowther in 1825, he was among the first students at Fourah Bay College in 1827, joined the Niger Expedition of 1841, and was ordained in London in 1843, the year his Yoruba vocabulary appeared. At Abeokuta in 1846 he found his mother. On 29 June 1864 he was consecrated at Canterbury Cathedral as Bishop of the countries of Western Africa beyond the Queen's dominions, the Niger bishopric, the first African bishop of the Anglican Church, and led the Niger Mission at Onitsha, Bonny and Brass. He dedicated Christ Church, Lagos, in 1869 and saw the whole Yoruba Bible in print in 1884. In 1890 young English missionaries of the CMS suspended his African clergy in front of him, his son among them, and forced his resignation; the Niger Delta churches broke away in answer. He died in Lagos after a stroke on 31 December 1891, and in 1976 his remains were moved into the Cathedral Church of Christ on the Marina.
+
+### Yaa Asantewaa (`yaa_asantewaa`)
+- cost 6 · Influence 5 · Force 5 · historical · era: c. 1840–1921
+- reveal: Siege of the fort: every opposing Established Character here loses 1 Influence for the rest of the match.
+- established: Besieged: opposing Characters at this Location cannot relocate out. Harriet Tubman still can.
+- blurb: Queen Mother of Ejisu who shamed the Asante chiefs into war in 1900 and besieged the British garrison in its fort at Kumasi for three months.
+- history: Yaa Asantewaa was born around 1840 at Besease and became Queen Mother of Ejisu in the Asante confederacy. In 1896 the British seized the Asantehene Prempeh I and sent him into exile, to Elmina, then Sierra Leone, and from 1900 the Seychelles; her grandson Kofi Tene, the chief of Ejisu, went with him. On 28 March 1900 Governor Frederick Hodgson demanded at Kumasi that the Golden Stool, the soul of the Asante nation, be handed over for him to sit on. At the council that followed, as Asante tradition records, she told the chiefs that if the men would not go forward, the women would, and she was named to command the rising. Her forces besieged the British garrison in the Kumasi fort from April until a relief column broke through in July 1900. Captured in November 1900, she was shipped to the Seychelles in 1901 with fifteen chiefs and died there on 17 October 1921. Asante was annexed in 1902; the Golden Stool was never surrendered.
+
+### Zumbi dos Palmares (`zumbi_dos_palmares`)
+- cost 6 · Influence 6 · Force 5 · historical · era: c. 1655–1695
+- reveal: Quilombo: each of your other Characters at this Location that costs 2 or less gains +1 Influence for good.
+- established: Palmares holds: your Characters here cannot be displaced.
+- blurb: Last leader of Palmares, the maroon state in the Brazilian hills that held off Portugal and the Dutch for most of a century.
+- history: Zumbi was born in Palmares around 1655, the great quilombo in the Serra da Barriga of Pernambuco, now Alagoas, where people who had escaped slavery on the sugar coast had lived free since the start of the century. A later story, resting on letters the journalist Décio Freitas said he found in the 1970s and never produced, has him captured as a child in a Portuguese raid and raised by a priest in Porto Calvo who taught him Portuguese and Latin; historians treat it as unverified, and the record begins in the 1670s, when he was already a war leader. Home to thousands, Palmares repelled Dutch and Portuguese expeditions for decades. When the governor of Pernambuco offered the ruler Ganga Zumba a treaty in 1678 that would free those born in Palmares, move them to the Cucaú valley and return the rest, Zumbi refused it; Ganga Zumba was poisoned, very likely by Zumbi's own side, and by 1680 Zumbi was king. The bandeirante Domingos Jorge Velho stormed the capital, Macaco, on 6 February 1694. Zumbi fought on until he was betrayed and killed on 20 November 1695; his head was displayed in Recife. Brazil marks the date as the National Day of Zumbi and Black Consciousness.
+
+### Menelik II (`menelik_ii`)
+- cost 7 · Influence 6 · Force 6 · historical · era: 1844–1913
+- reveal: Adwa: CHALLENGE every opposing Established Character here. Each with lower Force than Menelik returns to its Gates, Fresh, for as long as their Gates have room. Sent back at Sundown Town, they are not run out that same night.
+- established: Adwa holds: your other Characters Inside here gain +2 Influence.
+- blurb: Emperor who repudiated the Italian treaty and broke an Italian army at Adwa in 1896, the victory that kept Ethiopia its own.
+- history: Sahle Maryam was born on 17 August 1844, became king of Shewa in 1865 and Emperor Menelik II of Ethiopia in 1889. That May he signed the Treaty of Wuchale with Italy; the Italian text of Article 17 bound Ethiopia to deal with other powers through Italy, which Italy announced to Europe as a protectorate, the Amharic text made it optional, and in 1893 he repudiated it. When Italy advanced from Eritrea he called the empire to arms, and on 1 March 1896 at Adwa an army of around 100,000, with Empress Taytu Betul commanding her own contingent, destroyed General Oreste Baratieri's force of some 17,000; between 6,000 and 7,000 Italians and askari died, and the Treaty of Addis Ababa that October annulled Wuchale and recognized Ethiopia's independence while the rest of the continent was being partitioned. The same army had spent the previous decade doubling the empire southward, over the Arsi Oromo, Harar, Wolaita and Kaffa, with killing and enslavement those peoples still mourn; hundreds of captured Eritrean askari lost a hand and a foot after Adwa as traitors, and slavery outlived him in Ethiopia until 1942. He founded Addis Ababa with Taytu, began the railway from Djibouti (it reached his capital only in 1917, after his death), strung the first telegraph lines and opened the first modern school, and died on 12 December 1913. The diaspora claimed Adwa at once: Garvey's UNIA sang 'Ethiopia, Thou Land of Our Fathers.'
+
 ### Victor Hugo Green (`victor_hugo_green`)
 - cost 3 · Influence 4 · Force 1 · historical · era: 1892–1960
 - reveal: The Green Book: next turn you may make one extra Relocation.
@@ -796,7 +866,7 @@ Main menu
 - Not enough Energy. ${cardName(play.cardId, placeholders)} costs ${cost} and you have ${opts.energy - spent} left of ${opts.energy} this turn (Energy = the turn number). Remove a planned card or wait a turn.
 - ${cardName(play.cardId, placeholders)} goes Inside right away (Direct Entry). Tap ⇅ on the planned move to wait at the Gates instead.
 - ${cardName(play.cardId, placeholders)} planned. Optional: drag one of your Gate Characters to another Location's Gates and she moves it there for free.
-- ${cardName(play.cardId, placeholders)} planned. Optional: drag one of your Established Characters from another Location onto hers and she brings them across.
+- ${cardName(play.cardId, placeholders)} planned. Optional: drag one of your Established Characters from another Location onto this one and ${cardName(play.cardId, placeholders)} brings them across.
 - ${nm} is a card in your hand. Drop it on a Location; Threats are confronted by Characters already there.
 - ${locNameAt(i)} is Lost. Nobody can win it, so nothing can be played there.
 - ${nm} cannot be played right now.
@@ -846,7 +916,7 @@ Main menu
 - Hand full (${MAX_HAND}). Play a card or your next draw is discarded.
 - Tap a Location to commit ${cardName(selected, placeholders)}.
 - Harriet Tubman: drag any of your Characters to another Location and she takes them straight Inside. Free, and she gets them out of a curfew (optional).
-- Yemoja: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : 
+- ${cardName(yemojaPlay.cardId, placeholders)}: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : 
 - Drag a card onto a Location.
 - Sit Down${opts.canStepOff && view.phase !== 'ended' ? 
 - replay-banner kind-${step.kind}
@@ -1164,6 +1234,11 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
     case 'challengeInside':
       return 
 - ;
+    case 'challengeAllInside':
+      return 
+- ;
+    case 'siegeInside':
+      return 'The siege does not lift. Only protection stops it.';
     case 'displaceOpposingGate':
       return 'No Force check. Only protection stops her.';
     case 'blockOneOpposingGate':
@@ -1417,7 +1492,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - Setback for ${state.players[p].handle}: ${reason}.
 - ${name(state, c)} would rise again, but ${ps.handle}'s hand is full: she is discarded (${reason}).
 - ${name(state, c)} rises again: instead of being displaced (${reason}) she returns to ${ps.handle}'s hand and costs 0 the next time.
-- Anansi tricks ${charDef(target.defId).name} into waiting again.
+- ${charDef(def.id).name} tricks ${charDef(target.defId).name} into waiting again.
 - ${who} ${verb}.
 - ${name(state, c)} could not be displaced: no open Gate.
 - ${name(state, c)} is displaced from ${locName(state, from)} to the Gates of ${locName(state, dest)} (${reason}).
@@ -1462,6 +1537,8 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - no opposing Established Character to challenge.
 - challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}); they return to the Gates, Fresh.
 - challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}) and is held off.
+- no opposing Established Character here to besiege.
+- besieges ${targets.map((x) => charDef(x.defId).name).join(', ')}: −${amount} Influence each for the rest of the match.
 - the opposing Characters here cannot be Suppressed.
 - suppresses ${charDef(target.defId).name} until the end of next turn.
 - no opposing Established Character to suppress.

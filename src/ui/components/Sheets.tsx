@@ -550,6 +550,10 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
       return `${nm(actor.id)} has ${force} Force: a Gate Character with ${force} or more holds ${eff === 'challengeGate' ? 'her' : 'him'} off.`;
     case 'challengeInside':
       return `${nm(actor.id)} has ${force} Force: an Established Character with ${force} or more holds him off.`;
+    case 'challengeAllInside':
+      return `${nm(actor.id)} has ${force} Force: every Established Character with ${force} or more keeps its seat.`;
+    case 'siegeInside':
+      return 'The siege does not lift. Only protection stops it.';
     case 'displaceOpposingGate':
       return 'No Force check. Only protection stops her.';
     case 'blockOneOpposingGate':

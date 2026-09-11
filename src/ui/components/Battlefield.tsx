@@ -333,6 +333,7 @@ export function liveAbilities(view: GameState, index: number, p: PlayerId): { ui
 function shortEffect(type: string): string {
   const map: Record<string, string> = {
     readyRelocatedIn: 'arrivals Ready',
+    relocatedInReady: 'every arrival Ready',
     auraInfluenceOthersHere: '+1 Influence to others',
     assistForceBonus: '+1 Force when assisting',
     relocatedNoDisplace: 'relocated are safe',

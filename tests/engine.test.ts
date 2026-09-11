@@ -23,6 +23,7 @@ import {
   type TurnPlan,
   type CharacterInstance,
   charDef,
+  cardDef,
   MAX_HAND,
   CARD_BY_ID,
   charInfluence,
@@ -1676,5 +1677,92 @@ describe('The Last Word', () => {
     expect(energyFor(s, 'B')).toBe(10);
     expect(s.players.A.hand.length).toBe(Math.min(MAX_HAND, handA + 2));
     expect(s.players.B.hand.length).toBe(Math.min(MAX_HAND, handB + 2));
+  });
+});
+
+describe('Ten more heroes', () => {
+  it('Shadd Cary readies every Character relocated into her Location; Harriet readies only the first', () => {
+    const setup = (holder: string) => {
+      const s = rig(createMatch({ seed: 2 }), { locations: ['great_migration', 'juneteenth', 'gary_indiana'], revealAll: true });
+      addChar(s, holder, 'A', 0, 'inside');
+      addChar(s, 'sleeping_car_porters', 'A', 1, 'inside'); // +1 Relocation
+      const x = addChar(s, 'organizer', 'A', 1, 'inside');
+      const y = addChar(s, 'john_russwurm', 'A', 2, 'inside');
+      const plan = { ...pass(), relocations: [{ uid: x.uid, to: 0 }, { uid: y.uid, to: 0 }] };
+      expect(validatePlan(s, 'A', plan)).toEqual([]);
+      return { s: resolveTurn(s, { A: plan, B: pass() }).state, x, y };
+    };
+    // Great Migration admits Ready arrivals at once, so "Ready" shows as Ready at the Gates or already Inside.
+    const through = (s: GameState, uid: string) => s.characters[uid].ready || s.characters[uid].zone === 'inside';
+    const cary = setup('mary_ann_shadd_cary');
+    expect(through(cary.s, cary.x.uid)).toBe(true);
+    expect(through(cary.s, cary.y.uid)).toBe(true);
+    const harriet = setup('harriet_tubman');
+    expect([through(harriet.s, harriet.x.uid), through(harriet.s, harriet.y.uid)].filter(Boolean).length).toBe(1);
+  });
+  it('Yaa Asantewaa besieges every opposing Established Character here for good, spares the shielded, and then nobody relocates out against her', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['great_migration', 'juneteenth', 'gary_indiana'], revealAll: true, handA: ['yaa_asantewaa'] });
+    const a = addChar(s, 'organizer', 'B', 0, 'inside');
+    const b = addChar(s, 'frederick_douglass', 'B', 0, 'inside');
+    const g = addChar(s, 'bass_reeves', 'B', 0, 'gate');
+    const elsewhere = addChar(s, 'john_russwurm', 'B', 1, 'inside');
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'yaa_asantewaa', location: 0 }] }, B: pass() }).state;
+    expect(s.characters[a.uid].permInfluence).toBe(-1);
+    expect(s.characters[b.uid].permInfluence).toBe(-1);
+    expect(s.characters[g.uid].permInfluence).toBe(0);
+    expect(s.characters[elsewhere.uid].permInfluence).toBe(0);
+    const yaa = charsOf(s, 'A').find((c) => c.defId === 'yaa_asantewaa')!;
+    yaa.zone = 'inside';
+    expect(lockReason(s, s.characters[a.uid])).toContain('Yaa Asantewaa');
+    expect(lockReason(s, s.characters[elsewhere.uid])).toBeNull();
+    // Nanny's shield keeps the siege off.
+    let t = rig(createMatch({ seed: 2 }), { locations: ['great_migration', 'juneteenth', 'gary_indiana'], revealAll: true, handA: ['yaa_asantewaa'] });
+    const safe = addChar(t, 'organizer', 'B', 0, 'inside');
+    addChar(t, 'nanny_of_the_maroons', 'B', 0, 'inside');
+    t = resolveTurn(t, { A: { ...pass(), plays: [{ cardId: 'yaa_asantewaa', location: 0 }] }, B: pass() }).state;
+    expect(t.characters[safe.uid].permInfluence).toBe(0);
+  });
+  it('Menelik II challenges everyone Inside: the weaker return to the Gates Fresh, the stronger keep their seats', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['great_migration', 'juneteenth', 'gary_indiana'], revealAll: true, handA: ['menelik_ii'] });
+    const weak1 = addChar(s, 'organizer', 'B', 0, 'inside');
+    const weak2 = addChar(s, 'john_russwurm', 'B', 0, 'inside');
+    const strong = addChar(s, 'boukman_dutty', 'B', 0, 'inside'); // Force 6 against Menelik's 6: holds
+    const r = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'menelik_ii', location: 0 }] }, B: pass() });
+    s = r.state;
+    expect(s.characters[weak1.uid].zone).toBe('gate');
+    expect(s.characters[weak1.uid].ready).toBe(false);
+    expect(s.characters[weak2.uid].zone).toBe('gate');
+    expect(s.characters[strong.uid].zone).toBe('inside');
+    expect(r.events.filter((e) => e.type === 'clash').length).toBe(3); // one beat per challenge, held or sent back
+  });
+  it("James Lafayette's trick is logged in his own name", () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['great_migration', 'juneteenth', 'black_star'], revealAll: true, handA: ['james_lafayette'] });
+    const mark = addChar(s, 'bessie_coleman', 'B', 0, 'gate', true);
+    const r = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'james_lafayette', location: 0 }] }, B: pass() });
+    expect(r.state.characters[mark.uid].ready).toBe(false);
+    expect(r.events.some((e) => e.text.includes('James Lafayette tricks Bessie Coleman'))).toBe(true);
+    expect(r.events.some((e) => e.text.includes('Anansi tricks'))).toBe(false);
+  });
+  it('Crowther brings an Established friend across like Yemoja does', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['gary_indiana', 'great_migration', 'greenwood'], revealAll: true, handA: ['samuel_ajayi_crowther'] });
+    const ida = addChar(s, 'ida_b_wells', 'A', 2, 'inside');
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'samuel_ajayi_crowther', location: 0, target: { charUid: ida.uid, location: 0 } }] }, B: pass() }).state;
+    expect(s.characters[ida.uid].location).toBe(0);
+    expect(s.characters[ida.uid].zone).toBe('inside');
+  });
+  it('the pool covers every cost from 0 to 8 and the middle of the curve is populated', () => {
+    const legal = CHARACTERS.filter((c) => c.category !== 'gathering' && !c.spawn && !c.hidden);
+    const byCost: Record<number, number> = {};
+    for (const c of legal) byCost[c.cost] = (byCost[c.cost] ?? 0) + 1;
+    for (let cost = 0; cost <= 8; cost++) expect(byCost[cost] ?? 0).toBeGreaterThan(0);
+    expect(byCost[4]).toBeGreaterThanOrEqual(10);
+    expect(byCost[5]).toBeGreaterThanOrEqual(6);
+    expect(byCost[6]).toBeGreaterThanOrEqual(4);
+    // Every preset carries the middle of the curve too.
+    for (const deck of Object.values(PRESET_DECKS)) {
+      const costs = deck.cards.map((id) => cardDef(id).cost);
+      expect(costs.filter((c) => c === 4).length).toBeGreaterThanOrEqual(3);
+      expect(costs.filter((c) => c >= 5).length).toBeGreaterThanOrEqual(3);
+    }
   });
 });

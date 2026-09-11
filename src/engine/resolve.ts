@@ -102,7 +102,7 @@ function trickGate(state: GameState, events: GameEvent[], p: PlayerId, loc: numb
   if (!target || isProtected(state, target)) return false;
   target.ready = false;
   target.arrivedTurn = state.turn;
-  events.push({ type: 'reveal', text: `Anansi tricks ${charDef(target.defId).name} into waiting again.`, player: p, location: loc, uid: target.uid });
+  events.push({ type: 'reveal', text: `${charDef(def.id).name} tricks ${charDef(target.defId).name} into waiting again.`, player: p, location: loc, uid: target.uid });
   clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, target, 'tricked', loc, { note: 'They were Ready; now they are Fresh and wait a turn before they can enter.' });
   return true;
 }
@@ -544,6 +544,54 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
         const why = myForce <= theirForce ? `Force decides: ${myForce} is not more than ${theirForce}, so ${charDef(target.defId).name} keeps the seat.` : isProtected(state, target) ? `${charDef(target.defId).name} is protected this turn, so nothing can move them.` : `${state.players[opp].handle}'s Gates here are full, so there is nowhere to send ${charDef(target.defId).name}.`;
         clash(state, events, { kind: 'character', id: def.id, owner: p, force: myForce }, target, 'held', loc, { theirForce, intent, note: why });
       }
+      break;
+    }
+    case 'challengeAllInside': {
+      // Menelik II: every opposing Established Character here, strongest first; each one with less Force is sent back to its Gates, Fresh.
+      const targets = charsAt(state, loc, opp, 'inside')
+        .filter((x) => !shielded(state, x))
+        .sort((a, b) => charInfluence(state, b) - charInfluence(state, a));
+      if (!targets.length) {
+        say('no opposing Established Character to challenge.');
+        break;
+      }
+      const myForce = def.force;
+      let sent = 0;
+      for (const target of targets) {
+        const theirForce = charDef(target.defId).force;
+        const intent = `${def.name} arrived to challenge every opposing Established Character here: each with less Force than ${myForce} is sent back to the Gates, Fresh, while their Gates have room.`;
+        if (myForce > theirForce && !isProtected(state, target) && gateOpen(state, loc, opp)) {
+          target.zone = 'gate';
+          target.ready = false;
+          target.arrivedTurn = state.turn;
+          target.blessedUid = undefined;
+          target.protectedTurn = state.turn; // sent back tonight, not run out of town as well
+          sent += 1;
+          events.push({ type: 'moved', text: '', uid: target.uid, location: loc, data: { from: loc, to: loc, reason: 'Toussaint' } });
+          clash(state, events, { kind: 'character', id: def.id, owner: p, force: myForce }, target, 'sentBack', loc, { theirForce, intent, note: `Force decides: ${myForce} against ${theirForce}. They lose their seat Inside and wait at the Gates again.` });
+        } else {
+          const why = myForce <= theirForce ? `Force decides: ${myForce} is not more than ${theirForce}, so ${charDef(target.defId).name} keeps the seat.` : isProtected(state, target) ? `${charDef(target.defId).name} is protected this turn, so nothing can move them.` : `${state.players[opp].handle}'s Gates here are full, so there is nowhere to send ${charDef(target.defId).name}.`;
+          clash(state, events, { kind: 'character', id: def.id, owner: p, force: myForce }, target, 'held', loc, { theirForce, intent, note: why });
+        }
+      }
+      say(sent ? `challenges everyone Inside here: ${sent} of ${targets.length} return${sent === 1 ? 's' : ''} to the Gates, Fresh.` : `challenges everyone Inside here (${myForce} Force) and is held off by all ${targets.length}.`);
+      break;
+    }
+    case 'siegeInside': {
+      // Yaa Asantewaa: every opposing Established Character here loses Influence for good. Shielded and protected ones are spared, as with the hex.
+      const amount = def.reveal!.effect.type === 'siegeInside' ? def.reveal!.effect.amount : 1;
+      const targets = charsAt(state, loc, opp, 'inside')
+        .filter((x) => !shielded(state, x) && !isProtected(state, x))
+        .sort((a, b) => charInfluence(state, b) - charInfluence(state, a));
+      if (!targets.length) {
+        say('no opposing Established Character here to besiege.');
+        break;
+      }
+      for (const target of targets) {
+        target.permInfluence -= amount;
+        clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, target, 'hexed', loc, { theirForce: amount, intent: `${def.name} arrived to besiege every opposing Established Character here.`, note: 'The siege does not lift. Only protection stops it.' });
+      }
+      say(`besieges ${targets.map((x) => charDef(x.defId).name).join(', ')}: −${amount} Influence each for the rest of the match.`);
       break;
     }
     case 'suppressInside': {
@@ -1153,6 +1201,8 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
         byOwner[p] = c.uid;
         if (hasEstablished(state, p, r.to, 'readyRelocatedIn').length) readyUp(c);
       }
+      // Mary Ann Shadd Cary: everyone relocated in arrives Ready, not only the first.
+      if (hasEstablished(state, p, r.to, 'relocatedInReady').length) readyUp(c);
       events.push({
         type: 'moved',
         text: `${name(state, c)} relocates from ${wasGate ? 'the Gates of ' : ''}${locName(state, from)} to the Gates of ${locName(state, r.to)}${c.ready ? (wasGate ? ', still Ready' : ' and is Ready') : ' and waits again'}.`,

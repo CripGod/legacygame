@@ -82,10 +82,13 @@ export type RevealEffect =
   | { type: 'energyNext'; amount: number } // Madam C.J. Walker: Energy next turn
   | { type: 'nextCharacterDiscount'; amount: number } // Daniel Payne: your next Character costs less
   | { type: 'relocationNextTurn'; amount: number } // Victor Hugo Green: extra Relocation next turn
+  | { type: 'siegeInside'; amount: number } // Yaa Asantewaa: every opposing Established Character here loses Influence for good
+  | { type: 'challengeAllInside' } // Menelik II: every opposing Established Character here with lower Force returns to its Gates, Fresh, while their Gates have room
   | { type: 'drawPerFriendHere'; max: number }; // Denmark Vesey: draw per other friendly Character here: permanent Influence on the Location itself, which stays when the artist leaves
 
 export type EstablishedEffect =
   | { type: 'readyRelocatedIn' } // Harriet
+  | { type: 'relocatedInReady' } // Mary Ann Shadd Cary: every Character you relocate into this Location arrives Ready
   | { type: 'bridleHere' } // Tom Bass: opposing Characters at this Location cannot relocate out (Harriet still can)
   | { type: 'auraInfluenceOthersHere'; amount: number } // Douglass
   | { type: 'assistForceBonus'; amount: number } // John Brown

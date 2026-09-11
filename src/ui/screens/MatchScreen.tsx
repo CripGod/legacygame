@@ -488,7 +488,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     if (play.cardId === 'the_ancestors') setSheet({ kind: 'ancestors' });
     const needs = opts.plays.find((p) => p.cardId === play.cardId)?.needsTarget;
     if (needs === 'friendlyCharAndLocation' && !play.target) feedback(`${cardName(play.cardId, placeholders)} planned. Optional: drag one of your Gate Characters to another Location's Gates and she moves it there for free.`);
-    if (needs === 'friendlyInsideChar' && !play.target) feedback(`${cardName(play.cardId, placeholders)} planned. Optional: drag one of your Established Characters from another Location onto hers and she brings them across.`);
+    if (needs === 'friendlyInsideChar' && !play.target) feedback(`${cardName(play.cardId, placeholders)} planned. Optional: drag one of your Established Characters from another Location onto this one and ${cardName(play.cardId, placeholders)} brings them across.`);
   }
 
   /** Harriet Tubman / Yemoja: the planned play whose Reveal wants a target, if any. */
@@ -808,7 +808,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     if (view.players[me].hand.length - plan.plays.length >= MAX_HAND && view.players[me].deckCount > 0 && !selected) return `Hand full (${MAX_HAND}). Play a card or your next draw is discarded.`;
     if (selected) return `Tap a Location to commit ${cardName(selected, placeholders)}.`;
     if (harrietPlay && !harrietPlay.target) return 'Harriet Tubman: drag any of your Characters to another Location and she takes them straight Inside. Free, and she gets them out of a curfew (optional).';
-    if (yemojaPlay && !yemojaPlay.target) return `Yemoja: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : `Location ${yemojaPlay.location + 1}`} (optional).`;
+    if (yemojaPlay && !yemojaPlay.target) return `${cardName(yemojaPlay.cardId, placeholders)}: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : `Location ${yemojaPlay.location + 1}`} (optional).`;
     const affordable = opts.plays.filter((o) => !plan.plays.some((pl) => pl.cardId === o.cardId) && cardCost(o.cardId, view, me) <= energyLeft).length;
     if (planItems.length) return affordable > 0 ? '' : '';
     return 'Drag a card onto a Location.';
