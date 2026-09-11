@@ -842,8 +842,28 @@ body:has(.cx-inner) .tip {
 /* ---------- The card sheet: just the card, in 3D, with the story beside it ---------- */
 .cx-stage { position: relative; display: flex; align-items: stretch; gap: 0; max-width: 96vw; }
 .cx-stage-x { position: absolute; top: -14px; right: -14px; z-index: 5; }
-.cx-card3d { position: relative; display: grid; justify-items: center; gap: 14px; flex: none; }
-.cx-card3d-inner { position: relative; animation: cx-card-in 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; filter: drop-shadow(0 30px 40px rgba(0, 0, 0, 0.7)); }
+.cx-card3d { position: relative; display: grid; justify-items: center; gap: 14px; flex: none; perspective: 1100px; }
+/* The card leans toward the pointer (--rx/--ry set from CodexSheet) and a sheen follows it (--gx/--gy). The entrance
+   animation fills backwards only, so once it ends the tilt transform below is the one that applies. */
+.cx-card3d-inner {
+  position: relative;
+  --rx: 0deg; --ry: 0deg; --gx: 50%; --gy: 40%;
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+  animation: cx-card-in 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards;
+  filter: drop-shadow(0 30px 40px rgba(0, 0, 0, 0.7));
+}
+.cx-card3d-inner.tilting { transition: transform 0.12s ease-out; }
+.cx-glare {
+  position: absolute; inset: 0; pointer-events: none; z-index: 6; opacity: 0;
+  background: radial-gradient(circle at var(--gx) var(--gy), rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.08) 28%, transparent 58%);
+  mix-blend-mode: screen; transition: opacity 0.3s;
+  clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+}
+.cx-card3d-inner.tilting .cx-glare { opacity: 1; }
+@media (hover: none) { .cx-glare { display: none; } }
 .cx-card3d .card.big { box-shadow: 0 0 0 1px rgba(233, 185, 58, 0.5); }
 @keyframes cx-card-in { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .cx-history-btn { min-width: 140px; }
@@ -868,7 +888,7 @@ body:has(.cx-inner) .tip {
   .cx-history-scroll { width: auto; max-height: 40vh; }
   .cx-card3d-inner { animation: none; }
 }
-@media (prefers-reduced-motion: reduce) { .cx-card3d-inner { animation: none; } .cx-history { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .cx-card3d-inner { animation: none; transform: none !important; } .cx-glare { display: none; } .cx-history { transition: none; } }
 /* Darker, blurred ground behind the card sheet so the story reads over whatever page opened it. */
 .scrim.cx-scrim { background: rgba(4, 8, 14, 0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
 

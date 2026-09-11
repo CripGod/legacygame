@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { CARD_BY_ID } from '../../engine';
 import { CardFace } from './CardFace';
 import { cardName, useDisplay } from '../display';
@@ -21,6 +21,27 @@ export function CodexSheet({ id, label, onClose, children }: { id: string; label
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
+  // 3D tilt: the card leans toward the pointer, with a sheen that follows it. Modal only.
+  const tiltRef = useRef<HTMLDivElement>(null);
+  const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = tiltRef.current;
+    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width;
+    const py = (e.clientY - r.top) / r.height;
+    el.style.setProperty('--ry', `${((px - 0.5) * 24).toFixed(2)}deg`);
+    el.style.setProperty('--rx', `${((0.5 - py) * 18).toFixed(2)}deg`);
+    el.style.setProperty('--gx', `${(px * 100).toFixed(1)}%`);
+    el.style.setProperty('--gy', `${(py * 100).toFixed(1)}%`);
+    el.classList.add('tilting');
+  };
+  const onLeave = () => {
+    const el = tiltRef.current;
+    if (!el) return;
+    el.style.setProperty('--ry', '0deg');
+    el.style.setProperty('--rx', '0deg');
+    el.classList.remove('tilting');
+  };
   const def = CARD_BY_ID[id];
   if (!def) return null;
   const mythic = def.kind === 'character' && def.category === 'mythic';
@@ -32,8 +53,9 @@ export function CodexSheet({ id, label, onClose, children }: { id: string; label
           ✕
         </button>
         <div className="cx-card3d">
-          <div className="cx-card3d-inner">
+          <div className="cx-card3d-inner" ref={tiltRef} onPointerMove={onMove} onPointerLeave={onLeave} onPointerCancel={onLeave}>
             <CardFace id={id} big />
+            <div className="cx-glare" aria-hidden />
           </div>
           {history && (
             <button className={`cx-btn cx-ctl cx-history-btn ${open ? 'on' : ''}`} onClick={() => setOpen((o) => !o)} aria-expanded={open}>
