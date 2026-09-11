@@ -24,7 +24,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Missing
 
-### characters (36)
+### characters (40)
 
 - `john_russwurm` **John Russwurm** (1799–1851): Co-founded Freedom's Journal in 1827, the first Black-owned newspaper in the United States. "We wish to plead our own cause."
 - `alonzo_herndon` **Alonzo Herndon** (1858–1927): Born enslaved, built the finest barbershop in Atlanta and then Atlanta Life Insurance. Everybody passed through his chairs.
@@ -43,6 +43,10 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `tom_bass` **Tom Bass** (1859–1934): The greatest saddle-horse trainer of his day. Invented a bit that never hurt the horse and refused to patent it.
 - `bud_billiken` **Bud Billiken** (Chicago Defender, 1923): The Chicago Defender's mascot for its children's page: guardian of every Black kid, dreamed up in 1923.
 - `roger_taney` **Roger Taney** (1777–1864): Chief Justice who wrote Dred Scott: Black people had "no rights which the white man was bound to respect." Useful to whoever plays him for a turn, then a liability to whoever is winning.
+- `abraham_lincoln` **Abraham Lincoln** (1809–1865): Declared free on New Year's Day 1863 everyone enslaved in the states still in rebellion, the loyal states and a few occupied districts excepted, then spent his last winter whipping the votes for the amendment that freed the rest.
+- `william_lloyd_garrison` **William Lloyd Garrison** (1805–1879): Printed The Liberator every week for thirty-five years and would not retreat a single inch. 'I will be heard.'
+- `thaddeus_stevens` **Thaddeus Stevens** (1792–1868): The Radical who ran the House: carried the Fourteenth Amendment, asked for forty acres for the freedpeople and was refused, and was buried in the one Lancaster cemetery that took everybody.
+- `charles_sumner` **Charles Sumner** (1811–1874): Beaten nearly to death at his Senate desk for a speech against slavery. Came back three years later. His last words were to take care of the civil rights bill; it passed a year after he died.
 - `peter_prioleau` **Peter Prioleau** (Charleston, 1822): The enslaved cook who told his master about the Vesey plot. Freed by the state for it, with a pension.
 - `george_wilson` **George Wilson** (Charleston, 1822): A class leader in the African church who confirmed the plot to his master. Freed, and never at peace with it.
 - `pharoah_and_tom` **Pharoah and Tom** (Richmond, 1800): Two enslaved men on Mosby Sheppard's place who gave up Gabriel's rising on the day it was to begin.

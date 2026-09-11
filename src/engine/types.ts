@@ -60,6 +60,9 @@ export type RevealEffect =
   | { type: 'challengeGate' } // Nzinga
   | { type: 'challengeInside' } // Toussaint
   | { type: 'suppressInside' } // Sojourner Truth
+  | { type: 'readyFriendlyWhereBehind' } // Lincoln: at every Location where the opponent leads, your Fresh Gate Characters become Ready
+  | { type: 'weakenAllThreatsHere'; amount: number } // Thaddeus Stevens: every Threat here needs less Force, for good
+  | { type: 'permInfluenceAllOthersHere'; amount: number; max: number } // Charles Sumner: your other Characters here (up to max) gain lasting Influence
   | { type: 'retell' } // Anansi: draw a card; where the opponent leads, retell this Location as a random one not in the match and spin his web over it; otherwise trick their best Ready Gate Character into waiting again
   | { type: 'refreshOpposingGate' } // trick the opposing Ready Gate Character into waiting again
   | { type: 'challengeAllGates' } // Shango

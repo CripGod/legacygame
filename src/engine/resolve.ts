@@ -578,6 +578,35 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       if (!trickGate(state, events, p, loc, def)) say('draws a card.');
       break;
     }
+    case 'readyFriendlyWhereBehind': {
+      const behind = state.locations.filter((l) => !l.lost && influenceAt(state, l.index)[opp] > influenceAt(state, l.index)[p]).map((l) => l.index);
+      const targets = charsOf(state, p).filter((x) => x.zone === 'gate' && x.uid !== c.uid && !x.ready && !isInformant(x) && behind.includes(x.location));
+      for (const t of targets) {
+        readyUp(t);
+        events.push({ type: 'ready', text: '', uid: t.uid });
+      }
+      say(targets.length ? `Proclamation: ${targets.length} Character${targets.length > 1 ? 's' : ''} where they lead become${targets.length > 1 ? '' : 's'} Ready.` : 'Proclamation: nowhere you trail has a Fresh Character waiting.');
+      break;
+    }
+    case 'weakenAllThreatsHere': {
+      const ts = state.locations[loc].threats;
+      if (!ts.length) {
+        say('no Threat here to legislate against.');
+        break;
+      }
+      for (const t of ts) t.forceRequired = Math.max(1, t.forceRequired - eff.amount);
+      say(`every Threat here needs ${eff.amount} less Force, for good (${ts.map((t) => `${THREAT_BY_ID[t.defId].name} ${t.forceRequired}`).join(', ')}).`);
+      break;
+    }
+    case 'permInfluenceAllOthersHere': {
+      const others = charsAt(state, loc, p)
+        .filter((x) => x.uid !== c.uid && !isInformant(x))
+        .sort((a, b) => charInfluence(state, b) - charInfluence(state, a))
+        .slice(0, eff.max);
+      for (const o of others) o.permInfluence += eff.amount;
+      say(others.length ? `${others.map((o) => charDef(o.defId).name).join(', ')} gain${others.length > 1 ? '' : 's'} +${eff.amount} Influence for the rest of the match.` : 'no other friendly Character here.');
+      break;
+    }
     case 'challengeAllGates': {
       const targets = charsAt(state, loc, opp, 'gate').filter((x) => !isInformant(x) && !shielded(state, x));
       let hits = 0;

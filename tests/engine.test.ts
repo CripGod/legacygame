@@ -168,7 +168,7 @@ describe('turn structure', () => {
     const s = rig(createMatch({ seed: 2 }), { locations: ['black_star', 'great_migration', 'juneteenth'], revealAll: true });
     addChar(s, 'harriet_tubman', 'A', 0, 'gate');
     addChar(s, 'frederick_douglass', 'A', 0, 'inside');
-    expect(influenceAt(s, 0).A).toBe(3 + (4 + 1)); // Douglass's aura only reaches Inside Characters; Inside counts +1.
+    expect(influenceAt(s, 0).A).toBe(charDef('harriet_tubman').influence + (charDef('frederick_douglass').influence + 1)); // Douglass's aura only reaches Inside Characters; Inside counts +1.
   });
 });
 
@@ -178,15 +178,15 @@ describe('abilities', () => {
     addChar(s, 'frederick_douglass', 'A', 0, 'inside');
     addChar(s, 'harriet_tubman', 'A', 0, 'inside');
     addChar(s, 'zora_neale_hurston', 'A', 0, 'gate');
-    expect(influenceAt(s, 0).A).toBe(4 + 1 + (3 + 1 + 1) + 3); // Douglass Inside, Harriet Inside with his aura, Zora at the Gates
+    expect(influenceAt(s, 0).A).toBe(charDef('frederick_douglass').influence + 1 + (charDef('harriet_tubman').influence + 1 + 1) + charDef('zora_neale_hurston').influence); // Douglass Inside, Harriet Inside with his aura, Zora at the Gates
   });
   it('Roger Taney blocks an opposing Ready Character and penalizes the leader', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['black_star', 'great_migration', 'juneteenth'], revealAll: true, handB: ['roger_taney'] });
     const mansa = addChar(s, 'mansa_musa', 'A', 0, 'gate', true);
     s = resolveTurn(s, { A: { ...pass(), enters: [mansa.uid] }, B: { ...pass(), plays: [{ cardId: 'roger_taney', location: 0 }] } }).state;
     expect(s.characters[mansa.uid].zone).toBe('gate');
-    // A leads 7 vs 1 → Roger Taney's presence costs the leader 1.
-    expect(influenceAt(s, 0)).toEqual({ A: 6, B: 1 });
+    // A leads → Roger Taney's presence costs the leader 1.
+    expect(influenceAt(s, 0)).toEqual({ A: charDef('mansa_musa').influence - 1, B: 1 });
   });
   it('Harriet conducts a friendly Character straight Inside another Location, or to its Gates Ready when the Inside is full', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['black_star', 'great_migration', 'greenwood'], revealAll: true, handA: ['harriet_tubman'] });
@@ -259,7 +259,7 @@ describe('threats', () => {
     const a = addChar(s, 'og', 'A', 0, 'inside');
     const b = addChar(s, 'organizer', 'B', 0, 'inside');
     s.locations[0].threats.push({ uid: 'cc', defId: 'comfortable_complicity', location: 0, forceRequired: 1, spawnedTurn: 1 });
-    expect(influenceAt(s, 0)).toEqual({ A: 5, B: 3 }); // Inside +1 each; Complicity pays the leader +1
+    expect(influenceAt(s, 0)).toEqual({ A: charDef('og').influence + 1 + 1, B: charDef('organizer').influence + 1 }); // Inside +1 each; Complicity pays the leader +1
     s = resolveTurn(s, { A: { ...pass(), confronts: [{ uid: a.uid, threatUid: 'cc' }] }, B: pass() }).state;
     expect(s.locations[0].threats).toHaveLength(1);
     s = resolveTurn(s, { A: { ...pass(), confronts: [{ uid: a.uid, threatUid: 'cc' }] }, B: { ...pass(), confronts: [{ uid: b.uid, threatUid: 'cc' }] } }).state;
@@ -331,7 +331,7 @@ describe('Mythic', () => {
   it('Shango displaces every weaker opposing Gate Character', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['gary_indiana', 'great_migration', 'greenwood'], revealAll: true, handA: ['shango'] });
     const zora = addChar(s, 'zora_neale_hurston', 'B', 1, 'gate', true); // Force 1
-    const brown = addChar(s, 'john_brown', 'B', 1, 'gate', true); // Force 5
+    const brown = addChar(s, 'boukman_dutty', 'B', 1, 'gate', true); // Force 6, equal to Shango's: not lower, so he stays
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'shango', location: 1 }] }, B: pass() }).state;
     expect(s.characters[zora.uid].location).not.toBe(1);
     expect(s.characters[brown.uid].location).toBe(1);
@@ -406,8 +406,9 @@ describe('energy', () => {
     // Turn 2: two 1-cost cards, or one 2-cost card, not both.
     expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'roger_taney', location: 1 }, { cardId: 'organizer', location: 1 }] })).toEqual([]);
     expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'og', location: 1 }, { cardId: 'roger_taney', location: 2 }] })).not.toEqual([]);
+    s.turn = 3;
     addChar(s, 'organizer', 'A', 0, 'inside');
-    expect(legalOptions(s, 'A').energy).toBe(3);
+    expect(legalOptions(s, 'A').energy).toBe(3 + 1); // Turn 3, and the Organizer's +1: OG (3) and Taney (1) fit
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'og', location: 1 }, { cardId: 'roger_taney', location: 2 }] }, B: pass() }).state;
     expect(charsAt(s, 1, 'A', 'gate')).toHaveLength(1);
     expect(charsAt(s, 2, 'A', 'gate')).toHaveLength(1);
@@ -437,9 +438,9 @@ describe('locations', () => {
   it('Gary, Indiana grants +1 Force and +1 Influence each with five Characters', () => {
     const s = rig(createMatch({ seed: 2 }), { locations: ['gary_indiana', 'great_migration', 'black_star'], revealAll: true });
     for (let i = 0; i < 4; i++) addChar(s, ['og', 'zora_neale_hurston', 'ida_b_wells', 'mansa_musa'][i], 'A', 0, 'inside');
-    expect(influenceAt(s, 0).A).toBe(3 + 3 + 4 + 7 + 4); // four Inside: +1 each
+    expect(influenceAt(s, 0).A).toBe(['og', 'zora_neale_hurston', 'ida_b_wells', 'mansa_musa'].reduce((n, id) => n + charDef(id).influence + 1, 0)); // four Inside: +1 each
     addChar(s, 'organizer', 'A', 0, 'gate');
-    expect(influenceAt(s, 0).A).toBe(3 + 3 + 4 + 7 + 4 + 2 + 5 + 1); // four Inside +1 each, Organizer at the Gates, five-strong +1 each, Zora's Gate bonus
+    expect(influenceAt(s, 0).A).toBe(['og', 'zora_neale_hurston', 'ida_b_wells', 'mansa_musa'].reduce((n, id) => n + charDef(id).influence + 1, 0) + charDef('organizer').influence + 5 + 1); // four Inside +1 each, Organizer at the Gates, five-strong +1 each, Zora's Gate bonus
   });
   it('Paddy Roller is shared: it silences both players\' Gate Characters', () => {
     const s = rig(createMatch({ seed: 2 }), { locations: ['harpers_ferry', 'great_migration', 'black_star'], revealAll: true });
@@ -685,11 +686,12 @@ describe('new historical cards', () => {
   it('Henry McNeal Turner is strongest aboard The Black Star and stronger anywhere in Africa', () => {
     const s = rig(createMatch({ seed: 2 }), { locations: ['black_star', 'accra_ghana', 'gary_indiana'], revealAll: true });
     const aboard = addChar(s, 'henry_mcneal_turner', 'A', 0, 'inside');
-    expect(charInfluence(s, aboard)).toBe(4 + 1);
+    const base = charDef('henry_mcneal_turner').influence;
+    expect(charInfluence(s, aboard)).toBe(base + 2 + 1); // aboard, and Inside
     const africa = addChar(s, 'henry_mcneal_turner', 'B', 1, 'inside');
-    expect(charInfluence(s, africa)).toBe(3 + 1);
+    expect(charInfluence(s, africa)).toBe(base + 1 + 1); // Africa, and Inside
     const gary = addChar(s, 'henry_mcneal_turner', 'B', 2, 'inside');
-    expect(charInfluence(s, gary)).toBe(2 + 1);
+    expect(charInfluence(s, gary)).toBe(base + 1); // Inside only
   });
   it('Denmark Vesey adds Energy once Established; Nat Turner is not unstable after his Reveal', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, energy: true, handA: ['nat_turner'] });
@@ -919,7 +921,7 @@ describe('cost flow', () => {
 
   it('Diallo brings an Established Character home for free; Oak Bluffs pays Energy next turn', () => {
     let s = rig(createMatch({ seed: 5 }), { locations: ['oak_bluffs', 'great_migration', 'gary_indiana'], revealAll: true, energy: true, handA: ['ayuba_suleiman_diallo'] });
-    s.turn = 2;
+    s.turn = 3; // Diallo costs 3
     const z = addChar(s, 'zora_neale_hurston', 'A', 1, 'inside');
     addChar(s, 'john_russwurm', 'A', 0, 'inside');
     addChar(s, 'alonzo_herndon', 'A', 0, 'inside');
@@ -927,9 +929,9 @@ describe('cost flow', () => {
     expect(s.characters[z.uid]).toBeUndefined();
     expect(s.players.A.hand).toContain('zora_neale_hurston');
     expect(cardCost('zora_neale_hurston', s, 'A')).toBe(0);
-    expect(s.turn).toBe(3);
-    expect(energyFor(s, 'A')).toBe(3 + 1); // Turn 3 pays 3; Oak Bluffs paid 1 forward
-    expect(energyFor(s, 'B')).toBe(3);
+    expect(s.turn).toBe(4);
+    expect(energyFor(s, 'A')).toBe(4 + 1); // Turn 4 pays 4; Oak Bluffs paid 1 forward
+    expect(energyFor(s, 'B')).toBe(4);
   });
 });
 
@@ -1168,6 +1170,7 @@ describe('variety pass and lasting Reparations', () => {
   it('Zora digs, Walker banks Energy, Payne discounts the next Character, Green grants a Relocation, Vesey recruits', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, energy: true, handA: ['zora_neale_hurston', 'madam_cj_walker', 'daniel_payne', 'victor_hugo_green', 'denmark_vesey', 'john_russwurm'] });
     s.turn = 5;
+    s.players.A.energyBonus = 2; // Turn 5 pays 5; Zora (3) and Walker (4) need 7
     s.players.A.deck = ['mansa_musa', 'bud_billiken', 'harriet_tubman'];
     s.players.A.deckCount = 3;
     const handBefore = s.players.A.hand.length;
@@ -1176,8 +1179,8 @@ describe('variety pass and lasting Reparations', () => {
     expect(s.players.A.hand).toContain('mansa_musa');
     expect(s.players.A.deck).toEqual(['bud_billiken']);
     expect(s.players.A.hand.length).toBe(handBefore - 2 + 2);
-    // Walker: +2 Energy next turn (turn 6 → 8 Energy).
-    expect(legalOptions(s, 'A').energy).toBe(6 + 2);
+    // Walker: +2 Energy next turn (turn 6, +2 bonus, +2 Walker).
+    expect(legalOptions(s, 'A').energy).toBe(6 + 2 + 2);
     // Payne: the next Character costs 1 less from the following turn; Green: +1 Relocation next turn.
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'daniel_payne', location: 0 }, { cardId: 'victor_hugo_green', location: 1 }] }, B: pass() }).state;
     expect(cardCost('john_russwurm', s, 'A')).toBe(0);
@@ -1352,10 +1355,11 @@ describe('The Middle Passage and the DeWolf Trade', () => {
     expect(out.state.characters[high.uid].location).toBe(0);
     expect(out.state.players.A.setbacks).toBe(1);
     expect(out.events.some((e) => e.type === 'clash' && (e.data as { actor: { id: string } }).actor.id === 'dewolf_trade')).toBe(true);
-    // The toll: −1 for good at the end of the turn he arrives is not charged (he was displaced after the toll); next turn it is.
+    // The toll: −1 for good at the end of every turn at these Gates, the arrival turn included (Threats act before the toll), never below 0 Influence.
     let t = out.state;
-    t = resolveTurn(t, { A: pass(), B: pass() }).state;
     expect(t.characters[low.uid].permInfluence).toBe(-1);
+    t = resolveTurn(t, { A: pass(), B: pass() }).state;
+    expect(t.characters[low.uid].permInfluence).toBe(-Math.min(2, charDef('john_russwurm').influence));
     expect(charInfluence(t, t.characters[low.uid])).toBe(0);
     // No Inside here, ever; and it never goes below zero.
     expect(insideCapacity(t, 1)).toBe(0);
@@ -1577,7 +1581,7 @@ describe('Anansi retells', () => {
     expect(charInfluence(s, s.characters[small.uid])).toBe(charDef('bud_billiken').influence + 2 + 1); // web, and Inside
     expect(charInfluence(s, garvey)).toBe(charDef('marcus_garvey').influence - 1 + 1); // web, and Inside
     const anansi = charsOf(s, 'A').find((c) => c.defId === 'anansi')!;
-    expect(charInfluence(s, anansi)).toBe(charDef('anansi').influence + 2);
+    expect(charInfluence(s, anansi)).toBe(charDef('anansi').influence + (charDef('anansi').cost <= 1 ? 2 : charDef('anansi').cost >= 3 ? -1 : 0)); // the web judges him by his own cost
     // Same seed, same plans: the same story. PvP replays agree.
     let t = rig(createMatch({ seed: 2 }), { locations: ['great_migration', 'juneteenth', 'black_star'], revealAll: true, handA: ['anansi'] });
     addChar(t, 'marcus_garvey', 'B', 0, 'inside');
@@ -1621,6 +1625,37 @@ describe('Zora digs', () => {
     expect(top).toContain(d.keep);
     expect(r.state.players.A.hand).toContain(d.keep);
     expect((theirs.data as { dig: { seen: string[]; keep: string } }).dig.keep).toBe('hidden');
+  });
+});
+
+describe('Allies', () => {
+  it('Lincoln readies your Fresh Gate Characters only where the opponent leads', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['great_migration', 'juneteenth', 'gary_indiana'], revealAll: true, handA: ['abraham_lincoln'] });
+    const behind = addChar(s, 'organizer', 'A', 1, 'gate', false); // Location 2: B leads
+    addChar(s, 'marcus_garvey', 'B', 1, 'inside');
+    const ahead = addChar(s, 'john_russwurm', 'A', 2, 'gate', false); // Location 3: A leads
+    behind.arrivedTurn = s.turn; // both arrived this turn: Fresh through next turn unless something readies them
+    ahead.arrivedTurn = s.turn;
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'abraham_lincoln', location: 0 }] }, B: pass() }).state;
+    expect(s.characters[behind.uid].ready).toBe(true);
+    expect(s.characters[ahead.uid].ready).toBe(false);
+    expect(charsOf(s, 'A').find((c) => c.defId === 'abraham_lincoln')?.ready).toBe(false); // he stays Fresh himself
+  });
+  it('Stevens weakens every Threat at his Location for good; Sumner gives lasting Influence to up to three friends', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['great_migration', 'juneteenth', 'gary_indiana'], revealAll: true, handA: ['thaddeus_stevens', 'charles_sumner'] });
+    spawnThreat(s, 0, 'segregationist_patrol', []);
+    spawnThreat(s, 0, 'housing_restriction', []);
+    const before = s.locations[0].threats.map((t) => t.forceRequired);
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'thaddeus_stevens', location: 0 }] }, B: pass() }).state;
+    expect(s.locations[0].threats.map((t) => t.forceRequired)).toEqual(before.map((f) => Math.max(1, f - 1)));
+    const a = addChar(s, 'organizer', 'A', 1, 'gate');
+    const b = addChar(s, 'harriet_tubman', 'A', 1, 'inside');
+    const c = addChar(s, 'bud_billiken', 'A', 1, 'gate');
+    const d = addChar(s, 'bass_reeves', 'A', 1, 'inside'); // three Gate slots: leave one for Sumner
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'charles_sumner', location: 1 }] }, B: pass() }).state;
+    const boosted = [a, b, c, d].filter((x) => s.characters[x.uid].permInfluence === 1).length;
+    expect(boosted).toBe(3);
+    expect(s.characters[c.uid].permInfluence).toBe(0); // Bud, the weakest, is the one left out
   });
 });
 

@@ -74,4 +74,8 @@ export const HOMES: Record<string, HomeGround> = {
   cecile_fatiman: { locations: ['charleston_1822'], why: 'Bois Caïman is not on the board; Vesey\'s men planned to sail to the Haiti it made.', thematic: true },
   ayuba_suleiman_diallo: { locations: ['middle_passage'], why: 'Trafficked from Senegambia to Maryland in 1731; he wrote his way home.' },
   omar_ibn_said: { locations: ['charleston_1822'], why: 'Shipped into Charleston in 1807.' },
+  abraham_lincoln: { locations: ['juneteenth'], why: "Galveston, 19 June 1865: General Order No. 3 announced his Proclamation's freedom two and a half years on. He had been dead two months.", thematic: true },
+  william_lloyd_garrison: { locations: ['harpers_ferry'], why: "Boston is not on the board. The board's abolition ground: the pacifist judged Brown's raid justified, 'if Washington was.'", thematic: true },
+  thaddeus_stevens: { locations: ['justice_system'], why: 'Defence counsel at the 1851 Christiana treason trial; carried the Fourteenth Amendment the courts have argued over since. Lancaster is not on the board.', thematic: true },
+  charles_sumner: { locations: ['justice_system'], why: 'Roberts v. Boston, 1849, argued with Robert Morris and lost; the Civil Rights Act of 1875 he drafted, and the Court that struck it down in 1883.', thematic: true },
 };
