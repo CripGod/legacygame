@@ -44,8 +44,10 @@ export function tip(text: string) {
 }
 
 export const HINTS = {
-  influence: 'Influence: how much this Character counts toward controlling its Location. Gate and Inside Characters both count.',
+  influence: 'Influence: how much this Character counts toward controlling its Location. Gate Characters count; Established Characters (Inside) count +1 more.',
   force: 'Force: strength when confronting Threats or answering a challenge. Force never attacks players directly.',
+  webbed: "Webbed: Anansi retold this Location into a random one not in the match and spun his web over it. Characters that cost 1 or less gain +2 Influence here; 3 or more lose 1. Both players.",
+  lastWord: 'THE LAST WORD: the tenth turn, here only because somebody stood on business. Both sides get 10 Energy and an extra card. Whatever stands after this turn is the legacy.',
   rebuilt: 'Rebuilt: this Location was Lost, and the people who stayed put it back up. It is back in play, and everyone who stayed gained +1 Influence.',
   finalTurn: 'Last scheduled turn. A Stand on Business now adds a 10th turn; otherwise whatever stands after this one is counted: two Locations of three, then total Influence, then total Force.',
   dayNight: 'This Location has a curfew. Odd turns are day, even turns are night: at night nobody relocates out until morning. Harriet Tubman is the only one who can move a Character out.',

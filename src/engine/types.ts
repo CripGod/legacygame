@@ -12,15 +12,23 @@ export type Zone = 'gate' | 'inside';
 export const TURNS = 9;
 /** Stand on Business extends the match to this many turns. */
 export const EXTENDED_TURNS = 10;
-/** Base Energy stops growing here: Turn 8, 9 and 10 pay 7, plus bonuses. */
+/** Inside counts more than the Gates: every Established Character contributes this much extra Influence. */
+export const INSIDE_INFLUENCE_BONUS = 1;
+/** Base Energy stops growing here: Turn 8 and 9 pay 7, plus bonuses. */
 export const ENERGY_CAP = 7;
+/** The Last Word: the tenth turn, reached only by Standing on Business, lifts the cap and deals one more card to each side. */
+export const LAST_WORD_ENERGY = 10;
+export const LAST_WORD_DRAW = 1;
+/** Anansi's web: the small against the large. Characters costing 1 or less gain WEB_SMALL Influence at a webbed Location; 3 or more lose WEB_LARGE. */
+export const WEB_SMALL = 2;
+export const WEB_LARGE = 1;
 /** A Lost Location is rebuilt by the people who stayed this many turns after it fell. */
 export const RECONSTRUCTION_TURNS = 2;
 export const GATE_CAPACITY = 3;
 export const INSIDE_CAPACITY = 5;
 export const STARTING_HAND = 4;
 /** Deck size: opening hand plus one draw per turn, with a card to spare after an extended match. */
-export const DECK_SIZE = 22;
+export const DECK_SIZE = 24;
 /** Hand limit: a card drawn into a full hand is discarded. */
 export const MAX_HAND = 7;
 export const MAX_EVENTS = 2;
@@ -50,8 +58,8 @@ export type RevealEffect =
   | { type: 'challengeGate' } // Nzinga
   | { type: 'challengeInside' } // Toussaint
   | { type: 'suppressInside' } // Sojourner Truth
-  | { type: 'retellLocation'; into: string } // Anansi: draw a card and retell this Location as another (Anansi's Web)
-  | { type: 'refreshOpposingGate' } // (unused) trick the opposing Ready Gate Character into waiting again
+  | { type: 'retell' } // Anansi: draw a card; where the opponent leads, retell this Location as a random one not in the match and spin his web over it; otherwise trick their best Ready Gate Character into waiting again
+  | { type: 'refreshOpposingGate' } // trick the opposing Ready Gate Character into waiting again
   | { type: 'challengeAllGates' } // Shango
   | { type: 'permInfluenceOther'; amount: number } // Oshun
   | { type: 'moveFriendlyInsideHere' } // Yemoja — needs target
@@ -213,8 +221,7 @@ export type LocationEffect =
   | { type: 'restEnergy'; count: number; amount: number } // Oak Bluffs: players with `count` Inside gain Energy next turn
   | { type: 'turncoatAtEnd' } // Charleston, 1822: the Fresh Gate Character here with the lowest Influence changes sides at the end of the turn
   | { type: 'nightInside'; amount: number } // The Stroll: after dark (even turns) your Characters Inside here gain Influence
-  | { type: 'crossing'; toll: number } // The Middle Passage: no Inside, every Gate Character pays the toll each turn, leavers arrive Ready
-  | { type: 'smallAgainstLarge'; small: number; large: number }; // Anansi's Web: cheap Characters grow here, expensive ones shrink
+  | { type: 'crossing'; toll: number }; // The Middle Passage: no Inside, every Gate Character pays the toll each turn, leavers arrive Ready
 
 export interface LocationDef {
   id: string;
@@ -322,6 +329,10 @@ export interface LocationState {
   rebuiltTurn?: number;
   /** A timed Threat carried over from a retold Location (the Mob still comes to a retold Greenwood). */
   pendingTimedThreat?: { turn: number; threatId: string };
+  /** Anansi retold this Location: it became a random one not in the match, with his web over it (WEB_SMALL / WEB_LARGE). */
+  webbed?: boolean;
+  webbedBy?: PlayerId;
+  retoldFrom?: string;
   /** Great Migration: uid of first relocated Character this turn. */
   firstRelocatedThisTurn?: string;
   /** Harriet: uid of first relocated Character per owner this turn. */
@@ -392,6 +403,7 @@ export interface GameEvent {
     | 'locationRevealed'
     | 'locationTransformed'
     | 'locationRebuilt'
+    | 'lastWord'
     | 'summon'
     | 'played'
     | 'eventPlayed'

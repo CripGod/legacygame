@@ -94,6 +94,19 @@ function riseAgain(state: GameState, c: CharacterInstance, reason: string, event
 type ClashActor = { kind: 'character' | 'threat' | 'location' | 'event'; id: string; owner?: PlayerId; force?: number };
 type ClashOutcome = 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected';
 
+/** Anansi's trick: the opposing Ready Gate Character here with the highest Influence waits again (becomes Fresh). */
+function trickGate(state: GameState, events: GameEvent[], p: PlayerId, loc: number, def: { id: string; force: number }): boolean {
+  const opp = other(p);
+  const targets = charsAt(state, loc, opp, 'gate').filter((x) => !isInformant(x) && x.ready && !shielded(state, x));
+  const target = targets.sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];
+  if (!target || isProtected(state, target)) return false;
+  target.ready = false;
+  target.arrivedTurn = state.turn;
+  events.push({ type: 'reveal', text: `Anansi tricks ${charDef(target.defId).name} into waiting again.`, player: p, location: loc, uid: target.uid });
+  clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, target, 'tricked', loc, { note: 'They were Ready; now they are Fresh and wait a turn before they can enter.' });
+  return true;
+}
+
 /** Informants are planted on the other side: never Ready, never Inside. */
 function isInformant(c: CharacterInstance): boolean {
   return charDef(c.defId).keywords.includes('INFORMANT');
@@ -501,8 +514,10 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
         displace(state, target, 'Nzinga', events);
         clash(state, events, { kind: 'character', id: def.id, owner: p, force: myForce }, target, 'displaced', loc, { theirForce, to: target.location, intent, note: `Force decides: ${myForce} against ${theirForce}.` });
       } else {
-        say(`challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}) and is held off.`);
-        clash(state, events, { kind: 'character', id: def.id, owner: p, force: myForce }, target, 'held', loc, { theirForce, intent, note: myForce <= theirForce ? `Force decides: ${myForce} is not more than ${theirForce}, so ${charDef(target.defId).name} stays put.` : `${charDef(target.defId).name} is protected this turn, so nothing can move them.` });
+        // Not enough Force to knock them away, but the challenge pins them: they are held at the Gates this turn.
+        target.blockedEnterTurn = state.turn;
+        say(`challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}): not enough to move them, but they are held at the Gates this turn.`);
+        clash(state, events, { kind: 'character', id: def.id, owner: p, force: myForce }, target, 'blocked', loc, { theirForce, intent, note: myForce <= theirForce ? `Force decides: ${myForce} is not more than ${theirForce}, so ${charDef(target.defId).name} stays put, but the challenge holds them at the Gates: they cannot enter this turn.` : `${charDef(target.defId).name} is protected this turn, so nothing can move them, but they are held at the Gates and cannot enter.` });
       }
       break;
     }
@@ -547,28 +562,20 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       }
       break;
     }
-    case 'retellLocation': {
+    case 'retell': {
       drawCard(state, p, events);
-      const into = LOCATION_BY_ID[eff.into];
-      if (retellLocation(state, loc, eff.into, events)) {
-        say(`draws a card and retells this Location: it is now ${into?.name ?? eff.into}.`);
-      } else {
-        say(state.locations[loc].defId === eff.into ? 'draws a card. This story is already his.' : 'draws a card. This story is not his to retell.');
+      const inf = influenceAt(state, loc);
+      const behind = inf[opp] > inf[p];
+      if (behind && retellLocation(state, loc, p, events)) {
+        say(`draws a card and, behind here, retells this Location: it is now ${LOCATION_BY_ID[state.locations[loc].defId]?.name ?? 'another place'}, webbed.`);
+      } else if (!trickGate(state, events, p, loc, def)) {
+        say(behind ? 'draws a card. This story cannot be retold.' : 'draws a card. Ahead here, he keeps the place as it is.');
       }
       break;
     }
     case 'refreshOpposingGate': {
       drawCard(state, p, events);
-      const targets = charsAt(state, loc, opp, 'gate').filter((x) => !isInformant(x) && x.ready && !shielded(state, x));
-      const target = targets.sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];
-      if (target && !isProtected(state, target)) {
-        target.ready = false;
-        target.arrivedTurn = state.turn;
-        say(`draws a card and tricks ${charDef(target.defId).name} into waiting again.`);
-        clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, target, 'tricked', loc, { note: 'They were Ready; now they are Fresh and wait a turn before they can enter.' });
-      } else {
-        say('draws a card.');
-      }
+      if (!trickGate(state, events, p, loc, def)) say('draws a card.');
       break;
     }
     case 'challengeAllGates': {
@@ -721,7 +728,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
         const l = state.locations[index];
         l.permInfluence = l.permInfluence ?? { A: 0, B: 0 };
         l.permInfluence[p] += amount;
-        events.push({ type: 'info', text: `${def.name}: ${locName(state, index)} gains +${amount} lasting Influence for ${state.players[p].handle} (${why}). It stays even if ${def.short} leaves.`, uid: c.uid, player: p, location: index });
+        events.push({ type: 'info', text: `${def.name}: ${locName(state, index)} gains +${amount} lasting Influence for ${state.players[p].handle} (${why}). It stays even if ${def.short} leaves.`, uid: c.uid, player: p, location: index, data: { trail: 'landscape', amount } });
       };
       if (eff.everywhereEstablished) {
         const spots = state.locations.filter((l) => l.revealed && !l.lost && charsAt(state, l.index, p, 'inside').length > 0);
@@ -1095,9 +1102,14 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
         hasEstablished(state, p, from, 'relocatedOutReady').length > 0 ||
         (state.locations[from].revealed && ['relocatedOutReady', 'hub', 'crossing'].includes(LOCATION_BY_ID[state.locations[from].defId]?.effect.type ?? ''));
       const outInside = !wasGate && hasEstablished(state, p, from, 'relocatedOutInside').length > 0 && insideOpen(state, r.to, p);
+      const carried = wasGate && !isInformant(c) && state.locations[from].revealed && LOCATION_BY_ID[state.locations[from].defId]?.effect.type === 'crossing';
       c.location = r.to;
       c.zone = 'gate';
       c.ready = outReady && !isInformant(c);
+      if (carried) {
+        c.permInfluence += 1;
+        events.push({ type: 'info', text: `${name(state, c)} came through the crossing: +1 Influence for good, what was carried across.`, uid: c.uid, player: p, location: r.to });
+      }
       // A Gate Character keeps its waiting progress; an Inside one starts waiting again.
       if (!wasGate) c.arrivedTurn = state.turn;
       c.relocatedTurn = state.turn;

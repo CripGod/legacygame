@@ -10,6 +10,7 @@ import { Battlefield } from '../components/Battlefield';
 import { Hand } from '../components/Hand';
 import { Coach } from '../components/Coach';
 import { Spotlight } from '../components/Spotlight';
+import { Trails, TRAIL_COLORS, type TrailShot } from '../components/Trails';
 import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, SpawnSheet, ThreatSheet, AncestorsSheet, ShowdownSheet, PeekHandSheet, ClashSheet, TallySheet } from '../components/Sheets';
 import { guideDone, markGuideDone, suggest } from '../guide';
 import { lessonsFor, tutorialActive } from '../tutorial';
@@ -73,9 +74,10 @@ const BEAT_KIND: Record<string, string> = {
 /** The last scheduled turn can still grow by one if someone Stands on Business. */
 function finalTurnLabel(view: GameState, short = false): string | null {
   if (view.phase === 'ended' || view.turn < view.maxTurns) return null;
-  const extendable = view.maxTurns < EXTENDED_TURNS && (!view.players.A.standUsed || !view.players.B.standUsed);
-  if (short) return extendable ? 'LAST?' : 'FINAL';
-  return extendable ? 'Last turn unless someone stands' : 'Final turn';
+  const lastWord = view.maxTurns === EXTENDED_TURNS;
+  const extendable = !lastWord && (!view.players.A.standUsed || !view.players.B.standUsed);
+  if (short) return lastWord ? 'LAST WORD' : extendable ? 'LAST?' : 'FINAL';
+  return lastWord ? 'THE LAST WORD' : extendable ? 'Last turn unless someone stands' : 'Final turn';
 }
 
 /** How hard the Lock In button flashes as the planning timer drains. */
@@ -170,9 +172,28 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   /** During a replay each beat queues only its own sheets. */
   /** The clash beat plays on the board first (strike, knock), then its Clash card explains it. */
   const [fx, setFx] = useState<{ actor?: string; victim: string; outcome?: string } | null>(null);
+  /** Power trails on the board (a Reveal that reaches other Locations): particles fly from the actor to each target. */
+  const [trail, setTrail] = useState<TrailShot[] | null>(null);
+  const [trailFreeze, setTrailFreeze] = useState<number | undefined>(undefined);
   useEffect(() => {
     if (!step) return;
     const evs = filterEvents(step.events, me);
+    const trailEvs = evs.filter((e) => (e.data as { trail?: string } | undefined)?.trail && e.uid && e.location !== undefined);
+    if (trailEvs.length && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      // Measure after this beat's board has rendered.
+      const raf = requestAnimationFrame(() => {
+        const shots: TrailShot[] = [];
+        for (const e of trailEvs) {
+          const from = document.querySelector(`[data-uid="${e.uid}"]`)?.getBoundingClientRect();
+          const to = document.querySelector(`.column[data-index="${e.location}"] .art`)?.getBoundingClientRect();
+          if (!from || !to) continue;
+          const amount = (e.data as { amount?: number }).amount;
+          shots.push({ from, to, color: TRAIL_COLORS[e.player ?? 'A'], label: amount ? `+${amount}` : undefined });
+        }
+        setTrail(shots.length ? shots : null);
+      });
+      return () => cancelAnimationFrame(raf);
+    }
     const clashEvs = evs.filter((e) => e.type === 'clash');
     const first = clashEvs[0]?.data as { actor?: { uid?: string }; victim: { uid: string }; outcome?: string } | undefined;
     if (first && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -196,12 +217,27 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   }, [m.replay?.idx, m.replay?.steps]);
   /** Advance the replay once this beat's sheets are closed. */
   useEffect(() => {
-    if (!step || fx || clashes.length || showdowns.length || fanfare.length || sheet?.kind === 'peek') return;
+    if (!step || fx || trail || clashes.length || showdowns.length || fanfare.length || sheet?.kind === 'peek') return;
     const ms = ownBeat ? 0 : BEAT_MS[step.kind] ?? 900;
     const id = window.setTimeout(m.replayNext, ms);
     return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [m.replay?.idx, m.replay?.steps, clashes.length, showdowns.length, fanfare.length, sheet?.kind, fx]);
+  }, [m.replay?.idx, m.replay?.steps, clashes.length, showdowns.length, fanfare.length, sheet?.kind, fx, trail]);
+  /** Dev: preview a trail from a Character tile to Locations without playing to it (window.__sobTrail(uid, [0, 2])). */
+  useEffect(() => {
+    if (!window.location.search.includes('dev=1')) return;
+    (window as unknown as { __sobTrail?: (uid: string, locs: number[], side?: 'A' | 'B', freezeAt?: number) => void }).__sobTrail = (uid, locs, side = 'A', freezeAt) => {
+      setTrailFreeze(freezeAt);
+      const from = document.querySelector(`[data-uid="${uid}"]`)?.getBoundingClientRect();
+      if (!from) return;
+      const shots: TrailShot[] = [];
+      for (const i of locs) {
+        const to = document.querySelector(`.column[data-index="${i}"] .art`)?.getBoundingClientRect();
+        if (to) shots.push({ from, to, color: TRAIL_COLORS[side], label: '+1' });
+      }
+      setTrail(shots);
+    };
+  }, []);
   /** Gate slots my departing Characters still hold this turn (the preview shows them elsewhere). */
   const reserved = useMemo(() => {
     const out: Record<number, { uid: string; defId: string; why: string; zone: 'gate' | 'inside'; dir: 'left' | 'right' | 'up' }[]> = {};
@@ -831,7 +867,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
               </i>
             </button>
           )}
-          <div className={`turn-panel ${finalTurnLabel(view) ? 'final' : ''}`} {...tip(finalTurnLabel(view) ? HINTS.finalTurn : HINTS.energy)}>
+          <div className={`turn-panel ${finalTurnLabel(view) ? 'final' : ''}`} {...tip(finalTurnLabel(view) ? (view.maxTurns === EXTENDED_TURNS ? HINTS.lastWord : HINTS.finalTurn) : HINTS.energy)}>
             <div className="turn-text">
               {finalTurnLabel(view) ?? `Turn ${Math.min(view.turn, view.maxTurns)} / ${view.maxTurns}`}
             </div>
@@ -880,6 +916,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           ) : null}
         </div>
       )}
+      {trail && <Trails shots={trail} freezeAt={trailFreeze} onDone={() => { setTrail(null); setTrailFreeze(undefined); }} />}
       {sheet?.kind === 'card' && <CardSheet id={sheet.id} onClose={() => setSheet(null)} extra={sheet.id === 'reparations' ? <ReparationsReadout view={view} me={me} placeholders={placeholders} /> : undefined} />}
       {sheet?.kind === 'char' && <CharSheet view={view} uid={sheet.uid} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'threat' && <ThreatSheet view={view} me={me} threatUid={sheet.uid} plan={plan} locked={!planning} onClose={() => setSheet(null)} onToggle={toggleConfront} />}

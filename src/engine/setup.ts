@@ -1,8 +1,8 @@
-import { makeRng, shuffle, nextInt, nextFloat, pick, hashSeed } from './rng';
+import { makeRng, shuffle, nextInt, nextFloat, pick, hashSeed, type RngState } from './rng';
 import { CHARACTERS, EVENTS, LOCATIONS, PRESET_DECKS, randomDeck, validateDeck, THREAT_BY_ID, RANDOM_THREAT_POOL, LOCATION_BY_ID, CHARACTER_BY_ID } from './content';
 import type { GameState, PlayerId, PlayerState, LocationState, GameEvent, ThreatInstance } from './types';
 import { CARD_BY_ID } from './content';
-import { STARTING_HAND, PLAYERS, TURNS, MAX_HAND, RECONSTRUCTION_TURNS } from './types';
+import { STARTING_HAND, PLAYERS, TURNS, MAX_HAND, RECONSTRUCTION_TURNS, EXTENDED_TURNS, LAST_WORD_DRAW, LAST_WORD_ENERGY } from './types';
 
 export interface MatchOptions {
   seed: number;
@@ -43,17 +43,11 @@ export function createMatch(opts: MatchOptions): GameState {
   const avatars = opts.avatars ?? { A: 'frederick_douglass', B: 'marcus_garvey' };
 
   // Weighted draw without replacement (rare Locations appear less often).
-  const pool = LOCATIONS.filter((l) => !l.notInPool);
   const chosen: typeof LOCATIONS = [];
-  while (chosen.length < 3 && pool.length) {
-    const total = pool.reduce((s, l) => s + (l.weight ?? 1), 0);
-    let r = nextFloat(rng) * total;
-    let idx = 0;
-    for (; idx < pool.length - 1; idx++) {
-      r -= pool[idx].weight ?? 1;
-      if (r <= 0) break;
-    }
-    chosen.push(pool.splice(idx, 1)[0]);
+  while (chosen.length < 3) {
+    const next = drawLocationDef(rng, chosen.map((l) => l.id));
+    if (!next) break;
+    chosen.push(next);
   }
   const locations: LocationState[] = chosen.map((def, index) => ({
     index,
@@ -148,12 +142,13 @@ export const SECOND_WAVE_CHANCE = 0.6;
 export const THIRD_WAVE_TURN = 7;
 export const THIRD_WAVE_CHANCE = 0.75;
 
-export function spawnThreat(state: GameState, location: number, threatId: string, events: GameEvent[]): void {
+/** `force`: a Threat already on its way (a Mob carried into a retold Location) ignores the new story's protections. */
+export function spawnThreat(state: GameState, location: number, threatId: string, events: GameEvent[], force = false): void {
   const def = THREAT_BY_ID[threatId];
   const loc = state.locations[location];
   if (!def || loc.lost || loc.sanctified) return;
-  if (loc.revealed && LOCATION_BY_ID[loc.defId]?.noThreats) return;
-  if (LOCATION_BY_ID[loc.defId]?.immuneThreats?.includes(threatId)) return;
+  if (!force && loc.revealed && LOCATION_BY_ID[loc.defId]?.noThreats) return;
+  if (!force && LOCATION_BY_ID[loc.defId]?.immuneThreats?.includes(threatId)) return;
   const make = (target?: PlayerId): ThreatInstance => ({
     uid: `t${state.nextUid++}`,
     defId: threatId,
@@ -179,19 +174,39 @@ export function spawnThreat(state: GameState, location: number, threatId: string
   });
 }
 
+/** One weighted draw from the Location pool, skipping `exclude` (ids already in the match). Uses the match RNG, so it replays identically. */
+export function drawLocationDef(rng: RngState, exclude: string[]): (typeof LOCATIONS)[number] | undefined {
+  const pool = LOCATIONS.filter((l) => !l.notInPool && !exclude.includes(l.id));
+  if (!pool.length) return undefined;
+  const total = pool.reduce((s, l) => s + (l.weight ?? 1), 0);
+  let r = nextFloat(rng) * total;
+  let idx = 0;
+  for (; idx < pool.length - 1; idx++) {
+    r -= pool[idx].weight ?? 1;
+    if (r <= 0) break;
+  }
+  return pool[idx];
+}
+
 /**
- * Anansi retells a Location: it becomes another story (Anansi's Web). Characters, Influence and Threats stay where
- * they are; a timed Threat the old story had not yet delivered (Greenwood's Mob) still comes.
+ * Anansi retells a Location: it becomes a random Location not in this match, with his web spun over it (`webbed`).
+ * Characters, Influence and Threats stay where they are; a timed Threat the old story had not yet delivered
+ * (Greenwood's Mob) still comes. The draw uses the match RNG, so both sides of a PvP match see the same story.
  */
-export function retellLocation(state: GameState, index: number, intoId: string, events: GameEvent[]): boolean {
+export function retellLocation(state: GameState, index: number, by: PlayerId, events: GameEvent[]): boolean {
   const loc = state.locations[index];
   const from = LOCATION_BY_ID[loc.defId];
-  const into = LOCATION_BY_ID[intoId];
-  if (!into || !loc.revealed || loc.lost || loc.defId === intoId) return false;
+  if (!loc.revealed || loc.lost || loc.webbed) return false;
+  const into = drawLocationDef(state.rng, state.locations.map((l) => l.defId));
+  if (!into) return false;
   if (from?.timedThreat && from.timedThreat.turn > state.turn && !loc.threats.some((t) => t.defId === from.timedThreat!.threatId)) loc.pendingTimedThreat = from.timedThreat;
-  loc.defId = intoId;
+  else if (into.timedThreat && into.timedThreat.turn > state.turn) loc.pendingTimedThreat = into.timedThreat;
+  loc.retoldFrom = loc.defId;
+  loc.defId = into.id;
   loc.revealedTurn = state.turn;
-  events.push({ type: 'locationTransformed', text: `Anansi retells ${from?.name ?? 'the Location'}: it is now ${into.name}.`, location: index, data: { from: from?.id, to: intoId, retold: true } });
+  loc.webbed = true;
+  loc.webbedBy = by;
+  events.push({ type: 'locationTransformed', text: `Anansi retells ${from?.name ?? 'the Location'}: it is now ${into.name}, with his web over it. The small grow here and the large shrink.`, location: index, data: { from: from?.id, to: into.id, retold: true, webbed: true } });
   return true;
 }
 
@@ -236,7 +251,13 @@ export function startTurn(state: GameState, events: GameEvent[]): void {
   if (state.turn > 1) {
     state.initiative = state.initiative === 'A' ? 'B' : 'A';
   }
+  // The Last Word: the tenth turn, reached only by Standing on Business. Everything comes out.
+  const lastWord = state.turn === EXTENDED_TURNS && state.maxTurns === EXTENDED_TURNS;
+  if (lastWord) {
+    events.push({ type: 'lastWord', text: `THE LAST WORD. Turn ${EXTENDED_TURNS} exists because somebody stood on business: ${LAST_WORD_ENERGY} Energy and ${LAST_WORD_DRAW === 1 ? 'an extra card' : `${LAST_WORD_DRAW} extra cards`} for both sides. Whatever stands after this turn is the legacy.`, data: { energy: LAST_WORD_ENERGY, draw: LAST_WORD_DRAW } });
+  }
   for (const p of PLAYERS) {
+    if (lastWord) for (let i = 0; i < LAST_WORD_DRAW; i++) drawCard(state, p, events);
     const card = drawCard(state, p, events);
     if (!card && state.players[p].deckCount === 0 && state.players[p].deck.length === 0) continue;
     if (!card) continue;
@@ -279,7 +300,7 @@ export function startTurn(state: GameState, events: GameEvent[]): void {
       spawnThreat(state, loc.index, def.timedThreat.threatId, events);
     }
     if (loc.pendingTimedThreat && loc.pendingTimedThreat.turn === state.turn) {
-      spawnThreat(state, loc.index, loc.pendingTimedThreat.threatId, events);
+      spawnThreat(state, loc.index, loc.pendingTimedThreat.threatId, events, true);
       loc.pendingTimedThreat = undefined;
     }
   }

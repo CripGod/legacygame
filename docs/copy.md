@@ -35,7 +35,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - history: Katherine Johnson (1918–2020) was a mathematician at NACA and then NASA's Langley Research Center. She calculated the trajectory for Alan Shepard's 1961 flight, and in 1962 John Glenn asked that she personally re-check the electronic computer's figures before his orbital flight. Her work contributed to Apollo 11 and the Space Shuttle. She received the Presidential Medal of Freedom in 2015, and her story reached a wide audience through Hidden Figures.
 
 ### Mansa Musa (`mansa_musa`)
-- cost 4 · Influence 5 · Force 3 · historical · era: c. 1280–1337
+- cost 6 · Influence 7 · Force 3 · historical · era: c. 1280–1337
 - reveal: If played into a hidden Location, gain +1 Influence when that Location reveals.
 - established: The next Character you Establish here gains +1 Influence while Mansa Musa remains here.
 - blurb: Emperor of Mali whose pilgrimage to Mecca spent so much gold it depressed prices across the Mediterranean.
@@ -186,13 +186,13 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Queen Nzinga (`queen_nzinga`)
 - cost 3 · Influence 3 · Force 4 · historical · era: c. 1583–1663
-- reveal: CHALLENGE the opposing Gate Character here with the highest Force. If Nzinga's Force is higher, DISPLACE it to a random other Location's Gate.
+- reveal: CHALLENGE the opposing Gate Character here with the highest Force. If Nzinga's Force is higher, DISPLACE it to a random other Location's Gate; otherwise it is held at the Gates this turn and cannot enter.
 - established: Your Characters here gain +1 Force.
 - blurb: Queen of Ndongo and Matamba who fought and negotiated against Portuguese colonization for decades.
 - history: Nzinga Mbande (c. 1583–1663) was queen of Ndongo and later Matamba, in present-day Angola. She first appears in the record in 1622, negotiating with the Portuguese governor in Luanda; when he offered her no chair, she sat on the back of an attendant. For four decades she fought, allied with and outmanoeuvred the Portuguese and their slave trade, building a state that endured after her death. She is a national symbol in Angola today.
 
 ### Toussaint Louverture (`toussaint_louverture`)
-- cost 4 · Influence 4 · Force 4 · historical · era: 1743–1803
+- cost 5 · Influence 5 · Force 5 · historical · era: 1743–1803
 - reveal: CHALLENGE the opposing Established Character here with the highest Influence. If Toussaint's Force is higher, it returns to its Gate, Fresh.
 - established: Your Characters here cannot be displaced.
 - blurb: Leader of the Haitian Revolution, the only slave revolt in history to found an independent state.
@@ -228,13 +228,13 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Anansi (`anansi`)
 - cost 1 · Influence 2 · Force 1 · mythic · era: Akan, timeless
-- reveal: Draw a card. Retell this Location as Anansi's Web: Characters that cost 1 or less gain +2 Influence here and Characters that cost 3 or more lose 1, for both players. Threats stay, and a Mob that was coming still comes.
+- reveal: Draw a card. If your opponent leads this Location, Anansi retells it: it becomes a random Location not in this match, with his web over it (Characters that cost 1 or less gain +2 Influence here, 3 or more lose 1, for both players; Threats stay, and a Mob that was coming still comes). Otherwise their Ready Gate Character here with the highest Influence is tricked into waiting again.
 - established: Whenever your opponent plays a Character at this Location, draw a card.
 - blurb: The spider who bought all the stories in the world from the sky god with wit alone, and carried them across the Atlantic in the holds of slave ships.
 - history: Mythic (fantasy). Anansi is the spider trickster of the Akan people of Ghana and Côte d'Ivoire, the keeper of all stories, which he won from the sky god Nyame by trapping a python, a leopard, hornets and a fairy with wit alone. Enslaved Akan people carried the tales across the Atlantic, where he became Anancy in Jamaica, Nancy in the Carolina Sea Islands and Aunt Nancy in the American South. The card's abilities are invention in his spirit.
 
 ### Shango (`shango`)
-- cost 3 · Influence 3 · Force 5 · mythic · era: Yoruba, Oyo
+- cost 4 · Influence 4 · Force 5 · mythic · era: Yoruba, Oyo
 - reveal: Thunder: CHALLENGE every opposing Gate Character here. Each with lower Force than Shango is displaced to a random other Location.
 - established: Your Characters confront Threats here with +2 Force.
 - blurb: Fourth king of Oyo and orisha of thunder and justice, whose double-headed axe and drum travelled to Cuba, Brazil and Trinidad and never fell silent.
@@ -379,7 +379,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - history: Charwe Nyakasikana, born around 1840 in the Mazowe valley, was the medium of the ancestral spirit Nehanda among the Shona. In 1896 she and the medium Kaguvi helped lead the First Chimurenga against the British South Africa Company's rule in what is now Zimbabwe. Captured in 1897, she refused conversion and was hanged in Salisbury in April 1898. Her reported last words, that her bones would rise again, became a rallying cry of the liberation war of the 1960s and 1970s.
 
 ### Boukman Dutty (`boukman_dutty`)
-- cost 7 · Influence 4 · Force 6 · historical · era: d. 1791
+- cost 8 · Influence 5 · Force 6 · historical · era: d. 1791
 - reveal: Uprising: every Character at your Gates, at every Location, enters Inside now, Ready or not. Only a block or a full Inside stops one.
 - passive: Costs 1 less for each of your Characters on the board with the Rebellion tag.
 - blurb: The Bois Caïman ceremony, and a week later the north of Saint-Domingue was burning.
@@ -388,7 +388,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 ### Cécile Fatiman (`cecile_fatiman`)
 - cost 1 · Influence 2 · Force 2 · historical · era: c. 1771–1883
 - reveal: Ceremony: the most expensive card in your hand costs 2 less.
-- established: Your Characters with the Rebellion tag cost 1 less Energy.
+- established: Your Characters with the Rebellion tag cost 2 less Energy.
 - blurb: The mambo at Bois Caïman. Lived to be over a hundred and saw the republic she helped start.
 - history: Cécile Fatiman was a Vodou priestess, a mambo, born around 1771 to an enslaved African mother and a Corsican father. Accounts of the Bois Caïman ceremony of August 1791 describe her presiding alongside Boukman, sacrificing a black pig and being possessed by the lwa Erzulie as the assembled leaders swore their oath. She later married Louis Michel Pierrot, who became president of Haiti, and is said to have lived to 112, dying in 1883.
 
@@ -483,11 +483,6 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - rule: The Black Star has landed. Characters relocated here arrive Ready, and Threats cannot appear here.
 - blurb: On 6 March 1957 Kwame Nkrumah raised a flag with a black star at its centre, in Garvey's honour, and named the new nation's shipping line the Black Star Line.
 
-### Anansi's Web (`anansis_web`)
-- era: Every story, at once
-- rule: The small against the large: Characters that cost 1 or less gain +2 Influence here, and Characters that cost 3 or more lose 1. Only Anansi can spin this Location.
-- blurb: Anansi bought every story in the world from the sky god with nothing but wit. Where his web is spun, the little ones win.
-
 ### Great Migration (`great_migration`)
 - era: 1916–1970
 - rule: The first Character relocated here each turn enters immediately.
@@ -505,8 +500,8 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### The Middle Passage (`middle_passage`)
 - era: Atlantic, 1526–1867
-- rule: The crossing. Nobody goes Inside here. At the end of each turn every Character at these Gates loses 1 Influence for good (never below 0). Characters who leave here arrive Ready: whoever survives the crossing lands standing. The DeWolf Trade ships people here.
-- blurb: Twelve and a half million people were carried across the Atlantic in chains. Nearly two million did not survive the voyage.
+- rule: The crossing. Nobody goes Inside here. At the end of each turn every Character at these Gates loses 1 Influence for good (never below 0). Whoever leaves here arrives Ready and carries +1 Influence for good: what survived the crossing came with them. The DeWolf Trade ships people here.
+- blurb: Twelve and a half million people were carried across the Atlantic in chains, and ten and a half million landed. What they carried, they kept: the languages, the faiths, the stories, the songs.
 
 ### Charleston, 1822 (`charleston_1822`)
 - era: South Carolina, 1822
@@ -550,8 +545,9 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ## Hints (tap or hover explanations)
 
-- `influence`: Influence: how much this Character counts toward controlling its Location. Gate and Inside Characters both count.
+- `influence`: Influence: how much this Character counts toward controlling its Location. Gate Characters count; Established Characters (Inside) count +1 more.
 - `force`: Force: strength when confronting Threats or answering a challenge. Force never attacks players directly.
+- `lastWord`: THE LAST WORD: the tenth turn, here only because somebody stood on business. Both sides get 10 Energy and an extra card. Whatever stands after this turn is the legacy.
 - `rebuilt`: Rebuilt: this Location was Lost, and the people who stayed put it back up. It is back in play, and everyone who stayed gained +1 Influence.
 - `finalTurn`: Last scheduled turn. A Stand on Business now adds a 10th turn; otherwise whatever stands after this one is counted: two Locations of three, then total Influence, then total Force.
 - `dayNight`: This Location has a curfew. Odd turns are day, even turns are night: at night nobody relocates out until morning. Harriet Tubman is the only one who can move a Character out.
@@ -678,13 +674,13 @@ In-match: the ⚙ button opens AI reasoning, analytics and the event log. Also e
 ← Back
 Rules
 ### The match
-- Two players, three Locations, nine turns (a 10th if someone Stands on Business), 22-card decks. Four-card opening hand and one draw every turn. Hands hold at most seven cards: a draw into a full hand is discarded.
+- Two players, three Locations, nine turns (a 10th if someone Stands on Business), 24-card decks. Four-card opening hand and one draw every turn. Hands hold at most seven cards: a draw into a full hand is discarded.
 - Both players plan at the same time, then Lock It In. Two minutes per turn.
 - Win Influence at two of the three Locations to win the match.
 ### Playing Characters
-- Every card has an Energy cost. Each turn you get Energy equal to the turn number, up to 7 (Turn 1: 1, Turn 5: 5, Turns 7 to 10: 7); Organizer and Denmark Vesey add +1 while Established, Oak Bluffs pays +1 next turn, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your three Gate slots at a Location. Its Reveal ability triggers there.
+- Every card has an Energy cost. Each turn you get Energy equal to the turn number, up to 7 (Turn 1: 1, Turn 5: 5, Turns 7 to 9: 7; The Last Word pays 10); Organizer and Denmark Vesey add +1 while Established, Oak Bluffs pays +1 next turn, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your three Gate slots at a Location. Its Reveal ability triggers there.
 - Discounts. Some cards cost more than you will ever have on your own: Boukman Dutty is 7. Prices come down while a card waits in your hand. Booker T. Washington makes every Character 1 cheaper, Cécile Fatiman takes 2 off your most expensive card and 1 off every Rebellion Character, George Washington Carver knocks 1 off your priciest card at the end of each turn, and Boukman himself costs 1 less for each Rebellion Character you have on the board. A green cost on a card in your hand means it is discounted right now; a card never costs less than 0.
-- Gate Characters count toward Influence but are Fresh for the turn they arrive and the following turn. Then they are Ready and may enter Inside (up to five per player).
+- Gate Characters count toward Influence but are Fresh for the turn they arrive and the following turn. Then they are Ready and may enter Inside (up to five per player). Inside counts more: every Established Character contributes +1 Influence on top of its card.
 - Inside, a Character is Established: its Established ability is live and it is safe from Gate-only effects.
 - Straight Inside and Direct Entry Characters can skip the wait (see Special arrivals below).
 ### Hidden Locations
@@ -710,7 +706,7 @@ Rules
 - The Tabernacle protects your Characters from displacement. Establish Richard Allen, Absalom Jones and Daniel Payne there and Black Jesus appears: sanctuary at his Location and +1 Influence to every Character you control.
 - The Justice System holds anyone who goes Inside for two turns: no relocating out.
 - Events are played into the purple Event slot under a Location (one per Location per turn; the Gates can be full). They work everywhere and the Location adds a bonus: Reparations pays +1 more in the Americas, The Ancestors bless a Location in Africa, Word of Mouth draws two where you have a crowd, Community Defense adds Force where it lands. Some cards cost 0 Energy.
-- The Middle Passage has no Inside: everyone at its Gates loses 1 Influence for good each turn, and whoever leaves arrives Ready. The DeWolf Trade (a Threat, 5 Force) ships the lowest Fresh Gate Character at its Location there, or to a random Location, with a Setback.
+- The Middle Passage has no Inside: everyone at its Gates loses 1 Influence for good each turn, and whoever leaves arrives Ready and carries +1 Influence for good. The DeWolf Trade (a Threat, 5 Force) ships the lowest Fresh Gate Character at its Location there, or to a random Location, with a Setback.
 - Informants (Peter Prioleau, George Wilson, Pharoah and Tom, Ben Woolfolk) are Characters you play onto your opponent's Gates at a Location with one of their slots open. They are theirs: their negative Influence counts against them there, they take one of their Gate slots, and they never become Ready or go Inside. Relocate one away, slide it with Robert Smalls, or let a Threat knock it away; Harriet Tubman will not conduct one. Or drop it at Charleston, 1822, where at the end of every turn the Fresh Gate Character with the lowest Influence changes sides (a tie goes against the leader): an Informant there is found out and goes back to the hand of whoever planted it. Marie Laveau's Reveal hexes the strongest opposing Gate Character at her Location: −2 Influence for the rest of the match.
 - Every deck carries at least one Mythic. The full list, with costs, is under Cards on the start screen.
 ### Summon (cooperative)
@@ -719,7 +715,7 @@ Rules
 - If the Summon fails and that Location is later Lost, both players lose 1 Influence at each of their other Locations. A broken pact costs everyone.
 - Mythic content is fantasy drawn from real traditions; the abilities are invention.
 ### Legacy
-- Matches start at 1 Legacy. Either player may Stand on Business once to double it (1 → 2, then 2 → 4). Standing adds a 10th turn, and whoever stood can no longer Sit Down.
+- Matches start at 1 Legacy. Either player may Stand on Business once to double it (1 → 2, then 2 → 4). Standing adds a 10th turn, The Last Word: both sides get 10 Energy and an extra card on it, and whoever stood can no longer Sit Down.
 - A Stand is part of your hidden plan and lands one turn later. The other player is never forced to answer: they get a full turn to Sit Down for the old Legacy, keep playing at the new Legacy, or Stand back and double it again.
 - Sit Down is surrender at the current Legacy. Sitting down during the grace turn is the cheap exit.
 ### Resolution order
@@ -758,6 +754,8 @@ Main menu
 
 - Last turn unless someone stands
 - (prefers-reduced-motion: reduce)
+- .column[data-index="${e.location}"] .art
+- .column[data-index="${i}"] .art
 - moves with ${cardName(pl.cardId, placeholders)}
 - relocates to ${view.locations[r.to].revealed ? locationName(view.locations[r.to].defId, placeholders) : 
 - That is the move. Press Lock It In.
@@ -1387,6 +1385,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - Setback for ${state.players[p].handle}: ${reason}.
 - ${name(state, c)} would rise again, but ${ps.handle}'s hand is full: she is discarded (${reason}).
 - ${name(state, c)} rises again: instead of being displaced (${reason}) she returns to ${ps.handle}'s hand and costs 0 the next time.
+- Anansi tricks ${charDef(target.defId).name} into waiting again.
 - ${who} ${verb}.
 - ${name(state, c)} could not be displaced: no open Gate.
 - ${name(state, c)} is displaced from ${locName(state, from)} to the Gates of ${locName(state, dest)} (${reason}).
@@ -1427,14 +1426,14 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - no Threat here to expose.
 - no opposing Gate Character to challenge.
 - challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}) and displaces them.
-- challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}) and is held off.
+- challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}): not enough to move them, but they are held at the Gates this turn.
 - no opposing Established Character to challenge.
 - challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}); they return to the Gates, Fresh.
+- challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}) and is held off.
 - the opposing Characters here cannot be Suppressed.
 - suppresses ${charDef(target.defId).name} until the end of next turn.
 - no opposing Established Character to suppress.
-- draws a card and retells this Location: it is now ${into?.name ?? eff.into}.
-- draws a card and tricks ${charDef(target.defId).name} into waiting again.
+- draws a card and, behind here, retells this Location: it is now ${LOCATION_BY_ID[state.locations[loc].defId]?.name ?? 'another place'}, webbed.
 - draws a card.
 - ${charDef(best.defId).name} gains +${eff.amount} Influence permanently.
 - no Character to bring across.
@@ -1480,6 +1479,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${ps.handle} plays ${def.name} (${def.influence}/${def.force}) at the Gates of ${locName(state, play.location)}.
 - ${name(state, c)} cannot enter: no room Inside.
 - ${name(state, c)} cannot relocate: the Gate at ${locName(state, r.to)} is full.
+- ${name(state, c)} came through the crossing: +1 Influence for good, what was carried across.
 - ${name(state, c)} relocates from ${wasGate ? 'the Gates of ' : ''}${locName(state, from)} to the Gates of ${locName(state, r.to)}${c.ready ? (wasGate ? ', still Ready' : ' and is Ready') : ' and waits again'}.
 - ${name(state, c)} cannot enter ${locName(state, c.location)}: ${blocked}.
 - ${name(state, c)} cannot enter ${locName(state, c.location)}: no room Inside.
@@ -1516,12 +1516,13 @@ Template fields in `${...}` are filled in by the game. Keep them.
 
 - ${ps.handle}'s hand is full (${MAX_HAND}): ${CARD_BY_ID[card]?.name ?? card} is discarded.
 - ${def.name} appears at ${locName(state, location)}.
-- Anansi retells ${from?.name ?? 'the Location'}: it is now ${into.name}.
+- Anansi retells ${from?.name ?? 'the Location'}: it is now ${into.name}, with his web over it. The small grow here and the large shrink.
 - ${from?.name ?? 'The Location'} arrives: it is now ${into.name}.
 - ${THREAT_BY_ID[t.defId]?.name ?? 'The Threat'} at ${into.name} is left behind.
 - Everyone aboard gains +1 Influence (${aboard.length} Character${aboard.length > 1 ? 's' : ''}).
 - ${CHARACTER_BY_ID[c.defId]?.name ?? c.defId} (${state.players[p].handle}) walks straight into ${into.name}.
 - Turn ${state.turn} begins.
+- THE LAST WORD. Turn ${EXTENDED_TURNS} exists because somebody stood on business: ${LAST_WORD_ENERGY} Energy and ${LAST_WORD_DRAW === 1 ? 'an extra card' : 
 - ${state.players[p].handle} draws a card.
 - ${THREAT_BY_ID[t.defId]?.name ?? 'The Threat'} at ${locName(state, loc.index)} has moved on.
 - ${locName(state, loc.index)} is REBUILT: the people who stayed put it back up. It is back in play${stayed.length ? 

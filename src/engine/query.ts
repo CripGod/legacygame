@@ -12,7 +12,7 @@ import type {
   EstablishedEffect,
   LocationDef,
 } from './types';
-import { ENERGY_CAP, GATE_CAPACITY, INSIDE_CAPACITY, PLAYERS, other, MAX_STAKES, EXTENDED_TURNS } from './types';
+import { ENERGY_CAP, INSIDE_INFLUENCE_BONUS, LAST_WORD_ENERGY, WEB_SMALL, WEB_LARGE, GATE_CAPACITY, INSIDE_CAPACITY, PLAYERS, other, MAX_STAKES, EXTENDED_TURNS } from './types';
 
 /** The Justice System: a Character that went Inside recently cannot relocate out yet. */
 /** Even turns are night. Curfews bite at night. */
@@ -127,12 +127,14 @@ export function charInfluence(state: GameState, c: CharacterInstance): number {
     const b = (charDef(j.defId).established?.effect as { blessing?: number }).blessing;
     if (b) v += b;
   }
-  // Anansi's Web: the small against the large. Cheap Characters grow here, expensive ones shrink.
-  if (ldef?.effect.type === 'smallAgainstLarge' && !def.keywords.includes('INFORMANT')) {
-    if (def.cost <= 1) v += ldef.effect.small;
-    else if (def.cost >= 3) v -= ldef.effect.large;
+  // Anansi's web: the small against the large. Cheap Characters grow at a webbed Location, expensive ones shrink.
+  if (loc.webbed && !def.keywords.includes('INFORMANT')) {
+    if (def.cost <= 1) v += WEB_SMALL;
+    else if (def.cost >= 3) v -= WEB_LARGE;
   }
   if (c.zone === 'inside') {
+    // Inside counts more than the Gates.
+    v += INSIDE_INFLUENCE_BONUS;
     if (ldef?.effect.type === 'insideInfluence') v += ldef.effect.amount;
     if (ldef?.effect.type === 'nightInside' && isNight(state)) v += ldef.effect.amount;
     for (const d of hasEstablished(state, c.owner, c.location, 'auraInfluenceOthersHere')) {
@@ -223,7 +225,8 @@ export function canConfront(state: GameState, threat: ThreatInstance, p: PlayerI
 
 /** Energy this turn: the turn number up to ENERGY_CAP, plus Organizer-style bonuses. Unspent Energy does not carry over. */
 export function energyFor(state: GameState, p: PlayerId): number {
-  let n = Math.min(state.turn, ENERGY_CAP) + (state.players[p].energyBonus ?? 0) + (state.players[p].energyNextTurn ?? 0);
+  const lastWord = state.turn === EXTENDED_TURNS && state.maxTurns === EXTENDED_TURNS;
+  let n = (lastWord ? LAST_WORD_ENERGY : Math.min(state.turn, ENERGY_CAP)) + (state.players[p].energyBonus ?? 0) + (state.players[p].energyNextTurn ?? 0);
   for (const c of hasEstablishedAnywhere(state, p, 'extraEnergy')) n += amountOf(c);
   return n;
 }

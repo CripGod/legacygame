@@ -70,9 +70,9 @@ export interface AiTuning {
 export const DEFAULT_TUNING: AiTuning = {
   bestPick: 0.7,
   sensiblePick: 0.2,
-  standThreshold: 0.65,
-  strongStandThreshold: 0.8,
-  bluffRate: 0.07,
+  standThreshold: 0.84,
+  strongStandThreshold: 0.94,
+  bluffRate: 0.02,
   continueThreshold: 0.2,
 };
 
@@ -531,7 +531,8 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
   const winEstimate = estimateWinChance(view, p);
   let standDecision = 'no';
   let standOnBusiness = false;
-  if (opts.canStand && view.turn >= 2) {
+  // Standing is a late, confident call: never before Turn 5, and only from a clear lead.
+  if (opts.canStand && view.turn >= 5) {
     if (winEstimate >= tuning.strongStandThreshold) {
       standOnBusiness = true;
       standDecision = `stands (strong, ${(winEstimate * 100).toFixed(0)}%)`;

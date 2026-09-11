@@ -717,7 +717,7 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
   :root { --card-w: 26vw; --mini: 15vw; --mini-h: calc(var(--mini) * 0.8); --slot: 6.4vw; --slot-h: calc(var(--slot) * 0.85); }
 }
 /* The board sits in the middle of the screen with air on both sides. */
-.battlefield { width: 100%; max-width: 1560px; margin: 0 auto; column-gap: clamp(14px, 2.6vw, 56px); padding: var(--gap) clamp(10px, 4vw, 80px); align-content: center; }
+.battlefield { width: 100%; max-width: 1760px; margin: 0 auto; column-gap: clamp(14px, 2.6vw, 56px); padding: var(--gap) clamp(10px, 4vw, 80px); align-content: center; }
 .column { gap: 6px; }
 
 /* Gate tiles: landscape portraits in a thick frame that glows in the owner's colour. */
@@ -1216,3 +1216,13 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 
 /* A Location rebuilt after being Lost. */
 .location .art .lost-tag.rebuilt { color: #1a1200; background: var(--gold-2); }
+
+/* Four boxes (three Gates and the Event slot) never outgrow their column: on wide screens the tiles cap at a quarter of it,
+   so the Location panel and the Gate row share one width. */
+.column { container-type: inline-size; }
+.gates .gate-slot { width: min(var(--mini), calc((100cqw - 24px) / 4)); }
+/* Anansi retold this Location and spun his web over it. */
+.location .art .lost-tag.webbed { color: #fff; background: #5b3f8a; }
+
+/* Power trails: a fixed canvas over the board; particles fly from a Character to the Locations its Reveal reaches. */
+.trails { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 45; }
