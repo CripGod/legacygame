@@ -30,7 +30,7 @@ const TIPS: { key: string; when: (c: Ctx) => string | null }[] = [
       const hand = c.v.players[c.me].hand.filter((id) => CARD_BY_ID[id]).sort((a, b) => cardCost(a, c.v, c.me) - cardCost(b, c.v, c.me));
       const cheap = hand[0];
       const pricey = hand.find((id) => cardCost(id, c.v, c.me) > energy);
-      return `You have ${energy} Energy this turn. Energy grows a step at a time (1, 2, 2, 3, 4, 4, 5, 6), so next turn brings ${ENERGY_CURVE[Math.min(c.v.turn, 7)]}. Every card costs Energy, the green circle in its corner${cheap ? `: ${c.nm(cheap)} costs ${cardCost(cheap, c.v, c.me)}` : ''}${pricey ? `, and ${c.nm(pricey)} (${cardCost(pricey, c.v, c.me)}) has to wait for a richer turn` : ''}.`;
+      return `You have ${energy} Energy this turn. Energy equals the turn number, so next turn brings ${ENERGY_CURVE[Math.min(c.v.turn, 7)]}. Every card costs Energy, the green circle in its corner${cheap ? `: ${c.nm(cheap)} costs ${cardCost(cheap, c.v, c.me)}` : ''}${pricey ? `, and ${c.nm(pricey)} (${cardCost(pricey, c.v, c.me)}) has to wait for a richer turn` : ''}.`;
     },
   },
   {

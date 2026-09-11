@@ -695,7 +695,7 @@ describe('new historical cards', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, energy: true, handA: ['nat_turner'] });
     s.turn = 3;
     addChar(s, 'denmark_vesey', 'A', 0, 'inside');
-    expect(legalOptions(s, 'A').energy).toBe(2 + 1); // Turn 3 pays 2 on the curve; Vesey adds 1
+    expect(legalOptions(s, 'A').energy).toBe(3 + 1); // Turn 3 pays 3; Vesey adds 1
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'nat_turner', location: 1 }] }, B: pass() }).state;
     const nat = charsOf(s, 'A').find((c) => c.defId === 'nat_turner')!;
     expect(nat.unstable).toBeFalsy();
@@ -928,8 +928,8 @@ describe('cost flow', () => {
     expect(s.players.A.hand).toContain('zora_neale_hurston');
     expect(cardCost('zora_neale_hurston', s, 'A')).toBe(0);
     expect(s.turn).toBe(3);
-    expect(energyFor(s, 'A')).toBe(2 + 1); // Turn 3 pays 2; Oak Bluffs paid 1 forward
-    expect(energyFor(s, 'B')).toBe(2);
+    expect(energyFor(s, 'A')).toBe(3 + 1); // Turn 3 pays 3; Oak Bluffs paid 1 forward
+    expect(energyFor(s, 'B')).toBe(3);
   });
 });
 
@@ -1168,7 +1168,6 @@ describe('variety pass and lasting Reparations', () => {
   it('Zora digs, Walker banks Energy, Payne discounts the next Character, Green grants a Relocation, Vesey recruits', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, energy: true, handA: ['zora_neale_hurston', 'madam_cj_walker', 'daniel_payne', 'victor_hugo_green', 'denmark_vesey', 'john_russwurm'] });
     s.turn = 5;
-    s.players.A.energyBonus = 1; // Turn 5 pays 4 on the curve; Zora (2) and Walker (3) need 5
     s.players.A.deck = ['mansa_musa', 'bud_billiken', 'harriet_tubman'];
     s.players.A.deckCount = 3;
     const handBefore = s.players.A.hand.length;
@@ -1177,8 +1176,8 @@ describe('variety pass and lasting Reparations', () => {
     expect(s.players.A.hand).toContain('mansa_musa');
     expect(s.players.A.deck).toEqual(['bud_billiken']);
     expect(s.players.A.hand.length).toBe(handBefore - 2 + 2);
-    // Walker: +2 Energy next turn (turn 6 pays 4, +1 bonus, +2 Walker).
-    expect(legalOptions(s, 'A').energy).toBe(4 + 1 + 2);
+    // Walker: +2 Energy next turn (turn 6 → 8 Energy).
+    expect(legalOptions(s, 'A').energy).toBe(6 + 2);
     // Payne: the next Character costs 1 less from the following turn; Green: +1 Relocation next turn.
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'daniel_payne', location: 0 }, { cardId: 'victor_hugo_green', location: 1 }] }, B: pass() }).state;
     expect(cardCost('john_russwurm', s, 'A')).toBe(0);
@@ -1519,7 +1518,7 @@ describe('The Stroll', () => {
 });
 
 describe('Eight turns, 24 cards', () => {
-  it('base Energy follows the slow curve; bonuses still stack on top', () => {
+  it('base Energy is the turn number; bonuses still stack on top', () => {
     let s = createMatch({ seed: 3 });
     const seen: number[] = [];
     while (s.turn < 8) {
@@ -1527,9 +1526,9 @@ describe('Eight turns, 24 cards', () => {
       s = resolveTurn(s, { A: pass(), B: pass() }).state;
     }
     seen.push(energyFor(s, 'A'));
-    expect(seen).toEqual([1, 2, 2, 3, 4, 4, 5, 6]);
+    expect(seen).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
     s.players.A.energyBonus = 1;
-    expect(energyFor(s, 'A')).toBe(7);
+    expect(energyFor(s, 'A')).toBe(9);
     const early = createMatch({ seed: 3 });
     expect(energyFor(early, 'A')).toBe(1);
   });
@@ -1630,7 +1629,7 @@ describe('The Last Word', () => {
     let s = createMatch({ seed: 4 });
     for (let t = 1; t <= 7; t++) s = resolveTurn(s, { A: pass(), B: pass() }).state;
     expect(s.turn).toBe(8);
-    expect(energyFor(s, 'A')).toBe(6);
+    expect(energyFor(s, 'A')).toBe(8);
     const handA = s.players.A.hand.length;
     const handB = s.players.B.hand.length;
     const r = resolveTurn(s, { A: pass(), B: { ...pass(), standOnBusiness: true } });

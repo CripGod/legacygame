@@ -14,10 +14,10 @@ export const TURNS = 8;
 export const EXTENDED_TURNS = 9;
 /** Inside counts more than the Gates: every Established Character contributes this much extra Influence. */
 export const INSIDE_INFLUENCE_BONUS = 1;
-/** Base Energy by turn (index turn − 1). Slower than the turn number, so one or two plays a turn is the norm and the hand lasts. */
-export const ENERGY_CURVE = [1, 2, 2, 3, 4, 4, 5, 6];
+/** Base Energy by turn (index turn − 1): one more every turn, so a card battler player can count on it. Pace is balanced through card costs, not the curve. */
+export const ENERGY_CURVE = [1, 2, 3, 4, 5, 6, 7, 8];
 /** Base Energy never exceeds this; The Last Word pays LAST_WORD_ENERGY instead. */
-export const ENERGY_CAP = 7;
+export const ENERGY_CAP = 8;
 /** The Last Word: the ninth turn, reached only by Standing on Business, lifts the cap and deals one more card to each side. */
 export const LAST_WORD_ENERGY = 10;
 export const LAST_WORD_DRAW = 1;

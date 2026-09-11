@@ -143,7 +143,7 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
         act: play,
       },
       {
-        point: read('Energy', `Energy grows a step at a time (1, 2, 2, 3, 4, 4, 5, 6): ${energy} now, ${ENERGY_CURVE[Math.min(view.turn, 7)]} next turn. Every card costs Energy, the green circle in its corner, and the cards you cannot afford are dimmed.`),
+        point: read('Energy', `Energy equals the turn number, so it grows every turn: ${energy} now, ${ENERGY_CURVE[Math.min(view.turn, 7)]} next turn. Every card costs Energy, the green circle in its corner, and the cards you cannot afford are dimmed.`),
         act: lock(),
       },
     ]);

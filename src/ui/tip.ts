@@ -67,7 +67,7 @@ export const HINTS = {
   scoreB: 'Harborlight\'s Influence at this Location.',
   line: 'The Influence Line: leans toward whoever leads. Lead at two of three Locations after the final turn to win.',
   energy: 'Energy: the crystals up here are what you can spend on cards this turn. You get one more each turn (Turn 3 = 3), Organizer adds one, and unspent Energy does not carry over. Lit crystals are still unspent; dim ones are spent; hollow ones come on later turns.',
-  cost: 'Cost: the Energy this card takes to play. Energy grows a step at a time (1, 2, 2, 3, 4, 4, 5, 6), so expensive cards wait for later turns, unless something brings the price down: a green cost means a discount is on right now.',
+  cost: 'Cost: the Energy this card takes to play. Energy equals the turn number, so expensive cards wait for later turns, unless something brings the price down: a green cost means a discount is on right now.',
   stakes: 'Legacy: what the match is worth. Stand on Business doubles it (1 → 2 → 4) one turn later, adds a 9th turn, and means you cannot Sit Down. The other side gets one turn to Sit Down at the old price.',
   stakesPending: 'Someone Stood on Business. The raise lands after this turn: Sit Down now to lose only the current Legacy.',
   timer: 'Planning timer. At zero your current plan locks automatically.',
