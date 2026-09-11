@@ -75,7 +75,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
   },
   blackstar: {
     name: 'Black Star',
-    style: 'Mobility and return. Garvey, Green and Smalls relocate freely, Nehanda comes back when pushed out, Turner is strongest aboard The Black Star, and Peter Prioleau is planted on the other side to drain a Location.',
+    style: 'Mobility and return. Garvey sends your Characters out Ready, Green and Smalls relocate freely, Nehanda comes back when pushed out, Turner is strongest aboard The Black Star, and Peter Prioleau is planted on the other side to drain a Location.',
     cards: [
       'marcus_garvey',
       'toussaint_louverture',

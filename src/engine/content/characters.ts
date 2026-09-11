@@ -732,7 +732,7 @@ export const CHARACTERS: CharacterDef[] = [
     category: 'historical',
     name: 'Marcus Garvey',
     short: 'Garvey',
-    summary: 'Friends here get +1 Influence this turn. Established: leavers arrive Ready.',
+    summary: 'Friends here +1 this turn. Est.: relocate out from here, arrive Ready.',
     influence: 4,
     force: 2,
     tags: ['Black', 'Pan-African', 'Movement'],
@@ -742,7 +742,7 @@ export const CHARACTERS: CharacterDef[] = [
       effect: { type: 'tempInfluenceAllOthersHere', amount: 1 },
     },
     established: {
-      text: 'Characters you relocate out of this Location arrive Ready.',
+      text: 'The Black Star Line: any Character you relocate away from this Location arrives at its new Gates Ready, not Fresh. (He does not move anyone himself; you choose the Relocation.)',
       effect: { type: 'relocatedOutReady' },
     },
     identity: ['mass movement', 'pride', 'enterprise', 'diaspora'],

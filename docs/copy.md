@@ -201,7 +201,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 ### Marcus Garvey (`marcus_garvey`)
 - cost 3 · Influence 4 · Force 2 · historical · era: 1887–1940
 - reveal: Each other friendly Character here gains +1 Influence this turn.
-- established: Characters you relocate out of this Location arrive Ready.
+- established: The Black Star Line: any Character you relocate away from this Location arrives at its new Gates Ready, not Fresh. (He does not move anyone himself; you choose the Relocation.)
 - blurb: Founded the UNIA and the Black Star Line, building the largest mass movement in Black history.
 - history: Marcus Garvey (1887–1940), born in Jamaica, founded the Universal Negro Improvement Association in 1914 and moved it to Harlem in 1916. At its peak the UNIA claimed millions of members across the Americas and Africa, published the Negro World and ran the Black Star Line, a shipping company financed by Black shareholders. The line failed, Garvey was convicted of mail fraud in 1923 and deported in 1927, but his ideas of Black pride and self-reliance shaped Rastafari, Pan-Africanism and the civil rights generation.
 
@@ -567,7 +567,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - `scoreB`: Harborlight's Influence at this Location.
 - `line`: The Influence Line: leans toward whoever leads. Lead at two of three Locations after the final turn to win.
 - `energy`: Energy: the crystals up here are what you can spend on cards this turn. You get one more each turn (Turn 3 = 3), Organizer adds one, and unspent Energy does not carry over. Lit crystals are still unspent; dim ones are spent; hollow ones come on later turns.
-- `cost`: Cost: the Energy this card takes to play. Energy grows a step at a time (1, 2, 2, 3, 4, 4, 5, 6), so expensive cards wait for later turns, unless something brings the price down: a green cost means a discount is on right now.
+- `cost`: Cost: the Energy this card takes to play. Energy equals the turn number, so expensive cards wait for later turns, unless something brings the price down: a green cost means a discount is on right now.
 - `stakes`: Legacy: what the match is worth. Stand on Business doubles it (1 → 2 → 4) one turn later, adds a 9th turn, and means you cannot Sit Down. The other side gets one turn to Sit Down at the old price.
 - `stakesPending`: Someone Stood on Business. The raise lands after this turn: Sit Down now to lose only the current Legacy.
 - `timer`: Planning timer. At zero your current plan locks automatically.
@@ -678,7 +678,7 @@ Rules
 - Both players plan at the same time, then Lock It In. Two minutes per turn.
 - Win Influence at two of the three Locations to win the match.
 ### Playing Characters
-- Every card has an Energy cost. Each turn you get Energy on a slow curve: 1, 2, 2, 3, 4, 4, 5, 6 across the eight turns (The Last Word pays 10); Organizer and Denmark Vesey add +1 while Established, Oak Bluffs pays +1 next turn, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your three Gate slots at a Location. Its Reveal ability triggers there.
+- Every card has an Energy cost. Each turn you get Energy equal to the turn number (Turn 1: 1, Turn 8: 8; The Last Word pays 10); Organizer and Denmark Vesey add +1 while Established, Oak Bluffs pays +1 next turn, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your three Gate slots at a Location. Its Reveal ability triggers there.
 - Discounts. Some cards cost more than you will ever have on your own: Boukman Dutty is 7. Prices come down while a card waits in your hand. Booker T. Washington makes every Character 1 cheaper, Cécile Fatiman takes 2 off your most expensive card and 1 off every Rebellion Character, George Washington Carver knocks 1 off your priciest card at the end of each turn, and Boukman himself costs 1 less for each Rebellion Character you have on the board. A green cost on a card in your hand means it is discounted right now; a card never costs less than 0.
 - Gate Characters count toward Influence but are Fresh for the turn they arrive and the following turn. Then they are Ready and may enter Inside (up to five per player). Inside counts more: every Established Character contributes +1 Influence on top of its card.
 - Inside, a Character is Established: its Established ability is live and it is safe from Gate-only effects.
