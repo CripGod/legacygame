@@ -11,6 +11,7 @@ import { Hand } from '../components/Hand';
 import { Coach } from '../components/Coach';
 import { Spotlight } from '../components/Spotlight';
 import { Trails, TRAIL_COLORS, type TrailShot } from '../components/Trails';
+import { DigReveal, type DigShow, type DigPhase } from '../components/DigReveal';
 import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, SpawnSheet, ThreatSheet, AncestorsSheet, ShowdownSheet, PeekHandSheet, ClashSheet, TallySheet } from '../components/Sheets';
 import { guideDone, markGuideDone, suggest } from '../guide';
 import { lessonsFor, tutorialActive } from '../tutorial';
@@ -175,9 +176,19 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   /** Power trails on the board (a Reveal that reaches other Locations): particles fly from the actor to each target. */
   const [trail, setTrail] = useState<TrailShot[] | null>(null);
   const [trailFreeze, setTrailFreeze] = useState<number | undefined>(undefined);
+  /** Zora's dig, told on screen: the cards seen, the one kept. */
+  const [dig, setDig] = useState<DigShow | null>(null);
+  const digKey = useRef(0);
+  const [digFreeze, setDigFreeze] = useState<DigPhase | undefined>(undefined);
   useEffect(() => {
     if (!step) return;
     const evs = filterEvents(step.events, me);
+    const digEv = evs.find((e) => (e.data as { dig?: DigShow } | undefined)?.dig && e.player);
+    if (digEv && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const d = (digEv.data as { dig: { seen: string[]; keep: string; hidden: boolean } }).dig;
+      digKey.current += 1;
+      setDig({ seen: d.seen, keep: d.keep, hidden: d.hidden, owner: digEv.player!, by: digEv.uid ? cardName(view.characters[digEv.uid]?.defId ?? 'zora_neale_hurston', placeholders) : undefined });
+    }
     const trailEvs = evs.filter((e) => (e.data as { trail?: string } | undefined)?.trail && e.uid && e.location !== undefined);
     if (trailEvs.length && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       // Measure after this beat's board has rendered.
@@ -217,12 +228,12 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   }, [m.replay?.idx, m.replay?.steps]);
   /** Advance the replay once this beat's sheets are closed. */
   useEffect(() => {
-    if (!step || fx || trail || clashes.length || showdowns.length || fanfare.length || sheet?.kind === 'peek') return;
+    if (!step || fx || trail || dig || clashes.length || showdowns.length || fanfare.length || sheet?.kind === 'peek') return;
     const ms = ownBeat ? 0 : BEAT_MS[step.kind] ?? 900;
     const id = window.setTimeout(m.replayNext, ms);
     return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [m.replay?.idx, m.replay?.steps, clashes.length, showdowns.length, fanfare.length, sheet?.kind, fx, trail]);
+  }, [m.replay?.idx, m.replay?.steps, clashes.length, showdowns.length, fanfare.length, sheet?.kind, fx, trail, dig]);
   /** Dev: preview a trail from a Character tile to Locations without playing to it (window.__sobTrail(uid, [0, 2])). */
   useEffect(() => {
     if (!window.location.search.includes('dev=1')) return;
@@ -236,6 +247,11 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         if (to) shots.push({ from, to, color: TRAIL_COLORS[side], label: '+1' });
       }
       setTrail(shots);
+    };
+    (window as unknown as { __sobDig?: (seen: string[], keep: string, hidden?: boolean, freeze?: DigPhase, owner?: PlayerId) => void }).__sobDig = (seen, keep, hidden = false, freeze, owner = 'A') => {
+      setDigFreeze(freeze);
+      digKey.current += 1;
+      setDig({ seen, keep, hidden, owner });
     };
   }, []);
   /** Gate slots my departing Characters still hold this turn (the preview shows them elsewhere). */
@@ -917,6 +933,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         </div>
       )}
       {trail && <Trails shots={trail} freezeAt={trailFreeze} onDone={() => { setTrail(null); setTrailFreeze(undefined); }} />}
+      {dig && <DigReveal key={digKey.current} dig={dig} me={me} freeze={digFreeze} onDone={() => { setDig(null); setDigFreeze(undefined); }} />}
       {sheet?.kind === 'card' && <CardSheet id={sheet.id} onClose={() => setSheet(null)} extra={sheet.id === 'reparations' ? <ReparationsReadout view={view} me={me} placeholders={placeholders} /> : undefined} />}
       {sheet?.kind === 'char' && <CharSheet view={view} uid={sheet.uid} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'threat' && <ThreatSheet view={view} me={me} threatUid={sheet.uid} plan={plan} locked={!planning} onClose={() => setSheet(null)} onToggle={toggleConfront} />}

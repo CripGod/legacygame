@@ -770,7 +770,8 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
         ps.hand.push(keep);
       }
       ps.deckCount = ps.deck.length;
-      events.push({ type: 'reveal', text: `${def.name}: looks at the top ${top.length} card${top.length > 1 ? 's' : ''} of the deck, keeps ${CARD_BY_ID[keep]?.name ?? keep} and puts the rest on the bottom.`, uid: c.uid, player: p, location: loc, privateTo: p });
+      events.push({ type: 'reveal', text: `${def.name}: looks at the top ${top.length} card${top.length > 1 ? 's' : ''} of the deck, keeps ${CARD_BY_ID[keep]?.name ?? keep} and puts the rest on the bottom.`, uid: c.uid, player: p, location: loc, privateTo: p, data: { dig: { seen: top, keep, hidden: false } } });
+      events.push({ type: 'reveal', text: `${def.name}: looks at the top ${top.length} card${top.length > 1 ? 's' : ''} of the deck, keeps one and puts the rest on the bottom.`, uid: c.uid, player: p, location: loc, privateTo: other(p), data: { dig: { seen: top.map(() => 'hidden'), keep: 'hidden', hidden: true } } });
       break;
     }
     case 'energyNext': {

@@ -1607,6 +1607,23 @@ describe('Anansi retells', () => {
   });
 });
 
+describe('Zora digs', () => {
+  it('the dig event tells the owner what was seen and kept, and the opponent only that one card was kept', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['great_migration', 'juneteenth', 'black_star'], revealAll: true, handA: ['zora_neale_hurston'] });
+    const top = s.players.A.deck.slice(0, 2);
+    const r = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'zora_neale_hurston', location: 0 }] }, B: pass() });
+    const mine = r.events.find((e) => (e.data as { dig?: { hidden: boolean } } | undefined)?.dig?.hidden === false)!;
+    const theirs = r.events.find((e) => (e.data as { dig?: { hidden: boolean } } | undefined)?.dig?.hidden === true)!;
+    expect(mine.privateTo).toBe('A');
+    expect(theirs.privateTo).toBe('B');
+    const d = (mine.data as { dig: { seen: string[]; keep: string } }).dig;
+    expect(d.seen).toEqual(top);
+    expect(top).toContain(d.keep);
+    expect(r.state.players.A.hand).toContain(d.keep);
+    expect((theirs.data as { dig: { seen: string[]; keep: string } }).dig.keep).toBe('hidden');
+  });
+});
+
 describe('The Last Word', () => {
   it('the tenth turn lifts the Energy cap to 10 and deals an extra card to both sides', () => {
     let s = createMatch({ seed: 4 });

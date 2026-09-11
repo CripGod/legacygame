@@ -1457,6 +1457,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - the deck is empty.
 - ${ps.handle}'s hand is full (${MAX_HAND}): ${CARD_BY_ID[keep]?.name ?? keep} is discarded.
 - ${def.name}: looks at the top ${top.length} card${top.length > 1 ? 's' : ''} of the deck, keeps ${CARD_BY_ID[keep]?.name ?? keep} and puts the rest on the bottom.
+- ${def.name}: looks at the top ${top.length} card${top.length > 1 ? 's' : ''} of the deck, keeps one and puts the rest on the bottom.
 - +${eff.amount} Energy next turn.
 - the next Character ${state.players[p].handle} plays costs ${eff.amount} less.
 - next turn ${state.players[p].handle} may make ${eff.amount} extra Relocation${eff.amount > 1 ? 's' : ''}.
