@@ -153,11 +153,12 @@ describe('turn structure', () => {
       expect(s.characters[c.uid].zone).toBe('inside');
     }
   });
-  it('enforces one card per turn and Gate capacity of two', () => {
-    let s = rig(createMatch({ seed: 2 }), { handA: ['og', 'organizer', 'zora_neale_hurston', 'ida_b_wells', 'reparations'] });
+  it('enforces one card per turn and Gate capacity of three', () => {
+    let s = rig(createMatch({ seed: 2 }), { handA: ['og', 'organizer', 'ida_b_wells', 'zora_neale_hurston', 'reparations'] });
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'og', location: 1 }] }, B: pass() }).state;
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'organizer', location: 1 }] }, B: pass() }).state;
-    expect(charsAt(s, 1, 'A', 'gate')).toHaveLength(2);
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'ida_b_wells', location: 1 }] }, B: pass() }).state;
+    expect(charsAt(s, 1, 'A', 'gate')).toHaveLength(3);
     const opts = legalOptions(s, 'A');
     const zora = opts.plays.find((p) => p.cardId === 'zora_neale_hurston')!;
     expect(zora.locations).not.toContain(1);
@@ -571,9 +572,11 @@ describe('Informants, zero-cost cards and showdowns', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['peter_prioleau', 'boukman_dutty'], handB: [] });
     s.turn = 3;
     addChar(s, 'og', 'B', 0, 'gate', true); // Influence 3 at B's Gates
+    addChar(s, 'bessie_coleman', 'B', 0, 'gate', true); // two of B's three Gate slots taken
     // It needs one of the opponent's Gate slots, not yours.
     addChar(s, 'john_russwurm', 'A', 0, 'gate', true);
     addChar(s, 'alonzo_herndon', 'A', 0, 'gate', true);
+    addChar(s, 'bass_reeves', 'A', 0, 'gate', true);
     expect(legalOptions(s, 'A').plays.find((p) => p.cardId === 'peter_prioleau')?.locations).toEqual([0, 1, 2]);
     expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'peter_prioleau', location: 0 }] })).toEqual([]);
     const before = influenceAt(s, 0);
@@ -585,7 +588,7 @@ describe('Informants, zero-cost cards and showdowns', () => {
     expect(spy.ready).toBe(false);
     expect(charInfluence(s, spy)).toBe(-3);
     expect(influenceAt(s, 0).B).toBe(Math.max(0, before.B - 3));
-    // B's Gates there are now full (OG + the Informant): B cannot play a second Character there.
+    // B's Gates there are now full (OG, Coleman and the Informant): B cannot play another Character there.
     expect(gateRoom(s, 0, 'B')).toBe(0);
     // Next turn it is still Fresh, cannot enter, and Boukman's Uprising leaves it at the Gates.
     s = resolveTurn(s, { A: pass(), B: pass() }).state;
@@ -1243,11 +1246,12 @@ describe('Informant edge cases (from review)', () => {
     u.locations[0].revealedTurn = 1;
     addChar(u, 'og', 'A', 0, 'gate', true);
     addChar(u, 'organizer', 'A', 0, 'gate', true);
+    addChar(u, 'alonzo_herndon', 'A', 0, 'gate', true);
     const ub = addChar(u, 'john_russwurm', 'B', 0, 'gate', false);
     ub.arrivedTurn = 3;
     const out = resolveTurn(u, { A: pass(), B: pass() });
     expect(out.state.characters[ub.uid].owner).toBe('B');
-    expect(charsAt(out.state, 0, 'A', 'gate')).toHaveLength(2);
+    expect(charsAt(out.state, 0, 'A', 'gate')).toHaveLength(3);
     expect(out.events.some((e) => e.text.includes('Gates here are full'))).toBe(true);
   });
 
@@ -1276,6 +1280,7 @@ describe('Informant edge cases (from review)', () => {
     r.turn = 3;
     r.initiative = 'A';
     addChar(r, 'og', 'B', 0, 'gate', true);
+    addChar(r, 'bessie_coleman', 'B', 0, 'gate', true); // one B slot left: the Organizer takes it before the Informant
     const out = resolveTurn(r, { A: { ...pass(), plays: [{ cardId: 'peter_prioleau', location: 0 }] }, B: { ...pass(), plays: [{ cardId: 'organizer', location: 0 }] } });
     expect(Object.values(out.state.characters).some((c) => c.defId === 'organizer' && c.owner === 'B')).toBe(true);
     expect(out.state.players.A.hand).toContain('peter_prioleau'); // back to hand, not discarded

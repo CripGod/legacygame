@@ -16,7 +16,7 @@ export const EXTENDED_TURNS = 10;
 export const ENERGY_CAP = 7;
 /** A Lost Location is rebuilt by the people who stayed this many turns after it fell. */
 export const RECONSTRUCTION_TURNS = 2;
-export const GATE_CAPACITY = 2;
+export const GATE_CAPACITY = 3;
 export const INSIDE_CAPACITY = 5;
 export const STARTING_HAND = 4;
 /** Deck size: opening hand plus one draw per turn, with a card to spare after an extended match. */
