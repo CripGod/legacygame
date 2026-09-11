@@ -728,7 +728,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
         const l = state.locations[index];
         l.permInfluence = l.permInfluence ?? { A: 0, B: 0 };
         l.permInfluence[p] += amount;
-        events.push({ type: 'info', text: `${def.name}: ${locName(state, index)} gains +${amount} lasting Influence for ${state.players[p].handle} (${why}). It stays even if ${def.short} leaves.`, uid: c.uid, player: p, location: index, data: { trail: 'landscape', amount } });
+        events.push({ type: 'info', text: `${def.name}: ${locName(state, index)} gains +${amount} lasting Influence for ${state.players[p].handle} (${why}). It stays even if ${def.short} leaves.`, uid: c.uid, player: p, location: index, data: { trail: 'landscape', amount, color: 'artist' } });
       };
       if (eff.everywhereEstablished) {
         const spots = state.locations.filter((l) => l.revealed && !l.lost && charsAt(state, l.index, p, 'inside').length > 0);

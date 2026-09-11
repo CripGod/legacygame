@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { GameState, PlayerId, TurnPlan, CharacterInstance } from '../../engine';
-import { charsOf, charInfluence, influenceAt, other, threatForceNeeded, confrontForce, lockReason, LOCATION_BY_ID, THREAT_BY_ID, CARD_BY_ID, charDef, cardCost, legalOptions } from '../../engine';
+import { charsOf, charInfluence, influenceAt, other, threatForceNeeded, confrontForce, lockReason, LOCATION_BY_ID, THREAT_BY_ID, CARD_BY_ID, charDef, cardCost, legalOptions , ENERGY_CURVE } from '../../engine';
 import { cardName, locationName, threatLabel, useDisplay } from '../display';
 
 /**
@@ -30,7 +30,7 @@ const TIPS: { key: string; when: (c: Ctx) => string | null }[] = [
       const hand = c.v.players[c.me].hand.filter((id) => CARD_BY_ID[id]).sort((a, b) => cardCost(a, c.v, c.me) - cardCost(b, c.v, c.me));
       const cheap = hand[0];
       const pricey = hand.find((id) => cardCost(id, c.v, c.me) > energy);
-      return `You have ${energy} Energy this turn. Energy equals the turn number up to 7, so next turn brings ${Math.min(c.v.turn + 1, 7)}. Every card costs Energy, the green circle in its corner${cheap ? `: ${c.nm(cheap)} costs ${cardCost(cheap, c.v, c.me)}` : ''}${pricey ? `, and ${c.nm(pricey)} (${cardCost(pricey, c.v, c.me)}) has to wait for a richer turn` : ''}.`;
+      return `You have ${energy} Energy this turn. Energy grows a step at a time (1, 2, 2, 3, 4, 4, 5, 6), so next turn brings ${ENERGY_CURVE[Math.min(c.v.turn, 7)]}. Every card costs Energy, the green circle in its corner${cheap ? `: ${c.nm(cheap)} costs ${cardCost(cheap, c.v, c.me)}` : ''}${pricey ? `, and ${c.nm(pricey)} (${cardCost(pricey, c.v, c.me)}) has to wait for a richer turn` : ''}.`;
     },
   },
   {
@@ -132,7 +132,7 @@ const TIPS: { key: string; when: (c: Ctx) => string | null }[] = [
       if (c.v.turn < 5 || c.v.players[c.me].standUsed || c.plan.standOnBusiness) return null;
       const ahead = c.v.locations.filter((l) => l.revealed && !l.lost && lead(c, l.index) > 0);
       if (ahead.length < 2) return null;
-      return `You lead ${ahead.length} of 3. Stand on Business doubles the Legacy and adds a 10th turn; Harborlight gets one turn to Sit Down at the old price. Once you stand, you cannot Sit Down.`;
+      return `You lead ${ahead.length} of 3. Stand on Business doubles the Legacy and adds a 9th turn; Harborlight gets one turn to Sit Down at the old price. Once you stand, you cannot Sit Down.`;
     },
   },
   {

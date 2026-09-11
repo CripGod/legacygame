@@ -596,7 +596,7 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
     d.actor.kind === 'character' ? cardName(d.actor.id, placeholders) : d.actor.kind === 'threat' ? threatLabel(d.actor.id, placeholders) : d.actor.kind === 'location' ? locationName(d.actor.id, placeholders) : cardName(d.actor.id, placeholders);
   const victimName = cardName(d.victim.defId, placeholders);
   const title: Record<typeof d.outcome, string> = {
-    displaced: 'KNOCKED AWAY',
+    displaced: 'BANISHED',
     held: 'HELD OFF',
     blocked: 'BLOCKED',
     sentBack: 'SENT BACK',

@@ -93,14 +93,17 @@ export function Pic({
   badges,
   focus,
   fx,
+  fxData,
 }: {
   state: GameState;
   c: CharacterInstance;
   strip?: string;
   onClick?: () => void;
   highlight?: boolean;
-  /** Board animation for a clash beat: the striker lunges, the victim is knocked away. */
-  fx?: 'strike' | 'knocked' | 'hexed';
+  /** Board animation for a clash beat: the striker lunges, the victim is knocked away (or banished off the board). */
+  fx?: 'strike' | 'knocked' | 'hexed' | 'banish';
+  /** Direction from the striker to the victim in px, so the lunge and the flight point the right way. */
+  fxData?: { dx?: number; dy?: number };
   /** Gate tiles: show cost, Influence and Force like a small card. */
   badges?: boolean;
   /** Replay: this piece is the one acting in the current beat. */
@@ -120,7 +123,11 @@ export function Pic({
   return (
     <div
       className={`pic ${c.owner} ${isSuppressed(state, c) ? 'suppressed' : ''} ${highlight ? 'highlight' : ''} ${focus ? 'focus' : ''} ${atHome ? 'home' : ''} ${fx ? `fx-${fx}` : ''}`}
-      style={{ background: hueFor(c.defId), ...(fx === 'strike' ? { ['--fx-dy' as string]: c.owner === state.viewFor ? -1 : 1 } : {}) }}
+      style={{
+        background: hueFor(c.defId),
+        ...(fx === 'strike' ? (fxData?.dx !== undefined && fxData?.dy !== undefined ? { ['--fx-dx' as string]: `${(fxData.dx * 0.55).toFixed(0)}px`, ['--fx-dy' as string]: `${(fxData.dy * 0.55).toFixed(0)}px` } : { ['--fx-dy' as string]: c.owner === state.viewFor ? '-30px' : '30px' }) : {}),
+        ...(fx === 'banish' ? { ['--fly-x' as string]: `${Math.sign(fxData?.dx || 1) * 70}vw`, ['--fly-y' as string]: `${(fxData?.dy ?? 0) > 20 ? 20 : (fxData?.dy ?? 0) < -20 ? -20 : -8}vh`, ['--spin' as string]: `${Math.sign(fxData?.dx || 1) * 55}deg` } : {}),
+      }}
       onClick={onClick}
       title={`${cardName(c.defId, placeholders)} · ${inf} Influence · ${def.force} Force`}
     >

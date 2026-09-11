@@ -19,6 +19,7 @@ import {
   type GameState,
   type PlayerId,
   type TurnPlan,
+  ENERGY_CURVE,
 } from '../engine';
 import { cardName, locationName, threatLabel } from './display';
 
@@ -111,7 +112,7 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
     const straight = played?.kind === 'character' && played.keywords.includes('STRAIGHT_INSIDE');
     const who = played ? `${nm(played.id)}'s card` : 'Your card';
     return script([
-      { point: read('Welcome', 'You and your opponent (Harborlight) are vying for control of three Locations. Whoever leads Influence at two of them when Turn 9 ends wins. The clock is stopped in here, so take your time.'), act: play },
+      { point: read('Welcome', 'You and your opponent (Harborlight) are vying for control of three Locations. Whoever leads Influence at two of them when Turn 8 ends wins. The clock is stopped in here, so take your time.'), act: play },
       {
         point: read(
           'The Gates',
@@ -142,7 +143,7 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
         act: play,
       },
       {
-        point: read('Energy', `Energy equals the turn number, so it grows every turn until it settles at 7: ${energy} now, ${energy + 1} next turn. Every card costs Energy, the green circle in its corner, and the cards you cannot afford are dimmed.`),
+        point: read('Energy', `Energy grows a step at a time (1, 2, 2, 3, 4, 4, 5, 6): ${energy} now, ${ENERGY_CURVE[Math.min(view.turn, 7)]} next turn. Every card costs Energy, the green circle in its corner, and the cards you cannot afford are dimmed.`),
         act: lock(),
       },
     ]);
@@ -219,9 +220,9 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
         ),
         act: play,
       });
-      beats.push({ point: read('Reading the board', `${standing(view, me, placeholders)} The numbers on each end of a Location's bar are the two sides' Influence; the bigger one leads. Two of three at the end of Turn 9 wins.`), act: lock() });
+      beats.push({ point: read('Reading the board', `${standing(view, me, placeholders)} The numbers on each end of a Location's bar are the two sides' Influence; the bigger one leads. Two of three at the end of Turn 8 wins.`), act: lock() });
     } else {
-      beats.push({ point: read('Reading the board', `${standing(view, me, placeholders)} The numbers on each end of a Location's bar are the two sides' Influence; the bigger one leads. Two of three at the end of Turn 9 wins.`), act: play });
+      beats.push({ point: read('Reading the board', `${standing(view, me, placeholders)} The numbers on each end of a Location's bar are the two sides' Influence; the bigger one leads. Two of three at the end of Turn 8 wins.`), act: play });
       beats.push({ act: lock() });
     }
     return script(beats);
@@ -231,7 +232,7 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
     return script([
       enterBeat(),
       {
-        point: read('Stand on Business', `${standing(view, me, placeholders)} The red button doubles the Legacy this match is worth and adds a 10th turn. Harborlight then gets one turn to Sit Down at the old price, keep playing, or stand back. Once you stand, you cannot Sit Down.`),
+        point: read('Stand on Business', `${standing(view, me, placeholders)} The red button doubles the Legacy this match is worth and adds a 9th turn. Harborlight then gets one turn to Sit Down at the old price, keep playing, or stand back. Once you stand, you cannot Sit Down.`),
         act: play ?? lock(),
       },
       { act: play ? lock() : null },

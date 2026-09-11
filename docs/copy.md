@@ -448,7 +448,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Mob (`mob`)
 - family: Crisis
-- text: At the end of each turn, displaces the leading player's highest-Influence Character here. Unresolved for 4 turns: this Location is LOST. Neutralize with 6 Force in one turn (both players may contribute).
+- text: At the end of each turn, displaces the leading player's highest-Influence Character here. Unresolved for 3 turns: this Location is LOST. Neutralize with 6 Force in one turn (both players may contribute).
 - blurb: Tulsa, Wilmington, Rosewood, Elaine: organized violence aimed at exactly the people who were winning.
 
 ### Paddy Roller (`paddy_roller`)
@@ -547,9 +547,9 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 - `influence`: Influence: how much this Character counts toward controlling its Location. Gate Characters count; Established Characters (Inside) count +1 more.
 - `force`: Force: strength when confronting Threats or answering a challenge. Force never attacks players directly.
-- `lastWord`: THE LAST WORD: the tenth turn, here only because somebody stood on business. Both sides get 10 Energy and an extra card. Whatever stands after this turn is the legacy.
+- `lastWord`: THE LAST WORD: the ninth turn, here only because somebody stood on business. Both sides get 10 Energy and an extra card. Whatever stands after this turn is the legacy.
 - `rebuilt`: Rebuilt: this Location was Lost, and the people who stayed put it back up. It is back in play, and everyone who stayed gained +1 Influence.
-- `finalTurn`: Last scheduled turn. A Stand on Business now adds a 10th turn; otherwise whatever stands after this one is counted: two Locations of three, then total Influence, then total Force.
+- `finalTurn`: Last scheduled turn. A Stand on Business now adds a 9th turn; otherwise whatever stands after this one is counted: two Locations of three, then total Influence, then total Force.
 - `dayNight`: This Location has a curfew. Odd turns are day, even turns are night: at night nobody relocates out until morning. Harriet Tubman is the only one who can move a Character out.
 - `locked`: Held here: cannot relocate out. A curfew at night, or The Justice System. Harriet Tubman can still move them.
 - `informant`: Informant: a Character played onto the other side's Gates. It is theirs, its Influence counts against them there, it never becomes Ready and never enters. Relocate it, slide it with Robert Smalls, or dump it at Charleston, 1822, where it is found out and sent back to the planter's hand.
@@ -567,8 +567,8 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - `scoreB`: Harborlight's Influence at this Location.
 - `line`: The Influence Line: leans toward whoever leads. Lead at two of three Locations after the final turn to win.
 - `energy`: Energy: the crystals up here are what you can spend on cards this turn. You get one more each turn (Turn 3 = 3), Organizer adds one, and unspent Energy does not carry over. Lit crystals are still unspent; dim ones are spent; hollow ones come on later turns.
-- `cost`: Cost: the Energy this card takes to play. Energy equals the turn number (up to 7), so expensive cards wait for later turns, unless something brings the price down: a green cost means a discount is on right now.
-- `stakes`: Legacy: what the match is worth. Stand on Business doubles it (1 → 2 → 4) one turn later, adds a 10th turn, and means you cannot Sit Down. The other side gets one turn to Sit Down at the old price.
+- `cost`: Cost: the Energy this card takes to play. Energy grows a step at a time (1, 2, 2, 3, 4, 4, 5, 6), so expensive cards wait for later turns, unless something brings the price down: a green cost means a discount is on right now.
+- `stakes`: Legacy: what the match is worth. Stand on Business doubles it (1 → 2 → 4) one turn later, adds a 9th turn, and means you cannot Sit Down. The other side gets one turn to Sit Down at the old price.
 - `stakesPending`: Someone Stood on Business. The raise lands after this turn: Sit Down now to lose only the current Legacy.
 - `timer`: Planning timer. At zero your current plan locks automatically.
 - `noStepOff`: You Stood on Business. There is no backing out of this match.
@@ -674,11 +674,11 @@ In-match: the ⚙ button opens AI reasoning, analytics and the event log. Also e
 ← Back
 Rules
 ### The match
-- Two players, three Locations, nine turns (a 10th if someone Stands on Business), 24-card decks. Four-card opening hand and one draw every turn. Hands hold at most seven cards: a draw into a full hand is discarded.
+- Two players, three Locations, eight turns (a 9th if someone Stands on Business), 24-card decks. Four-card opening hand and one draw every turn. Hands hold at most seven cards: a draw into a full hand is discarded.
 - Both players plan at the same time, then Lock It In. Two minutes per turn.
 - Win Influence at two of the three Locations to win the match.
 ### Playing Characters
-- Every card has an Energy cost. Each turn you get Energy equal to the turn number, up to 7 (Turn 1: 1, Turn 5: 5, Turns 7 to 9: 7; The Last Word pays 10); Organizer and Denmark Vesey add +1 while Established, Oak Bluffs pays +1 next turn, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your three Gate slots at a Location. Its Reveal ability triggers there.
+- Every card has an Energy cost. Each turn you get Energy on a slow curve: 1, 2, 2, 3, 4, 4, 5, 6 across the eight turns (The Last Word pays 10); Organizer and Denmark Vesey add +1 while Established, Oak Bluffs pays +1 next turn, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your three Gate slots at a Location. Its Reveal ability triggers there.
 - Discounts. Some cards cost more than you will ever have on your own: Boukman Dutty is 7. Prices come down while a card waits in your hand. Booker T. Washington makes every Character 1 cheaper, Cécile Fatiman takes 2 off your most expensive card and 1 off every Rebellion Character, George Washington Carver knocks 1 off your priciest card at the end of each turn, and Boukman himself costs 1 less for each Rebellion Character you have on the board. A green cost on a card in your hand means it is discounted right now; a card never costs less than 0.
 - Gate Characters count toward Influence but are Fresh for the turn they arrive and the following turn. Then they are Ready and may enter Inside (up to five per player). Inside counts more: every Established Character contributes +1 Influence on top of its card.
 - Inside, a Character is Established: its Established ability is live and it is safe from Gate-only effects.
@@ -715,7 +715,7 @@ Rules
 - If the Summon fails and that Location is later Lost, both players lose 1 Influence at each of their other Locations. A broken pact costs everyone.
 - Mythic content is fantasy drawn from real traditions; the abilities are invention.
 ### Legacy
-- Matches start at 1 Legacy. Either player may Stand on Business once to double it (1 → 2, then 2 → 4). Standing adds a 10th turn, The Last Word: both sides get 10 Energy and an extra card on it, and whoever stood can no longer Sit Down.
+- Matches start at 1 Legacy. Either player may Stand on Business once to double it (1 → 2, then 2 → 4). Standing adds a 9th turn, The Last Word: both sides get 10 Energy and an extra card on it, and whoever stood can no longer Sit Down.
 - A Stand is part of your hidden plan and lands one turn later. The other player is never forced to answer: they get a full turn to Sit Down for the old Legacy, keep playing at the new Legacy, or Stand back and double it again.
 - Sit Down is surrender at the current Legacy. Sitting down during the grace turn is the cheap exit.
 ### Resolution order
@@ -760,7 +760,7 @@ Main menu
 - relocates to ${view.locations[r.to].revealed ? locationName(view.locations[r.to].defId, placeholders) : 
 - That is the move. Press Lock It In.
 - That works too. Or ${guide.text.charAt(0).toLowerCase()}${guide.text.slice(1)}
-- Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds a 10th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.
+- Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds a 9th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.
 - Not enough Energy. ${cardName(play.cardId, placeholders)} costs ${cost} and you have ${opts.energy - spent} left of ${opts.energy} this turn (Energy = the turn number). Remove a planned card or wait a turn.
 - ${cardName(play.cardId, placeholders)} goes Inside right away (Direct Entry). Tap ⇅ on the planned move to wait at the Gates instead.
 - ${cardName(play.cardId, placeholders)} planned. Optional: drag one of your Gate Characters to another Location's Gates and she moves it there for free.
@@ -1179,7 +1179,7 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
     d.actor.kind === 'character' ? cardName(d.actor.id, placeholders) : d.actor.kind === 'threat' ? threatLabel(d.actor.id, placeholders) : d.actor.kind === 'location' ? locationName(d.actor.id, placeholders) : cardName(d.actor.id, placeholders);
   const victimName = cardName(d.victim.defId, placeholders);
   const title: Record<typeof d.outcome, string> = {
-    displaced: 'KNOCKED AWAY',
+    displaced: 'BANISHED',
     held: 'HELD OFF',
     blocked: 'BLOCKED',
     sentBack: 'SENT BACK',

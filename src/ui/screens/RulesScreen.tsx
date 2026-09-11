@@ -11,13 +11,13 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
         <h1 className="title">Rules</h1>
         <h2>The match</h2>
         <ul>
-          <li>Two players, three Locations, nine turns (a 10th if someone Stands on Business), 24-card decks. Four-card opening hand and one draw every turn. Hands hold at most seven cards: a draw into a full hand is discarded.</li>
+          <li>Two players, three Locations, eight turns (a 9th if someone Stands on Business), 24-card decks. Four-card opening hand and one draw every turn. Hands hold at most seven cards: a draw into a full hand is discarded.</li>
           <li>Both players plan at the same time, then <b>Lock It In</b>. Two minutes per turn.</li>
           <li>Win Influence at two of the three Locations to win the match.</li>
         </ul>
         <h2>Playing Characters</h2>
         <ul>
-          <li>Every card has an <b>Energy</b> cost. Each turn you get Energy equal to the turn number, up to 7 (Turn 1: 1, Turn 5: 5, Turns 7 to 9: 7; The Last Word pays 10); Organizer and Denmark Vesey add +1 while Established, Oak Bluffs pays +1 next turn, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your three Gate slots at a Location. Its <b>Reveal</b> ability triggers there.</li>
+          <li>Every card has an <b>Energy</b> cost. Each turn you get Energy on a slow curve: 1, 2, 2, 3, 4, 4, 5, 6 across the eight turns (The Last Word pays 10); Organizer and Denmark Vesey add +1 while Established, Oak Bluffs pays +1 next turn, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your three Gate slots at a Location. Its <b>Reveal</b> ability triggers there.</li>
           <li><b>Discounts.</b> Some cards cost more than you will ever have on your own: Boukman Dutty is 7. Prices come down while a card waits in your hand. Booker T. Washington makes every Character 1 cheaper, Cécile Fatiman takes 2 off your most expensive card and 1 off every Rebellion Character, George Washington Carver knocks 1 off your priciest card at the end of each turn, and Boukman himself costs 1 less for each Rebellion Character you have on the board. A green cost on a card in your hand means it is discounted right now; a card never costs less than 0.</li>
           <li>Gate Characters count toward Influence but are <b>Fresh</b> for the turn they arrive and the following turn. Then they are <b>Ready</b> and may enter Inside (up to five per player). <b>Inside counts more</b>: every Established Character contributes +1 Influence on top of its card.</li>
           <li>Inside, a Character is <b>Established</b>: its Established ability is live and it is safe from Gate-only effects.</li>
@@ -68,7 +68,7 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
         </ul>
         <h2>Legacy</h2>
         <ul>
-          <li>Matches start at 1 Legacy. Either player may <b>Stand on Business</b> once to double it (1 → 2, then 2 → 4). Standing adds a <b>10th turn, The Last Word</b>: both sides get 10 Energy and an extra card on it, and whoever stood can no longer Sit Down.</li>
+          <li>Matches start at 1 Legacy. Either player may <b>Stand on Business</b> once to double it (1 → 2, then 2 → 4). Standing adds a <b>9th turn, The Last Word</b>: both sides get 10 Energy and an extra card on it, and whoever stood can no longer Sit Down.</li>
           <li>A Stand is part of your hidden plan and lands <b>one turn later</b>. The other player is never forced to answer: they get a full turn to <b>Sit Down</b> for the old Legacy, keep playing at the new Legacy, or <b>Stand back</b> and double it again.</li>
           <li><b>Sit Down</b> is surrender at the current Legacy. Sitting down during the grace turn is the cheap exit.</li>
         </ul>

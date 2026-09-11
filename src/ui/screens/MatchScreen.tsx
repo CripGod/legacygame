@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CARD_BY_ID, legalOptions, validatePlan, gateRoom, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, filterEvents, LOCATION_BY_ID } from '../../engine';
+import { CARD_BY_ID, viewFor, legalOptions, validatePlan, gateRoom, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, filterEvents, LOCATION_BY_ID } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight } from '../components/Battlefield';
@@ -147,11 +147,6 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   const [guideOn, setGuideOn] = useState(() => coach && m.mode === 'ai' && !guideDone() && !tutorial);
   const opts = useMemo(() => legalOptions(view, me), [view, me]);
   const step = m.replay ? m.replay.steps[m.replay.idx] : null;
-  /** During a replay your own moves stay where you put them; the board only re-animates what you could not see coming. */
-  const boardView = useMemo(() => {
-    if (m.replay && step) return previewPlan(view, me, remainingPlan(step.state, me, m.replay.plan));
-    return view.phase === 'planning' && !locked ? previewPlan(view, me, plan) : view;
-  }, [view, me, plan, locked, m.replay, step]);
   /** Beats that only re-show one of your own planned moves are skipped. */
   const ownBeat = !!step && !!m.replay && step.player === me && (step.kind === 'play' || step.kind === 'enter' || (step.kind === 'move' && m.replay.plan.relocations.some((r) => step.uids?.includes(r.uid))));
   /** Gatherings that arrived in the last resolution, shown one at a time with fanfare. */
@@ -172,7 +167,57 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   }, [m.lastTurn]);
   /** During a replay each beat queues only its own sheets. */
   /** The clash beat plays on the board first (strike, knock), then its Clash card explains it. */
-  const [fx, setFx] = useState<{ actor?: string; victim: string; outcome?: string } | null>(null);
+  const [fx, setFx] = useState<{ actor?: string; victim: string; outcome?: string; kind?: 'hit' | 'banish'; dx?: number; dy?: number; toName?: string } | null>(null);
+  /** The board as it stood before this beat: during a banish the victim is still at the Gates it is knocked from. */
+  const prevView = useMemo(() => (m.replay && m.replay.idx > 0 ? viewFor(m.replay.steps[m.replay.idx - 1].state, me) : null), [m.replay?.idx, m.replay?.steps, me]);
+  const [shake, setShake] = useState(false);
+  /** A power lands on a Location: its panel pulses in the power's colour and a +N floats up over its name. */
+  const landFx = (items: { location: number; amount?: number; tone: 'artist' | 'mine' | 'theirs' }[]) => {
+    for (const it of items) {
+      const col = document.querySelector(`.column[data-index="${it.location}"]`);
+      const art = col?.querySelector('.art');
+      const loc = col?.querySelector('.loc-glow');
+      if (loc) {
+        loc.classList.remove('loc-pulse', 'artist', 'mine', 'theirs');
+        void (loc as HTMLElement).offsetWidth;
+        loc.classList.add('loc-pulse', it.tone);
+        window.setTimeout(() => loc.classList.remove('loc-pulse', it.tone), 1100);
+      }
+      if (art && it.amount) {
+        const r = art.getBoundingClientRect();
+        const el = document.createElement('div');
+        el.className = `float-num ${it.tone}`;
+        el.textContent = `+${it.amount}`;
+        el.style.left = `${r.left + r.width / 2}px`;
+        el.style.top = `${r.top + r.height / 2}px`;
+        document.body.appendChild(el);
+        window.setTimeout(() => el.remove(), 1300);
+      }
+    }
+  };
+  /** Aim the lunge and the flight from the tiles' real positions, then fire the impact spray. */
+  const aimAndSpray = (actor: string | undefined, victim: string) => {
+    const a = actor ? document.querySelector(`[data-uid="${actor}"]`)?.getBoundingClientRect() : undefined;
+    const v = document.querySelector(`[data-uid="${victim}"]`)?.getBoundingClientRect();
+    if (v) {
+      const dx = a ? v.left + v.width / 2 - (a.left + a.width / 2) : 0;
+      const dy = a ? v.top + v.height / 2 - (a.top + a.height / 2) : 0;
+      setFx((f) => (f && f.victim === victim ? { ...f, dx, dy } : f));
+      const sx = Math.sign(dx || 1);
+      const spray = new DOMRect(v.left + sx * 90, v.top - 30, v.width, v.height);
+      window.setTimeout(() => {
+        setTrail([{ from: v, to: spray, color: TRAIL_COLORS.impact, noRibbon: true }]);
+        setShake(true);
+        window.setTimeout(() => setShake(false), 320);
+      }, 300);
+    }
+  };
+  /** During a replay your own moves stay where you put them; the board only re-animates what you could not see coming. */
+  const boardView = useMemo(() => {
+    if (fx?.kind === 'banish' && prevView && m.replay) return previewPlan(prevView, me, remainingPlan(prevView, me, m.replay.plan));
+    if (m.replay && step) return previewPlan(view, me, remainingPlan(step.state, me, m.replay.plan));
+    return view.phase === 'planning' && !locked ? previewPlan(view, me, plan) : view;
+  }, [view, me, plan, locked, m.replay, step, fx, prevView]);
   /** Power trails on the board (a Reveal that reaches other Locations): particles fly from the actor to each target. */
   const [trail, setTrail] = useState<TrailShot[] | null>(null);
   const [trailFreeze, setTrailFreeze] = useState<number | undefined>(undefined);
@@ -199,24 +244,34 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           const to = document.querySelector(`.column[data-index="${e.location}"] .art`)?.getBoundingClientRect();
           if (!from || !to) continue;
           const amount = (e.data as { amount?: number }).amount;
-          shots.push({ from, to, color: TRAIL_COLORS[e.player ?? 'A'], label: amount ? `+${amount}` : undefined });
+          const tone = (e.data as { color?: string }).color;
+          shots.push({ from, to, color: tone === 'artist' ? TRAIL_COLORS.artist : TRAIL_COLORS[e.player ?? 'A'], label: amount ? `+${amount}` : undefined });
         }
         setTrail(shots.length ? shots : null);
+        // When the trail lands (~1050ms): a floating +N over the Location and a pulse on its panel.
+        window.setTimeout(() => landFx(trailEvs.map((e) => ({ location: e.location!, amount: (e.data as { amount?: number }).amount, tone: (e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs' }))), 1050);
       });
       return () => cancelAnimationFrame(raf);
     }
     const clashEvs = evs.filter((e) => e.type === 'clash');
     const first = clashEvs[0]?.data as { actor?: { uid?: string }; victim: { uid: string }; outcome?: string } | undefined;
     if (first && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setFx({ actor: first.actor?.uid, victim: first.victim.uid, outcome: first.outcome });
+      const d = first as { actor?: { uid?: string; kind?: string }; victim: { uid: string }; outcome?: string; to?: number };
+      const banish = d.outcome === 'displaced' && d.actor?.kind === 'character' && d.to !== undefined && !!prevView;
+      const toName = banish && d.to !== undefined ? locationName(view.locations[d.to].revealed ? view.locations[d.to].defId : 'unknown', placeholders) : undefined;
+      setFx({ actor: d.actor?.uid, victim: d.victim.uid, outcome: d.outcome, kind: banish ? 'banish' : 'hit', toName });
       setClashes([]);
+      const raf = requestAnimationFrame(() => aimAndSpray(d.actor?.uid, d.victim.uid));
       const id = window.setTimeout(() => {
         setFx(null);
         setClashes(clashEvs);
-      }, 1250);
+      }, banish ? 1750 : 1250);
       setShowdowns(evs.filter((e) => e.type === 'showdown'));
       setFanfare(evs.filter((e) => e.type === 'spawned'));
-      return () => window.clearTimeout(id);
+      return () => {
+        window.clearTimeout(id);
+        cancelAnimationFrame(raf);
+      };
     }
     setFx(null);
     setClashes(clashEvs);
@@ -234,19 +289,29 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [m.replay?.idx, m.replay?.steps, clashes.length, showdowns.length, fanfare.length, sheet?.kind, fx, trail, dig]);
+  useEffect(() => {
+    document.body.classList.toggle('board-shake', shake);
+    return () => document.body.classList.remove('board-shake');
+  }, [shake]);
   /** Dev: preview a trail from a Character tile to Locations without playing to it (window.__sobTrail(uid, [0, 2])). */
   useEffect(() => {
     if (!window.location.search.includes('dev=1')) return;
-    (window as unknown as { __sobTrail?: (uid: string, locs: number[], side?: 'A' | 'B', freezeAt?: number) => void }).__sobTrail = (uid, locs, side = 'A', freezeAt) => {
+    (window as unknown as { __sobTrail?: (uid: string, locs: number[], side?: 'A' | 'B' | 'artist', freezeAt?: number) => void }).__sobTrail = (uid, locs, side = 'A', freezeAt) => {
       setTrailFreeze(freezeAt);
       const from = document.querySelector(`[data-uid="${uid}"]`)?.getBoundingClientRect();
       if (!from) return;
       const shots: TrailShot[] = [];
       for (const i of locs) {
         const to = document.querySelector(`.column[data-index="${i}"] .art`)?.getBoundingClientRect();
-        if (to) shots.push({ from, to, color: TRAIL_COLORS[side], label: '+1' });
+        if (to) shots.push({ from, to, color: TRAIL_COLORS[side as 'A' | 'B' | 'artist'], label: '+1' });
       }
       setTrail(shots);
+      if (freezeAt === undefined) window.setTimeout(() => landFx(locs.map((location) => ({ location, amount: 1, tone: side === 'artist' ? 'artist' : side === 'A' ? 'mine' : 'theirs' }))), 1050);
+    };
+    (window as unknown as { __sobBanish?: (actor: string, victim: string, toName?: string) => void }).__sobBanish = (actor, victim, toName = 'Harpers Ferry') => {
+      setFx({ actor, victim, outcome: 'displaced', kind: 'banish', toName });
+      requestAnimationFrame(() => aimAndSpray(actor, victim));
+      window.setTimeout(() => setFx(null), 1750);
     };
     (window as unknown as { __sobDig?: (seen: string[], keep: string, hidden?: boolean, freeze?: DigPhase, owner?: PlayerId) => void }).__sobDig = (seen, keep, hidden = false, freeze, owner = 'A') => {
       setDigFreeze(freeze);
@@ -400,7 +465,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       return;
     }
     setPlan((p) => ({ ...p, standOnBusiness: true }));
-    feedback(`Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds a 10th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.`, [], 'info');
+    feedback(`Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds a 9th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.`, [], 'info');
   };
 
   /** Energy left after the plays already planned. */

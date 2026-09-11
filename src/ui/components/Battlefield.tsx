@@ -55,7 +55,7 @@ export interface BattlefieldProps {
   /** Per-tile animation stagger (ms) for the latest resolution. */
   delays?: Record<string, number>;
   /** A clash on this beat: who struck and who was knocked away. */
-  fx?: { actor?: string; victim: string; outcome?: string } | null;
+  fx?: { actor?: string; victim: string; outcome?: string; kind?: 'hit' | 'banish'; dx?: number; dy?: number; toName?: string } | null;
   /** Gate slots still occupied until the turn resolves, keyed by Location: Characters leaving the Gates this turn. */
   /** Pieces leaving a Location in the preview: ghosted at their old place with an arrow toward where they go. */
   reserved?: Record<number, { uid: string; defId: string; why: string; zone: 'gate' | 'inside'; dir: 'left' | 'right' | 'up' }[]>;
@@ -175,7 +175,13 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                   className={`gate-slot filled owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''}`}
                   {...draggable}
                 >
-                  <Pic state={view} c={s} badges fx={fx?.actor === s.uid ? 'strike' : fx?.victim === s.uid ? (fx.outcome === 'hexed' ? 'hexed' : 'knocked') : undefined} focus={focus?.includes(s.uid)} strip={planned ? 'Planned' : moving ? 'Moving' : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockReason(view, s) ? 'Held' : undefined} onClick={() => onChar(s.uid)} />
+                  {fx?.kind === 'banish' && fx.victim === s.uid && (
+                    <div className="stamp banished">
+                      <b>Banished</b>
+                      {fx.toName && <i>to {fx.toName}</i>}
+                    </div>
+                  )}
+                  <Pic state={view} c={s} badges fx={fx?.actor === s.uid ? 'strike' : fx?.victim === s.uid ? (fx.outcome === 'hexed' ? 'hexed' : fx.kind === 'banish' ? 'banish' : 'knocked') : undefined} fxData={fx ?? undefined} focus={focus?.includes(s.uid)} strip={planned ? 'Planned' : moving ? 'Moving' : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockReason(view, s) ? 'Held' : undefined} onClick={() => onChar(s.uid)} />
                 </div>
               </div>
             );
@@ -235,7 +241,13 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
             mine && dragProps ? dragProps(planned ? { kind: 'card', cardId: c.uid.slice(PLANNED_PREFIX.length) } : { kind: 'char', uid: c.uid }) : {};
           return (
             <div key={c.uid} data-uid={c.uid} data-place={`${index}:inside`} className={`slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''}`} {...draggable}>
-              <Pic state={view} c={c} highlight={confronting} fx={fx?.actor === c.uid ? 'strike' : fx?.victim === c.uid ? (fx.outcome === 'hexed' ? 'hexed' : 'knocked') : undefined} focus={focus?.includes(c.uid)} strip={entering ? 'Entering' : brought ? 'Moving' : planned ? 'Planned' : confronting ? 'Confront' : lockReason(view, c) ? 'Held' : undefined} onClick={() => onChar(c.uid)} />
+              {fx?.kind === 'banish' && fx.victim === c.uid && (
+                <div className="stamp banished">
+                  <b>Banished</b>
+                  {fx.toName && <i>to {fx.toName}</i>}
+                </div>
+              )}
+              <Pic state={view} c={c} highlight={confronting} fx={fx?.actor === c.uid ? 'strike' : fx?.victim === c.uid ? (fx.outcome === 'hexed' ? 'hexed' : fx.kind === 'banish' ? 'banish' : 'knocked') : undefined} fxData={fx ?? undefined} focus={focus?.includes(c.uid)} strip={entering ? 'Entering' : brought ? 'Moving' : planned ? 'Planned' : confronting ? 'Confront' : lockReason(view, c) ? 'Held' : undefined} onClick={() => onChar(c.uid)} />
             </div>
           );
         })}

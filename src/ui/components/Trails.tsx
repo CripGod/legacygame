@@ -13,6 +13,8 @@ export interface TrailShot {
   color: string;
   /** Text stamped at the target on arrival ("+1"). */
   label?: string;
+  /** Impact spray: particles and a burst only, no ribbon and no source glow. */
+  noRibbon?: boolean;
 }
 
 const FLY_MS = 700;
@@ -109,6 +111,7 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
       ctx.globalCompositeOperation = 'lighter';
       // Source glow.
       for (let i = 0; i < shots.length; i++) {
+        if (shots[i].noRibbon) continue;
         const k = Math.max(0, 1 - el / (LAUNCH_SPREAD_MS + 300));
         if (k <= 0) continue;
         const [r, g, b] = hexToRgb(shots[i].color);
@@ -121,6 +124,7 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
       }
       // Ribbon: the path lights up behind the swarm's head and fades once the burst lands.
       for (let i = 0; i < shots.length; i++) {
+        if (shots[i].noRibbon) continue;
         const head = Math.min(1, Math.max(0, (el - LAUNCH_SPREAD_MS * 0.3) / FLY_MS));
         const fadeOut = Math.max(0, 1 - Math.max(0, el - (LAUNCH_SPREAD_MS * 0.6 + FLY_MS)) / BURST_MS);
         if (head <= 0 || fadeOut <= 0) continue;
@@ -215,4 +219,5 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
 }
 
 /** Colours per side for trails. */
-export const TRAIL_COLORS: Record<'A' | 'B', string> = { A: '#e9b93a', B: '#4f8dff' };
+/** Trail colours. The player's stream is pale amber-white (a saturated yellow read as something else entirely). */
+export const TRAIL_COLORS: Record<'A' | 'B' | 'artist' | 'impact', string> = { A: '#ffe3b3', B: '#6fa3ff', artist: '#4fd18a', impact: '#ff6a3c' };

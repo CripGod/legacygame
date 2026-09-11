@@ -277,21 +277,19 @@ describe('threats', () => {
     expect(s.players.A.setbacks).toBe(1);
     s = resolveTurn(s, { A: pass(), B: pass() }).state; // second full turn: still open
     expect(s.locations[0].lost).toBeFalsy();
-    s = resolveTurn(s, { A: pass(), B: pass() }).state; // third full turn: still open
-    expect(s.locations[0].lost).toBeFalsy();
-    s = resolveTurn(s, { A: pass(), B: pass() }).state; // fourth full turn → LOST
+    s = resolveTurn(s, { A: pass(), B: pass() }).state; // third full turn → LOST
     expect(s.locations[0].lost).toBe(true);
-    expect(s.locations[0].lostTurn).toBe(7);
+    expect(s.locations[0].lostTurn).toBe(6);
     // Reconstruction: two turns after it fell, the people who stayed rebuild it.
-    expect(s.turn).toBe(8); // Lost during Turn 7; still Lost through Turn 8
+    expect(s.turn).toBe(7); // Lost during Turn 6; still Lost through Turn 7
     const stayer = addChar(s, 'organizer', 'B', 0, 'inside');
     const before = charInfluence(s, s.characters[stayer.uid]);
-    const r = resolveTurn(s, { A: pass(), B: pass() }); // → turn 9: rebuilt
+    const r = resolveTurn(s, { A: pass(), B: pass() }); // → turn 8: rebuilt
     s = r.state;
-    expect(s.turn).toBe(9);
+    expect(s.turn).toBe(8);
     expect(s.locations[0].lost).toBe(false);
     expect(s.locations[0].rebuilt).toBe(true);
-    expect(s.locations[0].rebuiltTurn).toBe(9);
+    expect(s.locations[0].rebuiltTurn).toBe(8);
     expect(s.locations[0].threats).toHaveLength(0);
     expect(r.events.some((e) => e.type === 'locationRebuilt')).toBe(true);
     expect(charInfluence(s, s.characters[stayer.uid])).toBe(before + 1);
@@ -377,9 +375,7 @@ describe('Summon', () => {
     expect(g.locations[0].pactFailed).toBe(true);
     g = resolveTurn(g, { A: pass(), B: pass() }).state; // Mob unresolved 2 turns: still open
     expect(g.locations[0].lost).toBeFalsy();
-    g = resolveTurn(g, { A: pass(), B: pass() }).state; // Mob unresolved 3 turns: still open
-    expect(g.locations[0].lost).toBeFalsy();
-    g = resolveTurn(g, { A: pass(), B: pass() }).state; // Mob unresolved 4 turns → Lost
+    g = resolveTurn(g, { A: pass(), B: pass() }).state; // Mob unresolved 3 turns → Lost
     expect(g.locations[0].lost).toBe(true);
     expect(g.locations[1].permInfluence?.A).toBe(-1);
     expect(g.locations[2].permInfluence?.B).toBe(-1);
@@ -699,7 +695,7 @@ describe('new historical cards', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, energy: true, handA: ['nat_turner'] });
     s.turn = 3;
     addChar(s, 'denmark_vesey', 'A', 0, 'inside');
-    expect(legalOptions(s, 'A').energy).toBe(4);
+    expect(legalOptions(s, 'A').energy).toBe(2 + 1); // Turn 3 pays 2 on the curve; Vesey adds 1
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'nat_turner', location: 1 }] }, B: pass() }).state;
     const nat = charsOf(s, 'A').find((c) => c.defId === 'nat_turner')!;
     expect(nat.unstable).toBeFalsy();
@@ -767,7 +763,7 @@ describe('match end', () => {
     expect(cont.pendingRaises).toEqual([]);
     expect(cont.phase).toBe('planning');
     expect(cont.turn).toBe(3);
-    expect(cont.maxTurns).toBe(10);
+    expect(cont.maxTurns).toBe(9);
     // Standing back doubles again for both.
     const back = resolveTurn(cont, { A: pass(), B: { ...pass(), standOnBusiness: true } }).state;
     expect(back.stakes).toBe(2);
@@ -785,23 +781,23 @@ describe('match end', () => {
   });
   it('Stand on Business on the last turn extends the match by one', () => {
     let s = createMatch({ seed: 4 });
-    for (let t = 1; t <= 8; t++) s = resolveTurn(s, { A: pass(), B: pass() }).state;
-    expect(s.turn).toBe(9);
+    for (let t = 1; t <= 7; t++) s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(s.turn).toBe(8);
     s = resolveTurn(s, { A: pass(), B: { ...pass(), standOnBusiness: true } }).state;
     expect(s.result).toBeUndefined();
-    expect(s.turn).toBe(10);
+    expect(s.turn).toBe(9);
     expect(s.phase).toBe('planning');
     expect(s.stakes).toBe(1);
     expect(legalOptions(s, 'A').canStand).toBe(false); // no room left to extend
     s = resolveTurn(s, { A: pass(), B: pass() }).state;
     expect(s.phase).toBe('ended');
-    expect(s.result?.turn).toBe(10);
+    expect(s.result?.turn).toBe(9);
     expect(s.result?.stakes).toBe(2); // the raise lands on the final turn
     expect(s.result?.stakes).toBe(2);
   });
-  it('scores two of three Locations at the end of turn 9', () => {
+  it('scores two of three Locations at the end of turn 8', () => {
     let s = createMatch({ seed: 4 });
-    for (let t = 1; t <= 9; t++) {
+    for (let t = 1; t <= 8; t++) {
       expect(s.turn).toBe(t);
       s = resolveTurn(s, { A: pass(), B: pass() }).state;
     }
@@ -932,8 +928,8 @@ describe('cost flow', () => {
     expect(s.players.A.hand).toContain('zora_neale_hurston');
     expect(cardCost('zora_neale_hurston', s, 'A')).toBe(0);
     expect(s.turn).toBe(3);
-    expect(energyFor(s, 'A')).toBe(4);
-    expect(energyFor(s, 'B')).toBe(3);
+    expect(energyFor(s, 'A')).toBe(2 + 1); // Turn 3 pays 2; Oak Bluffs paid 1 forward
+    expect(energyFor(s, 'B')).toBe(2);
   });
 });
 
@@ -1142,9 +1138,9 @@ describe('artists', () => {
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'robert_duncanson', location: 0 }] }, B: pass() }).state;
     expect(s.locations[2].permInfluence?.A).toBe(3);
     expect(s.locations[0].permInfluence?.A).toBe(2);
-    // Dave: +1 wherever he lands (Greenwood: Duncanson holds one Gate slot there, so there is room).
-    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'dave_the_potter', location: 0 }] }, B: pass() }).state;
-    expect(s.locations[0].permInfluence?.A).toBe(3);
+    // Dave: +1 wherever he lands (Great Migration: Greenwood is Lost to the Mob by now).
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'dave_the_potter', location: 1 }] }, B: pass() }).state;
+    expect(s.locations[1].permInfluence?.A).toBe(3);
   });
 
   it('Tanner adds lasting Influence every turn he stays Established, and the category is deck-legal', () => {
@@ -1172,6 +1168,7 @@ describe('variety pass and lasting Reparations', () => {
   it('Zora digs, Walker banks Energy, Payne discounts the next Character, Green grants a Relocation, Vesey recruits', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, energy: true, handA: ['zora_neale_hurston', 'madam_cj_walker', 'daniel_payne', 'victor_hugo_green', 'denmark_vesey', 'john_russwurm'] });
     s.turn = 5;
+    s.players.A.energyBonus = 1; // Turn 5 pays 4 on the curve; Zora (2) and Walker (3) need 5
     s.players.A.deck = ['mansa_musa', 'bud_billiken', 'harriet_tubman'];
     s.players.A.deckCount = 3;
     const handBefore = s.players.A.hand.length;
@@ -1180,8 +1177,8 @@ describe('variety pass and lasting Reparations', () => {
     expect(s.players.A.hand).toContain('mansa_musa');
     expect(s.players.A.deck).toEqual(['bud_billiken']);
     expect(s.players.A.hand.length).toBe(handBefore - 2 + 2);
-    // Walker: +2 Energy next turn (turn 6 → 8 Energy).
-    expect(legalOptions(s, 'A').energy).toBe(6 + 2);
+    // Walker: +2 Energy next turn (turn 6 pays 4, +1 bonus, +2 Walker).
+    expect(legalOptions(s, 'A').energy).toBe(4 + 1 + 2);
     // Payne: the next Character costs 1 less from the following turn; Green: +1 Relocation next turn.
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'daniel_payne', location: 0 }, { cardId: 'victor_hugo_green', location: 1 }] }, B: pass() }).state;
     expect(cardCost('john_russwurm', s, 'A')).toBe(0);
@@ -1521,20 +1518,24 @@ describe('The Stroll', () => {
   });
 });
 
-describe('Nine turns, 24 cards', () => {
-  it('base Energy stops at 7; bonuses still stack on top', () => {
+describe('Eight turns, 24 cards', () => {
+  it('base Energy follows the slow curve; bonuses still stack on top', () => {
     let s = createMatch({ seed: 3 });
-    while (s.turn < 9) s = resolveTurn(s, { A: pass(), B: pass() }).state;
-    expect(s.turn).toBe(9);
-    expect(energyFor(s, 'A')).toBe(7);
+    const seen: number[] = [];
+    while (s.turn < 8) {
+      seen.push(energyFor(s, 'A'));
+      s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    }
+    seen.push(energyFor(s, 'A'));
+    expect(seen).toEqual([1, 2, 2, 3, 4, 4, 5, 6]);
     s.players.A.energyBonus = 1;
-    expect(energyFor(s, 'A')).toBe(8);
+    expect(energyFor(s, 'A')).toBe(7);
     const early = createMatch({ seed: 3 });
     expect(energyFor(early, 'A')).toBe(1);
   });
-  it('a match runs nine turns, ten after a Stand, with 24-card decks', () => {
+  it('a match runs eight turns, nine after a Stand, with 24-card decks', () => {
     const s = createMatch({ seed: 3 });
-    expect(s.maxTurns).toBe(9);
+    expect(s.maxTurns).toBe(8);
     for (const d of Object.values(PRESET_DECKS)) {
       expect(d.cards).toHaveLength(24);
       expect(validateDeck(d.cards)).toEqual([]);
@@ -1625,17 +1626,17 @@ describe('Zora digs', () => {
 });
 
 describe('The Last Word', () => {
-  it('the tenth turn lifts the Energy cap to 10 and deals an extra card to both sides', () => {
+  it('the ninth turn lifts Energy to 10 and deals an extra card to both sides', () => {
     let s = createMatch({ seed: 4 });
-    for (let t = 1; t <= 8; t++) s = resolveTurn(s, { A: pass(), B: pass() }).state;
-    expect(s.turn).toBe(9);
-    expect(energyFor(s, 'A')).toBe(7);
+    for (let t = 1; t <= 7; t++) s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(s.turn).toBe(8);
+    expect(energyFor(s, 'A')).toBe(6);
     const handA = s.players.A.hand.length;
     const handB = s.players.B.hand.length;
     const r = resolveTurn(s, { A: pass(), B: { ...pass(), standOnBusiness: true } });
     s = r.state;
-    expect(s.turn).toBe(10);
-    expect(s.maxTurns).toBe(10);
+    expect(s.turn).toBe(9);
+    expect(s.maxTurns).toBe(9);
     expect(r.events.some((e) => e.type === 'lastWord')).toBe(true);
     expect(energyFor(s, 'A')).toBe(10);
     expect(energyFor(s, 'B')).toBe(10);
