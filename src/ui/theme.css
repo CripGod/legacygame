@@ -1295,3 +1295,28 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .audio-btn:hover { opacity: 0.85; }
 .audio-btn.on { opacity: 1; border-color: var(--gold-2); box-shadow: 0 0 10px rgba(246, 215, 122, 0.35); }
 .hud-sub .audio-ctl { margin-left: 4px; }
+
+/* ---------- Resolving: from Lock In to the next turn the board is a stage, not a desk ---------- */
+.hand-wrap { transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.35s ease; }
+.hand-wrap.rest { transform: translateY(18px); filter: brightness(0.72) saturate(0.85); }
+.hand-wrap.rest .hand .card-wrap { cursor: default; }
+.hand-wrap.rest .hand .card-wrap:hover .card { box-shadow: 0 14px 30px rgba(0, 0, 0, 0.75); }
+.hand-wrap.nudge { animation: hand-nudge 0.45s ease-out; }
+@keyframes hand-nudge { 0% { transform: translateY(18px); } 35% { transform: translateY(30px); } 100% { transform: translateY(18px); } }
+.app.resolving .battlefield, .app.resolving .gate-slot, .app.resolving .pic, .app.resolving .location { cursor: default; }
+.replay-banner.kind-wait .replay-kind { background: #3a4a63; color: #fff; }
+.replay-banner .dots::after { content: '…'; display: inline-block; width: 1.2em; text-align: left; animation: dots 1.2s steps(1, end) infinite; }
+@keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '…'; } }
+.turn-flash {
+  position: fixed; left: 50%; top: 40%; transform: translate(-50%, -50%); z-index: 46; pointer-events: none;
+  font-family: var(--display); font-weight: 800; font-size: clamp(26px, 3.6vw, 52px); letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--parchment); text-shadow: 0 0 26px rgba(233, 185, 58, 0.75), 0 4px 18px rgba(0, 0, 0, 0.85);
+  animation: turn-flash 1.15s ease-out forwards;
+}
+@keyframes turn-flash {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.82); }
+  16% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+  70% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -58%) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) { .hand-wrap { transition: none; } .hand-wrap.nudge { animation: none; } .turn-flash { animation: turn-flash 0.6s ease-out forwards; } }

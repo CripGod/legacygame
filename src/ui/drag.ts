@@ -37,12 +37,16 @@ export function targetKey(t: DropTarget | null): string {
   return t.type === 'threat' ? `threat:${t.uid}` : `${t.type}:${t.index}`;
 }
 
-export function useDrag(onDrop: (payload: DragPayload, target: DropTarget) => void, enabled: boolean) {
+export function useDrag(onDrop: (payload: DragPayload, target: DropTarget) => void, enabled: boolean, onBlocked?: () => void) {
   const [drag, setDrag] = useState<DragState | null>(null);
-  const start = useRef<{ payload: DragPayload; x: number; y: number; dragging: boolean } | null>(null);
+  const start = useRef<{ payload: DragPayload; x: number; y: number; dragging: boolean; blocked: boolean } | null>(null);
   const suppress = useRef(false);
   const onDropRef = useRef(onDrop);
   onDropRef.current = onDrop;
+  const onBlockedRef = useRef(onBlocked);
+  onBlockedRef.current = onBlocked;
+  const enabledRef = useRef(enabled);
+  enabledRef.current = enabled;
 
   useEffect(() => {
     const move = (e: PointerEvent) => {
@@ -51,8 +55,14 @@ export function useDrag(onDrop: (payload: DragPayload, target: DropTarget) => vo
       if (!s.dragging) {
         if (Math.hypot(e.clientX - s.x, e.clientY - s.y) < THRESHOLD) return;
         s.dragging = true;
+        // Not planning: nothing lifts, the click that would follow the release is swallowed, and the screen says why.
+        if (s.blocked) {
+          onBlockedRef.current?.();
+          return;
+        }
         sfx('card.pick');
       }
+      if (s.blocked) return;
       e.preventDefault();
       setDrag({ payload: s.payload, x: e.clientX, y: e.clientY, over: targetAt(e.clientX, e.clientY) });
     };
@@ -62,6 +72,7 @@ export function useDrag(onDrop: (payload: DragPayload, target: DropTarget) => vo
       if (!s?.dragging) return;
       suppress.current = true;
       window.setTimeout(() => (suppress.current = false), 300);
+      if (s.blocked) return;
       const t = targetAt(e.clientX, e.clientY);
       setDrag(null);
       if (t) onDropRef.current(s.payload, t);
@@ -83,9 +94,8 @@ export function useDrag(onDrop: (payload: DragPayload, target: DropTarget) => vo
   const dragProps = useCallback(
     (payload: DragPayload) => ({
       onPointerDown: (e: React.PointerEvent) => {
-        if (!enabled) return;
         if (e.pointerType === 'mouse' && e.button !== 0) return;
-        start.current = { payload, x: e.clientX, y: e.clientY, dragging: false };
+        start.current = { payload, x: e.clientX, y: e.clientY, dragging: false, blocked: !enabledRef.current };
       },
       onClickCapture: (e: React.MouseEvent) => {
         if (suppress.current) {
@@ -96,7 +106,7 @@ export function useDrag(onDrop: (payload: DragPayload, target: DropTarget) => vo
       },
       style: { touchAction: 'none' } as React.CSSProperties,
     }),
-    [enabled],
+    [],
   );
 
   return { drag, dragProps };

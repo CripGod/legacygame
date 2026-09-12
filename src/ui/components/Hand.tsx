@@ -15,6 +15,8 @@ export function Hand({
   onInspect,
   compact,
   dragProps,
+  rest,
+  nudge,
   glow,
   energyLeft,
   dropState,
@@ -27,6 +29,10 @@ export function Hand({
   onInspect: (cardId: string) => void;
   compact: boolean;
   dragProps?: (payload: DragPayload) => Record<string, unknown>;
+  /** Not planning: the hand sits back and stops lifting on hover. */
+  rest?: boolean;
+  /** A blocked drag: the hand dips once. */
+  nudge?: boolean;
   glow?: string | string[] | null;
   /** Energy still unspent this turn; cards above it are dimmed. */
   energyLeft?: number;
@@ -56,7 +62,7 @@ export function Hand({
   const n = visible.length;
   const mid = (n - 1) / 2;
   return (
-    <div className={`hand-wrap ${dropState === 'ok' ? 'drop-ok' : ''} ${dropState === 'over' ? 'drop-ok drop-over' : ''}`} data-drop="hand">
+    <div className={`hand-wrap ${dropState === 'ok' ? 'drop-ok' : ''} ${dropState === 'over' ? 'drop-ok drop-over' : ''} ${rest ? 'rest' : ''} ${nudge ? 'nudge' : ''}`} data-drop="hand">
       <div className="hand">
         {visible.map((id, i) => {
           const off = i - mid;

@@ -365,6 +365,18 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     [step],
   );
   const planning = view.phase === 'planning' && !locked && !busy;
+  /** From Lock In to the next turn the board is a stage, not a desk: nothing drags, the hand sits back, a banner says what is happening. */
+  const resolving = !planning && view.phase !== 'ended';
+  const [turnFlash, setTurnFlash] = useState<number | null>(null);
+  const wasPlanning = useRef(planning);
+  useEffect(() => {
+    const back = planning && !wasPlanning.current && view.turn > 1;
+    wasPlanning.current = planning;
+    if (!back) return;
+    setTurnFlash(view.turn);
+    const id = window.setTimeout(() => setTurnFlash(null), 1150);
+    return () => window.clearTimeout(id);
+  }, [planning, view.turn]);
   /** Lock In, unless the plan is illegal: then say why instead of letting the engine turn it into a pass. */
   const lockNow = () => {
     const errors = validatePlan(view, me, plan);
@@ -750,7 +762,18 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     [dropTargetsFor, explain, feedback, opts, view, plan, setPlan, harrietPlay, yemojaPlay],
   );
 
-  const { drag, dragProps } = useDrag(onDrop, planning);
+  // A drag while the turn plays out: the hand dips and a toast says why, at most once every few seconds.
+  const [handNudge, setHandNudge] = useState(false);
+  const blockedAt = useRef(0);
+  const onBlocked = useCallback(() => {
+    const now = performance.now();
+    if (now - blockedAt.current < 2500) return;
+    blockedAt.current = now;
+    setHandNudge(true);
+    window.setTimeout(() => setHandNudge(false), 450);
+    feedback(m.replay ? 'The turn is playing out. Skip ▸▸ jumps to the end.' : locked ? (m.mode === 'ai' ? 'Locked in. Harborlight is deciding.' : 'Locked in. Waiting for the other side.') : 'One moment: the board is settling.', [], 'info');
+  }, [m.replay, m.mode, locked, feedback]);
+  const { drag, dragProps } = useDrag(onDrop, planning, onBlocked);
   useEffect(() => {
     document.body.classList.toggle('dragging', !!drag);
     return () => document.body.classList.remove('dragging');
@@ -844,7 +867,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   const stepOffLabel = `Sit Down${opts.canStepOff && view.phase !== 'ended' ? ` (−${opts.stepOffCost})` : ''}`;
 
   return (
-    <div className="app">
+    <div className={`app ${resolving ? 'resolving' : ''}`}>
       <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, flash: flash === 'stakes' || flash === 'final', onToggle: toggleStand }} />
       <div className="main-wrap">
         <Battlefield
@@ -871,7 +894,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           glowLocation={guideLocation}
           summonLabel={summonState}
         />
-        {step && !ownBeat && (
+        {step && !ownBeat ? (
           <div className={`replay-banner kind-${step.kind}`} role="status">
             {BEAT_KIND[step.kind] && <span className="replay-kind">{BEAT_KIND[step.kind]}</span>}
             <span className="replay-text">{step.label}</span>
@@ -881,6 +904,19 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
             <button className="small" onClick={m.replaySkip}>
               Skip ▸▸
             </button>
+          </div>
+        ) : resolving && !m.replay ? (
+          <div className="replay-banner kind-wait" role="status">
+            <span className="replay-kind">{locked ? 'Locked' : 'Resolving'}</span>
+            <span className="replay-text">
+              {locked ? (m.mode === 'ai' ? 'Harborlight is deciding' : 'Waiting for the other side') : 'The board settles'}
+              <span className="dots" aria-hidden />
+            </span>
+          </div>
+        ) : null}
+        {turnFlash !== null && (
+          <div className="turn-flash" key={turnFlash} aria-hidden>
+            {finalTurnLabel(view) ?? `Turn ${turnFlash}`}
           </div>
         )}
         <Coach view={view} me={me} plan={plan} enabled={coach && planning && m.mode === 'ai' && !guide && !lesson} onActive={setFlash} override={doing ? null : guideText} />
@@ -920,7 +956,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         )}
       </div>
       <div className="bottom">
-        <Hand view={view} me={me} plan={m.replay ? m.replay.plan : plan} selected={selected} onSelect={selectCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} dragProps={dragProps} glow={guideCard} energyLeft={planning ? energyLeft : undefined} dropState={drop?.hand ? (drop.overKey === 'hand' ? 'over' : 'ok') : null} />
+        <Hand view={view} me={me} plan={m.replay ? m.replay.plan : plan} selected={selected} rest={!planning} nudge={handNudge} onSelect={selectCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} dragProps={dragProps} glow={guideCard} energyLeft={planning ? energyLeft : undefined} dropState={drop?.hand ? (drop.overKey === 'hand' ? 'over' : 'ok') : null} />
         <div className="hint">
           {selected && planning ? (
             <button className="small chip" onClick={() => setSheet({ kind: 'card', id: selected })}>
@@ -967,7 +1003,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
             </button>
           ) : (
             <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning} onClick={lockNow} title={HINTS.timer}>
-              <span>LOCK IN</span>
+              <span>{planning ? 'LOCK IN' : locked ? 'LOCKED ✓' : 'RESOLVING…'}</span>
               <i className="timer-bar" aria-hidden>
                 <b style={{ width: `${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 100}%` }} />
               </i>
@@ -994,7 +1030,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
             </button>
           ) : (
             <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning} onClick={lockNow} title={HINTS.timer}>
-              <span>LOCK IN</span>
+              <span>{planning ? 'LOCK IN' : locked ? 'LOCKED ✓' : 'RESOLVING…'}</span>
               <i className="timer-bar" aria-hidden>
                 <b style={{ width: `${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 100}%` }} />
               </i>
