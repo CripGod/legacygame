@@ -321,6 +321,34 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - blurb: Emperor who repudiated the Italian treaty and broke an Italian army at Adwa in 1896, the victory that kept Ethiopia its own.
 - history: Sahle Maryam was born on 17 August 1844, became king of Shewa in 1865 and Emperor Menelik II of Ethiopia in 1889. That May he signed the Treaty of Wuchale with Italy; the Italian text of Article 17 bound Ethiopia to deal with other powers through Italy, which Italy announced to Europe as a protectorate, the Amharic text made it optional, and in 1893 he repudiated it. When Italy advanced from Eritrea he called the empire to arms, and on 1 March 1896 at Adwa an army of around 100,000, with Empress Taytu Betul commanding her own contingent, destroyed General Oreste Baratieri's force of some 17,000; between 6,000 and 7,000 Italians and askari died, and the Treaty of Addis Ababa that October annulled Wuchale and recognized Ethiopia's independence while the rest of the continent was being partitioned. The same army had spent the previous decade doubling the empire southward, over the Arsi Oromo, Harar, Wolaita and Kaffa, with killing and enslavement those peoples still mourn; hundreds of captured Eritrean askari lost a hand and a foot after Adwa as traitors, and slavery outlived him in Ethiopia until 1942. He founded Addis Ababa with Taytu, began the railway from Djibouti (it reached his capital only in 1917, after his death), strung the first telegraph lines and opened the first modern school, and died on 12 December 1913. The diaspora claimed Adwa at once: Garvey's UNIA sang 'Ethiopia, Thou Land of Our Fathers.'
 
+### David Ruggles (`david_ruggles`)
+- cost 3 · Influence 3 · Force 1 · historical · era: 1810–1849
+- reveal: The Slaveholders Directory: an Informant at your Gates at this Location is found out and sent back to the hand of the player who planted it (discarded if that hand is full). With none here to name, he prints anyway: draw a card.
+- established: The Committee of Vigilance: your Characters at this Location cannot be blocked from entering.
+- blurb: Secretary of the New York Committee of Vigilance. He found out who was taking Black people off the streets and printed their names, two police officers and the city's Recorder included.
+- history: David Ruggles was born free in Norwich, Connecticut, on 15 March 1810 and by 1827 was in New York City, where he later kept a bookshop and reading room. In November 1835 he helped found the New York Committee of Vigilance and became its secretary. The Committee's declared object was to protect Black New Yorkers from kidnapping; Ruggles's method was finding out who was doing it and printing the names. He named the police officers Tobias Boudinot and Daniel D. Nash and Recorder Richard Riker in print as a Kidnapping Club, and in 1839 published a Slaveholders Directory listing New York lawyers, officials and police who lent themselves to kidnapping. In early December 1836 he learned that the Portuguese brig Brilliante, in port for repairs, held five enslaved men, and had her captain, de Souza, arrested under the 1808 ban on the slave trade; in mid-December the federal court treated the five men as crew and let the captain go. On Christmas Eve a party of Black New Yorkers boarded the brig and took two of the men off, and days later the officers came to Ruggles's door at night with a warrant and one of the brig's crew; he got away. He was assaulted, his shop was burned, and twice men tried to kidnap him. In September 1838 he sheltered the newly escaped Frederick Douglass. That same month, in the Darg case, a Virginia enslaver had him jailed for two days on a charge of helping a runaway who had taken money, and he was held to bail for months. Early in 1839 he printed, on rumour and without the editor's knowledge, a notice in the Colored American accusing John Russell, a Black boardinghouse keeper, of hiding captives for kidnappers; Russell sued and won $600. The editor, Samuel Cornish, turned on him, an audit found the Committee's books about $400 short, and Ruggles resigned as secretary that year. He lost most of his sight, moved to the Northampton Association in Massachusetts and took up the water cure, and died at Florence, in Northampton, on 16 December 1849.
+
+### Lewis Hayden (`lewis_hayden`)
+- cost 4 · Influence 4 · Force 2 · historical · era: c. 1811–1889
+- reveal: Slave-Hunters in Boston: an Informant at your Gates at this Location is placarded and sent packing, back to the hand of the player who planted it (discarded if that hand is full). With none here, the house holds: your Characters at this Location cannot be displaced or turned this turn.
+- established: The house on Southac Street: your Characters at this Location cannot be displaced.
+- blurb: Escaped Kentucky in 1844 and kept one of Boston's main safe houses. When two Georgia slave-hunters came for William and Ellen Craft, the Vigilance Committee put their faces on the walls and had them arrested, and they went home without the Crafts.
+- history: Lewis Hayden was born enslaved in Lexington, Kentucky, about 1811. He escaped with his wife Harriet and her son Joseph in 1844, and by 1850 kept a clothing shop and a house on Southac (now Phillips) Street in Boston that became one of the main refuges of the Boston Vigilance Committee. In late October 1850, weeks after the Fugitive Slave Act became law, two men from Macon, Georgia, Willis Hughes and John Knight, arrived in Boston with papers to seize William and Ellen Craft. The Committee posted placards describing the two men, had them arrested again and again, for conspiracy to kidnap William Craft and for slander, under bonds of $10,000 at a time, and a party led by Theodore Parker called at their hotel to tell them to leave. The complaints were the Committee's lawyers' work; Hayden's part was the house. Ellen Craft was moved out to Committee houses in Brookline and then to Parker's; William stayed armed in Hayden's house, where Hayden is said to have kept kegs of gunpowder and promised to fire them before he gave anyone up. Hughes and Knight went home without the Crafts, who sailed for England. On 15 February 1851 Hayden led the crowd that carried Shadrach Minkins out of the courtroom; the jury at his own trial could not agree, and he went free. He sat in the Massachusetts House in 1873 and died in Boston on 7 April 1889.
+
+### William Parker (`william_parker`)
+- cost 3 · Influence 3 · Force 3 · historical · era: c. 1821–1891
+- reveal: Found out: an Informant at your Gates at this Location is traced and arrested. It leaves the match, into the discard of the player who planted it. Then Parker cannot stay: he moves on to your Gates at another Location, Fresh (he stays if none has room). With no Informant here, the league confronts one Threat here with +1 Force instead.
+- established: Mutual protection: your Characters at this Location confront Threats with +1 Force.
+- blurb: Led the Lancaster County league that chased kidnappers and found out the informers among their own, and stood at the door at Christiana in 1851. He could not stay: he finished his life in Canada.
+- history: William Parker was born enslaved on the Roedown plantation in Anne Arundel County, Maryland, about 1821, and ran to Pennsylvania at about seventeen. He settled near Christiana in Lancaster County, in the county's southeastern corner, an easy ride for kidnappers coming up from Maryland. He and other men, many of them escaped slaves, formed an organization for mutual protection against slaveholders and kidnappers and resolved to prevent any of their brethren being taken back into slavery at the risk of their own lives. In The Freedman's Story, written in his own hand in Canada and printed in the Atlantic Monthly in 1866, he told how they chased kidnappers to Gap Hill to take back a girl seized at Moses Whitson's house and beat them, and how the league dealt with informers among their own: when Henry Williams was carried off from the house of Allen Williams, Parker was delegated to find out who had betrayed him and traced it to Allen Williams himself; the men resolved that he should die, went to his door, and beat him until they thought they heard someone coming. Parker wrote that if they had not been interrupted death would have been his fate, and called the code they acted under lynch law, defensible only because the betrayed could not go to a court without risking the same fate. Another man near Christiana who decoyed new fugitives and sold their whereabouts was traced and burned out of his house; he ran and left the place. On the night of 10 September 1851 Samuel Williams, an agent of the Philadelphia Vigilance Committee who had ridden in the cars beside Gorsuch's party, reached Christiana with the warning; Parker laughed and said it was all talk. Before daylight on the 11th the party, brought to within a quarter mile of the house by a local guide and informer, William M. Padgett, whose letter offering the four men's whereabouts was later found on Gorsuch's body, came up the lane, and Edward Gorsuch was killed in the fight outside Parker's house. Parker fled to Rochester, where Frederick Douglass sheltered him and saw him onto the night boat for Kingston; he handed Douglass Gorsuch's revolver at the gangway and landed in Canada on 21 September 1851. He settled at the Buxton settlement in Ontario, learned to read and write there, and died there in 1891.
+
+### William Still (`william_still`)
+- cost 3 · Influence 3 · Force 1 · historical · era: 1821–1902
+- reveal: The interview: look at the top two cards of your deck, keep the dearer, and put the other on the bottom.
+- established: Journal C: while William Still is Established here, every Informant at your Gates at this Location is questioned and written down. It counts 0 Influence against you; it keeps its slot, because the Committee helped the doubted anyway.
+- blurb: Chairman of the Philadelphia Vigilance Committee's Acting Committee. He questioned the arrivals, wrote down what they said, hid the books, and in 1872 printed them, a betrayer's name included.
+- history: William Still was born free in Shamong Township, Burlington County, New Jersey, in October 1821, the youngest child of parents who had come out of Maryland slavery. In 1847 the Pennsylvania Anti-Slavery Society in Philadelphia hired him as a clerk. In August 1850 a self-ransomed man of nearly fifty was sent to the office for advice on finding his parents, and Still's questions showed that Peter was his own brother, sold away from the family on Maryland's Eastern Shore as a boy more than forty years before; he later said that meeting was what moved him to keep the records. From December 1852 he chaired the Acting Committee of the reorganized Vigilance Committee, charged to keep a record of all its doings: arrivals were questioned closely, and for most of them he wrote down names, owners, places and the story of the escape, so that accounts could be checked against each other and against letters from agents like Thomas Garrett in Wilmington. When the Committee doubted a story it aided the man anyway, and one impostor suspicion was wrong. In March 1857 eight people from Dorchester County, Maryland, were walked by their guide, a Black man named Thomas Otwell, into the Dover, Delaware, jail for a $3,000 reward; they broke out through the sheriff's window and reached Philadelphia through the Delaware conductors. Garrett's letter of 13 March, marked to be shown to Still, named Otwell; Still printed it in 1872, with the Camden conductor William Brinkley's verdict that Otwell was 'dun for ever', and wrote that what became of the betrayer the Committee was never fully posted. He arrested and punished nobody; the record was the work. After John Brown's papers were captured in October 1859 he sent the books into hiding and kept the record on loose slips; he published it as The Underground Rail Road in 1872, and died in Philadelphia on 14 July 1902.
+
 ### Victor Hugo Green (`victor_hugo_green`)
 - cost 3 · Influence 4 · Force 1 · historical · era: 1892–1960
 - reveal: The Green Book: next turn you may make one extra Relocation.
@@ -654,7 +682,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - `finalTurn`: Last scheduled turn. A Stand on Business now adds a 9th turn; otherwise whatever stands after this one is counted: two Locations of three, then total Influence, then total Force.
 - `dayNight`: This Location has a curfew. Odd turns are day, even turns are night: at night nobody relocates out until morning. Harriet Tubman is the only one who can move a Character out.
 - `locked`: Held here: cannot relocate out. A curfew at night, or The Justice System. Harriet Tubman can still move them.
-- `informant`: Informant: a Character played onto the other side's Gates. It is theirs, its Influence counts against them there, it never becomes Ready and never enters. Relocate it, slide it with Robert Smalls, or dump it at Charleston, 1822, where it is found out and sent back to the planter's hand.
+- `informant`: Informant: a Character played onto the other side's Gates. It is theirs, its Influence counts against them there, it never becomes Ready and never enters. Relocate it, slide it with Robert Smalls, or dump it at Charleston, 1822, where it is found out and sent back to the planter's hand. Or find it out yourself: David Ruggles and Lewis Hayden send it back to the planter's hand, William Parker has it arrested, and William Still, Established there, writes it down so it counts 0.
 - `event`: Event: a one-shot card, and a deck carries at most two. Drop it on a Location: it goes in the purple Event slot beside your Gates (one per Location per turn), works everywhere, and the Location it lands on adds a little more.
 - `currentInfluence`: Influence this Character currently contributes here, including bonuses and penalties.
 - `home`: Home ground: this is where the story happened, so the Character counts +1 Influence here.
@@ -809,7 +837,7 @@ Rules
 - The Justice System holds anyone who goes Inside for two turns: no relocating out.
 - Events are played into the purple Event slot under a Location (one per Location per turn; the Gates can be full). A deck carries at most two, and the empty slot counts yours down. They work everywhere and the Location adds a bonus: Reparations pays +1 more in the Americas, The Ancestors bless a Location in Africa, Word of Mouth draws two where you have a crowd, Community Defense adds Force where it lands. Some cards cost 0 Energy.
 - The Middle Passage has no Inside: everyone at its Gates loses 1 Influence for good each turn, and whoever leaves arrives Ready and carries +1 Influence for good. The DeWolf Trade (a Threat, 5 Force) ships the lowest Fresh Gate Character at its Location there, or to a random Location, with a Setback.
-- Informants (Peter Prioleau, George Wilson, Pharoah and Tom, Ben Woolfolk) are Characters you play onto your opponent's Gates at a Location with one of their slots open. They are theirs: their negative Influence counts against them there, they take one of their Gate slots, and they never become Ready or go Inside. Relocate one away, slide it with Robert Smalls, or let a Threat knock it away; Harriet Tubman will not conduct one. Or drop it at Charleston, 1822, where at the end of every turn the Fresh Gate Character with the lowest Influence changes sides (a tie goes against the leader): an Informant there is found out and goes back to the hand of whoever planted it. Marie Laveau's Reveal hexes the strongest opposing Gate Character at her Location: −2 Influence for the rest of the match.
+- Informants (Peter Prioleau, George Wilson, Pharoah and Tom, Ben Woolfolk) are Characters you play onto your opponent's Gates at a Location with one of their slots open. They are theirs: their negative Influence counts against them there, they take one of their Gate slots, and they never become Ready or go Inside. Relocate one away, slide it with Robert Smalls, or let a Threat knock it away; Harriet Tubman will not conduct one. Or drop it at Charleston, 1822, where at the end of every turn the Fresh Gate Character with the lowest Influence changes sides (a tie goes against the leader): an Informant there is found out and goes back to the hand of whoever planted it. Marie Laveau's Reveal hexes the strongest opposing Gate Character at her Location: −2 Influence for the rest of the match. Or find it out yourself: David Ruggles and Lewis Hayden send it back to the planter's hand, William Parker has it arrested into the planter's discard, and William Still, Established there, writes it down so it counts 0.
 - Every deck carries at least one Mythic. The full list, with costs, is under Cards on the start screen.
 ### Summon (cooperative)
 - Use quick chat (💬) to call Summon? at a Location with a Threat. If the other side answers Summon!, both of you commit that turn.
@@ -903,6 +931,10 @@ Main menu
 - You get ${opts.relocationsAllowed} Relocation${opts.relocationsAllowed > 1 ? 's' : ''} per turn (Pullman Porter adds one). Drag the other one back to cancel it.
 - ${nm} cannot leave: ${held}. Only Harriet Tubman's Reveal can move them out.
 - ${nm} cannot relocate there right now.
+- The turn is playing out. Skip ▸▸ jumps to the end.
+- Locked in. Harborlight is deciding.
+- Locked in. Waiting for the other side.
+- One moment: the board is settling.
 - SUMMON · You ${mine ? '✓' : '?'} · ${view.players[other(me)].handle} ${theirs ?? (mine ? '?' : '')}
 - ${cardName(pl.cardId, placeholders)}${where}${direct ? (pl.enter ? ' · Inside' : ' · Gates') : ''}
 - ${cardName(c.defId, placeholders)} enters
@@ -919,6 +951,7 @@ Main menu
 - ${cardName(yemojaPlay.cardId, placeholders)}: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : 
 - Drag a card onto a Location.
 - Sit Down${opts.canStepOff && view.phase !== 'ended' ? 
+- app ${resolving ? 'resolving' : ''}
 - replay-banner kind-${step.kind}
 - What happened last turn, step by step.
 - danger ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}
@@ -1239,6 +1272,8 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
 - ;
     case 'siegeInside':
       return 'The siege does not lift. Only protection stops it.';
+    case 'foundOut':
+      return 'No Force check: an Informant at your own Gates has no protection from you.';
     case 'displaceOpposingGate':
       return 'No Force check. Only protection stops her.';
     case 'blockOneOpposingGate':
@@ -1264,7 +1299,7 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
   const d = ev.data as {
     actor: { kind: 'character' | 'threat' | 'location' | 'event'; id: string; owner?: PlayerId; force?: number };
     victim: { uid: string; defId: string; owner: PlayerId; force: number };
-    outcome: 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected';
+    outcome: 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested';
     from: number;
     to?: number;
     theirForce?: number;
@@ -1296,6 +1331,8 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
     rose: 'BACK TO HAND',
     hexed: 'HEXED',
     defected: 'CHANGES SIDES',
+    exposed: 'FOUND OUT',
+    arrested: 'ARRESTED',
   };
   const attackerWins = d.outcome !== 'held';
   const artKind = d.actor.kind === 'character' ? 'characters' : d.actor.kind === 'threat' ? 'threats' : d.actor.kind === 'location' ? 'locations' : 'events';
@@ -1454,7 +1491,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 
 ### src/ui/components/Hand.tsx
 
-- hand-wrap ${dropState === 'ok' ? 'drop-ok' : ''} ${dropState === 'over' ? 'drop-ok drop-over' : ''}
+- hand-wrap ${dropState === 'ok' ? 'drop-ok' : ''} ${dropState === 'over' ? 'drop-ok drop-over' : ''} ${rest ? 'rest' : ''} ${nudge ? 'nudge' : ''}
 - rotate(${rot}deg) translateY(${sel ? -26 : ty}px) scale(${sel ? 1.08 : 1})
 - card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''} ${(Array.isArray(glow) ? glow.includes(id) : glow === id) ? 'ftue-flash' : ''} ${dealt >= 0 ? 'dealt' : ''} ${energyLeft !== undefined && cardCost(id, view, me) > energyLeft ? 'unaffordable' : ''} ${id === 'reparations' && view.players[me].setbacks > 0 ? 'reparations-live' : ''}
 - ${view.players[me].setbacks} Setback${view.players[me].setbacks === 1 ? '' : 's'}
@@ -1540,6 +1577,12 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}) and is held off.
 - no opposing Established Character here to besiege.
 - besieges ${targets.map((x) => charDef(x.defId).name).join(', ')}: −${amount} Influence each for the rest of the match.
+- no Informant at ${state.players[p].handle}'s Gates here to name. The names go to press anyway: ${state.players[p].handle} draws a card.
+- no Informant at these Gates to send packing. The house holds: ${state.players[p].handle}'s ${held.length} Character${held.length === 1 ? '' : 's'} here cannot be displaced or turned this turn.
+- no Informant at these Gates and no Threat here to confront.
+- no Informant at these Gates: the league confronts ${threatName(state, own)} with +1 Force instead.
+- cannot stay: he moves on to the Gates of ${locName(state, c.location)}, Fresh.
+- has nowhere to move on to: every other Gate is full or Lost, so he stays.
 - the opposing Characters here cannot be Suppressed.
 - suppresses ${charDef(target.defId).name} until the end of next turn.
 - no opposing Established Character to suppress.

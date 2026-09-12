@@ -24,6 +24,7 @@ import {
   type CharacterInstance,
   charDef,
   cardDef,
+  other,
   MAX_HAND,
   CARD_BY_ID,
   charInfluence,
@@ -626,7 +627,7 @@ describe('Informants, zero-cost cards and showdowns', () => {
     const out = resolveTurn(t, { A: pass(), B: pass() });
     expect(out.state.characters[spy.uid]).toBeUndefined();
     expect(out.state.players.B.hand).toContain('george_wilson');
-    expect(out.events.some((e) => e.type === 'clash' && (e.data as { outcome: string }).outcome === 'defected')).toBe(true);
+    expect(out.events.some((e) => e.type === 'clash' && (e.data as { outcome: string }).outcome === 'exposed')).toBe(true);
     // Nothing happens on the reveal turn.
     let u = rig(createMatch({ seed: 2 }), { locations: ['charleston_1822', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['john_russwurm'], handB: [] });
     u.turn = 3;
@@ -1779,5 +1780,62 @@ describe('Events left', () => {
     const vb = viewFor(s, 'B');
     expect(vb.players.A.deckEvents).toBeUndefined();
     expect(vb.players.B.deckEvents).toBe(s.players.B.deck.filter(isEvent).length);
+  });
+});
+
+describe('Found out: the answer to a planted Informant', () => {
+  const LOCS = ['great_migration', 'juneteenth', 'gary_indiana'];
+  const plant = (s: GameState, defId: string, victim: PlayerId, location: number) => {
+    const spy = addChar(s, defId, victim, location, 'gate', false);
+    spy.plantedBy = other(victim);
+    return spy;
+  };
+  it('Ruggles sends the Informant at his Gates back to the planter, to their discard when that hand is full, and draws when there is none', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: LOCS, revealAll: true, handA: ['david_ruggles'] });
+    const spy = plant(s, 'george_wilson', 'A', 0);
+    const r = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'david_ruggles', location: 0 }] }, B: pass() });
+    s = r.state;
+    expect(s.characters[spy.uid]).toBeUndefined();
+    expect(s.players.B.hand).toContain('george_wilson');
+    expect(r.events.some((e) => e.type === 'clash' && (e.data as { outcome: string }).outcome === 'exposed')).toBe(true);
+    expect(r.events.some((e) => e.text.includes('change sides'))).toBe(false);
+    // The planter's hand is full: discarded instead.
+    let f = rig(createMatch({ seed: 2 }), { locations: LOCS, revealAll: true, handA: ['david_ruggles'], handB: ['organizer', 'organizer', 'organizer', 'organizer', 'organizer', 'organizer', 'organizer'] });
+    plant(f, 'george_wilson', 'A', 0);
+    f = resolveTurn(f, { A: { ...pass(), plays: [{ cardId: 'david_ruggles', location: 0 }] }, B: pass() }).state;
+    expect(f.players.B.discard).toContain('george_wilson');
+    // No Informant: he prints anyway.
+    let d = rig(createMatch({ seed: 2 }), { locations: LOCS, revealAll: true, handA: ['david_ruggles'] });
+    const before = d.players.A.hand.length;
+    d = resolveTurn(d, { A: { ...pass(), plays: [{ cardId: 'david_ruggles', location: 0 }] }, B: pass() }).state;
+    expect(d.players.A.hand.length).toBe(before - 1 + 1 + 1); // played one, drew for the Reveal, drew for the new turn
+  });
+  it('Parker has the Informant arrested into the planter\'s discard and then moves on', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: LOCS, revealAll: true, handA: ['william_parker'] });
+    const spy = plant(s, 'ben_woolfolk', 'A', 0);
+    const r = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'william_parker', location: 0 }] }, B: pass() });
+    s = r.state;
+    expect(s.characters[spy.uid]).toBeUndefined();
+    expect(s.players.B.discard).toContain('ben_woolfolk');
+    expect(s.players.B.hand).not.toContain('ben_woolfolk');
+    const parker = charsOf(s, 'A').find((c) => c.defId === 'william_parker')!;
+    expect(parker.location).not.toBe(0);
+    expect(parker.zone).toBe('gate');
+    expect(r.events.some((e) => e.type === 'clash' && (e.data as { outcome: string }).outcome === 'arrested')).toBe(true);
+  });
+  it('Hayden holds your Characters at his Location when there is no Informant to send home', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: LOCS, revealAll: true, handA: ['lewis_hayden'] });
+    const friend = addChar(s, 'organizer', 'A', 0, 'gate', false);
+    const turn = s.turn;
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'lewis_hayden', location: 0 }] }, B: pass() }).state;
+    expect(s.characters[friend.uid].protectedTurn).toBe(turn);
+  });
+  it('Still writes the Informant down: it counts 0 against you while he is Established there', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: LOCS, revealAll: true });
+    const spy = plant(s, 'peter_prioleau', 'A', 0);
+    expect(charInfluence(s, spy)).toBe(charDef('peter_prioleau').influence);
+    addChar(s, 'william_still', 'A', 0, 'inside');
+    expect(charInfluence(s, spy)).toBe(0);
+    expect(charsAt(s, 0, 'A', 'gate').length).toBe(1); // it keeps its slot
   });
 });

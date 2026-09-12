@@ -554,6 +554,8 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
       return `${nm(actor.id)} has ${force} Force: every Established Character with ${force} or more keeps its seat.`;
     case 'siegeInside':
       return 'The siege does not lift. Only protection stops it.';
+    case 'foundOut':
+      return 'No Force check: an Informant at your own Gates has no protection from you.';
     case 'displaceOpposingGate':
       return 'No Force check. Only protection stops her.';
     case 'blockOneOpposingGate':
@@ -578,7 +580,7 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
   const d = ev.data as {
     actor: { kind: 'character' | 'threat' | 'location' | 'event'; id: string; owner?: PlayerId; force?: number };
     victim: { uid: string; defId: string; owner: PlayerId; force: number };
-    outcome: 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected';
+    outcome: 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested';
     from: number;
     to?: number;
     theirForce?: number;
@@ -610,6 +612,8 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
     rose: 'BACK TO HAND',
     hexed: 'HEXED',
     defected: 'CHANGES SIDES',
+    exposed: 'FOUND OUT',
+    arrested: 'ARRESTED',
   };
   const attackerWins = d.outcome !== 'held';
   const artKind = d.actor.kind === 'character' ? 'characters' : d.actor.kind === 'threat' ? 'threats' : d.actor.kind === 'location' ? 'locations' : 'events';

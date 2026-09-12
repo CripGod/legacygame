@@ -50,7 +50,7 @@ const TIPS: { key: string; when: (c: Ctx) => string | null }[] = [
       if (!spy) return null;
       const charleston = c.v.locations.find((l) => l.revealed && !l.lost && LOCATION_BY_ID[l.defId]?.effect.type === 'turncoatAtEnd' && l.index !== spy.location);
       if (spy.plantedBy === c.me) return `${c.nm(spy.defId)}'s card came back to you at ${c.ln(spy.location)}: ${charInfluence(c.v, spy)} Influence for you there until you move it. Relocate it, or plant it again from your hand when it is sent home.`;
-      return `${c.v.players[other(c.me)].handle} planted ${c.nm(spy.defId)} at your Gates of ${c.ln(spy.location)}: ${charInfluence(c.v, spy)} Influence for you there, and it holds one of your two slots. It never becomes Ready. Drag it to a Location where it hurts less${charleston ? `, or to ${c.ln(charleston.index)}, where the lowest Fresh Gate Character changes sides at the end of the turn and it goes back to them` : ''}.`;
+      return `${c.v.players[other(c.me)].handle} planted ${c.nm(spy.defId)} at your Gates of ${c.ln(spy.location)}: ${charInfluence(c.v, spy)} Influence for you there, and it holds one of your three slots. It never becomes Ready. Play David Ruggles, Lewis Hayden or William Parker there to find it out, or drag it to a Location where it hurts less${charleston ? `, or to ${c.ln(charleston.index)}, where the lowest Fresh Gate Character changes sides at the end of the turn and it goes back to them` : ''}.`;
     },
   },
   {

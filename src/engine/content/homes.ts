@@ -88,4 +88,8 @@ export const HOMES: Record<string, HomeGround> = {
   yaa_asantewaa: { locations: ['accra_ghana'], why: 'Kumasi is not on the board. The flag Nkrumah raised at Accra in 1957 stands on the ground her war held.', thematic: true },
   zumbi_dos_palmares: { locations: ['middle_passage'], why: "Brazil took more of the ships' people than any other land; Palmares is where the ones who walked off Pernambuco's sugar went. Brazil is not on the board.", thematic: true },
   menelik_ii: { locations: ['accra_ghana'], why: "Ethiopia is not on the board. Adwa was the proof the independence generation reached for; Nkrumah's Ghana was its first fruit.", thematic: true },
+  david_ruggles: { locations: ['justice_system'], why: "New York is not on the board. The Kidnapping Club he named was two police officers and the city's Recorder; a federal court let the Brilliante's captain go, and a libel court fined him for a name he got wrong.", thematic: true },
+  lewis_hayden: { locations: ['justice_system'], why: 'Boston is not on the board. On 15 February 1851 he led the crowd that carried Shadrach Minkins out of a federal courtroom, and the jury at his own trial could not agree.', thematic: true },
+  william_parker: { locations: ['harpers_ferry'], why: "Christiana is not on the board. Harpers Ferry is the board's abolition ground: the fight at Parker's door came eight years before Brown's raid, and Douglass took Gorsuch's revolver from Parker at the Rochester landing.", thematic: true },
+  william_still: { locations: ['the_tabernacle'], why: 'Philadelphia is on the board only as Mother Bethel. The Anti-Slavery Office where he questioned arrivals was across the same city.', thematic: true },
 };

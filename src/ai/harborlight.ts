@@ -85,6 +85,7 @@ const ESTABLISHED_VALUE: Record<string, number> = {
   auraInfluenceOthersHere: 1.6,
   readyRelocatedIn: 0.8,
   relocatedInReady: 1.0,
+  recordInformantsHere: 0.4,
   assistForceBonus: 0.3,
   relocatedNoDisplace: 0.4,
   blessNextEstablished: 0.9,

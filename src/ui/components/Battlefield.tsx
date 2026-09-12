@@ -339,6 +339,7 @@ function shortEffect(type: string): string {
   const map: Record<string, string> = {
     readyRelocatedIn: 'arrivals Ready',
     relocatedInReady: 'every arrival Ready',
+    recordInformantsHere: 'Informants here count 0',
     auraInfluenceOthersHere: '+1 Influence to others',
     assistForceBonus: '+1 Force when assisting',
     relocatedNoDisplace: 'relocated are safe',

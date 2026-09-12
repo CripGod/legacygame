@@ -152,6 +152,8 @@ export function charInfluence(state: GameState, c: CharacterInstance): number {
     }
   } else {
     if (threatActiveFor(state, c.location, 'zeroGateInfluence', c.owner) && !hasEstablished(state, c.owner, c.location, 'sanctuary').length) return 0;
+    // William Still's record: an Informant at your Gates here is written down and counts 0 against the side that holds it. It keeps its slot.
+    if (def.keywords.includes('INFORMANT') && hasEstablished(state, c.owner, c.location, 'recordInformantsHere').length) return 0;
     for (const z of hasEstablished(state, c.owner, c.location, 'gateInfluenceHere')) v += amountOf(z);
     for (const o of hasEstablished(state, other(c.owner), c.location, 'opposingGateInfluence')) v -= amountOf(o);
   }

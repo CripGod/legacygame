@@ -1178,6 +1178,111 @@ export const CHARACTERS: CharacterDef[] = [
     history:
       "Sahle Maryam was born on 17 August 1844, became king of Shewa in 1865 and Emperor Menelik II of Ethiopia in 1889. That May he signed the Treaty of Wuchale with Italy; the Italian text of Article 17 bound Ethiopia to deal with other powers through Italy, which Italy announced to Europe as a protectorate, the Amharic text made it optional, and in 1893 he repudiated it. When Italy advanced from Eritrea he called the empire to arms, and on 1 March 1896 at Adwa an army of around 100,000, with Empress Taytu Betul commanding her own contingent, destroyed General Oreste Baratieri's force of some 17,000; between 6,000 and 7,000 Italians and askari died, and the Treaty of Addis Ababa that October annulled Wuchale and recognized Ethiopia's independence while the rest of the continent was being partitioned. The same army had spent the previous decade doubling the empire southward, over the Arsi Oromo, Harar, Wolaita and Kaffa, with killing and enslavement those peoples still mourn; hundreds of captured Eritrean askari lost a hand and a foot after Adwa as traitors, and slavery outlived him in Ethiopia until 1942. He founded Addis Ababa with Taytu, began the railway from Djibouti (it reached his capital only in 1917, after his death), strung the first telegraph lines and opened the first modern school, and died on 12 December 1913. The diaspora claimed Adwa at once: Garvey's UNIA sang 'Ethiopia, Thou Land of Our Fathers.'",
   },
+  // ---------- Found out (build 140): the answer to a planted Informant ----------
+  {
+    kind: 'character',
+    id: 'david_ruggles',
+    cost: 3,
+    category: 'historical',
+    name: 'David Ruggles',
+    short: 'Ruggles',
+    summary: "Informant here: back to planter's hand; else draw. Est.: no blocks.",
+    influence: 3,
+    force: 1,
+    tags: ['Black', 'Abolition', 'Press', 'Vigilance'],
+    keywords: [],
+    reveal: {
+      text: 'The Slaveholders Directory: an Informant at your Gates at this Location is found out and sent back to the hand of the player who planted it (discarded if that hand is full). With none here to name, he prints anyway: draw a card.',
+      effect: { type: 'foundOut', mode: 'expose', fallback: 'draw' },
+    },
+    established: {
+      text: 'The Committee of Vigilance: your Characters at this Location cannot be blocked from entering.',
+      effect: { type: 'noBlockHere' },
+    },
+    identity: ['vigilance', 'the printed name', 'the reading room'],
+    era: '1810–1849',
+    blurb: "Secretary of the New York Committee of Vigilance. He found out who was taking Black people off the streets and printed their names, two police officers and the city's Recorder included.",
+    history:
+      "David Ruggles was born free in Norwich, Connecticut, on 15 March 1810 and by 1827 was in New York City, where he later kept a bookshop and reading room. In November 1835 he helped found the New York Committee of Vigilance and became its secretary. The Committee's declared object was to protect Black New Yorkers from kidnapping; Ruggles's method was finding out who was doing it and printing the names. He named the police officers Tobias Boudinot and Daniel D. Nash and Recorder Richard Riker in print as a Kidnapping Club, and in 1839 published a Slaveholders Directory listing New York lawyers, officials and police who lent themselves to kidnapping. In early December 1836 he learned that the Portuguese brig Brilliante, in port for repairs, held five enslaved men, and had her captain, de Souza, arrested under the 1808 ban on the slave trade; in mid-December the federal court treated the five men as crew and let the captain go. On Christmas Eve a party of Black New Yorkers boarded the brig and took two of the men off, and days later the officers came to Ruggles's door at night with a warrant and one of the brig's crew; he got away. He was assaulted, his shop was burned, and twice men tried to kidnap him. In September 1838 he sheltered the newly escaped Frederick Douglass. That same month, in the Darg case, a Virginia enslaver had him jailed for two days on a charge of helping a runaway who had taken money, and he was held to bail for months. Early in 1839 he printed, on rumour and without the editor's knowledge, a notice in the Colored American accusing John Russell, a Black boardinghouse keeper, of hiding captives for kidnappers; Russell sued and won $600. The editor, Samuel Cornish, turned on him, an audit found the Committee's books about $400 short, and Ruggles resigned as secretary that year. He lost most of his sight, moved to the Northampton Association in Massachusetts and took up the water cure, and died at Florence, in Northampton, on 16 December 1849.",
+  },
+  {
+    kind: 'character',
+    id: 'lewis_hayden',
+    cost: 4,
+    category: 'historical',
+    name: 'Lewis Hayden',
+    short: 'Hayden',
+    summary: 'Informant here: sent home; else yours here hold. Est.: no displacing.',
+    influence: 4,
+    force: 2,
+    tags: ['Black', 'Abolition', 'Vigilance', 'Fugitive'],
+    keywords: [],
+    reveal: {
+      text: 'Slave-Hunters in Boston: an Informant at your Gates at this Location is placarded and sent packing, back to the hand of the player who planted it (discarded if that hand is full). With none here, the house holds: your Characters at this Location cannot be displaced or turned this turn.',
+      effect: { type: 'foundOut', mode: 'expose', fallback: 'hold' },
+    },
+    established: {
+      text: 'The house on Southac Street: your Characters at this Location cannot be displaced.',
+      effect: { type: 'noDisplaceHere' },
+    },
+    identity: ['refuge', 'the placards', 'the standoff'],
+    era: 'c. 1811–1889',
+    blurb: "Escaped Kentucky in 1844 and kept one of Boston's main safe houses. When two Georgia slave-hunters came for William and Ellen Craft, the Vigilance Committee put their faces on the walls and had them arrested, and they went home without the Crafts.",
+    history:
+      "Lewis Hayden was born enslaved in Lexington, Kentucky, about 1811. He escaped with his wife Harriet and her son Joseph in 1844, and by 1850 kept a clothing shop and a house on Southac (now Phillips) Street in Boston that became one of the main refuges of the Boston Vigilance Committee. In late October 1850, weeks after the Fugitive Slave Act became law, two men from Macon, Georgia, Willis Hughes and John Knight, arrived in Boston with papers to seize William and Ellen Craft. The Committee posted placards describing the two men, had them arrested again and again, for conspiracy to kidnap William Craft and for slander, under bonds of $10,000 at a time, and a party led by Theodore Parker called at their hotel to tell them to leave. The complaints were the Committee's lawyers' work; Hayden's part was the house. Ellen Craft was moved out to Committee houses in Brookline and then to Parker's; William stayed armed in Hayden's house, where Hayden is said to have kept kegs of gunpowder and promised to fire them before he gave anyone up. Hughes and Knight went home without the Crafts, who sailed for England. On 15 February 1851 Hayden led the crowd that carried Shadrach Minkins out of the courtroom; the jury at his own trial could not agree, and he went free. He sat in the Massachusetts House in 1873 and died in Boston on 7 April 1889.",
+  },
+  {
+    kind: 'character',
+    id: 'william_parker',
+    cost: 3,
+    category: 'historical',
+    name: 'William Parker',
+    short: 'W. Parker',
+    summary: 'Arrests an Informant here, then moves on; else fights. Est.: +1 Force.',
+    influence: 3,
+    force: 3,
+    tags: ['Black', 'Abolition', 'Rebellion', 'Defense'],
+    keywords: [],
+    reveal: {
+      text: 'Found out: an Informant at your Gates at this Location is traced and arrested. It leaves the match, into the discard of the player who planted it. Then Parker cannot stay: he moves on to your Gates at another Location, Fresh (he stays if none has room). With no Informant here, the league confronts one Threat here with +1 Force instead.',
+      effect: { type: 'foundOut', mode: 'arrest', fallback: 'confront', leave: true },
+    },
+    established: {
+      text: 'Mutual protection: your Characters at this Location confront Threats with +1 Force.',
+      effect: { type: 'forceAuraHere', amount: 1 },
+    },
+    identity: ['mutual protection', 'the man at the door', 'finding out', 'Canada'],
+    era: 'c. 1821–1891',
+    blurb: 'Led the Lancaster County league that chased kidnappers and found out the informers among their own, and stood at the door at Christiana in 1851. He could not stay: he finished his life in Canada.',
+    history:
+      "William Parker was born enslaved on the Roedown plantation in Anne Arundel County, Maryland, about 1821, and ran to Pennsylvania at about seventeen. He settled near Christiana in Lancaster County, in the county's southeastern corner, an easy ride for kidnappers coming up from Maryland. He and other men, many of them escaped slaves, formed an organization for mutual protection against slaveholders and kidnappers and resolved to prevent any of their brethren being taken back into slavery at the risk of their own lives. In The Freedman's Story, written in his own hand in Canada and printed in the Atlantic Monthly in 1866, he told how they chased kidnappers to Gap Hill to take back a girl seized at Moses Whitson's house and beat them, and how the league dealt with informers among their own: when Henry Williams was carried off from the house of Allen Williams, Parker was delegated to find out who had betrayed him and traced it to Allen Williams himself; the men resolved that he should die, went to his door, and beat him until they thought they heard someone coming. Parker wrote that if they had not been interrupted death would have been his fate, and called the code they acted under lynch law, defensible only because the betrayed could not go to a court without risking the same fate. Another man near Christiana who decoyed new fugitives and sold their whereabouts was traced and burned out of his house; he ran and left the place. On the night of 10 September 1851 Samuel Williams, an agent of the Philadelphia Vigilance Committee who had ridden in the cars beside Gorsuch's party, reached Christiana with the warning; Parker laughed and said it was all talk. Before daylight on the 11th the party, brought to within a quarter mile of the house by a local guide and informer, William M. Padgett, whose letter offering the four men's whereabouts was later found on Gorsuch's body, came up the lane, and Edward Gorsuch was killed in the fight outside Parker's house. Parker fled to Rochester, where Frederick Douglass sheltered him and saw him onto the night boat for Kingston; he handed Douglass Gorsuch's revolver at the gangway and landed in Canada on 21 September 1851. He settled at the Buxton settlement in Ontario, learned to read and write there, and died there in 1891.",
+  },
+  {
+    kind: 'character',
+    id: 'william_still',
+    cost: 3,
+    category: 'historical',
+    name: 'William Still',
+    short: 'W. Still',
+    summary: 'Keep the dearer of 2. Est.: Informants at your Gates here count 0.',
+    influence: 3,
+    force: 1,
+    tags: ['Black', 'Abolition', 'Vigilance', 'Writer'],
+    keywords: [],
+    reveal: {
+      text: 'The interview: look at the top two cards of your deck, keep the dearer, and put the other on the bottom.',
+      effect: { type: 'dig', count: 2 },
+    },
+    established: {
+      text: 'Journal C: while William Still is Established here, every Informant at your Gates at this Location is questioned and written down. It counts 0 Influence against you; it keeps its slot, because the Committee helped the doubted anyway.',
+      effect: { type: 'recordInformantsHere' },
+    },
+    identity: ['the interview', 'the record', 'a brother found'],
+    era: '1821–1902',
+    blurb: "Chairman of the Philadelphia Vigilance Committee's Acting Committee. He questioned the arrivals, wrote down what they said, hid the books, and in 1872 printed them, a betrayer's name included.",
+    history:
+      "William Still was born free in Shamong Township, Burlington County, New Jersey, in October 1821, the youngest child of parents who had come out of Maryland slavery. In 1847 the Pennsylvania Anti-Slavery Society in Philadelphia hired him as a clerk. In August 1850 a self-ransomed man of nearly fifty was sent to the office for advice on finding his parents, and Still's questions showed that Peter was his own brother, sold away from the family on Maryland's Eastern Shore as a boy more than forty years before; he later said that meeting was what moved him to keep the records. From December 1852 he chaired the Acting Committee of the reorganized Vigilance Committee, charged to keep a record of all its doings: arrivals were questioned closely, and for most of them he wrote down names, owners, places and the story of the escape, so that accounts could be checked against each other and against letters from agents like Thomas Garrett in Wilmington. When the Committee doubted a story it aided the man anyway, and one impostor suspicion was wrong. In March 1857 eight people from Dorchester County, Maryland, were walked by their guide, a Black man named Thomas Otwell, into the Dover, Delaware, jail for a $3,000 reward; they broke out through the sheriff's window and reached Philadelphia through the Delaware conductors. Garrett's letter of 13 March, marked to be shown to Still, named Otwell; Still printed it in 1872, with the Camden conductor William Brinkley's verdict that Otwell was 'dun for ever', and wrote that what became of the betrayer the Committee was never fully posted. He arrested and punished nobody; the record was the work. After John Brown's papers were captured in October 1859 he sent the books into hiding and kept the record on loose slips; he published it as The Underground Rail Road in 1872, and died in Philadelphia on 14 July 1902.",
+  },
 ];
 
 CHARACTERS.push({

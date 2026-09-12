@@ -82,6 +82,7 @@ export type RevealEffect =
   | { type: 'energyNext'; amount: number } // Madam C.J. Walker: Energy next turn
   | { type: 'nextCharacterDiscount'; amount: number } // Daniel Payne: your next Character costs less
   | { type: 'relocationNextTurn'; amount: number } // Victor Hugo Green: extra Relocation next turn
+  | { type: 'foundOut'; mode: 'expose' | 'arrest'; fallback: 'draw' | 'hold' | 'confront'; leave?: boolean } // David Ruggles, Lewis Hayden, William Parker: the Informant at your Gates here is found out. expose: back to the planter's hand (their discard if that hand is full); arrest: out of the match, into the planter's discard; leave: this Character then moves on to your Gates elsewhere, Fresh. No Informant here: draw a card, hold (yours here cannot be displaced this turn) or confront a Threat here with +1 Force
   | { type: 'siegeInside'; amount: number } // Yaa Asantewaa: every opposing Established Character here loses Influence for good
   | { type: 'challengeAllInside' } // Menelik II: every opposing Established Character here with lower Force returns to its Gates, Fresh, while their Gates have room
   | { type: 'drawPerFriendHere'; max: number }; // Denmark Vesey: draw per other friendly Character here: permanent Influence on the Location itself, which stays when the artist leaves
@@ -122,6 +123,7 @@ export type EstablishedEffect =
   | { type: 'drawOnEnterHere' } // Richard Allen: draw when one of yours goes Inside here
   | { type: 'drawOnThreatCleared'; count: number } // Callie House: draw when a Threat here is neutralized
   | { type: 'growLowestHere'; amount: number } // Oshun: each turn your weakest Character here grows: the Location gains permanent Influence for you every turn he stays
+  | { type: 'recordInformantsHere' } // William Still: every Informant at your Gates here is written down and counts 0 against you (it still holds the slot)
   | { type: 'shieldHere' }; // Nanny of the Maroons: opposing Reveals cannot target your Characters here
 
 /** Gatherings are never in a deck: they spawn on the board when the world earns them. */

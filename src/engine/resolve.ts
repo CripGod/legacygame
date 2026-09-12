@@ -92,7 +92,7 @@ function riseAgain(state: GameState, c: CharacterInstance, reason: string, event
 
 /** One Character (or Threat, Location, Event) acting on another: the story beat the UI replays before the tally. */
 type ClashActor = { kind: 'character' | 'threat' | 'location' | 'event'; id: string; owner?: PlayerId; force?: number };
-type ClashOutcome = 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected';
+type ClashOutcome = 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested';
 
 /** Anansi's trick: the opposing Ready Gate Character here with the highest Influence waits again (becomes Fresh). */
 function trickGate(state: GameState, events: GameEvent[], p: PlayerId, loc: number, def: { id: string; force: number }): boolean {
@@ -130,6 +130,8 @@ function clash(state: GameState, events: GameEvent[], actor: ClashActor, victim:
     : out === 'tricked' ? `tricks ${vdef.name}: they were Ready to go Inside, now they wait another turn`
     : out === 'hexed' ? `hexes ${vdef.name}: −${extra.theirForce ?? 2} Influence for the rest of the match`
     : out === 'defected' ? `turns ${vdef.name}: they change sides`
+    : out === 'exposed' ? `finds ${vdef.name} out: back to the hand of whoever planted them`
+    : out === 'arrested' ? `arrests ${vdef.name}: off the board for good`
     : `beats ${vdef.name}${vs} and knocks them off the board. ${vdef.name}'s own power: instead of landing at another Location, they go back to ${state.players[victim.owner].handle}'s hand and cost nothing the next time they are played`;
   events.push({
     type: 'clash',
@@ -592,6 +594,63 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
         clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, target, 'hexed', loc, { theirForce: amount, intent: `${def.name} arrived to besiege every opposing Established Character here.`, note: 'The siege does not lift. Only protection stops it.' });
       }
       say(`besieges ${targets.map((x) => charDef(x.defId).name).join(', ')}: −${amount} Influence each for the rest of the match.`);
+      break;
+    }
+    case 'foundOut': {
+      // The Informant at your Gates is yours on the board (owner = p, the victim); plantedBy is the side that sent it.
+      // Nothing protects an Informant from the side holding it: no shielded() or isProtected() check, on purpose.
+      const spy = charsAt(state, loc, p, 'gate')
+        .filter((x) => isInformant(x) && x.plantedBy !== undefined && x.plantedBy !== p)
+        .sort((a, b) => charInfluence(state, a) - charInfluence(state, b) || a.uid.localeCompare(b.uid))[0]; // the one that counts most against you
+      if (!spy) {
+        if (eff.fallback === 'draw') {
+          drawCard(state, p, events);
+          say(`no Informant at ${state.players[p].handle}'s Gates here to name. The names go to press anyway: ${state.players[p].handle} draws a card.`);
+        } else if (eff.fallback === 'hold') {
+          const held = charsAt(state, loc, p).filter((x) => !isInformant(x)); // includes this card
+          for (const x of held) x.protectedTurn = state.turn;
+          say(`no Informant at these Gates to send packing. The house holds: ${state.players[p].handle}'s ${held.length} Character${held.length === 1 ? '' : 's'} here cannot be displaced or turned this turn.`);
+        } else {
+          // Same pick as John Brown's confrontThreat: your own split Threat first, then a shared one, then an Assist.
+          const threats = state.locations[loc].threats.filter((t) => !THREAT_BY_ID[t.defId].split || t.target === p || !state.locations[loc].threats.some((o) => o.defId === t.defId && o.target === p));
+          const own = threats.find((t) => !isAssist(t, p)) ?? threats[0];
+          if (!own) {
+            say('no Informant at these Gates and no Threat here to confront.');
+            break;
+          }
+          confronts.push({ uid: c.uid, threatUid: own.uid, bonus: 1 });
+          say(`no Informant at these Gates: the league confronts ${threatName(state, own)} with +1 Force instead.`);
+        }
+        break;
+      }
+      const planter = spy.plantedBy!;
+      const home = state.players[planter];
+      const sdef = charDef(spy.defId);
+      const was = charInfluence(state, spy);
+      const arrested = eff.mode === 'arrest';
+      const kept = !arrested && home.hand.length < MAX_HAND;
+      delete state.characters[spy.uid];
+      if (kept) home.hand.push(sdef.id);
+      else home.discard.push(sdef.id);
+      say(
+        arrested
+          ? `finds ${sdef.name} (−${-was}) out and has them arrested: out of the match, into ${home.handle}'s discard.`
+          : kept
+            ? `finds ${sdef.name} (−${-was}) out and sends them back to ${home.handle}'s hand: it costs them again to plant.`
+            : `finds ${sdef.name} (−${-was}) out and sends them back to ${home.handle}, whose hand is full: discarded.`,
+      );
+      events.push({ type: 'moved', text: '', uid: spy.uid, location: loc, player: planter, data: { from: loc, to: -1, reason: arrested ? 'arrested' : 'exposed' } });
+      clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, spy, arrested ? 'arrested' : 'exposed', loc, {
+        note: arrested
+          ? `The Informant at your Gates here that counted most against you is arrested and leaves the match: it goes to ${home.handle}'s discard, not their hand.`
+          : kept
+            ? `The Informant at your Gates here that counted most against you is found out. Back in ${home.handle}'s hand, it costs Energy and one of your open slots to plant again.`
+            : `The Informant at your Gates here is found out and would go back to ${home.handle}'s hand, but that hand is full (${MAX_HAND}): discarded.`,
+      });
+      if (eff.leave) {
+        if (displace(state, c, `${def.name} could not stay`, events)) say(`cannot stay: he moves on to the Gates of ${locName(state, c.location)}, Fresh.`);
+        else say('has nowhere to move on to: every other Gate is full or Lost, so he stays.');
+      }
       break;
     }
     case 'suppressInside': {
@@ -1562,7 +1621,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
         home.hand.push(t.defId);
         events.push({ type: 'info', text: `${locName(state, loc.index)}: ${charDef(t.defId).name} is found out and sent back to ${home.handle}'s hand.`, location: loc.index, player: t.plantedBy, uid: t.uid });
       }
-      clash(state, events, { kind: 'location', id: loc.defId }, t, 'defected', loc.index, { note: `The Informant was the lowest Fresh Gate Character here (${was}). Found out, they go back to ${home.handle}'s hand and can be planted again.` });
+      clash(state, events, { kind: 'location', id: loc.defId }, t, 'exposed', loc.index, { note: `The Informant was the lowest Fresh Gate Character here (${was}). Found out, they go back to ${home.handle}'s hand and can be planted again.` });
       trace('turncoat', `${locName(state, loc.index)}: ${charDef(t.defId).name} is sent home`, { uids: [t.uid], location: loc.index, player: t.plantedBy });
       continue;
     }
