@@ -361,6 +361,8 @@ export interface PlayerState {
   avatarDefId: string;
   deck: string[]; // ordered card ids; [] in redacted views
   deckCount: number;
+  /** Event cards still in this deck. Set only in the owner's own view (you know your list and what you have drawn); undefined for the opponent. */
+  deckEvents?: number;
   hand: string[]; // 'hidden' entries in redacted views
   discard: string[];
   setbacks: number;

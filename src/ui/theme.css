@@ -969,8 +969,10 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 .card .ability { padding-bottom: 0; }
 .card .card-body { padding-bottom: calc(var(--card-w) * 0.2); }
 .card.big .card-body { padding-bottom: 54px; }
-.gate-slot.event-slot.empty { grid-template-rows: auto auto; align-content: center; gap: 1px; }
+.gate-slot.event-slot.empty { grid-template-rows: auto auto auto; align-content: center; gap: 1px; }
 .gate-slot.event-slot.empty .ev-lbl { font-family: var(--display); font-size: clamp(7px, 0.62vw, 9px); letter-spacing: 0.16em; text-transform: uppercase; color: rgba(203, 184, 255, 0.85); }
+.gate-slot.event-slot.empty .ev-count { font-family: var(--display); font-size: clamp(7px, 0.55vw, 8px); letter-spacing: 0.06em; color: rgba(203, 184, 255, 0.62); white-space: nowrap; }
+.gate-slot.event-slot.empty .ev-count.spent { color: rgba(203, 184, 255, 0.35); }
 /* Informants: graphite field, blood-red ribbon; on the board the tile strip reads Informant. */
 .card.informant { --bc: #b8a48a; --bfill: linear-gradient(180deg, #3a3a44 0%, #1f1f27 50%, #121218 100%); }
 .card.informant .card-body { background: linear-gradient(180deg, #ece7dc 0%, #d9d2c2 100%); }

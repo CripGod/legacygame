@@ -1766,3 +1766,18 @@ describe('Ten more heroes', () => {
     }
   });
 });
+
+describe('Events left', () => {
+  it('your own view counts the Events still in your deck; the opponent sees nothing', () => {
+    const s = createMatch({ seed: 3 });
+    const isEvent = (id: string) => CARD_BY_ID[id]?.kind === 'event';
+    const inDeckA = s.players.A.deck.filter(isEvent).length;
+    const va = viewFor(s, 'A');
+    expect(va.players.A.deckEvents).toBe(inDeckA);
+    expect(va.players.B.deckEvents).toBeUndefined();
+    expect(va.players.A.hand.filter(isEvent).length + inDeckA + va.players.A.discard.filter(isEvent).length).toBe(2); // presets carry two
+    const vb = viewFor(s, 'B');
+    expect(vb.players.A.deckEvents).toBeUndefined();
+    expect(vb.players.B.deckEvents).toBe(s.players.B.deck.filter(isEvent).length);
+  });
+});

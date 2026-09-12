@@ -5,12 +5,15 @@
 import { cloneState } from './resolve';
 import type { GameState, PlayerId, GameEvent } from './types';
 import { other } from './types';
+import { CARD_BY_ID } from './content';
 
 export function viewFor(state: GameState, p: PlayerId): GameState {
   const v = cloneState(state);
   const opp = other(p);
   v.viewFor = p;
-  // Hidden draw order and RNG.
+  // Hidden draw order and RNG. You still know how many of your own Events are left to draw.
+  v.players[p].deckEvents = state.players[p].deck.filter((id) => CARD_BY_ID[id]?.kind === 'event').length;
+  v.players[opp].deckEvents = undefined;
   v.players.A.deck = [];
   v.players.B.deck = [];
   v.rng = { s: 0 };

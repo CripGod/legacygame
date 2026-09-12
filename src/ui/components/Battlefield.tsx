@@ -135,6 +135,10 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
   if (owner === me) for (const pl of plan.plays) if (pl.location === index && CARD_BY_ID[pl.cardId]?.kind === 'event') eventTiles.push({ cardId: pl.cardId, state: 'planned' });
   for (const pe of pendingEvents ?? []) if (pe.player === owner && pe.location === index) eventTiles.push({ cardId: pe.cardId, state: 'pending', hidden: owner !== me });
   if (eventFx && eventFx.owner === owner && eventFx.location === index) eventTiles.push({ cardId: eventFx.cardId, state: 'trigger' });
+  // Events are scarce (a deck carries at most two): the empty slot says how many you have left, hand and deck together.
+  const isEvent = (id: string) => CARD_BY_ID[id]?.kind === 'event';
+  const evLeft = view.players[me].hand.filter(isEvent).length + (view.players[me].deckEvents ?? 0);
+  const evTotal = evLeft + view.players[me].discard.filter(isEvent).length;
   return (
     <div className="gates-strip">
       <div className={`gates-left ${gOk ? 'drop-ok' : ''} ${gOver ? 'drop-over' : ''}`} {...(owner === me ? { 'data-drop': 'gates', 'data-index': index } : {})}>
@@ -190,9 +194,10 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
             <EventTile key={`ev:${t.cardId}:${n}`} cardId={t.cardId} state={t.state} hidden={t.hidden} onClick={owner === me && t.state === 'planned' ? () => onChar(`${PLANNED_PREFIX}${t.cardId}`) : undefined} />
           ))}
           {eventTiles.length === 0 && (
-            <div className="gate-slot event-slot empty" {...tip(owner === me ? 'Your Event slot here: drop an Event card on this Location. One per Location per turn.' : "Harborlight's Event slot here.")}>
+            <div className="gate-slot event-slot empty" {...tip(owner === me ? `Your Event slot here: drop an Event card on this Location. One per Location per turn. A deck carries at most two Events: you have ${evLeft} of ${evTotal} left.` : "Harborlight's Event slot here.")}>
               <span className="ini">✦</span>
               <span className="ev-lbl">Event</span>
+              {owner === me && evTotal > 0 && <span className={`ev-count ${evLeft === 0 ? 'spent' : ''}`}>{evLeft} of {evTotal}</span>}
             </div>
           )}
         </div>
