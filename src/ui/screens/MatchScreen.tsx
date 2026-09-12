@@ -503,6 +503,8 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
 
   /** Energy left after the plays already planned. */
   const energyLeft = opts.energy - planCost(plan, view, me);
+  /** Crystals to light: while planning, what is left; from Lock In through the replay, what the locked plan left (no refill until the new turn). */
+  const energyShown = planning ? energyLeft : locked ? energyLeft : m.replay ? Math.max(0, opts.energy - planCost(m.replay.plan, view, me)) : opts.energy;
 
   /** Add or move a play. Refused when it would overspend this turn's Energy. */
   function addPlay(play: { cardId: string; location: number; target?: { charUid?: string; location?: number }; enter?: boolean }) {
@@ -1005,7 +1007,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
             <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning} onClick={lockNow} title={HINTS.timer}>
               <span>{planning ? 'LOCK IN' : locked ? 'LOCKED ✓' : 'RESOLVING…'}</span>
               <i className="timer-bar" aria-hidden>
-                <b style={{ width: `${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 100}%` }} />
+                <b style={{ width: `${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 0}%` }} />
               </i>
             </button>
           )}
@@ -1013,9 +1015,9 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
             <div className="turn-text">
               {finalTurnLabel(view) ?? `Turn ${Math.min(view.turn, view.maxTurns)} / ${view.maxTurns}`}
             </div>
-            <div className="crystals" aria-label={`Energy ${planning ? energyLeft : opts.energy} of ${opts.energy}`}>
+            <div className="crystals" aria-label={`Energy ${energyShown} of ${opts.energy}`}>
               {Array.from({ length: Math.max(ENERGY_CAP, opts.energy) }, (_, i) => (
-                <i key={i} className={i < (planning ? energyLeft : opts.energy) ? 'on' : i < opts.energy ? 'used' : 'future'} />
+                <i key={i} className={i < energyShown ? 'on' : i < opts.energy ? 'used' : 'future'} />
               ))}
             </div>
           </div>
@@ -1032,7 +1034,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
             <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning} onClick={lockNow} title={HINTS.timer}>
               <span>{planning ? 'LOCK IN' : locked ? 'LOCKED ✓' : 'RESOLVING…'}</span>
               <i className="timer-bar" aria-hidden>
-                <b style={{ width: `${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 100}%` }} />
+                <b style={{ width: `${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 0}%` }} />
               </i>
             </button>
           )}
@@ -1040,7 +1042,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
             <span className="turn-text">{finalTurnLabel(view, true) ?? `T${Math.min(view.turn, view.maxTurns)}/${view.maxTurns}`}</span>
             <span className="crystals">
               {Array.from({ length: Math.max(ENERGY_CAP, opts.energy) }, (_, i) => (
-                <i key={i} className={i < (planning ? energyLeft : opts.energy) ? 'on' : i < opts.energy ? 'used' : 'future'} />
+                <i key={i} className={i < energyShown ? 'on' : i < opts.energy ? 'used' : 'future'} />
               ))}
             </span>
           </div>
