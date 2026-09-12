@@ -1288,3 +1288,10 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .float-num.mine { --pulse: 255, 227, 179; }
 .float-num.theirs { --pulse: 111, 163, 255; color: #e2ecff; }
 @keyframes float-num { 0% { opacity: 0; transform: translate(-50%, -30%) scale(0.6); } 20% { opacity: 1; transform: translate(-50%, -60%) scale(1.15); } 100% { opacity: 0; transform: translate(-50%, -160%) scale(1); } }
+
+/* ---------- Sound switches ---------- */
+.audio-ctl { display: inline-flex; gap: 5px; align-items: center; }
+.audio-btn { width: 30px; height: 26px; padding: 0; border-radius: 999px; border: 1.5px solid var(--gold-dark); background: #0a1626; color: var(--parchment); font-size: 13px; line-height: 1; display: inline-grid; place-items: center; cursor: pointer; opacity: 0.5; transition: opacity 0.2s, box-shadow 0.2s, border-color 0.2s; }
+.audio-btn:hover { opacity: 0.85; }
+.audio-btn.on { opacity: 1; border-color: var(--gold-2); box-shadow: 0 0 10px rgba(246, 215, 122, 0.35); }
+.hud-sub .audio-ctl { margin-left: 4px; }

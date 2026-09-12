@@ -1,3 +1,4 @@
+import { AudioControl } from '../components/AudioControl';
 import { useEffect, useRef, useState } from 'react';
 import { resetCoach } from '../components/Coach';
 import { resetGuide } from '../guide';
@@ -341,6 +342,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
         <Wordmark className="hero-mark" />
         <div className="hero-sub">The Black History Card Battler</div>
         <div className="hero-tag">People. Strategy. A stronger tomorrow.</div>
+        <AudioControl />
       </header>
 
       {small && (

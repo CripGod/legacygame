@@ -1,9 +1,16 @@
+import { useEffect } from 'react';
 import { influenceAt, type GameState } from '../../engine';
 import { locationName, useDisplay } from '../display';
+import { sfx } from '../audio';
 
 export function ResultScreen({ state, onAgain, onRematch, onMenu, onBoard }: { state: GameState; onAgain: () => void; onRematch: () => void; onMenu: () => void; onBoard: () => void }) {
   const { placeholders } = useDisplay();
   const r = state.result!;
+  useEffect(() => {
+    const me = state.viewFor ?? 'A';
+    sfx(r.winner === me ? 'win' : r.winner ? 'lose' : 'draw.game');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const reason: Record<string, string> = {
     locations: 'won more Locations',
     'tiebreak-influence': 'won on total Influence (1–1 with a tie)',

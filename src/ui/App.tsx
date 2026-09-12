@@ -1,4 +1,5 @@
-import { Component, useState, type ReactNode } from 'react';
+import { installAudio, musicWanted } from './audio';
+import { Component, useState, type ReactNode, useEffect } from 'react';
 import { DisplayContext } from './display';
 import { StartScreen, type StartOptions } from './screens/StartScreen';
 import { RulesScreen } from './screens/RulesScreen';
@@ -86,6 +87,11 @@ function MatchHost({ seed, mode, dev, coach, decks, tutorial, onMenu }: { seed: 
 export function App() {
   const initialDev = new URLSearchParams(window.location.search).get('dev') === '1';
   const [screen, setScreen] = useState<Screen>('start');
+  // Sound: one gesture unlocks it; the landing page and the match play the music, the reading screens fade it out.
+  useEffect(() => installAudio(), []);
+  useEffect(() => {
+    musicWanted(screen === 'start' || screen === 'match');
+  }, [screen]);
   const [opts, setOpts] = useState<StartOptions>({ mode: 'ai', placeholders: false, dev: initialDev, coach: true, deckA: 'railroad', deckB: 'blackstar' });
   const [seed, setSeed] = useState(0);
   const [matchKey, setMatchKey] = useState(0);

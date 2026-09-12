@@ -2,6 +2,7 @@
  * Pointer-based drag and drop (mouse and touch). Tap behaviour is preserved:
  * a press that moves less than the threshold is a normal click.
  */
+import { sfx } from './audio';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export type DragPayload = { kind: 'card'; cardId: string } | { kind: 'char'; uid: string };
@@ -50,6 +51,7 @@ export function useDrag(onDrop: (payload: DragPayload, target: DropTarget) => vo
       if (!s.dragging) {
         if (Math.hypot(e.clientX - s.x, e.clientY - s.y) < THRESHOLD) return;
         s.dragging = true;
+        sfx('card.pick');
       }
       e.preventDefault();
       setDrag({ payload: s.payload, x: e.clientX, y: e.clientY, over: targetAt(e.clientX, e.clientY) });

@@ -655,7 +655,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - `dayNight`: This Location has a curfew. Odd turns are day, even turns are night: at night nobody relocates out until morning. Harriet Tubman is the only one who can move a Character out.
 - `locked`: Held here: cannot relocate out. A curfew at night, or The Justice System. Harriet Tubman can still move them.
 - `informant`: Informant: a Character played onto the other side's Gates. It is theirs, its Influence counts against them there, it never becomes Ready and never enters. Relocate it, slide it with Robert Smalls, or dump it at Charleston, 1822, where it is found out and sent back to the planter's hand.
-- `event`: Event: a one-shot card. Drop it on a Location: it goes in the purple Event slot beside your Gates (one per Location per turn), works everywhere, and the Location it lands on adds a little more.
+- `event`: Event: a one-shot card, and a deck carries at most two. Drop it on a Location: it goes in the purple Event slot beside your Gates (one per Location per turn), works everywhere, and the Location it lands on adds a little more.
 - `currentInfluence`: Influence this Character currently contributes here, including bonuses and penalties.
 - `home`: Home ground: this is where the story happened, so the Character counts +1 Influence here.
 - `ready`: Ready: waited a turn at the Gates. Tap to send it Inside this turn.
@@ -807,7 +807,7 @@ Rules
 - The Ancestors are never in a deck. In one match out of four, holding three Characters Inside at Accra, Ghana brings them to your hand. Play them while planning to see your opponent's plan for the turn and every danger the board is about to spring.
 - The Tabernacle protects your Characters from displacement. Establish Richard Allen, Absalom Jones and Daniel Payne there and Black Jesus appears: sanctuary at his Location and +1 Influence to every Character you control.
 - The Justice System holds anyone who goes Inside for two turns: no relocating out.
-- Events are played into the purple Event slot under a Location (one per Location per turn; the Gates can be full). They work everywhere and the Location adds a bonus: Reparations pays +1 more in the Americas, The Ancestors bless a Location in Africa, Word of Mouth draws two where you have a crowd, Community Defense adds Force where it lands. Some cards cost 0 Energy.
+- Events are played into the purple Event slot under a Location (one per Location per turn; the Gates can be full). A deck carries at most two, and the empty slot counts yours down. They work everywhere and the Location adds a bonus: Reparations pays +1 more in the Americas, The Ancestors bless a Location in Africa, Word of Mouth draws two where you have a crowd, Community Defense adds Force where it lands. Some cards cost 0 Energy.
 - The Middle Passage has no Inside: everyone at its Gates loses 1 Influence for good each turn, and whoever leaves arrives Ready and carries +1 Influence for good. The DeWolf Trade (a Threat, 5 Force) ships the lowest Fresh Gate Character at its Location there, or to a random Location, with a Setback.
 - Informants (Peter Prioleau, George Wilson, Pharoah and Tom, Ben Woolfolk) are Characters you play onto your opponent's Gates at a Location with one of their slots open. They are theirs: their negative Influence counts against them there, they take one of their Gate slots, and they never become Ready or go Inside. Relocate one away, slide it with Robert Smalls, or let a Threat knock it away; Harriet Tubman will not conduct one. Or drop it at Charleston, 1822, where at the end of every turn the Fresh Gate Character with the lowest Influence changes sides (a tie goes against the leader): an Informant there is found out and goes back to the hand of whoever planted it. Marie Laveau's Reveal hexes the strongest opposing Gate Character at her Location: −2 Influence for the rest of the match.
 - Every deck carries at least one Mythic. The full list, with costs, is under Cards on the start screen.
@@ -831,7 +831,7 @@ Rules
 … … Influence · … Force · …
 … … Influence · … Force · …
 ### Events
-An Event is dropped on a Location the same way a Character is: it goes into the purple Event slot beside your Gates, one per Location per turn, and the Gates can be full. Its effect reaches the whole board, and the Location it lands on adds a bonus, so where you play it is a real choice.
+An Event is dropped on a Location the same way a Character is: it goes into the purple Event slot beside your Gates, one per Location per turn, and the Gates can be full. A deck carries at most two Events, so the empty slot shows how many you have left, hand and deck together. Its effect reaches the whole board, and the Location it lands on adds a bonus, so where you play it is a real choice.
 ### Locations
 ### Threats
 ← Back
@@ -1433,7 +1433,8 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - ${hd.name} ${s.held.why} when you Lock It In. The slot stays taken until then.
 - tile-glow owner-${owner} ${focus?.includes(s.uid) ? 'focus' : ''}
 - gate-slot filled owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''}
-- Your Event slot here: drop an Event card on this Location. One per Location per turn.
+- Your Event slot here: drop an Event card on this Location. One per Location per turn. A deck carries at most two Events: you have ${evLeft} of ${evTotal} left.
+- ev-count ${evLeft === 0 ? 'spent' : ''}
 - slots ${cap < INSIDE_CAPACITY ? 'restricted' : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''}
 - ${gd.name} ${g.why} when you Lock In.
 - slot ${i >= cap ? 'locked' : ''}

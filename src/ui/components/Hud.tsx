@@ -2,6 +2,7 @@ import { CARD_BY_ID, MAX_HAND, type GameState, type PlayerId, effectiveStakes } 
 import { initials, useDisplay } from '../display';
 import { tip, HINTS } from '../tip';
 import { Art } from './Art';
+import { AudioControl } from './AudioControl';
 
 export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: GameState; me: PlayerId; onProfile: (p: PlayerId) => void; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void; stand?: { on: boolean; disabled: boolean; flash?: boolean; onToggle: () => void } }) {
   const { placeholders } = useDisplay();
@@ -51,6 +52,7 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
             {view.pendingRaises.length > 0 && <em>→{effectiveStakes(view)}</em>}
             <small>legacy</small>
           </span>
+          <AudioControl />
         </div>
       </div>
       {profile('B', true)}

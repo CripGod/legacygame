@@ -10,6 +10,8 @@ import { Battlefield } from '../components/Battlefield';
 import { Hand } from '../components/Hand';
 import { Coach } from '../components/Coach';
 import { Spotlight } from '../components/Spotlight';
+import { sfx } from '../audio';
+import type { TraceStep } from '../../engine';
 import { Trails, TRAIL_COLORS, type TrailShot } from '../components/Trails';
 import { DigReveal, type DigShow, type DigPhase } from '../components/DigReveal';
 import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, SpawnSheet, ThreatSheet, AncestorsSheet, ShowdownSheet, PeekHandSheet, ClashSheet, TallySheet } from '../components/Sheets';
@@ -196,7 +198,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     }
   };
   /** Aim the lunge and the flight from the tiles' real positions, then fire the impact spray. */
-  const aimAndSpray = (actor: string | undefined, victim: string) => {
+  const aimAndSpray = (actor: string | undefined, victim: string, kind: 'hit' | 'banish' = 'hit') => {
     const a = actor ? document.querySelector(`[data-uid="${actor}"]`)?.getBoundingClientRect() : undefined;
     const v = document.querySelector(`[data-uid="${victim}"]`)?.getBoundingClientRect();
     if (v) {
@@ -206,6 +208,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       const sx = Math.sign(dx || 1);
       const spray = new DOMRect(v.left + sx * 90, v.top - 30, v.width, v.height);
       window.setTimeout(() => {
+        sfx(kind === 'banish' ? 'clash.banish' : 'clash.hit');
         setTrail([{ from: v, to: spray, color: TRAIL_COLORS.impact, noRibbon: true }]);
         setShake(true);
         window.setTimeout(() => setShake(false), 320);
@@ -232,6 +235,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     if (digEv && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       const d = (digEv.data as { dig: { seen: string[]; keep: string; hidden: boolean } }).dig;
       digKey.current += 1;
+      sfx('dig');
       setDig({ seen: d.seen, keep: d.keep, hidden: d.hidden, owner: digEv.player!, by: digEv.uid ? cardName(view.characters[digEv.uid]?.defId ?? 'zora_neale_hurston', placeholders) : undefined });
     }
     const trailEvs = evs.filter((e) => (e.data as { trail?: string } | undefined)?.trail && e.uid && e.location !== undefined);
@@ -247,6 +251,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           const tone = (e.data as { color?: string }).color;
           shots.push({ from, to, color: tone === 'artist' ? TRAIL_COLORS.artist : TRAIL_COLORS[e.player ?? 'A'], label: amount ? `+${amount}` : undefined });
         }
+        if (shots.length) sfx('trail');
         setTrail(shots.length ? shots : null);
         // When the trail lands (~1050ms): a floating +N over the Location and a pulse on its panel.
         window.setTimeout(() => landFx(trailEvs.map((e) => ({ location: e.location!, amount: (e.data as { amount?: number }).amount, tone: (e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs' }))), 1050);
@@ -261,7 +266,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       const toName = banish && d.to !== undefined ? locationName(view.locations[d.to].revealed ? view.locations[d.to].defId : 'unknown', placeholders) : undefined;
       setFx({ actor: d.actor?.uid, victim: d.victim.uid, outcome: d.outcome, kind: banish ? 'banish' : 'hit', toName });
       setClashes([]);
-      const raf = requestAnimationFrame(() => aimAndSpray(d.actor?.uid, d.victim.uid));
+      const raf = requestAnimationFrame(() => aimAndSpray(d.actor?.uid, d.victim.uid, banish ? 'banish' : 'hit'));
       const id = window.setTimeout(() => {
         setFx(null);
         setClashes(clashEvs);
@@ -281,6 +286,17 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     if (peek) setSheet({ kind: 'peek', cards: (peek.data as { peekHand: string[] }).peekHand, by: 'Omar ibn Said' });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [m.replay?.idx, m.replay?.steps]);
+  // One sound per replay beat (my own beats were heard when I planned them); strikes, trails and digs have their own cues.
+  useEffect(() => {
+    if (step && !ownBeat) beatSfx(step);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [m.replay?.idx, m.replay?.steps]);
+  const turnHeard = useRef(view.turn);
+  useEffect(() => {
+    if (m.replay || turnHeard.current === view.turn) return;
+    turnHeard.current = view.turn;
+    sfx('turn');
+  }, [view.turn, m.replay]);
   /** Advance the replay once this beat's sheets are closed. */
   useEffect(() => {
     if (!step || fx || trail || dig || clashes.length || showdowns.length || fanfare.length || sheet?.kind === 'peek') return;
@@ -305,17 +321,19 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         const to = document.querySelector(`.column[data-index="${i}"] .art`)?.getBoundingClientRect();
         if (to) shots.push({ from, to, color: TRAIL_COLORS[side as 'A' | 'B' | 'artist'], label: '+1' });
       }
+      sfx('trail');
       setTrail(shots);
       if (freezeAt === undefined) window.setTimeout(() => landFx(locs.map((location) => ({ location, amount: 1, tone: side === 'artist' ? 'artist' : side === 'A' ? 'mine' : 'theirs' }))), 1050);
     };
     (window as unknown as { __sobBanish?: (actor: string, victim: string, toName?: string) => void }).__sobBanish = (actor, victim, toName = 'Harpers Ferry') => {
       setFx({ actor, victim, outcome: 'displaced', kind: 'banish', toName });
-      requestAnimationFrame(() => aimAndSpray(actor, victim));
+      requestAnimationFrame(() => aimAndSpray(actor, victim, 'banish'));
       window.setTimeout(() => setFx(null), 1750);
     };
     (window as unknown as { __sobDig?: (seen: string[], keep: string, hidden?: boolean, freeze?: DigPhase, owner?: PlayerId) => void }).__sobDig = (seen, keep, hidden = false, freeze, owner = 'A') => {
       setDigFreeze(freeze);
       digKey.current += 1;
+      sfx('dig');
       setDig({ seen, keep, hidden, owner });
     };
   }, []);
@@ -355,6 +373,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       setToastTone('warn');
       return;
     }
+    sfx('lock');
     m.lockIn();
   };
   // Tutorial: one scripted lesson at a time; 'read' lessons modal the board out, 'do' lessons spotlight the target.
@@ -444,6 +463,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       setSheet({ kind: 'card', id: cardId });
       return;
     }
+    sfx('card.pick');
     setSelected(cardId);
   };
 
@@ -464,6 +484,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       feedback('Stand cancelled.', [], 'info');
       return;
     }
+    sfx('stand');
     setPlan((p) => ({ ...p, standOnBusiness: true }));
     feedback(`Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds a 9th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.`, [], 'info');
   };
@@ -476,6 +497,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     const pdef = CARD_BY_ID[play.cardId];
     const directEntry = pdef?.kind === 'character' && pdef.keywords.includes('DIRECT_ENTRY');
     if (directEntry && play.enter === undefined) play = { ...play, enter: true };
+    sfx('card.drop');
     const current = planRef.current.plays.filter((pl) => pl.cardId !== play.cardId);
     const spent = current.reduce((s, pl) => s + cardCost(pl.cardId, view, me), 0);
     const cost = cardCost(play.cardId, view, me);
@@ -686,7 +708,10 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       const idx = target.type === 'location' || target.type === 'inside' || target.type === 'gates' ? target.index : -1;
       if (payload.kind === 'card') {
         if (target.type === 'hand') {
-          if (ok.hand) setPlan((p) => ({ ...p, plays: p.plays.filter((pl) => pl.cardId !== payload.cardId) }));
+          if (ok.hand) {
+            sfx('card.back');
+            setPlan((p) => ({ ...p, plays: p.plays.filter((pl) => pl.cardId !== payload.cardId) }));
+          }
           return;
         }
         if (target.type === 'threat' || !ok.locations.includes(idx)) return fail();
@@ -1075,4 +1100,37 @@ function ReparationsReadout({ view, me, placeholders }: { view: GameState; me: P
       </div>
     </div>
   );
+}
+
+/** The sound for a replay beat, by what happened in it. */
+function beatSfx(step: TraceStep): void {
+  const evs = step.events;
+  if (evs.some((e) => e.type === 'lastWord')) return sfx('lastword');
+  if (evs.some((e) => e.type === 'locationLost')) return sfx('lost');
+  if (evs.some((e) => e.type === 'threatNeutralized')) return sfx('threat.clear');
+  if (evs.some((e) => e.type === 'threatSpawned')) return sfx('threat.spawn');
+  switch (step.kind) {
+    case 'play':
+    case 'event':
+      return sfx('card.drop');
+    case 'enter':
+      return sfx('enter');
+    case 'move':
+      return sfx('move');
+    case 'stand':
+    case 'stakes':
+      return sfx('stand');
+    case 'turncoat':
+      return sfx('lost');
+    case 'summon':
+      return sfx('lastword');
+    case 'spawn':
+      return sfx('threat.clear');
+    case 'reveal':
+      return sfx('turn');
+    case 'showdown':
+      return sfx('clash.hit');
+    default:
+      return;
+  }
 }

@@ -244,3 +244,7 @@
 .desktop-note-title { font-family: var(--display); font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-2); font-size: 12px; margin-bottom: 4px; }
 .cta:disabled { opacity: 0.45; cursor: not-allowed; filter: saturate(0.5); }
 .cta:disabled:hover { transform: none; }
+
+/* Sound switches under the tagline. */
+.hero .audio-ctl { margin-top: 8px; animation: rise 0.9s ease-out backwards 0.1s; }
+.hero .audio-btn { width: 34px; height: 30px; font-size: 15px; }

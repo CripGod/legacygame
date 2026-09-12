@@ -103,6 +103,14 @@ The rules live in `src/engine` and nothing else, and that is the part that carri
 
 Porting order when the time comes: engine (TypeScript to C#, mechanical; the tests in `tests/engine.test.ts` are the spec, port them first), content tables, then the UI on top of the event stream. Keep `scripts/sim.ts` alive in both worlds: balance is measured, not argued.
 
+## Audio
+
+Music and sound live in `src/ui/audio` and never touch the engine. Two switches (music, effects) sit under the tagline on the landing page and beside the legacy coin in the match, remembered in `localStorage`. The music is one looping track for now, *Echoes of the Past* (`public/audio/echoes-of-the-past.m4a`; the single-file build inlines it on `window.__AUDIO__` like the art), faded in on the landing page and the match and out on the reading screens; it starts on the first tap or key, which is when browsers allow sound.
+
+Sound effects are asked for by name (`sfx('card.drop')`), and the names are the contract: `SFX_EVENTS` in `src/ui/audio/sfx.ts` lists every cue and what it is for (tap, card pick and drop, lock, turn, enter, move, clash hit and banish, threat spawn and clear, trail, dig, stand, the Last Word, a Location lost, win, lose, draw). Buttons map themselves with `data-sfx="name"` (or `off`); any other button plays `tap`; the match plays one cue per replay beat and its own cues on strikes, trails and digs. Today every cue is synthesized with the Web Audio API, so the build carries no sound files and no licences. Swapping in a recorded library means one clip per name, and a Unity port keeps the same names as an `AudioEvent` enum mapped to `AudioClip`s (FMOD or Wwise events if middleware comes in).
+
+Libraries worth buying or downloading when the time comes, all royalty-free for games and usable in both the web build (WAV/OGG) and Unity: **Universal Sound FX** by Imphenzia (about 6,000 sounds, one purchase, on the Unity Asset Store and direct), **Pro Sound Collection** by Gamemaster Audio (about 8,000, with casino and card categories), and for free starts **Kenney's** CC0 packs (Casino Audio has card flips and chip stacks; Interface Sounds and Impact Sounds cover the rest) and the yearly **Sonniss GDC Game Audio Bundle**.
+
 ## Harborlight
 
 Harborlight receives `viewFor(state, 'B')`: no opponent hand, no unrevealed Location identities, no draw order, no RNG. It decides confrontations heuristically, then enumerates plays × entries × relocations, simulates each with `resolveTurn` (opponent passing) and scores the resulting board (win probability from per-Location Influence gaps that steepen toward the final turn, projected Established value, Threat exposure, Gate crowding). It picks the best plan ~70% of the time, a sensible alternative ~20%, and an imperfect legal plan ~10%. Stand on Business triggers above ~65% / ~80% estimated win chance with a ~7% bluff rate near even. Tuning constants are in `DEFAULT_TUNING`.

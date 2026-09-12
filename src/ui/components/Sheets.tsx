@@ -50,7 +50,7 @@ export function CardSheet({
   extra?: React.ReactNode;
 }) {
   return (
-    <CodexSheet id={id} label="In hand" onClose={onClose}>
+    <CodexSheet id={id} label="In hand" onClose={onClose} flat>
       {extra}
     </CodexSheet>
   );
@@ -60,7 +60,7 @@ export function CardSheet({
 export function CharSheet({ view, uid, onClose }: { view: GameState; uid: string; onClose: () => void }) {
   const c = view.characters[uid];
   if (!c) return null;
-  return <CodexSheet id={c.defId} label={view.players[c.owner].handle} onClose={onClose} />;
+  return <CodexSheet id={c.defId} label={view.players[c.owner].handle} onClose={onClose} flat />;
 }
 
 export function ThreatSheet({
