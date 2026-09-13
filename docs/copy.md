@@ -912,6 +912,9 @@ Main menu
 - ${(CARD_BY_ID[cardId] as { name?: string } | undefined)?.name ?? cardId} arrives.
 - moves with ${cardName(pl.cardId, placeholders)}
 - relocates to ${view.locations[r.to].revealed ? locationName(view.locations[r.to].defId, placeholders) : 
+- One Location each: total Influence decides.
+- Tied on Influence: total Force decides.
+- ${handle(winner)} wins ${r.stakes} Legacy
 - That is the move. Press Lock It In.
 - That works too. Or ${guide.text.charAt(0).toLowerCase()}${guide.text.slice(1)}
 - ${nm} cannot be played right now.
@@ -982,6 +985,7 @@ Main menu
 - Drag a card onto a Location, or tap it and then tap a Location.
 - Sit Down${opts.canStepOff && view.phase !== 'ended' ? 
 - app ${resolving ? 'resolving' : ''}
+- replay-banner kind-clash ${verdict.tone === 'win' ? 'miss' : verdict.tone === 'draw' ? 'arrive' : ''}
 - replay-banner kind-clash ${clashTell.tone}
 - replay-banner kind-${step.kind}
 - ${view.players[other(me)].handle} holds ${peekShow.cards.length} card${peekShow.cards.length > 1 ? 's' : ''}
@@ -999,6 +1003,7 @@ Main menu
 - card-flash p${arrival.owner}
 - drag-ghost ${drag.payload.kind === 'card' ? 'card-ghost' : ''} ${drag.pointerType !== 'mouse' ? 'touch' : ''} ${drag.returning ? 'returning' : ''} ${drag.snap ? 'snap' : ''}
 - Sitting down surrenders the match. ${view.players[other(me)].handle} wins ${opts.stepOffCost} Legacy.${raisedOnMe ? 
+- verdict-flash ${verdict.tone}
 - rep-readout ${n > 0 ? 'live' : ''}
 - Nothing owed yet. Every Setback you suffer from here on adds +1 (up to +4).
 - Played now: +${base} lasting Influence at the Location you choose${base < n ? ' (the cap is 4)' : ''}, and +1 more in the Americas${americas.length ? 
@@ -1558,6 +1563,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - stamp verdict ${stamp.tone ?? 'hit'}
 -  : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''}
 - Play here: ${loc.revealed ? locationName(loc.defId, placeholders) : 
+- loc-stamp ${fx.locStamp[loc.index].tone}
 - art ${loc.revealed ? 'reveal-anim' : 'hidden-art'}
 - linear-gradient(135deg, hsl(${(loc.defId.length * 47) % 360} 30% 24%), hsl(${(loc.defId.length * 47 + 60) % 360} 30% 14%))
 - ${def.name} arrives in ${Math.max(0, loc.revealedTurn + def.transformsInto.afterTurns - view.turn)} turn(s): everyone aboard gains +1 Influence and Gate Characters walk straight in.

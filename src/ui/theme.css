@@ -1301,6 +1301,22 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .peek-strip .peek-hint { font-size: 10px; color: var(--muted); }
 @keyframes peek-in { 0% { opacity: 0; transform: translate(-50%, -8px); } 100% { opacity: 1; transform: translate(-50%, 0); } }
 
+/* ---------- The Reckoning on the board ---------- */
+.location { position: relative; }
+.loc-stamp { position: absolute; left: 50%; top: 46%; z-index: 7; transform: translate(-50%, -50%) rotate(-12deg); pointer-events: none; white-space: nowrap; font-family: var(--display); font-weight: 800; font-size: clamp(16px, 1.7vw, 26px); letter-spacing: 0.16em; text-transform: uppercase; padding: 6px 16px; border: 4px solid #f4f4f4; border-radius: 6px; color: #fff; background: rgba(120, 18, 18, 0.92); box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5), 0 10px 30px rgba(0, 0, 0, 0.7); animation: stamp-slam 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.4) both; }
+.loc-stamp.mine { background: rgba(215, 164, 34, 0.95); color: #1a1200; border-color: #fff2c4; }
+.loc-stamp.theirs { background: rgba(45, 127, 249, 0.93); border-color: #dbe8ff; }
+.loc-stamp.tie { background: rgba(70, 80, 95, 0.94); }
+.verdict-flash { position: fixed; left: 50%; top: 40%; z-index: 46; pointer-events: none; transform: translate(-50%, -50%); font-family: var(--display); font-weight: 800; font-size: clamp(40px, 6.5vw, 96px); letter-spacing: 0.14em; text-transform: uppercase; color: var(--parchment); text-shadow: 0 0 30px rgba(233, 185, 58, 0.8), 0 6px 24px rgba(0, 0, 0, 0.9); animation: verdict-in 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+.verdict-flash.win { color: var(--gold-2); }
+.verdict-flash.loss { color: #ff9c96; text-shadow: 0 0 30px rgba(224, 74, 63, 0.7), 0 6px 24px rgba(0, 0, 0, 0.9); }
+@keyframes verdict-in { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.7); } 60% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .loc-stamp, .verdict-flash { animation: none; } }
+
+/* The board never changes size while you play: the hint row and the in-effect line keep one height, chips or not. */
+.in-effect, .in-effect.empty { height: 18px; min-height: 18px; }
+@media (min-width: 721px) { .hint { height: 30px; min-height: 30px; padding: 0; line-height: 30px; overflow: hidden; } }
+
 /* The verdict, stamped onto the tile once it has landed: red when the blow told, green when it was held off,
    violet for a hex. The Force readout floats up over the victim on impact. */
 .stamp.verdict { z-index: 8; top: 50%; display: grid; justify-items: center; gap: 1px; color: #fff; background: rgba(150, 20, 20, 0.92); border-color: #ffd9d9; box-shadow: 0 0 0 2px rgba(150, 20, 20, 0.6), 0 8px 24px rgba(0, 0, 0, 0.7); animation: stamp-slam 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.4) 0.05s both; }

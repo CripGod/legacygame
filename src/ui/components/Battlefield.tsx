@@ -115,6 +115,8 @@ export interface BoardFx {
   alive?: string[];
   /** The Threat breaking apart under the showdown. */
   shatter?: string;
+  /** The Reckoning: each Location takes its winner's stamp. */
+  locStamp?: Record<number, { title: string; tone: 'mine' | 'theirs' | 'lost' | 'tie' }>;
 }
 
 const picFx = (fx: BoardFx | null | undefined, uid: string): 'windup' | 'knocked' | 'held' | 'hexed' | 'land' | undefined => {
@@ -465,6 +467,7 @@ export function Battlefield(props: BattlefieldProps) {
             <GateStrip {...common} owner={opp} index={loc.index} label="Opponent Gates" right={title} />
             <div className={`loc-glow ${state}`}>
             <div className={cls}>
+              {fx?.locStamp?.[loc.index] && <div className={`loc-stamp ${fx.locStamp[loc.index].tone}`}>{fx.locStamp[loc.index].title}</div>}
               {loc.revealed && !placeholders && (
                 <div className="loc-bg" aria-hidden>
                   {nightHere ? (

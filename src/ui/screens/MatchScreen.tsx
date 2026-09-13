@@ -15,7 +15,7 @@ import type { TraceStep } from '../../engine';
 import { Trails, TRAIL_COLORS, type TrailShot } from '../components/Trails';
 import { ghostOf, fly, jolt, partWay, clearGhosts, wait, painted, type Ghost } from '../fly';
 import { DigReveal, type DigShow, type DigPhase } from '../components/DigReveal';
-import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, ThreatSheet, AncestorsSheet, TallySheet, CLASH_TITLES, adviceFor, showdownWhy, type ShowdownData } from '../components/Sheets';
+import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, ThreatSheet, AncestorsSheet, CLASH_TITLES, adviceFor, showdownWhy, type ShowdownData } from '../components/Sheets';
 import { markGuideDone, suggest } from '../guide';
 import { lessonsFor, tutorialActive } from '../tutorial';
 import { EMOTES } from '../useMatch';
@@ -183,6 +183,9 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   const [flash, setFlash] = useState<string | null>(null);
   /** Match over and the player chose to look at the final board instead of the result card. */
   const [peek, setPeek] = useState(() => m.view.phase === 'ended');
+  /** The Reckoning's verdict, once every Location has taken its stamp. */
+  const [verdict, setVerdict] = useState<{ title: string; line: string; reason: string; tone: 'win' | 'loss' | 'draw' } | null>(null);
+  const reckoned = useRef(false);
   // Explainer pop-ups (the first-match guide, the coach's tips) are off outside the tutorial: the board tells the story.
   const [guideOn, setGuideOn] = useState(false);
   const opts = useMemo(() => legalOptions(view, me), [view, me]);
@@ -769,6 +772,51 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     const id = window.setTimeout(() => setTurnFlash(null), 1150);
     return () => window.clearTimeout(id);
   }, [planning, view.turn]);
+  /**
+   * The Reckoning, on the board: once the last replay has played, each Location takes its winner's stamp, the
+   * loser's Locations first and the decisive one last, then the verdict lands over the board and the corner banner
+   * offers the result. No sheet.
+   */
+  useEffect(() => {
+    if (view.phase !== 'ended' || busy || m.replay || reckoned.current) return;
+    const r = view.result;
+    if (!r) return;
+    reckoned.current = true;
+    let cancelled = false;
+    const winner = r.winner ?? null;
+    const handle = (p: PlayerId) => view.players[p].handle;
+    const order = [0, 1, 2].sort((a, b) => {
+      const rank = (i: number) => {
+        const w = r.locationWinners[i];
+        if (winner && w === winner) return 2;
+        if (w === 'lost' || w === null) return 1;
+        return 0;
+      };
+      return rank(a) - rank(b) || a - b;
+    });
+    void (async () => {
+      await wait(600);
+      for (const i of order) {
+        if (cancelled) return;
+        const w = r.locationWinners[i];
+        const tone: 'mine' | 'theirs' | 'lost' | 'tie' = w === 'lost' ? 'lost' : w === null ? 'tie' : w === me ? 'mine' : 'theirs';
+        const title = w === 'lost' ? 'Lost' : w === null ? 'Tied' : handle(w);
+        setFx((f) => ({ ...(f ?? { hidden: [] }), locStamp: { ...(f?.locStamp ?? {}), [i]: { title, tone } } }));
+        if (tone === 'mine' || tone === 'theirs') landFx([{ location: i, tone }]);
+        sfx(w === 'lost' ? 'lost' : w === me ? 'stand' : 'card.drop');
+        await wait(1150);
+      }
+      if (cancelled) return;
+      const mineWon = winner === me;
+      const reason = r.reason === 'locations' ? 'Two of three Locations.' : r.reason === 'tiebreak-influence' ? 'One Location each: total Influence decides.' : r.reason === 'tiebreak-force' ? 'Tied on Influence: total Force decides.' : r.reason === 'stepOff' ? 'The other side sat down.' : 'Nothing separates them.';
+      setVerdict({ title: winner ? (mineWon ? 'Victory' : 'Defeat') : 'Draw', line: winner ? `${handle(winner)} wins ${r.stakes} Legacy` : 'Nobody wins the Legacy', reason, tone: winner ? (mineWon ? 'win' : 'loss') : 'draw' });
+      sfx(winner ? (mineWon ? 'win' : 'lose') : 'draw.game');
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view.phase, busy, m.replay]);
   /** Lock In, unless the plan is illegal: then say why instead of letting the engine turn it into a pass. */
   const lockNow = () => {
     const errors = validatePlan(view, me, plan);
@@ -1424,7 +1472,23 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           glowLocation={guideLocation}
           summonLabel={summonState}
         />
-        {clashTell ? (
+        {verdict ? (
+          <div className={`replay-banner kind-clash ${verdict.tone === 'win' ? 'miss' : verdict.tone === 'draw' ? 'arrive' : ''}`} role="status">
+            <span className="replay-kind">Reckoning</span>
+            <span className="replay-text">
+              {verdict.line}
+              <span className="replay-sub">{verdict.reason}</span>
+            </span>
+            <button className="small primary" onClick={onExit}>
+              See the result
+            </button>
+            {!peek && (
+              <button className="small" onClick={() => setPeek(true)}>
+                Stay on the board
+              </button>
+            )}
+          </div>
+        ) : clashTell ? (
           <div className={`replay-banner kind-clash ${clashTell.tone}`} role="status">
             <span className="replay-kind">{clashTell.title}</span>
             <span className="replay-text">
@@ -1722,7 +1786,11 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           }}
         />
       )}
-      {view.phase === 'ended' && !busy && !peek && <TallySheet view={view} me={me} onResult={onExit} onBoard={() => setPeek(true)} />}
+      {verdict && !peek && (
+        <div className={`verdict-flash ${verdict.tone}`} aria-hidden>
+          {verdict.title}
+        </div>
+      )}
     </div>
   );
 }
