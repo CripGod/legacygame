@@ -206,11 +206,16 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     const id = window.setTimeout(() => setPeekShow(null), 5000);
     return () => window.clearTimeout(id);
   }, [peekShow]);
-  /** Without a replay (Sit Down, or a resolution with no beats) only the peek is shown; the log has the rest. */
+  /**
+   * Every resolution records Omar's look for the profile, replay or not (a skipped replay never reaches the beat);
+   * without a replay (Sit Down, or a resolution with no beats) the strip shows at once. The log has the rest.
+   */
   useEffect(() => {
-    if (m.replay) return;
     const peek = m.lastTurn.find((e) => e.player === me && Array.isArray((e.data as { peekHand?: string[] } | undefined)?.peekHand));
-    if (peek) showPeek(peek);
+    if (!peek) return;
+    const cards = (peek.data as { peekHand: string[] }).peekHand;
+    setLastPeek({ turn: view.turn, cards, by: peek.uid ? cardName(view.characters[peek.uid]?.defId ?? 'omar_ibn_said', placeholders) : 'Omar ibn Said' });
+    if (!m.replay) showPeek(peek);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [m.lastTurn]);
   /** During a replay each beat queues only its own sheets; a clash plays out on the board and tells itself there. */

@@ -931,7 +931,8 @@ Main menu
 - ${nm} cannot go to ${locNameAt(i)}.
 - ${leaving.map((h) => cardName(h.defId, placeholders)).join(' and ')} still hold${leaving.length > 1 ? '' : 's'} a Gate slot at ${locNameAt(i)} until the turn resolves (new arrivals are placed before anyone enters). Play ${nm} there next turn.
 - ${col(i)} .gate-slot.reserved
-- Both of your Gate slots at ${locNameAt(i)} are taken. Send someone Inside or relocate them first.
+- ${cardName(pl.cardId, placeholders)}${pl.enter ? ' (straight Inside, but placed at the Gates first)' : ''}
+- Your ${GATE_CAPACITY} Gate slots at ${locNameAt(i)} are spoken for this turn: ${who.join(', ')}. Arrivals are all placed at the Gates before anyone walks Inside, so a card played straight Inside still needs a slot for a moment. Play ${nm} elsewhere, or take one of them back.
 - ${col(i)} .gates-left[data-drop="gates"] .gate-slot
 - ${nm} is already on the board; cards only return to your hand before they are played.
 - ${nm} is not at ${locNameAt(loc.index)}. Only Characters at a Threat's Location can confront it.

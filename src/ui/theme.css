@@ -704,10 +704,10 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
   .replay-banner .replay-count { order: 2; margin-left: auto; }
   .replay-banner button.small { order: 2; }
   @keyframes replay-in-corner { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-  .toast { position: fixed; top: auto; bottom: 226px; left: 16px; transform: none; max-width: min(32vw, 340px); }
-  .peek-strip { position: fixed; top: auto; bottom: 226px; left: 16px; transform: none; max-width: min(34vw, 360px); justify-items: start; }
+  .toast, .coach ~ .toast { position: fixed; top: auto; bottom: 226px; left: 16px; transform: none; max-width: min(32vw, 340px); }
+  .peek-strip { position: fixed; top: auto; bottom: 226px; left: 16px; transform: none; max-width: min(34vw, 360px); justify-items: start; animation-name: peek-in-corner; }
   .peek-strip .peek-cards { flex-wrap: wrap; --card-w: clamp(56px, 4.6vw, 76px); }
-  @keyframes peek-in { 0% { opacity: 0; transform: translateY(6px); } 100% { opacity: 1; transform: none; } }
+  @keyframes peek-in-corner { 0% { opacity: 0; transform: translateY(6px); } 100% { opacity: 1; transform: none; } }
 }
 .gate-slot.event-slot.facedown { background: repeating-linear-gradient(135deg, #1a1430 0 6px, #241b44 6px 12px); border-color: rgba(203, 184, 255, 0.5); }
 .gate-slot.event-slot.facedown .ini { color: #cbb8ff; font-size: calc(var(--mini) * 0.42); }
@@ -1274,6 +1274,7 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
   100% { transform: none; filter: none; }
 }
 .threat-tile .stamp.verdict { top: 44%; }
+.threat-tile:has(> .stamp.verdict) { overflow: visible; z-index: 9; }
 @media (prefers-reduced-motion: reduce) { .threat-tile.fx-hit, .threat-tile.fx-held, .threat-tile.fx-shatter { animation: none; } .threat-tile.fx-hit::after, .threat-tile.fx-held::after { animation: none; opacity: 0; } }
 
 /* ---------- Arrival: a Gathering's card flashes over the board, then flies to its tile ---------- */
