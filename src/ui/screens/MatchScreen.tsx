@@ -207,8 +207,9 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       setFx((f) => (f && f.victim === victim ? { ...f, dx, dy } : f));
       const sx = Math.sign(dx || 1);
       const spray = new DOMRect(v.left + sx * 90, v.top - 30, v.width, v.height);
+      if (kind === 'banish') sfx('clash.banish'); // the clip's bang lands about when the spray does
       window.setTimeout(() => {
-        sfx(kind === 'banish' ? 'clash.banish' : 'clash.hit');
+        if (kind !== 'banish') sfx('clash.hit');
         setTrail([{ from: v, to: spray, color: TRAIL_COLORS.impact, noRibbon: true }]);
         setShake(true);
         window.setTimeout(() => setShake(false), 320);
@@ -265,6 +266,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       const banish = d.outcome === 'displaced' && d.actor?.kind === 'character' && d.to !== undefined && !!prevView;
       const toName = banish && d.to !== undefined ? locationName(view.locations[d.to].revealed ? view.locations[d.to].defId : 'unknown', placeholders) : undefined;
       setFx({ actor: d.actor?.uid, victim: d.victim.uid, outcome: d.outcome, kind: banish ? 'banish' : 'hit', toName });
+      if (d.outcome === 'exposed' || d.outcome === 'arrested') sfx('clash.arrest'); // the Informant is already off the board: no tile to strike
       setClashes([]);
       const raf = requestAnimationFrame(() => aimAndSpray(d.actor?.uid, d.victim.uid, banish ? 'banish' : 'hit'));
       const id = window.setTimeout(() => {

@@ -956,10 +956,10 @@ Main menu
 - What happened last turn, step by step.
 - danger ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}
 - primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${doing?.lock ? 'ftue-flash' : ''}
-- ${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 100}%
+- ${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 0}%
 - turn-panel ${finalTurnLabel(view) ? 'final' : ''}
 - Turn ${Math.min(view.turn, view.maxTurns)} / ${view.maxTurns}
-- Energy ${planning ? energyLeft : opts.energy} of ${opts.energy}
+- Energy ${energyShown} of ${opts.energy}
 - danger sit-btn ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}
 - turn-mini ${finalTurnLabel(view) ? 'final' : ''}
 - T${Math.min(view.turn, view.maxTurns)}/${view.maxTurns}
