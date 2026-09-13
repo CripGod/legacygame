@@ -58,7 +58,7 @@ export const VOICE_LINES: VoiceLine[] = [
   { id: 'richard_allen', line: 'Come inside, and the word goes out.', kind: 'written', source: 'Power line: a draw when yours go Inside' },
   { id: 'david_ruggles', line: 'I have their names, and I will print every one.', kind: 'written', source: 'Power line: the Slaveholders Directory' },
   { id: 'william_still', line: 'Tell me your story. I am writing it down.', kind: 'written', source: 'Power line: the interview and the record' },
-  { id: 'desmond_tutu', line: 'Without forgiveness, there is no future.', kind: 'quote', source: 'No Future Without Forgiveness (1999)' },
+  { id: 'desmond_tutu', line: 'Without forgiveness, there is no future.', kind: 'quote', source: 'Title of his foreword to Exploring Forgiveness (1998); the closing chapter of No Future Without Forgiveness (1999) says it with a "really"' },
   { id: 'william_parker', line: 'We found out who told. He does not stay here.', kind: 'written', source: 'Power line: the arrest' },
   { id: 'lewis_hayden', line: 'Their faces on every wall, and out of this town.', kind: 'written', source: 'Power line: the placards' },
   { id: 'samuel_ajayi_crowther', line: 'I went back, and I found my mother.', kind: 'written', source: 'Power line: bringing a friend across (Abeokuta, 1846)' },
