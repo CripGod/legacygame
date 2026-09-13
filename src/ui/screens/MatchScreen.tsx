@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CARD_BY_ID, viewFor, legalOptions, validatePlan, gateRoom, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, filterEvents, LOCATION_BY_ID } from '../../engine';
+import { CARD_BY_ID, viewFor, legalOptions, validatePlan, gateRoom, GATE_CAPACITY, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, filterEvents, LOCATION_BY_ID } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight, BoardFx } from '../components/Battlefield';
@@ -1037,7 +1037,15 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           const leaving = reserved[i] ?? [];
           if (leaving.length)
             return { text: `${leaving.map((h) => cardName(h.defId, placeholders)).join(' and ')} still hold${leaving.length > 1 ? '' : 's'} a Gate slot at ${locNameAt(i)} until the turn resolves (new arrivals are placed before anyone enters). Play ${nm} there next turn.`, shake: [`${col(i)} .gate-slot.reserved`] };
-          return { text: `Both of your Gate slots at ${locNameAt(i)} are taken. Send someone Inside or relocate them first.`, shake: [`${col(i)} .gates-left[data-drop="gates"] .gate-slot`] };
+          // Every played Character is placed at the Gates before anyone walks Inside, a Direct Entry included: name who holds the slots this turn.
+          const there = charsAt(view, i, me, 'gate').map((c) => cardName(c.defId, placeholders));
+          const arriving = plan.plays.filter((pl) => pl.location === i && pl.cardId !== payload.cardId && CARD_BY_ID[pl.cardId]?.kind === 'character' && !(CARD_BY_ID[pl.cardId] as { keywords?: string[] }).keywords?.includes('INFORMANT'));
+          const arrivals = arriving.map((pl) => `${cardName(pl.cardId, placeholders)}${pl.enter ? ' (straight Inside, but placed at the Gates first)' : ''}`);
+          const who = [...there, ...arrivals];
+          return {
+            text: `Your ${GATE_CAPACITY} Gate slots at ${locNameAt(i)} are spoken for this turn: ${who.join(', ')}. Arrivals are all placed at the Gates before anyone walks Inside, so a card played straight Inside still needs a slot for a moment. Play ${nm} elsewhere, or take one of them back.`,
+            shake: [`${col(i)} .gates-left[data-drop="gates"] .gate-slot`, ...arriving.map((pl) => `[data-uid="${PLANNED_PREFIX}${pl.cardId}"]`)],
+          };
         }
         return { text: `${nm} cannot go to ${locNameAt(i)}.`, shake: [] };
       }
