@@ -69,7 +69,7 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   'threat.spawn': 'A Threat arrives.',
   'threat.clear': 'A Threat is neutralized.',
   trail: 'A power trail crosses the board (artist, aura).',
-  dig: 'Cards riffled (Zora digs).',
+  dig: 'Zora digs: three quick card flicks.',
   stand: 'Stand on Business: the stakes rise.',
   lastword: 'The Last Word begins.',
   lost: 'A Location is Lost, or someone changes sides.',
@@ -111,7 +111,7 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'threat.spawn': [{ files: ['threat-spawn'], gain: 0.8 }],
   'threat.clear': [{ files: ['threat-clear'], gain: 0.6 }],
   trail: [{ files: ['trail'], gain: 0.6 }],
-  dig: [{ files: ['dig'], gain: 0.6 }],
+  dig: [{ files: ['card-pick-1'], gain: 0.5 }, { files: ['card-pick-2'], gain: 0.5, at: 110 }, { files: ['draw'], gain: 0.5, at: 230 }], // three quick card flicks; the shuffle clip is gone
   stand: [{ files: ['stand-thud'], gain: 0.9 }, { files: ['stand-drums'], gain: 0.8 }],
   lastword: [{ files: ['lastword'], gain: 0.8 }],
   lost: [{ files: ['lost'], gain: 0.65 }],

@@ -15,11 +15,11 @@ import type { TraceStep } from '../../engine';
 import { Trails, TRAIL_COLORS, type TrailShot } from '../components/Trails';
 import { ghostOf, fly, jolt, partWay, clearGhosts, wait, painted, type Ghost } from '../fly';
 import { DigReveal, type DigShow, type DigPhase } from '../components/DigReveal';
-import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, SpawnSheet, ThreatSheet, AncestorsSheet, ShowdownSheet, PeekHandSheet, ClashSheet, TallySheet, CLASH_TITLES, adviceFor } from '../components/Sheets';
-import { guideDone, markGuideDone, suggest } from '../guide';
+import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, ThreatSheet, AncestorsSheet, TallySheet, CLASH_TITLES, adviceFor, showdownWhy, type ShowdownData } from '../components/Sheets';
+import { markGuideDone, suggest } from '../guide';
 import { lessonsFor, tutorialActive } from '../tutorial';
 import { EMOTES } from '../useMatch';
-import { cardName, locationName, useDisplay } from '../display';
+import { cardName, locationName, spawnText, useDisplay } from '../display';
 import { tip, HINTS } from '../tip';
 
 type SheetState =
@@ -44,7 +44,7 @@ const BEAT_MS: Record<string, number> = {
   revealFx: 1400,
   enter: 800,
   move: 900,
-  showdown: 1500,
+  showdown: 700,
   summon: 1200,
   threat: 1200,
   spawn: 600,
@@ -183,32 +183,41 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   const [flash, setFlash] = useState<string | null>(null);
   /** Match over and the player chose to look at the final board instead of the result card. */
   const [peek, setPeek] = useState(() => m.view.phase === 'ended');
-  const [guideOn, setGuideOn] = useState(() => coach && m.mode === 'ai' && !guideDone() && !tutorial);
+  // Explainer pop-ups (the first-match guide, the coach's tips) are off outside the tutorial: the board tells the story.
+  const [guideOn, setGuideOn] = useState(false);
   const opts = useMemo(() => legalOptions(view, me), [view, me]);
   const step = m.replay ? m.replay.steps[m.replay.idx] : null;
   /** Beats that only re-show one of your own planned moves are skipped. */
   const ownBeat = !!step && !!m.replay && step.player === me && (step.kind === 'play' || step.kind === 'enter' || (step.kind === 'move' && m.replay.plan.relocations.some((r) => step.uids?.includes(r.uid))));
-  /** Gatherings that arrived in the last resolution, shown one at a time with fanfare. */
-  const [fanfare, setFanfare] = useState<GameEvent[]>([]);
-  /** Confrontations from the last resolution, replayed as showdowns. */
-  const [showdowns, setShowdowns] = useState<GameEvent[]>([]);
-  /** Knocks, blocks and holds from the last resolution: replayed first, so the tally makes sense. */
-  const [clashes, setClashes] = useState<GameEvent[]>([]);
-  /** Without a replay (Sit Down, or a resolution with no beats), the whole turn's sheets queue at once. */
+  /** A Gathering's card, flashed over the board as it arrives (no button: it flies to its tile on its own). */
+  const [arrival, setArrival] = useState<{ cardId: string; owner: PlayerId } | null>(null);
+  /** Omar ibn Said's look at the opponent's hand: a strip over the board for a few seconds, then the profile keeps it. */
+  const [peekShow, setPeekShow] = useState<{ cards: string[]; by: string } | null>(null);
+  const [lastPeek, setLastPeek] = useState<{ turn: number; cards: string[]; by: string } | null>(null);
+  const showPeek = useCallback((ev: GameEvent) => {
+    const cards = (ev.data as { peekHand: string[] }).peekHand;
+    const by = ev.uid ? cardName(view.characters[ev.uid]?.defId ?? 'omar_ibn_said', placeholders) : 'Omar ibn Said';
+    setPeekShow({ cards, by });
+    setLastPeek({ turn: view.turn, cards, by });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, placeholders]);
+  useEffect(() => {
+    if (!peekShow) return;
+    const id = window.setTimeout(() => setPeekShow(null), 5000);
+    return () => window.clearTimeout(id);
+  }, [peekShow]);
+  /** Without a replay (Sit Down, or a resolution with no beats) only the peek is shown; the log has the rest. */
   useEffect(() => {
     if (m.replay) return;
-    setFanfare(m.lastTurn.filter((e) => e.type === 'spawned'));
-    setShowdowns(m.lastTurn.filter((e) => e.type === 'showdown'));
-    setClashes(m.lastTurn.filter((e) => e.type === 'clash'));
     const peek = m.lastTurn.find((e) => e.player === me && Array.isArray((e.data as { peekHand?: string[] } | undefined)?.peekHand));
-    if (peek) setSheet({ kind: 'peek', cards: (peek.data as { peekHand: string[] }).peekHand, by: peek.uid ? cardName(view.characters[peek.uid]?.defId ?? 'omar_ibn_said', placeholders) : 'Omar ibn Said' });
+    if (peek) showPeek(peek);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [m.lastTurn]);
   /** During a replay each beat queues only its own sheets; a clash plays out on the board and tells itself there. */
   /** The choreography's grip on the board: tiles hidden under their flying ghosts, the flash, the stamp. Non-null while a clash plays. */
   const [fx, setFx] = useState<BoardFx | null>(null);
   /** What the banner says while a clash plays: the verdict in the pill, the sentence beside it. */
-  const [clashTell, setClashTell] = useState<{ title: string; text: string; sub?: string; tone: 'hit' | 'miss' | 'hex' } | null>(null);
+  const [clashTell, setClashTell] = useState<{ title: string; text: string; sub?: string; tone: 'hit' | 'miss' | 'hex' | 'arrive' } | null>(null);
   /** The board as it stood before this beat: a clash opens on it, so every piece is still where it was struck. */
   const prevView = useMemo(() => (m.replay && m.replay.idx > 0 ? viewFor(m.replay.steps[m.replay.idx - 1].state, me) : null), [m.replay?.idx, m.replay?.steps, me]);
   const [stagePrev, setStagePrev] = useState(false);
@@ -399,6 +408,130 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     setFx((f) => (f ? { ...f, stamp: undefined, land: undefined, flash: undefined } : f));
   };
 
+  /**
+   * A showdown, told on the board: every confronting Character's ghost charges the Threat together; on impact the
+   * Force readout floats up; a neutralized Threat breaks apart into its grey tile, one that holds flashes green and
+   * takes a HOLDS stamp; the fighters drift back. The banner carries the sentence and the why.
+   */
+  const playShowdown = async (ev: GameEvent, alive: () => boolean) => {
+    const d = ev.data as ShowdownData;
+    const total = d.force.A + d.force.B;
+    const tone: 'hit' | 'miss' = d.cleared ? 'miss' : 'hit';
+    const patch = (f: BoardFx | null, p: Partial<BoardFx>): BoardFx => ({ ...(f ?? { hidden: [] }), ...p });
+    setClashTell({ title: d.cleared ? 'NEUTRALIZED' : 'HOLDS', text: ev.text, sub: showdownWhy(d, view, placeholders), tone });
+    const threatEl = tileOf(d.threatUid);
+    const fighters = d.fighters.map((f) => f.uid).filter((uid) => !!tileOf(uid));
+    if (!threatEl || reduceMotion() || !fighters.length) {
+      setFx((f) => patch(f, { alive: [], stamp: threatEl ? { uid: d.threatUid, title: d.cleared ? 'NEUTRALIZED' : 'HOLDS', sub: d.requiresBoth ? undefined : `${total} of ${d.needed}`, tone } : undefined }));
+      await wait(1800);
+      return;
+    }
+    const tRect = threatEl.getBoundingClientRect();
+    // Stage: the Threat still looks alive, the fighters' ghosts stand where they are.
+    setFx((f) => patch(f, { alive: [d.threatUid] }));
+    await painted();
+    if (!alive()) return;
+    const ghosts = fighters.map((uid) => ghostOf(tileOf(uid)!));
+    setFx((f) => patch(f, { hidden: [...(f?.hidden ?? []), ...fighters] }));
+    await painted();
+    if (!alive()) return;
+    // 1. Wind-up, all together.
+    for (const g of ghosts) g.el.querySelector('.pic')?.classList.add('fx-windup');
+    await wait(340);
+    if (!alive()) return;
+    // 2. The charge: each ghost to its own spot short of the Threat, a beat apart.
+    sfx('move');
+    await Promise.all(
+      ghosts.map((g, i) =>
+        wait(i * 70).then(() => {
+          g.el.querySelector('.pic')?.classList.remove('fx-windup');
+          g.el.classList.add('charging');
+          const spread = (i - (ghosts.length - 1) / 2) * tRect.width * 0.55;
+          const aim = new DOMRect(tRect.left + spread, tRect.top, tRect.width, tRect.height);
+          return fly(g, partWay(g.base, aim, 0.8), { ms: 280, easing: 'cubic-bezier(0.55, 0, 0.85, 0.35)', swell: 1.12, arc: 10 });
+        }),
+      ),
+    );
+    if (!alive()) return;
+    // 3. Hit stop, then impact.
+    await wait(90);
+    if (!alive()) return;
+    impactAt(tRect);
+    floatText(tRect.left + tRect.width / 2, tRect.top + tRect.height * 0.3, d.requiresBoth ? `${d.force.A} + ${d.force.B}` : `${total} vs ${d.needed}`, `clash ${d.cleared ? 'miss' : ''}`);
+    for (const g of ghosts) void jolt(g, 260, 5);
+    setFx((f) => patch(f, { flash: { uid: d.threatUid, kind: d.cleared ? 'hit' : 'held' } }));
+    await wait(240);
+    if (!alive()) return;
+    // 4. The verdict on the Threat: it breaks, or it holds.
+    if (d.cleared) {
+      sfx('threat.clear');
+      setFx((f) => patch(f, { alive: [], shatter: d.threatUid, flash: undefined }));
+    } else {
+      setFx((f) => patch(f, { flash: undefined, stamp: { uid: d.threatUid, title: 'HOLDS', sub: d.requiresBoth ? 'needs both' : `${total} of ${d.needed}`, tone: 'hit' } }));
+    }
+    // 5. The fighters drift back.
+    await Promise.all(
+      ghosts.map((g, i) =>
+        wait(60 + i * 50).then(() => {
+          g.el.classList.remove('charging');
+          const back = tileOf(fighters[i])?.getBoundingClientRect();
+          return back ? fly(g, back, { ms: d.cleared ? 640 : 460, easing: d.cleared ? 'cubic-bezier(0.15, 0.7, 0.2, 1)' : 'cubic-bezier(0.2, 0.9, 0.3, 1.25)', spin: d.cleared ? 0 : -8, remove: true }) : fly(g, g.base, { ms: 300, fade: true, remove: true });
+        }),
+      ),
+    );
+    if (!alive()) return;
+    setFx((f) => patch(f, { hidden: (f?.hidden ?? []).filter((u) => !fighters.includes(u)) }));
+    await wait(1200);
+    if (!alive()) return;
+    setFx((f) => (f ? { ...f, stamp: undefined, shatter: undefined, flash: undefined, alive: [] } : f));
+  };
+
+  /**
+   * A Gathering arrives: its card flashes over the board with the headline in the banner, then flies to its tile
+   * (or to the hand it joins) and the real tile pops in. No button; the replay moves on by itself.
+   */
+  const playArrival = async (ev: GameEvent, alive: () => boolean) => {
+    if (!ev.cardId || !ev.player) return;
+    const def = CARD_BY_ID[ev.cardId] as { name?: string; spawn?: Parameters<typeof spawnText>[0] } | undefined;
+    if (!def) return;
+    const mine = ev.player === me;
+    const zone = (ev.data as { zone?: string } | undefined)?.zone;
+    const patch = (f: BoardFx | null, p: Partial<BoardFx>): BoardFx => ({ ...(f ?? { hidden: [] }), ...p });
+    const rule = def.spawn ? spawnText(def.spawn).replace('Not in any deck. ', '') : '';
+    setClashTell({ title: 'ARRIVAL', text: ev.text, sub: `${mine ? 'Yours now. ' : `${view.players[ev.player].handle}'s. `}${zone === 'hand' ? 'It is in the hand now and costs nothing.' : rule}`.trim(), tone: 'arrive' });
+    if (ev.uid) setFx((f) => patch(f, { hidden: [...(f?.hidden ?? []), ev.uid!] }));
+    setArrival({ cardId: ev.cardId, owner: ev.player });
+    await painted();
+    if (!alive()) return;
+    await wait(reduceMotion() ? 1800 : 1500);
+    if (!alive()) return;
+    const el = document.querySelector('.card-flash .card');
+    const dest = ev.uid ? tileOf(ev.uid)?.getBoundingClientRect() : (() => {
+      const h = mine ? document.querySelector('.hand') : document.querySelector(`.profile.p${ev.player}`);
+      if (!h) return undefined;
+      const r = h.getBoundingClientRect();
+      return new DOMRect(r.left + r.width / 2 - 30, r.top + r.height / 2 - 30, 60, 60);
+    })();
+    if (el && dest && !reduceMotion()) {
+      const g = ghostOf(el);
+      setArrival(null);
+      await painted();
+      await fly(g, dest, { ms: 650, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)', arc: 30, fade: !ev.uid, remove: true });
+    } else {
+      setArrival(null);
+    }
+    if (!alive()) return;
+    if (ev.uid && tileOf(ev.uid)) {
+      sfx('card.drop');
+      setFx((f) => patch(f, { hidden: (f?.hidden ?? []).filter((u) => u !== ev.uid), land: ev.uid }));
+    } else {
+      setFx((f) => patch(f, { hidden: (f?.hidden ?? []).filter((u) => u !== ev.uid) }));
+    }
+    await wait(900);
+    if (!alive()) return;
+    setFx((f) => (f ? { ...f, land: undefined } : f));
+  };
+
   useEffect(() => {
     if (!step) return;
     const evs = filterEvents(step.events, me);
@@ -413,12 +546,11 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     }
     const trailEvs = evs.filter((e) => (e.data as { trail?: string } | undefined)?.trail && e.uid && e.location !== undefined);
     const clashEvs = evs.filter((e) => e.type === 'clash');
+    const showdownEvs = evs.filter((e) => e.type === 'showdown');
+    const arrivalEvs = evs.filter((e) => e.type === 'spawned' && !!e.cardId && !!e.player);
     const finish = () => {
-      setClashes([]);
-      setShowdowns(evs.filter((e) => e.type === 'showdown'));
-      setFanfare(evs.filter((e) => e.type === 'spawned'));
       const peek = evs.find((e) => e.player === me && Array.isArray((e.data as { peekHand?: string[] } | undefined)?.peekHand));
-      if (peek) setSheet({ kind: 'peek', cards: (peek.data as { peekHand: string[] }).peekHand, by: 'Omar ibn Said' });
+      if (peek) showPeek(peek);
     };
     const run = async () => {
       if (trailEvs.length && !reduceMotion()) {
@@ -471,6 +603,21 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         setFx(null);
         setClashTell(null);
       }
+      if (showdownEvs.length || arrivalEvs.length) {
+        setFx((f) => f ?? { hidden: [] });
+        for (const ev of showdownEvs) {
+          if (!alive()) return;
+          await playShowdown(ev, alive);
+        }
+        for (const ev of arrivalEvs) {
+          if (!alive()) return;
+          await playArrival(ev, alive);
+        }
+        if (!alive()) return;
+        clearGhosts();
+        setFx(null);
+        setClashTell(null);
+      }
       finish();
     };
     void run();
@@ -480,6 +627,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       setStagePrev(false);
       setFx(null);
       setClashTell(null);
+      setArrival(null);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [m.replay?.idx, m.replay?.steps]);
@@ -499,19 +647,19 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   }, [view.turn, m.replay]);
   /** Advance the replay once this beat's sheets are closed. */
   useEffect(() => {
-    if (!step || fx || trail || dig || clashes.length || showdowns.length || fanfare.length || sheet?.kind === 'peek') return;
+    if (!step || fx || trail || dig || arrival || peekShow) return;
     const ms = ownBeat ? 0 : BEAT_MS[step.kind] ?? 900;
     const id = window.setTimeout(m.replayNext, ms);
     return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [m.replay?.idx, m.replay?.steps, clashes.length, showdowns.length, fanfare.length, sheet?.kind, fx, trail, dig]);
+  }, [m.replay?.idx, m.replay?.steps, arrival, peekShow, fx, trail, dig]);
   useEffect(() => {
     document.body.classList.toggle('board-shake', shake);
     return () => document.body.classList.remove('board-shake');
   }, [shake]);
   /** Dev: preview a trail from a Character tile to Locations without playing to it (window.__sobTrail(uid, [0, 2])). */
-  const devRef = useRef({ view, playClash });
-  devRef.current = { view, playClash };
+  const devRef = useRef({ view, playClash, playArrival });
+  devRef.current = { view, playClash, playArrival };
   useEffect(() => {
     if (!window.location.search.includes('dev=1')) return;
     (window as unknown as { __sobTrail?: (uid: string, locs: number[], side?: 'A' | 'B' | 'artist', freezeAt?: number) => void }).__sobTrail = (uid, locs, side = 'A', freezeAt) => {
@@ -546,6 +694,17 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       void (async () => {
         await painted();
         await playClash(ev, ghosts, () => true, true, STAYS.has(outcome) ? undefined : dest ? new DOMRect(dest.left + dest.width / 2 - 40, dest.top, 80, 80) : undefined);
+        clearGhosts();
+        setFx(null);
+        setClashTell(null);
+      })();
+    };
+    /** Dev: a Gathering's arrival flash (window.__sobArrival('chairteenth', uidOnBoard?)). */
+    (window as unknown as { __sobArrival?: (cardId: string, uid?: string) => void }).__sobArrival = (cardId, uid) => {
+      const ev: GameEvent = { type: 'spawned', text: `${(CARD_BY_ID[cardId] as { name?: string } | undefined)?.name ?? cardId} arrives.`, player: 'A', cardId, uid, location: 0, data: { zone: uid ? 'gate' : 'hand' } };
+      void (async () => {
+        setFx({ hidden: [] });
+        await devRef.current.playArrival(ev, () => true);
         clearGhosts();
         setFx(null);
         setClashTell(null);
@@ -618,8 +777,6 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     if (lesson?.kind === 'do' && lesson.done(view, plan)) setTutIdx((i) => i + 1);
   }, [lesson, view, plan]);
   const doing = lesson?.kind === 'do' ? lesson : null;
-  /** Sheets show while the board is settled, or beat by beat during a replay. */
-  const sheetsOk = !busy || !!m.replay;
 
 
   // First-turn guide: suggest a concrete move and glow the pieces involved.
@@ -1280,12 +1437,27 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
             </span>
           </div>
         ) : null}
+        {peekShow && (
+          <div className="peek-strip" role="status" onClick={() => setPeekShow(null)}>
+            <div className="peek-cap">
+              {peekShow.by} reads the room: {peekShow.cards.length ? `${view.players[other(me)].handle} holds ${peekShow.cards.length} card${peekShow.cards.length > 1 ? 's' : ''}` : `${view.players[other(me)].handle} holds nothing`}
+            </div>
+            {peekShow.cards.length > 0 && (
+              <div className="peek-cards">
+                {peekShow.cards.map((id, i) => (
+                  <CardFace key={`${id}-${i}`} id={id} />
+                ))}
+              </div>
+            )}
+            <div className="peek-hint">Kept in {view.players[other(me)].handle}'s profile · tap to dismiss</div>
+          </div>
+        )}
         {turnFlash !== null && (
           <div className="turn-flash" key={turnFlash} aria-hidden>
             {finalTurnLabel(view) ?? `Turn ${turnFlash}`}
           </div>
         )}
-        <Coach view={view} me={me} plan={plan} enabled={coach && planning && m.mode === 'ai' && !guide && !lesson} onActive={setFlash} override={doing ? null : guideText} />
+        <Coach view={view} me={me} plan={plan} enabled={coach && tutorial && planning && m.mode === 'ai' && !guide && !lesson} onActive={setFlash} override={doing ? null : guideText} />
         <Spotlight active={planning && !drag && (flash !== null || guide !== null || !!doing)} />
         {doing && (
           <div className="sheet tut-sheet tut-do" role="status" aria-label="Tutorial">
@@ -1410,6 +1582,11 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         </div>
       </div>
 
+      {arrival && (
+        <div className={`card-flash p${arrival.owner}`} aria-hidden>
+          <CardFace id={arrival.cardId} big />
+        </div>
+      )}
       {drag && (
         <div
           className={`drag-ghost ${drag.payload.kind === 'card' ? 'card-ghost' : ''} ${drag.pointerType !== 'mouse' ? 'touch' : ''} ${drag.returning ? 'returning' : ''} ${drag.snap ? 'snap' : ''}`}
@@ -1489,8 +1666,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       )}
       {sheet?.kind === 'log' && <LogSheet events={m.lastTurn} turn={Math.max(1, view.turn - (view.phase === 'ended' ? 0 : 1))} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'ancestors' && <AncestorsSheet view={view} me={me} plan={m.peekAiPlan()} onClose={() => setSheet(null)} />}
-      {sheet?.kind === 'peek' && <PeekHandSheet cards={sheet.cards} by={sheet.by} opponent={view.players[other(me)].handle} onClose={() => setSheet(null)} />}
-      {sheet?.kind === 'profile' && <ProfileSheet view={view} p={sheet.p} me={me} onClose={() => setSheet(null)} />}
+      {sheet?.kind === 'profile' && <ProfileSheet view={view} p={sheet.p} me={me} onClose={() => setSheet(null)} peek={sheet.p !== me && lastPeek ? lastPeek : undefined} />}
       {sheet?.kind === 'stepOff' && (
         <ConfirmSheet
           title="Sit Down?"
@@ -1505,10 +1681,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           }}
         />
       )}
-      {clashes.length > 0 && sheetsOk && <ClashSheet key={`${clashes[0].uid}-${clashes.length}`} ev={clashes[0]} view={view} me={me} onClose={() => setClashes((c) => c.slice(1))} />}
-      {clashes.length === 0 && showdowns.length > 0 && sheetsOk && <ShowdownSheet ev={showdowns[0]} view={view} me={me} onClose={() => setShowdowns((s) => s.slice(1))} />}
-      {clashes.length === 0 && showdowns.length === 0 && fanfare.length > 0 && sheetsOk && view.phase !== 'ended' && <SpawnSheet ev={fanfare[0]} view={view} me={me} onClose={() => setFanfare((f) => f.slice(1))} />}
-      {view.phase === 'ended' && !busy && !peek && clashes.length === 0 && showdowns.length === 0 && <TallySheet view={view} me={me} onResult={onExit} onBoard={() => setPeek(true)} />}
+      {view.phase === 'ended' && !busy && !peek && <TallySheet view={view} me={me} onResult={onExit} onBoard={() => setPeek(true)} />}
     </div>
   );
 }

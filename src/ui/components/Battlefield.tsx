@@ -111,6 +111,10 @@ export interface BoardFx {
   flash?: { uid: string; kind: 'hit' | 'held' | 'hexed' };
   stamp?: { uid: string; title: string; sub?: string; tone?: 'hit' | 'miss' | 'hex' };
   land?: string;
+  /** Threats neutralized this beat that still look alive: the showdown has not reached them yet. */
+  alive?: string[];
+  /** The Threat breaking apart under the showdown. */
+  shatter?: string;
 }
 
 const picFx = (fx: BoardFx | null | undefined, uid: string): 'windup' | 'knocked' | 'held' | 'hexed' | 'land' | undefined => {
@@ -284,7 +288,7 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
 }
 
 /** A Threat as a portrait tile beside the Inside rows: art, the Force it needs, its name, and who it is aimed at. */
-function ThreatTile({ t, view, me, plan, drop, flash, onThreat, gone, hidden }: { t: ThreatInstance; view: GameState; me: PlayerId; plan: TurnPlan; drop?: BattlefieldProps['drop']; flash?: BattlefieldProps['flash']; onThreat: (uid: string) => void; gone?: boolean; hidden?: boolean }) {
+function ThreatTile({ t, view, me, plan, drop, flash, onThreat, gone, hidden, hit, shatter, stamp }: { t: ThreatInstance; view: GameState; me: PlayerId; plan: TurnPlan; drop?: BattlefieldProps['drop']; flash?: BattlefieldProps['flash']; onThreat: (uid: string) => void; gone?: boolean; hidden?: boolean; /** The showdown's blow lands: a red flash when it tells, green when the Threat shrugs it off. */ hit?: 'hit' | 'held' | 'hexed'; shatter?: boolean; stamp?: BoardFx['stamp'] }) {
   const { placeholders } = useDisplay();
   const tdef = THREAT_BY_ID[t.defId];
   const confronting = !gone && plan.confronts.some((c) => c.threatUid === t.uid);
@@ -305,7 +309,7 @@ function ThreatTile({ t, view, me, plan, drop, flash, onThreat, gone, hidden }: 
     <div
       data-drop={gone ? undefined : 'threat'}
       data-threat={t.uid}
-      className={`threat-tile ${who} ${fresh ? 'fresh' : ''} ${gone ? 'gone' : ''} ${confronting ? 'confronting' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' && !gone ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''} ${hidden ? 'fx-hidden' : ''}`}
+      className={`threat-tile ${who} ${fresh ? 'fresh' : ''} ${gone ? 'gone' : ''} ${confronting ? 'confronting' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' && !gone ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''} ${hidden ? 'fx-hidden' : ''} ${hit ? `fx-${hit}` : ''} ${shatter ? 'fx-shatter' : ''}`}
       onClick={(e) => {
         e.stopPropagation();
         if (!gone) onThreat(t.uid);
@@ -316,7 +320,14 @@ function ThreatTile({ t, view, me, plan, drop, flash, onThreat, gone, hidden }: 
       <b className="threat-need">{tdef.requiresBoth ? 'both' : committed > 0 ? `${committed}/${need}` : need}</b>
       <div className="threat-name">{threatLabel(t.defId, placeholders)}</div>
       <div className="threat-who">{who === 'yours' ? 'Yours' : who === 'theirs' ? 'Theirs' : 'In the area'}</div>
-      {gone && <div className="stamp">Neutralized</div>}
+      {stamp ? (
+        <div className={`stamp verdict ${stamp.tone ?? 'hit'}`}>
+          <b>{stamp.title}</b>
+          {stamp.sub && <i>{stamp.sub}</i>}
+        </div>
+      ) : (
+        gone && <div className="stamp">Neutralized</div>
+      )}
     </div>
   );
 }
@@ -516,10 +527,10 @@ export function Battlefield(props: BattlefieldProps) {
                     {/* The column is always reserved, so the rows never change shape; empty, it shows the Location's art. */}
                     <div className={`threat-col ${has ? '' : 'empty'}`} aria-hidden={!has}>
                       {live.map((t) => (
-                        <ThreatTile key={t.uid} t={t} view={view} me={me} plan={plan} drop={drop} flash={flash === 'threat' && glowLocation !== null && glowLocation !== undefined && glowLocation !== loc.index ? null : flash} onThreat={onThreat} hidden={fx?.hidden.includes(t.uid)} />
+                        <ThreatTile key={t.uid} t={t} view={view} me={me} plan={plan} drop={drop} flash={flash === 'threat' && glowLocation !== null && glowLocation !== undefined && glowLocation !== loc.index ? null : flash} onThreat={onThreat} hidden={fx?.hidden.includes(t.uid)} hit={fx?.flash?.uid === t.uid ? fx.flash.kind : undefined} stamp={fx?.stamp?.uid === t.uid ? fx.stamp : undefined} />
                       ))}
                       {ghosts.map((t) => (
-                        <ThreatTile key={`gone:${t.uid}`} t={t} view={view} me={me} plan={plan} onThreat={onThreat} gone />
+                        <ThreatTile key={`gone:${t.uid}`} t={t} view={view} me={me} plan={plan} onThreat={onThreat} gone={!fx?.alive?.includes(t.uid)} hidden={fx?.hidden.includes(t.uid)} hit={fx?.flash?.uid === t.uid ? fx.flash.kind : undefined} shatter={fx?.shatter === t.uid} stamp={fx?.stamp?.uid === t.uid ? fx.stamp : undefined} />
                       ))}
                     </div>
                   </div>

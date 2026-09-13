@@ -902,10 +902,14 @@ Main menu
 - cubic-bezier(0.2, 0.9, 0.3, 1.25)
 - cubic-bezier(0.15, 0.7, 0.2, 1)
 - cubic-bezier(0.25, 0.75, 0.3, 1)
+- clash ${d.cleared ? 'miss' : ''}
+- cubic-bezier(0.2, 0.8, 0.2, 1)
 - .column[data-index="${e.location}"] .art
 - .column[data-index="${i}"] .art
 - ${adef.name} beats ${vdef.name} (${adef.force} Force against ${vdef.force}) and knocks them away to the Gates of another Location.
 - .column[data-index="${to}"] .gates
+- s arrival flash (window.__sobArrival(
+- ${(CARD_BY_ID[cardId] as { name?: string } | undefined)?.name ?? cardId} arrives.
 - moves with ${cardName(pl.cardId, placeholders)}
 - relocates to ${view.locations[r.to].revealed ? locationName(view.locations[r.to].defId, placeholders) : 
 - That is the move. Press Lock It In.
@@ -979,6 +983,8 @@ Main menu
 - app ${resolving ? 'resolving' : ''}
 - replay-banner kind-clash ${clashTell.tone}
 - replay-banner kind-${step.kind}
+- ${view.players[other(me)].handle} holds ${peekShow.cards.length} card${peekShow.cards.length > 1 ? 's' : ''}
+- ${view.players[other(me)].handle} holds nothing
 - What happened last turn, step by step.
 - danger ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}
 - primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${doing?.lock ? 'ftue-flash' : ''}
@@ -989,6 +995,7 @@ Main menu
 - danger sit-btn ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}
 - turn-mini ${finalTurnLabel(view) ? 'final' : ''}
 - T${Math.min(view.turn, view.maxTurns)}/${view.maxTurns}
+- card-flash p${arrival.owner}
 - drag-ghost ${drag.payload.kind === 'card' ? 'card-ghost' : ''} ${drag.pointerType !== 'mouse' ? 'touch' : ''} ${drag.returning ? 'returning' : ''} ${drag.snap ? 'snap' : ''}
 - Sitting down surrenders the match. ${view.players[other(me)].handle} wins ${opts.stepOffCost} Legacy.${raisedOnMe ? 
 - rep-readout ${n > 0 ? 'live' : ''}
@@ -1008,6 +1015,8 @@ Main menu
 - ${locationName(def.id, placeholders)} (opens next)
 - Location ${index + 1} (hidden)
 - ${locationName(def.id, placeholders)} opens here
+- ${ps.handle} was holding ${peek.cards.length} card${peek.cards.length > 1 ? 's' : ''}. They draw one each turn.
+- ${ps.handle} was holding nothing.
 - stand-title ${mine ? 'pA' : 'pB'}
 - It is in your hand now. It costs nothing. Play it when you want to know what is coming.
 - } at ${loc ? locationName(loc.defId, false) : 
@@ -1114,6 +1123,30 @@ export function AncestorsSheet({ view, me, plan, onClose }: { view: GameState; m
 }
 
 /** A confrontation replayed as a showdown: fighters on one side, the Threat on the other, and a plain-words account of why it broke or held. */
+/** The showdown's one-sentence why, as the board's banner tells it (and the sheet before it). */
+export type ShowdownData = { threatUid: string; defId: string; needed: number; requiresBoth: boolean; force: { A: number; B: number }; fighters: { uid: string; defId: string; owner: PlayerId; force: number }[]; cleared: boolean };
+export function showdownWhy(d: ShowdownData, view: GameState, placeholders: boolean): string {
+  const total = d.force.A + d.force.B;
+  const handle = (p: PlayerId) => view.players[p].handle;
+  const names = (p: PlayerId) =>
+    d.fighters
+      .filter((f) => f.owner === p)
+      .map((f) => 
+- )
+      .join(', ');
+  const tname = threatLabel(d.defId, placeholders);
+  if (d.requiresBoth) {
+    const showedA = d.force.A > 0;
+    if (d.cleared) return 
+- ;
+    const who: PlayerId = showedA ? 'A' : 'B';
+    return 
+- ;
+  }
+  const parts = (['A', 'B'] as PlayerId[]).filter((p) => d.force[p] > 0).map((p) => 
+- ;
+}
+
 export function ShowdownSheet({ ev, view, me, onClose }: { ev: GameEvent; view: GameState; me: PlayerId; onClose: () => void }) {
   const [dap] = useState(() => Math.floor(Math.random() * DAP.length));
   const { placeholders } = useDisplay();
@@ -1512,10 +1545,14 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - ${gd.name} ${g.why} when you Lock In.
 - slot ${i >= cap ? 'locked' : ''}
 - slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''} ${fx?.hidden.includes(c.uid) ? 'fx-hidden' : ''}
-- threat-tile ${who} ${fresh ? 'fresh' : ''} ${gone ? 'gone' : ''} ${confronting ? 'confronting' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' && !gone ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''} ${hidden ? 'fx-hidden' : ''}
+- s blow lands: a red flash when it tells, green when the Threat shrugs it off. */ hit?: 
+- ; shatter?: boolean; stamp?: BoardFx[
+- threat-tile ${who} ${fresh ? 'fresh' : ''} ${gone ? 'gone' : ''} ${confronting ? 'confronting' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' && !gone ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''} ${hidden ? 'fx-hidden' : ''} ${hit ? 
+-  : ''} ${shatter ? 'fx-shatter' : ''}
 - ${tdef.name}: in the area, either player can confront it. ${tdef.text}
 - ${tdef.name}, aimed at you. ${tdef.text}
 - ${tdef.name}, aimed at ${view.players[other(me)].handle}. ${tdef.text}
+- stamp verdict ${stamp.tone ?? 'hit'}
 -  : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''}
 - Play here: ${loc.revealed ? locationName(loc.defId, placeholders) : 
 - art ${loc.revealed ? 'reveal-anim' : 'hidden-art'}

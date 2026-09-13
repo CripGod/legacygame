@@ -200,7 +200,7 @@ export function LocationSheet({ view, index, onClose }: { view: GameState; index
 
 /** Harriet Tubman's Reveal needs a friendly Gate Character and a destination. */
 
-export function ProfileSheet({ view, p, me, onClose }: { view: GameState; p: PlayerId; me: PlayerId; onClose: () => void }) {
+export function ProfileSheet({ view, p, me, onClose, peek }: { view: GameState; p: PlayerId; me: PlayerId; onClose: () => void; /** Omar ibn Said's last look at this player's hand. */ peek?: { turn: number; cards: string[]; by: string } }) {
   const { placeholders } = useDisplay();
   const ps = view.players[p];
   const av = CARD_BY_ID[ps.avatarDefId];
@@ -237,6 +237,18 @@ export function ProfileSheet({ view, p, me, onClose }: { view: GameState; p: Pla
       </table>
       {p === me && ps.hand.length > 0 && (
         <div className="muted">Your hand: {ps.hand.map((id) => cardName(id, placeholders)).join(', ')}</div>
+      )}
+      {p !== me && peek && (
+        <>
+          <div className="muted">
+            {peek.by} read the room on turn {peek.turn}: {peek.cards.length ? `${ps.handle} was holding ${peek.cards.length} card${peek.cards.length > 1 ? 's' : ''}. They draw one each turn.` : `${ps.handle} was holding nothing.`}
+          </div>
+          <div className="card-grid">
+            {peek.cards.map((id, i) => (
+              <CardFace key={`${id}-${i}`} id={id} />
+            ))}
+          </div>
+        </>
       )}
     </Sheet>
   );
@@ -402,6 +414,28 @@ export function AncestorsSheet({ view, me, plan, onClose }: { view: GameState; m
 }
 
 /** A confrontation replayed as a showdown: fighters on one side, the Threat on the other, and a plain-words account of why it broke or held. */
+/** The showdown's one-sentence why, as the board's banner tells it (and the sheet before it). */
+export type ShowdownData = { threatUid: string; defId: string; needed: number; requiresBoth: boolean; force: { A: number; B: number }; fighters: { uid: string; defId: string; owner: PlayerId; force: number }[]; cleared: boolean };
+export function showdownWhy(d: ShowdownData, view: GameState, placeholders: boolean): string {
+  const total = d.force.A + d.force.B;
+  const handle = (p: PlayerId) => view.players[p].handle;
+  const names = (p: PlayerId) =>
+    d.fighters
+      .filter((f) => f.owner === p)
+      .map((f) => `${cardName(f.defId, placeholders)} ${f.force}`)
+      .join(', ');
+  const tname = threatLabel(d.defId, placeholders);
+  if (d.requiresBoth) {
+    const showedA = d.force.A > 0;
+    if (d.cleared) return `${tname} only breaks when both players confront it in the same turn. Both did: ${handle('A')} sent ${names('A')} and ${handle('B')} sent ${names('B')}.`;
+    const who: PlayerId = showedA ? 'A' : 'B';
+    return `${tname} only breaks when both players confront it in the same turn. ${handle(who)} showed up (${names(who)}) but ${handle(other(who))} sent nobody. Force does not carry over.`;
+  }
+  const parts = (['A', 'B'] as PlayerId[]).filter((p) => d.force[p] > 0).map((p) => `${handle(p)}: ${names(p)}`);
+  if (d.cleared) return `It needed ${d.needed} Force in one turn and got ${total}. ${parts.join('. ')}.`;
+  return `It needed ${d.needed} Force in one turn and only got ${total} (${parts.join('; ')}). Force does not carry over: next time commit ${d.needed - total} more, from either side or both.`;
+}
+
 export function ShowdownSheet({ ev, view, me, onClose }: { ev: GameEvent; view: GameState; me: PlayerId; onClose: () => void }) {
   const [dap] = useState(() => Math.floor(Math.random() * DAP.length));
   const { placeholders } = useDisplay();
