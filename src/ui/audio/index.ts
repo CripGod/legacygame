@@ -1,9 +1,10 @@
 import { musicUnlock, musicWanted, syncMusic, MUSIC_TRACK, musicIsPlaying } from './music';
 import { sfx, sfxUnlock, sfxReady, SFX_EVENTS, type SfxName } from './sfx';
 import { getAudioSettings, setAudioSettings, useAudioSettings, type AudioSettings } from './settings';
+import { voice, VOICE_LINES, type VoiceLine } from './voice';
 
-export { sfx, sfxUnlock, sfxReady, SFX_EVENTS, musicWanted, syncMusic, MUSIC_TRACK, musicIsPlaying, getAudioSettings, setAudioSettings, useAudioSettings };
-export type { SfxName, AudioSettings };
+export { sfx, sfxUnlock, sfxReady, SFX_EVENTS, musicWanted, syncMusic, MUSIC_TRACK, musicIsPlaying, getAudioSettings, setAudioSettings, useAudioSettings, voice, VOICE_LINES };
+export type { SfxName, AudioSettings, VoiceLine };
 
 let installed = false;
 

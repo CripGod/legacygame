@@ -10,7 +10,7 @@ import { Battlefield } from '../components/Battlefield';
 import { Hand } from '../components/Hand';
 import { Coach } from '../components/Coach';
 import { Spotlight } from '../components/Spotlight';
-import { sfx } from '../audio';
+import { sfx, voice } from '../audio';
 import type { TraceStep } from '../../engine';
 import { Trails, TRAIL_COLORS, type TrailShot } from '../components/Trails';
 import { DigReveal, type DigShow, type DigPhase } from '../components/DigReveal';
@@ -175,6 +175,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   const [shake, setShake] = useState(false);
   /** A power lands on a Location: its panel pulses in the power's colour and a +N floats up over its name. */
   const landFx = (items: { location: number; amount?: number; tone: 'artist' | 'mine' | 'theirs' }[]) => {
+    if (items.some((it) => it.amount)) sfx('influence.up');
     for (const it of items) {
       const col = document.querySelector(`.column[data-index="${it.location}"]`);
       const art = col?.querySelector('.art');
@@ -290,7 +291,10 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   }, [m.replay?.idx, m.replay?.steps]);
   // One sound per replay beat (my own beats were heard when I planned them); strikes, trails and digs have their own cues.
   useEffect(() => {
-    if (step && !ownBeat) beatSfx(step);
+    if (step && !ownBeat) {
+      beatSfx(step);
+      if (step.kind === 'play' && step.cardId) voice(step.cardId);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [m.replay?.idx, m.replay?.steps]);
   const turnHeard = useRef(view.turn);
@@ -513,7 +517,8 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     const pdef = CARD_BY_ID[play.cardId];
     const directEntry = pdef?.kind === 'character' && pdef.keywords.includes('DIRECT_ENTRY');
     if (directEntry && play.enter === undefined) play = { ...play, enter: true };
-    sfx('card.drop');
+    sfx(play.enter ? 'card.inside' : 'card.drop');
+    voice(play.cardId);
     const current = planRef.current.plays.filter((pl) => pl.cardId !== play.cardId);
     const spent = current.reduce((s, pl) => s + cardCost(pl.cardId, view, me), 0);
     const cost = cardCost(play.cardId, view, me);

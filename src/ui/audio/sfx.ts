@@ -1,4 +1,5 @@
 import { getAudioSettings } from './settings';
+import { voiceAttach } from './voice';
 
 /**
  * Sound effects. Every sound has a name, and the game asks for sounds by name: `sfx('card.drop')`.
@@ -15,6 +16,8 @@ export type SfxName =
   | 'card.pick'
   | 'card.drop'
   | 'card.back'
+  | 'card.inside'
+  | 'influence.up'
   | 'lock'
   | 'turn'
   | 'draw'
@@ -41,8 +44,10 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   'card.pick': 'A hand card selected or picked up.',
   'card.drop': 'A card lands on a Location (planned, or placed at the Gates in the replay).',
   'card.back': 'A planned card taken back to the hand.',
+  'card.inside': 'A card planned straight Inside (Direct Entry, or dropped on the Inside row).',
+  'influence.up': 'Influence goes up: a Character walks Inside, or a +N floats over a Location.',
   lock: 'Lock It In.',
-  turn: 'A new turn begins.',
+  turn: 'A new turn begins: the new card is dealt (a shuffle).',
   draw: 'You draw a card.',
   enter: 'A Character walks Inside.',
   move: 'A relocation (swoosh).',
@@ -70,15 +75,17 @@ interface Layer {
 
 /** The recorded clips per cue. Clip ids are file names under public/audio/sfx (without .mp3). */
 export const SFX_FILES: Record<SfxName, Layer[]> = {
-  tap: [{ files: ['tap', 'tap-2'], gain: 0.5 }],
+  tap: [{ files: ['tap', 'tap-2'], gain: 0.3 }, { files: ['thud-soft'], gain: 0.35 }],
   toggle: [{ files: ['toggle-on'], gain: 0.5 }],
   'card.pick': [{ files: ['card-pick-1', 'card-pick-2'], gain: 0.6 }],
   'card.drop': [{ files: ['card-drop-1', 'card-drop-2', 'card-drop-3'], gain: 0.7 }, { files: ['thud-soft'], gain: 0.45 }],
   'card.back': [{ files: ['card-back'], gain: 0.55 }],
+  'card.inside': [{ files: ['card-drop-1', 'card-drop-2', 'card-drop-3'], gain: 0.7 }, { files: ['thud-soft'], gain: 0.5 }, { files: ['turn'], gain: 0.45, at: 120 }],
+  'influence.up': [{ files: ['turn'], gain: 0.5 }],
   lock: [{ files: ['lock'], gain: 0.8 }],
-  turn: [{ files: ['turn'], gain: 0.55 }],
+  turn: [{ files: ['dig'], gain: 0.5 }],
   draw: [{ files: ['draw'], gain: 0.5 }],
-  enter: [{ files: ['enter'], gain: 0.6 }],
+  enter: [{ files: ['enter'], gain: 0.45 }, { files: ['turn'], gain: 0.45, at: 380 }],
   move: [{ files: ['move-1', 'move-2'], gain: 0.6 }],
   'clash.hit': [{ files: ['hit'], gain: 0.8 }, { files: ['hit-wood'], gain: 0.5 }],
   'clash.banish': [{ files: ['banish'], gain: 0.9 }, { files: ['banish-stone'], gain: 0.7, at: 240 }],
@@ -150,6 +157,7 @@ export function sfxUnlock(): void {
     master.gain.value = MASTER;
     master.connect(ctx.destination);
     noise = makeNoise(ctx);
+    voiceAttach(ctx, master);
   }
   if (ctx.state === 'suspended') ctx.resume().catch(() => undefined);
   preload();
@@ -274,13 +282,20 @@ function synth(name: SfxName, t: number): void {
     case 'card.back':
       swoosh(t, 0.16, 2400, 500, 0.2);
       break;
+    case 'card.inside':
+      thud(t, 0.35, 170, 60, 0.16);
+      chime(t + 0.12, [659, 988], 0.09, 0.3, 0.12);
+      break;
+    case 'influence.up':
+      chime(t, [659, 988], 0.09, 0.3, 0.12);
+      break;
     case 'lock':
       blip(t, 523, 0.1, 0.16, 'triangle');
       blip(t + 0.09, 784, 0.16, 0.16, 'triangle');
       thud(t + 0.1, 0.3, 140, 60, 0.2);
       break;
     case 'turn':
-      chime(t, [523, 659, 784], 0.09, 0.28, 0.13);
+      for (let i = 0; i < 5; i++) tick(t + i * 0.055, 0.16);
       break;
     case 'draw':
       swoosh(t, 0.09, 1600, 3800, 0.18, 1.4);

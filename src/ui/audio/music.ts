@@ -81,6 +81,18 @@ export function musicUnlock(): void {
   syncMusic();
 }
 
+/** Lower the music under a voice line, then bring it back. */
+let duckUntil = 0;
+export function duckMusic(ms: number): void {
+  const a = ensure();
+  if (a.paused) return;
+  duckUntil = performance.now() + ms;
+  fadeTo(VOLUME * 0.3, 120);
+  window.setTimeout(() => {
+    if (performance.now() >= duckUntil - 5 && !a.paused && getAudioSettings().music) fadeTo(VOLUME, 500);
+  }, ms);
+}
+
 export function musicIsPlaying(): boolean {
   return !!el && !el.paused;
 }
