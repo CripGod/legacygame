@@ -962,7 +962,7 @@ Main menu
 - Locked in. Harborlight is deciding.
 - Locked in. Waiting for the other side.
 - One moment: the board is settling.
-- [data-hand-card], .column.targetable, .card-i, .hint .chip, .plan-chip, .scrim, .sheet, .cx-scrim, .tut-sheet, .toast
+- [data-hand-card], .column.targetable, .stand-card, .hint .chip, .plan-chip, .scrim, .sheet, .cx-scrim, .tut-sheet, .toast
 - input, textarea, [contenteditable]
 - SUMMON · You ${mine ? '✓' : '?'} · ${view.players[other(me)].handle} ${theirs ?? (mine ? '?' : '')}
 - ${cardName(pl.cardId, placeholders)}${where}${direct ? (pl.enter ? ' · Inside' : ' · Gates') : ''}
@@ -1536,6 +1536,8 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - ${def.name} waits to resolve.
 - strip ${def.curse ? 'curse' : 'event'}
 - gates-left ${gOk ? 'drop-ok' : ''} ${gOver ? 'drop-over' : ''}
+- gate-slot reserved ${s.held.through ? 'through' : ''}
+- ${hd.name} ${s.held.why}: every arrival is placed at the Gates before anyone walks Inside, so this slot is taken this turn.
 - ${hd.name} ${s.held.why} when you Lock It In. The slot stays taken until then.
 - tile-glow owner-${owner} ${focus?.includes(s.uid) ? 'focus' : ''}
 - gate-slot filled owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''}

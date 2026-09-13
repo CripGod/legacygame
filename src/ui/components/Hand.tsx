@@ -144,21 +144,6 @@ export function Hand({
             >
               <div className="card-lift">
                 <CardFace id={id} cost={cardCost(id, view, me)} costWhy={costBreakdown(view, me, id)}  note={id === 'reparations' && view.players[me].setbacks > 0 ? `${view.players[me].setbacks} Setback${view.players[me].setbacks === 1 ? '' : 's'}` : undefined} />
-                {sel && (
-                  <button
-                    type="button"
-                    className="card-i"
-                    aria-label={`Read ${name}`}
-                    title={`Read ${name}`}
-                    onPointerDown={(e) => e.stopPropagation()}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onInspect(id);
-                    }}
-                  >
-                    ⓘ
-                  </button>
-                )}
               </div>
             </div>
           );

@@ -58,7 +58,7 @@ export interface BattlefieldProps {
   fx?: BoardFx | null;
   /** Gate slots still occupied until the turn resolves, keyed by Location: Characters leaving the Gates this turn. */
   /** Pieces leaving a Location in the preview: ghosted at their old place with an arrow toward where they go. */
-  reserved?: Record<number, { uid: string; defId: string; why: string; zone: 'gate' | 'inside'; dir: 'left' | 'right' | 'up' }[]>;
+  reserved?: Record<number, { uid: string; defId: string; why: string; zone: 'gate' | 'inside'; dir: 'left' | 'right' | 'up'; /** A card played straight Inside: it is placed at these Gates first, so the slot is spoken for. */ through?: boolean }[]>;
 
   /** Replay: the pieces this beat is about. */
   focus?: string[];
@@ -154,7 +154,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
   const gOver = gOk && drop?.overKey === `gates:${index}`;
   const chars = charsAt(view, index, owner, 'gate').sort((a, b) => a.arrivedTurn - b.arrivedTurn);
   const held = owner === me ? (reserved?.[index] ?? []).filter((h) => h.zone === 'gate') : [];
-  const slots: (CharacterInstance | { held: { uid: string; defId: string; why: string; dir: 'left' | 'right' | 'up' } } | null)[] = [...chars, ...held.map((h) => ({ held: h }))];
+  const slots: (CharacterInstance | { held: { uid: string; defId: string; why: string; dir: 'left' | 'right' | 'up'; through?: boolean } } | null)[] = [...chars, ...held.map((h) => ({ held: h }))];
   while (slots.length < GATE_CAPACITY) slots.push(null);
   // Event cards at these Gates: planned by me, or (in a replay) waiting to resolve or resolving now.
   const eventTiles: { cardId: string; state: 'planned' | 'pending' | 'trigger'; hidden?: boolean }[] = [];
@@ -183,12 +183,12 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
               // Reserved: the Character has left in the preview but still holds this slot until the turn resolves.
               const hd = charDef(s.held.defId);
               return (
-                <div key={`held:${s.held.uid}`} className="gate-slot reserved" data-reserved={s.held.uid} onClick={() => onChar(s.held.uid)} {...tip(`${hd.name} ${s.held.why} when you Lock It In. The slot stays taken until then.`)}>
+                <div key={`held:${s.held.uid}`} className={`gate-slot reserved ${s.held.through ? 'through' : ''}`} data-reserved={s.held.uid} onClick={() => onChar(s.held.uid)} {...tip(s.held.through ? `${hd.name} ${s.held.why}: every arrival is placed at the Gates before anyone walks Inside, so this slot is taken this turn.` : `${hd.name} ${s.held.why} when you Lock It In. The slot stays taken until then.`)}>
                   <Art kind="characters" id={s.held.defId} className="pic-img" fallback={<span className="ini">{hd.name.slice(0, 2)}</span>} alt="" />
                   <span className={`ghost-arrow ${s.held.dir}`} aria-hidden>
                     ›
                   </span>
-                  <span className="strip leaving">Leaving</span>
+                  <span className="strip leaving">{s.held.through ? 'Through' : 'Leaving'}</span>
                 </div>
               );
             }

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CARD_BY_ID, viewFor, legalOptions, validatePlan, gateRoom, GATE_CAPACITY, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, filterEvents, LOCATION_BY_ID } from '../../engine';
+import { CARD_BY_ID, viewFor, legalOptions, validatePlan, gateRoom, GATE_CAPACITY, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, costBreakdown, filterEvents, LOCATION_BY_ID } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight, BoardFx } from '../components/Battlefield';
@@ -724,8 +724,15 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   }, []);
   /** Gate slots my departing Characters still hold this turn (the preview shows them elsewhere). */
   const reserved = useMemo(() => {
-    const out: Record<number, { uid: string; defId: string; why: string; zone: 'gate' | 'inside'; dir: 'left' | 'right' | 'up' }[]> = {};
+    const out: Record<number, { uid: string; defId: string; why: string; zone: 'gate' | 'inside'; dir: 'left' | 'right' | 'up'; through?: boolean }[]> = {};
     if (view.phase !== 'planning' || locked) return out;
+    // A card played straight Inside still passes through the Gates: its slot is drawn as taken, not empty.
+    for (const pl of plan.plays) {
+      const def = CARD_BY_ID[pl.cardId] as { kind?: string; keywords?: string[] } | undefined;
+      if (def?.kind !== 'character') continue;
+      const straight = def.keywords?.includes('STRAIGHT_INSIDE') || (def.keywords?.includes('DIRECT_ENTRY') && pl.enter);
+      if (straight && insideOpen(view, pl.location, me)) (out[pl.location] ??= []).push({ uid: `${PLANNED_PREFIX}${pl.cardId}`, defId: pl.cardId, why: 'goes straight Inside', zone: 'gate', dir: 'up', through: true });
+    }
     const add = (uid: string, why: string, to?: number) => {
       const c = view.characters[uid];
       if (!c || c.owner !== me) return;
@@ -1039,7 +1046,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           return { text: `${nm} cannot go to ${locNameAt(i)}.`, shake: [] };
         }
         if (opt.kind === 'character' && gateRoom(view, i, me, plannedAt(i, payload.cardId)) <= 0) {
-          const leaving = reserved[i] ?? [];
+          const leaving = (reserved[i] ?? []).filter((h) => !h.through);
           if (leaving.length)
             return { text: `${leaving.map((h) => cardName(h.defId, placeholders)).join(' and ')} still hold${leaving.length > 1 ? '' : 's'} a Gate slot at ${locNameAt(i)} until the turn resolves (new arrivals are placed before anyone enters). Play ${nm} there next turn.`, shake: [`${col(i)} .gate-slot.reserved`] };
           // Every played Character is placed at the Gates before anyone walks Inside, a Direct Entry included: name who holds the slots this turn.
@@ -1239,7 +1246,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     const onDown = (e: PointerEvent) => {
       const t = e.target as Element | null;
       if (!t) return;
-      if (t.closest('[data-hand-card], .column.targetable, .card-i, .hint .chip, .plan-chip, .scrim, .sheet, .cx-scrim, .tut-sheet, .toast')) return;
+      if (t.closest('[data-hand-card], .column.targetable, .stand-card, .hint .chip, .plan-chip, .scrim, .sheet, .cx-scrim, .tut-sheet, .toast')) return;
       sfx('card.back');
       setSelected(null);
       settleFor();
@@ -1523,11 +1530,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
             </span>
           ))}
           {hint && <span>{hint}</span>}
-          {selected && planning && (
-            <button className="small chip" onClick={() => setSheet({ kind: 'card', id: selected })}>
-              ⓘ Read {cardName(selected, placeholders)}
-            </button>
-          )}
+
           {planning && history.length > 0 && (
             <button className="small chip undo" onClick={undo} title="Cmd/Ctrl+Z">
               ↶ Undo
@@ -1595,6 +1598,31 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         </div>
       </div>
 
+      {selected && planning && (
+        <div className="stand-card" {...dragProps({ kind: 'card', cardId: selected })}>
+          <div
+            className="stand-card-face"
+            onClick={() => {
+              sfx('card.back');
+              setSelected(null);
+              settleFor();
+            }}
+          >
+            <CardFace id={selected} big cost={cardCost(selected, view, me)} costWhy={costBreakdown(view, me, selected)} />
+          </div>
+          <button
+            type="button"
+            className="stand-card-more"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              setSheet({ kind: 'card', id: selected });
+            }}
+          >
+            History ›
+          </button>
+        </div>
+      )}
       {arrival && (
         <div className={`card-flash p${arrival.owner}`} aria-hidden>
           <CardFace id={arrival.cardId} big />

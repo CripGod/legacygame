@@ -815,9 +815,19 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 .hand .card-wrap.reject .card-lift { animation: card-reject 0.34s ease-out both; }
 @keyframes card-reject { 0%, 100% { translate: 0 0; } 25% { translate: -7px 0; } 50% { translate: 7px 0; } 75% { translate: -3px 0; } }
 /* The corner ⓘ on a standing card: reading never shares an input with playing. */
-.card-i { position: absolute; top: -12px; right: -12px; z-index: 6; width: 34px; height: 34px; padding: 0; border-radius: 50%; border: 2px solid var(--gold-2); background: radial-gradient(circle at 35% 35%, #1d3558, #0a1626 70%); color: var(--gold-2); font-size: 20px; line-height: 1; display: grid; place-items: center; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6); cursor: pointer; }
-.card-i:hover { background: radial-gradient(circle at 35% 35%, #f6d77a, #d7a422 60%, #b4851a); color: #1a1200; }
-@media (pointer: coarse) { .card-i { width: 44px; height: 44px; font-size: 24px; } }
+/* The standing card, Snap style: the tap itself is the read. The card pops up large and legible above the hand;
+   drag it (or its fan card) to a lit Location, tap it to put it down; History opens the Codex. */
+.stand-card { position: fixed; left: 50%; bottom: 200px; z-index: 57; transform: translateX(-50%) scale(0.72); transform-origin: 50% 100%; display: grid; justify-items: center; gap: 8px; cursor: grab; animation: stand-card-in 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; filter: drop-shadow(0 24px 40px rgba(0, 0, 0, 0.7)); }
+.stand-card .stand-card-face { cursor: pointer; }
+.stand-card .card { pointer-events: none; }
+.stand-card-more { font-family: var(--display); font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold-2); background: rgba(8, 19, 31, 0.9); border: 1px solid var(--gold); border-radius: 3px; padding: 6px 14px; cursor: pointer; }
+.stand-card-more:hover { background: var(--gold); color: #1a1200; }
+@keyframes stand-card-in { 0% { opacity: 0; transform: translate(-50%, 14px) scale(0.6); } 100% { opacity: 1; transform: translate(-50%, 0) scale(0.72); } }
+@media (max-width: 720px) { .stand-card { bottom: 120px; transform: translateX(-50%) scale(0.55); } @keyframes stand-card-in { 0% { opacity: 0; transform: translate(-50%, 14px) scale(0.45); } 100% { opacity: 1; transform: translate(-50%, 0) scale(0.55); } } }
+@media (prefers-reduced-motion: reduce) { .stand-card { animation: none; } }
+/* A Gate slot a straight-Inside arrival passes through: taken this turn, drawn as such. */
+.gate-slot.reserved.through { --bfill: rgba(79, 209, 138, 0.12); }
+.gate-slot.reserved.through .strip.leaving { background: rgba(20, 110, 55, 0.9); }
 @media (prefers-reduced-motion: reduce) {
   :root { --hover-scale: 1.22; }
   .hand .card-lift, .hand .card-wrap { transition: none; }

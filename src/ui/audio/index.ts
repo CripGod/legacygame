@@ -37,7 +37,7 @@ export function installAudio(): () => void {
   let lastHover: Element | null = null;
   const onOver = (e: PointerEvent) => {
     if (e.pointerType !== 'mouse') return;
-    const el = (e.target as Element | null)?.closest?.('button:not(:disabled):not(.card-i), .card-wrap, .gate-slot.filled, .pic, .location, .profile');
+    const el = (e.target as Element | null)?.closest?.('button:not(:disabled), .card-wrap, .gate-slot.filled, .pic, .location, .profile');
     if (!el || el === lastHover) return;
     lastHover = el;
     sfx('card.hover');
