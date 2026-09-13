@@ -264,8 +264,10 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   const boardView = useMemo(() => {
     if (stagePrev && prevView && m.replay) return previewPlan(prevView, me, remainingPlan(prevView, me, m.replay.plan));
     if (m.replay && step) return previewPlan(view, me, remainingPlan(step.state, me, m.replay.plan));
-    return view.phase === 'planning' && !locked ? previewPlan(view, me, plan) : view;
-  }, [view, me, plan, locked, m.replay, step, stagePrev, prevView]);
+    // Locked and waiting: the plan stays on the board (it is still the plan) until the replay takes it over, so
+    // nothing snaps back to the Gates for a frame at Lock In.
+    return view.phase === 'planning' ? previewPlan(view, me, plan) : view;
+  }, [view, me, plan, m.replay, step, stagePrev, prevView]);
   /** Power trails on the board (a Reveal that reaches other Locations): particles fly from the actor to each target. */
   const [trail, setTrail] = useState<TrailShot[] | null>(null);
   const [trailFreeze, setTrailFreeze] = useState<number | undefined>(undefined);

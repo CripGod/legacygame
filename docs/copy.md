@@ -1574,6 +1574,8 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 
 ### src/ui/components/Hand.tsx
 
+- (prefers-reduced-motion: reduce)
+- translate 260ms cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.2s, margin 0.2s
 - hand-wrap ${dropState === 'ok' ? 'drop-ok' : ''} ${dropState === 'over' ? 'drop-ok drop-over' : ''} ${rest ? 'rest' : ''} ${nudge ? 'nudge' : ''} ${settle ? 'settle' : ''}
 - hand ${compact ? 'compact' : ''}
 - card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''} ${(Array.isArray(glow) ? glow.includes(id) : glow === id) ? 'ftue-flash' : ''} ${dealt >= 0 ? 'dealt' : ''} ${energyLeft !== undefined && cardCost(id, view, me) > energyLeft ? 'unaffordable' : ''} ${id === 'reparations' && view.players[me].setbacks > 0 ? 'reparations-live' : ''} ${held === id ? 'lifting' : ''} ${reject === id ? 'reject' : ''} ${canPlay && !canPlay(id) ? 'unplayable' : ''}

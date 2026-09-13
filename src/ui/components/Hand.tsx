@@ -1,5 +1,5 @@
 import { sfx } from '../audio';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { cardCost, costBreakdown, type GameState, type PlayerId, type TurnPlan } from '../../engine';
 import { CardFace } from './CardFace';
 import { cardName, useDisplay } from '../display';
@@ -86,12 +86,52 @@ export function Hand({
       window.setTimeout(() => sfx('card.deal'), k * 140);
     }
   });
-  const visible = hand.filter((id) => !plan.plays.some((pl) => pl.cardId === id));
+  // The fan is laid out over the whole hand, planned cards included: a planned card stays in its place as a dim
+  // gap (tap it to take it back), so nothing re-centres while you plan. Only a draw changes the fan, and that glides.
+  const visible = hand;
   const n = visible.length;
   const mid = (n - 1) / 2;
+  const fanRef = useRef<HTMLDivElement>(null);
+  const fanRects = useRef(new Map<string, number>());
+  useLayoutEffect(() => {
+    const root = fanRef.current;
+    if (!root) return;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const next = new Map<string, number>();
+    const seenIds = new Map<string, number>();
+    root.querySelectorAll<HTMLElement>('[data-hand-card]').forEach((el) => {
+      // Keyed by card (and its occurrence, for duplicates), not by index, so a card leaving the fan still lets the
+      // others glide; measured by layout position, so a glide in progress never reads as a new move.
+      const id = el.dataset.handCard ?? '';
+      const nth = seenIds.get(id) ?? 0;
+      seenIds.set(id, nth + 1);
+      const key = `${id}#${nth}`;
+      // Viewport position net of any glide still running, so a glide in progress never reads as a new move (the fan
+      // container itself moves when it narrows, so it is no reference).
+      const t = getComputedStyle(el).translate;
+      const left = el.getBoundingClientRect().left - (t && t !== 'none' ? parseFloat(t) || 0 : 0);
+      next.set(key, left);
+      const prev = fanRects.current.get(key);
+      if (prev === undefined || reduce || el.classList.contains('dealt')) return;
+      const dx = prev - left;
+      if (Math.abs(dx) < 1) return;
+      // A reflow (a card drawn, the hand re-centred): glide from the old place instead of jumping.
+      el.style.transition = 'none';
+      el.style.translate = `${dx}px 0`;
+      requestAnimationFrame(() => {
+        el.style.transition = 'translate 260ms cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.2s, margin 0.2s';
+        el.style.translate = '0 0';
+        window.setTimeout(() => {
+          el.style.transition = '';
+          el.style.translate = '';
+        }, 300);
+      });
+    });
+    fanRects.current = next;
+  });
   return (
     <div className={`hand-wrap ${dropState === 'ok' ? 'drop-ok' : ''} ${dropState === 'over' ? 'drop-ok drop-over' : ''} ${rest ? 'rest' : ''} ${nudge ? 'nudge' : ''} ${settle ? 'settle' : ''}`} data-drop="hand">
-      <div className={`hand ${compact ? 'compact' : ''}`}>
+      <div ref={fanRef} className={`hand ${compact ? 'compact' : ''}`}>
         {visible.map((id, i) => {
           const off = i - mid;
           // A fanned hand: each card leans out from the centre and sits a little lower the farther out it is.
@@ -148,7 +188,7 @@ export function Hand({
             </div>
           );
         })}
-        {n === 0 && <div className="muted">{hand.length ? 'Card committed' : 'No cards in hand'}</div>}
+        {n === 0 && <div className="muted">No cards in hand</div>}
       </div>
     </div>
   );
