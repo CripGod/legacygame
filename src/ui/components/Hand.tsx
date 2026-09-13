@@ -1,3 +1,4 @@
+import { sfx } from '../audio';
 import { useEffect, useRef, useState } from 'react';
 import { cardCost, costBreakdown, type GameState, type PlayerId, type TurnPlan } from '../../engine';
 import { CardFace } from './CardFace';
@@ -58,6 +59,16 @@ export function Hand({
     const h = window.setTimeout(() => tick((n) => n + 1), 1500);
     return () => window.clearTimeout(h);
   });
+  // Each card that deals in gets its own sound, on the same stagger as the animation.
+  const sounded = useRef(new Set<string>());
+  useEffect(() => {
+    for (const id of hand) {
+      const k = dealtInfo(id);
+      if (k < 0 || sounded.current.has(id)) continue;
+      sounded.current.add(id);
+      window.setTimeout(() => sfx('card.deal'), k * 140);
+    }
+  });
   const visible = hand.filter((id) => !plan.plays.some((pl) => pl.cardId === id));
   const n = visible.length;
   const mid = (n - 1) / 2;
@@ -90,6 +101,9 @@ export function Hand({
               style={style}
               onClick={() => onSelect(id)}
               onDoubleClick={() => onInspect(id)}
+              onPointerEnter={() => {
+                if (!rest) sfx('card.hover');
+              }}
             >
               <CardFace id={id} cost={cardCost(id, view, me)} costWhy={costBreakdown(view, me, id)}  note={id === 'reparations' && view.players[me].setbacks > 0 ? `${view.players[me].setbacks} Setback${view.players[me].setbacks === 1 ? '' : 's'}` : undefined} />
             </div>

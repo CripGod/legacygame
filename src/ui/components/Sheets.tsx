@@ -1,3 +1,4 @@
+import { sfx } from '../audio';
 import { useEffect, useState, type ReactNode } from 'react';
 import type { GameEvent } from '../../engine';
 import {
@@ -23,6 +24,10 @@ import { liveAbilities } from './Battlefield';
 import { Art } from './Art';
 
 export function Sheet({ children, onClose, title }: { children: ReactNode; onClose: () => void; title?: string }) {
+  useEffect(() => {
+    sfx('sheet.open');
+    return () => sfx('sheet.close');
+  }, []);
   return (
     <div className="scrim" onClick={onClose}>
       <div className="sheet" onClick={(e) => e.stopPropagation()}>
@@ -136,10 +141,11 @@ export function ThreatSheet({
 export function LocationSheet({ view, index, onClose }: { view: GameState; index: number; onClose: () => void }) {
   const { placeholders } = useDisplay();
   const loc = view.locations[index];
-  const def = LOCATION_BY_ID[loc.revealed ? loc.defId : 'unknown'];
   const known = view.players[view.viewFor ?? 'A'].knownNextReveal;
+  const foretold = !loc.revealed && known === index && loc.defId !== 'unknown';
+  const def = LOCATION_BY_ID[loc.revealed || foretold ? loc.defId : 'unknown'];
   return (
-    <Sheet onClose={onClose} title={loc.revealed ? locationName(def.id, placeholders) : `Location ${index + 1} (hidden)`}>
+    <Sheet onClose={onClose} title={loc.revealed ? locationName(def.id, placeholders) : foretold ? `${locationName(def.id, placeholders)} (opens next)` : `Location ${index + 1} (hidden)`}>
       {loc.revealed && !placeholders && (
         <div className="sheet-art loc-glow">
           {def.curfew && isNight(view) ? (
@@ -156,7 +162,7 @@ export function LocationSheet({ view, index, onClose }: { view: GameState; index
       )}
       <div>{def.rule}</div>
       {loc.revealed && !placeholders && <div className="muted" style={{ fontStyle: 'italic' }}>{def.blurb}</div>}
-      {!loc.revealed && known === index && <div className="pA">✦ Paul Laurence Dunbar: this Location opens at the end of next turn. Only you know.</div>}
+      {!loc.revealed && known === index && <div className="pA">✦ Paul Laurence Dunbar: {foretold ? `${locationName(def.id, placeholders)} opens here` : 'this Location opens'} at the end of next turn. Only you know.</div>}
       {loc.revealed && def.transformsInto && loc.revealedTurn !== undefined && (
         <div className="pA">⛵ Arrives in {Math.max(0, loc.revealedTurn + def.transformsInto.afterTurns - view.turn)} turn(s) as {LOCATION_BY_ID[def.transformsInto.id]?.name}.</div>
       )}

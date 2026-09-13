@@ -1394,6 +1394,10 @@ describe('Dunbar, Bud Billiken and the neutralized stamp', () => {
     expect(s.players.A.knownNextReveal).toBe(order[1]);
     expect(s.locations[order[1]].revealed).toBe(false);
     expect(s.players.B.knownNextReveal).toBeUndefined();
+    // The foretold Location's name is in A's view and nobody else's.
+    expect(viewFor(s, 'A').locations[order[1]].defId).toBe(s.locations[order[1]].defId);
+    expect(viewFor(s, 'B').locations[order[1]].defId).toBe('unknown');
+    expect(viewFor(s, 'A').locations[order[2]].defId).toBe('unknown');
     s = resolveTurn(s, { A: pass(), B: pass() }).state;
     expect(s.locations[order[1]].revealed).toBe(true);
     expect(s.players.A.knownNextReveal).toBeUndefined();
@@ -1837,5 +1841,16 @@ describe('Found out: the answer to a planted Informant', () => {
     addChar(s, 'william_still', 'A', 0, 'inside');
     expect(charInfluence(s, spy)).toBe(0);
     expect(charsAt(s, 0, 'A', 'gate').length).toBe(1); // it keeps its slot
+  });
+});
+
+describe('Dunbar with nothing left to foretell', () => {
+  it('draws a card instead', () => {
+    let s = rig(createMatch({ seed: 5 }), { locations: ['great_migration', 'juneteenth', 'gary_indiana'], revealAll: true, handA: ['paul_laurence_dunbar'] });
+    s.turn = 3;
+    const before = s.players.A.hand.length;
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'paul_laurence_dunbar', location: 0 }] }, B: pass() }).state;
+    expect(s.players.A.knownNextReveal).toBeUndefined();
+    expect(s.players.A.hand.length).toBe(before - 1 + 1 + 1); // played, drew for the Reveal, drew for the new turn
   });
 });

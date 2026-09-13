@@ -174,28 +174,30 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   const prevView = useMemo(() => (m.replay && m.replay.idx > 0 ? viewFor(m.replay.steps[m.replay.idx - 1].state, me) : null), [m.replay?.idx, m.replay?.steps, me]);
   const [shake, setShake] = useState(false);
   /** A power lands on a Location: its panel pulses in the power's colour and a +N floats up over its name. */
+  /** A +N floats up from a Location's art. */
+  const floatNum = (location: number, amount: number, tone: 'artist' | 'mine' | 'theirs') => {
+    const art = document.querySelector(`.column[data-index="${location}"] .art`);
+    if (!art) return;
+    const r = art.getBoundingClientRect();
+    const el = document.createElement('div');
+    el.className = `float-num ${tone}`;
+    el.textContent = `+${amount}`;
+    el.style.left = `${r.left + r.width / 2}px`;
+    el.style.top = `${r.top + r.height / 2}px`;
+    document.body.appendChild(el);
+    window.setTimeout(() => el.remove(), 1300);
+  };
   const landFx = (items: { location: number; amount?: number; tone: 'artist' | 'mine' | 'theirs' }[]) => {
     if (items.some((it) => it.amount)) sfx('influence.up');
     for (const it of items) {
-      const col = document.querySelector(`.column[data-index="${it.location}"]`);
-      const art = col?.querySelector('.art');
-      const loc = col?.querySelector('.loc-glow');
+      const loc = document.querySelector(`.column[data-index="${it.location}"] .loc-glow`);
       if (loc) {
         loc.classList.remove('loc-pulse', 'artist', 'mine', 'theirs');
         void (loc as HTMLElement).offsetWidth;
         loc.classList.add('loc-pulse', it.tone);
         window.setTimeout(() => loc.classList.remove('loc-pulse', it.tone), 1100);
       }
-      if (art && it.amount) {
-        const r = art.getBoundingClientRect();
-        const el = document.createElement('div');
-        el.className = `float-num ${it.tone}`;
-        el.textContent = `+${it.amount}`;
-        el.style.left = `${r.left + r.width / 2}px`;
-        el.style.top = `${r.top + r.height / 2}px`;
-        document.body.appendChild(el);
-        window.setTimeout(() => el.remove(), 1300);
-      }
+      if (it.amount) floatNum(it.location, it.amount, it.tone);
     }
   };
   /** Aim the lunge and the flight from the tiles' real positions, then fire the impact spray. */
@@ -380,6 +382,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     wasPlanning.current = planning;
     if (!back) return;
     setTurnFlash(view.turn);
+    sfx('meter.refresh');
     const id = window.setTimeout(() => setTurnFlash(null), 1150);
     return () => window.clearTimeout(id);
   }, [planning, view.turn]);
@@ -518,6 +521,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     const directEntry = pdef?.kind === 'character' && pdef.keywords.includes('DIRECT_ENTRY');
     if (directEntry && play.enter === undefined) play = { ...play, enter: true };
     sfx(play.enter ? 'card.inside' : 'card.drop');
+    if (play.enter) requestAnimationFrame(() => floatNum(play.location, 1, 'mine')); // the Inside bonus, shown as it is planned
     voice(play.cardId);
     const current = planRef.current.plays.filter((pl) => pl.cardId !== play.cardId);
     const spent = current.reduce((s, pl) => s + cardCost(pl.cardId, view, me), 0);
@@ -833,8 +837,17 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       items.push({
         key: `play:${pl.cardId}`,
         label: `${cardName(pl.cardId, placeholders)}${where}${direct ? (pl.enter ? ' · Inside' : ' · Gates') : ''}`,
-        remove: () => setPlan((p) => ({ ...p, plays: p.plays.filter((x) => x.cardId !== pl.cardId) })),
-        toggle: direct ? () => setPlan((p) => ({ ...p, plays: p.plays.map((x) => (x.cardId === pl.cardId ? { ...x, enter: !x.enter } : x)) })) : undefined,
+        remove: () => {
+          sfx('card.back');
+          setPlan((p) => ({ ...p, plays: p.plays.filter((x) => x.cardId !== pl.cardId) }));
+        },
+        toggle: direct
+          ? () => {
+              sfx(pl.enter ? 'card.drop' : 'card.inside');
+              if (!pl.enter) requestAnimationFrame(() => floatNum(pl.location, 1, 'mine'));
+              setPlan((p) => ({ ...p, plays: p.plays.map((x) => (x.cardId === pl.cardId ? { ...x, enter: !x.enter } : x)) }));
+            }
+          : undefined,
       });
     }
     for (const uid of plan.enters) {

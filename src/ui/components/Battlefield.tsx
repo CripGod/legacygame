@@ -435,7 +435,7 @@ export function Battlefield(props: BattlefieldProps) {
                   onLocationInfo(loc.index);
                 }}
               >
-                <span className="art-name">{loc.revealed ? locationName(loc.defId, placeholders) : '?'}</span>
+                <span className="art-name">{loc.revealed || (view.players[me].knownNextReveal === loc.index && loc.defId !== 'unknown') ? locationName(loc.defId, placeholders) : '?'}</span>
                 {!loc.revealed && view.players[me].knownNextReveal === loc.index && (
                   <span className="lost-tag next-tag" {...tip("Paul Laurence Dunbar's Reveal: this Location opens at the end of next turn. Only you know.")}>
                     ✦ Opens next

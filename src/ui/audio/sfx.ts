@@ -17,6 +17,11 @@ export type SfxName =
   | 'card.drop'
   | 'card.back'
   | 'card.inside'
+  | 'card.deal'
+  | 'card.hover'
+  | 'sheet.open'
+  | 'sheet.close'
+  | 'meter.refresh'
   | 'influence.up'
   | 'lock'
   | 'turn'
@@ -46,6 +51,11 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   'card.drop': 'A card lands on a Location (planned, or placed at the Gates in the replay).',
   'card.back': 'A planned card taken back to the hand.',
   'card.inside': 'A card planned straight Inside (Direct Entry, or dropped on the Inside row).',
+  'card.deal': 'A card deals into the hand (one per card, staggered).',
+  'card.hover': 'The pointer rests on a hand card.',
+  'sheet.open': 'A card or Location opens to read.',
+  'sheet.close': 'It closes.',
+  'meter.refresh': 'The planning timer refills for a new turn.',
   'influence.up': 'Influence goes up: a Character walks Inside, or a +N floats over a Location.',
   lock: 'Lock It In.',
   turn: 'A new turn begins: the new card is dealt (a shuffle).',
@@ -83,6 +93,11 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'card.drop': [{ files: ['card-drop-1', 'card-drop-2', 'card-drop-3'], gain: 0.7 }, { files: ['thud-soft'], gain: 0.45 }],
   'card.back': [{ files: ['card-back'], gain: 0.55 }],
   'card.inside': [{ files: ['card-drop-1', 'card-drop-2', 'card-drop-3'], gain: 0.7 }, { files: ['thud-soft'], gain: 0.5 }, { files: ['turn'], gain: 0.45, at: 120 }],
+  'card.deal': [{ files: ['card-pick-1', 'card-pick-2', 'draw'], gain: 0.5 }],
+  'card.hover': [], // synth: a tiny tick
+  'sheet.open': [{ files: ['card-pick-2'], gain: 0.6 }, { files: ['move-2'], gain: 0.35 }],
+  'sheet.close': [{ files: ['card-back'], gain: 0.5 }, { files: ['move-1'], gain: 0.3 }],
+  'meter.refresh': [], // synth: an arcade meter filling
   'influence.up': [{ files: ['turn'], gain: 0.5 }],
   lock: [{ files: ['lock'], gain: 0.8 }],
   turn: [{ files: ['dig'], gain: 0.5 }],
@@ -294,6 +309,23 @@ function synth(name: SfxName, t: number): void {
       break;
     case 'influence.up':
       chime(t, [659, 988], 0.09, 0.3, 0.12);
+      break;
+    case 'card.deal':
+      swoosh(t, 0.1, 900, 2800, 0.16);
+      break;
+    case 'card.hover':
+      blip(t, 1400, 0.025, 0.035);
+      break;
+    case 'sheet.open':
+      swoosh(t, 0.18, 500, 2200, 0.18);
+      break;
+    case 'sheet.close':
+      swoosh(t, 0.16, 2200, 500, 0.16);
+      break;
+    case 'meter.refresh':
+      // An arcade meter filling: a rising sweep with four quick square steps up it.
+      swoosh(t, 0.36, 300, 2400, 0.16, 1.1);
+      chime(t, [523, 659, 784, 1047], 0.07, 0.16, 0.09, 'square');
       break;
     case 'lock':
       blip(t, 523, 0.1, 0.16, 'triangle');

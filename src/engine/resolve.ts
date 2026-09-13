@@ -413,11 +413,12 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       // so the useful secret is the one after it: the Location that opens at the end of NEXT turn.
       const next = state.revealOrder.slice(state.turn).find((i) => !state.locations[i].revealed);
       if (next === undefined) {
-        say(state.turn >= 3 ? 'every Location is open by the end of this turn.' : 'all Locations are already revealed.');
+        drawCard(state, p, events);
+        say('nothing left to foretell: every Location is open by the end of this turn. He draws a card instead.');
         break;
       }
       state.players[p].knownNextReveal = next;
-      events.push({ type: 'reveal', text: `${def.name}: privately learns that Location ${next + 1} opens at the end of next turn (it is marked on the board for you).`, uid: c.uid, player: p, privateTo: p, data: { next } });
+      events.push({ type: 'reveal', text: `${def.name}: privately learns that ${LOCATION_BY_ID[state.locations[next].defId]?.name ?? 'a Location'} opens at Location ${next + 1} at the end of next turn (its name shows on the board for you).`, uid: c.uid, player: p, privateTo: p, data: { next } });
       break;
     }
     case 'clubHere': {

@@ -20,9 +20,9 @@ export function viewFor(state: GameState, p: PlayerId): GameState {
   // Opponent hand.
   v.players[opp].hand = v.players[opp].hand.map(() => 'hidden');
   v.players[opp].knownNextReveal = undefined;
-  // Unrevealed Locations.
+  // Unrevealed Locations, except the one Dunbar foretold for this player: its name is theirs to see.
   for (const loc of v.locations) {
-    if (!loc.revealed) loc.defId = 'unknown';
+    if (!loc.revealed && v.players[p].knownNextReveal !== loc.index) loc.defId = 'unknown';
   }
   v.revealOrder = [];
   v.spawnRolls = {};

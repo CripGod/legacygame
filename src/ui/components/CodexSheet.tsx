@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { CARD_BY_ID } from '../../engine';
 import { CardFace } from './CardFace';
 import { cardName, useDisplay } from '../display';
+import { sfx } from '../audio';
 import '../compendium.css';
 
 /**
@@ -14,6 +15,10 @@ import '../compendium.css';
 export function CodexSheet({ id, label, onClose, children, flat }: { id: string; label: string; onClose: () => void; children?: ReactNode; /** No backdrop blur: for the match, where the board behind keeps animating and a blurred backdrop would re-render every frame. */ flat?: boolean }) {
   const { placeholders } = useDisplay();
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    sfx('sheet.open');
+    return () => sfx('sheet.close');
+  }, []);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();

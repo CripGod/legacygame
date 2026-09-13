@@ -115,7 +115,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Paul Laurence Dunbar (`paul_laurence_dunbar`)
 - cost 1 · Influence 2 · Force 1 · historical · era: 1872–1906
-- reveal: Privately learn which Location opens at the end of next turn (marked on the board for you). If none would, nothing happens.
+- reveal: Privately see which Location opens at the end of next turn: its name shows on the board, for you only. If every Location is open by the end of this turn, draw a card instead.
 - blurb: The first Black poet with a national audience. "We Wear the Mask." Dead of tuberculosis at 33.
 - history: Paul Laurence Dunbar was born in Dayton, Ohio, in 1872 to parents who had been enslaved in Kentucky. The only Black student in his high school class, he edited the school paper and ran an elevator to pay for printing his first book. Majors and Minors and Lyrics of Lowly Life made him famous by 25; he wrote novels, songs for the Broadway show Clorindy and the poems "Sympathy" and "We Wear the Mask." He died of tuberculosis in 1906, at 33.
 
@@ -883,6 +883,8 @@ Main menu
 ### src/ui/screens/MatchScreen.tsx
 
 - Last turn unless someone stands
+- .column[data-index="${location}"] .art
+- .column[data-index="${it.location}"] .loc-glow
 - (prefers-reduced-motion: reduce)
 - .column[data-index="${e.location}"] .art
 - .column[data-index="${i}"] .art
@@ -978,7 +980,9 @@ Main menu
 - small ${on ? 'primary' : ''}
 -  Assisting earns Solidarity (cosmetic).
 - You have no eligible Characters here.
+- ${locationName(def.id, placeholders)} (opens next)
 - Location ${index + 1} (hidden)
+- ${locationName(def.id, placeholders)} opens here
 - stand-title ${mine ? 'pA' : 'pB'}
 - It is in your hand now. It costs nothing. Play it when you want to know what is coming.
 - } at ${loc ? locationName(loc.defId, false) : 
@@ -1555,7 +1559,8 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${charDef(best.defId).name} gains +${eff.amount} Influence this turn.
 - no Threat here to confront.
 - confronts ${threatName(state, own)} with +${eff.bonus} Force.
-- ${def.name}: privately learns that Location ${next + 1} opens at the end of next turn (it is marked on the board for you).
+- nothing left to foretell: every Location is open by the end of this turn. He draws a card instead.
+- ${def.name}: privately learns that ${LOCATION_BY_ID[state.locations[next].defId]?.name ?? 'a Location'} opens at Location ${next + 1} at the end of next turn (its name shows on the board for you).
 - nobody here costs ${eff.maxCost} or less, so the club has no members yet.
 - signs up ${kids.map((k) => name(state, k)).join(', ')}: +${eff.amount} Influence each.
 - was played into a known Location.
