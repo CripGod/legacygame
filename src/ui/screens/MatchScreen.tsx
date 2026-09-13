@@ -382,7 +382,6 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     wasPlanning.current = planning;
     if (!back) return;
     setTurnFlash(view.turn);
-    sfx('meter.refresh');
     const id = window.setTimeout(() => setTurnFlash(null), 1150);
     return () => window.clearTimeout(id);
   }, [planning, view.turn]);
@@ -409,10 +408,15 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   /** Sheets show while the board is settled, or beat by beat during a replay. */
   const sheetsOk = !busy || !!m.replay;
 
-  // Escape closes any sheet.
+  // Escape closes any sheet; with none open it puts a raised hand card back down.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setSheet(null);
+      if (e.key === 'Escape') {
+        setSheet((s) => {
+          if (!s) setSelected(null);
+          return null;
+        });
+      }
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault();
         undo();
@@ -487,6 +491,26 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     sfx('card.pick');
     setSelected(cardId);
   };
+
+  /**
+   * A raised card goes back down when you click anywhere that is not part of playing it: not the hand,
+   * not a Location column, not the Inspect chip, not a sheet. One click to lift, one click elsewhere to set down.
+   */
+  const appRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!selected) return;
+    const root = appRef.current;
+    if (!root) return;
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as Element | null;
+      if (!t || !root.contains(t)) return;
+      if (t.closest('.hand, .column, .hint, .scrim, .sheet, .cx-scrim, .toast')) return;
+      sfx('card.back');
+      setSelected(null);
+    };
+    root.addEventListener('pointerdown', onDown);
+    return () => root.removeEventListener('pointerdown', onDown);
+  }, [selected]);
 
   const commitPlay = (location: number, cardId: string | null = selected) => {
     if (!cardId) return;
@@ -889,7 +913,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   const stepOffLabel = `Sit Down${opts.canStepOff && view.phase !== 'ended' ? ` (−${opts.stepOffCost})` : ''}`;
 
   return (
-    <div className={`app ${resolving ? 'resolving' : ''}`}>
+    <div ref={appRef} className={`app ${resolving ? 'resolving' : ''}`}>
       <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, flash: flash === 'stakes' || flash === 'final', onToggle: toggleStand }} />
       <div className="main-wrap">
         <Battlefield

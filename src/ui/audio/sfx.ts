@@ -21,7 +21,6 @@ export type SfxName =
   | 'card.hover'
   | 'sheet.open'
   | 'sheet.close'
-  | 'meter.refresh'
   | 'influence.up'
   | 'lock'
   | 'turn'
@@ -55,7 +54,6 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   'card.hover': 'The pointer arrives on a button, a hand card, a board tile or a Location.',
   'sheet.open': 'A card or Location opens to read.',
   'sheet.close': 'It closes.',
-  'meter.refresh': 'The planning timer refills for a new turn.',
   'influence.up': 'Influence goes up: a Character walks Inside, or a +N floats over a Location.',
   lock: 'Lock It In.',
   turn: 'A new turn begins: the new card is dealt (a shuffle).',
@@ -97,7 +95,6 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'card.hover': [], // synth: a tiny tick
   'sheet.open': [{ files: ['card-pick-2'], gain: 0.6 }, { files: ['move-2'], gain: 0.35 }],
   'sheet.close': [{ files: ['card-back'], gain: 0.5 }, { files: ['move-1'], gain: 0.3 }],
-  'meter.refresh': [], // synth: an arcade meter filling
   'influence.up': [{ files: ['turn'], gain: 0.5 }],
   lock: [{ files: ['lock'], gain: 0.8 }],
   turn: [{ files: ['dig'], gain: 0.5 }],
@@ -321,11 +318,6 @@ function synth(name: SfxName, t: number): void {
       break;
     case 'sheet.close':
       swoosh(t, 0.16, 2200, 500, 0.16);
-      break;
-    case 'meter.refresh':
-      // An arcade meter filling: a rising sweep with four quick square steps up it.
-      swoosh(t, 0.36, 300, 2400, 0.16, 1.1);
-      chime(t, [523, 659, 784, 1047], 0.07, 0.16, 0.09, 'square');
       break;
     case 'lock':
       blip(t, 523, 0.1, 0.16, 'triangle');
