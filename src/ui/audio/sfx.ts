@@ -58,7 +58,7 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   'sheet.close': 'It closes.',
   'influence.up': 'Influence goes up: a Character walks Inside, or a +N floats over a Location.',
   lock: 'Lock It In.',
-  turn: 'A new turn begins: the new card is dealt (a shuffle).',
+  turn: 'A new turn begins: three soft bells as the meter refills.',
   'location.reveal': 'A Location is revealed.',
   draw: 'You draw a card.',
   enter: 'A Character walks Inside.',
@@ -100,7 +100,7 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'sheet.close': [{ files: ['card-back'], gain: 0.5 }, { files: ['move-1'], gain: 0.3 }],
   'influence.up': [{ files: ['turn'], gain: 0.5 }],
   lock: [{ files: ['lock'], gain: 0.8 }],
-  turn: [{ files: ['dig'], gain: 0.5 }],
+  turn: [{ files: ['new-turn'], gain: 0.55 }], // three soft bells: the riffle is gone
   'location.reveal': [{ files: ['stand-thud'], gain: 0.55 }, { files: ['turn'], gain: 0.4, at: 160 }],
   draw: [{ files: ['draw'], gain: 0.5 }],
   enter: [{ files: ['enter'], gain: 0.45 }, { files: ['turn'], gain: 0.45, at: 380 }],
