@@ -774,15 +774,20 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   };
 
 
+  // Your own moves are heard when you plan them (the replay skips your own beats): the gate for walking Inside,
+  // the whoosh for a relocation, the switch for a confrontation; taking a move back is the card-back swoosh.
   const toggleEnter = (uid: string) => {
+    sfx(plan.enters.includes(uid) ? 'card.back' : 'enter');
     setPlan((p) => ({ ...p, enters: p.enters.includes(uid) ? p.enters.filter((u) => u !== uid) : [...p.enters, uid] }));
     setSheet(null);
   };
   const setRelocation = (uid: string, to: number | null) => {
+    sfx(to === null ? 'card.back' : 'move');
     setPlan((p) => ({ ...p, relocations: [...p.relocations.filter((r) => r.uid !== uid), ...(to === null ? [] : [{ uid, to }])] }));
     setSheet(null);
   };
   const toggleConfront = (uid: string, threatUid: string) => {
+    sfx(plan.confronts.some((c) => c.uid === uid && c.threatUid === threatUid) ? 'card.back' : 'toggle');
     setPlan((p) => {
       const has = p.confronts.some((c) => c.uid === uid && c.threatUid === threatUid);
       return { ...p, confronts: has ? p.confronts.filter((c) => !(c.uid === uid)) : [...p.confronts.filter((c) => c.uid !== uid), { uid, threatUid }] };

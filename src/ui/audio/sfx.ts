@@ -61,7 +61,7 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   turn: 'A new turn begins: three soft bells as the meter refills.',
   'location.reveal': 'A Location is revealed.',
   draw: 'You draw a card.',
-  enter: 'A Character walks Inside.',
+  enter: 'A Character walks Inside: planned by you, or in the replay for the other side.',
   move: 'A relocation (swoosh).',
   'clash.hit': 'A strike lands: knocked, held off, blocked, tricked, hexed.',
   'clash.banish': 'A Character is knocked off the board (BANISHED). Fires as the throw begins; the bang lands ~240ms in.',
