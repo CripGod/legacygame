@@ -783,7 +783,8 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
    the pointer leaves); standing (.selected: up 30px at 1.12x with the gold ring, its Locations lit, a strict toggle);
    held (.lifting: the fan card dims while its ghost rides the pointer); rejected (.reject: one shake). */
 .hand-wrap { padding-top: 36px; }
-.hand .card-wrap { transform: rotate(var(--rot, 0deg)) translateY(var(--ty, 0px)); transform-origin: 50% 100%; z-index: var(--z, 0); margin-left: 0; position: relative; transition: transform 0.2s, margin 0.2s, z-index 0s linear 220ms; outline: none; }
+.hand .card-wrap { transform: rotate(var(--rot, 0deg)) translateY(var(--ty, 0px)); transform-origin: 50% 100%; z-index: var(--z, 0); margin-left: 0; position: relative; transition: transform 0.2s, margin 0.2s, z-index 220ms linear; outline: none; -webkit-touch-callout: none; }
+.hand .card-wrap .card, .pic { -webkit-touch-callout: none; }
 .hand .card-lift { position: relative; transform-origin: 50% 100%; transition: transform 220ms cubic-bezier(0.19, 1, 0.22, 1); will-change: transform; }
 .hand .card-wrap .card { box-shadow: 0 14px 30px rgba(0, 0, 0, 0.75); transition: box-shadow 220ms; }
 .hand .card-wrap.selected { z-index: 20; transition-delay: 0s; }
@@ -798,7 +799,7 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 .hand .card-wrap.lifting { opacity: 0.35; }
 .hand .card-wrap.unplayable { cursor: not-allowed; }
 .hand .card-wrap.reject .card-lift { animation: card-reject 0.34s ease-out both; }
-@keyframes card-reject { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-7px); } 50% { transform: translateX(7px); } 75% { transform: translateX(-3px); } }
+@keyframes card-reject { 0%, 100% { translate: 0 0; } 25% { translate: -7px 0; } 50% { translate: 7px 0; } 75% { translate: -3px 0; } }
 /* The corner ⓘ on a standing card: reading never shares an input with playing. */
 .card-i { position: absolute; top: -12px; right: -12px; z-index: 6; width: 34px; height: 34px; padding: 0; border-radius: 50%; border: 2px solid var(--gold-2); background: radial-gradient(circle at 35% 35%, #1d3558, #0a1626 70%); color: var(--gold-2); font-size: 20px; line-height: 1; display: grid; place-items: center; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6); cursor: pointer; }
 .card-i:hover { background: radial-gradient(circle at 35% 35%, #f6d77a, #d7a422 60%, #b4851a); color: #1a1200; }

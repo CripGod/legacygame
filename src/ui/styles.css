@@ -656,7 +656,7 @@ body.dragging { cursor: grabbing; user-select: none; }
 .location.lost .loc-rule { color: #ffb3ae; border-color: var(--danger); }
 /* Feedback */
 .shake { animation: shake 0.5s; }
-@keyframes shake { 10%, 90% { transform: translateX(-2px); } 20%, 80% { transform: translateX(3px); } 30%, 50%, 70% { transform: translateX(-4px); } 40%, 60% { transform: translateX(4px); } }
+@keyframes shake { 10%, 90% { translate: -2px 0; } 20%, 80% { translate: 3px 0; } 30%, 50%, 70% { translate: -4px 0; } 40%, 60% { translate: 4px 0; } }
 .toast { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 30; background: #fff; color: #111; border-radius: 10px; padding: 8px 14px; font-size: 13px; max-width: min(92vw, 520px); box-shadow: 0 8px 24px rgba(0,0,0,0.5); border-left: 4px solid var(--danger); }
 .hand-wrap.drop-ok { outline: 2px dashed var(--ok); outline-offset: -6px; border-radius: 12px; }
 .gates-left.drop-ok { outline: 2px dashed var(--ok); outline-offset: 2px; border-radius: 8px; }

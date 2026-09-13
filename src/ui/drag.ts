@@ -132,13 +132,21 @@ export function useDrag(onDrop: (payload: DragPayload, target: DropTarget) => bo
       }
       setDrag(null);
     };
+    // Losing the window mid-drag (alt-tab, a phone call) ends the drag the same way a cancel does.
+    const onHidden = () => {
+      if (document.hidden) cancel();
+    };
     window.addEventListener('pointermove', move, { passive: false });
     window.addEventListener('pointerup', up);
     window.addEventListener('pointercancel', cancel);
+    window.addEventListener('blur', cancel);
+    document.addEventListener('visibilitychange', onHidden);
     return () => {
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerup', up);
       window.removeEventListener('pointercancel', cancel);
+      window.removeEventListener('blur', cancel);
+      document.removeEventListener('visibilitychange', onHidden);
     };
   }, []);
 

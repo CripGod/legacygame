@@ -442,6 +442,7 @@ export function Battlefield(props: BattlefieldProps) {
             onKeyDown={
               isTarget
                 ? (e) => {
+                    if (e.target !== e.currentTarget) return; // buttons inside the column keep their own Enter
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
                       onLocationTap(loc.index);

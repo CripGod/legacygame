@@ -32,17 +32,23 @@ export function Spotlight({ active }: { active: boolean }) {
         const lift = el.closest('.hand') ? (el.querySelector('.card-lift') as HTMLElement | null) : null;
         const lcs = lift ? getComputedStyle(lift) : null;
         const M = lcs && lcs.transform !== 'none' ? m.multiply(new DOMMatrix(lcs.transform)) : m;
-        const local = [
+        const corners: [number, number][] = [
           [0, 0],
           [w, 0],
           [w, h],
           [0, h],
-        ].map(([x, y]) => {
-          const pt = M.transformPoint(new DOMPoint(x - ox, y - oy));
-          return [pt.x + ox, pt.y + oy] as [number, number];
-        });
-        const minX = Math.min(...local.map((c) => c[0]));
-        const minY = Math.min(...local.map((c) => c[1]));
+        ];
+        const mapWith = (mat: DOMMatrix) =>
+          corners.map(([x, y]) => {
+            const pt = mat.transformPoint(new DOMPoint(x - ox, y - oy));
+            return [pt.x + ox, pt.y + oy] as [number, number];
+          });
+        // The measured rect is the wrapper's own transformed box, so the layout origin comes from the wrapper-only matrix;
+        // the outline uses the composed one, so a lifted card's cut-out follows the lift.
+        const base = mapWith(m);
+        const local = mapWith(M);
+        const minX = Math.min(...base.map((c) => c[0]));
+        const minY = Math.min(...base.map((c) => c[1]));
         const pts = local.map(([x, y]) => [r.left + (x - minX), r.top + (y - minY)] as [number, number]);
         next.push({ x: r.left, y: r.top, w: r.width, h: r.height, pts: el.closest('.hand') ? pts : undefined });
       });

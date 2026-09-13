@@ -125,16 +125,17 @@ export function Hand({
               }}
               onClick={() => onTap(id)}
               onContextMenu={(e) => {
-                // A mouse right-click reads the card; a touch long-press is handled by the hold timer, not the native menu.
-                if (lastPointer.current !== 'mouse') return;
+                // The native menu never shows on a hand card. A mouse right-click reads the card; a touch long-press is the hold timer's.
                 e.preventDefault();
-                onInspect(id);
+                if (lastPointer.current === 'mouse') onInspect(id);
               }}
               tabIndex={0}
               role="button"
               aria-pressed={sel}
               aria-label={`${name}, cost ${cardCost(id, view, me)}`}
               onKeyDown={(e) => {
+                // Only the wrapper itself: Enter on the corner ⓘ must read the card, not put it down.
+                if (e.target !== e.currentTarget) return;
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
                   onTap(id);

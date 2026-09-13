@@ -661,9 +661,10 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   const selectable = (id: string) => planning && !!opts.plays.find((p) => p.cardId === id) && !plan.plays.some((pl) => pl.cardId === id) && cardCost(id, view, me) <= energyLeft;
   const whyCannotPlay = (id: string): { text: string; shake: string[] } => {
     const nm = cardName(id, placeholders);
-    if (!opts.plays.find((p) => p.cardId === id)) return { text: `${nm} cannot be played right now.`, shake: [`[data-hand-card="${id}"]`] };
-    if (cardCost(id, view, me) > energyLeft) return { text: `Not enough Energy: ${nm} costs ${cardCost(id, view, me)} and you have ${energyLeft} left this turn. Energy equals the turn number, so it grows every turn.`, shake: [`[data-hand-card="${id}"]`, '.energy-meter'] };
-    return { text: `${nm} has nowhere to go right now.`, shake: [`[data-hand-card="${id}"]`] };
+    // The card itself shakes once through `.reject`; only what else explains it is shaken here.
+    if (!opts.plays.find((p) => p.cardId === id)) return { text: `${nm} cannot be played right now.`, shake: [] };
+    if (cardCost(id, view, me) > energyLeft) return { text: `Not enough Energy: ${nm} costs ${cardCost(id, view, me)} and you have ${energyLeft} left this turn. Energy equals the turn number, so it grows every turn.`, shake: ['.energy-meter'] };
+    return { text: `${nm} has nowhere to go right now.`, shake: [] };
   };
 
   /**
@@ -1026,19 +1027,18 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   useEffect(() => {
     if (selected && !view.players[me].hand.includes(selected)) setSelected(null);
   }, [selected, view, me]);
-  // A finger on a hybrid screen must not leave a mouse-style hover lift behind: body.touching for a second after any touch.
+  // A finger on a hybrid screen must not leave a mouse-style hover lift behind: body.touching from the first touch
+  // until a real mouse pointer moves again (a timer would hand the sticky emulated :hover straight back).
   useEffect(() => {
-    let h = 0;
-    const onDown = (e: PointerEvent) => {
-      if (e.pointerType === 'mouse') return;
-      document.body.classList.add('touching');
-      window.clearTimeout(h);
-      h = window.setTimeout(() => document.body.classList.remove('touching'), 1000);
+    const onPointer = (e: PointerEvent) => {
+      if (e.pointerType === 'mouse') document.body.classList.remove('touching');
+      else document.body.classList.add('touching');
     };
-    window.addEventListener('pointerdown', onDown, { capture: true, passive: true });
+    window.addEventListener('pointerdown', onPointer, { capture: true, passive: true });
+    window.addEventListener('pointermove', onPointer, { capture: true, passive: true });
     return () => {
-      window.removeEventListener('pointerdown', onDown, { capture: true });
-      window.clearTimeout(h);
+      window.removeEventListener('pointerdown', onPointer, { capture: true });
+      window.removeEventListener('pointermove', onPointer, { capture: true });
       document.body.classList.remove('touching');
     };
   }, []);
