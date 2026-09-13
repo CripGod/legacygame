@@ -48,15 +48,23 @@ export function CardSheet({
   id,
   onClose,
   extra,
+  actions,
 }: {
   id: string;
   onClose: () => void;
   /** A live readout for cards that track the match (Reparations: what it would pay right now). */
   extra?: React.ReactNode;
+  /** While the card stands in the hand: "Play at …" buttons and "Put back", the no-drag way to commit. */
+  actions?: React.ReactNode;
 }) {
   return (
     <CodexSheet id={id} label="In hand" onClose={onClose} flat>
-      {extra}
+      {actions || extra ? (
+        <>
+          {actions}
+          {extra}
+        </>
+      ) : undefined}
     </CodexSheet>
   );
 }

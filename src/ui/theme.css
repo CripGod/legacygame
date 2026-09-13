@@ -777,11 +777,37 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 .gate-slot .pic .ini { font-size: calc(var(--mini) * 0.26); }
 .slot .pic .ini { font-size: calc(var(--slot) * 0.3); }
 
-/* Hand: cards fan out from the centre and lift when picked. */
+/* Hand: cards fan out from the centre. The wrapper holds the fan pose (--rot, --ty, --z from Hand.tsx) and is the
+   only pointer target; the child .card-lift does every lift, so the hit box never moves under the pointer. Five poses:
+   fanned; hovered (mouse only, no memory: straighten, lift 22px, grow to 1.32x in 100ms, ease back in 220ms the moment
+   the pointer leaves); standing (.selected: up 30px at 1.12x with the gold ring, its Locations lit, a strict toggle);
+   held (.lifting: the fan card dims while its ghost rides the pointer); rejected (.reject: one shake). */
 .hand-wrap { padding-top: 36px; }
-.hand .card-wrap { transform-origin: 50% 100%; margin-left: 0; }
-.hand .card-wrap .card { box-shadow: 0 14px 30px rgba(0, 0, 0, 0.75); }
-.hand .card-wrap.selected .card, .hand .card-wrap:hover .card { box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--gold-2), 0 0 24px rgba(233, 185, 58, 0.45); }
+.hand .card-wrap { transform: rotate(var(--rot, 0deg)) translateY(var(--ty, 0px)); transform-origin: 50% 100%; z-index: var(--z, 0); margin-left: 0; position: relative; transition: transform 0.2s, margin 0.2s, z-index 0s linear 220ms; outline: none; }
+.hand .card-lift { position: relative; transform-origin: 50% 100%; transition: transform 220ms cubic-bezier(0.19, 1, 0.22, 1); will-change: transform; }
+.hand .card-wrap .card { box-shadow: 0 14px 30px rgba(0, 0, 0, 0.75); transition: box-shadow 220ms; }
+.hand .card-wrap.selected { z-index: 20; transition-delay: 0s; }
+.hand .card-wrap.selected .card-lift { transform: rotate(calc(-1 * var(--rot, 0deg))) translateY(-30px) scale(1.12); transition-duration: 180ms; transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); }
+.hand .card-wrap.selected .card, .hand .card-wrap:focus-visible .card { box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--gold-2), 0 0 24px rgba(233, 185, 58, 0.45); }
+@media (hover: hover) and (pointer: fine) {
+  body:not(.dragging):not(.touching) .hand-wrap:not(.rest):not(.settle) .hand .card-wrap:not(.lifting):not(.dealt):hover { z-index: 30; transition-delay: 0s; }
+  body:not(.dragging):not(.touching) .hand-wrap:not(.rest):not(.settle) .hand .card-wrap:not(.lifting):not(.dealt):hover .card-lift { transform: rotate(calc(-1 * var(--rot, 0deg))) translateY(-22px) scale(var(--hover-scale, 1.32)); transition-duration: 100ms; transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); }
+  body:not(.dragging):not(.touching) .hand-wrap:not(.rest):not(.settle) .hand .card-wrap:not(.lifting):not(.dealt):hover .card { box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--gold-2), 0 0 24px rgba(233, 185, 58, 0.45); }
+  .hand.compact .card-wrap { --hover-scale: 1.22; }
+}
+.hand .card-wrap.lifting { opacity: 0.35; }
+.hand .card-wrap.unplayable { cursor: not-allowed; }
+.hand .card-wrap.reject .card-lift { animation: card-reject 0.34s ease-out both; }
+@keyframes card-reject { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-7px); } 50% { transform: translateX(7px); } 75% { transform: translateX(-3px); } }
+/* The corner ⓘ on a standing card: reading never shares an input with playing. */
+.card-i { position: absolute; top: -12px; right: -12px; z-index: 6; width: 34px; height: 34px; padding: 0; border-radius: 50%; border: 2px solid var(--gold-2); background: radial-gradient(circle at 35% 35%, #1d3558, #0a1626 70%); color: var(--gold-2); font-size: 20px; line-height: 1; display: grid; place-items: center; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6); cursor: pointer; }
+.card-i:hover { background: radial-gradient(circle at 35% 35%, #f6d77a, #d7a422 60%, #b4851a); color: #1a1200; }
+@media (pointer: coarse) { .card-i { width: 44px; height: 44px; font-size: 24px; } }
+@media (prefers-reduced-motion: reduce) {
+  :root { --hover-scale: 1.22; }
+  .hand .card-lift, .hand .card-wrap { transition: none; }
+  .hand .card-wrap.reject .card-lift { animation: none; }
+}
 .card { --bw: 2.5px; --bfill: linear-gradient(180deg, #f7efdc 0%, #efe2c4 100%); }
 .card::before { inset: 4px; border-color: rgba(138, 106, 20, 0.6); }
 .card .card-art { height: calc(var(--card-w) * 0.72); }

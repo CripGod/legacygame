@@ -16,6 +16,7 @@ export type SfxName =
   | 'card.pick'
   | 'card.drop'
   | 'card.back'
+  | 'card.reject'
   | 'card.inside'
   | 'card.deal'
   | 'card.hover'
@@ -49,6 +50,7 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   'card.pick': 'A hand card selected or picked up.',
   'card.drop': 'A card lands on a Location (planned, or placed at the Gates in the replay).',
   'card.back': 'A planned card taken back to the hand.',
+  'card.reject': 'A card that cannot be played right now was tapped, or a drop was refused: it comes back with a low thud.',
   'card.inside': 'A card planned straight Inside (Direct Entry, or dropped on the Inside row).',
   'card.deal': 'A card deals into the hand (one per card, staggered).',
   'card.hover': 'The pointer arrives on a button, a hand card, a board tile or a Location.',
@@ -90,6 +92,7 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'card.pick': [{ files: ['card-pick-1', 'card-pick-2'], gain: 0.6 }],
   'card.drop': [{ files: ['card-drop-1', 'card-drop-2', 'card-drop-3'], gain: 0.7 }, { files: ['thud-soft'], gain: 0.45 }],
   'card.back': [{ files: ['card-back'], gain: 0.55 }],
+  'card.reject': [{ files: ['card-back'], gain: 0.45 }, { files: ['thud-soft'], gain: 0.35, at: 40 }],
   'card.inside': [{ files: ['card-drop-1', 'card-drop-2', 'card-drop-3'], gain: 0.7 }, { files: ['thud-soft'], gain: 0.5 }, { files: ['turn'], gain: 0.45, at: 120 }],
   'card.deal': [{ files: ['card-pick-1', 'card-pick-2', 'draw'], gain: 0.5 }],
   'card.hover': [], // synth: a tiny tick
@@ -299,6 +302,10 @@ function synth(name: SfxName, t: number): void {
       break;
     case 'card.back':
       swoosh(t, 0.16, 2400, 500, 0.2);
+      break;
+    case 'card.reject':
+      swoosh(t, 0.14, 2000, 500, 0.16);
+      thud(t + 0.04, 0.18, 120, 60, 0.14);
       break;
     case 'card.inside':
       thud(t, 0.35, 170, 60, 0.16);

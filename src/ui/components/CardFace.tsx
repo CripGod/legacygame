@@ -89,6 +89,7 @@ export function Pic({
   c,
   strip,
   onClick,
+  onContextMenu,
   highlight,
   badges,
   focus,
@@ -98,6 +99,8 @@ export function Pic({
   c: CharacterInstance;
   strip?: string;
   onClick?: () => void;
+  /** Right-click reads the piece, the way it reads a hand card. */
+  onContextMenu?: (e: React.MouseEvent) => void;
   highlight?: boolean;
   /** Board animation for a clash beat: the striker gathers itself, the victim takes the hit (or holds, or is hexed), a tile lands. */
   fx?: 'windup' | 'knocked' | 'held' | 'hexed' | 'land';
@@ -122,6 +125,7 @@ export function Pic({
       className={`pic ${c.owner} ${isSuppressed(state, c) ? 'suppressed' : ''} ${highlight ? 'highlight' : ''} ${focus ? 'focus' : ''} ${atHome ? 'home' : ''} ${fx ? `fx-${fx}` : ''}`}
       style={{ background: hueFor(c.defId) }}
       onClick={onClick}
+      onContextMenu={onContextMenu}
       title={`${cardName(c.defId, placeholders)} · ${inf} Influence · ${def.force} Force`}
     >
       {placeholders ? <span className="ini">{initials(c.defId, true)}</span> : <Art kind="characters" id={c.defId} className="pic-img" fallback={<span className="ini">{initials(c.defId, false)}</span>} alt={def.name} />}

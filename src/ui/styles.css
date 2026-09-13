@@ -372,7 +372,6 @@ button.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 }
 .hand { display: flex; justify-content: center; align-items: flex-end; }
 .hand .card-wrap { transition: transform 0.2s, margin 0.2s; cursor: pointer; flex: none; }
-.hand .card-wrap.selected { z-index: 5; }
 .hand .card-wrap.planned { opacity: 0.35; }
 .actions { display: flex; gap: 8px; align-items: center; justify-content: flex-end; flex-wrap: wrap; }
 
@@ -624,6 +623,12 @@ table.stats td:last-child { text-align: right; font-variant-numeric: tabular-num
   position: fixed; z-index: 90; pointer-events: none; transform: translate(-50%, -60%) rotate(-3deg) scale(1.05);
   filter: drop-shadow(0 14px 24px rgba(0,0,0,0.6));
 }
+/* On touch the ghost rides above the finger so the thumb does not hide it. */
+.drag-ghost.touch { transform: translate(-50%, -115%) rotate(-3deg) scale(1.05); }
+/* A refused drop: the ghost flies back to the card's slot in the fan, then the real card shows again. */
+.drag-ghost.returning { transition: left 180ms ease-in, top 180ms ease-in, transform 180ms ease-in; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+.drag-ghost.snap { transition: opacity 120ms; opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .drag-ghost.returning { transition: none; opacity: 0; } }
 .drag-ghost .tile { width: var(--mini); height: var(--mini); border-radius: 8px; overflow: hidden; }
 .drag-ghost .card { pointer-events: none; }
 body.dragging { cursor: grabbing; user-select: none; }

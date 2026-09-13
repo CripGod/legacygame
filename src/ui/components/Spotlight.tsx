@@ -28,13 +28,17 @@ export function Spotlight({ active }: { active: boolean }) {
         const w = el.offsetWidth;
         const h = el.offsetHeight;
         const [ox, oy] = cs.transformOrigin.split(' ').map((v) => parseFloat(v) || 0);
+        // A hand card lifts on an inner .card-lift (same size, same 50% 100% origin): compose its transform with the wrapper's.
+        const lift = el.closest('.hand') ? (el.querySelector('.card-lift') as HTMLElement | null) : null;
+        const lcs = lift ? getComputedStyle(lift) : null;
+        const M = lcs && lcs.transform !== 'none' ? m.multiply(new DOMMatrix(lcs.transform)) : m;
         const local = [
           [0, 0],
           [w, 0],
           [w, h],
           [0, h],
         ].map(([x, y]) => {
-          const pt = m.transformPoint(new DOMPoint(x - ox, y - oy));
+          const pt = M.transformPoint(new DOMPoint(x - ox, y - oy));
           return [pt.x + ox, pt.y + oy] as [number, number];
         });
         const minX = Math.min(...local.map((c) => c[0]));

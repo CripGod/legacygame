@@ -66,7 +66,7 @@ function playLesson(view: GameState, me: PlayerId, _placeholders: boolean, why: 
   const all = affordable.length === view.players[me].hand.length;
   return {
     kind: 'do',
-    text: `Drag one of the lit cards onto a Location. ${all ? 'Every card in your hand' : `Everything costing ${energy} or less`} is lit: that is what your ${energy} Energy buys this turn. Any Location will do. ${why}`.trim(),
+    text: `Drag one of the lit cards onto a Location, or tap the card and then tap the Location. ${all ? 'Every card in your hand' : `Everything costing ${energy} or less`} is lit: that is what your ${energy} Energy buys this turn. Any Location will do. ${why}`.trim(),
     cards: affordable,
     done: (_v, plan) => plan.plays.length > 0,
   };

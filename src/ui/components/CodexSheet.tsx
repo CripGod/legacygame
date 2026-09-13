@@ -15,6 +15,7 @@ import '../compendium.css';
 export function CodexSheet({ id, label, onClose, children, flat }: { id: string; label: string; onClose: () => void; children?: ReactNode; /** No backdrop blur: for the match, where the board behind keeps animating and a blurred backdrop would re-render every frame. */ flat?: boolean }) {
   const { placeholders } = useDisplay();
   const [open, setOpen] = useState(false);
+  const mountedAt = useRef(performance.now());
   useEffect(() => {
     sfx('sheet.open');
     return () => sfx('sheet.close');
@@ -64,7 +65,17 @@ export function CodexSheet({ id, label, onClose, children, flat }: { id: string;
   const mythic = def.kind === 'character' && def.category === 'mythic';
   const history = placeholders ? undefined : def.history;
   return (
-    <div className={`scrim cx-scrim ${flat ? 'flat' : ''}`} onClick={onClose}>
+    <div
+      className={`scrim cx-scrim ${flat ? 'flat' : ''}`}
+      onClick={() => {
+        // The click that opened the sheet (a hold released, a right-click's mouseup) must not close it at once.
+        if (performance.now() - mountedAt.current > 250) onClose();
+      }}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        onClose();
+      }}
+    >
       <div className={`cx-stage ${open ? 'open' : ''} ${children ? 'has-tray' : ''}`} role="dialog" aria-modal="true" aria-label={cardName(id, placeholders)} onClick={(e) => e.stopPropagation()}>
         <button className="cx-x cx-ctl cx-stage-x" onClick={onClose} aria-label="Close">
           ✕

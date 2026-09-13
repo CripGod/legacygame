@@ -207,7 +207,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                       {fx.stamp.sub && <i>{fx.stamp.sub}</i>}
                     </div>
                   )}
-                  <Pic state={view} c={s} badges fx={picFx(fx, s.uid)} focus={focus?.includes(s.uid)} strip={planned ? 'Planned' : moving ? 'Moving' : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockReason(view, s) ? 'Held' : undefined} onClick={() => onChar(s.uid)} />
+                  <Pic state={view} c={s} badges fx={picFx(fx, s.uid)} focus={focus?.includes(s.uid)} strip={planned ? 'Planned' : moving ? 'Moving' : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockReason(view, s) ? 'Held' : undefined} onClick={() => onChar(s.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(s.uid); }} />
                 </div>
               </div>
             );
@@ -274,7 +274,7 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
                   {fx.stamp.sub && <i>{fx.stamp.sub}</i>}
                 </div>
               )}
-              <Pic state={view} c={c} highlight={confronting} fx={picFx(fx, c.uid)} focus={focus?.includes(c.uid)} strip={entering ? 'Entering' : brought ? 'Moving' : planned ? 'Planned' : confronting ? 'Confront' : lockReason(view, c) ? 'Held' : undefined} onClick={() => onChar(c.uid)} />
+              <Pic state={view} c={c} highlight={confronting} fx={picFx(fx, c.uid)} focus={focus?.includes(c.uid)} strip={entering ? 'Entering' : brought ? 'Moving' : planned ? 'Planned' : confronting ? 'Confront' : lockReason(view, c) ? 'Held' : undefined} onClick={() => onChar(c.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(c.uid); }} />
             </div>
           );
         })}
@@ -436,6 +436,19 @@ export function Battlefield(props: BattlefieldProps) {
             data-drop="location"
             data-index={loc.index}
             onClick={isTarget ? () => onLocationTap(loc.index) : undefined}
+            tabIndex={isTarget ? 0 : undefined}
+            role={isTarget ? 'button' : undefined}
+            aria-label={isTarget ? `Play here: ${loc.revealed ? locationName(loc.defId, placeholders) : `Location ${loc.index + 1}`}` : undefined}
+            onKeyDown={
+              isTarget
+                ? (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onLocationTap(loc.index);
+                    }
+                  }
+                : undefined
+            }
           >
             <GateStrip {...common} owner={opp} index={loc.index} label="Opponent Gates" right={title} />
             <div className={`loc-glow ${state}`}>

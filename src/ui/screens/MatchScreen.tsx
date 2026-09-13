@@ -171,6 +171,14 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   const { placeholders } = useDisplay();
   const compact = useCompact();
   const [selected, setSelected] = useState<string | null>(null);
+  /** A card tapped that cannot be played right now: it shakes once. */
+  const [rejectId, setRejectId] = useState<string | null>(null);
+  /** The 250 ms after a card was put down or a drag ended: no hover lift, so nothing pops straight back up under the pointer. */
+  const [settle, setSettle] = useState(false);
+  const settleFor = useCallback(() => {
+    setSettle(true);
+    window.setTimeout(() => setSettle(false), 250);
+  }, []);
   const [sheet, setSheet] = useState<SheetState>(null);
   const [flash, setFlash] = useState<string | null>(null);
   /** Match over and the player chose to look at the final board instead of the result card. */
@@ -613,23 +621,6 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   /** Sheets show while the board is settled, or beat by beat during a replay. */
   const sheetsOk = !busy || !!m.replay;
 
-  // Escape closes any sheet; with none open it puts a raised hand card back down.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setSheet((s) => {
-          if (!s) setSelected(null);
-          return null;
-        });
-      }
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
-        e.preventDefault();
-        undo();
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [undo]);
 
   // First-turn guide: suggest a concrete move and glow the pieces involved.
   const guide = useMemo(() => (guideOn && view.turn === 1 && planning ? suggest(view, me, placeholders) : null), [guideOn, view, me, planning, placeholders]);
@@ -666,15 +657,21 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     if (def?.keywords?.includes('INFORMANT')) return gateRoom(view, i, other(me), plan.plays.filter((pl) => pl.location === i && pl.cardId !== cardId && (CARD_BY_ID[pl.cardId] as { keywords?: string[] })?.keywords?.includes('INFORMANT')).length) > 0;
     return gateRoom(view, i, me, plannedAt(i, cardId)) > 0;
   };
-  const targetable = useMemo(() => {
-    if (!selected || !planning) return [];
-    const opt = opts.plays.find((p) => p.cardId === selected);
-    if (!opt) return [];
-    return opt.locations.filter((i) => roomFor(selected, i));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, opts, planning, plan, view, me]);
+  /** A card can stand: it has a legal play this turn, costs no more than the Energy left, and is not already planned. */
+  const selectable = (id: string) => planning && !!opts.plays.find((p) => p.cardId === id) && !plan.plays.some((pl) => pl.cardId === id) && cardCost(id, view, me) <= energyLeft;
+  const whyCannotPlay = (id: string): { text: string; shake: string[] } => {
+    const nm = cardName(id, placeholders);
+    if (!opts.plays.find((p) => p.cardId === id)) return { text: `${nm} cannot be played right now.`, shake: [`[data-hand-card="${id}"]`] };
+    if (cardCost(id, view, me) > energyLeft) return { text: `Not enough Energy: ${nm} costs ${cardCost(id, view, me)} and you have ${energyLeft} left this turn. Energy equals the turn number, so it grows every turn.`, shake: [`[data-hand-card="${id}"]`, '.energy-meter'] };
+    return { text: `${nm} has nowhere to go right now.`, shake: [`[data-hand-card="${id}"]`] };
+  };
 
-  const selectCard = (cardId: string) => {
+  /**
+   * A tap (or click) on a hand card. Not planning: read it. Planned: take it back. Standing: put it down (a strict
+   * toggle: the second tap never opens the Codex any more; right-click, a hold, the corner ⓘ and the hint's chip read).
+   * Unplayable: it shakes and the toast says why. Otherwise it stands, its Locations light, and the hint names the exits.
+   */
+  const tapCard = (cardId: string) => {
     if (!planning) {
       setSheet({ kind: 'card', id: cardId });
       return;
@@ -684,38 +681,27 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       setSelected(null);
       return;
     }
-    const opt = opts.plays.find((p) => p.cardId === cardId);
-    if (!opt) {
-      setSheet({ kind: 'card', id: cardId });
+    if (selected === cardId) {
+      sfx('card.back');
+      setSelected(null);
+      settleFor();
       return;
     }
-    if (selected === cardId) {
-      setSheet({ kind: 'card', id: cardId });
+    if (!selectable(cardId)) {
+      if (selected) {
+        sfx('card.back');
+        setSelected(null);
+      }
+      sfx('card.reject');
+      setRejectId(cardId);
+      window.setTimeout(() => setRejectId((r) => (r === cardId ? null : r)), 340);
+      const why = whyCannotPlay(cardId);
+      feedback(why.text, why.shake);
       return;
     }
     sfx('card.pick');
     setSelected(cardId);
   };
-
-  /**
-   * A raised card goes back down when you click anywhere that is not part of playing it: not the hand,
-   * not a Location column, not the Inspect chip, not a sheet. One click to lift, one click elsewhere to set down.
-   */
-  const appRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!selected) return;
-    const root = appRef.current;
-    if (!root) return;
-    const onDown = (e: PointerEvent) => {
-      const t = e.target as Element | null;
-      if (!t || !root.contains(t)) return;
-      if (t.closest('.hand, .column.targetable, .hint, .scrim, .sheet, .cx-scrim, .toast')) return;
-      sfx('card.back');
-      setSelected(null);
-    };
-    root.addEventListener('pointerdown', onDown);
-    return () => root.removeEventListener('pointerdown', onDown);
-  }, [selected]);
 
   const commitPlay = (location: number, cardId: string | null = selected) => {
     if (!cardId) return;
@@ -725,6 +711,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     addPlay({ cardId, location: opt.needsLocation ? location : 0 });
     setSelected(null);
     setSheet(null);
+    settleFor();
   };
 
   /** Stand on Business is one tap: it toggles in the plan and the toast explains what it does. */
@@ -955,9 +942,12 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   const onDrop = useCallback(
     (payload: DragPayload, target: DropTarget) => {
       const ok = dropTargetsFor(payload);
-      const fail = () => {
+      // A refused drop returns false: a card's ghost then flies back to its slot.
+      const fail = (): false => {
+        sfx('card.reject');
         const why = explain(payload, target);
         if (why) feedback(why.text, why.shake);
+        return false;
       };
       const idx = target.type === 'location' || target.type === 'inside' || target.type === 'gates' ? target.index : -1;
       if (payload.kind === 'card') {
@@ -966,7 +956,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
             sfx('card.back');
             setPlan((p) => ({ ...p, plays: p.plays.filter((pl) => pl.cardId !== payload.cardId) }));
           }
-          return;
+          return ok.hand;
         }
         if (target.type === 'threat' || !ok.locations.includes(idx)) return fail();
         const opt = opts.plays.find((p) => p.cardId === payload.cardId);
@@ -1015,15 +1005,121 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     window.setTimeout(() => setHandNudge(false), 450);
     feedback(m.replay ? 'The turn is playing out. Skip ▸▸ jumps to the end.' : locked ? (m.mode === 'ai' ? 'Locked in. Harborlight is deciding.' : 'Locked in. Waiting for the other side.') : 'One moment: the board is settling.', [], 'info');
   }, [m.replay, m.mode, locked, feedback]);
-  const { drag, dragProps } = useDrag(onDrop, planning, onBlocked);
+  /** A still touch of half a second reads the card or the piece under the finger. */
+  const onHold = useCallback((p: DragPayload) => {
+    if (p.kind === 'card') setSheet({ kind: 'card', id: p.cardId });
+    else if (isPlannedUid(p.uid)) setSheet({ kind: 'card', id: p.uid.slice(PLANNED_PREFIX.length) });
+    else setSheet({ kind: 'char', uid: p.uid });
+  }, []);
+  const { drag, dragProps, cancelDrag } = useDrag(onDrop, planning, onBlocked, onHold, settleFor);
   useEffect(() => {
     document.body.classList.toggle('dragging', !!drag);
     return () => document.body.classList.remove('dragging');
   }, [drag]);
+  // A drag, the end of planning, or the card leaving the hand all put a standing card down.
+  useEffect(() => {
+    if (drag) setSelected(null);
+  }, [drag]);
+  useEffect(() => {
+    if (!planning) setSelected(null);
+  }, [planning]);
+  useEffect(() => {
+    if (selected && !view.players[me].hand.includes(selected)) setSelected(null);
+  }, [selected, view, me]);
+  // A finger on a hybrid screen must not leave a mouse-style hover lift behind: body.touching for a second after any touch.
+  useEffect(() => {
+    let h = 0;
+    const onDown = (e: PointerEvent) => {
+      if (e.pointerType === 'mouse') return;
+      document.body.classList.add('touching');
+      window.clearTimeout(h);
+      h = window.setTimeout(() => document.body.classList.remove('touching'), 1000);
+    };
+    window.addEventListener('pointerdown', onDown, { capture: true, passive: true });
+    return () => {
+      window.removeEventListener('pointerdown', onDown, { capture: true });
+      window.clearTimeout(h);
+      document.body.classList.remove('touching');
+    };
+  }, []);
   const drop: DropHighlight | null = useMemo(() => {
-    if (!drag) return null;
+    if (!drag || drag.returning || drag.snap) return null;
     return { ...dropTargetsFor(drag.payload), overKey: targetKey(drag.over) };
   }, [drag, dropTargetsFor]);
+  // The ghost arrives over a target that will take it: a tick.
+  const lastOver = useRef('');
+  useEffect(() => {
+    const k = drop?.overKey ?? '';
+    if (k && k !== lastOver.current) sfx('card.hover');
+    lastOver.current = k;
+  }, [drop?.overKey]);
+  /** The Locations a standing card can go to right now (legal, affordable, with room). */
+  const targetable = useMemo(() => (selected && planning ? dropTargetsFor({ kind: 'card', cardId: selected }).locations : []), [selected, planning, dropTargetsFor]);
+  /**
+   * A standing card goes back down on any press that is not part of playing or reading it: not a hand card, a lit
+   * Location, the corner ⓘ, a hint chip, a plan chip, a sheet or a toast. A press on an unlit Location also says why.
+   */
+  useEffect(() => {
+    if (!selected) return;
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as Element | null;
+      if (!t) return;
+      if (t.closest('[data-hand-card], .column.targetable, .card-i, .hint .chip, .plan-chip, .scrim, .sheet, .cx-scrim, .tut-sheet, .toast')) return;
+      sfx('card.back');
+      setSelected(null);
+      settleFor();
+      const col = t.closest('.column') as HTMLElement | null;
+      if (col && col.dataset.index !== undefined) {
+        const why = explain({ kind: 'card', cardId: selected }, { type: 'location', index: Number(col.dataset.index) });
+        if (why) feedback(why.text, why.shake);
+      }
+    };
+    window.addEventListener('pointerdown', onDown, { capture: true });
+    return () => window.removeEventListener('pointerdown', onDown, { capture: true });
+  }, [selected, explain, feedback, settleFor]);
+  // Keys: Escape closes a sheet, else sends a dragged card home, else puts a standing card down; 1-3 play the standing
+  // card at that Location; i reads it; Cmd/Ctrl+Z undoes.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement | null)?.closest?.('input, textarea, [contenteditable]')) return;
+      if (e.key === 'Escape') {
+        if (sheet) {
+          setSheet(null);
+          return;
+        }
+        if (drag) {
+          cancelDrag();
+          return;
+        }
+        if (selected) {
+          sfx('card.back');
+          setSelected(null);
+          settleFor();
+        }
+        return;
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        undo();
+        return;
+      }
+      if (!sheet && planning && selected) {
+        if (/^[1-3]$/.test(e.key)) {
+          const i = Number(e.key) - 1;
+          if (targetable.includes(i)) commitPlay(i);
+          else {
+            const why = explain({ kind: 'card', cardId: selected }, { type: 'location', index: i });
+            if (why) feedback(why.text, why.shake);
+          }
+          return;
+        }
+        if (e.key.toLowerCase() === 'i') setSheet({ kind: 'card', id: selected });
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [undo, sheet, drag, selected, planning, targetable, cancelDrag, explain, feedback, settleFor]);
 
   const onChar = (uid: string) => {
     if (isPlannedUid(uid)) {
@@ -1105,12 +1201,13 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     if (busy) return m.replay ? 'Watching the turn play out…' : 'Harborlight moves…';
     if (locked) return m.mode === 'ai' ? 'Locked. Harborlight is deciding…' : 'Locked.';
     if (view.players[me].hand.length - plan.plays.length >= MAX_HAND && view.players[me].deckCount > 0 && !selected) return `Hand full (${MAX_HAND}). Play a card or your next draw is discarded.`;
-    if (selected) return `Tap a Location to commit ${cardName(selected, placeholders)}.`;
+    if (drag?.payload.kind === 'card') return `Drop ${cardName(drag.payload.cardId, placeholders)} on a lit Location. Let go anywhere else, or press Escape, to put it back.`;
+    if (selected) return `Tap a lit Location to play ${cardName(selected, placeholders)}. Tap it again to put it back. Press 1-3 or drag it.`;
     if (harrietPlay && !harrietPlay.target) return 'Harriet Tubman: drag any of your Characters to another Location and she takes them straight Inside. Free, and she gets them out of a curfew (optional).';
     if (yemojaPlay && !yemojaPlay.target) return `${cardName(yemojaPlay.cardId, placeholders)}: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : `Location ${yemojaPlay.location + 1}`} (optional).`;
     const affordable = opts.plays.filter((o) => !plan.plays.some((pl) => pl.cardId === o.cardId) && cardCost(o.cardId, view, me) <= energyLeft).length;
     if (planItems.length) return affordable > 0 ? '' : '';
-    return 'Drag a card onto a Location.';
+    return 'Drag a card onto a Location, or tap it and then tap a Location.';
   })();
 
   // The opponent Stood on Business and the raise has not landed yet: this is the one cheap turn to Sit Down.
@@ -1118,7 +1215,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   const stepOffLabel = `Sit Down${opts.canStepOff && view.phase !== 'ended' ? ` (−${opts.stepOffCost})` : ''}`;
 
   return (
-    <div ref={appRef} className={`app ${resolving ? 'resolving' : ''}`}>
+    <div className={`app ${resolving ? 'resolving' : ''}`}>
       <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, flash: flash === 'stakes' || flash === 'final', onToggle: toggleStand }} />
       <div className="main-wrap">
         <Battlefield
@@ -1220,29 +1317,26 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         )}
       </div>
       <div className="bottom">
-        <Hand view={view} me={me} plan={m.replay ? m.replay.plan : plan} selected={selected} rest={!planning} nudge={handNudge} onSelect={selectCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} dragProps={dragProps} glow={guideCard} energyLeft={planning ? energyLeft : undefined} dropState={drop?.hand ? (drop.overKey === 'hand' ? 'over' : 'ok') : null} />
-        <div className="hint">
-          {selected && planning ? (
+        <Hand view={view} me={me} plan={m.replay ? m.replay.plan : plan} selected={selected} rest={!planning} nudge={handNudge} onTap={tapCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} dragProps={dragProps} glow={guideCard} energyLeft={planning ? energyLeft : undefined} dropState={drop?.hand ? (drop.overKey === 'hand' ? 'over' : 'ok') : null} held={drag?.payload.kind === 'card' ? drag.payload.cardId : null} reject={rejectId} settle={settle} canPlay={selectable} />
+        <div className="hint" aria-live="polite">
+          {planItems.map((it) => (
+            <span key={it.key} className="plan-chip">
+              {it.label}
+              {it.toggle && (
+                <button className="x swap" onClick={it.toggle} aria-label="Switch between Gates and Inside" title="Gates or Inside">
+                  ⇅
+                </button>
+              )}
+              <button className="x" onClick={it.remove} aria-label={`Remove ${it.label}`} title="Remove this move">
+                ✕
+              </button>
+            </span>
+          ))}
+          {hint && <span>{hint}</span>}
+          {selected && planning && (
             <button className="small chip" onClick={() => setSheet({ kind: 'card', id: selected })}>
-              ⓘ Inspect {cardName(selected, placeholders)}
+              ⓘ Read {cardName(selected, placeholders)}
             </button>
-          ) : (
-            <>
-              {planItems.map((it) => (
-                <span key={it.key} className="plan-chip">
-                  {it.label}
-                  {it.toggle && (
-                    <button className="x swap" onClick={it.toggle} aria-label="Switch between Gates and Inside" title="Gates or Inside">
-                      ⇅
-                    </button>
-                  )}
-                  <button className="x" onClick={it.remove} aria-label={`Remove ${it.label}`} title="Remove this move">
-                    ✕
-                  </button>
-                </span>
-              ))}
-              {hint && <span>{hint}</span>}
-            </>
           )}
           {planning && history.length > 0 && (
             <button className="small chip undo" onClick={undo} title="Cmd/Ctrl+Z">
@@ -1312,7 +1406,10 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       </div>
 
       {drag && (
-        <div className="drag-ghost" style={{ left: drag.x, top: drag.y }}>
+        <div
+          className={`drag-ghost ${drag.payload.kind === 'card' ? 'card-ghost' : ''} ${drag.pointerType !== 'mouse' ? 'touch' : ''} ${drag.returning ? 'returning' : ''} ${drag.snap ? 'snap' : ''}`}
+          style={drag.returning ? { left: drag.from.left + drag.from.width / 2, top: drag.from.top + drag.from.height / 2 } : { left: drag.x, top: drag.y }}
+        >
           {drag.payload.kind === 'card' ? (
             <CardFace id={drag.payload.cardId} />
           ) : view.characters[drag.payload.uid] ? (
@@ -1324,7 +1421,35 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       )}
       {trail && <Trails shots={trail} freezeAt={trailFreeze} onDone={() => { setTrail(null); setTrailFreeze(undefined); }} />}
       {dig && <DigReveal key={digKey.current} dig={dig} me={me} freeze={digFreeze} onDone={() => { setDig(null); setDigFreeze(undefined); }} />}
-      {sheet?.kind === 'card' && <CardSheet id={sheet.id} onClose={() => setSheet(null)} extra={sheet.id === 'reparations' ? <ReparationsReadout view={view} me={me} placeholders={placeholders} /> : undefined} />}
+      {sheet?.kind === 'card' && (
+        <CardSheet
+          id={sheet.id}
+          onClose={() => setSheet(null)}
+          extra={sheet.id === 'reparations' ? <ReparationsReadout view={view} me={me} placeholders={placeholders} /> : undefined}
+          actions={
+            planning && sheet.id === selected ? (
+              <>
+                {targetable.map((i) => (
+                  <button key={i} className="small chip" onClick={() => commitPlay(i, sheet.id)}>
+                    Play at {view.locations[i].revealed ? locationName(view.locations[i].defId, placeholders) : `Location ${i + 1}`}
+                  </button>
+                ))}
+                <button
+                  className="small chip"
+                  onClick={() => {
+                    sfx('card.back');
+                    setSelected(null);
+                    setSheet(null);
+                    settleFor();
+                  }}
+                >
+                  Put back
+                </button>
+              </>
+            ) : undefined
+          }
+        />
+      )}
       {sheet?.kind === 'char' && <CharSheet view={view} uid={sheet.uid} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'threat' && <ThreatSheet view={view} me={me} threatUid={sheet.uid} plan={plan} locked={!planning} onClose={() => setSheet(null)} onToggle={toggleConfront} />}
       {sheet?.kind === 'location' && <LocationSheet view={view} index={sheet.index} onClose={() => setSheet(null)} />}

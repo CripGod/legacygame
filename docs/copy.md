@@ -910,7 +910,9 @@ Main menu
 - relocates to ${view.locations[r.to].revealed ? locationName(view.locations[r.to].defId, placeholders) : 
 - That is the move. Press Lock It In.
 - That works too. Or ${guide.text.charAt(0).toLowerCase()}${guide.text.slice(1)}
-- .hand, .column.targetable, .hint, .scrim, .sheet, .cx-scrim, .toast
+- ${nm} cannot be played right now.
+- Not enough Energy: ${nm} costs ${cardCost(id, view, me)} and you have ${energyLeft} left this turn. Energy equals the turn number, so it grows every turn.
+- ${nm} has nowhere to go right now.
 - Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds a 9th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.
 - Not enough Energy. ${cardName(play.cardId, placeholders)} costs ${cost} and you have ${opts.energy - spent} left of ${opts.energy} this turn (Energy = the turn number). Remove a planned card or wait a turn.
 - ${cardName(play.cardId, placeholders)} goes Inside right away (Direct Entry). Tap ⇅ on the planned move to wait at the Gates instead.
@@ -918,7 +920,6 @@ Main menu
 - ${cardName(play.cardId, placeholders)} planned. Optional: drag one of your Established Characters from another Location onto this one and ${cardName(play.cardId, placeholders)} brings them across.
 - ${nm} is a card in your hand. Drop it on a Location; Threats are confronted by Characters already there.
 - ${locNameAt(i)} is Lost. Nobody can win it, so nothing can be played there.
-- ${nm} cannot be played right now.
 - Not enough Energy: ${nm} costs ${cardCost(payload.cardId, view, me)} and you have ${opts.energy - planCost(plan, view, me)} left this turn. Energy equals the turn number, so it grows every turn.
 - The Event slot at ${locNameAt(i)} already holds ${otherEv ? cardName(otherEv.cardId, placeholders) : 'an Event'} this turn. One Event per Location per turn: play ${nm} somewhere else.
 - ${view.players[other(me)].handle}'s Gates at ${locNameAt(i)} are full. An Informant needs one of their slots open: plant ${nm} where they have room.
@@ -956,6 +957,8 @@ Main menu
 - Locked in. Harborlight is deciding.
 - Locked in. Waiting for the other side.
 - One moment: the board is settling.
+- [data-hand-card], .column.targetable, .card-i, .hint .chip, .plan-chip, .scrim, .sheet, .cx-scrim, .tut-sheet, .toast
+- input, textarea, [contenteditable]
 - SUMMON · You ${mine ? '✓' : '?'} · ${view.players[other(me)].handle} ${theirs ?? (mine ? '?' : '')}
 - ${cardName(pl.cardId, placeholders)}${where}${direct ? (pl.enter ? ' · Inside' : ' · Gates') : ''}
 - ${cardName(c.defId, placeholders)} enters
@@ -967,10 +970,11 @@ Main menu
 -  : 'a draw'}. Tap any card or Location for details.
 - Locked. Harborlight is deciding…
 - Hand full (${MAX_HAND}). Play a card or your next draw is discarded.
-- Tap a Location to commit ${cardName(selected, placeholders)}.
+- Drop ${cardName(drag.payload.cardId, placeholders)} on a lit Location. Let go anywhere else, or press Escape, to put it back.
+- Tap a lit Location to play ${cardName(selected, placeholders)}. Tap it again to put it back. Press 1-3 or drag it.
 - Harriet Tubman: drag any of your Characters to another Location and she takes them straight Inside. Free, and she gets them out of a curfew (optional).
 - ${cardName(yemojaPlay.cardId, placeholders)}: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : 
-- Drag a card onto a Location.
+- Drag a card onto a Location, or tap it and then tap a Location.
 - Sit Down${opts.canStepOff && view.phase !== 'ended' ? 
 - app ${resolving ? 'resolving' : ''}
 - replay-banner kind-clash ${clashTell.tone}
@@ -985,6 +989,7 @@ Main menu
 - danger sit-btn ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}
 - turn-mini ${finalTurnLabel(view) ? 'final' : ''}
 - T${Math.min(view.turn, view.maxTurns)}/${view.maxTurns}
+- drag-ghost ${drag.payload.kind === 'card' ? 'card-ghost' : ''} ${drag.pointerType !== 'mouse' ? 'touch' : ''} ${drag.returning ? 'returning' : ''} ${drag.snap ? 'snap' : ''}
 - Sitting down surrenders the match. ${view.players[other(me)].handle} wins ${opts.stepOffCost} Legacy.${raisedOnMe ? 
 - rep-readout ${n > 0 ? 'live' : ''}
 - Nothing owed yet. Every Setback you suffer from here on adds +1 (up to +4).
@@ -1512,6 +1517,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - ${tdef.name}, aimed at you. ${tdef.text}
 - ${tdef.name}, aimed at ${view.players[other(me)].handle}. ${tdef.text}
 -  : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''}
+- Play here: ${loc.revealed ? locationName(loc.defId, placeholders) : 
 - art ${loc.revealed ? 'reveal-anim' : 'hidden-art'}
 - linear-gradient(135deg, hsl(${(loc.defId.length * 47) % 360} 30% 24%), hsl(${(loc.defId.length * 47 + 60) % 360} 30% 14%))
 - ${def.name} arrives in ${Math.max(0, loc.revealedTurn + def.transformsInto.afterTurns - view.turn)} turn(s): everyone aboard gains +1 Influence and Gate Characters walk straight in.
@@ -1522,9 +1528,10 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 
 ### src/ui/components/Hand.tsx
 
-- hand-wrap ${dropState === 'ok' ? 'drop-ok' : ''} ${dropState === 'over' ? 'drop-ok drop-over' : ''} ${rest ? 'rest' : ''} ${nudge ? 'nudge' : ''}
-- rotate(${rot}deg) translateY(${sel ? -26 : ty}px) scale(${sel ? 1.08 : 1})
-- card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''} ${(Array.isArray(glow) ? glow.includes(id) : glow === id) ? 'ftue-flash' : ''} ${dealt >= 0 ? 'dealt' : ''} ${energyLeft !== undefined && cardCost(id, view, me) > energyLeft ? 'unaffordable' : ''} ${id === 'reparations' && view.players[me].setbacks > 0 ? 'reparations-live' : ''}
+- hand-wrap ${dropState === 'ok' ? 'drop-ok' : ''} ${dropState === 'over' ? 'drop-ok drop-over' : ''} ${rest ? 'rest' : ''} ${nudge ? 'nudge' : ''} ${settle ? 'settle' : ''}
+- hand ${compact ? 'compact' : ''}
+- card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''} ${(Array.isArray(glow) ? glow.includes(id) : glow === id) ? 'ftue-flash' : ''} ${dealt >= 0 ? 'dealt' : ''} ${energyLeft !== undefined && cardCost(id, view, me) > energyLeft ? 'unaffordable' : ''} ${id === 'reparations' && view.players[me].setbacks > 0 ? 'reparations-live' : ''} ${held === id ? 'lifting' : ''} ${reject === id ? 'reject' : ''} ${canPlay && !canPlay(id) ? 'unplayable' : ''}
+- ${name}, cost ${cardCost(id, view, me)}
 - ${view.players[me].setbacks} Setback${view.players[me].setbacks === 1 ? '' : 's'}
 
 ### src/ui/components/Hud.tsx
