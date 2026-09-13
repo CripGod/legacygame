@@ -148,6 +148,7 @@ function clash(state: GameState, events: GameEvent[], actor: ClashActor, victim:
       to: extra.to,
       theirForce: extra.theirForce,
       note: extra.note,
+      intent: extra.intent,
     },
   });
 }

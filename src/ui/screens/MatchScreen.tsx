@@ -284,12 +284,25 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     const victimUid = d.victim.uid;
     const actorUid = actorUidFor(d, prevView ?? view);
     const toName = d.to !== undefined ? locationName(view.locations[d.to].revealed ? view.locations[d.to].defId : 'unknown', placeholders) : undefined;
-    const sub = d.note ?? (d.victim.owner === me ? adviceFor(view, me, d.actor, outcome, d.from, placeholders) || undefined : undefined);
+    const sub = d.note ?? d.intent ?? (d.victim.owner === me ? adviceFor(view, me, d.actor, outcome, d.from, placeholders) || undefined : undefined);
     const stampOn = (uid: string) => ({ uid, title, sub: toName ? `to ${toName}` : undefined, tone });
     const patch = (f: BoardFx | null, p: Partial<BoardFx>): BoardFx => ({ ...(f ?? { hidden: [] }), ...p });
     setClashTell({ title, text: ev.text, sub, tone });
     const vg = ghosts.get(victimUid);
-    const ag = actorUid ? ghosts.get(actorUid) : undefined;
+    let ag = actorUid ? ghosts.get(actorUid) : undefined;
+    // One striker, several victims in a beat (Thunder, a sweep Inside): its ghost went home after the last knock, so take a new one from where it stands now.
+    if (ag && actorUid && !ag.el.isConnected) {
+      const el = tileOf(actorUid);
+      if (el) {
+        ag = ghostOf(el);
+        ghosts.set(actorUid, ag);
+        setFx((f) => patch(f, { hidden: [...(f?.hidden ?? []).filter((u) => u !== actorUid), actorUid] }));
+        await painted();
+        if (!alive()) return;
+      } else {
+        ag = undefined;
+      }
+    }
     const victimRect = vg?.base ?? tileOf(victimUid)?.getBoundingClientRect();
     if (reduceMotion()) {
       if (tileOf(victimUid)) setFx((f) => patch(f, { stamp: stampOn(victimUid) }));
