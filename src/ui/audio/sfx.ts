@@ -20,6 +20,7 @@ export type SfxName =
   | 'influence.up'
   | 'lock'
   | 'turn'
+  | 'location.reveal'
   | 'draw'
   | 'enter'
   | 'move'
@@ -48,6 +49,7 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   'influence.up': 'Influence goes up: a Character walks Inside, or a +N floats over a Location.',
   lock: 'Lock It In.',
   turn: 'A new turn begins: the new card is dealt (a shuffle).',
+  'location.reveal': 'A Location is revealed.',
   draw: 'You draw a card.',
   enter: 'A Character walks Inside.',
   move: 'A relocation (swoosh).',
@@ -75,7 +77,7 @@ interface Layer {
 
 /** The recorded clips per cue. Clip ids are file names under public/audio/sfx (without .mp3). */
 export const SFX_FILES: Record<SfxName, Layer[]> = {
-  tap: [{ files: ['tap', 'tap-2'], gain: 0.3 }, { files: ['thud-soft'], gain: 0.35 }],
+  tap: [], // no clip yet: the synthesized arcade press below, until the heavy buttons arrive
   toggle: [{ files: ['toggle-on'], gain: 0.5 }],
   'card.pick': [{ files: ['card-pick-1', 'card-pick-2'], gain: 0.6 }],
   'card.drop': [{ files: ['card-drop-1', 'card-drop-2', 'card-drop-3'], gain: 0.7 }, { files: ['thud-soft'], gain: 0.45 }],
@@ -84,6 +86,7 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'influence.up': [{ files: ['turn'], gain: 0.5 }],
   lock: [{ files: ['lock'], gain: 0.8 }],
   turn: [{ files: ['dig'], gain: 0.5 }],
+  'location.reveal': [{ files: ['stand-thud'], gain: 0.55 }, { files: ['turn'], gain: 0.4, at: 160 }],
   draw: [{ files: ['draw'], gain: 0.5 }],
   enter: [{ files: ['enter'], gain: 0.45 }, { files: ['turn'], gain: 0.45, at: 380 }],
   move: [{ files: ['move-1', 'move-2'], gain: 0.6 }],
@@ -173,6 +176,7 @@ export function sfxReady(): boolean {
 function playClips(name: SfxName, t: number): boolean {
   if (!ctx || !master) return false;
   const layers = SFX_FILES[name];
+  if (!layers.length) return false;
   const picks: { buf: AudioBuffer; gain: number; at: number }[] = [];
   for (const l of layers) {
     const id = l.files[Math.floor(Math.random() * l.files.length)];
@@ -266,7 +270,9 @@ function tick(t: number, gain: number): void {
 function synth(name: SfxName, t: number): void {
   switch (name) {
     case 'tap':
-      blip(t, 880, 0.06, 0.12);
+      // An arcade press: a chunky square that drops in pitch, with a little body under it.
+      blip(t, 260, 0.07, 0.16, 'square', 150);
+      thud(t, 0.18, 220, 90, 0.07);
       break;
     case 'toggle':
       blip(t, 660, 0.07, 0.14);
@@ -296,6 +302,10 @@ function synth(name: SfxName, t: number): void {
       break;
     case 'turn':
       for (let i = 0; i < 5; i++) tick(t + i * 0.055, 0.16);
+      break;
+    case 'location.reveal':
+      thud(t, 0.45, 160, 50, 0.24);
+      chime(t + 0.16, [659, 988], 0.09, 0.3, 0.12);
       break;
     case 'draw':
       swoosh(t, 0.09, 1600, 3800, 0.18, 1.4);

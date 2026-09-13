@@ -1172,7 +1172,7 @@ function beatSfx(step: TraceStep): void {
     case 'spawn':
       return sfx('threat.clear');
     case 'reveal':
-      return sfx('turn');
+      return sfx('location.reveal');
     case 'showdown':
       return sfx('clash.hit');
     default:
