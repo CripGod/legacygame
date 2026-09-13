@@ -1153,36 +1153,83 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 @media (prefers-reduced-motion: reduce) { .hand .card-wrap.ftue-flash { animation: none; filter: brightness(1.1); box-shadow: none; } }
 
 /* ---------- Clash on the board ---------- */
-/* The striker lunges toward the other side's strip and flares; the victim takes the hit, flashes red and tumbles
-   while it glides to wherever it was knocked to. The Clash card follows once the motion is done. */
-.pic.fx-strike { z-index: 6; animation: fx-strike 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
-@keyframes fx-strike {
+/* A clash is told by the tiles themselves. The striker gathers itself (fx-windup), then a ghost of its tile charges
+   across the board to the victim (src/ui/fly.ts: the real tile sits hidden in its slot, since Location panels clip
+   and stack). On impact the board jolts, sparks spray and the victim flashes (fx-knocked, or fx-held when it stands
+   its ground, fx-hexed under a gris-gris). A knocked victim's ghost then tumbles to its new Gates, or off the board,
+   and the real tile pops back in where it lands (fx-land) with the verdict stamped on it. */
+.gate-slot.filled.fx-hidden, .slot.filled.fx-hidden, .threat-tile.fx-hidden { visibility: hidden; }
+.fly-layer { position: fixed; inset: 0; z-index: 60; pointer-events: none; overflow: visible; }
+.ghost-fly { will-change: transform; filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.65)); }
+.ghost-fly.charging .pic { filter: brightness(1.35) drop-shadow(0 0 14px rgba(255, 245, 200, 0.9)); }
+.ghost-fly.thrown .pic { filter: brightness(1.15) saturate(1.3); }
+.ghost-fly .pic.hit-stop { filter: brightness(3) saturate(0.1); }
+.pic.fx-windup { z-index: 6; animation: fx-windup 0.34s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+@keyframes fx-windup {
   0% { transform: none; filter: none; }
-  25% { transform: translate(calc(var(--fx-dx, 0px) * -0.25), calc(var(--fx-dy, -30px) * -0.25)) scale(1.05); filter: brightness(1.2); }
-  55% { transform: translate(var(--fx-dx, 0px), var(--fx-dy, -30px)) scale(1.3); filter: brightness(1.9) drop-shadow(0 0 16px rgba(255, 245, 200, 0.95)); }
-  100% { transform: none; filter: none; }
+  60% { transform: scale(1.12); filter: brightness(1.6) drop-shadow(0 0 12px rgba(255, 245, 200, 0.9)); }
+  100% { transform: scale(1.08); filter: brightness(1.4); }
 }
-.pic.fx-knocked { animation: fx-knocked 1s cubic-bezier(0.3, 0.7, 0.4, 1) 0.28s both; }
-.pic.fx-knocked::after { content: ''; position: absolute; inset: -30%; border-radius: 50%; background: radial-gradient(circle, rgba(255, 120, 90, 0.95) 0%, rgba(255, 60, 40, 0.5) 30%, transparent 62%); opacity: 0; animation: fx-burst 0.5s ease-out 0.28s both; pointer-events: none; z-index: 3; }
+.pic.fx-knocked { animation: fx-knocked 0.6s cubic-bezier(0.3, 0.7, 0.4, 1) both; }
+.pic.fx-knocked::after { content: ''; position: absolute; inset: -30%; border-radius: 50%; background: radial-gradient(circle, rgba(255, 120, 90, 0.95) 0%, rgba(255, 60, 40, 0.5) 30%, transparent 62%); opacity: 0; animation: fx-burst 0.5s ease-out both; pointer-events: none; z-index: 3; }
 @keyframes fx-knocked {
   0% { transform: none; filter: none; }
-  12% { transform: translateY(-6px) rotate(-14deg) scale(1.12); filter: brightness(2.2) saturate(2) sepia(0.6) hue-rotate(-30deg); }
-  45% { transform: rotate(16deg) scale(0.94); filter: brightness(1.2); }
-  75% { transform: rotate(-6deg) scale(1); filter: none; }
+  15% { transform: translateY(-6px) rotate(-14deg) scale(1.12); filter: brightness(2.2) saturate(2) sepia(0.6) hue-rotate(-30deg); }
+  50% { transform: rotate(14deg) scale(0.94); filter: brightness(1.2); }
+  80% { transform: rotate(-5deg) scale(1); filter: none; }
   100% { transform: none; filter: none; }
 }
 @keyframes fx-burst { 0% { opacity: 0; transform: scale(0.3); } 30% { opacity: 1; } 100% { opacity: 0; transform: scale(1.4); } }
 
+/* Held off: the victim stands its ground, a green shield flares and the blow glances off. */
+.pic.fx-held { animation: fx-held 0.6s cubic-bezier(0.3, 0.7, 0.4, 1) both; }
+.pic.fx-held::after { content: ''; position: absolute; inset: -30%; border-radius: 50%; background: radial-gradient(circle, rgba(200, 255, 220, 0.95) 0%, rgba(79, 196, 111, 0.55) 30%, transparent 62%); opacity: 0; animation: fx-burst 0.55s ease-out both; pointer-events: none; z-index: 3; }
+@keyframes fx-held {
+  0% { transform: none; filter: none; }
+  20% { transform: scale(1.1); filter: brightness(1.8) saturate(1.4); }
+  55% { transform: scale(1.04); filter: brightness(1.3); }
+  100% { transform: none; filter: none; }
+}
+
 /* A hex is the same hit in violet: the victim shudders under the gris-gris rather than being thrown. */
-.pic.fx-hexed { animation: fx-hexed 1s cubic-bezier(0.3, 0.7, 0.4, 1) 0.28s both; }
-.pic.fx-hexed::after { content: ''; position: absolute; inset: -30%; border-radius: 50%; background: radial-gradient(circle, rgba(200, 140, 255, 0.95) 0%, rgba(140, 60, 220, 0.5) 30%, transparent 62%); opacity: 0; animation: fx-burst 0.6s ease-out 0.28s both; pointer-events: none; z-index: 3; }
+.pic.fx-hexed { animation: fx-hexed 0.9s cubic-bezier(0.3, 0.7, 0.4, 1) both; }
+.pic.fx-hexed::after { content: ''; position: absolute; inset: -30%; border-radius: 50%; background: radial-gradient(circle, rgba(200, 140, 255, 0.95) 0%, rgba(140, 60, 220, 0.5) 30%, transparent 62%); opacity: 0; animation: fx-burst 0.6s ease-out both; pointer-events: none; z-index: 3; }
 @keyframes fx-hexed {
   0% { transform: none; filter: none; }
   15% { transform: translateX(-4px) scale(1.06); filter: brightness(1.8) hue-rotate(220deg) saturate(2); }
   35% { transform: translateX(4px) scale(1.04); filter: brightness(1.4) hue-rotate(220deg) saturate(2); }
-  55% { transform: translateX(-3px); filter: brightness(1.1) hue-rotate(200deg); }
+  55% { transform: translateX(-3px) scale(1.02); filter: brightness(1.2) hue-rotate(220deg) saturate(1.6); }
+  75% { transform: translateX(2px); filter: brightness(1.05) hue-rotate(220deg); }
   100% { transform: none; filter: none; }
 }
+
+/* Landing: the tile drops in where the ghost stopped, a little large, and settles. */
+.pic.fx-land { animation: fx-land 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+@keyframes fx-land {
+  0% { transform: scale(1.3); filter: brightness(1.6); }
+  60% { transform: scale(0.96); filter: brightness(1.1); }
+  100% { transform: none; filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pic.fx-windup, .pic.fx-knocked, .pic.fx-held, .pic.fx-hexed, .pic.fx-land { animation: none; }
+  .pic.fx-knocked::after, .pic.fx-held::after, .pic.fx-hexed::after { animation: none; opacity: 0; }
+}
+
+/* The verdict, stamped onto the tile once it has landed: red when the blow told, green when it was held off,
+   violet for a hex. The Force readout floats up over the victim on impact. */
+.stamp.verdict { z-index: 8; top: 50%; display: grid; justify-items: center; gap: 1px; color: #fff; background: rgba(150, 20, 20, 0.92); border-color: #ffd9d9; box-shadow: 0 0 0 2px rgba(150, 20, 20, 0.6), 0 8px 24px rgba(0, 0, 0, 0.7); animation: stamp-slam 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.4) 0.05s both; }
+.stamp.verdict.miss { background: rgba(20, 110, 55, 0.94); border-color: #d9ffe6; box-shadow: 0 0 0 2px rgba(20, 110, 55, 0.6), 0 8px 24px rgba(0, 0, 0, 0.7); }
+.stamp.verdict.hex { background: rgba(90, 30, 150, 0.94); border-color: #ead9ff; box-shadow: 0 0 0 2px rgba(90, 30, 150, 0.6), 0 8px 24px rgba(0, 0, 0, 0.7); }
+.stamp.verdict b { font-size: clamp(9px, 0.85vw, 13px); letter-spacing: 0.14em; }
+.stamp.verdict i { font-family: var(--font); font-style: italic; font-weight: 500; text-transform: none; letter-spacing: 0; font-size: clamp(8px, 0.7vw, 11px); opacity: 0.95; }
+@keyframes stamp-slam { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(-14deg) scale(2.4); } 60% { opacity: 1; transform: translate(-50%, -50%) rotate(-14deg) scale(0.92); } 100% { opacity: 1; transform: translate(-50%, -50%) rotate(-14deg) scale(1); } }
+.float-num.clash { font-size: 24px; letter-spacing: 0.04em; color: #fff3d6; --pulse: 255, 106, 60; animation-duration: 1.5s; }
+.float-num.clash.miss { --pulse: 79, 196, 111; color: #dfffe9; }
+/* The banner tells the clash while it plays: the verdict in the pill, the sentence beside it. */
+.replay-banner.kind-clash .replay-kind { background: var(--danger); color: #fff; }
+.replay-banner.kind-clash.miss .replay-kind { background: var(--ok); color: #fff; }
+.replay-banner.kind-clash.hex .replay-kind { background: #7a4ccf; color: #fff; }
+.replay-banner .replay-sub { display: block; margin-top: 2px; font-size: 11px; color: var(--muted); }
 
 /* ---------- Reparations ---------- */
 /* Once a Setback has happened the card glows jade, a colour nothing else on the table uses, and wears the count. */
@@ -1251,22 +1298,6 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .dig-back-face span { font-family: var(--display); font-weight: 800; font-size: 40px; letter-spacing: 0.1em; color: var(--gold-2); opacity: 0.8; }
 @media (prefers-reduced-motion: reduce) { .dig-card { animation: none; } }
 
-/* ---------- Banished: a challenge that knocks a Character clean off the board ---------- */
-/* The striker winds up and lunges (fx-strike, aimed by --fx-dx/--fx-dy); on impact the board jolts, sparks spray, and the
-   victim is thrown off screen in the direction of the blow while a BANISHED stamp slams onto its slot. The board then
-   shows the next beat, where the Character lands at its new Gates. */
-.pic.fx-banish { z-index: 7; animation: fx-banish 1.25s cubic-bezier(0.25, 0.6, 0.3, 1) 0.3s both; }
-.pic.fx-banish::after { content: ''; position: absolute; inset: -34%; border-radius: 50%; background: radial-gradient(circle, rgba(255, 240, 220, 1) 0%, rgba(255, 120, 60, 0.85) 22%, rgba(255, 60, 40, 0.4) 40%, transparent 64%); opacity: 0; animation: fx-burst 0.45s ease-out 0.3s both; pointer-events: none; }
-@keyframes fx-banish {
-  0% { transform: none; filter: none; opacity: 1; }
-  8% { transform: translate(calc(var(--fly-x, 70vw) * -0.02), -4px) scale(1.14); filter: brightness(2.6) saturate(2) contrast(1.4); }
-  18% { transform: translate(calc(var(--fly-x, 70vw) * 0.06), calc(var(--fly-y, -8vh) * 0.2)) rotate(calc(var(--spin, 55deg) * 0.15)) scale(1.05); filter: brightness(1.6) saturate(1.6); opacity: 1; }
-  100% { transform: translate(var(--fly-x, 70vw), var(--fly-y, -8vh)) rotate(var(--spin, 55deg)) scale(0.45); filter: brightness(0.5); opacity: 0; }
-}
-.stamp.banished { z-index: 8; top: 50%; display: grid; justify-items: center; gap: 1px; color: #fff; background: rgba(150, 20, 20, 0.92); border-color: #ffd9d9; box-shadow: 0 0 0 2px rgba(150, 20, 20, 0.6), 0 8px 24px rgba(0, 0, 0, 0.7); animation: stamp-slam 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.4) 0.46s both; }
-.stamp.banished b { font-size: clamp(9px, 0.85vw, 13px); letter-spacing: 0.14em; }
-.stamp.banished i { font-family: var(--font); font-style: italic; font-weight: 500; text-transform: none; letter-spacing: 0; font-size: clamp(8px, 0.7vw, 11px); opacity: 0.95; }
-@keyframes stamp-slam { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(-14deg) scale(2.4); } 60% { opacity: 1; transform: translate(-50%, -50%) rotate(-14deg) scale(0.92); } 100% { opacity: 1; transform: translate(-50%, -50%) rotate(-14deg) scale(1); } }
 /* The jolt on impact. */
 body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
 @keyframes board-shake { 10%, 90% { transform: translate(-2px, 1px); } 20%, 80% { transform: translate(3px, -1px); } 30%, 50%, 70% { transform: translate(-5px, 2px); } 40%, 60% { transform: translate(5px, -2px); } }

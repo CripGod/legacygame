@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CARD_BY_ID, viewFor, legalOptions, validatePlan, gateRoom, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, filterEvents, LOCATION_BY_ID } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
-import type { DropHighlight } from '../components/Battlefield';
+import type { DropHighlight, BoardFx } from '../components/Battlefield';
 import { previewPlan, remainingPlan, isPlannedUid, PLANNED_PREFIX } from '../preview';
 import type { MatchController } from '../useMatch';
 import { Hud } from '../components/Hud';
@@ -13,8 +13,9 @@ import { Spotlight } from '../components/Spotlight';
 import { sfx, voice } from '../audio';
 import type { TraceStep } from '../../engine';
 import { Trails, TRAIL_COLORS, type TrailShot } from '../components/Trails';
+import { ghostOf, fly, jolt, partWay, clearGhosts, wait, painted, type Ghost } from '../fly';
 import { DigReveal, type DigShow, type DigPhase } from '../components/DigReveal';
-import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, SpawnSheet, ThreatSheet, AncestorsSheet, ShowdownSheet, PeekHandSheet, ClashSheet, TallySheet } from '../components/Sheets';
+import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, SpawnSheet, ThreatSheet, AncestorsSheet, ShowdownSheet, PeekHandSheet, ClashSheet, TallySheet, CLASH_TITLES, adviceFor } from '../components/Sheets';
 import { guideDone, markGuideDone, suggest } from '../guide';
 import { lessonsFor, tutorialActive } from '../tutorial';
 import { EMOTES } from '../useMatch';
@@ -72,6 +73,34 @@ const BEAT_KIND: Record<string, string> = {
   info: '',
   tally: 'Tally',
   stakes: 'Legacy',
+};
+
+/** A clash event's payload, as resolve.ts writes it. */
+type ClashData = {
+  actor: { kind: 'character' | 'threat' | 'location' | 'event'; id: string; owner?: PlayerId; force?: number };
+  victim: { uid: string; defId: string; owner: PlayerId; force: number };
+  outcome: keyof typeof CLASH_TITLES;
+  from: number;
+  to?: number;
+  theirForce?: number;
+  note?: string;
+  intent?: string;
+};
+/** Outcomes where the victim stays put: it takes the hit where it stands rather than flying anywhere. */
+const STAYS = new Set<string>(['held', 'blocked', 'suppressed', 'tricked', 'hexed']);
+const reduceMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+/** The board tile that struck: a Character of that card and owner, or the Threat of that kind at the Location. */
+const actorUidFor = (d: ClashData, v: GameState): string | undefined => {
+  if (d.actor.kind === 'character') return Object.values(v.characters).find((c) => c.defId === d.actor.id && (d.actor.owner === undefined || c.owner === d.actor.owner))?.uid;
+  if (d.actor.kind === 'threat') return v.locations[d.from]?.threats.find((t) => t.defId === d.actor.id)?.uid;
+  return undefined;
+};
+const tileOf = (uid: string) => document.querySelector(`[data-uid="${uid}"], [data-threat="${uid}"]`);
+/** Where a blow comes from when no tile threw it: the Location's art, or the Event at its Gates. */
+const sourceRect = (d: ClashData): DOMRect | undefined => {
+  const col = `.column[data-index="${d.from}"]`;
+  const el = d.actor.kind === 'event' ? document.querySelector(`${col} .event-slot`) ?? document.querySelector(`${col} .art`) : document.querySelector(`${col} .art`);
+  return el?.getBoundingClientRect();
 };
 
 /** The last scheduled turn can still grow by one if someone Stands on Business. */
@@ -167,25 +196,31 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     if (peek) setSheet({ kind: 'peek', cards: (peek.data as { peekHand: string[] }).peekHand, by: peek.uid ? cardName(view.characters[peek.uid]?.defId ?? 'omar_ibn_said', placeholders) : 'Omar ibn Said' });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [m.lastTurn]);
-  /** During a replay each beat queues only its own sheets. */
-  /** The clash beat plays on the board first (strike, knock), then its Clash card explains it. */
-  const [fx, setFx] = useState<{ actor?: string; victim: string; outcome?: string; kind?: 'hit' | 'banish'; dx?: number; dy?: number; toName?: string } | null>(null);
-  /** The board as it stood before this beat: during a banish the victim is still at the Gates it is knocked from. */
+  /** During a replay each beat queues only its own sheets; a clash plays out on the board and tells itself there. */
+  /** The choreography's grip on the board: tiles hidden under their flying ghosts, the flash, the stamp. Non-null while a clash plays. */
+  const [fx, setFx] = useState<BoardFx | null>(null);
+  /** What the banner says while a clash plays: the verdict in the pill, the sentence beside it. */
+  const [clashTell, setClashTell] = useState<{ title: string; text: string; sub?: string; tone: 'hit' | 'miss' | 'hex' } | null>(null);
+  /** The board as it stood before this beat: a clash opens on it, so every piece is still where it was struck. */
   const prevView = useMemo(() => (m.replay && m.replay.idx > 0 ? viewFor(m.replay.steps[m.replay.idx - 1].state, me) : null), [m.replay?.idx, m.replay?.steps, me]);
+  const [stagePrev, setStagePrev] = useState(false);
   const [shake, setShake] = useState(false);
-  /** A power lands on a Location: its panel pulses in the power's colour and a +N floats up over its name. */
+  /** Text floats up from a point on the screen: a +N over a Location, the Force readout over a clash. */
+  const floatText = (x: number, y: number, text: string, cls: string) => {
+    const el = document.createElement('div');
+    el.className = `float-num ${cls}`;
+    el.textContent = text;
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
+    document.body.appendChild(el);
+    window.setTimeout(() => el.remove(), 1600);
+  };
   /** A +N floats up from a Location's art. */
   const floatNum = (location: number, amount: number, tone: 'artist' | 'mine' | 'theirs') => {
     const art = document.querySelector(`.column[data-index="${location}"] .art`);
     if (!art) return;
     const r = art.getBoundingClientRect();
-    const el = document.createElement('div');
-    el.className = `float-num ${tone}`;
-    el.textContent = `+${amount}`;
-    el.style.left = `${r.left + r.width / 2}px`;
-    el.style.top = `${r.top + r.height / 2}px`;
-    document.body.appendChild(el);
-    window.setTimeout(() => el.remove(), 1300);
+    floatText(r.left + r.width / 2, r.top + r.height / 2, `+${amount}`, tone);
   };
   const landFx = (items: { location: number; amount?: number; tone: 'artist' | 'mine' | 'theirs' }[]) => {
     if (items.some((it) => it.amount)) sfx('influence.up');
@@ -200,31 +235,12 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       if (it.amount) floatNum(it.location, it.amount, it.tone);
     }
   };
-  /** Aim the lunge and the flight from the tiles' real positions, then fire the impact spray. */
-  const aimAndSpray = (actor: string | undefined, victim: string, kind: 'hit' | 'banish' = 'hit') => {
-    const a = actor ? document.querySelector(`[data-uid="${actor}"]`)?.getBoundingClientRect() : undefined;
-    const v = document.querySelector(`[data-uid="${victim}"]`)?.getBoundingClientRect();
-    if (v) {
-      const dx = a ? v.left + v.width / 2 - (a.left + a.width / 2) : 0;
-      const dy = a ? v.top + v.height / 2 - (a.top + a.height / 2) : 0;
-      setFx((f) => (f && f.victim === victim ? { ...f, dx, dy } : f));
-      const sx = Math.sign(dx || 1);
-      const spray = new DOMRect(v.left + sx * 90, v.top - 30, v.width, v.height);
-      if (kind === 'banish') sfx('clash.banish'); // the clip's bang lands about when the spray does
-      window.setTimeout(() => {
-        if (kind !== 'banish') sfx('clash.hit');
-        setTrail([{ from: v, to: spray, color: TRAIL_COLORS.impact, noRibbon: true }]);
-        setShake(true);
-        window.setTimeout(() => setShake(false), 320);
-      }, 300);
-    }
-  };
   /** During a replay your own moves stay where you put them; the board only re-animates what you could not see coming. */
   const boardView = useMemo(() => {
-    if (fx?.kind === 'banish' && prevView && m.replay) return previewPlan(prevView, me, remainingPlan(prevView, me, m.replay.plan));
+    if (stagePrev && prevView && m.replay) return previewPlan(prevView, me, remainingPlan(prevView, me, m.replay.plan));
     if (m.replay && step) return previewPlan(view, me, remainingPlan(step.state, me, m.replay.plan));
     return view.phase === 'planning' && !locked ? previewPlan(view, me, plan) : view;
-  }, [view, me, plan, locked, m.replay, step, fx, prevView]);
+  }, [view, me, plan, locked, m.replay, step, stagePrev, prevView]);
   /** Power trails on the board (a Reveal that reaches other Locations): particles fly from the actor to each target. */
   const [trail, setTrail] = useState<TrailShot[] | null>(null);
   const [trailFreeze, setTrailFreeze] = useState<number | undefined>(undefined);
@@ -232,20 +248,162 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   const [dig, setDig] = useState<DigShow | null>(null);
   const digKey = useRef(0);
   const [digFreeze, setDigFreeze] = useState<DigPhase | undefined>(undefined);
+  /** The impact: the hit is heard, the board jolts, sparks spray off the victim. */
+  const impactAt = (v: DOMRect) => {
+    sfx('clash.hit');
+    const spray = new DOMRect(v.left + 90, v.top - 30, v.width, v.height);
+    setTrail([{ from: v, to: spray, color: TRAIL_COLORS.impact, noRibbon: true }]);
+    setShake(true);
+    window.setTimeout(() => setShake(false), 320);
+  };
+  /** Where a knocked victim's ghost flies: its real tile's new place, or off the board toward the hand it goes back to. */
+  const destRect = (d: ClashData): { rect: DOMRect; offBoard: boolean } | null => {
+    const tile = document.querySelector(`[data-uid="${d.victim.uid}"]`);
+    if (tile) return { rect: tile.getBoundingClientRect(), offBoard: false };
+    if (d.outcome === 'arrested') return null;
+    const receiver: PlayerId = d.outcome === 'exposed' ? other(d.victim.owner) : d.victim.owner;
+    const el = receiver === me ? document.querySelector('.hand') : document.querySelector(`.profile.p${receiver}`);
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    return { rect: new DOMRect(r.left + r.width / 2 - 30, r.top + r.height / 2 - 30, 60, 60), offBoard: true };
+  };
+
+  /**
+   * One clash, told on the board (see fly.ts). The striker's ghost gathers itself and charges the victim; on impact
+   * the board jolts and the Force readout floats up. A victim knocked somewhere flies there as a ghost and its real
+   * tile pops in with the verdict stamped on it; one that stands its ground flashes and takes the stamp where it is.
+   * The striker comes back to its slot. The banner carries the sentence throughout, then the verdict holds long
+   * enough to read. `ghosts` were taken from the board as it stood before the beat; `alive` is false once the beat
+   * has moved on (a skip), and every step checks it.
+   */
+  const playClash = async (ev: GameEvent, ghosts: Map<string, Ghost>, alive: () => boolean, last: boolean, demoDest?: DOMRect) => {
+    const d = ev.data as ClashData;
+    const outcome = d.outcome;
+    const tone: 'hit' | 'miss' | 'hex' = outcome === 'held' ? 'miss' : outcome === 'hexed' ? 'hex' : 'hit';
+    const title = CLASH_TITLES[outcome] ?? String(outcome).toUpperCase();
+    const victimUid = d.victim.uid;
+    const actorUid = actorUidFor(d, prevView ?? view);
+    const toName = d.to !== undefined ? locationName(view.locations[d.to].revealed ? view.locations[d.to].defId : 'unknown', placeholders) : undefined;
+    const sub = d.note ?? (d.victim.owner === me ? adviceFor(view, me, d.actor, outcome, d.from, placeholders) || undefined : undefined);
+    const stampOn = (uid: string) => ({ uid, title, sub: toName ? `to ${toName}` : undefined, tone });
+    const patch = (f: BoardFx | null, p: Partial<BoardFx>): BoardFx => ({ ...(f ?? { hidden: [] }), ...p });
+    setClashTell({ title, text: ev.text, sub, tone });
+    const vg = ghosts.get(victimUid);
+    const ag = actorUid ? ghosts.get(actorUid) : undefined;
+    const victimRect = vg?.base ?? tileOf(victimUid)?.getBoundingClientRect();
+    if (reduceMotion()) {
+      if (tileOf(victimUid)) setFx((f) => patch(f, { stamp: stampOn(victimUid) }));
+      await wait(1600);
+      if (alive()) setFx((f) => (f ? { ...f, stamp: undefined } : f));
+      return;
+    }
+    // 1. Wind-up: the striker gathers itself where it stands.
+    if (ag) {
+      ag.el.querySelector('.pic')?.classList.add('fx-windup');
+      await wait(340);
+      if (!alive()) return;
+    }
+    // 2. The charge: the striker's ghost crosses to the victim (with no striker tile, a bolt from the source).
+    if (ag && victimRect) {
+      ag.el.querySelector('.pic')?.classList.remove('fx-windup');
+      ag.el.classList.add('charging');
+      sfx('move');
+      // Slow in, fast strike: the charge is quick and stops just short, overlapping the victim's edge (Hearthstone stages its lunge the same way).
+      await fly(ag, partWay(ag.base, victimRect, 0.8), { ms: 280, easing: 'cubic-bezier(0.55, 0, 0.85, 0.35)', swell: 1.12, arc: 10 });
+    } else if (victimRect) {
+      const src = sourceRect(d) ?? victimRect;
+      sfx('trail');
+      setTrail([{ from: src, to: victimRect, color: TRAIL_COLORS.impact }]);
+      await wait(950);
+    }
+    if (!alive()) return;
+    // 3. Hit stop, then impact: for a few frames both pieces freeze and the victim flashes white; then the blow lands.
+    if (vg) {
+      vg.el.querySelector('.pic')?.classList.add('hit-stop');
+      await wait(90);
+      if (!alive()) return;
+      vg.el.querySelector('.pic')?.classList.remove('hit-stop');
+    }
+    if (victimRect) {
+      impactAt(victimRect);
+      if (d.actor.force !== undefined && d.theirForce !== undefined && outcome !== 'hexed') floatText(victimRect.left + victimRect.width / 2, victimRect.top + victimRect.height * 0.3, `${d.actor.force} vs ${d.theirForce}`, `clash ${tone === 'miss' ? 'miss' : ''}`);
+    }
+    if (ag) void jolt(ag, 260, 5);
+    if (vg) {
+      vg.el.querySelector('.pic')?.classList.add('fx-knocked');
+      void jolt(vg, 300, 8);
+    } else {
+      setFx((f) => patch(f, { flash: { uid: victimUid, kind: outcome === 'held' ? 'held' : outcome === 'hexed' ? 'hexed' : 'hit' } }));
+    }
+    await wait(240);
+    if (!alive()) return;
+    // 4. The knock: the victim's ghost flies to where it was sent; the striker's ghost comes back to its slot, slowly.
+    const actorBack = actorUid ? tileOf(actorUid)?.getBoundingClientRect() : undefined;
+    const returnStriker = ag
+      ? (async () => {
+          await wait(60);
+          ag.el.classList.remove('charging');
+          if (actorBack) await fly(ag, actorBack, { ms: outcome === 'held' ? 460 : 640, easing: outcome === 'held' ? 'cubic-bezier(0.2, 0.9, 0.3, 1.25)' : 'cubic-bezier(0.15, 0.7, 0.2, 1)', spin: outcome === 'held' ? -8 : 0, remove: true });
+          else await fly(ag, ag.base, { ms: 300, fade: true, remove: true });
+          if (!alive() || !actorUid) return;
+          setFx((f) => (f ? { ...f, hidden: f.hidden.filter((u) => u !== actorUid) } : f));
+        })()
+      : Promise.resolve();
+    if (vg) {
+      const dest = demoDest ? { rect: demoDest, offBoard: false } : destRect(d);
+      if (outcome === 'exposed' || outcome === 'arrested') sfx('clash.arrest');
+      if (dest) {
+        const dir = Math.sign(dest.rect.left - vg.base.left) || 1;
+        await fly(vg, dest.rect, { ms: dest.offBoard ? 620 : 760, easing: 'cubic-bezier(0.25, 0.75, 0.3, 1)', arc: dest.offBoard ? 30 : 70, spin: dir * (dest.offBoard ? 40 : 24), swell: 1.16, fade: dest.offBoard, remove: true });
+      } else {
+        await fly(vg, vg.base, { ms: 600, spin: 20, fade: true, remove: true });
+      }
+      if (!alive()) return;
+      if (dest && !dest.offBoard && tileOf(victimUid)) {
+        sfx('card.drop');
+        setFx((f) => patch(f, { hidden: (f?.hidden ?? []).filter((u) => u !== victimUid), land: victimUid, stamp: stampOn(victimUid) }));
+      } else {
+        setFx((f) => patch(f, { hidden: (f?.hidden ?? []).filter((u) => u !== victimUid) }));
+      }
+    } else {
+      await wait(320);
+      if (!alive()) return;
+      if (tileOf(victimUid)) setFx((f) => patch(f, { stamp: stampOn(victimUid) }));
+    }
+    await returnStriker;
+    if (!alive()) return;
+    // 5. The verdict holds.
+    await wait(last ? 1200 : 900);
+    if (!alive()) return;
+    setFx((f) => (f ? { ...f, stamp: undefined, land: undefined, flash: undefined } : f));
+  };
+
   useEffect(() => {
     if (!step) return;
     const evs = filterEvents(step.events, me);
+    let cancelled = false;
+    const alive = () => !cancelled;
     const digEv = evs.find((e) => (e.data as { dig?: DigShow } | undefined)?.dig && e.player);
-    if (digEv && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (digEv && !reduceMotion()) {
       const d = (digEv.data as { dig: { seen: string[]; keep: string; hidden: boolean } }).dig;
       digKey.current += 1;
       sfx('dig');
       setDig({ seen: d.seen, keep: d.keep, hidden: d.hidden, owner: digEv.player!, by: digEv.uid ? cardName(view.characters[digEv.uid]?.defId ?? 'zora_neale_hurston', placeholders) : undefined });
     }
     const trailEvs = evs.filter((e) => (e.data as { trail?: string } | undefined)?.trail && e.uid && e.location !== undefined);
-    if (trailEvs.length && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      // Measure after this beat's board has rendered.
-      const raf = requestAnimationFrame(() => {
+    const clashEvs = evs.filter((e) => e.type === 'clash');
+    const finish = () => {
+      setClashes([]);
+      setShowdowns(evs.filter((e) => e.type === 'showdown'));
+      setFanfare(evs.filter((e) => e.type === 'spawned'));
+      const peek = evs.find((e) => e.player === me && Array.isArray((e.data as { peekHand?: string[] } | undefined)?.peekHand));
+      if (peek) setSheet({ kind: 'peek', cards: (peek.data as { peekHand: string[] }).peekHand, by: 'Omar ibn Said' });
+    };
+    const run = async () => {
+      if (trailEvs.length && !reduceMotion()) {
+        // Measure after this beat's board has rendered.
+        await painted();
+        if (!alive()) return;
         const shots: TrailShot[] = [];
         for (const e of trailEvs) {
           const from = document.querySelector(`[data-uid="${e.uid}"]`)?.getBoundingClientRect();
@@ -259,36 +417,49 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         setTrail(shots.length ? shots : null);
         // When the trail lands (~1050ms): a floating +N over the Location and a pulse on its panel.
         window.setTimeout(() => landFx(trailEvs.map((e) => ({ location: e.location!, amount: (e.data as { amount?: number }).amount, tone: (e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs' }))), 1050);
-      });
-      return () => cancelAnimationFrame(raf);
-    }
-    const clashEvs = evs.filter((e) => e.type === 'clash');
-    const first = clashEvs[0]?.data as { actor?: { uid?: string }; victim: { uid: string }; outcome?: string } | undefined;
-    if (first && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      const d = first as { actor?: { uid?: string; kind?: string }; victim: { uid: string }; outcome?: string; to?: number };
-      const banish = d.outcome === 'displaced' && d.actor?.kind === 'character' && d.to !== undefined && !!prevView;
-      const toName = banish && d.to !== undefined ? locationName(view.locations[d.to].revealed ? view.locations[d.to].defId : 'unknown', placeholders) : undefined;
-      setFx({ actor: d.actor?.uid, victim: d.victim.uid, outcome: d.outcome, kind: banish ? 'banish' : 'hit', toName });
-      if (d.outcome === 'exposed' || d.outcome === 'arrested') sfx('clash.arrest'); // the Informant is already off the board: no tile to strike
-      setClashes([]);
-      const raf = requestAnimationFrame(() => aimAndSpray(d.actor?.uid, d.victim.uid, banish ? 'banish' : 'hit'));
-      const id = window.setTimeout(() => {
+        if (clashEvs.length) await wait(1200);
+        if (!alive()) return;
+      }
+      if (clashEvs.length) {
+        // Stage the clash on the board as it stood before the beat, and take ghosts of every piece that will fly.
+        setFx({ hidden: [] });
+        setStagePrev(true);
+        await painted();
+        if (!alive()) return;
+        const ghosts = new Map<string, Ghost>();
+        const prev = prevView ?? view;
+        if (!reduceMotion()) {
+          for (const e of clashEvs) {
+            const d = e.data as ClashData;
+            for (const uid of [actorUidFor(d, prev), STAYS.has(d.outcome) ? undefined : d.victim.uid]) {
+              if (!uid || ghosts.has(uid)) continue;
+              const el = tileOf(uid);
+              if (el) ghosts.set(uid, ghostOf(el));
+            }
+          }
+        }
+        setStagePrev(false);
+        setFx({ hidden: [...ghosts.keys()] });
+        await painted();
+        for (let i = 0; i < clashEvs.length; i++) {
+          if (!alive()) return;
+          await playClash(clashEvs[i], ghosts, alive, i === clashEvs.length - 1);
+        }
+        if (!alive()) return;
+        clearGhosts();
         setFx(null);
-        setClashes(clashEvs);
-      }, banish ? 1750 : 1250);
-      setShowdowns(evs.filter((e) => e.type === 'showdown'));
-      setFanfare(evs.filter((e) => e.type === 'spawned'));
-      return () => {
-        window.clearTimeout(id);
-        cancelAnimationFrame(raf);
-      };
-    }
-    setFx(null);
-    setClashes(clashEvs);
-    setShowdowns(evs.filter((e) => e.type === 'showdown'));
-    setFanfare(evs.filter((e) => e.type === 'spawned'));
-    const peek = evs.find((e) => e.player === me && Array.isArray((e.data as { peekHand?: string[] } | undefined)?.peekHand));
-    if (peek) setSheet({ kind: 'peek', cards: (peek.data as { peekHand: string[] }).peekHand, by: 'Omar ibn Said' });
+        setClashTell(null);
+      }
+      finish();
+    };
+    void run();
+    return () => {
+      cancelled = true;
+      clearGhosts();
+      setStagePrev(false);
+      setFx(null);
+      setClashTell(null);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [m.replay?.idx, m.replay?.steps]);
   // One sound per replay beat (my own beats were heard when I planned them); strikes, trails and digs have their own cues.
@@ -318,6 +489,8 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     return () => document.body.classList.remove('board-shake');
   }, [shake]);
   /** Dev: preview a trail from a Character tile to Locations without playing to it (window.__sobTrail(uid, [0, 2])). */
+  const devRef = useRef({ view, playClash });
+  devRef.current = { view, playClash };
   useEffect(() => {
     if (!window.location.search.includes('dev=1')) return;
     (window as unknown as { __sobTrail?: (uid: string, locs: number[], side?: 'A' | 'B' | 'artist', freezeAt?: number) => void }).__sobTrail = (uid, locs, side = 'A', freezeAt) => {
@@ -333,10 +506,29 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       setTrail(shots);
       if (freezeAt === undefined) window.setTimeout(() => landFx(locs.map((location) => ({ location, amount: 1, tone: side === 'artist' ? 'artist' : side === 'A' ? 'mine' : 'theirs' }))), 1050);
     };
-    (window as unknown as { __sobBanish?: (actor: string, victim: string, toName?: string) => void }).__sobBanish = (actor, victim, toName = 'Harpers Ferry') => {
-      setFx({ actor, victim, outcome: 'displaced', kind: 'banish', toName });
-      requestAnimationFrame(() => aimAndSpray(actor, victim, 'banish'));
-      window.setTimeout(() => setFx(null), 1750);
+    /** Dev: play a clash between two tiles on the board as it stands (window.__sobClash(actorUid, victimUid, 'displaced', 1)). */
+    (window as unknown as { __sobClash?: (actor: string, victim: string, outcome?: string, to?: number) => void }).__sobClash = (actor, victim, outcome = 'displaced', to = 1) => {
+      const { view, playClash } = devRef.current;
+      const a = view.characters[actor];
+      const v = view.characters[victim];
+      if (!a || !v) return;
+      const adef = CARD_BY_ID[a.defId] as { name: string; force: number };
+      const vdef = CARD_BY_ID[v.defId] as { name: string; force: number };
+      const ev: GameEvent = { type: 'clash', text: `${adef.name} beats ${vdef.name} (${adef.force} Force against ${vdef.force}) and knocks them away to the Gates of another Location.`, location: v.location, uid: victim, player: a.owner, data: { actor: { kind: 'character', id: a.defId, owner: a.owner, force: adef.force }, victim: { uid: victim, defId: v.defId, owner: v.owner, force: vdef.force }, outcome, from: v.location, to: STAYS.has(outcome) ? undefined : to, theirForce: vdef.force } };
+      const ghosts = new Map<string, Ghost>();
+      for (const uid of [actor, STAYS.has(outcome) ? undefined : victim]) {
+        const el = uid ? tileOf(uid) : null;
+        if (uid && el) ghosts.set(uid, ghostOf(el));
+      }
+      setFx({ hidden: [...ghosts.keys()] });
+      const dest = document.querySelector(`.column[data-index="${to}"] .gates`)?.getBoundingClientRect();
+      void (async () => {
+        await painted();
+        await playClash(ev, ghosts, () => true, true, STAYS.has(outcome) ? undefined : dest ? new DOMRect(dest.left + dest.width / 2 - 40, dest.top, 80, 80) : undefined);
+        clearGhosts();
+        setFx(null);
+        setClashTell(null);
+      })();
     };
     (window as unknown as { __sobDig?: (seen: string[], keep: string, hidden?: boolean, freeze?: DigPhase, owner?: PlayerId) => void }).__sobDig = (seen, keep, hidden = false, freeze, owner = 'A') => {
       setDigFreeze(freeze);
@@ -504,7 +696,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     const onDown = (e: PointerEvent) => {
       const t = e.target as Element | null;
       if (!t || !root.contains(t)) return;
-      if (t.closest('.hand, .column, .hint, .scrim, .sheet, .cx-scrim, .toast')) return;
+      if (t.closest('.hand, .column.targetable, .hint, .scrim, .sheet, .cx-scrim, .toast')) return;
       sfx('card.back');
       setSelected(null);
     };
@@ -930,7 +1122,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           dragProps={dragProps}
           drop={drop}
           reserved={reserved}
-          delays={fx ? { ...m.delays, [fx.victim]: 380 } : m.delays}
+          delays={m.delays}
           fx={fx}
           resolving={busy}
           focus={step?.uids}
@@ -940,7 +1132,20 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           glowLocation={guideLocation}
           summonLabel={summonState}
         />
-        {step && !ownBeat ? (
+        {clashTell ? (
+          <div className={`replay-banner kind-clash ${clashTell.tone}`} role="status">
+            <span className="replay-kind">{clashTell.title}</span>
+            <span className="replay-text">
+              {clashTell.text}
+              {clashTell.sub && <span className="replay-sub">{clashTell.sub}</span>}
+            </span>
+            {m.replay && (
+              <button className="small" onClick={m.replaySkip}>
+                Skip ▸▸
+              </button>
+            )}
+          </div>
+        ) : step && !ownBeat ? (
           <div className={`replay-banner kind-${step.kind}`} role="status">
             {BEAT_KIND[step.kind] && <span className="replay-kind">{BEAT_KIND[step.kind]}</span>}
             <span className="replay-text">{step.label}</span>

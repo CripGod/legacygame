@@ -97,6 +97,17 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
   const recorded = useRef(false);
   const stateRef = useRef(trueState);
   stateRef.current = trueState;
+  /** Dev (?dev=1): load a whole match state, as the board to plan from (window.__sobLoad(state)). Used to stage replays for the eye. */
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.location.search.includes('dev=1')) return;
+    (window as unknown as { __sobLoad?: (st: GameState) => void }).__sobLoad = (st) => {
+      setReplay(null);
+      setBusy(false);
+      setLocked(false);
+      setPlanState(emptyPlan());
+      setTrueState(st);
+    };
+  }, []);
 
   const setPlan = useCallback((fn: (p: TurnPlan) => TurnPlan) => setPlanState((p) => fn(p)), []);
 

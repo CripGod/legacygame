@@ -581,6 +581,22 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
 }
 
 /** A Character knocks, blocks, holds off or turns another: the beat that explains the tally. */
+/** The verdict of a clash, as stamped on the board and titled on the Clash card. */
+export const CLASH_TITLES: Record<'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested', string> = {
+  displaced: 'BANISHED',
+  held: 'HELD OFF',
+  blocked: 'BLOCKED',
+  sentBack: 'SENT BACK',
+  suppressed: 'SUPPRESSED',
+  turned: 'TURNED',
+  tricked: 'TRICKED',
+  rose: 'BACK TO HAND',
+  hexed: 'HEXED',
+  defected: 'CHANGES SIDES',
+  exposed: 'FOUND OUT',
+  arrested: 'ARRESTED',
+};
+
 export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: GameState; me: PlayerId; onClose: () => void }) {
   const { placeholders } = useDisplay();
   const d = ev.data as {
@@ -607,20 +623,7 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
   const actorName =
     d.actor.kind === 'character' ? cardName(d.actor.id, placeholders) : d.actor.kind === 'threat' ? threatLabel(d.actor.id, placeholders) : d.actor.kind === 'location' ? locationName(d.actor.id, placeholders) : cardName(d.actor.id, placeholders);
   const victimName = cardName(d.victim.defId, placeholders);
-  const title: Record<typeof d.outcome, string> = {
-    displaced: 'BANISHED',
-    held: 'HELD OFF',
-    blocked: 'BLOCKED',
-    sentBack: 'SENT BACK',
-    suppressed: 'SUPPRESSED',
-    turned: 'TURNED',
-    tricked: 'TRICKED',
-    rose: 'BACK TO HAND',
-    hexed: 'HEXED',
-    defected: 'CHANGES SIDES',
-    exposed: 'FOUND OUT',
-    arrested: 'ARRESTED',
-  };
+  const title = CLASH_TITLES;
   const attackerWins = d.outcome !== 'held';
   const artKind = d.actor.kind === 'character' ? 'characters' : d.actor.kind === 'threat' ? 'threats' : d.actor.kind === 'location' ? 'locations' : 'events';
   const where = d.to !== undefined ? locationName(view.locations[d.to].revealed ? view.locations[d.to].defId : 'unknown', placeholders) : '';

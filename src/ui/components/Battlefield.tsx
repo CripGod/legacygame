@@ -54,8 +54,8 @@ export interface BattlefieldProps {
   drop?: DropHighlight | null;
   /** Per-tile animation stagger (ms) for the latest resolution. */
   delays?: Record<string, number>;
-  /** A clash on this beat: who struck and who was knocked away. */
-  fx?: { actor?: string; victim: string; outcome?: string; kind?: 'hit' | 'banish'; dx?: number; dy?: number; toName?: string } | null;
+  /** A clash playing out on the board: tiles hidden while their ghosts fly, the hit, the stamp that says what happened. */
+  fx?: BoardFx | null;
   /** Gate slots still occupied until the turn resolves, keyed by Location: Characters leaving the Gates this turn. */
   /** Pieces leaving a Location in the preview: ghosted at their old place with an arrow toward where they go. */
   reserved?: Record<number, { uid: string; defId: string; why: string; zone: 'gate' | 'inside'; dir: 'left' | 'right' | 'up' }[]>;
@@ -98,6 +98,28 @@ function Score({ p, value }: { p: PlayerId; value: number }) {
     </div>
   );
 }
+
+/**
+ * The clash choreography, told through the real tiles: `hidden` tiles sit invisible while a ghost of them flies
+ * (the striker's charge, the victim's flight), `flash` is the moment of impact on the victim, `stamp` is the
+ * verdict slammed onto a tile once it has landed, `land` pops the tile that just arrived, `windup` is the
+ * striker gathering itself before the charge.
+ */
+export interface BoardFx {
+  hidden: string[];
+  windup?: string;
+  flash?: { uid: string; kind: 'hit' | 'held' | 'hexed' };
+  stamp?: { uid: string; title: string; sub?: string; tone?: 'hit' | 'miss' | 'hex' };
+  land?: string;
+}
+
+const picFx = (fx: BoardFx | null | undefined, uid: string): 'windup' | 'knocked' | 'held' | 'hexed' | 'land' | undefined => {
+  if (!fx) return undefined;
+  if (fx.windup === uid) return 'windup';
+  if (fx.flash?.uid === uid) return fx.flash.kind === 'hit' ? 'knocked' : fx.flash.kind;
+  if (fx.land === uid) return 'land';
+  return undefined;
+};
 
 type Common = Pick<BattlefieldProps, 'view' | 'me' | 'plan' | 'onChar' | 'flash' | 'dragProps' | 'drop' | 'reserved' | 'focus' | 'eventFx' | 'pendingEvents' | 'fx'>;
 
@@ -176,16 +198,16 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                 <div
                   data-uid={s.uid}
                   data-place={`${index}:gate`}
-                  className={`gate-slot filled owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''}`}
+                  className={`gate-slot filled owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''}`}
                   {...draggable}
                 >
-                  {fx?.kind === 'banish' && fx.victim === s.uid && (
-                    <div className="stamp banished">
-                      <b>Banished</b>
-                      {fx.toName && <i>to {fx.toName}</i>}
+                  {fx?.stamp?.uid === s.uid && (
+                    <div className={`stamp verdict ${fx.stamp.tone ?? 'hit'}`}>
+                      <b>{fx.stamp.title}</b>
+                      {fx.stamp.sub && <i>{fx.stamp.sub}</i>}
                     </div>
                   )}
-                  <Pic state={view} c={s} badges fx={fx?.actor === s.uid ? 'strike' : fx?.victim === s.uid ? (fx.outcome === 'hexed' ? 'hexed' : fx.kind === 'banish' ? 'banish' : 'knocked') : undefined} fxData={fx ?? undefined} focus={focus?.includes(s.uid)} strip={planned ? 'Planned' : moving ? 'Moving' : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockReason(view, s) ? 'Held' : undefined} onClick={() => onChar(s.uid)} />
+                  <Pic state={view} c={s} badges fx={picFx(fx, s.uid)} focus={focus?.includes(s.uid)} strip={planned ? 'Planned' : moving ? 'Moving' : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockReason(view, s) ? 'Held' : undefined} onClick={() => onChar(s.uid)} />
                 </div>
               </div>
             );
@@ -245,14 +267,14 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
           const draggable =
             mine && dragProps ? dragProps(planned ? { kind: 'card', cardId: c.uid.slice(PLANNED_PREFIX.length) } : { kind: 'char', uid: c.uid }) : {};
           return (
-            <div key={c.uid} data-uid={c.uid} data-place={`${index}:inside`} className={`slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''}`} {...draggable}>
-              {fx?.kind === 'banish' && fx.victim === c.uid && (
-                <div className="stamp banished">
-                  <b>Banished</b>
-                  {fx.toName && <i>to {fx.toName}</i>}
+            <div key={c.uid} data-uid={c.uid} data-place={`${index}:inside`} className={`slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''} ${fx?.hidden.includes(c.uid) ? 'fx-hidden' : ''}`} {...draggable}>
+              {fx?.stamp?.uid === c.uid && (
+                <div className={`stamp verdict ${fx.stamp.tone ?? 'hit'}`}>
+                  <b>{fx.stamp.title}</b>
+                  {fx.stamp.sub && <i>{fx.stamp.sub}</i>}
                 </div>
               )}
-              <Pic state={view} c={c} highlight={confronting} fx={fx?.actor === c.uid ? 'strike' : fx?.victim === c.uid ? (fx.outcome === 'hexed' ? 'hexed' : fx.kind === 'banish' ? 'banish' : 'knocked') : undefined} fxData={fx ?? undefined} focus={focus?.includes(c.uid)} strip={entering ? 'Entering' : brought ? 'Moving' : planned ? 'Planned' : confronting ? 'Confront' : lockReason(view, c) ? 'Held' : undefined} onClick={() => onChar(c.uid)} />
+              <Pic state={view} c={c} highlight={confronting} fx={picFx(fx, c.uid)} focus={focus?.includes(c.uid)} strip={entering ? 'Entering' : brought ? 'Moving' : planned ? 'Planned' : confronting ? 'Confront' : lockReason(view, c) ? 'Held' : undefined} onClick={() => onChar(c.uid)} />
             </div>
           );
         })}
@@ -262,7 +284,7 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
 }
 
 /** A Threat as a portrait tile beside the Inside rows: art, the Force it needs, its name, and who it is aimed at. */
-function ThreatTile({ t, view, me, plan, drop, flash, onThreat, gone }: { t: ThreatInstance; view: GameState; me: PlayerId; plan: TurnPlan; drop?: BattlefieldProps['drop']; flash?: BattlefieldProps['flash']; onThreat: (uid: string) => void; gone?: boolean }) {
+function ThreatTile({ t, view, me, plan, drop, flash, onThreat, gone, hidden }: { t: ThreatInstance; view: GameState; me: PlayerId; plan: TurnPlan; drop?: BattlefieldProps['drop']; flash?: BattlefieldProps['flash']; onThreat: (uid: string) => void; gone?: boolean; hidden?: boolean }) {
   const { placeholders } = useDisplay();
   const tdef = THREAT_BY_ID[t.defId];
   const confronting = !gone && plan.confronts.some((c) => c.threatUid === t.uid);
@@ -283,7 +305,7 @@ function ThreatTile({ t, view, me, plan, drop, flash, onThreat, gone }: { t: Thr
     <div
       data-drop={gone ? undefined : 'threat'}
       data-threat={t.uid}
-      className={`threat-tile ${who} ${fresh ? 'fresh' : ''} ${gone ? 'gone' : ''} ${confronting ? 'confronting' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' && !gone ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''}`}
+      className={`threat-tile ${who} ${fresh ? 'fresh' : ''} ${gone ? 'gone' : ''} ${confronting ? 'confronting' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' && !gone ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''} ${hidden ? 'fx-hidden' : ''}`}
       onClick={(e) => {
         e.stopPropagation();
         if (!gone) onThreat(t.uid);
@@ -378,7 +400,8 @@ export function Battlefield(props: BattlefieldProps) {
     version: view,
     delayFor: (uid) => delays?.[uid] ?? 0,
     // Your own moves snap quickly; the opponent's resolution moves glide.
-    durationFor: (uid) => (uid === fx?.victim ? 760 : view.characters[uid]?.owner === me || isPlannedUid(uid) ? (resolving ? 0 : 220) : 620),
+    // A tile whose ghost is flying does not glide: it reappears where the ghost lands.
+    durationFor: (uid) => (fx?.hidden.includes(uid) ? 0 : view.characters[uid]?.owner === me || isPlannedUid(uid) ? (resolving ? 0 : 220) : 620),
   });
   const common: Common = { view, me, plan, onChar, flash, dragProps, drop, reserved, focus, eventFx, pendingEvents, fx };
   return (
@@ -479,7 +502,7 @@ export function Battlefield(props: BattlefieldProps) {
                     {/* The column is always reserved, so the rows never change shape; empty, it shows the Location's art. */}
                     <div className={`threat-col ${has ? '' : 'empty'}`} aria-hidden={!has}>
                       {live.map((t) => (
-                        <ThreatTile key={t.uid} t={t} view={view} me={me} plan={plan} drop={drop} flash={flash === 'threat' && glowLocation !== null && glowLocation !== undefined && glowLocation !== loc.index ? null : flash} onThreat={onThreat} />
+                        <ThreatTile key={t.uid} t={t} view={view} me={me} plan={plan} drop={drop} flash={flash === 'threat' && glowLocation !== null && glowLocation !== undefined && glowLocation !== loc.index ? null : flash} onThreat={onThreat} hidden={fx?.hidden.includes(t.uid)} />
                       ))}
                       {ghosts.map((t) => (
                         <ThreatTile key={`gone:${t.uid}`} t={t} view={view} me={me} plan={plan} onThreat={onThreat} gone />

@@ -882,17 +882,28 @@ Main menu
 
 ### src/ui/screens/MatchScreen.tsx
 
+- (prefers-reduced-motion: reduce)
+- [data-uid="${uid}"], [data-threat="${uid}"]
 - Last turn unless someone stands
 - .column[data-index="${location}"] .art
 - .column[data-index="${it.location}"] .loc-glow
-- (prefers-reduced-motion: reduce)
+- s ghost flies: its real tile
+- cubic-bezier(0.55, 0, 0.85, 0.35)
+- ${d.actor.force} vs ${d.theirForce}
+- clash ${tone === 'miss' ? 'miss' : ''}
+- s ghost flies to where it was sent; the striker
+- cubic-bezier(0.2, 0.9, 0.3, 1.25)
+- cubic-bezier(0.15, 0.7, 0.2, 1)
+- cubic-bezier(0.25, 0.75, 0.3, 1)
 - .column[data-index="${e.location}"] .art
 - .column[data-index="${i}"] .art
+- ${adef.name} beats ${vdef.name} (${adef.force} Force against ${vdef.force}) and knocks them away to the Gates of another Location.
+- .column[data-index="${to}"] .gates
 - moves with ${cardName(pl.cardId, placeholders)}
 - relocates to ${view.locations[r.to].revealed ? locationName(view.locations[r.to].defId, placeholders) : 
 - That is the move. Press Lock It In.
 - That works too. Or ${guide.text.charAt(0).toLowerCase()}${guide.text.slice(1)}
-- .hand, .column, .hint, .scrim, .sheet, .cx-scrim, .toast
+- .hand, .column.targetable, .hint, .scrim, .sheet, .cx-scrim, .toast
 - Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds a 9th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.
 - Not enough Energy. ${cardName(play.cardId, placeholders)} costs ${cost} and you have ${opts.energy - spent} left of ${opts.energy} this turn (Energy = the turn number). Remove a planned card or wait a turn.
 - ${cardName(play.cardId, placeholders)} goes Inside right away (Direct Entry). Tap ⇅ on the planned move to wait at the Gates instead.
@@ -955,6 +966,7 @@ Main menu
 - Drag a card onto a Location.
 - Sit Down${opts.canStepOff && view.phase !== 'ended' ? 
 - app ${resolving ? 'resolving' : ''}
+- replay-banner kind-clash ${clashTell.tone}
 - replay-banner kind-${step.kind}
 - What happened last turn, step by step.
 - danger ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}
@@ -1299,6 +1311,22 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
 }
 
 /** A Character knocks, blocks, holds off or turns another: the beat that explains the tally. */
+/** The verdict of a clash, as stamped on the board and titled on the Clash card. */
+export const CLASH_TITLES: Record<'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested', string> = {
+  displaced: 'BANISHED',
+  held: 'HELD OFF',
+  blocked: 'BLOCKED',
+  sentBack: 'SENT BACK',
+  suppressed: 'SUPPRESSED',
+  turned: 'TURNED',
+  tricked: 'TRICKED',
+  rose: 'BACK TO HAND',
+  hexed: 'HEXED',
+  defected: 'CHANGES SIDES',
+  exposed: 'FOUND OUT',
+  arrested: 'ARRESTED',
+};
+
 export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: GameState; me: PlayerId; onClose: () => void }) {
   const { placeholders } = useDisplay();
   const d = ev.data as {
@@ -1325,20 +1353,7 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
   const actorName =
     d.actor.kind === 'character' ? cardName(d.actor.id, placeholders) : d.actor.kind === 'threat' ? threatLabel(d.actor.id, placeholders) : d.actor.kind === 'location' ? locationName(d.actor.id, placeholders) : cardName(d.actor.id, placeholders);
   const victimName = cardName(d.victim.defId, placeholders);
-  const title: Record<typeof d.outcome, string> = {
-    displaced: 'BANISHED',
-    held: 'HELD OFF',
-    blocked: 'BLOCKED',
-    sentBack: 'SENT BACK',
-    suppressed: 'SUPPRESSED',
-    turned: 'TURNED',
-    tricked: 'TRICKED',
-    rose: 'BACK TO HAND',
-    hexed: 'HEXED',
-    defected: 'CHANGES SIDES',
-    exposed: 'FOUND OUT',
-    arrested: 'ARRESTED',
-  };
+  const title = CLASH_TITLES;
   const attackerWins = d.outcome !== 'held';
   const artKind = d.actor.kind === 'character' ? 'characters' : d.actor.kind === 'threat' ? 'threats' : d.actor.kind === 'location' ? 'locations' : 'events';
   const where = d.to !== undefined ? locationName(view.locations[d.to].revealed ? view.locations[d.to].defId : 'unknown', placeholders) : '';
@@ -1474,14 +1489,15 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - gates-left ${gOk ? 'drop-ok' : ''} ${gOver ? 'drop-over' : ''}
 - ${hd.name} ${s.held.why} when you Lock It In. The slot stays taken until then.
 - tile-glow owner-${owner} ${focus?.includes(s.uid) ? 'focus' : ''}
-- gate-slot filled owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''}
+- gate-slot filled owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''}
+- stamp verdict ${fx.stamp.tone ?? 'hit'}
 - Your Event slot here: drop an Event card on this Location. One per Location per turn. A deck carries at most two Events: you have ${evLeft} of ${evTotal} left.
 - ev-count ${evLeft === 0 ? 'spent' : ''}
 - slots ${cap < INSIDE_CAPACITY ? 'restricted' : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''}
 - ${gd.name} ${g.why} when you Lock In.
 - slot ${i >= cap ? 'locked' : ''}
-- slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''}
-- threat-tile ${who} ${fresh ? 'fresh' : ''} ${gone ? 'gone' : ''} ${confronting ? 'confronting' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' && !gone ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''}
+- slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''} ${fx?.hidden.includes(c.uid) ? 'fx-hidden' : ''}
+- threat-tile ${who} ${fresh ? 'fresh' : ''} ${gone ? 'gone' : ''} ${confronting ? 'confronting' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' && !gone ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''} ${hidden ? 'fx-hidden' : ''}
 - ${tdef.name}: in the area, either player can confront it. ${tdef.text}
 - ${tdef.name}, aimed at you. ${tdef.text}
 - ${tdef.name}, aimed at ${view.players[other(me)].handle}. ${tdef.text}
