@@ -114,14 +114,16 @@ function amountOf(c: CharacterInstance): number {
 /** Influence contributed by a single Character, including auras. */
 export function charInfluence(state: GameState, c: CharacterInstance): number {
   const def = charDef(c.defId);
-  let v = def.influence + c.permInfluence + c.tempInfluence;
+  // An Informant counts against the side that holds it, unless it was amnestied: then it is that side's own, at its plain worth.
+  const informant = def.keywords.includes('INFORMANT') && !c.amnestied;
+  let v = (informant ? def.influence : Math.abs(def.influence)) + c.permInfluence + c.tempInfluence;
   const loc = state.locations[c.location];
   const ldef = LOCATION_BY_ID[loc.revealed ? loc.defId : 'unknown'];
   if (ldef?.effect.type === 'steelAndSoul' && charsAt(state, c.location, c.owner).length >= 5) v += ldef.effect.fiveBonus;
   const home = def.passive?.regionBonus;
   if (home && ldef?.region === home.region) v += home.influence;
   // Home ground: +1 where the story happened. An Informant is worth one more against its holder there.
-  if (def.home && loc.revealed && def.home.locations.includes(loc.defId)) v += def.keywords.includes('INFORMANT') ? -1 : 1;
+  if (def.home && loc.revealed && def.home.locations.includes(loc.defId)) v += informant ? -1 : 1;
   const spot = def.passive?.locationBonus;
   if (spot && loc.revealed && loc.defId === spot.locationId) v += spot.influence;
   for (const j of hasEstablishedAnywhere(state, c.owner, 'sanctuary')) {
@@ -129,7 +131,7 @@ export function charInfluence(state: GameState, c: CharacterInstance): number {
     if (b) v += b;
   }
   // Anansi's web: the small against the large. Cheap Characters grow at a webbed Location, expensive ones shrink.
-  if (loc.webbed && !def.keywords.includes('INFORMANT')) {
+  if (loc.webbed && !informant) {
     if (def.cost <= 1) v += WEB_SMALL;
     else if (def.cost >= 3) v -= WEB_LARGE;
   }
@@ -153,12 +155,12 @@ export function charInfluence(state: GameState, c: CharacterInstance): number {
   } else {
     if (threatActiveFor(state, c.location, 'zeroGateInfluence', c.owner) && !hasEstablished(state, c.owner, c.location, 'sanctuary').length) return 0;
     // William Still's record: an Informant at your Gates here is written down and counts 0 against the side that holds it. It keeps its slot.
-    if (def.keywords.includes('INFORMANT') && hasEstablished(state, c.owner, c.location, 'recordInformantsHere').length) return 0;
+    if (informant && hasEstablished(state, c.owner, c.location, 'recordInformantsHere').length) return 0;
     for (const z of hasEstablished(state, c.owner, c.location, 'gateInfluenceHere')) v += amountOf(z);
     for (const o of hasEstablished(state, other(c.owner), c.location, 'opposingGateInfluence')) v -= amountOf(o);
   }
   // Informants count against the side that holds them; everyone else bottoms out at 0.
-  return def.keywords.includes('INFORMANT') ? Math.min(0, v) : Math.max(0, v);
+  return informant ? Math.min(0, v) : Math.max(0, v);
 }
 
 /** Raw Influence per player at a Location, before leader-based modifiers. */
@@ -388,7 +390,7 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
     }
   }
   const mine = charsOf(state, p);
-  const enters = mine.filter((c) => c.zone === 'gate' && c.ready && !state.locations[c.location].lost && insideCapacity(state, c.location) > 0 && !charDef(c.defId).keywords.includes('INFORMANT')).map((c) => c.uid);
+  const enters = mine.filter((c) => c.zone === 'gate' && c.ready && !state.locations[c.location].lost && insideCapacity(state, c.location) > 0 && !(charDef(c.defId).keywords.includes('INFORMANT') && !c.amnestied)).map((c) => c.uid);
   // Inside Characters relocate and arrive Fresh; Gate Characters relocate too and stay as Ready as they were.
   const relocations = mine
     .filter((c) => !state.locations[c.location].lost && !lockReason(state, c))
@@ -403,7 +405,7 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
   for (const loc of state.locations) {
     for (const t of loc.threats) {
       if (!canConfront(state, t, p)) continue;
-      const chars = mine.filter((c) => c.location === loc.index && !charDef(c.defId).keywords.includes('INFORMANT')).map((c) => c.uid);
+      const chars = mine.filter((c) => c.location === loc.index && !(charDef(c.defId).keywords.includes('INFORMANT') && !c.amnestied)).map((c) => c.uid);
       if (!chars.length) continue;
       confronts.push({ threatUid: t.uid, location: loc.index, chars, assist: isAssist(t, p) });
     }

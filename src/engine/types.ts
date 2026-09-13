@@ -82,7 +82,7 @@ export type RevealEffect =
   | { type: 'energyNext'; amount: number } // Madam C.J. Walker: Energy next turn
   | { type: 'nextCharacterDiscount'; amount: number } // Daniel Payne: your next Character costs less
   | { type: 'relocationNextTurn'; amount: number } // Victor Hugo Green: extra Relocation next turn
-  | { type: 'foundOut'; mode: 'expose' | 'arrest'; fallback: 'draw' | 'hold' | 'confront'; leave?: boolean } // David Ruggles, Lewis Hayden, William Parker: the Informant at your Gates here is found out. expose: back to the planter's hand (their discard if that hand is full); arrest: out of the match, into the planter's discard; leave: this Character then moves on to your Gates elsewhere, Fresh. No Informant here: draw a card, hold (yours here cannot be displaced this turn) or confront a Threat here with +1 Force
+  | { type: 'foundOut'; mode: 'expose' | 'arrest' | 'amnesty'; fallback: 'draw' | 'hold' | 'confront'; leave?: boolean } // David Ruggles, Lewis Hayden, William Parker, Desmond Tutu: the Informant at your Gates here is found out. expose: back to the planter's hand (their discard if that hand is full); arrest: out of the match, into the planter's discard; amnesty: it testifies and stays, Fresh, as the holder's own Character from now on; leave: this Character then moves on to your Gates elsewhere, Fresh. No Informant here: draw a card, hold (yours here cannot be displaced this turn) or confront a Threat here with +1 Force
   | { type: 'siegeInside'; amount: number } // Yaa Asantewaa: every opposing Established Character here loses Influence for good
   | { type: 'challengeAllInside' } // Menelik II: every opposing Established Character here with lower Force returns to its Gates, Fresh, while their Gates have room
   | { type: 'drawPerFriendHere'; max: number }; // Denmark Vesey: draw per other friendly Character here: permanent Influence on the Location itself, which stays when the artist leaves
@@ -291,6 +291,8 @@ export interface CharacterInstance {
   owner: PlayerId;
   /** Informants: the player who planted this Character on the other side. */
   plantedBy?: PlayerId;
+  /** An Informant that testified under Desmond Tutu's amnesty: it is an ordinary Character of its holder from then on. */
+  amnestied?: boolean;
   location: number;
   zone: Zone;
   /** Gate only: may enter during planning. */

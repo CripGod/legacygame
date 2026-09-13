@@ -332,7 +332,7 @@ function playVariants(view: GameState, p: PlayerId): PlayAction[] {
   for (const o of opts.plays) {
     for (const location of o.locations) {
       if (o.needsTarget === 'friendlyCharAndLocation') {
-        const gateChars = charsOf(view, p).filter((c) => !charDef(c.defId).keywords.includes('INFORMANT'));
+        const gateChars = charsOf(view, p).filter((c) => !(charDef(c.defId).keywords.includes('INFORMANT') && !c.amnestied));
         let added = false;
         for (const c of gateChars) {
           for (const dest of view.locations) {

@@ -1220,6 +1220,7 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .stamp.verdict { z-index: 8; top: 50%; display: grid; justify-items: center; gap: 1px; color: #fff; background: rgba(150, 20, 20, 0.92); border-color: #ffd9d9; box-shadow: 0 0 0 2px rgba(150, 20, 20, 0.6), 0 8px 24px rgba(0, 0, 0, 0.7); animation: stamp-slam 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.4) 0.05s both; }
 .stamp.verdict.miss { background: rgba(20, 110, 55, 0.94); border-color: #d9ffe6; box-shadow: 0 0 0 2px rgba(20, 110, 55, 0.6), 0 8px 24px rgba(0, 0, 0, 0.7); }
 .stamp.verdict.hex { background: rgba(90, 30, 150, 0.94); border-color: #ead9ff; box-shadow: 0 0 0 2px rgba(90, 30, 150, 0.6), 0 8px 24px rgba(0, 0, 0, 0.7); }
+.gate-slot.filled:has(> .stamp.verdict), .slot.filled:has(> .stamp.verdict) { overflow: visible; z-index: 9; }
 .stamp.verdict b { font-size: clamp(9px, 0.85vw, 13px); letter-spacing: 0.14em; }
 .stamp.verdict i { font-family: var(--font); font-style: italic; font-weight: 500; text-transform: none; letter-spacing: 0; font-size: clamp(8px, 0.7vw, 11px); opacity: 0.95; }
 @keyframes stamp-slam { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(-14deg) scale(2.4); } 60% { opacity: 1; transform: translate(-50%, -50%) rotate(-14deg) scale(0.92); } 100% { opacity: 1; transform: translate(-50%, -50%) rotate(-14deg) scale(1); } }

@@ -92,7 +92,7 @@ function riseAgain(state: GameState, c: CharacterInstance, reason: string, event
 
 /** One Character (or Threat, Location, Event) acting on another: the story beat the UI replays before the tally. */
 type ClashActor = { kind: 'character' | 'threat' | 'location' | 'event'; id: string; owner?: PlayerId; force?: number };
-type ClashOutcome = 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested';
+type ClashOutcome = 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested' | 'amnestied';
 
 /** Anansi's trick: the opposing Ready Gate Character here with the highest Influence waits again (becomes Fresh). */
 function trickGate(state: GameState, events: GameEvent[], p: PlayerId, loc: number, def: { id: string; force: number }): boolean {
@@ -109,7 +109,7 @@ function trickGate(state: GameState, events: GameEvent[], p: PlayerId, loc: numb
 
 /** Informants are planted on the other side: never Ready, never Inside. */
 function isInformant(c: CharacterInstance): boolean {
-  return charDef(c.defId).keywords.includes('INFORMANT');
+  return charDef(c.defId).keywords.includes('INFORMANT') && !c.amnestied;
 }
 /** Mark a Gate Character Ready, unless it is an Informant (they wait forever). */
 function readyUp(c: CharacterInstance): void {
@@ -132,6 +132,7 @@ function clash(state: GameState, events: GameEvent[], actor: ClashActor, victim:
     : out === 'defected' ? `turns ${vdef.name}: they change sides`
     : out === 'exposed' ? `finds ${vdef.name} out: back to the hand of whoever planted them`
     : out === 'arrested' ? `arrests ${vdef.name}: off the board for good`
+    : out === 'amnestied' ? `hears ${vdef.name} out in full and grants amnesty: they stay at these Gates, Fresh, as ${state.players[victim.owner].handle}'s own Character from now on`
     : `beats ${vdef.name}${vs} and knocks them off the board. ${vdef.name}'s own power: instead of landing at another Location, they go back to ${state.players[victim.owner].handle}'s hand and cost nothing the next time they are played`;
   events.push({
     type: 'clash',
@@ -628,6 +629,19 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       const home = state.players[planter];
       const sdef = charDef(spy.defId);
       const was = charInfluence(state, spy);
+      if (eff.mode === 'amnesty') {
+        // Truth and Reconciliation: full disclosure, then amnesty. The Informant stays where it is and is the holder's own from now on.
+        spy.amnestied = true;
+        spy.plantedBy = undefined;
+        spy.ready = false;
+        spy.arrivedTurn = state.turn;
+        const now = charInfluence(state, spy);
+        say(`hears ${sdef.name} (−${-was}) out in full and grants amnesty: they stay at ${state.players[p].handle}'s Gates here, Fresh, as ${state.players[p].handle}'s own Character, worth ${now} from now on.`);
+        clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, spy, 'amnestied', loc, {
+          note: `The Commission's terms: tell everything, and the past is not held against you. ${sdef.name} now counts ${now} for ${state.players[p].handle} and can go Inside like anyone else.`,
+        });
+        break;
+      }
       const arrested = eff.mode === 'arrest';
       const kept = !arrested && home.hand.length < MAX_HAND;
       delete state.characters[spy.uid];

@@ -92,4 +92,5 @@ export const HOMES: Record<string, HomeGround> = {
   lewis_hayden: { locations: ['justice_system'], why: 'Boston is not on the board. On 15 February 1851 he led the crowd that carried Shadrach Minkins out of a federal courtroom, and the jury at his own trial could not agree.', thematic: true },
   william_parker: { locations: ['harpers_ferry'], why: "Christiana is not on the board. Harpers Ferry is the board's abolition ground: the fight at Parker's door came eight years before Brown's raid, and Douglass took Gorsuch's revolver from Parker at the Rochester landing.", thematic: true },
   william_still: { locations: ['the_tabernacle'], why: 'Philadelphia is on the board only as Mother Bethel. The Anti-Slavery Office where he questioned arrivals was across the same city.', thematic: true },
+  desmond_tutu: { locations: ['the_tabernacle'], why: "Cape Town is not on the board. St George's Cathedral was his pulpit, and the march of 13 September 1989 set out from its steps.", thematic: true },
 };

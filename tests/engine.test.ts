@@ -1834,6 +1834,34 @@ describe('Found out: the answer to a planted Informant', () => {
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'lewis_hayden', location: 0 }] }, B: pass() }).state;
     expect(s.characters[friend.uid].protectedTurn).toBe(turn);
   });
+  it('Tutu hears the Informant out: it stays as its holder\'s own, counts for them, readies and can go Inside; with none, the cathedral holds', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: LOCS, revealAll: true, handA: ['desmond_tutu'] });
+    const spy = plant(s, 'ben_woolfolk', 'A', 0);
+    expect(charInfluence(s, spy)).toBeLessThan(0);
+    const r = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'desmond_tutu', location: 0 }] }, B: pass() });
+    s = r.state;
+    const kept = s.characters[spy.uid];
+    expect(kept).toBeDefined();
+    expect(kept.owner).toBe('A');
+    expect(kept.amnestied).toBe(true);
+    expect(kept.plantedBy).toBeUndefined();
+    expect(kept.zone).toBe('gate');
+    expect(charInfluence(s, kept)).toBe(-charDef('ben_woolfolk').influence);
+    expect(r.events.some((e) => e.type === 'clash' && (e.data as { outcome: string }).outcome === 'amnestied')).toBe(true);
+    expect(s.players.B.hand).not.toContain('ben_woolfolk');
+    expect(s.players.B.discard).not.toContain('ben_woolfolk');
+    // It stays Fresh this turn, then readies like anyone else and may go Inside.
+    expect(kept.ready).toBe(false);
+    s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(s.characters[spy.uid].ready).toBe(true);
+    expect(legalOptions(s, 'A').enters).toContain(spy.uid);
+    // No Informant: the cathedral holds.
+    let h = rig(createMatch({ seed: 2 }), { locations: LOCS, revealAll: true, handA: ['desmond_tutu'] });
+    const friend = addChar(h, 'organizer', 'A', 0, 'gate', false);
+    const turn = h.turn;
+    h = resolveTurn(h, { A: { ...pass(), plays: [{ cardId: 'desmond_tutu', location: 0 }] }, B: pass() }).state;
+    expect(h.characters[friend.uid].protectedTurn).toBe(turn);
+  });
   it('Still writes the Informant down: it counts 0 against you while he is Established there', () => {
     const s = rig(createMatch({ seed: 2 }), { locations: LOCS, revealAll: true });
     const spy = plant(s, 'peter_prioleau', 'A', 0);

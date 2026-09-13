@@ -112,7 +112,7 @@ export function Pic({
   const inf = charInfluence(state, c);
   let label = strip;
   if (!label && c.zone === 'gate') {
-    label = def.keywords.includes('INFORMANT') ? 'Informant' : c.blockedEnterTurn === state.turn ? 'Blocked' : c.ready ? 'Ready' : 'Fresh';
+    label = def.keywords.includes('INFORMANT') && !c.amnestied ? 'Informant' : c.blockedEnterTurn === state.turn ? 'Blocked' : c.ready ? 'Ready' : 'Fresh';
   }
   const cls = label ? label.toLowerCase() : '';
   const locNow = state.locations[c.location];

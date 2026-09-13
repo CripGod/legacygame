@@ -87,7 +87,7 @@ type ClashData = {
   intent?: string;
 };
 /** Outcomes where the victim stays put: it takes the hit where it stands rather than flying anywhere. */
-const STAYS = new Set<string>(['held', 'blocked', 'suppressed', 'tricked', 'hexed']);
+const STAYS = new Set<string>(['held', 'blocked', 'suppressed', 'tricked', 'hexed', 'amnestied']);
 const reduceMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 /** The board tile that struck: a Character of that card and owner, or the Threat of that kind at the Location. */
 const actorUidFor = (d: ClashData, v: GameState): string | undefined => {
@@ -279,7 +279,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   const playClash = async (ev: GameEvent, ghosts: Map<string, Ghost>, alive: () => boolean, last: boolean, demoDest?: DOMRect) => {
     const d = ev.data as ClashData;
     const outcome = d.outcome;
-    const tone: 'hit' | 'miss' | 'hex' = outcome === 'held' ? 'miss' : outcome === 'hexed' ? 'hex' : 'hit';
+    const tone: 'hit' | 'miss' | 'hex' = outcome === 'held' || outcome === 'amnestied' ? 'miss' : outcome === 'hexed' ? 'hex' : 'hit';
     const title = CLASH_TITLES[outcome] ?? String(outcome).toUpperCase();
     const victimUid = d.victim.uid;
     const actorUid = actorUidFor(d, prevView ?? view);
@@ -333,7 +333,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       vg.el.querySelector('.pic')?.classList.add('fx-knocked');
       void jolt(vg, 300, 8);
     } else {
-      setFx((f) => patch(f, { flash: { uid: victimUid, kind: outcome === 'held' ? 'held' : outcome === 'hexed' ? 'hexed' : 'hit' } }));
+      setFx((f) => patch(f, { flash: { uid: victimUid, kind: outcome === 'held' || outcome === 'amnestied' ? 'held' : outcome === 'hexed' ? 'hexed' : 'hit' } }));
     }
     await wait(240);
     if (!alive()) return;

@@ -561,7 +561,9 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
     case 'siegeInside':
       return 'The siege does not lift. Only protection stops it.';
     case 'foundOut':
-      return 'No Force check: an Informant at your own Gates has no protection from you.';
+      return (def?.kind === 'character' ? (def.reveal?.effect as { mode?: string } | undefined)?.mode : undefined) === 'amnesty'
+        ? 'No Force check. The Informant stays, Fresh, and is yours from now on: its Influence counts for you and it can go Inside.'
+        : 'No Force check: an Informant at your own Gates has no protection from you.';
     case 'displaceOpposingGate':
       return 'No Force check. Only protection stops her.';
     case 'blockOneOpposingGate':
@@ -582,7 +584,7 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
 
 /** A Character knocks, blocks, holds off or turns another: the beat that explains the tally. */
 /** The verdict of a clash, as stamped on the board and titled on the Clash card. */
-export const CLASH_TITLES: Record<'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested', string> = {
+export const CLASH_TITLES: Record<'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested' | 'amnestied', string> = {
   displaced: 'BANISHED',
   held: 'HELD OFF',
   blocked: 'BLOCKED',
@@ -595,6 +597,7 @@ export const CLASH_TITLES: Record<'displaced' | 'held' | 'blocked' | 'sentBack' 
   defected: 'CHANGES SIDES',
   exposed: 'FOUND OUT',
   arrested: 'ARRESTED',
+  amnestied: 'AMNESTIED',
 };
 
 export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: GameState; me: PlayerId; onClose: () => void }) {
@@ -602,7 +605,7 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
   const d = ev.data as {
     actor: { kind: 'character' | 'threat' | 'location' | 'event'; id: string; owner?: PlayerId; force?: number };
     victim: { uid: string; defId: string; owner: PlayerId; force: number };
-    outcome: 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested';
+    outcome: 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested' | 'amnestied';
     from: number;
     to?: number;
     theirForce?: number;
@@ -624,7 +627,7 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
     d.actor.kind === 'character' ? cardName(d.actor.id, placeholders) : d.actor.kind === 'threat' ? threatLabel(d.actor.id, placeholders) : d.actor.kind === 'location' ? locationName(d.actor.id, placeholders) : cardName(d.actor.id, placeholders);
   const victimName = cardName(d.victim.defId, placeholders);
   const title = CLASH_TITLES;
-  const attackerWins = d.outcome !== 'held';
+  const attackerWins = d.outcome !== 'held' && d.outcome !== 'amnestied';
   const artKind = d.actor.kind === 'character' ? 'characters' : d.actor.kind === 'threat' ? 'threats' : d.actor.kind === 'location' ? 'locations' : 'events';
   const where = d.to !== undefined ? locationName(view.locations[d.to].revealed ? view.locations[d.to].defId : 'unknown', placeholders) : '';
   const whereText = d.to !== undefined && !view.locations[d.to].revealed ? `Location ${d.to + 1}` : where;

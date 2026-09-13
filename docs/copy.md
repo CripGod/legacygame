@@ -349,6 +349,13 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - blurb: Chairman of the Philadelphia Vigilance Committee's Acting Committee. He questioned the arrivals, wrote down what they said, hid the books, and in 1872 printed them, a betrayer's name included.
 - history: William Still was born free in Shamong Township, Burlington County, New Jersey, in October 1821, the youngest child of parents who had come out of Maryland slavery. In 1847 the Pennsylvania Anti-Slavery Society in Philadelphia hired him as a clerk. In August 1850 a self-ransomed man of nearly fifty was sent to the office for advice on finding his parents, and Still's questions showed that Peter was his own brother, sold away from the family on Maryland's Eastern Shore as a boy more than forty years before; he later said that meeting was what moved him to keep the records. From December 1852 he chaired the Acting Committee of the reorganized Vigilance Committee, charged to keep a record of all its doings: arrivals were questioned closely, and for most of them he wrote down names, owners, places and the story of the escape, so that accounts could be checked against each other and against letters from agents like Thomas Garrett in Wilmington. When the Committee doubted a story it aided the man anyway, and one impostor suspicion was wrong. In March 1857 eight people from Dorchester County, Maryland, were walked by their guide, a Black man named Thomas Otwell, into the Dover, Delaware, jail for a $3,000 reward; they broke out through the sheriff's window and reached Philadelphia through the Delaware conductors. Garrett's letter of 13 March, marked to be shown to Still, named Otwell; Still printed it in 1872, with the Camden conductor William Brinkley's verdict that Otwell was 'dun for ever', and wrote that what became of the betrayer the Committee was never fully posted. He arrested and punished nobody; the record was the work. After John Brown's papers were captured in October 1859 he sent the books into hiding and kept the record on loose slips; he published it as The Underground Rail Road in 1872, and died in Philadelphia on 14 July 1902.
 
+### Desmond Tutu (`desmond_tutu`)
+- cost 4 · Influence 4 · Force 1 · historical · era: 1931–2021
+- reveal: Truth and Reconciliation: an Informant at your Gates at this Location testifies in full and is granted amnesty. It stays where it is, Fresh, as your own Character from now on: its Influence counts for you and it can go Inside like anyone else. With none here, the cathedral holds: your Characters at this Location cannot be displaced or turned this turn.
+- established: St George's Cathedral: opposing Reveals cannot target your Characters at this Location.
+- blurb: Archbishop of Cape Town and chair of the Truth and Reconciliation Commission, which heard victims in public and granted amnesty for full disclosure of politically motivated crimes.
+- history: Desmond Mpilo Tutu was born in Klerksdorp, Transvaal, on 7 October 1931. He taught school until the Bantu Education Act of 1953 took effect, then trained for the Anglican priesthood and was ordained in 1961; he studied at King's College London from 1962 to 1966. He became Dean of Johannesburg in 1975, Bishop of Lesotho in 1976 and, from 1978 to 1985, General Secretary of the South African Council of Churches, from which he called for economic sanctions against apartheid; the government withdrew his passport. He received the Nobel Peace Prize in 1984, became Bishop of Johannesburg in 1985 and Archbishop of Cape Town in 1986, the first Black man to hold the post. On 13 September 1989 he led some thirty thousand people from St George's Cathedral through Cape Town in a march the police let pass, and called the crowd the rainbow people of God. After the 1994 election President Mandela made him chairman of the Truth and Reconciliation Commission, set up by the Promotion of National Unity and Reconciliation Act of 1995: its hearings opened in East London on 15 April 1996, it took statements from about twenty-one thousand victims, and its Amnesty Committee granted amnesty to about 850 of more than seven thousand applicants, on the terms that the act was politically motivated and fully disclosed. He handed the Commission's five-volume report to Mandela on 29 October 1998 and retired as archbishop in 1996. He died in Cape Town on 26 December 2021.
+
 ### Victor Hugo Green (`victor_hugo_green`)
 - cost 3 · Influence 4 · Force 1 · historical · era: 1892–1960
 - reveal: The Green Book: next turn you may make one extra Relocation.
@@ -682,7 +689,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - `finalTurn`: Last scheduled turn. A Stand on Business now adds a 9th turn; otherwise whatever stands after this one is counted: two Locations of three, then total Influence, then total Force.
 - `dayNight`: This Location has a curfew. Odd turns are day, even turns are night: at night nobody relocates out until morning. Harriet Tubman is the only one who can move a Character out.
 - `locked`: Held here: cannot relocate out. A curfew at night, or The Justice System. Harriet Tubman can still move them.
-- `informant`: Informant: a Character played onto the other side's Gates. It is theirs, its Influence counts against them there, it never becomes Ready and never enters. Relocate it, slide it with Robert Smalls, or dump it at Charleston, 1822, where it is found out and sent back to the planter's hand. Or find it out yourself: David Ruggles and Lewis Hayden send it back to the planter's hand, William Parker has it arrested, and William Still, Established there, writes it down so it counts 0.
+- `informant`: Informant: a Character played onto the other side's Gates. It is theirs, its Influence counts against them there, it never becomes Ready and never enters. Relocate it, slide it with Robert Smalls, or dump it at Charleston, 1822, where it is found out and sent back to the planter's hand. Or find it out yourself: David Ruggles and Lewis Hayden send it back to the planter's hand, William Parker has it arrested, William Still, Established there, writes it down so it counts 0, and Desmond Tutu hears it out and grants amnesty: it stays as your own Character from then on.
 - `event`: Event: a one-shot card, and a deck carries at most two. Drop it on a Location: it goes in the purple Event slot beside your Gates (one per Location per turn), works everywhere, and the Location it lands on adds a little more.
 - `currentInfluence`: Influence this Character currently contributes here, including bonuses and penalties.
 - `home`: Home ground: this is where the story happened, so the Character counts +1 Influence here.
@@ -837,7 +844,7 @@ Rules
 - The Justice System holds anyone who goes Inside for two turns: no relocating out.
 - Events are played into the purple Event slot under a Location (one per Location per turn; the Gates can be full). A deck carries at most two, and the empty slot counts yours down. They work everywhere and the Location adds a bonus: Reparations pays +1 more in the Americas, The Ancestors bless a Location in Africa, Word of Mouth draws two where you have a crowd, Community Defense adds Force where it lands. Some cards cost 0 Energy.
 - The Middle Passage has no Inside: everyone at its Gates loses 1 Influence for good each turn, and whoever leaves arrives Ready and carries +1 Influence for good. The DeWolf Trade (a Threat, 5 Force) ships the lowest Fresh Gate Character at its Location there, or to a random Location, with a Setback.
-- Informants (Peter Prioleau, George Wilson, Pharoah and Tom, Ben Woolfolk) are Characters you play onto your opponent's Gates at a Location with one of their slots open. They are theirs: their negative Influence counts against them there, they take one of their Gate slots, and they never become Ready or go Inside. Relocate one away, slide it with Robert Smalls, or let a Threat knock it away; Harriet Tubman will not conduct one. Or drop it at Charleston, 1822, where at the end of every turn the Fresh Gate Character with the lowest Influence changes sides (a tie goes against the leader): an Informant there is found out and goes back to the hand of whoever planted it. Marie Laveau's Reveal hexes the strongest opposing Gate Character at her Location: −2 Influence for the rest of the match. Or find it out yourself: David Ruggles and Lewis Hayden send it back to the planter's hand, William Parker has it arrested into the planter's discard, and William Still, Established there, writes it down so it counts 0.
+- Informants (Peter Prioleau, George Wilson, Pharoah and Tom, Ben Woolfolk) are Characters you play onto your opponent's Gates at a Location with one of their slots open. They are theirs: their negative Influence counts against them there, they take one of their Gate slots, and they never become Ready or go Inside. Relocate one away, slide it with Robert Smalls, or let a Threat knock it away; Harriet Tubman will not conduct one. Or drop it at Charleston, 1822, where at the end of every turn the Fresh Gate Character with the lowest Influence changes sides (a tie goes against the leader): an Informant there is found out and goes back to the hand of whoever planted it. Marie Laveau's Reveal hexes the strongest opposing Gate Character at her Location: −2 Influence for the rest of the match. Or find it out yourself: David Ruggles and Lewis Hayden send it back to the planter's hand, William Parker has it arrested into the planter's discard, William Still, Established there, writes it down so it counts 0, and Desmond Tutu hears it out and grants amnesty: it stays at your Gates, Fresh, as your own Character from then on, its Influence counting for you.
 - Every deck carries at least one Mythic. The full list, with costs, is under Cards on the start screen.
 ### Summon (cooperative)
 - Use quick chat (💬) to call Summon? at a Location with a Threat. If the other side answers Summon!, both of you commit that turn.
@@ -1290,7 +1297,9 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
     case 'siegeInside':
       return 'The siege does not lift. Only protection stops it.';
     case 'foundOut':
-      return 'No Force check: an Informant at your own Gates has no protection from you.';
+      return (def?.kind === 'character' ? (def.reveal?.effect as { mode?: string } | undefined)?.mode : undefined) === 'amnesty'
+        ? 'No Force check. The Informant stays, Fresh, and is yours from now on: its Influence counts for you and it can go Inside.'
+        : 'No Force check: an Informant at your own Gates has no protection from you.';
     case 'displaceOpposingGate':
       return 'No Force check. Only protection stops her.';
     case 'blockOneOpposingGate':
@@ -1312,7 +1321,7 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
 
 /** A Character knocks, blocks, holds off or turns another: the beat that explains the tally. */
 /** The verdict of a clash, as stamped on the board and titled on the Clash card. */
-export const CLASH_TITLES: Record<'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested', string> = {
+export const CLASH_TITLES: Record<'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested' | 'amnestied', string> = {
   displaced: 'BANISHED',
   held: 'HELD OFF',
   blocked: 'BLOCKED',
@@ -1325,6 +1334,7 @@ export const CLASH_TITLES: Record<'displaced' | 'held' | 'blocked' | 'sentBack' 
   defected: 'CHANGES SIDES',
   exposed: 'FOUND OUT',
   arrested: 'ARRESTED',
+  amnestied: 'AMNESTIED',
 };
 
 export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: GameState; me: PlayerId; onClose: () => void }) {
@@ -1332,7 +1342,7 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
   const d = ev.data as {
     actor: { kind: 'character' | 'threat' | 'location' | 'event'; id: string; owner?: PlayerId; force?: number };
     victim: { uid: string; defId: string; owner: PlayerId; force: number };
-    outcome: 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested';
+    outcome: 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested' | 'amnestied';
     from: number;
     to?: number;
     theirForce?: number;
@@ -1354,7 +1364,7 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
     d.actor.kind === 'character' ? cardName(d.actor.id, placeholders) : d.actor.kind === 'threat' ? threatLabel(d.actor.id, placeholders) : d.actor.kind === 'location' ? locationName(d.actor.id, placeholders) : cardName(d.actor.id, placeholders);
   const victimName = cardName(d.victim.defId, placeholders);
   const title = CLASH_TITLES;
-  const attackerWins = d.outcome !== 'held';
+  const attackerWins = d.outcome !== 'held' && d.outcome !== 'amnestied';
   const artKind = d.actor.kind === 'character' ? 'characters' : d.actor.kind === 'threat' ? 'threats' : d.actor.kind === 'location' ? 'locations' : 'events';
   const where = d.to !== undefined ? locationName(view.locations[d.to].revealed ? view.locations[d.to].defId : 'unknown', placeholders) : '';
   const whereText = d.to !== undefined && !view.locations[d.to].revealed ? 
@@ -1603,6 +1613,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - no Informant at these Gates to send packing. The house holds: ${state.players[p].handle}'s ${held.length} Character${held.length === 1 ? '' : 's'} here cannot be displaced or turned this turn.
 - no Informant at these Gates and no Threat here to confront.
 - no Informant at these Gates: the league confronts ${threatName(state, own)} with +1 Force instead.
+- hears ${sdef.name} (−${-was}) out in full and grants amnesty: they stay at ${state.players[p].handle}'s Gates here, Fresh, as ${state.players[p].handle}'s own Character, worth ${now} from now on.
 - cannot stay: he moves on to the Gates of ${locName(state, c.location)}, Fresh.
 - has nowhere to move on to: every other Gate is full or Lost, so he stays.
 - the opposing Characters here cannot be Suppressed.

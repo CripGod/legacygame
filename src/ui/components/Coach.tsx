@@ -46,7 +46,7 @@ const TIPS: { key: string; when: (c: Ctx) => string | null }[] = [
   {
     key: 'informant',
     when: (c) => {
-      const spy = myChars(c).find((x) => charDef(x.defId).keywords.includes('INFORMANT'));
+      const spy = myChars(c).find((x) => charDef(x.defId).keywords.includes('INFORMANT') && !x.amnestied);
       if (!spy) return null;
       const charleston = c.v.locations.find((l) => l.revealed && !l.lost && LOCATION_BY_ID[l.defId]?.effect.type === 'turncoatAtEnd' && l.index !== spy.location);
       if (spy.plantedBy === c.me) return `${c.nm(spy.defId)}'s card came back to you at ${c.ln(spy.location)}: ${charInfluence(c.v, spy)} Influence for you there until you move it. Relocate it, or plant it again from your hand when it is sent home.`;
@@ -56,7 +56,7 @@ const TIPS: { key: string; when: (c: Ctx) => string | null }[] = [
   {
     key: 'gates',
     when: (c) => {
-      const fresh = myChars(c).find((x) => x.zone === 'gate' && !x.ready && !charDef(x.defId).keywords.includes('INFORMANT'));
+      const fresh = myChars(c).find((x) => x.zone === 'gate' && !x.ready && !(charDef(x.defId).keywords.includes('INFORMANT') && !x.amnestied));
       if (!fresh || c.v.turn < 2) return null;
       return `${c.nm(fresh.defId)}'s card waits at the Gates of ${c.ln(fresh.location)} this turn, still counting ${charInfluence(c.v, fresh)} Influence there. At the end of the turn the tile turns Ready, and next turn the card can go Inside.`;
     },
@@ -88,7 +88,7 @@ const TIPS: { key: string; when: (c: Ctx) => string | null }[] = [
       // A piece stuck where you are far behind, and a Location it would tie or take.
       let best: { ch: CharacterInstance; to: number; after: number } | null = null;
       for (const ch of myChars(c)) {
-        if (charDef(ch.defId).keywords.includes('INFORMANT')) continue;
+        if (charDef(ch.defId).keywords.includes('INFORMANT') && !ch.amnestied) continue;
         if (lockReason(c.v, ch) || c.plan.relocations.some((m) => m.uid === ch.uid) || c.plan.enters.includes(ch.uid)) continue;
         const here = lead(c, ch.location);
         if (here > -3) continue;

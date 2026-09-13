@@ -24,7 +24,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Missing
 
-### characters (54)
+### characters (55)
 
 - `john_russwurm` **John Russwurm** (1799–1851): Co-founded Freedom's Journal in 1827, the first Black-owned newspaper in the United States. "We wish to plead our own cause."
 - `alonzo_herndon` **Alonzo Herndon** (1858–1927): Born enslaved, built the finest barbershop in Atlanta and then Atlanta Life Insurance. Everybody passed through his chairs.
@@ -61,6 +61,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `lewis_hayden` **Lewis Hayden** (c. 1811–1889): Escaped Kentucky in 1844 and kept one of Boston's main safe houses. When two Georgia slave-hunters came for William and Ellen Craft, the Vigilance Committee put their faces on the walls and had them arrested, and they went home without the Crafts.
 - `william_parker` **William Parker** (c. 1821–1891): Led the Lancaster County league that chased kidnappers and found out the informers among their own, and stood at the door at Christiana in 1851. He could not stay: he finished his life in Canada.
 - `william_still` **William Still** (1821–1902): Chairman of the Philadelphia Vigilance Committee's Acting Committee. He questioned the arrivals, wrote down what they said, hid the books, and in 1872 printed them, a betrayer's name included.
+- `desmond_tutu` **Desmond Tutu** (1931–2021): Archbishop of Cape Town and chair of the Truth and Reconciliation Commission, which heard victims in public and granted amnesty for full disclosure of politically motivated crimes.
 - `peter_prioleau` **Peter Prioleau** (Charleston, 1822): The enslaved cook who told his master about the Vesey plot. Freed by the state for it, with a pension.
 - `george_wilson` **George Wilson** (Charleston, 1822): A class leader in the African church who confirmed the plot to his master. Freed, and never at peace with it.
 - `pharoah_and_tom` **Pharoah and Tom** (Richmond, 1800): Two enslaved men on Mosby Sheppard's place who gave up Gabriel's rising on the day it was to begin.

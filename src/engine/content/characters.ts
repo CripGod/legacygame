@@ -1283,6 +1283,33 @@ export const CHARACTERS: CharacterDef[] = [
     history:
       "William Still was born free in Shamong Township, Burlington County, New Jersey, in October 1821, the youngest child of parents who had come out of Maryland slavery. In 1847 the Pennsylvania Anti-Slavery Society in Philadelphia hired him as a clerk. In August 1850 a self-ransomed man of nearly fifty was sent to the office for advice on finding his parents, and Still's questions showed that Peter was his own brother, sold away from the family on Maryland's Eastern Shore as a boy more than forty years before; he later said that meeting was what moved him to keep the records. From December 1852 he chaired the Acting Committee of the reorganized Vigilance Committee, charged to keep a record of all its doings: arrivals were questioned closely, and for most of them he wrote down names, owners, places and the story of the escape, so that accounts could be checked against each other and against letters from agents like Thomas Garrett in Wilmington. When the Committee doubted a story it aided the man anyway, and one impostor suspicion was wrong. In March 1857 eight people from Dorchester County, Maryland, were walked by their guide, a Black man named Thomas Otwell, into the Dover, Delaware, jail for a $3,000 reward; they broke out through the sheriff's window and reached Philadelphia through the Delaware conductors. Garrett's letter of 13 March, marked to be shown to Still, named Otwell; Still printed it in 1872, with the Camden conductor William Brinkley's verdict that Otwell was 'dun for ever', and wrote that what became of the betrayer the Committee was never fully posted. He arrested and punished nobody; the record was the work. After John Brown's papers were captured in October 1859 he sent the books into hiding and kept the record on loose slips; he published it as The Underground Rail Road in 1872, and died in Philadelphia on 14 July 1902.",
   },
+  // ---------- Truth and Reconciliation ----------
+  {
+    kind: 'character',
+    id: 'desmond_tutu',
+    cost: 4,
+    category: 'historical',
+    name: 'Desmond Tutu',
+    short: 'Tutu',
+    summary: 'Informant here: amnestied, yours from now on; else yours here hold. Est.: shield.',
+    influence: 4,
+    force: 1,
+    tags: ['Black', 'Faith', 'Reconciliation'],
+    keywords: [],
+    reveal: {
+      text: 'Truth and Reconciliation: an Informant at your Gates at this Location testifies in full and is granted amnesty. It stays where it is, Fresh, as your own Character from now on: its Influence counts for you and it can go Inside like anyone else. With none here, the cathedral holds: your Characters at this Location cannot be displaced or turned this turn.',
+      effect: { type: 'foundOut', mode: 'amnesty', fallback: 'hold' },
+    },
+    established: {
+      text: "St George's Cathedral: opposing Reveals cannot target your Characters at this Location.",
+      effect: { type: 'shieldHere' },
+    },
+    identity: ['the hearing', 'amnesty', 'the rainbow people'],
+    era: '1931–2021',
+    blurb: 'Archbishop of Cape Town and chair of the Truth and Reconciliation Commission, which heard victims in public and granted amnesty for full disclosure of politically motivated crimes.',
+    history:
+      "Desmond Mpilo Tutu was born in Klerksdorp, Transvaal, on 7 October 1931. He taught school until the Bantu Education Act of 1953 took effect, then trained for the Anglican priesthood and was ordained in 1961; he studied at King's College London from 1962 to 1966. He became Dean of Johannesburg in 1975, Bishop of Lesotho in 1976 and, from 1978 to 1985, General Secretary of the South African Council of Churches, from which he called for economic sanctions against apartheid; the government withdrew his passport. He received the Nobel Peace Prize in 1984, became Bishop of Johannesburg in 1985 and Archbishop of Cape Town in 1986, the first Black man to hold the post. On 13 September 1989 he led some thirty thousand people from St George's Cathedral through Cape Town in a march the police let pass, and called the crowd the rainbow people of God. After the 1994 election President Mandela made him chairman of the Truth and Reconciliation Commission, set up by the Promotion of National Unity and Reconciliation Act of 1995: its hearings opened in East London on 15 April 1996, it took statements from about twenty-one thousand victims, and its Amnesty Committee granted amnesty to about 850 of more than seven thousand applicants, on the terms that the act was politically motivated and fully disclosed. He handed the Commission's five-volume report to Mandela on 29 October 1998 and retired as archbishop in 1996. He died in Cape Town on 26 December 2021.",
+  },
 ];
 
 CHARACTERS.push({
