@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CARD_BY_ID, viewFor, legalOptions, validatePlan, gateRoom, GATE_CAPACITY, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, costBreakdown, filterEvents, LOCATION_BY_ID } from '../../engine';
+import { CARD_BY_ID, viewFor, legalOptions, validatePlan, gateRoom, GATE_CAPACITY, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, filterEvents, LOCATION_BY_ID } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight, BoardFx } from '../components/Battlefield';
@@ -172,7 +172,6 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   const compact = useCompact();
   const [selected, setSelected] = useState<string | null>(null);
   /** A card tapped that cannot be played right now: it shakes once. */
-  const [rejectId, setRejectId] = useState<string | null>(null);
   /** The 250 ms after a card was put down or a drag ended: no hover lift, so nothing pops straight back up under the pointer. */
   const [settle, setSettle] = useState(false);
   const settleFor = useCallback(() => {
@@ -887,9 +886,10 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   };
 
   /**
-   * A tap (or click) on a hand card. Not planning: read it. Planned: take it back. Standing: put it down (a strict
-   * toggle: the second tap never opens the Codex any more; right-click, a hold, the corner ⓘ and the hint's chip read).
-   * Unplayable: it shakes and the toast says why. Otherwise it stands, its Locations light, and the hint names the exits.
+   * A tap (or click) on a hand card: hover magnifies, the click expands. The card opens as the Codex card (the 3D
+   * card with its history), and while it is open the card stands with its Locations lit and the Codex tray offers
+   * "Play at …" and "Put back". Closing the Codex puts the card down, so nothing is ever left standing. Planned:
+   * take it back. Unplayable: the Codex opens with the reason. Drag stays the fast way to play.
    */
   const tapCard = (cardId: string) => {
     if (!planning) {
@@ -902,25 +902,17 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       return;
     }
     if (selected === cardId) {
-      sfx('card.back');
-      setSelected(null);
-      settleFor();
+      setSheet({ kind: 'card', id: cardId });
       return;
     }
     if (!selectable(cardId)) {
-      if (selected) {
-        sfx('card.back');
-        setSelected(null);
-      }
-      sfx('card.reject');
-      setRejectId(cardId);
-      window.setTimeout(() => setRejectId((r) => (r === cardId ? null : r)), 340);
-      const why = whyCannotPlay(cardId);
-      feedback(why.text, why.shake);
+      if (selected) setSelected(null);
+      setSheet({ kind: 'card', id: cardId });
       return;
     }
     sfx('card.pick');
     setSelected(cardId);
+    setSheet({ kind: 'card', id: cardId });
   };
 
   const commitPlay = (location: number, cardId: string | null = selected) => {
@@ -1296,7 +1288,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     const onDown = (e: PointerEvent) => {
       const t = e.target as Element | null;
       if (!t) return;
-      if (t.closest('[data-hand-card], .column.targetable, .stand-card, .hint .chip, .plan-chip, .scrim, .sheet, .cx-scrim, .tut-sheet, .toast')) return;
+      if (t.closest('[data-hand-card], .column.targetable, .hint .chip, .plan-chip, .scrim, .sheet, .cx-scrim, .tut-sheet, .toast')) return;
       sfx('card.back');
       setSelected(null);
       settleFor();
@@ -1310,13 +1302,18 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     return () => window.removeEventListener('pointerdown', onDown, { capture: true });
   }, [selected, explain, feedback, settleFor]);
   // Keys: Escape closes a sheet, else sends a dragged card home, else puts a standing card down; 1-3 play the standing
-  // card at that Location; i reads it; Cmd/Ctrl+Z undoes.
+  // card at that Location; Cmd/Ctrl+Z undoes.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement | null)?.closest?.('input, textarea, [contenteditable]')) return;
       if (e.key === 'Escape') {
         if (sheet) {
           setSheet(null);
+          // The Codex card and the standing card are one thing: closing it puts the card down.
+          if (sheet.kind === 'card' && sheet.id === selected) {
+            setSelected(null);
+            settleFor();
+          }
           return;
         }
         if (drag) {
@@ -1335,7 +1332,8 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         undo();
         return;
       }
-      if (!sheet && planning && selected) {
+      // 1-3 work while the standing card's own Codex is open (which is whenever a card stands).
+      if ((!sheet || (sheet.kind === 'card' && sheet.id === selected)) && planning && selected) {
         if (/^[1-3]$/.test(e.key)) {
           const i = Number(e.key) - 1;
           if (targetable.includes(i)) commitPlay(i);
@@ -1345,7 +1343,6 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           }
           return;
         }
-        if (e.key.toLowerCase() === 'i') setSheet({ kind: 'card', id: selected });
       }
     };
     window.addEventListener('keydown', onKey);
@@ -1434,12 +1431,12 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     if (locked) return m.mode === 'ai' ? 'Locked. Harborlight is deciding…' : 'Locked.';
     if (view.players[me].hand.length - plan.plays.length >= MAX_HAND && view.players[me].deckCount > 0 && !selected) return `Hand full (${MAX_HAND}). Play a card or your next draw is discarded.`;
     if (drag?.payload.kind === 'card') return `Drop ${cardName(drag.payload.cardId, placeholders)} on a lit Location. Let go anywhere else, or press Escape, to put it back.`;
-    if (selected) return `Tap a lit Location to play ${cardName(selected, placeholders)}. Tap it again to put it back. Press 1-3 or drag it.`;
+    if (selected) return `Choose where ${cardName(selected, placeholders)} plays from the card's tray, or press 1-3. Close the card to put it back.`;
     if (harrietPlay && !harrietPlay.target) return 'Harriet Tubman: drag any of your Characters to another Location and she takes them straight Inside. Free, and she gets them out of a curfew (optional).';
     if (yemojaPlay && !yemojaPlay.target) return `${cardName(yemojaPlay.cardId, placeholders)}: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : `Location ${yemojaPlay.location + 1}`} (optional).`;
     const affordable = opts.plays.filter((o) => !plan.plays.some((pl) => pl.cardId === o.cardId) && cardCost(o.cardId, view, me) <= energyLeft).length;
     if (planItems.length) return affordable > 0 ? '' : '';
-    return 'Drag a card onto a Location, or tap it and then tap a Location.';
+    return 'Drag a card onto a Location, or tap it to open it and choose where it plays.';
   })();
 
   // The opponent Stood on Business and the raise has not landed yet: this is the one cheap turn to Sit Down.
@@ -1580,7 +1577,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         )}
       </div>
       <div className="bottom">
-        <Hand view={view} me={me} plan={m.replay ? m.replay.plan : plan} selected={selected} rest={!planning} nudge={handNudge} onTap={tapCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} dragProps={dragProps} glow={guideCard} energyLeft={planning ? energyLeft : undefined} dropState={drop?.hand ? (drop.overKey === 'hand' ? 'over' : 'ok') : null} held={drag?.payload.kind === 'card' ? drag.payload.cardId : null} reject={rejectId} settle={settle} canPlay={selectable} />
+        <Hand view={view} me={me} plan={m.replay ? m.replay.plan : plan} selected={selected} rest={!planning} nudge={handNudge} onTap={tapCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} dragProps={dragProps} glow={guideCard} energyLeft={planning ? energyLeft : undefined} dropState={drop?.hand ? (drop.overKey === 'hand' ? 'over' : 'ok') : null} held={drag?.payload.kind === 'card' ? drag.payload.cardId : null} settle={settle} canPlay={selectable} />
         <div className="hint" aria-live="polite">
           {planItems.map((it) => (
             <span key={it.key} className="plan-chip">
@@ -1664,31 +1661,6 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         </div>
       </div>
 
-      {selected && planning && (
-        <div className="stand-card" {...dragProps({ kind: 'card', cardId: selected })}>
-          <div
-            className="stand-card-face"
-            onClick={() => {
-              sfx('card.back');
-              setSelected(null);
-              settleFor();
-            }}
-          >
-            <CardFace id={selected} big cost={cardCost(selected, view, me)} costWhy={costBreakdown(view, me, selected)} />
-          </div>
-          <button
-            type="button"
-            className="stand-card-more"
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => {
-              e.stopPropagation();
-              setSheet({ kind: 'card', id: selected });
-            }}
-          >
-            History ›
-          </button>
-        </div>
-      )}
       {arrival && (
         <div className={`card-flash p${arrival.owner}`} aria-hidden>
           <CardFace id={arrival.cardId} big />
@@ -1713,10 +1685,19 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       {sheet?.kind === 'card' && (
         <CardSheet
           id={sheet.id}
-          onClose={() => setSheet(null)}
+          onClose={() => {
+            setSheet(null);
+            // The card came up with the Codex; it goes down with it.
+            if (selected === sheet.id) {
+              setSelected(null);
+              settleFor();
+            }
+          }}
           extra={sheet.id === 'reparations' ? <ReparationsReadout view={view} me={me} placeholders={placeholders} /> : undefined}
           actions={
-            planning && sheet.id === selected ? (
+            planning && sheet.id !== selected && view.players[me].hand.includes(sheet.id) && !selectable(sheet.id) && !plan.plays.some((pl) => pl.cardId === sheet.id) ? (
+              <div className="muted cx-why">{whyCannotPlay(sheet.id).text}</div>
+            ) : planning && sheet.id === selected ? (
               <>
                 {targetable.map((i) => (
                   <button key={i} className="small chip" onClick={() => commitPlay(i, sheet.id)}>

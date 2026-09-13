@@ -965,7 +965,7 @@ Main menu
 - Locked in. Harborlight is deciding.
 - Locked in. Waiting for the other side.
 - One moment: the board is settling.
-- [data-hand-card], .column.targetable, .stand-card, .hint .chip, .plan-chip, .scrim, .sheet, .cx-scrim, .tut-sheet, .toast
+- [data-hand-card], .column.targetable, .hint .chip, .plan-chip, .scrim, .sheet, .cx-scrim, .tut-sheet, .toast
 - input, textarea, [contenteditable]
 - SUMMON · You ${mine ? '✓' : '?'} · ${view.players[other(me)].handle} ${theirs ?? (mine ? '?' : '')}
 - ${cardName(pl.cardId, placeholders)}${where}${direct ? (pl.enter ? ' · Inside' : ' · Gates') : ''}
@@ -979,10 +979,10 @@ Main menu
 - Locked. Harborlight is deciding…
 - Hand full (${MAX_HAND}). Play a card or your next draw is discarded.
 - Drop ${cardName(drag.payload.cardId, placeholders)} on a lit Location. Let go anywhere else, or press Escape, to put it back.
-- Tap a lit Location to play ${cardName(selected, placeholders)}. Tap it again to put it back. Press 1-3 or drag it.
+- Choose where ${cardName(selected, placeholders)} plays from the card's tray, or press 1-3. Close the card to put it back.
 - Harriet Tubman: drag any of your Characters to another Location and she takes them straight Inside. Free, and she gets them out of a curfew (optional).
 - ${cardName(yemojaPlay.cardId, placeholders)}: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : 
-- Drag a card onto a Location, or tap it and then tap a Location.
+- Drag a card onto a Location, or tap it to open it and choose where it plays.
 - Sit Down${opts.canStepOff && view.phase !== 'ended' ? 
 - app ${resolving ? 'resolving' : ''}
 - replay-banner kind-clash ${verdict.tone === 'win' ? 'miss' : verdict.tone === 'draw' ? 'arrive' : ''}
