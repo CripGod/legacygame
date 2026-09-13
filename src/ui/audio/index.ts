@@ -33,8 +33,19 @@ export function installAudio(): () => void {
     sfx((name as SfxName | null) ?? 'tap');
   };
   document.addEventListener('click', onClick, true);
+  // A soft tick when the pointer arrives on anything you could act on: buttons, hand cards, board tiles, Locations.
+  let lastHover: Element | null = null;
+  const onOver = (e: PointerEvent) => {
+    if (e.pointerType !== 'mouse') return;
+    const el = (e.target as Element | null)?.closest?.('button:not(:disabled), .card-wrap, .gate-slot.filled, .pic, .location, .profile');
+    if (!el || el === lastHover) return;
+    lastHover = el;
+    sfx('card.hover');
+  };
+  document.addEventListener('pointerover', onOver, true);
   return () => {
     installed = false;
+    document.removeEventListener('pointerover', onOver, true);
     window.removeEventListener('pointerdown', unlock, unlockOpts);
     window.removeEventListener('keydown', unlock, unlockOpts);
     document.removeEventListener('click', onClick, true);

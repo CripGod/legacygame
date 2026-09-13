@@ -52,7 +52,7 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   'card.back': 'A planned card taken back to the hand.',
   'card.inside': 'A card planned straight Inside (Direct Entry, or dropped on the Inside row).',
   'card.deal': 'A card deals into the hand (one per card, staggered).',
-  'card.hover': 'The pointer rests on a hand card.',
+  'card.hover': 'The pointer arrives on a button, a hand card, a board tile or a Location.',
   'sheet.open': 'A card or Location opens to read.',
   'sheet.close': 'It closes.',
   'meter.refresh': 'The planning timer refills for a new turn.',
@@ -73,7 +73,7 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   stand: 'Stand on Business: the stakes rise.',
   lastword: 'The Last Word begins.',
   lost: 'A Location is Lost, or someone changes sides.',
-  win: 'You win the match.',
+  win: 'You win the match: drums and the bell.',
   lose: 'You lose the match.',
   'draw.game': 'The match is drawn.',
 };
@@ -115,7 +115,7 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   stand: [{ files: ['stand-thud'], gain: 0.9 }, { files: ['stand-drums'], gain: 0.8 }],
   lastword: [{ files: ['lastword'], gain: 0.8 }],
   lost: [{ files: ['lost'], gain: 0.65 }],
-  win: [{ files: ['win'], gain: 0.8 }, { files: ['win-crowd'], gain: 0.4, at: 150 }],
+  win: [{ files: ['stand-drums'], gain: 0.85 }, { files: ['lastword'], gain: 0.7, at: 220 }], // drums and the bell: gravity, not a fanfare
   lose: [{ files: ['lose'], gain: 0.7 }],
   'draw.game': [{ files: ['draw-game'], gain: 0.65 }],
 };
