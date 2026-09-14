@@ -1,13 +1,17 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Particle tellings on a fixed canvas over the whole viewport; nothing here touches the game state. Two looks, so
- * different things do not look the same:
+ * Particle tellings on a fixed canvas over the whole viewport; nothing here touches the game state. Three looks, so
+ * different things do not look the same (the README's "Effects library" maps each to a Unity ParticleSystem):
  * - `ribbon` (the default): a power reaching across the board. Particles fly from one tile to a Location along a
  *   lit path and land as embers rising off the Location with a +N. Robert Duncanson's landscape was the first.
  * - `spray`: a blow landing. Sparks burst from the struck tile and fall, with a shockwave ring. Short and hard.
+ * - `wave`: word spreading. A Location just healed of its Threat sends one ring of light out across the board at
+ *   `WAVE_SPEED`; every Location the ring reaches blooms, sparkles twinkle over its name and the +N lifts off it.
+ *   Nothing streams out of the Threat: the good news is the Location's own health reaching the others.
  * Fireworks over a cleared Threat have their own canvas (Fireworks.tsx).
- * Timing: a ribbon launches over the first ~350ms, flies ~700ms and lands over ~800ms; a spray is over in ~520ms.
+ * Timing: a ribbon launches over the first ~350ms, flies ~700ms and lands over ~800ms; a spray is over in ~520ms;
+ * a wave reaches a Location `waveLandAt(from, to)` ms in and is done ~900ms after the farthest one.
  */
 export interface TrailShot {
   from: DOMRect;
@@ -16,7 +20,7 @@ export interface TrailShot {
   color: string;
   /** Text lifted with the embers on landing ("+1"). */
   label?: string;
-  kind?: 'ribbon' | 'spray';
+  kind?: 'ribbon' | 'spray' | 'wave';
 }
 
 const FLY_MS = 700;
@@ -27,6 +31,20 @@ const EMBERS = 22;
 const RIBBON_TOTAL_MS = LAUNCH_SPREAD_MS + FLY_MS + LAND_MS + 100;
 const SPRAY_MS = 520;
 const SPARKS = 30;
+/** The wave's front, in px per ms: a 1000px board is crossed in a little over a second. */
+export const WAVE_SPEED = 0.9;
+/** The healed Location blooms for this long before the ring sets out. */
+const WAVE_LEAD_MS = 140;
+const WAVE_BAND = 64;
+const MOTES = 56;
+const SPARKLES = 14;
+
+/** When a wave from `from` reaches `to`, in ms after the wave starts. */
+export function waveLandAt(from: DOMRect, to: DOMRect): number {
+  const a = centre(from);
+  const b = centre(to);
+  return WAVE_LEAD_MS + Math.hypot(b.x - a.x, b.y - a.y) / WAVE_SPEED;
+}
 
 interface Particle {
   shot: number;
@@ -62,6 +80,37 @@ interface Landing {
   start: number;
   color: string;
   label?: string;
+}
+
+interface Sparkle {
+  x: number;
+  y: number;
+  size: number;
+  start: number;
+  life: number;
+  spin: number;
+}
+
+interface Wave {
+  x: number;
+  y: number;
+  /** How far the ring travels before it has faded out: past the farthest Location it pays. */
+  reach: number;
+  motes: { angle: number; jitter: number; size: number }[];
+}
+
+/** A four-point star, the sparkle's shape. */
+function star(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, rot: number): void {
+  ctx.beginPath();
+  for (let i = 0; i < 8; i++) {
+    const a = rot + (i * Math.PI) / 4;
+    const d = i % 2 === 0 ? r : r * 0.32;
+    const px = x + Math.cos(a) * d;
+    const py = y + Math.sin(a) * d;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
 }
 
 function centre(r: DOMRect): { x: number; y: number } {
@@ -110,13 +159,34 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
       return () => ((s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
     })();
     const isSpray = (i: number) => shots[i].kind === 'spray';
-    const totalMs = Math.max(...shots.map((s) => (s.kind === 'spray' ? SPRAY_MS : RIBBON_TOTAL_MS)));
+    const isWave = (i: number) => shots[i].kind === 'wave';
+    const totalMs = Math.max(...shots.map((s) => (s.kind === 'spray' ? SPRAY_MS : s.kind === 'wave' ? waveLandAt(s.from, s.to) + LAND_MS + 100 : RIBBON_TOTAL_MS)));
     // Ribbons: the swarm, the path, and the landing.
     const particles: Particle[] = [];
     const embers: Ember[] = [];
     const landings: Landing[] = [];
+    // Waves: one ring per origin (the shots of one clear all share it), a landing with sparkles per Location reached.
+    const waves: Wave[] = [];
+    const sparkles: Sparkle[] = [];
     for (let i = 0; i < shots.length; i++) {
-      if (isSpray(i)) continue;
+      if (!isWave(i)) continue;
+      const o = centre(shots[i].from);
+      const landAt = waveLandAt(shots[i].from, shots[i].to);
+      let w = waves.find((v) => Math.abs(v.x - o.x) < 2 && Math.abs(v.y - o.y) < 2);
+      if (!w) {
+        w = { x: o.x, y: o.y, reach: 0, motes: [] };
+        for (let k = 0; k < MOTES; k++) w.motes.push({ angle: (k / MOTES) * Math.PI * 2 + rng() * 0.1, jitter: (rng() - 0.5) * WAVE_BAND * 0.8, size: 5 + rng() * 6 });
+        waves.push(w);
+      }
+      w.reach = Math.max(w.reach, (landAt - WAVE_LEAD_MS) * WAVE_SPEED + 140);
+      landings.push({ ...centre(shots[i].to), start: landAt, color: shots[i].color, label: shots[i].label });
+      const r = shots[i].to;
+      for (let k = 0; k < SPARKLES; k++) {
+        sparkles.push({ x: r.left + r.width * (0.08 + rng() * 0.84), y: r.top - 6 + r.height * (rng() * 1.3), size: 4 + rng() * 6, start: landAt + rng() * 320, life: 420 + rng() * 320, spin: rng() * Math.PI });
+      }
+    }
+    for (let i = 0; i < shots.length; i++) {
+      if (isSpray(i) || isWave(i)) continue;
       for (let k = 0; k < PARTICLES; k++) {
         particles.push({ shot: i, start: rng() * LAUNCH_SPREAD_MS, size: 2.5 + rng() * 3.5, wobble: (rng() - 0.5) * 30, speed: 0.85 + rng() * 0.3 });
       }
@@ -137,6 +207,7 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
       }
     }
     const sprites = shots.map((s) => glowSprite(s.color, 48));
+    const healSprite = glowSprite(TRAIL_COLORS.heal, 48);
     const paths = shots.map((s) => {
       const a = centre(s.from);
       const b = centre(s.to);
@@ -156,7 +227,7 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
       ctx.globalCompositeOperation = 'lighter';
       // Source glow.
       for (let i = 0; i < shots.length; i++) {
-        if (isSpray(i)) continue;
+        if (isSpray(i) || isWave(i)) continue;
         const k = Math.max(0, 1 - el / (LAUNCH_SPREAD_MS + 300));
         if (k <= 0) continue;
         const [r, g, b] = hexToRgb(shots[i].color);
@@ -167,9 +238,59 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
         ctx.fillStyle = grad;
         ctx.fillRect(s.x - 50, s.y - 50, 100, 100);
       }
+      // The wave: the healed Location blooms, then one ring of light sets out with motes riding its front,
+      // fading as it travels; an echo ring follows a beat behind.
+      for (const w of waves) {
+        const [r, g, b] = hexToRgb(TRAIL_COLORS.heal);
+        const bloom = el < WAVE_LEAD_MS + 260 ? Math.sin(Math.min(1, el / (WAVE_LEAD_MS + 260)) * Math.PI) : 0;
+        if (bloom > 0) {
+          const grad = ctx.createRadialGradient(w.x, w.y, 0, w.x, w.y, 90);
+          grad.addColorStop(0, `rgba(255,255,255,${0.5 * bloom})`);
+          grad.addColorStop(0.4, `rgba(${r},${g},${b},${0.35 * bloom})`);
+          grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+          ctx.fillStyle = grad;
+          ctx.fillRect(w.x - 90, w.y - 90, 180, 180);
+        }
+        const rings: [number, number][] = [
+          [WAVE_SPEED * (el - WAVE_LEAD_MS), 1],
+          [WAVE_SPEED * (el - WAVE_LEAD_MS - 170), 0.45],
+        ];
+        for (const [radius, weight] of rings) {
+          if (radius <= 0 || radius > w.reach) continue;
+          const k = weight * Math.pow(1 - radius / w.reach, 0.8);
+          const inner = Math.max(0, radius - WAVE_BAND);
+          const grad = ctx.createRadialGradient(w.x, w.y, inner, w.x, w.y, radius + 14);
+          grad.addColorStop(0, `rgba(${r},${g},${b},0)`);
+          grad.addColorStop(0.62, `rgba(${r},${g},${b},${0.42 * k})`);
+          grad.addColorStop(0.9, `rgba(255,255,255,${0.55 * k})`);
+          grad.addColorStop(1, `rgba(255,255,255,0)`);
+          ctx.fillStyle = grad;
+          ctx.fillRect(w.x - radius - 16, w.y - radius - 16, (radius + 16) * 2, (radius + 16) * 2);
+          ctx.beginPath();
+          ctx.arc(w.x, w.y, radius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(255,255,255,${0.75 * k})`;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+        const front = WAVE_SPEED * (el - WAVE_LEAD_MS);
+        if (front > 0 && front < w.reach) {
+          const k = Math.pow(1 - front / w.reach, 0.8);
+          const sprite = healSprite;
+          for (const m of w.motes) {
+            const d = front + m.jitter;
+            const x = w.x + Math.cos(m.angle) * d;
+            const y = w.y + Math.sin(m.angle) * d;
+            if (x < -20 || y < -20 || x > W + 20 || y > H + 20) continue;
+            const twinkle = 0.6 + 0.4 * Math.abs(Math.sin(el * 0.012 + m.angle * 7));
+            ctx.globalAlpha = k * twinkle;
+            ctx.drawImage(sprite, x - m.size / 2, y - m.size / 2, m.size, m.size);
+          }
+          ctx.globalAlpha = 1;
+        }
+      }
       // Ribbon: the path lights up behind the swarm's head and fades once the landing begins.
       for (let i = 0; i < shots.length; i++) {
-        if (isSpray(i)) continue;
+        if (isSpray(i) || isWave(i)) continue;
         const head = Math.min(1, Math.max(0, (el - LAUNCH_SPREAD_MS * 0.3) / FLY_MS));
         const fadeOut = Math.max(0, 1 - Math.max(0, el - (LAUNCH_SPREAD_MS * 0.6 + FLY_MS)) / (LAND_MS * 0.6));
         if (head <= 0 || fadeOut <= 0) continue;
@@ -246,6 +367,19 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
         ctx.globalAlpha = a * 0.95;
         ctx.drawImage(sprite, x - d / 2, y - d / 2, d, d);
       }
+      // Sparkles: four-point stars twinkling over a Location the wave has reached, each turning as it swells and fades.
+      for (const sp of sparkles) {
+        const t = (el - sp.start) / sp.life;
+        if (t < 0 || t > 1) continue;
+        const swell = Math.sin(t * Math.PI);
+        const rot = sp.spin + t * 0.9;
+        const r = sp.size * (0.4 + swell);
+        ctx.globalAlpha = swell;
+        ctx.drawImage(healSprite, sp.x - r * 1.6, sp.y - r * 1.6, r * 3.2, r * 3.2);
+        star(ctx, sp.x, sp.y, r, rot);
+        ctx.fillStyle = 'rgba(255,255,255,0.95)';
+        ctx.fill();
+      }
       ctx.globalAlpha = 1;
       // Sprays: a flash, a shockwave ring, sparks out and down.
       for (let i = 0; i < shots.length; i++) {
@@ -310,5 +444,5 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
   return <canvas ref={ref} className="trails" aria-hidden />;
 }
 
-/** Trail colours by side: a player's particles match their tint on the board; the artist's are green; a blow's are ember-orange. */
-export const TRAIL_COLORS: Record<'A' | 'B' | 'artist' | 'impact', string> = { A: '#ffe3b3', B: '#6fa3ff', artist: '#4fd18a', impact: '#ff6a3c' };
+/** Trail colours by side: a player's particles match their tint on the board; the artist's are green; a blow's are ember-orange; the healing wave is sunrise gold. */
+export const TRAIL_COLORS: Record<'A' | 'B' | 'artist' | 'impact' | 'heal', string> = { A: '#ffe3b3', B: '#6fa3ff', artist: '#4fd18a', impact: '#ff6a3c', heal: '#ffe19a' };

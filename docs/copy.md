@@ -907,8 +907,9 @@ Main menu
 -  Word spreads: ${(['A', 'B'] as PlayerId[]).filter((p) => spread.some((e) => e.player === p)).map((p) => 
 - ${showdownWhy(d, view, placeholders)}${word}
 - clash ${d.cleared ? 'miss' : ''}
-- cubic-bezier(0.2, 0.8, 0.2, 1)
+- .column[data-index="${loc}"] .location
 - .column[data-index="${e.location}"] .art
+- cubic-bezier(0.2, 0.8, 0.2, 1)
 - .column[data-index="${i}"] .art
 - ${adef.name} beats ${vdef.name} (${adef.force} Force against ${vdef.force}) and knocks them away to the Gates of another Location.
 - .column[data-index="${to}"] .gates
@@ -1533,6 +1534,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - stamp verdict ${stamp.tone ?? 'hit'}
 -  : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''}
 - Play here: ${loc.revealed ? locationName(loc.defId, placeholders) : 
+- loc-glow ${state}${healing ? ' healing' : ''}
 - loc-stamp ${fx.locStamp[loc.index].tone}
 - art ${loc.revealed ? 'reveal-anim' : 'hidden-art'}
 - linear-gradient(135deg, hsl(${(loc.defId.length * 47) % 360} 30% 24%), hsl(${(loc.defId.length * 47 + 60) % 360} 30% 14%))

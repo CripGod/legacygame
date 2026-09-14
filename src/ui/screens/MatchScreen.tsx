@@ -12,7 +12,7 @@ import { Coach } from '../components/Coach';
 import { Spotlight } from '../components/Spotlight';
 import { sfx, voice } from '../audio';
 import type { TraceStep } from '../../engine';
-import { Trails, TRAIL_COLORS, type TrailShot } from '../components/Trails';
+import { Trails, TRAIL_COLORS, waveLandAt, type TrailShot } from '../components/Trails';
 import { Fireworks } from '../components/Fireworks';
 import { ghostOf, fly, jolt, partWay, clearGhosts, wait, painted, type Ghost } from '../fly';
 import { DigReveal, type DigShow, type DigPhase } from '../components/DigReveal';
@@ -486,6 +486,10 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     setClashTell({ title: d.cleared ? 'NEUTRALIZED' : 'HOLDS', text: ev.text, sub: `${showdownWhy(d, view, placeholders)}${word}`, tone });
     const threatEl = tileOf(d.threatUid);
     const fighters = d.fighters.map((f) => f.uid).filter((uid) => !!tileOf(uid));
+    const loc = ev.location ?? -1;
+    /** The Location heals when this was its last Threat: none live after the beat, none of this beat's fallen still shown alive. */
+    const healed = (f: BoardFx | null) => d.cleared && loc >= 0 && view.locations[loc].threats.length === 0 && !neutralized.some((g) => g.location === loc && g.uid !== d.threatUid && (f?.alive ?? []).includes(g.uid));
+    const healPatch = (f: BoardFx | null): Partial<BoardFx> => (healed(f) ? { heal: [...(f?.heal ?? []).filter((i) => i !== loc), loc] } : {});
     if (!threatEl || reduceMotion() || !fighters.length) {
       sfx('clash.hit');
       if (d.cleared) {
@@ -493,7 +497,9 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         sfx('cheer');
         sfx('fireworks');
       }
-      setFx((f) => patch(f, { alive: (f?.alive ?? []).filter((u) => u !== d.threatUid), stamp: threatEl ? { uid: d.threatUid, title: d.cleared ? 'NEUTRALIZED' : 'HOLDS', sub: d.requiresBoth ? undefined : `${total} of ${d.needed}`, tone } : undefined }));
+      setFx((f) => patch(f, { ...healPatch(f), alive: (f?.alive ?? []).filter((u) => u !== d.threatUid), stamp: threatEl ? { uid: d.threatUid, title: d.cleared ? 'NEUTRALIZED' : 'HOLDS', sub: d.requiresBoth ? undefined : `${total} of ${d.needed}`, tone } : undefined }));
+      // Word spreads without the wave: each paid Location pulses and its +N floats up.
+      if (spread.length) landFx(spread.map((e) => ({ location: e.location!, amount: (e.data as { amount?: number }).amount, tone: e.player === me ? 'mine' : 'theirs' })));
       await wait(1800);
       return;
     }
@@ -539,7 +545,8 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       sfx('cheer');
       sfx('fireworks');
       setFireworks(tRect);
-      setFx((f) => patch(f, { alive: (f?.alive ?? []).filter((u) => u !== d.threatUid), shatter: d.threatUid, flash: undefined }));
+      // The Threat breaks; if it was the Location's last, the Location heals at once (the picture floods back, light sweeps up it).
+      setFx((f) => patch(f, { ...healPatch(f), alive: (f?.alive ?? []).filter((u) => u !== d.threatUid), shatter: d.threatUid, flash: undefined }));
     } else {
       setFx((f) => patch(f, { flash: undefined, stamp: { uid: d.threatUid, title: 'HOLDS', sub: d.requiresBoth ? 'needs both' : `${total} of ${d.needed}`, tone: 'hit' } }));
     }
@@ -555,9 +562,38 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     );
     if (!alive()) return;
     setFx((f) => patch(f, { hidden: (f?.hidden ?? []).filter((u) => !fighters.includes(u)) }));
-    await wait(1200);
+    // 6. Word spreads: the healed Location's light goes out as one wave; each Location it pays blooms, sparkles and takes its +N.
+    let hold = 1200;
+    if (spread.length && loc >= 0) {
+      const from = document.querySelector(`.column[data-index="${loc}"] .location`)?.getBoundingClientRect();
+      const shots: TrailShot[] = [];
+      const lands: { at: number; location: number; tone: 'mine' | 'theirs' }[] = [];
+      for (const e of spread) {
+        const to = document.querySelector(`.column[data-index="${e.location}"] .art`)?.getBoundingClientRect();
+        if (!from || !to) continue;
+        const amount = (e.data as { amount?: number }).amount;
+        shots.push({ from, to, color: TRAIL_COLORS[e.player ?? 'A'], label: amount ? `+${amount}` : undefined, kind: 'wave' });
+        lands.push({ at: waveLandAt(from, to), location: e.location!, tone: e.player === me ? 'mine' : 'theirs' });
+      }
+      if (shots.length) {
+        sfx('heal');
+        setTrail(shots);
+        // Landings a beat apart each chime; ones that arrive together share one.
+        let lastChime = -1000;
+        for (const l of lands.sort((a, b) => a.at - b.at)) {
+          const chime = l.at - lastChime > 140;
+          if (chime) lastChime = l.at;
+          window.setTimeout(() => {
+            if (chime) sfx('influence.up');
+            landFx([{ location: l.location, tone: l.tone }]);
+          }, l.at);
+        }
+        hold = Math.max(hold, Math.max(...lands.map((l) => l.at)) + 900);
+      }
+    }
+    await wait(hold);
     if (!alive()) return;
-    setFx((f) => (f ? { ...f, stamp: undefined, shatter: undefined, flash: undefined, alive: (f.alive ?? []).filter((u) => u !== d.threatUid) } : f));
+    setFx((f) => (f ? { ...f, stamp: undefined, shatter: undefined, flash: undefined, heal: undefined, alive: (f.alive ?? []).filter((u) => u !== d.threatUid) } : f));
   };
 
   /**
@@ -633,13 +669,11 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       if (peek) showPeek(peek);
     };
     const run = async () => {
-      /** Fly a set of trail events from their source tiles (a Character, or a Threat) to their Locations. */
+      /** Fly a set of trail events from their source Character tiles to their Locations. */
       const fireTrails = (list: GameEvent[]) => {
         const shots: TrailShot[] = [];
         for (const e of list) {
-          const threatUid = (e.data as { threatUid?: string }).threatUid;
-          const src = threatUid ? document.querySelector(`[data-threat="${threatUid}"]`) : document.querySelector(`[data-uid="${e.uid}"]`);
-          const from = src?.getBoundingClientRect();
+          const from = document.querySelector(`[data-uid="${e.uid}"]`)?.getBoundingClientRect();
           const to = document.querySelector(`.column[data-index="${e.location}"] .art`)?.getBoundingClientRect();
           if (!from || !to) continue;
           const amount = (e.data as { amount?: number }).amount;
@@ -700,15 +734,9 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         for (const ev of showdownEvs) {
           if (!alive()) return;
           const d = ev.data as ShowdownData;
+          // Word spreads plays inside the showdown: the healed Location's wave, not anything out of the Threat.
           const spread = legendEvs.filter((e) => (e.data as { threatUid?: string }).threatUid === d.threatUid);
           await playShowdown(ev, alive, spread);
-          // Word spreads: from the broken Threat, ribbons to the other Locations, landing as embers with the +1.
-          if (spread.length && !reduceMotion()) {
-            await painted();
-            if (!alive()) return;
-            if (fireTrails(spread)) await wait(1300);
-            if (!alive()) return;
-          }
         }
         for (const ev of arrivalEvs) {
           if (!alive()) return;
@@ -788,6 +816,22 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       sfx('trail');
       setTrail(shots);
       if (freezeAt === undefined) window.setTimeout(() => landFx(locs.map((location) => ({ location, amount: 1, tone: side === 'artist' ? 'artist' : side === 'A' ? 'mine' : 'theirs' }))), 1050);
+    };
+    /** Dev: heal a Location and send its wave to others (window.__sobHeal(1, [0, 2], freezeAt?)); freezeAt holds one wave frame. */
+    (window as unknown as { __sobHeal?: (loc: number, locs: number[], freezeAt?: number) => void }).__sobHeal = (loc, locs, freezeAt) => {
+      setTrailFreeze(freezeAt);
+      const from = document.querySelector(`.column[data-index="${loc}"] .location`)?.getBoundingClientRect();
+      if (!from) return;
+      setFx((f) => ({ ...(f ?? { hidden: [] }), heal: [loc] }));
+      window.setTimeout(() => setFx((f) => (f ? { ...f, heal: undefined } : f)), 1600);
+      const shots: TrailShot[] = [];
+      for (const i of locs) {
+        const to = document.querySelector(`.column[data-index="${i}"] .art`)?.getBoundingClientRect();
+        if (to) shots.push({ from, to, color: TRAIL_COLORS[i % 2 ? 'B' : 'A'], label: '+1', kind: 'wave' });
+      }
+      sfx('heal');
+      setTrail(shots);
+      if (freezeAt === undefined) for (const s of shots) window.setTimeout(() => landFx([{ location: locs[shots.indexOf(s)], tone: 'mine' }]), waveLandAt(from, s.to));
     };
     /** Dev: play a clash between two tiles on the board as it stands (window.__sobClash(actorUid, victimUid, 'displaced', 1)). */
     (window as unknown as { __sobClash?: (actor: string, victim: string, outcome?: string, to?: number) => void }).__sobClash = (actor, victim, outcome = 'displaced', to = 1) => {

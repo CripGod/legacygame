@@ -119,6 +119,8 @@ export interface BoardFx {
   shatter?: string;
   /** The Reckoning: each Location takes its winner's stamp. */
   locStamp?: Record<number, { title: string; tone: 'mine' | 'theirs' | 'lost' | 'tie' }>;
+  /** Locations healing this beat: their last Threat just broke, the picture floods back and light sweeps up it. */
+  heal?: number[];
 }
 
 const picFx = (fx: BoardFx | null | undefined, uid: string): 'windup' | 'knocked' | 'held' | 'hexed' | 'land' | undefined => {
@@ -457,7 +459,12 @@ export function Battlefield(props: BattlefieldProps) {
         const hasCurfew = loc.revealed && !!LOCATION_BY_ID[loc.defId]?.curfew;
         const nightHere = hasCurfew && isNight(view);
         const state = [loc.lost ? 'lost' : '', loc.sanctified ? 'sanctified' : '', lead ? `lead-${lead}` : '', winner && winner !== 'lost' ? `won-${winner}` : '', nightHere ? 'night' : '', !loc.lost && curfewOn(view, loc.index) ? 'curfew' : ''].join(' ');
-        const cls = ['location', loc.revealed ? '' : 'hidden-loc', state].join(' ');
+        // Threats that fell this beat and still show here, stamped, until the beat ends.
+        const fallen = (neutralized ?? []).filter((g) => g.location === loc.index && !loc.threats.some((t) => t.uid === g.uid));
+        // A Location is ailing while a Threat sits on it (or still looks alive in the replay); it heals the beat its last Threat breaks.
+        const healing = !!fx?.heal?.includes(loc.index);
+        const ailing = !healing && loc.revealed && (loc.threats.length > 0 || fallen.some((g) => fx?.alive?.includes(g.uid)));
+        const cls = ['location', loc.revealed ? '' : 'hidden-loc', state, ailing ? 'ailing' : '', healing ? 'healing' : ''].join(' ');
         const summon = summonLabel?.(loc.index);
         const title = loc.revealed ? (
           <div className="who">{locationName(loc.defId, placeholders)}</div>
@@ -489,7 +496,7 @@ export function Battlefield(props: BattlefieldProps) {
             }
           >
             <GateStrip {...common} owner={opp} index={loc.index} label="Opponent Gates" right={title} />
-            <div className={`loc-glow ${state}`}>
+            <div className={`loc-glow ${state}${healing ? ' healing' : ''}`}>
             <div className={cls}>
               {fx?.locStamp?.[loc.index] && <div className={`loc-stamp ${fx.locStamp[loc.index].tone}`}>{fx.locStamp[loc.index].title}</div>}
               {loc.revealed && !placeholders && (
@@ -543,7 +550,7 @@ export function Battlefield(props: BattlefieldProps) {
               {(() => {
                 const rank = (t: ThreatInstance) => (t.target ? (t.target === me ? 2 : 0) : 1);
                 const live = [...loc.threats].sort((a, b) => rank(a) - rank(b));
-                const ghosts = (neutralized ?? []).filter((g) => g.location === loc.index && !loc.threats.some((t) => t.uid === g.uid)).map((g): ThreatInstance => ({ uid: g.uid, defId: g.defId, location: g.location, target: g.target, forceRequired: THREAT_BY_ID[g.defId]?.force ?? 0, spawnedTurn: -1 }));
+                const ghosts = fallen.map((g): ThreatInstance => ({ uid: g.uid, defId: g.defId, location: g.location, target: g.target, forceRequired: THREAT_BY_ID[g.defId]?.force ?? 0, spawnedTurn: -1 }));
                 const has = live.length + ghosts.length > 0;
                 return (
                   <div className="inside-block">

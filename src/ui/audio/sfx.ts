@@ -39,6 +39,7 @@ export type SfxName =
   | 'cheer'
   | 'fireworks'
   | 'trail'
+  | 'heal'
   | 'dig'
   | 'stand'
   | 'stand.button'
@@ -78,6 +79,7 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   cheer: 'A crowd cheers: a Threat is cleared in a showdown (with the fireworks).',
   fireworks: 'The fireworks over a cleared Threat: a launch, bursts, crackle.',
   trail: 'A power trail crosses the board (artist, aura).',
+  heal: 'A Location heals: its last Threat broke and the word spreads as a wave of light to the other Locations (each landing chimes influence.up).',
   dig: 'Zora digs: three quick card flicks.',
   stand: 'Stand on Business: the stakes rise.',
   'stand.button': 'The Stand on Business button pressed: the crowd stomps, stomps, claps, and the ring bell goes.',
@@ -125,6 +127,7 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   cheer: [{ files: ['cheer'], gain: 0.6 }],
   fireworks: [{ files: ['fw-launch'], gain: 0.5 }, { files: ['fw-burst-1'], gain: 0.55, at: 450 }, { files: ['fw-burst-2'], gain: 0.5, at: 850 }, { files: ['fw-crackle'], gain: 0.4, at: 1000 }], // timed to the rockets' climb and bursts
   trail: [{ files: ['trail'], gain: 0.6 }],
+  heal: [{ files: ['select'], gain: 0.45 }, { files: ['turn'], gain: 0.4, at: 240 }, { files: ['trail'], gain: 0.3, at: 200 }], // a bright climb, a soft bell, the trail's shimmer under it
   dig: [{ files: ['card-pick-1'], gain: 0.5 }, { files: ['card-pick-2'], gain: 0.5, at: 110 }, { files: ['draw'], gain: 0.5, at: 230 }], // three quick card flicks; the shuffle clip is gone
   stand: [{ files: ['stand-thud'], gain: 0.9 }, { files: ['stand-drums'], gain: 0.8 }],
   'stand.button': [{ files: ['stand-stomp'], gain: 0.9 }, { files: ['stand-bell'], gain: 0.75, at: 800 }], // stomp, stomp, clap ... and the ring bell on the clap
@@ -460,6 +463,11 @@ function synth(name: SfxName, t: number): void {
     case 'trail':
       swoosh(t, 0.5, 1200, 3600, 0.16, 1.2);
       sparkle(t + 0.05, 6, 0.06);
+      break;
+    case 'heal':
+      chime(t, [523, 659, 784, 1047], 0.09, 0.55, 0.14);
+      swoosh(t + 0.15, 0.7, 900, 3200, 0.1, 1.4);
+      sparkle(t + 0.3, 8, 0.05);
       break;
     case 'dig':
       for (let i = 0; i < 5; i++) tick(t + i * 0.055, 0.16);
