@@ -649,6 +649,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       setClashTell(null);
       setArrival(null);
       setFireworks(null);
+      setFireworksFreeze(undefined);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [m.replay?.idx, m.replay?.steps]);
@@ -665,11 +666,13 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     if (m.replay || turnHeard.current === view.turn) return;
     turnHeard.current = view.turn;
     sfx('turn');
-    // The Black Star arriving (or Anansi's retelling) happens as the turn starts, outside the replay: the place
-    // sounds after the bells.
-    const arrived = view.lastEvents.find((e) => e.type === 'locationTransformed');
-    const to = arrived?.data?.to;
-    if (typeof to === 'string') window.setTimeout(() => sfx('location.reveal', to), 700);
+    // The Black Star arrives as the turn starts, outside the replay (Anansi's retelling is a Reveal beat and sounds
+    // there): the place sounds after the bells.
+    const arrivals = view.lastEvents.filter((e) => e.type === 'locationTransformed' && !e.data?.retold);
+    arrivals.forEach((e, i) => {
+      const to = e.data?.to;
+      if (typeof to === 'string') window.setTimeout(() => sfx('location.reveal', to), 700 + i * 900);
+    });
   }, [view.turn, m.replay, view.lastEvents]);
   /** Advance the replay once this beat's sheets are closed. */
   useEffect(() => {
@@ -1828,10 +1831,20 @@ function beatSfx(step: TraceStep): void {
   const evs = step.events;
   // The showdown choreography plays its own strike, verdict and cheer.
   if (step.kind === 'showdown') return;
+  // A Location revealed sounds like the place, with the Threat it spawns (Harpers Ferry's Paddy Roller) over it.
+  if (step.kind === 'reveal') {
+    const revealed = evs.find((e) => e.type === 'locationRevealed');
+    sfx('location.reveal', typeof revealed?.data?.defId === 'string' ? revealed.data.defId : undefined);
+    if (evs.some((e) => e.type === 'threatSpawned')) sfx('threat.spawn');
+    return;
+  }
   if (evs.some((e) => e.type === 'lastWord')) return sfx('lastword');
   if (evs.some((e) => e.type === 'locationLost')) return sfx('lost');
   if (evs.some((e) => e.type === 'threatNeutralized')) return sfx('threat.clear');
   if (evs.some((e) => e.type === 'threatSpawned')) return sfx('threat.spawn');
+  // Anansi retells a Location mid-replay (a Reveal beat): the new place sounds at that beat.
+  const retold = evs.find((e) => e.type === 'locationTransformed' && e.data?.retold);
+  if (retold && typeof retold.data?.to === 'string') return sfx('location.reveal', retold.data.to);
   switch (step.kind) {
     case 'play':
     case 'event':
@@ -1849,10 +1862,6 @@ function beatSfx(step: TraceStep): void {
       return sfx('lastword');
     case 'spawn':
       return sfx('threat.clear');
-    case 'reveal': {
-      const revealed = evs.find((e) => e.type === 'locationRevealed');
-      return sfx('location.reveal', typeof revealed?.data?.defId === 'string' ? revealed.data.defId : undefined);
-    }
     default:
       return;
   }

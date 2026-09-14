@@ -157,6 +157,7 @@ export function Hand({
             <div
               key={`${id}-${i}`}
               data-hand-card={id}
+              data-sfx="off"
               className={`card-wrap ${sel ? 'selected' : ''} ${planned ? 'planned' : ''} ${(Array.isArray(glow) ? glow.includes(id) : glow === id) ? 'ftue-flash' : ''} ${dealt >= 0 ? 'dealt' : ''} ${energyLeft !== undefined && cardCost(id, view, me) > energyLeft ? 'unaffordable' : ''} ${id === 'reparations' && view.players[me].setbacks > 0 ? 'reparations-live' : ''} ${held === id ? 'lifting' : ''} ${reject === id ? 'reject' : ''} ${canPlay && !canPlay(id) ? 'unplayable' : ''}`}
               {...dp}
               style={style}

@@ -128,10 +128,10 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
 
 /**
  * A place's own sound, played over `location.reveal` when that Location is revealed (or arrived at: the Black Star
- * becoming Accra). Keyed by Location id; the clip ids are `place-<location id>` under public/audio/sfx, so a new
- * recording drops in by name (place-harpers_ferry.mp3, place-accra_ghana.mp3, place-greenwood.mp3 ...). Until a
- * Location has a clip, the synth plays a sketch of it where one is written below (water for Harpers Ferry, a ship
- * coming to port for Accra) and the plain reveal cue otherwise.
+ * becoming Accra). Keyed by Location id. A recording goes in public/audio/sfx as `place-<location id>.mp3` and gets
+ * one line here, e.g. `harpers_ferry: [{ files: ['place-harpers_ferry'], gain: 0.6 }]`, which is what preloads and
+ * plays it. Until a Location has its line, the synth plays a sketch of it where one is written below (water for
+ * Harpers Ferry, a ship coming to port for Accra) and the plain reveal cue otherwise.
  */
 export const SFX_PLACES: Record<string, Layer[]> = {};
 
