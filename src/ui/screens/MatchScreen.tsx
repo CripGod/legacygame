@@ -476,12 +476,14 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
    * Force readout floats up; a neutralized Threat breaks apart into its grey tile, one that holds flashes green and
    * takes a HOLDS stamp; the fighters drift back. The banner carries the sentence and the why.
    */
-  const playShowdown = async (ev: GameEvent, alive: () => boolean) => {
+  const playShowdown = async (ev: GameEvent, alive: () => boolean, spread: GameEvent[] = []) => {
     const d = ev.data as ShowdownData;
     const total = d.force.A + d.force.B;
     const tone: 'hit' | 'miss' = d.cleared ? 'miss' : 'hit';
     const patch = (f: BoardFx | null, p: Partial<BoardFx>): BoardFx => ({ ...(f ?? { hidden: [] }), ...p });
-    setClashTell({ title: d.cleared ? 'NEUTRALIZED' : 'HOLDS', text: ev.text, sub: showdownWhy(d, view, placeholders), tone });
+    // Word spreads: who the clear pays, and where.
+    const word = spread.length ? ` Word spreads: ${(['A', 'B'] as PlayerId[]).filter((p) => spread.some((e) => e.player === p)).map((p) => `${view.players[p].handle} +1 at ${spread.filter((e) => e.player === p).map((e) => (view.locations[e.location!].revealed ? locationName(view.locations[e.location!].defId, placeholders) : `Location ${e.location! + 1}`)).join(' and ')}`).join('; ')}.` : '';
+    setClashTell({ title: d.cleared ? 'NEUTRALIZED' : 'HOLDS', text: ev.text, sub: `${showdownWhy(d, view, placeholders)}${word}`, tone });
     const threatEl = tileOf(d.threatUid);
     const fighters = d.fighters.map((f) => f.uid).filter((uid) => !!tileOf(uid));
     if (!threatEl || reduceMotion() || !fighters.length) {
@@ -616,7 +618,10 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       sfx('dig');
       setDig({ seen: d.seen, keep: d.keep, hidden: d.hidden, owner: digEv.player!, by: digEv.uid ? cardName(view.characters[digEv.uid]?.defId ?? 'zora_neale_hurston', placeholders) : undefined });
     }
-    const trailEvs = evs.filter((e) => (e.data as { trail?: string } | undefined)?.trail && e.uid && e.location !== undefined);
+    const allTrails = evs.filter((e) => (e.data as { trail?: string } | undefined)?.trail && (e.uid || (e.data as { threatUid?: string }).threatUid) && e.location !== undefined);
+    // Word spreads (a cleared Threat paying the other Locations) flies after the Threat has broken, not before.
+    const trailEvs = allTrails.filter((e) => (e.data as { trail?: string }).trail !== 'legend');
+    const legendEvs = allTrails.filter((e) => (e.data as { trail?: string }).trail === 'legend');
     const clashEvs = evs.filter((e) => e.type === 'clash');
     const showdownEvs = evs.filter((e) => e.type === 'showdown');
     const arrivalEvs = evs.filter((e) => e.type === 'spawned' && !!e.cardId && !!e.player);
@@ -628,13 +633,13 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       if (peek) showPeek(peek);
     };
     const run = async () => {
-      if (trailEvs.length && !reduceMotion()) {
-        // Measure after this beat's board has rendered.
-        await painted();
-        if (!alive()) return;
+      /** Fly a set of trail events from their source tiles (a Character, or a Threat) to their Locations. */
+      const fireTrails = (list: GameEvent[]) => {
         const shots: TrailShot[] = [];
-        for (const e of trailEvs) {
-          const from = document.querySelector(`[data-uid="${e.uid}"]`)?.getBoundingClientRect();
+        for (const e of list) {
+          const threatUid = (e.data as { threatUid?: string }).threatUid;
+          const src = threatUid ? document.querySelector(`[data-threat="${threatUid}"]`) : document.querySelector(`[data-uid="${e.uid}"]`);
+          const from = src?.getBoundingClientRect();
           const to = document.querySelector(`.column[data-index="${e.location}"] .art`)?.getBoundingClientRect();
           if (!from || !to) continue;
           const amount = (e.data as { amount?: number }).amount;
@@ -643,8 +648,18 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         }
         if (shots.length) sfx('trail');
         setTrail(shots.length ? shots : null);
-        // When the trail lands (~1050ms): a floating +N over the Location and a pulse on its panel.
-        window.setTimeout(() => landFx(trailEvs.map((e) => ({ location: e.location!, amount: (e.data as { amount?: number }).amount, tone: (e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs' }))), 1050);
+        // When the trail lands (~1050ms): a pulse on the Location's panel and the chime. The +N rides the embers.
+        window.setTimeout(() => {
+          if (list.some((e) => (e.data as { amount?: number }).amount)) sfx('influence.up');
+          landFx(list.map((e) => ({ location: e.location!, tone: (e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs' })));
+        }, 1050);
+        return shots.length;
+      };
+      if (trailEvs.length && !reduceMotion()) {
+        // Measure after this beat's board has rendered.
+        await painted();
+        if (!alive()) return;
+        fireTrails(trailEvs);
         if (clashEvs.length) await wait(1200);
         if (!alive()) return;
       }
@@ -684,7 +699,16 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         takeOver();
         for (const ev of showdownEvs) {
           if (!alive()) return;
-          await playShowdown(ev, alive);
+          const d = ev.data as ShowdownData;
+          const spread = legendEvs.filter((e) => (e.data as { threatUid?: string }).threatUid === d.threatUid);
+          await playShowdown(ev, alive, spread);
+          // Word spreads: from the broken Threat, ribbons to the other Locations, landing as embers with the +1.
+          if (spread.length && !reduceMotion()) {
+            await painted();
+            if (!alive()) return;
+            if (fireTrails(spread)) await wait(1300);
+            if (!alive()) return;
+          }
         }
         for (const ev of arrivalEvs) {
           if (!alive()) return;

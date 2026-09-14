@@ -36,7 +36,7 @@ import {
   lockReason,
 } from './query';
 import type { CharacterDef, CharacterInstance, GameEvent, GameState, MatchResult, PlayAction, PlayerId, ResolveOptions, ResolveOutput, ThreatInstance, TraceStep, TurnPlan } from './types';
-import { MAX_STAKES, PLAYERS, EXTENDED_TURNS, MAX_HAND, other, emptyPlan } from './types';
+import { MAX_STAKES, PLAYERS, EXTENDED_TURNS, MAX_HAND, other, emptyPlan, LEGEND_READY } from './types';
 import { GATHERING_DEFS } from './content/characters';
 
 export function cloneState(s: GameState): GameState {
@@ -1163,7 +1163,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       const carried = wasGate && !isInformant(c) && state.locations[from].revealed && LOCATION_BY_ID[state.locations[from].defId]?.effect.type === 'crossing';
       c.location = r.to;
       c.zone = 'gate';
-      c.ready = outReady && !isInformant(c);
+      c.ready = (outReady || (state.players[p].legend ?? 0) >= LEGEND_READY) && !isInformant(c);
       if (carried) {
         c.permInfluence += 1;
         events.push({ type: 'info', text: `${name(state, c)} came through the crossing: +1 Influence for good, what was carried across.`, uid: c.uid, player: p, location: r.to });
@@ -1244,7 +1244,8 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       plantedBy: informant ? p : undefined,
       location: play.location,
       zone: 'gate',
-      ready: false,
+      // Legend: once word has spread, your people are expected everywhere and arrive Ready.
+      ready: !informant && (ps.legend ?? 0) >= LEGEND_READY,
       arrivedTurn: state.turn,
       permInfluence: 0,
       tempInfluence: 0,
@@ -1369,6 +1370,33 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       }
       const by = PLAYERS.filter((p) => (f![p] ?? 0) > 0);
       events.push({ type: 'threatNeutralized', text: `${threatName(state, t)} at ${locName(state, loc.index)} is neutralized.`, location: loc.index, data: { by, threatUid: t.uid, defId: t.defId, target: t.target } });
+      // Word spreads: clearing a Threat is heard at every other open Location. The pool is +1 lasting Influence per
+      // other revealed Location; alone you take all of it, together it is split by Force contributed (rounded down,
+      // the remainder to the larger share; equal shares split evenly, the larger share choosing its Locations first).
+      // Everyone who helped gains a Legend; at LEGEND_READY their Characters arrive at the Gates Ready.
+      const others = state.locations.filter((l) => l.index !== loc.index && l.revealed && !l.lost);
+      if (others.length && by.length) {
+        const total = by.reduce((s, p) => s + f![p], 0);
+        const shares: Record<PlayerId, number> = { A: 0, B: 0 };
+        for (const p of by) shares[p] = Math.floor((others.length * f![p]) / total);
+        const ranked = [...by].sort((a, b) => f![b] - f![a] || (a === state.initiative ? -1 : 1));
+        let left = others.length - by.reduce((s, p) => s + shares[p], 0);
+        for (let i = 0; left > 0; i = (i + 1) % ranked.length, left--) shares[ranked[i]] += 1;
+        let cursor = 0;
+        for (const p of ranked) {
+          for (const l of others.slice(cursor, cursor + shares[p])) {
+            l.permInfluence = l.permInfluence ?? { A: 0, B: 0 };
+            l.permInfluence[p] += 1;
+            events.push({ type: 'info', text: `Word spreads: ${state.players[p].handle} gains +1 lasting Influence at ${locName(state, l.index)} for clearing ${threatName(state, t)}.`, player: p, location: l.index, data: { trail: 'legend', amount: 1, color: p, threatUid: t.uid } });
+          }
+          cursor += shares[p];
+        }
+        for (const p of by) {
+          const ps = state.players[p];
+          ps.legend = (ps.legend ?? 0) + 1;
+          if (ps.legend === LEGEND_READY) events.push({ type: 'info', text: `${ps.handle}'s legend has spread: from now on their Characters arrive at the Gates Ready. They have people everywhere.`, player: p, data: { legend: ps.legend } });
+        }
+      }
       for (const uid of f!.assists) {
         const c = state.characters[uid];
         if (!c) continue;

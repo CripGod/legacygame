@@ -33,6 +33,8 @@ export const STARTING_HAND = 4;
 export const DECK_SIZE = 24;
 /** Hand limit: a card drawn into a full hand is discarded. */
 export const MAX_HAND = 7;
+/** Legend: Threats a player helped clear. From this many on, their Characters arrive at the Gates Ready ("I have people in Detroit"). */
+export const LEGEND_READY = 2;
 export const MAX_EVENTS = 2;
 export const PLANNING_SECONDS = 120;
 export const MAX_STAKES = 4;
@@ -389,6 +391,8 @@ export interface PlayerState {
   /** Once you Stand on Business you cannot Sit Down. */
   cannotStepOff?: boolean;
   solidarity: number;
+  /** Threats this player helped clear (word spreads). At LEGEND_READY, arrivals at the Gates are Ready. */
+  legend?: number;
   /** Katherine Johnson: index of the next Location to reveal. */
   knownNextReveal?: number;
   /** Community Defense: Location where your Characters confront with extra Force this turn. */

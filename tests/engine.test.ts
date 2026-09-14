@@ -1911,3 +1911,69 @@ describe('plan preview', () => {
     expect(remainingPlan(state, 'A', plan).enters).toEqual([]);
   });
 });
+
+describe('word spreads', () => {
+  const stage = () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['gary_indiana', 'great_migration', 'greenwood'], revealAll: true, handA: ['og'], handB: [] });
+    for (const l of s.locations) l.permInfluence = { A: 0, B: 0 };
+    return s;
+  };
+  const gains = (s: GameState, p: PlayerId) => s.locations.map((l) => l.permInfluence?.[p] ?? 0);
+  it('clearing a Threat alone pays +1 lasting Influence at every other open Location and one Legend', () => {
+    const s = stage();
+    const og = addChar(s, 'og', 'A', 0, 'gate', true);
+    s.locations[0].threats.push({ uid: 'hr', defId: 'housing_restriction', location: 0, forceRequired: 3, spawnedTurn: 1 });
+    const out = resolveTurn(s, { A: { ...pass(), confronts: [{ uid: og.uid, threatUid: 'hr' }] }, B: pass() });
+    expect(out.state.locations[0].threats).toEqual([]);
+    expect(gains(out.state, 'A')).toEqual([0, 1, 1]);
+    expect(gains(out.state, 'B')).toEqual([0, 0, 0]);
+    expect(out.state.players.A.legend).toBe(1);
+    expect(out.state.players.B.legend).toBe(0);
+    const spread = out.events.filter((e) => (e.data as { trail?: string } | undefined)?.trail === 'legend');
+    expect(spread.map((e) => e.location).sort()).toEqual([1, 2]);
+    expect(spread.every((e) => (e.data as { threatUid?: string }).threatUid === 'hr')).toBe(true);
+  });
+  it('a shared clear splits the pool by Force, the remainder to the larger share; equal shares split evenly', () => {
+    let s = stage();
+    const a1 = addChar(s, 'og', 'A', 0, 'gate', true);
+    const a2 = addChar(s, 'og', 'A', 0, 'gate', true);
+    const b = addChar(s, 'organizer', 'B', 0, 'gate', true);
+    const fB = CARD_BY_ID.organizer.kind === 'character' ? CARD_BY_ID.organizer.force : 0;
+    s.locations[0].threats.push({ uid: 'hr', defId: 'housing_restriction', location: 0, forceRequired: 6 + fB, spawnedTurn: 1 });
+    let out = resolveTurn(s, { A: { ...pass(), confronts: [{ uid: a1.uid, threatUid: 'hr' }, { uid: a2.uid, threatUid: 'hr' }] }, B: { ...pass(), confronts: [{ uid: b.uid, threatUid: 'hr' }] } });
+    expect(out.state.locations[0].threats).toEqual([]);
+    const total = 6 + fB;
+    const shareB = Math.floor((2 * fB) / total);
+    const shareA = 2 - shareB; // the remainder goes to the larger share
+    expect(gains(out.state, 'A').reduce((x, y) => x + y, 0)).toBe(shareA);
+    expect(gains(out.state, 'B').reduce((x, y) => x + y, 0)).toBe(shareB);
+    expect(out.state.players.A.legend).toBe(1);
+    expect(out.state.players.B.legend).toBe(1);
+    // Equal Force: one Location each.
+    s = stage();
+    const a = addChar(s, 'og', 'A', 0, 'gate', true);
+    const b2 = addChar(s, 'og', 'B', 0, 'gate', true);
+    s.locations[0].threats.push({ uid: 'hr', defId: 'housing_restriction', location: 0, forceRequired: 6, spawnedTurn: 1 });
+    out = resolveTurn(s, { A: { ...pass(), confronts: [{ uid: a.uid, threatUid: 'hr' }] }, B: { ...pass(), confronts: [{ uid: b2.uid, threatUid: 'hr' }] } });
+    expect(gains(out.state, 'A').reduce((x, y) => x + y, 0)).toBe(1);
+    expect(gains(out.state, 'B').reduce((x, y) => x + y, 0)).toBe(1);
+    expect(gains(out.state, 'A').map((g, i) => g + gains(out.state, 'B')[i])).toEqual([0, 1, 1]);
+  });
+  it('at Legend 2 your Characters arrive at the Gates Ready, played or relocated', () => {
+    const s = stage();
+    s.players.A.legend = 2;
+    const inside = addChar(s, 'organizer', 'A', 1, 'inside', true);
+    const out = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'og', location: 0 }], relocations: [{ uid: inside.uid, to: 2 }] }, B: pass() });
+    const played = Object.values(out.state.characters).find((c) => c.defId === 'og' && c.owner === 'A')!;
+    expect(played.zone).toBe('gate');
+    expect(played.ready).toBe(true);
+    expect(out.state.characters[inside.uid].location).toBe(2);
+    expect(out.state.characters[inside.uid].ready).toBe(true);
+    // Without the Legend, both wait a turn.
+    const t = stage();
+    const inside2 = addChar(t, 'organizer', 'A', 1, 'inside', true);
+    const out2 = resolveTurn(t, { A: { ...pass(), plays: [{ cardId: 'og', location: 0 }], relocations: [{ uid: inside2.uid, to: 2 }] }, B: pass() });
+    expect(Object.values(out2.state.characters).find((c) => c.defId === 'og' && c.owner === 'A')!.ready).toBe(false);
+    expect(out2.state.characters[inside2.uid].ready).toBe(false);
+  });
+});

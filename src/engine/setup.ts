@@ -26,6 +26,7 @@ function makePlayer(id: PlayerId, handle: string, avatar: string, deck: string[]
     standUsed: false,
     spawned: [],
     solidarity: 0,
+    legend: 0,
   };
 }
 

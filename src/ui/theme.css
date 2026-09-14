@@ -1459,6 +1459,9 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .audio-btn:hover { opacity: 0.85; }
 .audio-btn.on { opacity: 1; border-color: var(--gold-2); box-shadow: 0 0 10px rgba(246, 215, 122, 0.35); }
 .hud-sub .audio-ctl { margin-left: 4px; }
+/* Legend: Threats helped clear. Gold once word has spread and arrivals come in Ready. */
+.profile .legend-pill { margin-left: 8px; padding: 0 7px; border-radius: 999px; border: 1px solid rgba(233, 185, 58, 0.35); color: #cfc3a6; font-family: var(--display); font-size: 0.85em; letter-spacing: 0.06em; white-space: nowrap; }
+.profile .legend-pill.spread { color: #1a1200; background: linear-gradient(180deg, #f6d77a, #e9b93a); border-color: var(--gold-2); box-shadow: 0 0 10px rgba(233, 185, 58, 0.5); }
 
 /* ---------- Resolving: from Lock In to the next turn the board is a stage, not a desk ---------- */
 .hand-wrap { transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.35s ease; }
