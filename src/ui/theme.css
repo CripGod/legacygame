@@ -119,6 +119,13 @@ body { font-family: var(--font); font-size: 16px; }
 .stand-btn:not(:disabled):hover { --bc: var(--gold-2); }
 .stand-btn.on { --bfill: linear-gradient(180deg, #f6d77a, #d7a422 60%, #b4851a); color: #1a1200; text-shadow: none; }
 .stand-btn:disabled { opacity: 0.45; }
+/* The Stand, Marvel Snap style: the button slams on the press; on the clap the gold burst (Trails.tsx) explodes from
+   it, the board jolts and the Legacy coin flips to the new price. */
+.stand-btn.slam { animation: stand-slam 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+@keyframes stand-slam { 0% { transform: scale(1); filter: brightness(1); } 12% { transform: scale(1.14); filter: brightness(1.9); } 30% { transform: scale(0.96); filter: brightness(1.2); } 55% { transform: scale(1.04); } 100% { transform: scale(1); filter: brightness(1); } }
+.hud-sub .coin.flip { animation: coin-flip 0.9s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+@keyframes coin-flip { 0% { transform: rotateX(0) scale(1); } 40% { transform: rotateX(360deg) scale(1.4); filter: brightness(2); } 100% { transform: rotateX(720deg) scale(1); filter: brightness(1); } }
+@media (prefers-reduced-motion: reduce) { .stand-btn.slam, .hud-sub .coin.flip { animation: none; } }
 .hud-sub { display: flex; align-items: center; gap: 10px; font-size: clamp(11px, 1vw, 14px); color: var(--muted); }
 .hud-sub .coin { width: auto; height: auto; border-radius: 999px; padding: 1px 10px; display: inline-flex; gap: 4px; align-items: baseline; border-color: var(--gold-dark); background: #0a1626; font-family: var(--display); font-size: 12px; }
 .hud-sub .coin small { font-size: 8px; margin-left: 2px; }

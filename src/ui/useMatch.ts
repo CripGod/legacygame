@@ -15,6 +15,8 @@ import {
   type PlayerId,
   type TurnPlan,
   type TraceStep,
+  retreat as retreatMatch,
+  legalOptions,
 } from '../engine';
 import { planTurn, recordAi, aiSummonProposal, aiAcceptSummon } from '../ai/harborlight';
 import { locName } from '../engine';
@@ -53,6 +55,8 @@ export interface MatchController {
   handoff: PlayerId | null;
   takeDevice: () => void;
   lockIn: () => void;
+  /** Sit Down: give up the match at once at the current Legacy. */
+  retreat: () => void;
   /** AI mode: Harborlight's plan for this turn (deterministic, so peeking changes nothing). */
   peekAiPlan: () => TurnPlan | null;
   newMatch: (seed?: number) => void;
@@ -204,6 +208,17 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
     }
   }, [locked, busy, mode, plan, perspective, resolveWithPlans, aiDecision]);
 
+  /** Sit Down is a retreat, not a plan: the match ends now, nobody deliberates, the other side takes the Legacy. */
+  const retreat = useCallback(() => {
+    const state = stateRef.current;
+    if (state.phase !== 'planning' || locked || busy) return;
+    if (!legalOptions(state, perspective).canStepOff) return;
+    const out = retreatMatch(state, perspective);
+    if (out.state.phase !== 'ended') return;
+    finishResolution(out.state, out.events, perspective);
+    if (mode === 'hotseat') setPerspective('A');
+  }, [locked, busy, perspective, mode, finishResolution]);
+
   const takeDevice = useCallback(() => {
     if (!handoff) return;
     setPerspective(handoff);
@@ -338,6 +353,7 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
     handoff,
     takeDevice,
     lockIn,
+    retreat,
     peekAiPlan,
     newMatch,
     seed,

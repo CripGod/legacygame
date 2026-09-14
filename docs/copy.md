@@ -705,7 +705,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - `line`: The Influence Line: leans toward whoever leads. Lead at two of three Locations after the final turn to win.
 - `energy`: Energy: the crystals up here are what you can spend on cards this turn. You get one more each turn (Turn 3 = 3), Organizer adds one, and unspent Energy does not carry over. Lit crystals are still unspent; dim ones are spent; hollow ones come on later turns.
 - `cost`: Cost: the Energy this card takes to play. Energy equals the turn number, so expensive cards wait for later turns, unless something brings the price down: a green cost means a discount is on right now.
-- `stakes`: Legacy: what the match is worth. Stand on Business doubles it (1 → 2 → 4) one turn later, adds a 9th turn, and means you cannot Sit Down. The other side gets one turn to Sit Down at the old price.
+- `stakes`: Legacy: what the match is worth. Stand on Business multiplies it one turn later, and the earlier the bolder: ×4 on turns 1–2, ×3 on turns 3–5, ×2 from turn 6 (up to 16), win or lose. It adds a 9th turn and means you cannot Sit Down. The other side gets one turn to Sit Down at the old price.
 - `stakesPending`: Someone Stood on Business. The raise lands after this turn: Sit Down now to lose only the current Legacy.
 - `timer`: Planning timer. At zero your current plan locks automatically.
 - `noStepOff`: You Stood on Business. There is no backing out of this match.
@@ -853,9 +853,9 @@ Rules
 - If the Summon fails and that Location is later Lost, both players lose 1 Influence at each of their other Locations. A broken pact costs everyone.
 - Mythic content is fantasy drawn from real traditions; the abilities are invention.
 ### Legacy
-- Matches start at 1 Legacy. Either player may Stand on Business once to double it (1 → 2, then 2 → 4). Standing adds a 9th turn, The Last Word: both sides get 10 Energy and an extra card on it, and whoever stood can no longer Sit Down.
-- A Stand is part of your hidden plan and lands one turn later. The other player is never forced to answer: they get a full turn to Sit Down for the old Legacy, keep playing at the new Legacy, or Stand back and double it again.
-- Sit Down is surrender at the current Legacy. Sitting down during the grace turn is the cheap exit.
+- Matches start at 1 Legacy. Either player may Stand on Business once to multiply it, and the earlier the bolder: ×4 on turns 1–2, ×3 on turns 3–5, ×2 from turn 6 (up to 16). It cuts both ways: an early Stand wins more and loses more. Standing adds a 9th turn, The Last Word: both sides get 10 Energy and an extra card on it, and whoever stood can no longer Sit Down.
+- A Stand is part of your hidden plan and lands one turn later. The other player is never forced to answer: they get a full turn to Sit Down for the old Legacy, keep playing at the new Legacy, or Stand back and multiply it again.
+- Sit Down is a retreat: the match ends at once and the other side takes the current Legacy. Sitting down during the grace turn is the cheap exit.
 ### Resolution order
 - Location reveal
 - Voluntary Relocations (whoever leaves a Location is gone before anything played there resolves; they stand at the Gates they arrive at)
@@ -919,13 +919,14 @@ Main menu
 - relocates to ${view.locations[r.to].revealed ? locationName(view.locations[r.to].defId, placeholders) : 
 - One Location each: total Influence decides.
 - Tied on Influence: total Force decides.
+- ${handle(other(me))} sat down.
 - ${handle(winner)} wins ${r.stakes} Legacy
 - That is the move. Press Lock It In.
 - That works too. Or ${guide.text.charAt(0).toLowerCase()}${guide.text.slice(1)}
 - ${nm} cannot be played right now.
 - Not enough Energy: ${nm} costs ${cardCost(id, view, me)} and you have ${energyLeft} left this turn. Energy equals the turn number, so it grows every turn.
 - ${nm} has nowhere to go right now.
-- Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds a 9th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.
+- Standing on Business on Turn ${view.turn} (×${mult}): when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds a 9th turn' : ''}. The earlier you stand, the more it moves, both ways. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.
 - Not enough Energy. ${cardName(play.cardId, placeholders)} costs ${cost} and you have ${opts.energy - spent} left of ${opts.energy} this turn (Energy = the turn number). Remove a planned card or wait a turn.
 - ${cardName(play.cardId, placeholders)} goes Inside right away (Direct Entry). Tap ⇅ on the planned move to wait at the Gates instead.
 - ${view.players[other(me)].handle}'s turn is on the board, faint: ${seen.moves} move${seen.moves === 1 ? '' : 's'}.
@@ -991,7 +992,7 @@ Main menu
 - Harriet Tubman: drag any of your Characters to another Location and she takes them straight Inside. Free, and she gets them out of a curfew (optional).
 - ${cardName(yemojaPlay.cardId, placeholders)}: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : 
 - Drag a card onto a Location, or tap it to open it and choose where it plays.
-- Sit Down${opts.canStepOff && view.phase !== 'ended' ? 
+- Sit Down: give up the match now. ${view.players[other(me)].handle} takes ${opts.stepOffCost} Legacy.
 - app ${resolving ? 'resolving' : ''}
 - replay-banner kind-clash ${verdict.tone === 'win' ? 'miss' : verdict.tone === 'draw' ? 'arrive' : ''}
 - replay-banner kind-clash ${clashTell.tone}
@@ -1010,7 +1011,7 @@ Main menu
 - T${Math.min(view.turn, view.maxTurns)}/${view.maxTurns}
 - card-flash p${arrival.owner}
 - drag-ghost ${drag.payload.kind === 'card' ? 'card-ghost' : ''} ${drag.pointerType !== 'mouse' ? 'touch' : ''} ${drag.returning ? 'returning' : ''} ${drag.snap ? 'snap' : ''}
-- Sitting down surrenders the match. ${view.players[other(me)].handle} wins ${opts.stepOffCost} Legacy.${raisedOnMe ? 
+- You give up the match, now. ${view.players[other(me)].handle} takes ${opts.stepOffCost} Legacy.${raisedOnMe ? 
 - verdict-flash ${verdict.tone}
 - rep-readout ${n > 0 ? 'live' : ''}
 - Nothing owed yet. Every Setback you suffer from here on adds +1 (up to +4).
@@ -1564,8 +1565,8 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - Legend ${ps.legend ?? 0}: Threats ${p === me ? 'you' : 'they'} helped clear. Clearing one pays +1 lasting Influence at the other Locations (alone, all of it; together, split by Force). At ${LEGEND_READY}, Characters arrive at the Gates Ready.
 - Quick chat: emotes and Summon.
 - bubble ${right ? 'right' : ''}
-- stand-btn ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''}
-- coin ${view.pendingRaises.length ? 'raised' : ''}
+- stand-btn ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''} ${stand.slam ? 'slam' : ''}
+- coin ${view.pendingRaises.length ? 'raised' : ''} ${stand?.flip ? 'flip' : ''}
 
 ### src/ui/display.ts
 
@@ -1689,7 +1690,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${def.name}: none of ${ps.handle}'s Characters can be blocked or displaced this turn, and those at ${locName(state, play.location)} confront with +${def.effect.force} Force.
 - ${state.players[p].handle} steps off. ${state.players[other(p)].handle} wins ${state.stakes} Legacy.
 - ${state.players[p].handle}'s plan was illegal (${errs[0]}) and became a pass.
-- ${state.players[p].handle} STANDS ON BUSINESS: ${from} → ${to} Legacy after next turn. ${escape}
+- ${state.players[p].handle} STANDS ON BUSINESS on Turn ${state.turn} (×${mult}): ${from} → ${to} Legacy after next turn. ${escape}
 - The match is extended to ${EXTENDED_TURNS} turns.
 - ${name(state, c)} cannot relocate: the Gate at ${locName(state, r.to)} is full.
 - ${name(state, c)} came through the crossing: +1 Influence for good, what was carried across.

@@ -36,7 +36,7 @@ import {
   lockReason,
 } from './query';
 import type { CharacterDef, CharacterInstance, GameEvent, GameState, MatchResult, PlayAction, PlayerId, ResolveOptions, ResolveOutput, ThreatInstance, TraceStep, TurnPlan } from './types';
-import { MAX_STAKES, PLAYERS, EXTENDED_TURNS, MAX_HAND, other, emptyPlan, LEGEND_READY } from './types';
+import { MAX_STAKES, standMultiplier, PLAYERS, EXTENDED_TURNS, MAX_HAND, other, emptyPlan, LEGEND_READY } from './types';
 import { GATHERING_DEFS } from './content/characters';
 
 export function cloneState(s: GameState): GameState {
@@ -1070,6 +1070,20 @@ function endByStepOff(state: GameState, p: PlayerId, events: GameEvent[]): void 
   events.push({ type: 'stepOff', text: `${state.players[p].handle} steps off. ${state.players[other(p)].handle} wins ${state.stakes} Legacy.`, player: p });
 }
 
+/**
+ * Sit Down: a retreat. The match ends at once and the other side takes the current Legacy (a pending Stand has not
+ * landed, so this is the cheap exit during the grace turn). Never mutates `input`; a player who Stood cannot.
+ */
+export function retreat(input: GameState, p: PlayerId): ResolveOutput {
+  const state = cloneState(input);
+  const events: GameEvent[] = [];
+  if (state.phase !== 'planning') throw new Error(`Cannot retreat in phase ${state.phase}`);
+  if (state.players[p].cannotStepOff) return { state, events };
+  state.lastEvents = events;
+  endByStepOff(state, p, events);
+  return { state, events };
+}
+
 /** Resolve a full turn. Never mutates `input`. Illegal plans are replaced by a pass. */
 export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan>, opts: ResolveOptions = {}): ResolveOutput {
   const state = cloneState(input);
@@ -1120,10 +1134,11 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     state.players[p].cannotStepOff = true;
     state.pendingRaises.push({ by: p, declaredTurn: state.turn });
     const to = effectiveStakes(state);
+    const mult = standMultiplier(state.turn);
     state.stats.standTurns.push({ player: p, turn: state.turn, proposed: to, accepted: true });
     const o = other(p);
     const escape = state.players[o].cannotStepOff ? `${state.players[o].handle} already stood, so there is no backing out.` : `${state.players[o].handle} has one turn to Sit Down for ${state.stakes}.`;
-    events.push({ type: 'stand', text: `${state.players[p].handle} STANDS ON BUSINESS: ${from} → ${to} Legacy after next turn. ${escape}`, player: p, data: { from, to } });
+    events.push({ type: 'stand', text: `${state.players[p].handle} STANDS ON BUSINESS on Turn ${state.turn} (×${mult}): ${from} → ${to} Legacy after next turn. ${escape}`, player: p, data: { from, to, mult } });
     if (state.maxTurns < EXTENDED_TURNS) {
       state.maxTurns = EXTENDED_TURNS;
       events.push({ type: 'stand', text: `The match is extended to ${EXTENDED_TURNS} turns.`, data: { maxTurns: EXTENDED_TURNS } });
@@ -1705,7 +1720,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
   const landing = state.pendingRaises.filter((r) => r.declaredTurn < state.turn);
   if (landing.length) {
     state.pendingRaises = state.pendingRaises.filter((r) => r.declaredTurn >= state.turn);
-    state.stakes = Math.min(MAX_STAKES, state.stakes * 2 ** landing.length);
+    state.stakes = Math.min(MAX_STAKES, landing.reduce((s, r) => s * standMultiplier(r.declaredTurn), state.stakes));
     events.push({ type: 'stakes', text: `Nobody sat down. The match is now worth ${state.stakes} Legacy.`, data: { stakes: state.stakes } });
     trace('stakes', `The match is now worth ${state.stakes} Legacy`, {});
   }

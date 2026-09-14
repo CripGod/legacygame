@@ -41,6 +41,8 @@ export type SfxName =
   | 'trail'
   | 'heal'
   | 'dig'
+  | 'dig.keep'
+  | 'dig.bury'
   | 'stand'
   | 'stand.button'
   | 'lastword'
@@ -81,8 +83,10 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   trail: 'A power trail crosses the board (artist, aura).',
   heal: 'A Location heals: its last Threat broke and the word spreads as a wave of light to the other Locations (each landing chimes influence.up).',
   dig: 'Zora digs: three quick card flicks.',
+  'dig.keep': 'The dearer story is kept: the card lights up and is chosen (the select climb with a shimmer).',
+  'dig.bury': 'The other cards go back to the bottom of the deck: a flick and a soft thud.',
   stand: 'Stand on Business: the stakes rise.',
-  'stand.button': 'The Stand on Business button pressed: the crowd stomps, stomps, claps, and the ring bell goes.',
+  'stand.button': 'The Stand on Business button, Marvel Snap style: stomp, stomp, clap, and on the clap the bell, a boom and a roar that carries on for a few seconds.',
   lastword: 'The Last Word begins.',
   lost: 'A Location is Lost, or someone changes sides.',
   win: 'You win the match: drums and the bell.',
@@ -129,8 +133,10 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   trail: [{ files: ['trail'], gain: 0.6 }],
   heal: [{ files: ['select'], gain: 0.45 }, { files: ['turn'], gain: 0.4, at: 240 }, { files: ['trail'], gain: 0.3, at: 200 }], // a bright climb, a soft bell, the trail's shimmer under it
   dig: [{ files: ['card-pick-1'], gain: 0.5 }, { files: ['card-pick-2'], gain: 0.5, at: 110 }, { files: ['draw'], gain: 0.5, at: 230 }], // three quick card flicks; the shuffle clip is gone
+  'dig.keep': [{ files: ['select'], gain: 0.55 }, { files: ['trail'], gain: 0.25, at: 80 }], // "you have been chosen": the select climb, a shimmer under it
+  'dig.bury': [{ files: ['card-back'], gain: 0.5 }, { files: ['thud-soft'], gain: 0.4, at: 120 }],
   stand: [{ files: ['stand-thud'], gain: 0.9 }, { files: ['stand-drums'], gain: 0.8 }],
-  'stand.button': [{ files: ['stand-stomp'], gain: 0.9 }, { files: ['stand-bell'], gain: 0.75, at: 800 }], // stomp, stomp, clap ... and the ring bell on the clap
+  'stand.button': [{ files: ['stand-stomp'], gain: 0.9 }, { files: ['stand-bell'], gain: 0.7, at: 800 }, { files: ['stand-burst'], gain: 0.85, at: 800 }], // stomp, stomp, clap ... and on the clap the ring bell, the boom, the brass and the crowd carrying on
   lastword: [{ files: ['lastword'], gain: 0.8 }],
   lost: [{ files: ['lost'], gain: 0.65 }],
   win: [{ files: ['stand-drums'], gain: 0.85 }, { files: ['lastword'], gain: 0.7, at: 220 }], // drums and the bell: gravity, not a fanfare
@@ -472,10 +478,22 @@ function synth(name: SfxName, t: number): void {
     case 'dig':
       for (let i = 0; i < 5; i++) tick(t + i * 0.055, 0.16);
       break;
+    case 'dig.keep':
+      chime(t, [659, 988, 1319], 0.08, 0.4, 0.16);
+      sparkle(t + 0.1, 5, 0.05);
+      break;
+    case 'dig.bury':
+      tick(t, 0.14);
+      thud(t + 0.12, 0.3, 160, 60, 0.18);
+      break;
     case 'stand':
     case 'stand.button':
       thud(t, 0.55, 150, 40, 0.24);
       thud(t + 0.16, 0.6, 150, 40, 0.26);
+      if (name === 'stand.button') {
+        thud(t + 0.8, 0.9, 120, 30, 0.35);
+        swoosh(t + 0.82, 1.6, 400, 2400, 0.16, 2.2);
+      }
       swoosh(t + 0.16, 0.2, 1200, 300, 0.2, 0.5);
       break;
     case 'lastword':

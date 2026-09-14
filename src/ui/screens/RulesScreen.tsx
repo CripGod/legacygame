@@ -69,9 +69,9 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
         </ul>
         <h2>Legacy</h2>
         <ul>
-          <li>Matches start at 1 Legacy. Either player may <b>Stand on Business</b> once to double it (1 → 2, then 2 → 4). Standing adds a <b>9th turn, The Last Word</b>: both sides get 10 Energy and an extra card on it, and whoever stood can no longer Sit Down.</li>
-          <li>A Stand is part of your hidden plan and lands <b>one turn later</b>. The other player is never forced to answer: they get a full turn to <b>Sit Down</b> for the old Legacy, keep playing at the new Legacy, or <b>Stand back</b> and double it again.</li>
-          <li><b>Sit Down</b> is surrender at the current Legacy. Sitting down during the grace turn is the cheap exit.</li>
+          <li>Matches start at 1 Legacy. Either player may <b>Stand on Business</b> once to multiply it, and the earlier the bolder: <b>×4</b> on turns 1–2, <b>×3</b> on turns 3–5, <b>×2</b> from turn 6 (up to 16). It cuts both ways: an early Stand wins more and loses more. Standing adds a <b>9th turn, The Last Word</b>: both sides get 10 Energy and an extra card on it, and whoever stood can no longer Sit Down.</li>
+          <li>A Stand is part of your hidden plan and lands <b>one turn later</b>. The other player is never forced to answer: they get a full turn to <b>Sit Down</b> for the old Legacy, keep playing at the new Legacy, or <b>Stand back</b> and multiply it again.</li>
+          <li><b>Sit Down</b> is a retreat: the match ends at once and the other side takes the current Legacy. Sitting down during the grace turn is the cheap exit.</li>
         </ul>
         <h2>Resolution order</h2>
         <ol>

@@ -533,8 +533,10 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
   const winEstimate = estimateWinChance(view, p);
   let standDecision = 'no';
   let standOnBusiness = false;
-  // Standing is a late, confident call: never before Turn 5, and only from a clear lead.
-  if (opts.canStand && view.turn >= 5) {
+  // Standing is a confident call: from Turn 5 on a clear lead; earlier, when it moves the Legacy ×3 or ×4 both ways,
+  // only from an overwhelming one.
+  const earliest = winEstimate >= tuning.strongStandThreshold + 0.1 ? 3 : 5;
+  if (opts.canStand && view.turn >= earliest) {
     if (winEstimate >= tuning.strongStandThreshold) {
       standOnBusiness = true;
       standDecision = `stands (strong, ${(winEstimate * 100).toFixed(0)}%)`;
@@ -553,7 +555,10 @@ export function planTurn(view: GameState, p: PlayerId, tuning: AiTuning = DEFAUL
   let stepOff = false;
   const raisedOnMe = view.pendingRaises.some((r) => r.by !== p);
   if (raisedOnMe && opts.canStepOff && view.turn < view.maxTurns) {
-    if (winEstimate < tuning.continueThreshold) {
+    // An early Stand moves more: staying at ×3 or ×4 the price wants a better board.
+    const ratio = opts.pendingStakes / Math.max(1, opts.stepOffCost);
+    const need = tuning.continueThreshold + (ratio >= 4 ? 0.08 : ratio >= 3 ? 0.04 : 0);
+    if (winEstimate < need) {
       stepOff = true;
       standDecision = `steps off (${(winEstimate * 100).toFixed(0)}%, pays ${opts.stepOffCost})`;
     } else {

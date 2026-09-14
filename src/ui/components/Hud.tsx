@@ -4,7 +4,7 @@ import { tip, HINTS } from '../tip';
 import { Art } from './Art';
 import { AudioControl } from './AudioControl';
 
-export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: GameState; me: PlayerId; onProfile: (p: PlayerId) => void; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void; stand?: { on: boolean; disabled: boolean; flash?: boolean; onToggle: () => void } }) {
+export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: GameState; me: PlayerId; onProfile: (p: PlayerId) => void; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void; stand?: { on: boolean; disabled: boolean; flash?: boolean; onToggle: () => void; /** What the Legacy becomes if the planned Stand goes through. */ proposed?: number; /** The press: the button slams. */ slam?: boolean; /** The clap: the coin flips to the new price. */ flip?: boolean } }) {
   const { placeholders } = useDisplay();
   const profile = (p: PlayerId, right: boolean) => {
     const ps = view.players[p];
@@ -45,14 +45,14 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
       {profile('A', false)}
       <div className="hud-center">
         {stand && (
-          <button className={`stand-btn ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''}`} disabled={stand.disabled} onClick={stand.onToggle} {...tip(view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes)}>
+          <button className={`stand-btn ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''} ${stand.slam ? 'slam' : ''}`} disabled={stand.disabled} onClick={stand.onToggle} {...tip(view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes)}>
             {stand.on ? 'Standing ✓' : 'Stand on Business'}
           </button>
         )}
         <div className="hud-sub">
-          <span className={`coin ${view.pendingRaises.length ? 'raised' : ''}`} {...tip(view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes)}>
+          <span className={`coin ${view.pendingRaises.length ? 'raised' : ''} ${stand?.flip ? 'flip' : ''}`} {...tip(view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes)}>
             {view.stakes}
-            {view.pendingRaises.length > 0 && <em>→{effectiveStakes(view)}</em>}
+            {(view.pendingRaises.length > 0 || stand?.on) && <em>→{stand?.on && stand.proposed ? stand.proposed : effectiveStakes(view)}</em>}
             <small>legacy</small>
           </span>
           <AudioControl />

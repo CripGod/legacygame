@@ -766,6 +766,8 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   useEffect(() => {
     if (step && !ownBeat) {
       beatSfx(step);
+      // The other side's Stand lands on the board the same way yours does: the burst over the Legacy coin, the flip.
+      if (step.kind === 'stand' && step.events.some((e) => e.type === 'stand' && e.player && e.player !== me) && !reduceMotion()) coinFx(document.querySelector('.hud-sub .coin'));
       if (step.kind === 'play' && step.cardId) voice(step.cardId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -800,10 +802,14 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   devRef.current = { view, playClash, playArrival };
   useEffect(() => {
     if (!window.location.search.includes('dev=1')) return;
-    (window as unknown as { __sobTrail?: (uid: string, locs: number[], side?: 'A' | 'B' | 'artist' | 'spray', freezeAt?: number) => void }).__sobTrail = (uid, locs, side = 'A', freezeAt) => {
+    (window as unknown as { __sobTrail?: (uid: string, locs: number[], side?: 'A' | 'B' | 'artist' | 'spray' | 'burst', freezeAt?: number) => void }).__sobTrail = (uid, locs, side = 'A', freezeAt) => {
       setTrailFreeze(freezeAt);
-      const from = document.querySelector(`[data-uid="${uid}"]`)?.getBoundingClientRect();
+      const from = (document.querySelector(`[data-uid="${uid}"]`) ?? (side === 'burst' ? document.querySelector('.stand-btn') : null))?.getBoundingClientRect();
       if (!from) return;
+      if (side === 'burst') {
+        setTrail([{ from, to: from, color: TRAIL_COLORS.stand, kind: 'burst' }]);
+        return;
+      }
       if (side === 'spray') {
         setTrail([{ from, to: from, color: TRAIL_COLORS.impact, kind: 'spray' }]);
         return;
@@ -955,7 +961,8 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     });
     void (async () => {
       await wait(600);
-      for (const i of order) {
+      // A retreat has no Reckoning: nothing was counted, the verdict comes straight away.
+      for (const i of r.reason === 'stepOff' ? [] : order) {
         if (cancelled) return;
         const w = r.locationWinners[i];
         const tone: 'mine' | 'theirs' | 'lost' | 'tie' = w === 'lost' ? 'lost' : w === null ? 'tie' : w === me ? 'mine' : 'theirs';
@@ -967,7 +974,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       }
       if (cancelled) return;
       const mineWon = winner === me;
-      const reason = r.reason === 'locations' ? 'Two of three Locations.' : r.reason === 'tiebreak-influence' ? 'One Location each: total Influence decides.' : r.reason === 'tiebreak-force' ? 'Tied on Influence: total Force decides.' : r.reason === 'stepOff' ? 'The other side sat down.' : 'Nothing separates them.';
+      const reason = r.reason === 'locations' ? 'Two of three Locations.' : r.reason === 'tiebreak-influence' ? 'One Location each: total Influence decides.' : r.reason === 'tiebreak-force' ? 'Tied on Influence: total Force decides.' : r.reason === 'stepOff' ? (mineWon ? `${handle(other(me))} sat down.` : 'You sat down.') : 'Nothing separates them.';
       setVerdict({ title: winner ? (mineWon ? 'Victory' : 'Defeat') : 'Draw', line: winner ? `${handle(winner)} wins ${r.stakes} Legacy` : 'Nobody wins the Legacy', reason, tone: winner ? (mineWon ? 'win' : 'loss') : 'draw' });
       sfx(winner ? (mineWon ? 'win' : 'lose') : 'draw.game');
     })();
@@ -1084,16 +1091,50 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     settleFor();
   };
 
+  /**
+   * The Stand, Marvel Snap style: the button slams on the press; on the clap (800 ms in, when the bell rings) it
+   * explodes into a gold burst, the board jolts and the Legacy coin flips to the new price while the roar carries on.
+   * `standArmed` lets a quick cancel call the burst off.
+   */
+  const standArmed = useRef(false);
+  const [standSlam, setStandSlam] = useState(false);
+  const [coinFlip, setCoinFlip] = useState(false);
+  /** The coin flips to the new price with a gold burst over it (the clap of your Stand, or the other side's Stand landing). */
+  const coinFx = (burstAt: Element | null) => {
+    if (burstAt) {
+      const r = burstAt.getBoundingClientRect();
+      setTrail([{ from: r, to: r, color: TRAIL_COLORS.stand, kind: 'burst' }]);
+    }
+    setCoinFlip(false);
+    window.setTimeout(() => setCoinFlip(true), 0);
+    window.setTimeout(() => setCoinFlip(false), 950);
+  };
+  const standFx = () => {
+    setStandSlam(false);
+    window.setTimeout(() => setStandSlam(true), 0);
+    window.setTimeout(() => setStandSlam(false), 750);
+    if (reduceMotion()) return;
+    standArmed.current = true;
+    window.setTimeout(() => {
+      if (!standArmed.current) return;
+      coinFx(document.querySelector('.stand-btn'));
+      setShake(true);
+      window.setTimeout(() => setShake(false), 320);
+    }, 800);
+  };
   /** Stand on Business is one tap: it toggles in the plan and the toast explains what it does. */
   const toggleStand = () => {
     if (plan.standOnBusiness) {
+      standArmed.current = false;
       setPlan((p) => ({ ...p, standOnBusiness: false }));
       feedback('Stand cancelled.', [], 'info');
       return;
     }
     sfx('stand.button');
     setPlan((p) => ({ ...p, standOnBusiness: true }));
-    feedback(`Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds a 9th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.`, [], 'info');
+    standFx();
+    const mult = Math.round(opts.proposedStakes / Math.max(1, opts.pendingStakes));
+    feedback(`Standing on Business on Turn ${view.turn} (×${mult}): when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds a 9th turn' : ''}. The earlier you stand, the more it moves, both ways. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.`, [], 'info');
   };
 
   /** Energy left after the plays already planned. */
@@ -1606,11 +1647,12 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
 
   // The opponent Stood on Business and the raise has not landed yet: this is the one cheap turn to Sit Down.
   const raisedOnMe = planning && view.pendingRaises.some((r) => r.by !== me);
-  const stepOffLabel = `Sit Down${opts.canStepOff && view.phase !== 'ended' ? ` (−${opts.stepOffCost})` : ''}`;
+  const stepOffLabel = 'Sit Down';
+  const stepOffTip = opts.canStepOff ? tip(`Sit Down: give up the match now. ${view.players[other(me)].handle} takes ${opts.stepOffCost} Legacy.`) : tip(HINTS.noStepOff);
 
   return (
     <div className={`app ${resolving ? 'resolving' : ''}`}>
-      <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, flash: flash === 'stakes' || flash === 'final', onToggle: toggleStand }} />
+      <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, flash: flash === 'stakes' || flash === 'final', onToggle: toggleStand, proposed: opts.proposedStakes, slam: standSlam, flip: coinFlip }} />
       <div className="main-wrap">
         <Battlefield
           view={boardView}
@@ -1772,7 +1814,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           )}
         </div>
         <div className="actions-left">
-          <button className={`danger ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}`} disabled={view.phase === 'ended' || !opts.canStepOff} {...(opts.canStepOff ? {} : tip(HINTS.noStepOff))} onClick={() => setSheet({ kind: 'stepOff' })}>
+          <button className={`danger ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}`} disabled={view.phase === 'ended' || !opts.canStepOff} {...stepOffTip} onClick={() => setSheet({ kind: 'stepOff' })}>
             {stepOffLabel}
           </button>
         </div>
@@ -1924,14 +1966,14 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       {sheet?.kind === 'stepOff' && (
         <ConfirmSheet
           title="Sit Down?"
-          body={`Sitting down surrenders the match. ${view.players[other(me)].handle} wins ${opts.stepOffCost} Legacy.${raisedOnMe ? ` Stay and the match is worth ${opts.pendingStakes} from next turn.` : ''}`}
+          body={`You give up the match, now. ${view.players[other(me)].handle} takes ${opts.stepOffCost} Legacy.${raisedOnMe ? ` Stay and it is worth ${opts.pendingStakes} from next turn.` : ''}`}
           confirmLabel="Sit Down"
           danger
           onClose={() => setSheet(null)}
           onConfirm={() => {
             setSheet(null);
-            setPlan((p) => ({ ...p, stepOff: true }));
-            setTimeout(() => m.lockIn(), 0);
+            sfx('lose');
+            m.retreat();
           }}
         />
       )}

@@ -37,7 +37,15 @@ export const MAX_HAND = 7;
 export const LEGEND_READY = 2;
 export const MAX_EVENTS = 2;
 export const PLANNING_SECONDS = 120;
-export const MAX_STAKES = 4;
+export const MAX_STAKES = 16;
+/**
+ * Stand on Business multiplies the Legacy by how early it is called (index = turn − 1): the earlier the Stand, the
+ * bolder, and it cuts both ways. ×4 on turns 1–2, ×3 on turns 3–5, ×2 from turn 6. Two early Stands reach the cap.
+ */
+export const STAND_MULTIPLIERS = [4, 4, 3, 3, 3, 2, 2, 2, 2];
+export function standMultiplier(turn: number): number {
+  return STAND_MULTIPLIERS[Math.min(STAND_MULTIPLIERS.length, Math.max(1, turn)) - 1];
+}
 
 // ---------- Card definitions (data-driven) ----------
 

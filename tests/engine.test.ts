@@ -33,6 +33,9 @@ import {
   type GameEvent,
   cardCost,
   energyFor,
+  standMultiplier,
+  retreat,
+  MAX_STAKES,
 } from '../src/engine';
 import { planTurn } from '../src/ai/harborlight';
 
@@ -755,7 +758,7 @@ describe('match end', () => {
     expect(s.stakes).toBe(1);
     expect(s.pendingRaises).toEqual([{ by: 'A', declaredTurn: 1 }]);
     expect(legalOptions(s, 'B').stepOffCost).toBe(1);
-    expect(legalOptions(s, 'B').pendingStakes).toBe(2);
+    expect(legalOptions(s, 'B').pendingStakes).toBe(4); // a turn-1 Stand is ×4
     // Cheap exit: B steps off during the grace turn and loses only 1.
     const fled = resolveTurn(s, { A: pass(), B: { ...pass(), stepOff: true } }).state;
     expect(fled.result?.stakes).toBe(1);
@@ -763,16 +766,16 @@ describe('match end', () => {
     expect(fled.stats.standTurns[0].accepted).toBe(false);
     // Stay: the raise lands at the end of the grace turn.
     const cont = resolveTurn(s, { A: pass(), B: pass() }).state;
-    expect(cont.stakes).toBe(2);
+    expect(cont.stakes).toBe(4);
     expect(cont.pendingRaises).toEqual([]);
     expect(cont.phase).toBe('planning');
     expect(cont.turn).toBe(3);
     expect(cont.maxTurns).toBe(9);
-    // Standing back doubles again for both.
+    // Standing back multiplies again for both: turn 3 is ×3.
     const back = resolveTurn(cont, { A: pass(), B: { ...pass(), standOnBusiness: true } }).state;
-    expect(back.stakes).toBe(2);
+    expect(back.stakes).toBe(4);
     const landed = resolveTurn(back, { A: pass(), B: pass() }).state;
-    expect(landed.stakes).toBe(4);
+    expect(landed.stakes).toBe(12);
     expect(legalOptions(landed, 'B').canStand).toBe(false);
     expect(cont.players.A.cannotStepOff).toBe(true);
     expect(legalOptions(cont, 'A').canStepOff).toBe(false);
@@ -781,7 +784,39 @@ describe('match end', () => {
     expect(tried.phase).toBe('planning');
     expect(tried.turn).toBe(4);
     expect(legalOptions(cont, 'A').canStand).toBe(false);
-    expect(legalOptions(cont, 'B').proposedStakes).toBe(4);
+    expect(legalOptions(cont, 'B').proposedStakes).toBe(12);
+  });
+  it('the earlier the Stand, the more it moves: ×4 on turns 1–2, ×3 on 3–5, ×2 from 6, capped at 16', () => {
+    expect([1, 2, 3, 4, 5, 6, 7, 8, 9].map(standMultiplier)).toEqual([4, 4, 3, 3, 3, 2, 2, 2, 2]);
+    let s = createMatch({ seed: 4 });
+    for (let t = 1; t <= 5; t++) s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(s.turn).toBe(6);
+    expect(legalOptions(s, 'A').proposedStakes).toBe(2);
+    s = resolveTurn(s, { A: { ...pass(), standOnBusiness: true }, B: pass() }).state;
+    s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(s.stakes).toBe(2);
+    // Two turn-2 Stands would reach 16; nothing goes past the cap.
+    let e = createMatch({ seed: 4 });
+    e = resolveTurn(e, { A: pass(), B: pass() }).state;
+    e = resolveTurn(e, { A: { ...pass(), standOnBusiness: true }, B: { ...pass(), standOnBusiness: true } }).state;
+    expect(legalOptions(e, 'A').pendingStakes).toBe(16);
+    e = resolveTurn(e, { A: pass(), B: pass() }).state;
+    expect(e.stakes).toBe(MAX_STAKES);
+    expect(e.stakes).toBe(16);
+  });
+  it('Sit Down is a retreat: the match ends at once at the current Legacy, and never for a player who Stood', () => {
+    let s = createMatch({ seed: 4 });
+    s = resolveTurn(s, { A: { ...pass(), standOnBusiness: true }, B: pass() }).state;
+    const out = retreat(s, 'B');
+    expect(out.state.phase).toBe('ended');
+    expect(out.state.result?.winner).toBe('A');
+    expect(out.state.result?.reason).toBe('stepOff');
+    expect(out.state.result?.stakes).toBe(1); // the raise had not landed
+    expect(out.events.some((e) => e.type === 'stepOff')).toBe(true);
+    expect(s.phase).toBe('planning'); // the input is untouched
+    const held = retreat(s, 'A');
+    expect(held.state.phase).toBe('planning');
+    expect(held.events).toEqual([]);
   });
   it('Stand on Business on the last turn extends the match by one', () => {
     let s = createMatch({ seed: 4 });

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { sfx } from '../audio/sfx';
 import { CARD_BY_ID } from '../../engine';
 import type { PlayerId } from '../../engine';
 import { CardFace } from './CardFace';
@@ -52,9 +53,14 @@ export function DigReveal({ dig, me, onDone, freeze }: { dig: DigShow; me: Playe
       const t = freeze === 'resolve' ? window.setTimeout(launch, ENTER_MS + 200) : 0;
       return () => window.clearTimeout(t);
     }
-    const t1 = window.setTimeout(() => setPhase('judge'), ENTER_MS);
+    // The judgement is heard: the kept card is chosen, then the others are buried as they fly to the deck.
+    const t1 = window.setTimeout(() => {
+      setPhase('judge');
+      sfx('dig.keep');
+    }, ENTER_MS);
     const t2 = window.setTimeout(() => {
       setPhase('resolve');
+      if (dig.seen.length > 1) sfx('dig.bury');
       launch();
     }, ENTER_MS + JUDGE_MS);
     const t3 = window.setTimeout(() => done.current(), ENTER_MS + JUDGE_MS + RESOLVE_MS + 900);

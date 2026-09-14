@@ -9,6 +9,8 @@ import { useEffect, useRef } from 'react';
  * - `wave`: word spreading. A Location just healed of its Threat sends one ring of light out across the board at
  *   `WAVE_SPEED`; every Location the ring reaches blooms, sparkles twinkle over its name and the +N lifts off it.
  *   Nothing streams out of the Threat: the good news is the Location's own health reaching the others.
+ * - `burst`: the Stand, Marvel Snap style. A flash and two shockwave rings from the button, sparks flung out and
+ *   falling, and slow gold embers that keep rising for two seconds while the roar carries on.
  * Fireworks over a cleared Threat have their own canvas (Fireworks.tsx).
  * Timing: a ribbon launches over the first ~350ms, flies ~700ms and lands over ~800ms; a spray is over in ~520ms;
  * a wave reaches a Location `waveLandAt(from, to)` ms in and is done ~900ms after the farthest one.
@@ -20,7 +22,7 @@ export interface TrailShot {
   color: string;
   /** Text lifted with the embers on landing ("+1"). */
   label?: string;
-  kind?: 'ribbon' | 'spray' | 'wave';
+  kind?: 'ribbon' | 'spray' | 'wave' | 'burst';
 }
 
 const FLY_MS = 700;
@@ -38,6 +40,9 @@ const WAVE_LEAD_MS = 140;
 const WAVE_BAND = 64;
 const MOTES = 56;
 const SPARKLES = 14;
+const BURST_MS = 2300;
+const BURST_SPARKS = 110;
+const BURST_EMBERS = 36;
 
 /** When a wave from `from` reaches `to`, in ms after the wave starts. */
 export function waveLandAt(from: DOMRect, to: DOMRect): number {
@@ -160,7 +165,17 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
     })();
     const isSpray = (i: number) => shots[i].kind === 'spray';
     const isWave = (i: number) => shots[i].kind === 'wave';
-    const totalMs = Math.max(...shots.map((s) => (s.kind === 'spray' ? SPRAY_MS : s.kind === 'wave' ? waveLandAt(s.from, s.to) + LAND_MS + 100 : RIBBON_TOTAL_MS)));
+    const isBurst = (i: number) => shots[i].kind === 'burst';
+    const totalMs = Math.max(...shots.map((s) => (s.kind === 'spray' ? SPRAY_MS : s.kind === 'burst' ? BURST_MS : s.kind === 'wave' ? waveLandAt(s.from, s.to) + LAND_MS + 100 : RIBBON_TOTAL_MS)));
+    // Bursts: the Stand's sparks and its slow embers.
+    const bsparks: Spark[] = [];
+    const bembers: Ember[] = [];
+    for (let i = 0; i < shots.length; i++) {
+      if (!isBurst(i)) continue;
+      for (let k = 0; k < BURST_SPARKS; k++) bsparks.push({ shot: i, angle: rng() * Math.PI * 2, speed: 0.3 + rng() * 0.6, size: 1.6 + rng() * 2.6, life: 520 + rng() * 620 });
+      const c = centre(shots[i].from);
+      for (let k = 0; k < BURST_EMBERS; k++) bembers.push({ shot: i, x0: c.x + (rng() - 0.5) * shots[i].from.width * 1.2, y0: c.y + (rng() - 0.4) * shots[i].from.height, rise: 60 + rng() * 140, sway: 6 + rng() * 14, phase: rng() * Math.PI * 2, size: 2 + rng() * 3, start: 200 + rng() * 1100, life: 700 + rng() * 700 });
+    }
     // Ribbons: the swarm, the path, and the landing.
     const particles: Particle[] = [];
     const embers: Ember[] = [];
@@ -186,7 +201,7 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
       }
     }
     for (let i = 0; i < shots.length; i++) {
-      if (isSpray(i) || isWave(i)) continue;
+      if (isSpray(i) || isWave(i) || isBurst(i)) continue;
       for (let k = 0; k < PARTICLES; k++) {
         particles.push({ shot: i, start: rng() * LAUNCH_SPREAD_MS, size: 2.5 + rng() * 3.5, wobble: (rng() - 0.5) * 30, speed: 0.85 + rng() * 0.3 });
       }
@@ -225,9 +240,71 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
       const el = now - t0;
       ctx.clearRect(0, 0, W, H);
       ctx.globalCompositeOperation = 'lighter';
+      // The burst: a flash, two shockwave rings, a glow that lingers, sparks out and down, embers rising slowly.
+      for (let i = 0; i < shots.length; i++) {
+        if (!isBurst(i) || el > BURST_MS) continue;
+        const c = centre(shots[i].from);
+        const [r, g, b] = hexToRgb(shots[i].color);
+        const flash = Math.max(0, 1 - el / 200);
+        const linger = Math.max(0, 1 - el / BURST_MS);
+        const grad = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, 150);
+        grad.addColorStop(0, `rgba(255,255,255,${0.95 * flash + 0.25 * linger})`);
+        grad.addColorStop(0.35, `rgba(${r},${g},${b},${0.6 * flash + 0.18 * linger})`);
+        grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+        ctx.fillStyle = grad;
+        ctx.fillRect(c.x - 150, c.y - 150, 300, 300);
+        for (const [delay, reach, w] of [[0, 280, 1], [140, 210, 0.6]] as [number, number, number][]) {
+          const t = (el - delay) / 700;
+          if (t < 0 || t > 1) continue;
+          const k = (1 - t) * w;
+          ctx.beginPath();
+          ctx.arc(c.x, c.y, 14 + reach * ease(t), 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(255,255,255,${0.9 * k})`;
+          ctx.lineWidth = 3.5 * (1 - t) + 0.6;
+          ctx.stroke();
+          ctx.strokeStyle = `rgba(${r},${g},${b},${0.7 * k})`;
+          ctx.lineWidth = 9 * (1 - t) + 0.6;
+          ctx.stroke();
+        }
+      }
+      for (const s of bsparks) {
+        if (el > s.life) continue;
+        const u = el / s.life;
+        const c = centre(shots[s.shot].from);
+        const dist = s.speed * el * (1 - 0.5 * u);
+        const x = c.x + Math.cos(s.angle) * dist;
+        const y = c.y + Math.sin(s.angle) * dist + 0.0006 * el * el;
+        const [r, g, b] = hexToRgb(shots[s.shot].color);
+        const a = 1 - u * u;
+        const bx = c.x + Math.cos(s.angle) * dist * 0.85;
+        const by = c.y + Math.sin(s.angle) * dist * 0.85 + 0.0006 * Math.max(0, el - 40) ** 2;
+        ctx.beginPath();
+        ctx.moveTo(bx, by);
+        ctx.lineTo(x, y);
+        ctx.strokeStyle = `rgba(${r},${g},${b},${0.75 * a})`;
+        ctx.lineWidth = s.size;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x, y, s.size * (1 - u * 0.4), 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,${245 - Math.round(60 * u)},${220 - Math.round(150 * u)},${a})`;
+        ctx.fill();
+      }
+      for (const e of bembers) {
+        const t = (el - e.start) / e.life;
+        if (t < 0 || t > 1) continue;
+        const sprite = sprites[e.shot];
+        const a = t < 0.2 ? t / 0.2 : 1 - (t - 0.2) / 0.8;
+        const x = e.x0 + Math.sin(t * Math.PI * 2 * 1.1 + e.phase) * e.sway;
+        const y = e.y0 - e.rise * ease(t);
+        const d = e.size * (2.4 + 1.2 * (1 - t));
+        ctx.globalAlpha = a * 0.9;
+        ctx.drawImage(sprite, x - d / 2, y - d / 2, d, d);
+      }
+      ctx.globalAlpha = 1;
       // Source glow.
       for (let i = 0; i < shots.length; i++) {
-        if (isSpray(i) || isWave(i)) continue;
+        if (isSpray(i) || isWave(i) || isBurst(i)) continue;
         const k = Math.max(0, 1 - el / (LAUNCH_SPREAD_MS + 300));
         if (k <= 0) continue;
         const [r, g, b] = hexToRgb(shots[i].color);
@@ -290,7 +367,7 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
       }
       // Ribbon: the path lights up behind the swarm's head and fades once the landing begins.
       for (let i = 0; i < shots.length; i++) {
-        if (isSpray(i) || isWave(i)) continue;
+        if (isSpray(i) || isWave(i) || isBurst(i)) continue;
         const head = Math.min(1, Math.max(0, (el - LAUNCH_SPREAD_MS * 0.3) / FLY_MS));
         const fadeOut = Math.max(0, 1 - Math.max(0, el - (LAUNCH_SPREAD_MS * 0.6 + FLY_MS)) / (LAND_MS * 0.6));
         if (head <= 0 || fadeOut <= 0) continue;
@@ -445,4 +522,4 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
 }
 
 /** Trail colours by side: a player's particles match their tint on the board; the artist's are green; a blow's are ember-orange; the healing wave is sunrise gold. */
-export const TRAIL_COLORS: Record<'A' | 'B' | 'artist' | 'impact' | 'heal', string> = { A: '#ffe3b3', B: '#6fa3ff', artist: '#4fd18a', impact: '#ff6a3c', heal: '#ffe19a' };
+export const TRAIL_COLORS: Record<'A' | 'B' | 'artist' | 'impact' | 'heal' | 'stand', string> = { A: '#ffe3b3', B: '#6fa3ff', artist: '#4fd18a', impact: '#ff6a3c', heal: '#ffe19a', stand: '#ffd34d' };

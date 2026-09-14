@@ -12,7 +12,7 @@ import type {
   EstablishedEffect,
   LocationDef,
 } from './types';
-import { ENERGY_CAP, ENERGY_CURVE, INSIDE_INFLUENCE_BONUS, LAST_WORD_ENERGY, WEB_SMALL, WEB_LARGE, GATE_CAPACITY, INSIDE_CAPACITY, PLAYERS, other, MAX_STAKES, EXTENDED_TURNS } from './types';
+import { ENERGY_CAP, ENERGY_CURVE, INSIDE_INFLUENCE_BONUS, LAST_WORD_ENERGY, WEB_SMALL, WEB_LARGE, GATE_CAPACITY, INSIDE_CAPACITY, PLAYERS, other, MAX_STAKES, EXTENDED_TURNS, standMultiplier } from './types';
 
 /** The Justice System: a Character that went Inside recently cannot relocate out yet. */
 /** Even turns are night. Curfews bite at night. */
@@ -41,8 +41,9 @@ export function isHeldInside(state: GameState, c: CharacterInstance): boolean {
 }
 
 /** Legacy (the match's worth) once every pending Stand on Business has taken effect. */
+/** The Legacy once every pending Stand has landed: each multiplies by how early it was called. */
 export function effectiveStakes(state: GameState): number {
-  return Math.min(MAX_STAKES, state.stakes * 2 ** state.pendingRaises.length);
+  return Math.min(MAX_STAKES, state.pendingRaises.reduce((s, r) => s * standMultiplier(r.declaredTurn), state.stakes));
 }
 
 export function locDef(state: GameState, index: number): LocationDef {
@@ -422,7 +423,7 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
     canStand,
     summonable: state.locations.filter((l) => l.revealed && !l.lost && !l.sanctified && l.threats.length > 0 && mine.some((c) => c.location === l.index)).map((l) => l.index),
     canStepOff: !ps.cannotStepOff,
-    proposedStakes: Math.min(MAX_STAKES, effective * 2),
+    proposedStakes: Math.min(MAX_STAKES, effective * standMultiplier(state.turn)),
     pendingStakes: effective,
     stepOffCost: state.stakes,
   };
