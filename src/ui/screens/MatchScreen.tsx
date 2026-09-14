@@ -439,6 +439,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       if (d.cleared) {
         sfx('threat.clear');
         sfx('cheer');
+        sfx('fireworks');
       }
       setFx((f) => patch(f, { alive: [], stamp: threatEl ? { uid: d.threatUid, title: d.cleared ? 'NEUTRALIZED' : 'HOLDS', sub: d.requiresBoth ? undefined : `${total} of ${d.needed}`, tone } : undefined }));
       await wait(1800);
@@ -484,6 +485,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     if (d.cleared) {
       sfx('threat.clear');
       sfx('cheer');
+      sfx('fireworks');
       setFireworks(tRect);
       setFx((f) => patch(f, { alive: [], shatter: d.threatUid, flash: undefined }));
     } else {
@@ -733,6 +735,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       const el = document.querySelector('[data-threat]') ?? document.querySelector('.battlefield');
       if (!el) return;
       sfx('cheer');
+      sfx('fireworks');
       setFireworksFreeze(freezeAt);
       setFireworks(el.getBoundingClientRect());
     };
@@ -961,7 +964,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       feedback('Stand cancelled.', [], 'info');
       return;
     }
-    sfx('stand');
+    sfx('stand.button');
     setPlan((p) => ({ ...p, standOnBusiness: true }));
     feedback(`Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds a 9th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.`, [], 'info');
   };

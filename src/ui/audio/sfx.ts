@@ -36,9 +36,11 @@ export type SfxName =
   | 'threat.spawn'
   | 'threat.clear'
   | 'cheer'
+  | 'fireworks'
   | 'trail'
   | 'dig'
   | 'stand'
+  | 'stand.button'
   | 'lastword'
   | 'lost'
   | 'win'
@@ -72,9 +74,11 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   'threat.spawn': 'A Threat arrives.',
   'threat.clear': 'A Threat is neutralized.',
   cheer: 'A crowd cheers: a Threat is cleared in a showdown (with the fireworks).',
+  fireworks: 'The fireworks over a cleared Threat: a launch, bursts, crackle.',
   trail: 'A power trail crosses the board (artist, aura).',
   dig: 'Zora digs: three quick card flicks.',
   stand: 'Stand on Business: the stakes rise.',
+  'stand.button': 'The Stand on Business button pressed: the crowd stomps, stomps, claps, and the ring bell goes.',
   lastword: 'The Last Word begins.',
   lost: 'A Location is Lost, or someone changes sides.',
   win: 'You win the match: drums and the bell.',
@@ -116,9 +120,11 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'threat.spawn': [{ files: ['threat-spawn'], gain: 0.8 }],
   'threat.clear': [{ files: ['threat-clear'], gain: 0.6 }],
   cheer: [{ files: ['cheer'], gain: 0.6 }],
+  fireworks: [{ files: ['fw-launch'], gain: 0.5 }, { files: ['fw-burst-1'], gain: 0.55, at: 450 }, { files: ['fw-burst-2'], gain: 0.5, at: 850 }, { files: ['fw-crackle'], gain: 0.4, at: 1000 }], // timed to the rockets' climb and bursts
   trail: [{ files: ['trail'], gain: 0.6 }],
   dig: [{ files: ['card-pick-1'], gain: 0.5 }, { files: ['card-pick-2'], gain: 0.5, at: 110 }, { files: ['draw'], gain: 0.5, at: 230 }], // three quick card flicks; the shuffle clip is gone
   stand: [{ files: ['stand-thud'], gain: 0.9 }, { files: ['stand-drums'], gain: 0.8 }],
+  'stand.button': [{ files: ['stand-stomp'], gain: 0.9 }, { files: ['stand-bell'], gain: 0.75, at: 800 }], // stomp, stomp, clap ... and the ring bell on the clap
   lastword: [{ files: ['lastword'], gain: 0.8 }],
   lost: [{ files: ['lost'], gain: 0.65 }],
   win: [{ files: ['stand-drums'], gain: 0.85 }, { files: ['lastword'], gain: 0.7, at: 220 }], // drums and the bell: gravity, not a fanfare
@@ -128,12 +134,29 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
 
 /**
  * A place's own sound, played over `location.reveal` when that Location is revealed (or arrived at: the Black Star
- * becoming Accra). Keyed by Location id. A recording goes in public/audio/sfx as `place-<location id>.mp3` and gets
- * one line here, e.g. `harpers_ferry: [{ files: ['place-harpers_ferry'], gain: 0.6 }]`, which is what preloads and
- * plays it. Until a Location has its line, the synth plays a sketch of it where one is written below (water for
- * Harpers Ferry, a ship coming to port for Accra) and the plain reveal cue otherwise.
+ * becoming Accra). Keyed by Location id. A recording goes in public/audio/sfx as `place-<location id>.mp3` (each is a
+ * mix of two to four Universal Sound FX clips, about three seconds, levelled to sit over the reveal thud) and gets
+ * one line here, which is what preloads and plays it. Until the clip decodes, the synth plays a sketch of the place
+ * where one is written below (water for Harpers Ferry, a ship coming to port for Accra) and nothing otherwise.
  */
-export const SFX_PLACES: Record<string, Layer[]> = {};
+export const SFX_PLACES: Record<string, Layer[]> = {
+  greenwood: [{ files: ['place-greenwood'], gain: 1.0 }], // a busy street and a till: Black Wall Street
+  harpers_ferry: [{ files: ['place-harpers_ferry'], gain: 1.0 }], // a splash into a lively stream
+  black_star: [{ files: ['place-black_star'], gain: 0.67 }], // waves along the hull, the deck's hum, a horn far off
+  accra_ghana: [{ files: ['place-accra_ghana'], gain: 0.5 }], // the horn coming in, drums on the quay, small waves
+  great_migration: [{ files: ['place-great_migration'], gain: 0.6 }], // a distant whistle and the train going by
+  juneteenth: [{ files: ['place-juneteenth'], gain: 0.78 }], // fireworks, cheers and a bell
+  sundown_town: [{ files: ['place-sundown_town'], gain: 0.74 }], // wind, a door creak, crickets, a bolt slid home
+  middle_passage: [{ files: ['place-middle_passage'], gain: 0.65 }], // big sea, chains, thunder far off
+  charleston_1822: [{ files: ['place-charleston_1822'], gain: 1.0 }], // crickets, a door eased open, a whisper, a distant bell
+  lagos: [{ files: ['place-lagos'], gain: 0.63 }], // the market, a horn, a bike going by
+  gary_indiana: [{ files: ['place-gary_indiana'], gain: 0.65 }], // the mill: a motor, the furnace, a sledgehammer on steel
+  justice_system: [{ files: ['place-justice_system'], gain: 1.0 }], // three raps of the gavel, cell bars, a clasp
+  the_tabernacle: [{ files: ['place-the_tabernacle'], gain: 0.73 }], // the bell, a hymn-like climb, the congregation
+  montgomery: [{ files: ['place-montgomery'], gain: 0.72 }], // marching feet, a stomp, a horn
+  oak_bluffs: [{ files: ['place-oak_bluffs'], gain: 0.92 }], // small waves and birds
+  the_stroll: [{ files: ['place-the_stroll'], gain: 0.71 }], // a cabaret's chatter and a piano
+};
 
 declare global {
   interface Window {
@@ -419,6 +442,14 @@ function synth(name: SfxName, t: number): void {
       swoosh(t, 1.2, 600, 1400, 0.6, 0.5);
       sparkle(t + 0.1, 10, 0.08);
       break;
+    case 'fireworks':
+      // Sketched: a rising whistle, then three bursts with crackle.
+      swoosh(t, 0.4, 900, 2600, 0.25, 1.5);
+      for (const [at, g] of [[0.45, 0.5], [0.85, 0.42], [1.2, 0.36]] as [number, number][]) {
+        thud(t + at, g, 120, 40, 0.3);
+        sparkle(t + at + 0.05, 6, 0.05);
+      }
+      break;
     case 'trail':
       swoosh(t, 0.5, 1200, 3600, 0.16, 1.2);
       sparkle(t + 0.05, 6, 0.06);
@@ -427,6 +458,7 @@ function synth(name: SfxName, t: number): void {
       for (let i = 0; i < 5; i++) tick(t + i * 0.055, 0.16);
       break;
     case 'stand':
+    case 'stand.button':
       thud(t, 0.55, 150, 40, 0.24);
       thud(t + 0.16, 0.6, 150, 40, 0.26);
       swoosh(t + 0.16, 0.2, 1200, 300, 0.2, 0.5);
