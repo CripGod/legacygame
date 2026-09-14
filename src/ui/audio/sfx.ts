@@ -14,6 +14,7 @@ export type SfxName =
   | 'tap'
   | 'toggle'
   | 'card.pick'
+  | 'card.select'
   | 'card.drop'
   | 'card.back'
   | 'card.reject'
@@ -34,6 +35,7 @@ export type SfxName =
   | 'clash.arrest'
   | 'threat.spawn'
   | 'threat.clear'
+  | 'cheer'
   | 'trail'
   | 'dig'
   | 'stand'
@@ -47,7 +49,8 @@ export type SfxName =
 export const SFX_EVENTS: Record<SfxName, string> = {
   tap: 'Any button or tappable tile.',
   toggle: 'A switch turned on (the sound switch itself).',
-  'card.pick': 'A hand card selected or picked up.',
+  'card.pick': 'A hand card picked up.',
+  'card.select': 'A hand card chosen: it stands and opens ("you have been selected").',
   'card.drop': 'A card lands on a Location (planned, or placed at the Gates in the replay).',
   'card.back': 'A planned card taken back to the hand.',
   'card.reject': 'A card that cannot be played right now was tapped, or a drop was refused: it comes back with a low thud.',
@@ -59,7 +62,7 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   'influence.up': 'Influence goes up: a Character walks Inside, or a +N floats over a Location.',
   lock: 'Lock It In.',
   turn: 'A new turn begins: three soft bells as the meter refills.',
-  'location.reveal': 'A Location is revealed.',
+  'location.reveal': 'A Location is revealed (or the Black Star arrives). Plays with the place\'s own sound when it has one: see SFX_PLACES.',
   draw: 'You draw a card.',
   enter: 'A Character walks Inside: planned by you, or in the replay for the other side.',
   move: 'A relocation (swoosh).',
@@ -68,6 +71,7 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   'clash.arrest': 'An Informant is found out or arrested.',
   'threat.spawn': 'A Threat arrives.',
   'threat.clear': 'A Threat is neutralized.',
+  cheer: 'A crowd cheers: a Threat is cleared in a showdown (with the fireworks).',
   trail: 'A power trail crosses the board (artist, aura).',
   dig: 'Zora digs: three quick card flicks.',
   stand: 'Stand on Business: the stakes rise.',
@@ -90,6 +94,7 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   tap: [], // no clip yet: the synthesized arcade press below, until the heavy buttons arrive
   toggle: [{ files: ['toggle-on'], gain: 0.5 }],
   'card.pick': [{ files: ['card-pick-1', 'card-pick-2'], gain: 0.6 }],
+  'card.select': [{ files: ['card-pick-1', 'card-pick-2'], gain: 0.5 }, { files: ['select'], gain: 0.5, at: 60 }], // the pick, then a bright two-note climb
   'card.drop': [{ files: ['card-drop-1', 'card-drop-2', 'card-drop-3'], gain: 0.7 }, { files: ['thud-soft'], gain: 0.45 }],
   'card.back': [{ files: ['card-back'], gain: 0.55 }],
   'card.reject': [{ files: ['card-back'], gain: 0.45 }, { files: ['thud-soft'], gain: 0.35, at: 40 }],
@@ -110,6 +115,7 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'clash.arrest': [{ files: ['arrest'], gain: 0.8 }],
   'threat.spawn': [{ files: ['threat-spawn'], gain: 0.8 }],
   'threat.clear': [{ files: ['threat-clear'], gain: 0.6 }],
+  cheer: [{ files: ['cheer'], gain: 0.6 }],
   trail: [{ files: ['trail'], gain: 0.6 }],
   dig: [{ files: ['card-pick-1'], gain: 0.5 }, { files: ['card-pick-2'], gain: 0.5, at: 110 }, { files: ['draw'], gain: 0.5, at: 230 }], // three quick card flicks; the shuffle clip is gone
   stand: [{ files: ['stand-thud'], gain: 0.9 }, { files: ['stand-drums'], gain: 0.8 }],
@@ -120,11 +126,23 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'draw.game': [{ files: ['draw-game'], gain: 0.65 }],
 };
 
+/**
+ * A place's own sound, played over `location.reveal` when that Location is revealed (or arrived at: the Black Star
+ * becoming Accra). Keyed by Location id; the clip ids are `place-<location id>` under public/audio/sfx, so a new
+ * recording drops in by name (place-harpers_ferry.mp3, place-accra_ghana.mp3, place-greenwood.mp3 ...). Until a
+ * Location has a clip, the synth plays a sketch of it where one is written below (water for Harpers Ferry, a ship
+ * coming to port for Accra) and the plain reveal cue otherwise.
+ */
+export const SFX_PLACES: Record<string, Layer[]> = {};
+
 declare global {
   interface Window {
     __AUDIO__?: Record<string, string>;
     /** Dev: how many clips have decoded, of how many. */
     __sobSfxStatus?: () => { loaded: number; total: number; missing: string[] };
+    __sobSynth?: (name: SfxName, at?: number) => void;
+    __sobSfxLog?: { name: SfxName; place?: string; at: number }[];
+    __sobSynthPlace?: (place: string, at?: number) => void;
   }
 }
 
@@ -153,7 +171,7 @@ function preload(): void {
   if (loading || !ctx) return;
   loading = true;
   const ids = new Set<string>();
-  for (const layers of Object.values(SFX_FILES)) for (const l of layers) for (const f of l.files) ids.add(f);
+  for (const layers of [...Object.values(SFX_FILES), ...Object.values(SFX_PLACES)]) for (const l of layers) for (const f of l.files) ids.add(f);
   for (const id of ids) {
     fetch(clipUrl(id))
       .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(String(r.status)))))
@@ -181,6 +199,22 @@ export function sfxUnlock(): void {
   preload();
 }
 
+/** Dev (?dev=1): every cue asked for, whether or not it could play (window.__sobSfxLog), so probes can check the wiring. */
+const sfxLog: { name: SfxName; place?: string; at: number }[] | null = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('dev') ? [] : null;
+if (sfxLog && typeof window !== 'undefined') window.__sobSfxLog = sfxLog;
+
+if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('dev')) {
+  // Dev: schedule a synth cue or a place sketch at an absolute context time (an offline render can line several up).
+  window.__sobSynth = (name, at) => {
+    sfxUnlock();
+    synth(name, at ?? (ctx ? ctx.currentTime + 0.005 : 0));
+  };
+  window.__sobSynthPlace = (place, at) => {
+    sfxUnlock();
+    synthPlace(place, at ?? (ctx ? ctx.currentTime + 0.005 : 0));
+  };
+}
+
 export function sfxReady(): boolean {
   return !!ctx && ctx.state === 'running';
 }
@@ -189,8 +223,12 @@ export function sfxReady(): boolean {
 
 /** Play the recorded layers for a cue. False when any layer's clip has not decoded yet: the synth covers it. */
 function playClips(name: SfxName, t: number): boolean {
+  return playLayers(SFX_FILES[name], t);
+}
+
+/** Play a set of layers together. False (and silent) when any clip has not decoded, so a cue is never half-played. */
+function playLayers(layers: Layer[], t: number): boolean {
   if (!ctx || !master) return false;
-  const layers = SFX_FILES[name];
   if (!layers.length) return false;
   const picks: { buf: AudioBuffer; gain: number; at: number }[] = [];
   for (const l of layers) {
@@ -293,6 +331,11 @@ function synth(name: SfxName, t: number): void {
       blip(t, 660, 0.07, 0.14);
       blip(t + 0.07, 990, 0.09, 0.14);
       break;
+    case 'card.select':
+      // The pick, then a bright two-note climb: chosen.
+      swoosh(t, 0.08, 1800, 4000, 0.2, 0.7);
+      chime(t + 0.06, [784, 1175], 0.11, 0.28, 0.2);
+      break;
     case 'card.pick':
       swoosh(t, 0.13, 700, 2600, 0.22);
       break;
@@ -371,6 +414,11 @@ function synth(name: SfxName, t: number): void {
       chime(t, [392, 523, 659, 784], 0.07, 0.3, 0.12);
       sparkle(t + 0.15, 4, 0.05);
       break;
+    case 'cheer':
+      // A crowd, sketched: a swell of mid noise with sparkles over it.
+      swoosh(t, 1.2, 600, 1400, 0.6, 0.5);
+      sparkle(t + 0.1, 10, 0.08);
+      break;
     case 'trail':
       swoosh(t, 0.5, 1200, 3600, 0.16, 1.2);
       sparkle(t + 0.05, 6, 0.06);
@@ -406,8 +454,75 @@ function synth(name: SfxName, t: number): void {
 
 // ---------- the entry point ----------
 
-export function sfx(name: SfxName): void {
+export function sfx(name: SfxName, place?: string): void {
+  if (sfxLog) {
+    sfxLog.push({ name, place, at: Math.round(performance.now()) });
+    if (sfxLog.length > 200) sfxLog.shift();
+  }
   if (!ctx || !master || ctx.state !== 'running' || !getAudioSettings().sfx) return;
   const t = ctx.currentTime + 0.005;
   if (!playClips(name, t)) synth(name, t);
+  if (place) playPlace(place, t + 0.12);
+}
+
+/** A place's own sound on top of the cue: its clip when recorded, else the synth sketch, else nothing. */
+function playPlace(place: string, t: number): void {
+  const layers = SFX_PLACES[place];
+  if (layers && playLayers(layers, t)) return;
+  synthPlace(place, t);
+}
+
+// ---------- place sketches (until each Location has its recording) ----------
+
+/** A ship's horn: a low reedy tone with a slow swell, its harmonics rolled off, a second blast a fifth below. */
+function horn(t: number, freq: number, dur: number, gain: number): void {
+  if (!ctx || !master) return;
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 700;
+  lp.Q.value = 2;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(gain, t + 0.28);
+  g.gain.setValueAtTime(gain, t + dur - 0.35);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  lp.connect(g).connect(master);
+  for (const [mult, type, level] of [[1, 'sawtooth', 1], [1.005, 'sawtooth', 0.7], [0.5, 'square', 0.35]] as [number, OscillatorType, number][]) {
+    const o = ctx.createOscillator();
+    o.type = type;
+    o.frequency.setValueAtTime(freq * mult, t);
+    o.frequency.linearRampToValueAtTime(freq * mult * 0.985, t + dur); // sags a touch as the air runs out
+    const og = ctx.createGain();
+    og.gain.value = level;
+    o.connect(og).connect(lp);
+    o.start(t);
+    o.stop(t + dur + 0.05);
+  }
+}
+
+/** Water: a splash (a burst of bright noise) and the trickle after it (soft bursts, a few droplets pinging). */
+function water(t: number, gain: number): void {
+  blip(t, 240, 0.2, gain * 0.35, 'sine', 70); // the plunge under the splash
+  swoosh(t, 0.32, 2400, 700, gain, 0.6);
+  swoosh(t + 0.05, 0.7, 900, 300, gain * 0.8, 0.5);
+  for (let i = 0; i < 8; i++) {
+    const at = t + 0.18 + i * 0.13 + Math.random() * 0.05;
+    swoosh(at, 0.16, 1600 + Math.random() * 1200, 500, gain * 0.45, 1.2);
+    if (i % 2 === 0) blip(at + 0.02, 2200 + Math.random() * 1400, 0.07, gain * 0.3, 'sine', 900);
+  }
+}
+
+function synthPlace(place: string, t: number): void {
+  switch (place) {
+    case 'harpers_ferry': // where the Shenandoah meets the Potomac
+      water(t, 0.85);
+      break;
+    case 'accra_ghana': // the Black Star coming in to port: water lapping under the horn, the horn twice
+      swoosh(t, 1.6, 500, 250, 0.3, 0.4);
+      horn(t + 0.1, 116, 1.15, 0.22);
+      horn(t + 1.35, 87, 1.0, 0.18);
+      break;
+    default:
+      break;
+  }
 }

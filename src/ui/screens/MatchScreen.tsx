@@ -13,6 +13,7 @@ import { Spotlight } from '../components/Spotlight';
 import { sfx, voice } from '../audio';
 import type { TraceStep } from '../../engine';
 import { Trails, TRAIL_COLORS, type TrailShot } from '../components/Trails';
+import { Fireworks } from '../components/Fireworks';
 import { ghostOf, fly, jolt, partWay, clearGhosts, wait, painted, type Ghost } from '../fly';
 import { DigReveal, type DigShow, type DigPhase } from '../components/DigReveal';
 import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, ThreatSheet, AncestorsSheet, CLASH_TITLES, adviceFor, showdownWhy, type ShowdownData } from '../components/Sheets';
@@ -269,6 +270,9 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   }, [view, me, plan, m.replay, step, stagePrev, prevView]);
   /** Power trails on the board (a Reveal that reaches other Locations): particles fly from the actor to each target. */
   const [trail, setTrail] = useState<TrailShot[] | null>(null);
+  /** Fireworks over a Threat just cleared in a showdown: where they rise from. */
+  const [fireworks, setFireworks] = useState<DOMRect | null>(null);
+  const [fireworksFreeze, setFireworksFreeze] = useState<number | undefined>(undefined);
   const [trailFreeze, setTrailFreeze] = useState<number | undefined>(undefined);
   /** Zora's dig, told on screen: the cards seen, the one kept. */
   const [dig, setDig] = useState<DigShow | null>(null);
@@ -431,6 +435,11 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     const threatEl = tileOf(d.threatUid);
     const fighters = d.fighters.map((f) => f.uid).filter((uid) => !!tileOf(uid));
     if (!threatEl || reduceMotion() || !fighters.length) {
+      sfx('clash.hit');
+      if (d.cleared) {
+        sfx('threat.clear');
+        sfx('cheer');
+      }
       setFx((f) => patch(f, { alive: [], stamp: threatEl ? { uid: d.threatUid, title: d.cleared ? 'NEUTRALIZED' : 'HOLDS', sub: d.requiresBoth ? undefined : `${total} of ${d.needed}`, tone } : undefined }));
       await wait(1800);
       return;
@@ -474,6 +483,8 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     // 4. The verdict on the Threat: it breaks, or it holds.
     if (d.cleared) {
       sfx('threat.clear');
+      sfx('cheer');
+      setFireworks(tRect);
       setFx((f) => patch(f, { alive: [], shatter: d.threatUid, flash: undefined }));
     } else {
       setFx((f) => patch(f, { flash: undefined, stamp: { uid: d.threatUid, title: 'HOLDS', sub: d.requiresBoth ? 'needs both' : `${total} of ${d.needed}`, tone: 'hit' } }));
@@ -637,6 +648,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       setFx(null);
       setClashTell(null);
       setArrival(null);
+      setFireworks(null);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [m.replay?.idx, m.replay?.steps]);
@@ -653,15 +665,20 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     if (m.replay || turnHeard.current === view.turn) return;
     turnHeard.current = view.turn;
     sfx('turn');
-  }, [view.turn, m.replay]);
+    // The Black Star arriving (or Anansi's retelling) happens as the turn starts, outside the replay: the place
+    // sounds after the bells.
+    const arrived = view.lastEvents.find((e) => e.type === 'locationTransformed');
+    const to = arrived?.data?.to;
+    if (typeof to === 'string') window.setTimeout(() => sfx('location.reveal', to), 700);
+  }, [view.turn, m.replay, view.lastEvents]);
   /** Advance the replay once this beat's sheets are closed. */
   useEffect(() => {
-    if (!step || fx || trail || dig || arrival || peekShow) return;
+    if (!step || fx || trail || dig || arrival || peekShow || fireworks) return;
     const ms = ownBeat ? 0 : BEAT_MS[step.kind] ?? 900;
     const id = window.setTimeout(m.replayNext, ms);
     return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [m.replay?.idx, m.replay?.steps, arrival, peekShow, fx, trail, dig]);
+  }, [m.replay?.idx, m.replay?.steps, arrival, peekShow, fx, trail, dig, fireworks]);
   useEffect(() => {
     document.body.classList.toggle('board-shake', shake);
     return () => document.body.classList.remove('board-shake');
@@ -707,6 +724,14 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         setFx(null);
         setClashTell(null);
       })();
+    };
+    /** Dev: fireworks and the cheer over the first Threat on the board, or a point (window.__sobFireworks(freezeAtMs?)). */
+    (window as unknown as { __sobFireworks?: (freezeAt?: number) => void }).__sobFireworks = (freezeAt) => {
+      const el = document.querySelector('[data-threat]') ?? document.querySelector('.battlefield');
+      if (!el) return;
+      sfx('cheer');
+      setFireworksFreeze(freezeAt);
+      setFireworks(el.getBoundingClientRect());
     };
     /** Dev: a Gathering's arrival flash (window.__sobArrival('chairteenth', uidOnBoard?)). */
     (window as unknown as { __sobArrival?: (cardId: string, uid?: string) => void }).__sobArrival = (cardId, uid) => {
@@ -910,7 +935,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       setSheet({ kind: 'card', id: cardId });
       return;
     }
-    sfx('card.pick');
+    sfx('card.select');
     setSelected(cardId);
     setSheet({ kind: 'card', id: cardId });
   };
@@ -1681,6 +1706,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         </div>
       )}
       {trail && <Trails shots={trail} freezeAt={trailFreeze} onDone={() => { setTrail(null); setTrailFreeze(undefined); }} />}
+      {fireworks && <Fireworks at={fireworks} freezeAt={fireworksFreeze} onDone={() => { setFireworks(null); setFireworksFreeze(undefined); }} />}
       {dig && <DigReveal key={digKey.current} dig={dig} me={me} freeze={digFreeze} onDone={() => { setDig(null); setDigFreeze(undefined); }} />}
       {sheet?.kind === 'card' && (
         <CardSheet
@@ -1800,6 +1826,8 @@ function ReparationsReadout({ view, me, placeholders }: { view: GameState; me: P
 /** The sound for a replay beat, by what happened in it. */
 function beatSfx(step: TraceStep): void {
   const evs = step.events;
+  // The showdown choreography plays its own strike, verdict and cheer.
+  if (step.kind === 'showdown') return;
   if (evs.some((e) => e.type === 'lastWord')) return sfx('lastword');
   if (evs.some((e) => e.type === 'locationLost')) return sfx('lost');
   if (evs.some((e) => e.type === 'threatNeutralized')) return sfx('threat.clear');
@@ -1821,10 +1849,10 @@ function beatSfx(step: TraceStep): void {
       return sfx('lastword');
     case 'spawn':
       return sfx('threat.clear');
-    case 'reveal':
-      return sfx('location.reveal');
-    case 'showdown':
-      return sfx('clash.hit');
+    case 'reveal': {
+      const revealed = evs.find((e) => e.type === 'locationRevealed');
+      return sfx('location.reveal', typeof revealed?.data?.defId === 'string' ? revealed.data.defId : undefined);
+    }
     default:
       return;
   }

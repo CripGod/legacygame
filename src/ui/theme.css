@@ -1374,6 +1374,8 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 
 /* Power trails: a fixed canvas over the board; particles fly from a Character to the Locations its Reveal reaches. */
 .trails { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 45; }
+/* Fireworks over a cleared Threat: above the ghost layer (60) so the bursts play over the fighters coming back. */
+.fireworks { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 62; }
 
 /* ---------- Zora's dig, told on screen ---------- */
 .scrim.dig-scrim { z-index: 44; background: rgba(4, 8, 14, 0.78); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: grid; place-items: center; align-content: center; gap: 22px; }
