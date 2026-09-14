@@ -352,29 +352,10 @@ export function ConfirmSheet({ title, body, confirmLabel, danger, onConfirm, onC
 }
 
 
-/** The Ancestors: the opponent's plan for this turn (AI mode) and every danger the board is about to spring. */
-export function AncestorsSheet({ view, me, plan, onClose }: { view: GameState; me: PlayerId; plan: TurnPlan | null; onClose: () => void }) {
-  const { placeholders } = useDisplay();
+/** What the Ancestors see coming: hidden Locations, timed Threats, transformations, closing Threats, a raise, the turns left. */
+export function ancestorsDangers(view: GameState, me: PlayerId, placeholders: boolean): string[] {
   const opp = other(me);
   const locLabel = (i: number) => (view.locations[i].revealed ? locationName(view.locations[i].defId, placeholders) : `Location ${i + 1}`);
-  const who = (uid: string) => {
-    const c = view.characters[uid];
-    return c ? cardName(c.defId, placeholders) : 'a Character';
-  };
-  const moves: string[] = [];
-  if (plan) {
-    for (const pl of plan.plays) {
-      const d = CARD_BY_ID[pl.cardId];
-      moves.push(d?.kind === 'event' && !d.needsLocation ? `Plays ${cardName(pl.cardId, placeholders)}.` : `Plays ${cardName(pl.cardId, placeholders)} at ${locLabel(pl.location)}${pl.enter ? ', straight Inside' : ''}.`);
-    }
-    for (const uid of plan.enters) moves.push(`${who(uid)} enters at ${locLabel(view.characters[uid]?.location ?? 0)}.`);
-    for (const r of plan.relocations) moves.push(`${who(r.uid)} relocates to ${locLabel(r.to)}.`);
-    for (const cf of plan.confronts) moves.push(`${who(cf.uid)} confronts a Threat.`);
-    if (plan.summon) moves.push(`Proposes a Summon at ${locLabel(plan.summon.location)}.`);
-    if (plan.standOnBusiness) moves.push('Stands on Business.');
-    if (plan.stepOff) moves.push('Sits Down.');
-    if (!moves.length) moves.push('Does nothing this turn.');
-  }
   const dangers: string[] = [];
   for (const l of view.locations) {
     if (!l.revealed) {
@@ -394,23 +375,7 @@ export function AncestorsSheet({ view, me, plan, onClose }: { view: GameState; m
   }
   if (view.pendingRaises.some((r) => r.by === opp)) dangers.push(`${view.players[opp].handle} Stood on Business: the Legacy doubles after this turn.`);
   if (view.turn >= 3 && view.turn < view.maxTurns) dangers.push(`${view.maxTurns - view.turn} turn${view.maxTurns - view.turn > 1 ? 's' : ''} remain after this one.`);
-  return (
-    <Sheet onClose={onClose} title="The Ancestors speak">
-      <div className="fx-list">
-        <div className="fx-title pB">{view.players[opp].handle}'s plan this turn</div>
-        {plan ? moves.map((t, i) => <div key={i} className="fx-row">{t}</div>) : <div className="fx-row muted">Only the board speaks in a pass-the-device match.</div>}
-      </div>
-      <div className="fx-list">
-        <div className="fx-title pA">What is coming</div>
-        {dangers.length ? dangers.map((t, i) => <div key={i} className="fx-row">{t}</div>) : <div className="fx-row muted">Nothing the Ancestors can see.</div>}
-      </div>
-      <div className="actions">
-        <button className="primary" onClick={onClose} autoFocus>
-          Plan accordingly
-        </button>
-      </div>
-    </Sheet>
-  );
+  return dangers;
 }
 
 /** A confrontation replayed as a showdown: fighters on one side, the Threat on the other, and a plain-words account of why it broke or held. */
@@ -628,7 +593,7 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
 /** The verdict of a clash, as stamped on the board and titled on the Clash card. */
 export const CLASH_TITLES: Record<'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested' | 'amnestied', string> = {
   displaced: 'BANISHED',
-  held: 'HELD OFF',
+  held: 'HOLDS',
   blocked: 'BLOCKED',
   sentBack: 'SENT BACK',
   suppressed: 'SUPPRESSED',

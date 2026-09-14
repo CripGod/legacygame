@@ -730,6 +730,30 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 @media (max-width: 700px) {
   :root { --card-w: 26vw; --mini: 15vw; --mini-h: calc(var(--mini) * 0.8); --slot: 6.4vw; --slot-h: calc(var(--slot) * 0.85); }
 }
+/* The board sizes its tiles to the height it actually has (the middle row of the app grid), not to the viewport: with
+   the browser's bars showing, or in a short window, the gate tiles, the Inside slots and the art band shrink together,
+   so the Inside rows and the Threats are never cut off at the bottom of a Location. The hand sits close under the
+   board (a hovered card may overlap the Gates for a moment) rather than holding a band of air above itself. */
+@media (min-width: 701px) {
+  .main-wrap { container-type: size; }
+  .main-wrap { --mini: clamp(46px, min(7.4vw, 17cqh, 11.5vh), 132px); --mini-h: calc(var(--mini) * 0.74); --slot: clamp(30px, min(4.7vw, 9.5cqh, 7vh), 86px); --slot-h: calc(var(--slot) * 0.72); }
+  .main-wrap .location .art, .main-wrap .location .art.reveal-anim { max-height: clamp(24px, 8cqh, 96px) !important; }
+  .main-wrap .threat-tile { min-height: calc(var(--slot-h) + 10px); }
+  /* Three or more Threats at one Location stand two abreast rather than stacking past the Inside rows. */
+  .main-wrap .threat-col:has(.threat-tile:nth-child(3)) { display: grid; grid-template-columns: repeat(2, calc(var(--slot) * 1.4)); grid-auto-rows: min-content; align-content: start; gap: 3px; width: auto; }
+  .main-wrap .threat-col:has(.threat-tile:nth-child(3)) .threat-tile { width: auto; }
+}
+@media (min-width: 701px) and (max-height: 820px) {
+  .hud { padding-top: 4px; padding-bottom: 0; }
+  .hud .avatar, .profile.first .avatar { width: 46px; height: 46px; }
+  .hud-center { gap: 2px; }
+  .stand-btn { min-height: 34px; padding-top: 4px; padding-bottom: 4px; }
+  :root { --card-w: clamp(96px, min(9.6vw, 16.5vh), 168px); }
+  .hand-wrap { padding-top: 6px; }
+  .location .in-effect { display: none; }
+  .location .loc-rule { margin-top: 2px; }
+  .influence { padding-top: 4px; padding-bottom: 1px; }
+}
 /* The board sits in the middle of the screen with air on both sides. */
 .battlefield { width: 100%; max-width: 1760px; margin: 0 auto; column-gap: clamp(14px, 2.6vw, 56px); padding: var(--gap) clamp(10px, 4vw, 80px); align-content: center; }
 .column { gap: 6px; }
@@ -796,7 +820,7 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
    fanned; hovered (mouse only, no memory: straighten, lift 22px, grow to 1.32x in 100ms, ease back in 220ms the moment
    the pointer leaves); standing (.selected: up 30px at 1.12x with the gold ring, its Locations lit, a strict toggle);
    held (.lifting: the fan card dims while its ghost rides the pointer); rejected (.reject: one shake). */
-.hand-wrap { padding-top: 36px; }
+.hand-wrap { padding-top: 14px; }
 .hand .card-wrap { transform: rotate(var(--rot, 0deg)) translateY(var(--ty, 0px)); transform-origin: 50% 100%; z-index: var(--z, 0); margin-left: 0; position: relative; transition: transform 0.2s, margin 0.2s, z-index 220ms linear; outline: none; -webkit-touch-callout: none; }
 .hand .card-wrap .card, .pic { -webkit-touch-callout: none; }
 .hand .card-lift { position: relative; transform-origin: 50% 100%; transition: transform 220ms cubic-bezier(0.19, 1, 0.22, 1); will-change: transform; }
@@ -822,6 +846,14 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 .hand .card-wrap.planned .card-lift { transform: none !important; }
 /* A Gate slot a straight-Inside arrival passes through: taken this turn, drawn as such. */
 .gate-slot.reserved.through { --bfill: rgba(79, 209, 138, 0.12); }
+/* The Ancestors' vision: the opponent's coming moves as faint ghosts beside the real tiles. Dashed gold, washed out,
+   a slow breath of opacity; they take no clicks and count for nothing. */
+.gate-slot.reserved.foreseen, .slot.ghost.foreseen { --bfill: rgba(233, 185, 58, 0.08); border-style: dashed; opacity: 0.5; filter: grayscale(0.5) sepia(0.35); animation: foreseen-breathe 3.4s ease-in-out infinite; }
+.gate-slot.reserved.foreseen .pic-img, .slot.ghost.foreseen .pic-img { filter: blur(0.5px); }
+.gate-slot.event-slot.foreseen { opacity: 0.45; filter: grayscale(0.5) sepia(0.35); animation: foreseen-breathe 3.4s ease-in-out infinite; cursor: default; }
+.threat-tile.foreseen { box-shadow: 0 0 0 2px rgba(233, 185, 58, 0.5), 0 0 16px rgba(233, 185, 58, 0.35); }
+@keyframes foreseen-breathe { 0%, 100% { opacity: 0.42; } 50% { opacity: 0.62; } }
+@media (prefers-reduced-motion: reduce) { .gate-slot.reserved.foreseen, .slot.ghost.foreseen, .gate-slot.event-slot.foreseen { animation: none; } }
 .gate-slot.reserved.through .strip.leaving { background: rgba(20, 110, 55, 0.9); }
 @media (prefers-reduced-motion: reduce) {
   :root { --hover-scale: 1.22; }
@@ -1373,7 +1405,8 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .location .art .lost-tag.webbed { color: #fff; background: #5b3f8a; }
 
 /* Power trails: a fixed canvas over the board; particles fly from a Character to the Locations its Reveal reaches. */
-.trails { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 45; }
+/* Above the ghost layer (60): a blow's spray plays over the clone it lands on. */
+.trails { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 61; }
 /* Fireworks over a cleared Threat: above the ghost layer (60) so the bursts play over the fighters coming back. */
 .fireworks { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 62; }
 

@@ -33,6 +33,7 @@ export type SfxName =
   | 'clash.hit'
   | 'clash.banish'
   | 'clash.arrest'
+  | 'clash.block'
   | 'threat.spawn'
   | 'threat.clear'
   | 'cheer'
@@ -68,9 +69,10 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   draw: 'You draw a card.',
   enter: 'A Character walks Inside: planned by you, or in the replay for the other side.',
   move: 'A relocation (swoosh).',
-  'clash.hit': 'A strike lands: knocked, held off, blocked, tricked, hexed.',
+  'clash.hit': 'A strike lands: knocked, held off, hexed (a stand-off plays clash.block instead).',
   'clash.banish': 'A Character is knocked off the board (BANISHED). Fires as the throw begins; the bang lands ~240ms in.',
   'clash.arrest': 'An Informant is found out or arrested.',
+  'clash.block': 'A stand-off: an entry blocked, a Character suppressed or tricked. Nobody moves.',
   'threat.spawn': 'A Threat arrives.',
   'threat.clear': 'A Threat is neutralized.',
   cheer: 'A crowd cheers: a Threat is cleared in a showdown (with the fireworks).',
@@ -117,7 +119,8 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'clash.hit': [{ files: ['hit'], gain: 0.8 }, { files: ['hit-wood'], gain: 0.5 }],
   'clash.banish': [{ files: ['banish'], gain: 0.9 }, { files: ['banish-stone'], gain: 0.7, at: 240 }],
   'clash.arrest': [{ files: ['arrest'], gain: 0.8 }],
-  'threat.spawn': [{ files: ['threat-spawn'], gain: 0.8 }],
+  'clash.block': [{ files: ['thud-soft'], gain: 0.6 }, { files: ['lock'], gain: 0.35, at: 80 }], // a stand-off: the gate stays shut
+  'threat.spawn': [{ files: ['threat-danger'], gain: 0.8 }], // danger: a rising rumble, a muffled boom, the dark pulse, low brass
   'threat.clear': [{ files: ['threat-clear'], gain: 0.6 }],
   cheer: [{ files: ['cheer'], gain: 0.6 }],
   fireworks: [{ files: ['fw-launch'], gain: 0.5 }, { files: ['fw-burst-1'], gain: 0.55, at: 450 }, { files: ['fw-burst-2'], gain: 0.5, at: 850 }, { files: ['fw-crackle'], gain: 0.4, at: 1000 }], // timed to the rockets' climb and bursts
@@ -135,25 +138,25 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
 /**
  * A place's own sound, played over `location.reveal` when that Location is revealed (or arrived at: the Black Star
  * becoming Accra). Keyed by Location id. A recording goes in public/audio/sfx as `place-<location id>.mp3` (each is a
- * mix of two to four Universal Sound FX clips, about three seconds, levelled to sit over the reveal thud) and gets
+ * mix of two to six Universal Sound FX clips, three to five seconds, levelled to sit over the reveal thud) and gets
  * one line here, which is what preloads and plays it. Until the clip decodes, the synth plays a sketch of the place
  * where one is written below (water for Harpers Ferry, a ship coming to port for Accra) and nothing otherwise.
  */
 export const SFX_PLACES: Record<string, Layer[]> = {
   greenwood: [{ files: ['place-greenwood'], gain: 1.0 }], // a busy street and a till: Black Wall Street
-  harpers_ferry: [{ files: ['place-harpers_ferry'], gain: 1.0 }], // a splash into a lively stream
-  black_star: [{ files: ['place-black_star'], gain: 0.67 }], // waves along the hull, the deck's hum, a horn far off
+  harpers_ferry: [{ files: ['place-harpers_ferry'], gain: 0.9 }], // the crossing the town is named for: lapping river, oar strokes, creaking timber, the town's bell far off
+  black_star: [{ files: ['place-black_star'], gain: 0.4 }], // a liner leaving port: the deep horn twice, the engines coming up, the pier, the water
   accra_ghana: [{ files: ['place-accra_ghana'], gain: 0.5 }], // the horn coming in, drums on the quay, small waves
   great_migration: [{ files: ['place-great_migration'], gain: 0.6 }], // a distant whistle and the train going by
   juneteenth: [{ files: ['place-juneteenth'], gain: 0.78 }], // fireworks, cheers and a bell
   sundown_town: [{ files: ['place-sundown_town'], gain: 0.74 }], // wind, a door creak, crickets, a bolt slid home
-  middle_passage: [{ files: ['place-middle_passage'], gain: 0.65 }], // big sea, chains, thunder far off
+  middle_passage: [{ files: ['place-middle_passage'], gain: 0.7 }], // solemn: the sea heard from below, chains slow, one bell, thunder a long way off
   charleston_1822: [{ files: ['place-charleston_1822'], gain: 1.0 }], // crickets, a door eased open, a whisper, a distant bell
   lagos: [{ files: ['place-lagos'], gain: 0.63 }], // the market, a horn, a bike going by
   gary_indiana: [{ files: ['place-gary_indiana'], gain: 0.65 }], // the mill: a motor, the furnace, a sledgehammer on steel
   justice_system: [{ files: ['place-justice_system'], gain: 1.0 }], // three raps of the gavel, cell bars, a clasp
   the_tabernacle: [{ files: ['place-the_tabernacle'], gain: 0.73 }], // the bell, a hymn-like climb, the congregation
-  montgomery: [{ files: ['place-montgomery'], gain: 0.72 }], // marching feet, a stomp, a horn
+  montgomery: [{ files: ['place-montgomery'], gain: 0.8 }], // calm: the street, a murmur of people, a church bell a few blocks off
   oak_bluffs: [{ files: ['place-oak_bluffs'], gain: 0.92 }], // small waves and birds
   the_stroll: [{ files: ['place-the_stroll'], gain: 0.71 }], // a cabaret's chatter and a piano
 };
@@ -423,6 +426,10 @@ function synth(name: SfxName, t: number): void {
       swoosh(t, 0.42, 220, 3200, 0.34, 0.7);
       thud(t + 0.24, 0.6, 200, 40, 0.3);
       blip(t + 0.3, 620, 0.35, 0.12, 'sawtooth', 160);
+      break;
+    case 'clash.block':
+      thud(t, 0.35, 140, 60, 0.18);
+      blip(t + 0.08, 520, 0.08, 0.1, 'square', 380);
       break;
     case 'clash.arrest':
       thud(t, 0.35, 220, 90, 0.12);

@@ -895,11 +895,12 @@ Main menu
 - .column[data-index="${location}"] .art
 - .column[data-index="${it.location}"] .loc-glow
 - s ghost flies: its real tile
+- cubic-bezier(0.3, 0.7, 0.3, 1)
+- cubic-bezier(0.2, 0.9, 0.3, 1.25)
 - cubic-bezier(0.55, 0, 0.85, 0.35)
 - ${d.actor.force} vs ${d.theirForce}
 - clash ${tone === 'miss' ? 'miss' : ''}
 - s ghost flies to where it was sent; the striker
-- cubic-bezier(0.2, 0.9, 0.3, 1.25)
 - cubic-bezier(0.15, 0.7, 0.2, 1)
 - cubic-bezier(0.25, 0.75, 0.3, 1)
 - clash ${d.cleared ? 'miss' : ''}
@@ -923,6 +924,9 @@ Main menu
 - Standing on Business: when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds a 9th turn' : ''}. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.
 - Not enough Energy. ${cardName(play.cardId, placeholders)} costs ${cost} and you have ${opts.energy - spent} left of ${opts.energy} this turn (Energy = the turn number). Remove a planned card or wait a turn.
 - ${cardName(play.cardId, placeholders)} goes Inside right away (Direct Entry). Tap ⇅ on the planned move to wait at the Gates instead.
+- ${view.players[other(me)].handle}'s turn is on the board, faint: ${seen.moves} move${seen.moves === 1 ? '' : 's'}.
+- Only the board speaks in a pass-the-device match.
+- The Ancestors speak. ${opening}${dangers.length ? 
 - ${cardName(play.cardId, placeholders)} planned. Optional: drag one of your Gate Characters to another Location's Gates and she moves it there for free.
 - ${cardName(play.cardId, placeholders)} planned. Optional: drag one of your Established Characters from another Location onto this one and ${cardName(play.cardId, placeholders)} brings them across.
 - ${nm} is a card in your hand. Drop it on a Location; Threats are confronted by Characters already there.
@@ -1055,35 +1059,11 @@ export function ConfirmSheet({ title, body, confirmLabel, danger, onConfirm, onC
 }
 
 
-/** The Ancestors: the opponent's plan for this turn (AI mode) and every danger the board is about to spring. */
-export function AncestorsSheet({ view, me, plan, onClose }: { view: GameState; me: PlayerId; plan: TurnPlan | null; onClose: () => void }) {
-  const { placeholders } = useDisplay();
+/** What the Ancestors see coming: hidden Locations, timed Threats, transformations, closing Threats, a raise, the turns left. */
+export function ancestorsDangers(view: GameState, me: PlayerId, placeholders: boolean): string[] {
   const opp = other(me);
   const locLabel = (i: number) => (view.locations[i].revealed ? locationName(view.locations[i].defId, placeholders) : 
 - );
-  const who = (uid: string) => {
-    const c = view.characters[uid];
-    return c ? cardName(c.defId, placeholders) : 'a Character';
-  };
-  const moves: string[] = [];
-  if (plan) {
-    for (const pl of plan.plays) {
-      const d = CARD_BY_ID[pl.cardId];
-      moves.push(d?.kind === 'event' && !d.needsLocation ? 
-- );
-    }
-    for (const uid of plan.enters) moves.push(
-- );
-    for (const r of plan.relocations) moves.push(
-- );
-    for (const cf of plan.confronts) moves.push(
-- );
-    if (plan.summon) moves.push(
-- );
-    if (plan.standOnBusiness) moves.push('Stands on Business.');
-    if (plan.stepOff) moves.push('Sits Down.');
-    if (!moves.length) moves.push('Does nothing this turn.');
-  }
   const dangers: string[] = [];
   for (const l of view.locations) {
     if (!l.revealed) {
@@ -1109,23 +1089,7 @@ export function AncestorsSheet({ view, me, plan, onClose }: { view: GameState; m
 - );
   if (view.turn >= 3 && view.turn < view.maxTurns) dangers.push(
 - );
-  return (
-    <Sheet onClose={onClose} title="The Ancestors speak">
-      <div className="fx-list">
-        <div className="fx-title pB">{view.players[opp].handle}'s plan this turn</div>
-        {plan ? moves.map((t, i) => <div key={i} className="fx-row">{t}</div>) : <div className="fx-row muted">Only the board speaks in a pass-the-device match.</div>}
-      </div>
-      <div className="fx-list">
-        <div className="fx-title pA">What is coming</div>
-        {dangers.length ? dangers.map((t, i) => <div key={i} className="fx-row">{t}</div>) : <div className="fx-row muted">Nothing the Ancestors can see.</div>}
-      </div>
-      <div className="actions">
-        <button className="primary" onClick={onClose} autoFocus>
-          Plan accordingly
-        </button>
-      </div>
-    </Sheet>
-  );
+  return dangers;
 }
 
 /** A confrontation replayed as a showdown: fighters on one side, the Threat on the other, and a plain-words account of why it broke or held. */
@@ -1367,7 +1331,7 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
 /** The verdict of a clash, as stamped on the board and titled on the Clash card. */
 export const CLASH_TITLES: Record<'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested' | 'amnestied', string> = {
   displaced: 'BANISHED',
-  held: 'HELD OFF',
+  held: 'HOLDS',
   blocked: 'BLOCKED',
   sentBack: 'SENT BACK',
   suppressed: 'SUPPRESSED',
@@ -1536,11 +1500,13 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - s resolution is animating: the player
 - score p${p} ${bump ? 'bump' : ''}
 - The opponent played an Event here. It flips when it resolves.
-- gate-slot event-slot ${state} ${def.curse ? 'curse' : ''}
+- gate-slot event-slot ${state} ${def.curse ? 'curse' : ''} ${foreseen ? 'foreseen' : ''}
+- The Ancestors foresee: ${def.name} is played here.
 - ${def.name} is planned here. It resolves when you Lock In and needs this open Gate slot.
 - ${def.name} waits to resolve.
 - strip ${def.curse ? 'curse' : 'event'}
 - gates-left ${gOk ? 'drop-ok' : ''} ${gOver ? 'drop-over' : ''}
+- The Ancestors foresee: ${fd.name} ${s.seen.why}.
 - gate-slot reserved ${s.held.through ? 'through' : ''}
 - ${hd.name} ${s.held.why}: every arrival is placed at the Gates before anyone walks Inside, so this slot is taken this turn.
 - ${hd.name} ${s.held.why} when you Lock It In. The slot stays taken until then.
@@ -1550,12 +1516,13 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - Your Event slot here: drop an Event card on this Location. One per Location per turn. A deck carries at most two Events: you have ${evLeft} of ${evTotal} left.
 - ev-count ${evLeft === 0 ? 'spent' : ''}
 - slots ${cap < INSIDE_CAPACITY ? 'restricted' : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''}
+- The Ancestors foresee: ${fd.name} ${f.why}.
 - ${gd.name} ${g.why} when you Lock In.
 - slot ${i >= cap ? 'locked' : ''}
 - slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''} ${fx?.hidden.includes(c.uid) ? 'fx-hidden' : ''}
 - s blow lands: a red flash when it tells, green when the Threat shrugs it off. */ hit?: 
 - ; shatter?: boolean; stamp?: BoardFx[
-- threat-tile ${who} ${fresh ? 'fresh' : ''} ${gone ? 'gone' : ''} ${confronting ? 'confronting' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' && !gone ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''} ${hidden ? 'fx-hidden' : ''} ${hit ? 
+- threat-tile ${who} ${fresh ? 'fresh' : ''} ${gone ? 'gone' : ''} ${confronting ? 'confronting' : ''} ${foreseen ? 'foreseen' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' && !gone ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''} ${hidden ? 'fx-hidden' : ''} ${hit ? 
 -  : ''} ${shatter ? 'fx-shatter' : ''}
 - ${tdef.name}: in the area, either player can confront it. ${tdef.text}
 - ${tdef.name}, aimed at you. ${tdef.text}

@@ -1882,3 +1882,20 @@ describe('Dunbar with nothing left to foretell', () => {
     expect(s.players.A.hand.length).toBe(before - 1 + 1 + 1); // played, drew for the Reveal, drew for the new turn
   });
 });
+
+describe('plan preview', () => {
+  it('stops showing a blocked entry as Inside from the beat that blocks it', async () => {
+    const { remainingPlan } = await import('../src/ui/preview');
+    const state = createMatch({ seed: 7 });
+    const mine = Object.values(state.characters).find((c) => c.owner === 'A' && c.zone === 'gate') ?? { ...Object.values(state.characters)[0], uid: 'x', owner: 'A' as const, zone: 'gate' as const };
+    state.characters[mine.uid] = { ...mine, owner: 'A', zone: 'gate', location: 0 };
+    const plan = { ...emptyPlan(), enters: [mine.uid] };
+    expect(remainingPlan(state, 'A', plan).enters).toEqual([mine.uid]);
+    expect(remainingPlan(state, 'A', plan, [mine.uid]).enters).toEqual([]);
+    state.characters[mine.uid].blockedEnterTurn = state.turn;
+    expect(remainingPlan(state, 'A', plan).enters).toEqual([]);
+    state.characters[mine.uid].blockedEnterTurn = undefined;
+    state.characters[mine.uid].ready = false; // tricked Fresh: the engine will not let it enter
+    expect(remainingPlan(state, 'A', plan).enters).toEqual([]);
+  });
+});

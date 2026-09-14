@@ -24,7 +24,7 @@ function curfewOn(view: GameState, index: number): boolean {
   const loc = view.locations[index];
   return loc.revealed && !!LOCATION_BY_ID[loc.defId]?.curfew && isNight(view);
 }
-import { isPlannedUid, PLANNED_PREFIX } from '../preview';
+import { isPlannedUid, PLANNED_PREFIX, type foreseePlan } from '../preview';
 import { tip, HINTS } from '../tip';
 import type { DragPayload } from '../drag';
 import { useFlip } from '../flip';
@@ -56,6 +56,8 @@ export interface BattlefieldProps {
   delays?: Record<string, number>;
   /** A clash playing out on the board: tiles hidden while their ghosts fly, the hit, the stamp that says what happened. */
   fx?: BoardFx | null;
+  /** The Ancestors' vision: the opponent's coming moves as faint ghosts beside the real tiles. */
+  foreseen?: ReturnType<typeof foreseePlan> | null;
   /** Gate slots still occupied until the turn resolves, keyed by Location: Characters leaving the Gates this turn. */
   /** Pieces leaving a Location in the preview: ghosted at their old place with an arrow toward where they go. */
   reserved?: Record<number, { uid: string; defId: string; why: string; zone: 'gate' | 'inside'; dir: 'left' | 'right' | 'up'; /** A card played straight Inside: it is placed at these Gates first, so the slot is spoken for. */ through?: boolean }[]>;
@@ -127,10 +129,10 @@ const picFx = (fx: BoardFx | null | undefined, uid: string): 'windup' | 'knocked
   return undefined;
 };
 
-type Common = Pick<BattlefieldProps, 'view' | 'me' | 'plan' | 'onChar' | 'flash' | 'dragProps' | 'drop' | 'reserved' | 'focus' | 'eventFx' | 'pendingEvents' | 'fx'>;
+type Common = Pick<BattlefieldProps, 'view' | 'me' | 'plan' | 'onChar' | 'flash' | 'dragProps' | 'drop' | 'reserved' | 'focus' | 'eventFx' | 'pendingEvents' | 'fx' | 'foreseen'>;
 
 /** An Event card sitting at the Gates: planned, waiting to resolve, or resolving now. */
-function EventTile({ cardId, state, hidden, onClick }: { cardId: string; state: 'planned' | 'pending' | 'trigger'; hidden?: boolean; onClick?: () => void }) {
+function EventTile({ cardId, state, hidden, foreseen, onClick }: { cardId: string; state: 'planned' | 'pending' | 'trigger'; hidden?: boolean; /** The Ancestors foresee it: faint. */ foreseen?: boolean; onClick?: () => void }) {
   const { placeholders } = useDisplay();
   const def = CARD_BY_ID[cardId] as { name: string; curse?: boolean } | undefined;
   if (!def) return null;
@@ -144,23 +146,25 @@ function EventTile({ cardId, state, hidden, onClick }: { cardId: string; state: 
     );
   }
   return (
-    <div className={`gate-slot event-slot ${state} ${def.curse ? 'curse' : ''}`} onClick={onClick} {...tip(state === 'planned' ? `${def.name} is planned here. It resolves when you Lock In and needs this open Gate slot.` : state === 'pending' ? `${def.name} waits to resolve.` : `${def.name} resolves.`)}>
+    <div className={`gate-slot event-slot ${state} ${def.curse ? 'curse' : ''} ${foreseen ? 'foreseen' : ''}`} onClick={onClick} {...tip(foreseen ? `The Ancestors foresee: ${def.name} is played here.` : state === 'planned' ? `${def.name} is planned here. It resolves when you Lock In and needs this open Gate slot.` : state === 'pending' ? `${def.name} waits to resolve.` : `${def.name} resolves.`)}>
       {placeholders ? <span className="ini">{initials(cardId, true)}</span> : <Art kind="events" id={cardId} className="pic-img" fallback={<span className="ini">{initials(cardId, false)}</span>} alt={def.name} />}
       <span className={`strip ${def.curse ? 'curse' : 'event'}`}>{state === 'trigger' ? '✦' : def.curse ? 'Curse' : 'Event'}</span>
     </div>
   );
 }
 
-function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, dragProps, drop, reserved, focus, eventFx, pendingEvents, fx }: Common & { owner: PlayerId; index: number; label: string; right?: React.ReactNode }) {
+function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, dragProps, drop, reserved, focus, eventFx, pendingEvents, fx, foreseen }: Common & { owner: PlayerId; index: number; label: string; right?: React.ReactNode }) {
   const gOk = owner === me && drop?.gates.includes(index);
   const gOver = gOk && drop?.overKey === `gates:${index}`;
   const chars = charsAt(view, index, owner, 'gate').sort((a, b) => a.arrivedTurn - b.arrivedTurn);
   const held = owner === me ? (reserved?.[index] ?? []).filter((h) => h.zone === 'gate') : [];
-  const slots: (CharacterInstance | { held: { uid: string; defId: string; why: string; dir: 'left' | 'right' | 'up'; through?: boolean } } | null)[] = [...chars, ...held.map((h) => ({ held: h }))];
+  const seen = (foreseen?.ghosts[owner]?.[index] ?? []).filter((f) => f.zone === 'gate').slice(0, Math.max(0, GATE_CAPACITY - chars.length - held.length));
+  const slots: (CharacterInstance | { held: { uid: string; defId: string; why: string; dir: 'left' | 'right' | 'up'; through?: boolean } } | { seen: { uid: string; defId: string; why: string } } | null)[] = [...chars, ...held.map((h) => ({ held: h })), ...seen.map((f) => ({ seen: f }))];
   while (slots.length < GATE_CAPACITY) slots.push(null);
   // Event cards at these Gates: planned by me, or (in a replay) waiting to resolve or resolving now.
-  const eventTiles: { cardId: string; state: 'planned' | 'pending' | 'trigger'; hidden?: boolean }[] = [];
+  const eventTiles: { cardId: string; state: 'planned' | 'pending' | 'trigger'; hidden?: boolean; foreseen?: boolean }[] = [];
   if (owner === me) for (const pl of plan.plays) if (pl.location === index && CARD_BY_ID[pl.cardId]?.kind === 'event') eventTiles.push({ cardId: pl.cardId, state: 'planned' });
+  for (const e of foreseen?.events ?? []) if (e.owner === owner && e.location === index) eventTiles.push({ cardId: e.cardId, state: 'planned', foreseen: true });
   for (const pe of pendingEvents ?? []) if (pe.player === owner && pe.location === index) eventTiles.push({ cardId: pe.cardId, state: 'pending', hidden: owner !== me });
   if (eventFx && eventFx.owner === owner && eventFx.location === index) eventTiles.push({ cardId: eventFx.cardId, state: 'trigger' });
   // Events are scarce (a deck carries at most two): the empty slot says how many you have left, hand and deck together.
@@ -181,6 +185,16 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                   +
                 </div>
               );
+            if ('seen' in s) {
+              // The Ancestors foresee: the opponent's coming move, faint, beside the real tiles.
+              const fd = charDef(s.seen.defId);
+              return (
+                <div key={`seen:${s.seen.uid}`} className="gate-slot reserved foreseen" data-foreseen={s.seen.uid} {...tip(`The Ancestors foresee: ${fd.name} ${s.seen.why}.`)}>
+                  <Art kind="characters" id={s.seen.defId} className="pic-img" fallback={<span className="ini">{fd.name.slice(0, 2)}</span>} alt="" />
+                  <span className="strip leaving">Foreseen</span>
+                </div>
+              );
+            }
             if ('held' in s) {
               // Reserved: the Character has left in the preview but still holds this slot until the turn resolves.
               const hd = charDef(s.held.defId);
@@ -219,7 +233,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
             );
           })}
           {eventTiles.map((t, n) => (
-            <EventTile key={`ev:${t.cardId}:${n}`} cardId={t.cardId} state={t.state} hidden={t.hidden} onClick={owner === me && t.state === 'planned' ? () => onChar(`${PLANNED_PREFIX}${t.cardId}`) : undefined} />
+            <EventTile key={`ev:${t.cardId}:${n}`} cardId={t.cardId} state={t.state} hidden={t.hidden} foreseen={t.foreseen} onClick={owner === me && t.state === 'planned' ? () => onChar(`${PLANNED_PREFIX}${t.cardId}`) : undefined} />
           ))}
           {eventTiles.length === 0 && (
             <div className="gate-slot event-slot empty" {...tip(owner === me ? `Your Event slot here: drop an Event card on this Location. One per Location per turn. A deck carries at most two Events: you have ${evLeft} of ${evTotal} left.` : "Harborlight's Event slot here.")}>
@@ -235,10 +249,11 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
   );
 }
 
-function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragProps, drop, focus, fx, reserved }: Common & { owner: PlayerId; index: number; label: string }) {
+function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragProps, drop, focus, fx, reserved, foreseen }: Common & { owner: PlayerId; index: number; label: string }) {
   const chars = charsAt(view, index, owner, 'inside').sort((a, b) => a.arrivedTurn - b.arrivedTurn);
   const ghosts = owner === me ? (reserved?.[index] ?? []).filter((h) => h.zone === 'inside') : [];
   const cap = insideCapacity(view, index);
+  const seen = (foreseen?.ghosts[owner]?.[index] ?? []).filter((f) => f.zone === 'inside').slice(0, Math.max(0, cap - chars.length - ghosts.length));
   const mine = owner === me;
   const dropOk = mine && drop?.inside.includes(index);
   const dropOver = dropOk && drop?.overKey === `inside:${index}`;
@@ -254,6 +269,15 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
         {Array.from({ length: INSIDE_CAPACITY }).map((_, i) => {
           const c = chars[i];
           const g = !c ? ghosts[i - chars.length] : undefined;
+          const f = !c && !g ? seen[i - chars.length - ghosts.length] : undefined;
+          if (!c && !g && f) {
+            const fd = charDef(f.defId);
+            return (
+              <div key={`seen:${f.uid}`} className="slot ghost foreseen" data-foreseen={f.uid} {...tip(`The Ancestors foresee: ${fd.name} ${f.why}.`)}>
+                <Art kind="characters" id={f.defId} className="pic-img" fallback={<span className="ini">{fd.name.slice(0, 2)}</span>} alt="" />
+              </div>
+            );
+          }
           if (!c && g) {
             const gd = charDef(g.defId);
             return (
@@ -290,7 +314,7 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
 }
 
 /** A Threat as a portrait tile beside the Inside rows: art, the Force it needs, its name, and who it is aimed at. */
-function ThreatTile({ t, view, me, plan, drop, flash, onThreat, gone, hidden, hit, shatter, stamp }: { t: ThreatInstance; view: GameState; me: PlayerId; plan: TurnPlan; drop?: BattlefieldProps['drop']; flash?: BattlefieldProps['flash']; onThreat: (uid: string) => void; gone?: boolean; hidden?: boolean; /** The showdown's blow lands: a red flash when it tells, green when the Threat shrugs it off. */ hit?: 'hit' | 'held' | 'hexed'; shatter?: boolean; stamp?: BoardFx['stamp'] }) {
+function ThreatTile({ t, view, me, plan, drop, flash, onThreat, gone, hidden, hit, shatter, stamp, foreseen }: { /** The Ancestors foresee the opponent confronting it. */ foreseen?: boolean; t: ThreatInstance; view: GameState; me: PlayerId; plan: TurnPlan; drop?: BattlefieldProps['drop']; flash?: BattlefieldProps['flash']; onThreat: (uid: string) => void; gone?: boolean; hidden?: boolean; /** The showdown's blow lands: a red flash when it tells, green when the Threat shrugs it off. */ hit?: 'hit' | 'held' | 'hexed'; shatter?: boolean; stamp?: BoardFx['stamp'] }) {
   const { placeholders } = useDisplay();
   const tdef = THREAT_BY_ID[t.defId];
   const confronting = !gone && plan.confronts.some((c) => c.threatUid === t.uid);
@@ -311,7 +335,7 @@ function ThreatTile({ t, view, me, plan, drop, flash, onThreat, gone, hidden, hi
     <div
       data-drop={gone ? undefined : 'threat'}
       data-threat={t.uid}
-      className={`threat-tile ${who} ${fresh ? 'fresh' : ''} ${gone ? 'gone' : ''} ${confronting ? 'confronting' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' && !gone ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''} ${hidden ? 'fx-hidden' : ''} ${hit ? `fx-${hit}` : ''} ${shatter ? 'fx-shatter' : ''}`}
+      className={`threat-tile ${who} ${fresh ? 'fresh' : ''} ${gone ? 'gone' : ''} ${confronting ? 'confronting' : ''} ${foreseen ? 'foreseen' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' && !gone ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''} ${hidden ? 'fx-hidden' : ''} ${hit ? `fx-${hit}` : ''} ${shatter ? 'fx-shatter' : ''}`}
       onClick={(e) => {
         e.stopPropagation();
         if (!gone) onThreat(t.uid);
@@ -405,7 +429,7 @@ function shortEffect(type: string): string {
 }
 
 export function Battlefield(props: BattlefieldProps) {
-  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onThreat, flash, dragProps, drop, delays, resolving, glowLocation, summonLabel, reserved, focus, eventFx, pendingEvents, neutralized, fx } = props;
+  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onThreat, flash, dragProps, drop, delays, resolving, glowLocation, summonLabel, reserved, focus, eventFx, pendingEvents, neutralized, fx, foreseen } = props;
   const { placeholders } = useDisplay();
   const opp = other(me);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -416,7 +440,7 @@ export function Battlefield(props: BattlefieldProps) {
     // A tile whose ghost is flying does not glide: it reappears where the ghost lands.
     durationFor: (uid) => (fx?.hidden.includes(uid) ? 0 : view.characters[uid]?.owner === me || isPlannedUid(uid) ? (resolving ? 0 : 220) : 620),
   });
-  const common: Common = { view, me, plan, onChar, flash, dragProps, drop, reserved, focus, eventFx, pendingEvents, fx };
+  const common: Common = { view, me, plan, onChar, flash, dragProps, drop, reserved, focus, eventFx, pendingEvents, fx, foreseen };
   return (
     <div className="battlefield" ref={rootRef}>
       {view.locations.map((loc) => {
@@ -530,7 +554,7 @@ export function Battlefield(props: BattlefieldProps) {
                     {/* The column is always reserved, so the rows never change shape; empty, it shows the Location's art. */}
                     <div className={`threat-col ${has ? '' : 'empty'}`} aria-hidden={!has}>
                       {live.map((t) => (
-                        <ThreatTile key={t.uid} t={t} view={view} me={me} plan={plan} drop={drop} flash={flash === 'threat' && glowLocation !== null && glowLocation !== undefined && glowLocation !== loc.index ? null : flash} onThreat={onThreat} hidden={fx?.hidden.includes(t.uid)} hit={fx?.flash?.uid === t.uid ? fx.flash.kind : undefined} stamp={fx?.stamp?.uid === t.uid ? fx.stamp : undefined} />
+                        <ThreatTile key={t.uid} t={t} view={view} me={me} plan={plan} drop={drop} foreseen={!!foreseen?.threats.includes(t.uid)} flash={flash === 'threat' && glowLocation !== null && glowLocation !== undefined && glowLocation !== loc.index ? null : flash} onThreat={onThreat} hidden={fx?.hidden.includes(t.uid)} hit={fx?.flash?.uid === t.uid ? fx.flash.kind : undefined} stamp={fx?.stamp?.uid === t.uid ? fx.stamp : undefined} />
                       ))}
                       {ghosts.map((t) => (
                         <ThreatTile key={`gone:${t.uid}`} t={t} view={view} me={me} plan={plan} onThreat={onThreat} gone={!fx?.alive?.includes(t.uid)} hidden={fx?.hidden.includes(t.uid)} hit={fx?.flash?.uid === t.uid ? fx.flash.kind : undefined} shatter={fx?.shatter === t.uid} stamp={fx?.stamp?.uid === t.uid ? fx.stamp : undefined} />

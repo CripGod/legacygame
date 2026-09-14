@@ -3,7 +3,7 @@ import { CARD_BY_ID, viewFor, legalOptions, validatePlan, gateRoom, GATE_CAPACIT
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight, BoardFx } from '../components/Battlefield';
-import { previewPlan, remainingPlan, isPlannedUid, PLANNED_PREFIX } from '../preview';
+import { previewPlan, remainingPlan, isPlannedUid, PLANNED_PREFIX, foreseePlan } from '../preview';
 import type { MatchController } from '../useMatch';
 import { Hud } from '../components/Hud';
 import { Battlefield } from '../components/Battlefield';
@@ -16,7 +16,7 @@ import { Trails, TRAIL_COLORS, type TrailShot } from '../components/Trails';
 import { Fireworks } from '../components/Fireworks';
 import { ghostOf, fly, jolt, partWay, clearGhosts, wait, painted, type Ghost } from '../fly';
 import { DigReveal, type DigShow, type DigPhase } from '../components/DigReveal';
-import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, ThreatSheet, AncestorsSheet, CLASH_TITLES, adviceFor, showdownWhy, type ShowdownData } from '../components/Sheets';
+import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, ThreatSheet, ancestorsDangers, CLASH_TITLES, adviceFor, showdownWhy, type ShowdownData } from '../components/Sheets';
 import { markGuideDone, suggest } from '../guide';
 import { lessonsFor, tutorialActive } from '../tutorial';
 import { EMOTES } from '../useMatch';
@@ -30,7 +30,6 @@ type SheetState =
   | { kind: 'location'; index: number }
   | { kind: 'profile'; p: PlayerId }
   | { kind: 'stepOff' }
-  | { kind: 'ancestors' }
   | { kind: 'peek'; cards: string[]; by: string }
   | { kind: 'log' }
   | { kind: 'chat' }
@@ -156,10 +155,10 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   // Feedback for moves that cannot happen.
   const [toast, setToast] = useState<string | null>(null);
   const [toastTone, setToastTone] = useState<'warn' | 'info'>('warn');
-  const feedback = useCallback((text: string, shake: string[] = [], tone: 'warn' | 'info' = 'warn') => {
+  const feedback = useCallback((text: string, shake: string[] = [], tone: 'warn' | 'info' = 'warn', ms = 3200) => {
     setToastTone(tone);
     setToast(text);
-    window.setTimeout(() => setToast((t) => (t === text ? null : t)), 3200);
+    window.setTimeout(() => setToast((t) => (t === text ? null : t)), ms);
     for (const sel of shake) {
       document.querySelectorAll<HTMLElement>(sel).forEach((el) => {
         el.classList.remove('shake');
@@ -229,6 +228,29 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   /** The board as it stood before this beat: a clash opens on it, so every piece is still where it was struck. */
   const prevView = useMemo(() => (m.replay && m.replay.idx > 0 ? viewFor(m.replay.steps[m.replay.idx - 1].state, me) : null), [m.replay?.idx, m.replay?.steps, me]);
   const [stagePrev, setStagePrev] = useState(false);
+  /** The Ancestors' vision of the opponent's plan, for as long as the card is in mine (so Undo brings it back). */
+  const foreseen = useMemo(() => {
+    if (view.phase !== 'planning' || !plan.plays.some((pl) => pl.cardId === 'the_ancestors')) return null;
+    const theirs = m.peekAiPlan();
+    return theirs ? foreseePlan(view, other(me), theirs) : null;
+  }, [plan.plays, view, me, m.peekAiPlan]);
+  /**
+   * Staging at render time: the board a beat opens on is the one its choreography needs, from the very first frame.
+   * A clash beat opens on the board as it stood (the knocked piece has not moved yet), a showdown beat keeps the
+   * Threat looking alive, an arrival's tile stays hidden until its card has flown. The beat runner takes over
+   * (`staged`) once it has set its own effects; until then nothing here waits on an effect to catch up.
+   */
+  const [staged, setStaged] = useState<{ steps: TraceStep[]; idx: number } | null>(null);
+  const staging = !!step && !!m.replay && !(staged && staged.steps === m.replay.steps && staged.idx === m.replay.idx) && !reduceMotion();
+  const stagedClash = staging && step!.events.some((e) => e.type === 'clash');
+  /** Entries this beat is about to block: the staged board shows those Characters at the Gates, where the block lands. */
+  const stagedBlocked = useMemo(() => (stagedClash && step ? step.events.filter((e) => e.type === 'clash' && ((e.data as ClashData).outcome === 'blocked' || (e.data as ClashData).outcome === 'tricked')).map((e) => (e.data as ClashData).victim.uid) : []), [stagedClash, step]);
+  const stagedFx = useMemo<BoardFx | null>(() => {
+    if (!staging || !step) return null;
+    const alive = step.events.filter((e) => e.type === 'showdown').map((e) => (e.data as ShowdownData).threatUid);
+    const hidden = step.events.filter((e) => e.type === 'spawned' && !!e.cardId && !!e.player && !!e.uid).map((e) => e.uid!);
+    return alive.length || hidden.length ? { hidden, alive } : null;
+  }, [staging, step]);
   const [shake, setShake] = useState(false);
   /** Text floats up from a point on the screen: a +N over a Location, the Force readout over a clash. */
   const floatText = (x: number, y: number, text: string, cls: string) => {
@@ -262,12 +284,12 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   };
   /** During a replay your own moves stay where you put them; the board only re-animates what you could not see coming. */
   const boardView = useMemo(() => {
-    if (stagePrev && prevView && m.replay) return previewPlan(prevView, me, remainingPlan(prevView, me, m.replay.plan));
+    if ((stagePrev || stagedClash) && prevView && m.replay) return previewPlan(prevView, me, remainingPlan(prevView, me, m.replay.plan, stagedBlocked));
     if (m.replay && step) return previewPlan(view, me, remainingPlan(step.state, me, m.replay.plan));
     // Locked and waiting: the plan stays on the board (it is still the plan) until the replay takes it over, so
     // nothing snaps back to the Gates for a frame at Lock In.
     return view.phase === 'planning' ? previewPlan(view, me, plan) : view;
-  }, [view, me, plan, m.replay, step, stagePrev, prevView]);
+  }, [view, me, plan, m.replay, step, stagePrev, stagedClash, stagedBlocked, prevView]);
   /** Power trails on the board (a Reveal that reaches other Locations): particles fly from the actor to each target. */
   const [trail, setTrail] = useState<TrailShot[] | null>(null);
   /** Fireworks over a Threat just cleared in a showdown: where they rise from. */
@@ -281,8 +303,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   /** The impact: the hit is heard, the board jolts, sparks spray off the victim. */
   const impactAt = (v: DOMRect) => {
     sfx('clash.hit');
-    const spray = new DOMRect(v.left + 90, v.top - 30, v.width, v.height);
-    setTrail([{ from: v, to: spray, color: TRAIL_COLORS.impact, noRibbon: true }]);
+    setTrail([{ from: v, to: v, color: TRAIL_COLORS.impact, kind: 'spray' }]);
     setShake(true);
     window.setTimeout(() => setShake(false), 320);
   };
@@ -315,7 +336,8 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     const actorUid = actorUidFor(d, prevView ?? view);
     const toName = d.to !== undefined ? locationName(view.locations[d.to].revealed ? view.locations[d.to].defId : 'unknown', placeholders) : undefined;
     const sub = d.note ?? d.intent ?? (d.victim.owner === me ? adviceFor(view, me, d.actor, outcome, d.from, placeholders) || undefined : undefined);
-    const stampOn = (uid: string) => ({ uid, title, sub: toName ? `to ${toName}` : undefined, tone });
+    // A held challenge is stamped on the one who held: they keep the seat Inside, or hold the Gates.
+    const stampOn = (uid: string) => ({ uid, title, sub: toName ? `to ${toName}` : outcome === 'held' ? ((prevView ?? view).characters[uid]?.zone === 'inside' ? 'keeps the seat' : 'holds the Gates') : undefined, tone });
     const patch = (f: BoardFx | null, p: Partial<BoardFx>): BoardFx => ({ ...(f ?? { hidden: [] }), ...p });
     setClashTell({ title, text: ev.text, sub, tone });
     const vg = ghosts.get(victimUid);
@@ -338,6 +360,34 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       if (tileOf(victimUid)) setFx((f) => patch(f, { stamp: stampOn(victimUid) }));
       await wait(1600);
       if (alive()) setFx((f) => (f ? { ...f, stamp: undefined } : f));
+      return;
+    }
+    // A stand-off (the OG's block, a curfew, Anansi's trick): nobody is knocked anywhere. The striker steps up once,
+    // without a lunge or an impact; the gate stays shut on each victim in turn (a latch, a held flash, the stamp);
+    // the striker comes back only after the last of them. One man does not push everybody out.
+    if (outcome === 'blocked' || outcome === 'suppressed' || outcome === 'tricked') {
+      if (ag && victimRect && !ag.el.classList.contains('charging')) {
+        ag.el.querySelector('.pic')?.classList.add('fx-windup');
+        await wait(260);
+        if (!alive()) return;
+        ag.el.querySelector('.pic')?.classList.remove('fx-windup');
+        ag.el.classList.add('charging');
+        await fly(ag, partWay(ag.base, victimRect, 0.45), { ms: 320, easing: 'cubic-bezier(0.3, 0.7, 0.3, 1)', swell: 1.06, arc: 6 });
+        if (!alive()) return;
+      }
+      sfx('clash.block');
+      if (tileOf(victimUid)) setFx((f) => patch(f, { flash: { uid: victimUid, kind: 'held' }, stamp: stampOn(victimUid) }));
+      await wait(last ? 1100 : 650);
+      if (!alive()) return;
+      if (last && ag) {
+        ag.el.classList.remove('charging');
+        const back = actorUid ? tileOf(actorUid)?.getBoundingClientRect() : undefined;
+        if (back) await fly(ag, back, { ms: 460, easing: 'cubic-bezier(0.2, 0.9, 0.3, 1.25)', remove: true });
+        else await fly(ag, ag.base, { ms: 300, fade: true, remove: true });
+        if (!alive()) return;
+        if (actorUid) setFx((f) => (f ? { ...f, hidden: f.hidden.filter((u) => u !== actorUid) } : f));
+      }
+      setFx((f) => (f ? { ...f, stamp: undefined, flash: undefined } : f));
       return;
     }
     // 1. Wind-up: the striker gathers itself where it stands.
@@ -441,13 +491,13 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         sfx('cheer');
         sfx('fireworks');
       }
-      setFx((f) => patch(f, { alive: [], stamp: threatEl ? { uid: d.threatUid, title: d.cleared ? 'NEUTRALIZED' : 'HOLDS', sub: d.requiresBoth ? undefined : `${total} of ${d.needed}`, tone } : undefined }));
+      setFx((f) => patch(f, { alive: (f?.alive ?? []).filter((u) => u !== d.threatUid), stamp: threatEl ? { uid: d.threatUid, title: d.cleared ? 'NEUTRALIZED' : 'HOLDS', sub: d.requiresBoth ? undefined : `${total} of ${d.needed}`, tone } : undefined }));
       await wait(1800);
       return;
     }
     const tRect = threatEl.getBoundingClientRect();
     // Stage: the Threat still looks alive, the fighters' ghosts stand where they are.
-    setFx((f) => patch(f, { alive: [d.threatUid] }));
+    setFx((f) => patch(f, { alive: [...(f?.alive ?? []).filter((u) => u !== d.threatUid), d.threatUid] }));
     await painted();
     if (!alive()) return;
     const ghosts = fighters.map((uid) => ghostOf(tileOf(uid)!));
@@ -487,7 +537,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       sfx('cheer');
       sfx('fireworks');
       setFireworks(tRect);
-      setFx((f) => patch(f, { alive: [], shatter: d.threatUid, flash: undefined }));
+      setFx((f) => patch(f, { alive: (f?.alive ?? []).filter((u) => u !== d.threatUid), shatter: d.threatUid, flash: undefined }));
     } else {
       setFx((f) => patch(f, { flash: undefined, stamp: { uid: d.threatUid, title: 'HOLDS', sub: d.requiresBoth ? 'needs both' : `${total} of ${d.needed}`, tone: 'hit' } }));
     }
@@ -505,7 +555,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     setFx((f) => patch(f, { hidden: (f?.hidden ?? []).filter((u) => !fighters.includes(u)) }));
     await wait(1200);
     if (!alive()) return;
-    setFx((f) => (f ? { ...f, stamp: undefined, shatter: undefined, flash: undefined, alive: [] } : f));
+    setFx((f) => (f ? { ...f, stamp: undefined, shatter: undefined, flash: undefined, alive: (f.alive ?? []).filter((u) => u !== d.threatUid) } : f));
   };
 
   /**
@@ -570,6 +620,9 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     const clashEvs = evs.filter((e) => e.type === 'clash');
     const showdownEvs = evs.filter((e) => e.type === 'showdown');
     const arrivalEvs = evs.filter((e) => e.type === 'spawned' && !!e.cardId && !!e.player);
+    // What render-time staging shows for this beat; the runner seeds its own effects with the same so nothing blinks.
+    const seed = (): BoardFx => ({ hidden: arrivalEvs.map((e) => e.uid).filter((u): u is string => !!u), alive: showdownEvs.map((e) => (e.data as ShowdownData).threatUid) });
+    const takeOver = () => setStaged(m.replay ? { steps: m.replay.steps, idx: m.replay.idx } : null);
     const finish = () => {
       const peek = evs.find((e) => e.player === me && Array.isArray((e.data as { peekHand?: string[] } | undefined)?.peekHand));
       if (peek) showPeek(peek);
@@ -597,7 +650,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       }
       if (clashEvs.length) {
         // Stage the clash on the board as it stood before the beat, and take ghosts of every piece that will fly.
-        setFx({ hidden: [] });
+        setFx(seed());
         setStagePrev(true);
         await painted();
         if (!alive()) return;
@@ -614,7 +667,8 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           }
         }
         setStagePrev(false);
-        setFx({ hidden: [...ghosts.keys()] });
+        setFx({ ...seed(), hidden: [...ghosts.keys()] });
+        takeOver();
         await painted();
         for (let i = 0; i < clashEvs.length; i++) {
           if (!alive()) return;
@@ -622,11 +676,12 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         }
         if (!alive()) return;
         clearGhosts();
-        setFx(null);
+        setFx(showdownEvs.length || arrivalEvs.length ? seed() : null);
         setClashTell(null);
       }
       if (showdownEvs.length || arrivalEvs.length) {
-        setFx((f) => f ?? { hidden: [] });
+        setFx((f) => f ?? seed());
+        takeOver();
         for (const ev of showdownEvs) {
           if (!alive()) return;
           await playShowdown(ev, alive);
@@ -693,10 +748,14 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   devRef.current = { view, playClash, playArrival };
   useEffect(() => {
     if (!window.location.search.includes('dev=1')) return;
-    (window as unknown as { __sobTrail?: (uid: string, locs: number[], side?: 'A' | 'B' | 'artist', freezeAt?: number) => void }).__sobTrail = (uid, locs, side = 'A', freezeAt) => {
+    (window as unknown as { __sobTrail?: (uid: string, locs: number[], side?: 'A' | 'B' | 'artist' | 'spray', freezeAt?: number) => void }).__sobTrail = (uid, locs, side = 'A', freezeAt) => {
       setTrailFreeze(freezeAt);
       const from = document.querySelector(`[data-uid="${uid}"]`)?.getBoundingClientRect();
       if (!from) return;
+      if (side === 'spray') {
+        setTrail([{ from, to: from, color: TRAIL_COLORS.impact, kind: 'spray' }]);
+        return;
+      }
       const shots: TrailShot[] = [];
       for (const i of locs) {
         const to = document.querySelector(`.column[data-index="${i}"] .art`)?.getBoundingClientRect();
@@ -991,7 +1050,14 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     }
     setPlan((p) => ({ ...p, plays: [...p.plays.filter((pl) => pl.cardId !== play.cardId), play] }));
     if (directEntry) feedback(`${cardName(play.cardId, placeholders)} goes Inside right away (Direct Entry). Tap ⇅ on the planned move to wait at the Gates instead.`, [], 'info');
-    if (play.cardId === 'the_ancestors') setSheet({ kind: 'ancestors' });
+    if (play.cardId === 'the_ancestors') {
+      // The Ancestors speak on the board: the opponent's plan as faint ghosts beside the real tiles, and the dangers in a line.
+      const theirs = m.peekAiPlan();
+      const seen = theirs ? foreseePlan(view, other(me), theirs) : null;
+      const dangers = ancestorsDangers(view, me, placeholders).slice(0, 2);
+      const opening = seen ? `${view.players[other(me)].handle}'s turn is on the board, faint: ${seen.moves} move${seen.moves === 1 ? '' : 's'}.` : 'Only the board speaks in a pass-the-device match.';
+      feedback(`The Ancestors speak. ${opening}${dangers.length ? ` ${dangers.join(' ')}` : ''}`, [], 'info', 7000);
+    }
     const needs = opts.plays.find((p) => p.cardId === play.cardId)?.needsTarget;
     if (needs === 'friendlyCharAndLocation' && !play.target) feedback(`${cardName(play.cardId, placeholders)} planned. Optional: drag one of your Gate Characters to another Location's Gates and she moves it there for free.`);
     if (needs === 'friendlyInsideChar' && !play.target) feedback(`${cardName(play.cardId, placeholders)} planned. Optional: drag one of your Established Characters from another Location onto this one and ${cardName(play.cardId, placeholders)} brings them across.`);
@@ -1493,7 +1559,8 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           drop={drop}
           reserved={reserved}
           delays={m.delays}
-          fx={fx}
+          fx={stagedFx ?? fx}
+          foreseen={planning ? foreseen : null}
           resolving={busy}
           focus={step?.uids}
           eventFx={step?.kind === 'event' && step.cardId && step.player ? { cardId: step.cardId, owner: step.player, location: step.location ?? 0 } : undefined}
@@ -1785,7 +1852,6 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         />
       )}
       {sheet?.kind === 'log' && <LogSheet events={m.lastTurn} turn={Math.max(1, view.turn - (view.phase === 'ended' ? 0 : 1))} onClose={() => setSheet(null)} />}
-      {sheet?.kind === 'ancestors' && <AncestorsSheet view={view} me={me} plan={m.peekAiPlan()} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'profile' && <ProfileSheet view={view} p={sheet.p} me={me} onClose={() => setSheet(null)} peek={sheet.p !== me && lastPeek ? lastPeek : undefined} />}
       {sheet?.kind === 'stepOff' && (
         <ConfirmSheet

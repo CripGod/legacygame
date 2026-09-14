@@ -164,10 +164,13 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
     [mode, finishResolution],
   );
 
-  const aiPlanRef = useRef<{ turn: number; decision: ReturnType<typeof planTurn> } | null>(null);
+  // Harborlight's plan is decided once per turn, and again if a Summon is agreed after it was first asked for (a peek
+  // through The Ancestors before the Summon lands must not freeze the plan without it).
+  const aiPlanRef = useRef<{ turn: number; agreed: number | null; decision: ReturnType<typeof planTurn> } | null>(null);
   const aiDecision = useCallback(
     (state: GameState) => {
-      if (aiPlanRef.current?.turn !== state.turn) aiPlanRef.current = { turn: state.turn, decision: planTurn(viewFor(state, 'B'), 'B', undefined, aiAgreedRef.current ?? undefined) };
+      const agreed = aiAgreedRef.current;
+      if (aiPlanRef.current?.turn !== state.turn || aiPlanRef.current.agreed !== agreed) aiPlanRef.current = { turn: state.turn, agreed, decision: planTurn(viewFor(state, 'B'), 'B', undefined, agreed ?? undefined) };
       return aiPlanRef.current.decision;
     },
     [],
