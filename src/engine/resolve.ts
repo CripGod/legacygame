@@ -1143,7 +1143,66 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     }
   }
 
-  // ---- 2. New plays: placement first, then Reveal abilities in initiative order ----
+  // ---- 2. Voluntary Relocations: whoever leaves a Location is gone before anything played there resolves, and
+  // stands at the Gates they arrive at when things resolve there. ----
+  for (const p of order) {
+    for (const r of plans[p].relocations) {
+      const c = state.characters[r.uid];
+      if (!c || c.owner !== p) continue;
+      if (!gateOpen(state, r.to, p) || state.locations[r.to].lost) {
+        events.push({ type: 'info', text: `${name(state, c)} cannot relocate: the Gate at ${locName(state, r.to)} is full.`, uid: c.uid });
+        continue;
+      }
+      const from = c.location;
+      const wasGate = c.zone === 'gate';
+      const outReady =
+        (wasGate && c.ready) ||
+        hasEstablished(state, p, from, 'relocatedOutReady').length > 0 ||
+        (state.locations[from].revealed && ['relocatedOutReady', 'hub', 'crossing'].includes(LOCATION_BY_ID[state.locations[from].defId]?.effect.type ?? ''));
+      const outInside = !wasGate && hasEstablished(state, p, from, 'relocatedOutInside').length > 0 && insideOpen(state, r.to, p);
+      const carried = wasGate && !isInformant(c) && state.locations[from].revealed && LOCATION_BY_ID[state.locations[from].defId]?.effect.type === 'crossing';
+      c.location = r.to;
+      c.zone = 'gate';
+      c.ready = outReady && !isInformant(c);
+      if (carried) {
+        c.permInfluence += 1;
+        events.push({ type: 'info', text: `${name(state, c)} came through the crossing: +1 Influence for good, what was carried across.`, uid: c.uid, player: p, location: r.to });
+      }
+      // A Gate Character keeps its waiting progress; an Inside one starts waiting again.
+      if (!wasGate) c.arrivedTurn = state.turn;
+      c.relocatedTurn = state.turn;
+      c.blessedUid = undefined;
+      state.stats.relocations[p] += 1;
+      const dest = state.locations[r.to];
+      const destDef = dest.revealed ? LOCATION_BY_ID[dest.defId] : undefined;
+      if (destDef?.effect.type === 'readyOnArrival' || destDef?.effect.type === 'relocatedInReady') readyUp(c);
+      const byOwner = dest.firstRelocatedByOwner ?? (dest.firstRelocatedByOwner = {});
+      if (!byOwner[p]) {
+        byOwner[p] = c.uid;
+        if (hasEstablished(state, p, r.to, 'readyRelocatedIn').length) readyUp(c);
+      }
+      // Mary Ann Shadd Cary: everyone relocated in arrives Ready, not only the first.
+      if (hasEstablished(state, p, r.to, 'relocatedInReady').length) readyUp(c);
+      events.push({
+        type: 'moved',
+        text: `${name(state, c)} relocates from ${wasGate ? 'the Gates of ' : ''}${locName(state, from)} to the Gates of ${locName(state, r.to)}${c.ready ? (wasGate ? ', still Ready' : ' and is Ready') : ' and waits again'}.`,
+        uid: c.uid,
+        location: r.to,
+        player: p,
+        data: { from, to: r.to, reason: 'relocation' },
+      });
+      const inInside = hasEstablished(state, p, r.to, 'relocatedInInside').length > 0 && insideOpen(state, r.to, p);
+      if (outInside || inInside) {
+        enterInside(state, c, events, outInside ? 'arrives Inside (Green Book) at' : 'arrives Inside (Yemoja) at');
+      } else if (destDef?.effect.type === 'firstRelocatedEnters' && !dest.firstRelocatedThisTurn) {
+        dest.firstRelocatedThisTurn = c.uid;
+        enterInside(state, c, events, 'enters immediately (Great Migration) at');
+      }
+      trace('move', `${charDef(c.defId).name} relocates to ${locName(state, r.to)}`, { uids: [c.uid], location: r.to, player: p });
+    }
+  }
+
+  // ---- 3/4. New plays: placement first, then Reveal abilities in initiative order ----
   const pendingConfronts: PendingConfront[] = [];
   const newChars: { p: PlayerId; c: CharacterInstance; target: PlayAction['target']; enter?: boolean }[] = [];
   const eventPlays: { p: PlayerId; play: PlayAction }[] = [];
@@ -1236,64 +1295,6 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       const said = events.slice(before).find((e) => e.type === 'reveal');
       const touched = events.slice(before).map((e) => e.uid).filter((u): u is string => !!u);
       trace('revealFx', said?.text ?? `${charDef(c.defId).name} reveals`, { uids: [c.uid, ...touched], location: c.location, player: c.owner, cardId: c.defId });
-    }
-  }
-
-  // ---- 4. Voluntary Relocations ----
-  for (const p of order) {
-    for (const r of plans[p].relocations) {
-      const c = state.characters[r.uid];
-      if (!c || c.owner !== p) continue;
-      if (!gateOpen(state, r.to, p) || state.locations[r.to].lost) {
-        events.push({ type: 'info', text: `${name(state, c)} cannot relocate: the Gate at ${locName(state, r.to)} is full.`, uid: c.uid });
-        continue;
-      }
-      const from = c.location;
-      const wasGate = c.zone === 'gate';
-      const outReady =
-        (wasGate && c.ready) ||
-        hasEstablished(state, p, from, 'relocatedOutReady').length > 0 ||
-        (state.locations[from].revealed && ['relocatedOutReady', 'hub', 'crossing'].includes(LOCATION_BY_ID[state.locations[from].defId]?.effect.type ?? ''));
-      const outInside = !wasGate && hasEstablished(state, p, from, 'relocatedOutInside').length > 0 && insideOpen(state, r.to, p);
-      const carried = wasGate && !isInformant(c) && state.locations[from].revealed && LOCATION_BY_ID[state.locations[from].defId]?.effect.type === 'crossing';
-      c.location = r.to;
-      c.zone = 'gate';
-      c.ready = outReady && !isInformant(c);
-      if (carried) {
-        c.permInfluence += 1;
-        events.push({ type: 'info', text: `${name(state, c)} came through the crossing: +1 Influence for good, what was carried across.`, uid: c.uid, player: p, location: r.to });
-      }
-      // A Gate Character keeps its waiting progress; an Inside one starts waiting again.
-      if (!wasGate) c.arrivedTurn = state.turn;
-      c.relocatedTurn = state.turn;
-      c.blessedUid = undefined;
-      state.stats.relocations[p] += 1;
-      const dest = state.locations[r.to];
-      const destDef = dest.revealed ? LOCATION_BY_ID[dest.defId] : undefined;
-      if (destDef?.effect.type === 'readyOnArrival' || destDef?.effect.type === 'relocatedInReady') readyUp(c);
-      const byOwner = dest.firstRelocatedByOwner ?? (dest.firstRelocatedByOwner = {});
-      if (!byOwner[p]) {
-        byOwner[p] = c.uid;
-        if (hasEstablished(state, p, r.to, 'readyRelocatedIn').length) readyUp(c);
-      }
-      // Mary Ann Shadd Cary: everyone relocated in arrives Ready, not only the first.
-      if (hasEstablished(state, p, r.to, 'relocatedInReady').length) readyUp(c);
-      events.push({
-        type: 'moved',
-        text: `${name(state, c)} relocates from ${wasGate ? 'the Gates of ' : ''}${locName(state, from)} to the Gates of ${locName(state, r.to)}${c.ready ? (wasGate ? ', still Ready' : ' and is Ready') : ' and waits again'}.`,
-        uid: c.uid,
-        location: r.to,
-        player: p,
-        data: { from, to: r.to, reason: 'relocation' },
-      });
-      const inInside = hasEstablished(state, p, r.to, 'relocatedInInside').length > 0 && insideOpen(state, r.to, p);
-      if (outInside || inInside) {
-        enterInside(state, c, events, outInside ? 'arrives Inside (Green Book) at' : 'arrives Inside (Yemoja) at');
-      } else if (destDef?.effect.type === 'firstRelocatedEnters' && !dest.firstRelocatedThisTurn) {
-        dest.firstRelocatedThisTurn = c.uid;
-        enterInside(state, c, events, 'enters immediately (Great Migration) at');
-      }
-      trace('move', `${charDef(c.defId).name} relocates to ${locName(state, r.to)}`, { uids: [c.uid], location: r.to, player: p });
     }
   }
 

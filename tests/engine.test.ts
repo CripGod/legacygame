@@ -1035,6 +1035,18 @@ describe('day and night', () => {
 });
 
 describe('clash beats', () => {
+  it('whoever relocated away this turn is gone before a Reveal at the old Location resolves', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['queen_nzinga'] });
+    const barber = addChar(s, 'alonzo_herndon', 'B', 0, 'gate', true);
+    const out = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'queen_nzinga', location: 0 }] }, B: { ...pass(), relocations: [{ uid: barber.uid, to: 2 }] } }, { trace: true });
+    // He left for Gary before Nzinga arrived: no clash names him, and he stands at the Gates he went to.
+    expect(out.events.filter((e) => e.type === 'clash').map((e) => (e.data as { victim: { uid: string } }).victim.uid)).not.toContain(barber.uid);
+    expect(out.state.characters[barber.uid].location).toBe(2);
+    expect(out.state.characters[barber.uid].zone).toBe('gate');
+    // The replay tells the move before the play.
+    const kinds = out.trace!.map((t) => t.kind);
+    expect(kinds.indexOf('move')).toBeLessThan(kinds.indexOf('play'));
+  });
   it('a challenge emits a clash event that names the actor, the victim and the outcome', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['queen_nzinga'] });
     const barber = addChar(s, 'alonzo_herndon', 'B', 0, 'gate', true);

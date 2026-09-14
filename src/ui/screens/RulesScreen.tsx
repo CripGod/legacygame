@@ -75,8 +75,8 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
         <h2>Resolution order</h2>
         <ol>
           <li>Location reveal</li>
+          <li>Voluntary Relocations (whoever leaves a Location is gone before anything played there resolves; they stand at the Gates they arrive at)</li>
           <li>New Characters placed, Events, then Reveal abilities (initiative order, alternating each turn)</li>
-          <li>Voluntary Relocations</li>
           <li>Gate → Inside</li>
           <li>Confrontations, then Threat actions</li>
           <li>Cleanup: Fresh → Ready, Sundown Town, unstable Characters</li>

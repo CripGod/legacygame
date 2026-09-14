@@ -857,8 +857,8 @@ Rules
 - Sit Down is surrender at the current Legacy. Sitting down during the grace turn is the cheap exit.
 ### Resolution order
 - Location reveal
+- Voluntary Relocations (whoever leaves a Location is gone before anything played there resolves; they stand at the Gates they arrive at)
 - New Characters placed, Events, then Reveal abilities (initiative order, alternating each turn)
-- Voluntary Relocations
 - Gate → Inside
 - Confrontations, then Threat actions
 - Cleanup: Fresh → Ready, Sundown Town, unstable Characters
@@ -1683,15 +1683,15 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${state.players[p].handle}'s plan was illegal (${errs[0]}) and became a pass.
 - ${state.players[p].handle} STANDS ON BUSINESS: ${from} → ${to} Legacy after next turn. ${escape}
 - The match is extended to ${EXTENDED_TURNS} turns.
+- ${name(state, c)} cannot relocate: the Gate at ${locName(state, r.to)} is full.
+- ${name(state, c)} came through the crossing: +1 Influence for good, what was carried across.
+- ${name(state, c)} relocates from ${wasGate ? 'the Gates of ' : ''}${locName(state, from)} to the Gates of ${locName(state, r.to)}${c.ready ? (wasGate ? ', still Ready' : ' and is Ready') : ' and waits again'}.
 - ${ps.handle}'s ${def.name} found ${state.players[other(p)].handle}'s Gates at ${locName(state, play.location)} full and goes back to hand.
 - ${ps.handle}'s ${def.name} could not be placed and is discarded.
 - ${charDef(spider.defId).name} spins a story: ${state.players[spider.owner].handle} draws a card.
 - ${ps.handle} plants ${def.name} (${def.influence}/${def.force}) at ${state.players[other(p)].handle}'s Gates of ${locName(state, play.location)}.
 - ${ps.handle} plays ${def.name} (${def.influence}/${def.force}) at the Gates of ${locName(state, play.location)}.
 - ${name(state, c)} cannot enter: no room Inside.
-- ${name(state, c)} cannot relocate: the Gate at ${locName(state, r.to)} is full.
-- ${name(state, c)} came through the crossing: +1 Influence for good, what was carried across.
-- ${name(state, c)} relocates from ${wasGate ? 'the Gates of ' : ''}${locName(state, from)} to the Gates of ${locName(state, r.to)}${c.ready ? (wasGate ? ', still Ready' : ' and is Ready') : ' and waits again'}.
 - ${name(state, c)} cannot enter ${locName(state, c.location)}: ${blocked}.
 - ${name(state, c)} cannot enter ${locName(state, c.location)}: no room Inside.
 - ${name(state, c)} confronts ${threatName(state, t)} with ${f} Force${isAssist(t, c.owner) ? ' (Assist)' : ''}.
