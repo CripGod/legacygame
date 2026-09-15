@@ -17,7 +17,7 @@ function ribbonFor(def: { kind: string; category?: string; tags?: string[]; curs
 }
 
 /** The short rules line printed on the small card. */
-function abilityFor(def: { kind: string; text?: string; summary?: string; reveal?: { text: string }; established?: { text: string }; passive?: { text: string } }): string {
+export function abilityFor(def: { kind: string; text?: string; summary?: string; reveal?: { text: string }; established?: { text: string }; passive?: { text: string } }): string {
   if (def.summary) return def.summary;
   if (def.kind === 'event') return def.text ?? '';
   return def.reveal?.text ?? def.established?.text ?? def.passive?.text ?? '';
