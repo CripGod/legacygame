@@ -1,5 +1,5 @@
 import { AudioControl } from '../components/AudioControl';
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { resetCoach } from '../components/Coach';
 import { resetGuide } from '../guide';
 import { PRESET_DECKS, CARD_BY_ID, THREAT_BY_ID } from '../../engine';
@@ -115,9 +115,7 @@ function MobSparks({ burst }: { burst: number }) {
       const side = Math.random();
       const x = side < 0.5 ? w * (0.27 + Math.random() * 0.46) : side < 0.75 ? w * 0.27 : w * 0.73;
       const y = side < 0.5 ? h * 0.87 : h * (0.36 + Math.random() * 0.51);
-      // Sickly motes: slow, wobbling, yellow-green, a few soft spores among the specks. (The hue also picks the palette below.)
-      const spore = Math.random() < 0.18;
-      return { x, y, r: spore ? 2.4 + Math.random() * 3 : 0.5 + Math.random() * 1.3, vx: (Math.random() - 0.5) * 0.3, vy: -(0.1 + Math.random() * 0.32), life: 0, max: 140 + Math.random() * 160, hue: 62 + Math.random() * 46 };
+      return { x, y, r: 0.6 + Math.random() * 1.6, vx: (Math.random() - 0.5) * 0.5, vy: -(0.35 + Math.random() * 0.8), life: 0, max: 80 + Math.random() * 90, hue: 8 + Math.random() * 30 };
     };
     const resize = () => {
       w = canvas.width = canvas.offsetWidth;
@@ -143,18 +141,17 @@ function MobSparks({ burst }: { burst: number }) {
       ctx.clearRect(0, 0, w, h);
       for (let i = 0; i < ps.length; i++) {
         const p = ps[i];
-        const hot = p.hue < 60; // burst motes are hot; the idle motes are sick
-        p.x += p.vx + Math.sin((p.life + i) * (hot ? 0.08 : 0.05)) * (hot ? 0.25 : 0.4);
+        p.x += p.vx + Math.sin((p.life + i) * 0.08) * 0.25;
         p.y += p.vy;
-        p.vy += hot ? 0.04 : 0; // a little gravity so the burst arcs; the motes just drift
+        p.vy += 0.04; // a little gravity so the burst arcs
         p.life += 1;
         const t = p.life / p.max;
         const a = t < 0.15 ? t / 0.15 : 1 - (t - 0.15) / 0.85;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r * (hot ? 1 - t * 0.5 : 0.85 + Math.sin(p.life * 0.06) * 0.15), 0, Math.PI * 2);
-        ctx.fillStyle = hot ? `hsla(${p.hue}, 100%, ${60 + t * 25}%, ${Math.max(0, a)})` : `hsla(${p.hue}, 70%, ${p.r > 2 ? 42 : 58}%, ${Math.max(0, a) * (p.r > 2 ? 0.28 : 0.85)})`;
-        ctx.shadowBlur = hot ? 10 : 6;
-        ctx.shadowColor = hot ? `hsla(${p.hue}, 100%, 55%, 0.9)` : `hsla(${p.hue}, 80%, 45%, 0.7)`;
+        ctx.arc(p.x, p.y, p.r * (1 - t * 0.5), 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${p.hue}, 100%, ${60 + t * 25}%, ${Math.max(0, a)})`;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = `hsla(${p.hue}, 100%, 55%, 0.9)`;
         ctx.fill();
         if (p.life >= p.max) {
           if (ps.length > 40) ps.splice(i, 1);
@@ -171,115 +168,6 @@ function MobSparks({ burst }: { burst: number }) {
   }, []);
   return <canvas ref={ref} className="mob-sparks" aria-hidden />;
 }
-
-/** A small deterministic generator so the cracks and the shards look the same on every visit. */
-function lcg(seed: number): () => number {
-  let x = seed >>> 0;
-  return () => {
-    x = (x * 1664525 + 1013904223) >>> 0;
-    return x / 4294967296;
-  };
-}
-
-/**
- * The cracks behind the Mob: jagged veins radiating from behind the card across a 400×400 box, each with a branch or
- * two. Drawn twice in CSS (a wide dim glow under a thin bright core) and pulsed to a sick heartbeat.
- * Unity: a line renderer per crack with an emissive material driven by the same heartbeat curve.
- */
-const CRACK_PATHS: string[] = (() => {
-  const rnd = lcg(7);
-  const out: string[] = [];
-  const cx = 200;
-  const cy = 200;
-  for (let i = 0; i < 11; i++) {
-    const a = (i / 11) * Math.PI * 2 + (rnd() - 0.5) * 0.4;
-    const len = 150 + rnd() * 70;
-    const steps = 5 + Math.floor(rnd() * 3);
-    let d = `M${cx} ${cy}`;
-    const pts: [number, number][] = [];
-    for (let k = 1; k <= steps; k++) {
-      const r = (len * k) / steps;
-      const j = (rnd() - 0.5) * 22;
-      const x = cx + Math.cos(a) * r - Math.sin(a) * j;
-      const y = cy + Math.sin(a) * r + Math.cos(a) * j;
-      pts.push([x, y]);
-      d += ` L${x.toFixed(1)} ${y.toFixed(1)}`;
-    }
-    out.push(d);
-    // A branch off the second or third joint.
-    const [bx, by] = pts[1 + Math.floor(rnd() * 2)];
-    const ba = a + (rnd() < 0.5 ? -1 : 1) * (0.5 + rnd() * 0.5);
-    const bl = 30 + rnd() * 50;
-    out.push(`M${bx.toFixed(1)} ${by.toFixed(1)} L${(bx + Math.cos(ba) * bl * 0.5 + (rnd() - 0.5) * 8).toFixed(1)} ${(by + Math.sin(ba) * bl * 0.5 + (rnd() - 0.5) * 8).toFixed(1)} L${(bx + Math.cos(ba) * bl).toFixed(1)} ${(by + Math.sin(ba) * bl).toFixed(1)}`);
-  }
-  return out;
-})();
-
-function MobCracks() {
-  return (
-    <svg className="mob-cracks" viewBox="0 0 400 400" aria-hidden>
-      {CRACK_PATHS.map((d, i) => (
-        <path key={`g${i}`} className="crack-glow" d={d} pathLength={1} style={{ '--i': i } as CSSProperties} />
-      ))}
-      {CRACK_PATHS.map((d, i) => (
-        <path key={`c${i}`} className="crack-core" d={d} pathLength={1} style={{ '--i': i } as CSSProperties} />
-      ))}
-    </svg>
-  );
-}
-
-/**
- * The shatter: the card is cut into shards along cracks that radiate from the fists' impact point, an inner and an
- * outer piece per wedge, and each piece flies out along its own ray, tumbling, and fades. The polygons are in
- * percent of the card box so the same cut fits every size. Unity: a pre-fractured mesh with the same rays.
- */
-type Shard = { clip: string; dx: number; dy: number; rot: number; delay: number };
-const SHARDS: Shard[] = (() => {
-  const rnd = lcg(11);
-  const C: [number, number] = [50, 42];
-  const N = 10;
-  const angles = Array.from({ length: N }, (_, i) => (i / N) * Math.PI * 2 + (rnd() - 0.5) * 0.35);
-  // Where a ray from C at angle a leaves the box.
-  const edge = (a: number): [number, number] => {
-    const dx = Math.cos(a);
-    const dy = Math.sin(a);
-    let t = Infinity;
-    if (dx > 0) t = Math.min(t, (100 - C[0]) / dx);
-    if (dx < 0) t = Math.min(t, (0 - C[0]) / dx);
-    if (dy > 0) t = Math.min(t, (100 - C[1]) / dy);
-    if (dy < 0) t = Math.min(t, (0 - C[1]) / dy);
-    return [C[0] + dx * t, C[1] + dy * t];
-  };
-  const lerp = (p: [number, number], q: [number, number], f: number, jit: number, a: number): [number, number] => [p[0] + (q[0] - p[0]) * f - Math.sin(a) * jit, p[1] + (q[1] - p[1]) * f + Math.cos(a) * jit];
-  // Each ray is one jagged polyline C → P1 → M → P2 → B, shared by the shards on either side so the cuts meet.
-  const rays = angles.map((a) => {
-    const B = edge(a);
-    return { a, B, P1: lerp(C, B, 0.22, (rnd() - 0.5) * 6, a), M: lerp(C, B, 0.46, (rnd() - 0.5) * 4, a), P2: lerp(C, B, 0.74, (rnd() - 0.5) * 6, a) };
-  });
-  const corners: [number, number][] = [
-    [100, 0],
-    [100, 100],
-    [0, 100],
-    [0, 0],
-  ];
-  const norm = (a: number, from: number) => ((a - from) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
-  const poly = (pts: [number, number][]) => `polygon(${pts.map(([x, y]) => `${x.toFixed(1)}% ${y.toFixed(1)}%`).join(', ')})`;
-  const out: Shard[] = [];
-  for (let i = 0; i < N; i++) {
-    const r0 = rays[i];
-    const r1 = rays[(i + 1) % N];
-    const mid = r0.a + norm(r1.a, r0.a) / 2;
-    const between = corners.filter((c) => norm(Math.atan2(c[1] - C[1], c[0] - C[0]), r0.a) < norm(r1.a, r0.a)).sort((p, q) => norm(Math.atan2(p[1] - C[1], p[0] - C[0]), r0.a) - norm(Math.atan2(q[1] - C[1], q[0] - C[0]), r0.a));
-    const inner: [number, number][] = [C, r0.P1, r0.M, r1.M, r1.P1];
-    const outer: [number, number][] = [r0.M, r0.P2, r0.B, ...between, r1.B, r1.P2, r1.M];
-    const fling = (far: boolean): Shard => {
-      const dist = far ? 150 + rnd() * 140 : 70 + rnd() * 80;
-      return { clip: '', dx: Math.cos(mid) * dist, dy: Math.sin(mid) * dist + 70 + rnd() * 90, rot: (rnd() - 0.5) * 200, delay: (far ? 40 : 0) + rnd() * 70 };
-    };
-    out.push({ ...fling(false), clip: poly(inner) }, { ...fling(true), clip: poly(outer) });
-  }
-  return out;
-})();
 
 /** True on phones and small tablets: the match is desktop-only for now; the landing page and Compendium still work. */
 function useSmallScreen(): boolean {
@@ -332,12 +220,12 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
   const [deckB, setDeckB] = useState('blackstar');
   /** A deck card tapped on the landing page opens the full Compendium sheet for it. */
   const [open, setOpen] = useState<string | null>(null);
-  const root = useRef<HTMLDivElement>(null);
   /** The Mob on the landing page: 'up' until clicked, 'falling' through the explosion, 'down' with the message, then it re-forms. */
   const [mobState, setMobState] = useState<'hidden' | 'up' | 'falling' | 'down' | 'fading'>('hidden');
   const [burst, setBurst] = useState(0);
-  /** Set at the fists' impact: the card is in shards and the colour starts back into the page. */
+  /** Set at the fists' impact: the colour starts back into the page from the VS. */
   const [shattered, setShattered] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
   const MOB_FIRST = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('mob') ? 400 : 30000; // hidden → up, the first time (?mob: at once)
   const MOB_AGAIN = 60000; // hidden → up, every time after
   const MOB_STANDS = 15000; // up → breaks on its own if nobody clicks
@@ -349,6 +237,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
     setMobState((m) => {
       if (m !== 'up') return m;
       window.setTimeout(() => {
+        // The heal opens from the VS itself.
         const vs = root.current?.querySelector('.vs')?.getBoundingClientRect();
         if (vs) {
           root.current?.style.setProperty('--heal-x', `${vs.left + vs.width / 2}px`);
@@ -363,7 +252,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
   // The cycle: thirty seconds in, the Mob rises and the page drains to grey; it breaks on a click or after fifteen
   // seconds on its own; the message stays ten seconds and fades; then it lies low for sixty seconds before rising again.
   useEffect(() => {
-    const wait = mobState === 'hidden' ? (mobVisits.current === 0 ? MOB_FIRST : MOB_AGAIN) : mobState === 'up' ? MOB_STANDS : mobState === 'falling' ? FIST_IMPACT + 1000 : mobState === 'down' ? MOB_MESSAGE : MOB_FADE;
+    const wait = mobState === 'hidden' ? (mobVisits.current === 0 ? MOB_FIRST : MOB_AGAIN) : mobState === 'up' ? MOB_STANDS : mobState === 'falling' ? FIST_IMPACT + 750 : mobState === 'down' ? MOB_MESSAGE : MOB_FADE;
     const rise = () => {
       mobVisits.current += 1;
       setShattered(false);
@@ -396,20 +285,6 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
   const opts = (mode: 'ai' | 'hotseat'): StartOptions => ({ seed: seed.trim() ? Number(seed) : undefined, mode, placeholders, dev, coach, deckA, deckB });
   const deckOptions = [...Object.entries(PRESET_DECKS).map(([k, d]) => ({ key: k, name: d.name, style: d.style, cards: d.cards })), RANDOM_DECK];
   const mob = THREAT_BY_ID[SPOTLIGHT_THREAT];
-  /** The Mob card's face: drawn once standing, and once per shard when it breaks. */
-  const mobCard = mob ? (
-    <span className="mob-inner">
-      <span className="threat-spot-art">
-        <Art kind="threats" id={mob.id} className="threat-spot-img" fallback={<span className="ini">⚠</span>} alt="" />
-      </span>
-      <span className="threat-spot-body">
-        <span className="threat-spot-name">The {mob.name}</span>
-        <span className="threat-spot-text">Organized violence aimed at exactly the people who are winning. It needs {mob.force} Force in one turn to break.</span>
-        <span className="threat-spot-rule">Work together to overcome.</span>
-        <small>Both players may contribute Force.</small>
-      </span>
-    </span>
-  ) : null;
 
   const DeckPanel = ({ side, label, note, value, onChange }: { side: 'mine' | 'theirs'; label: string; note: string; value: string; onChange: (k: string) => void }) => {
     const d = deckOptions.find((o) => o.key === value)!;
@@ -456,7 +331,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
         <div className="bg-floor" />
         <Embers />
       </div>
-      {/* Siege: two full-page veils drain the colour and the light while the Mob stands (blend modes, so nothing is re-rendered); at the fists' impact a hole opens in them from the VS and widens until the whole page is back in colour. */}
+      {/* Siege: two full-page veils drain the colour and the light while the Mob stands; at the fists' impact a hole opens in them at the VS and widens until the whole page is back in colour. */}
       {mobState !== 'hidden' && (
         <>
           <div className={`siege-veil sat ${shattered ? 'healing' : 'on'}`} aria-hidden />
@@ -541,19 +416,21 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
             </div>
           )}
           {mob && (mobState === 'up' || mobState === 'falling') && (
-            <button className={`threat-spot ${mobState} ${shattered ? 'shattered' : ''}`} aria-label="The Mob. Click to neutralize it together." onClick={defeatMob}>
-              <MobCracks />
+            <button className={`threat-spot ${mobState}`} aria-label="The Mob. Click to neutralize it together." onClick={defeatMob}>
               <MobSparks burst={burst} />
-              <span className="mob-shape">{mobCard}</span>
-              {shattered && (
-                <span className="mob-shards" aria-hidden>
-                  {SHARDS.map((sh, i) => (
-                    <span key={i} className="shard" style={{ clipPath: sh.clip, '--dx': `${sh.dx}px`, '--dy': `${sh.dy}px`, '--rot': `${sh.rot}deg`, '--delay': `${sh.delay}ms` } as CSSProperties}>
-                      <span className="mob-shape">{mobCard}</span>
-                    </span>
-                  ))}
+              <span className="mob-shape">
+                <span className="mob-inner">
+                  <span className="threat-spot-art">
+                    <Art kind="threats" id={mob.id} className="threat-spot-img" fallback={<span className="ini">⚠</span>} alt="" />
+                  </span>
+                  <span className="threat-spot-body">
+                    <span className="threat-spot-name">The {mob.name}</span>
+                    <span className="threat-spot-text">Organized violence aimed at exactly the people who are winning. It needs {mob.force} Force in one turn to break.</span>
+                    <span className="threat-spot-rule">Work together to overcome.</span>
+                    <small>Both players may contribute Force.</small>
+                  </span>
                 </span>
-              )}
+              </span>
             </button>
           )}
           {(mobState === 'down' || mobState === 'fading') && (
