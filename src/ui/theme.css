@@ -1207,7 +1207,7 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .deck-cards::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 3px; }
 /* The frame carries a transparent margin on each side, so the cards overlap by that much and the gold edges nearly touch. */
 .deck-cards .card { flex: none; scroll-snap-align: start; cursor: pointer; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.55); transition: transform 0.15s, box-shadow 0.15s; }
-.deck-cards .card.tpl + .card.tpl { margin-left: calc(var(--card-w) * -0.09); }
+.deck-cards .card.tpl + .card.tpl { margin-left: calc(var(--card-w) * -0.09) !important; }
 .deck-cards .card:hover { transform: translateY(-3px); box-shadow: 0 10px 18px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--gold-2); }
 @media (width <= 700px) { .deck-cards { --card-w: 96px; gap: 6px; } .deck-cards .card .ability { display: block; } }
 

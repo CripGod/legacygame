@@ -120,9 +120,8 @@
 .deck-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; align-items: start; }
 .deck-panel .deck-cards { align-items: flex-start; }
 .deck-panel .deck-cards { margin-top: 0; padding: 8px 2px 10px; }
-/* The first card leads: a touch bigger, glowing. */
-.deck-panel .deck-cards .card:first-child { transform: translateY(-4px) scale(1.05); box-shadow: 0 12px 22px rgba(0, 0, 0, 0.65), 0 0 0 1.5px var(--gold-2), 0 0 18px var(--pc-soft); margin: 0 4px; }
-.deck-panel.theirs .deck-cards .card:first-child { box-shadow: 0 12px 22px rgba(0, 0, 0, 0.65), 0 0 0 1.5px #bfe0ff, 0 0 18px var(--pc-soft); }
+/* Every card in the row is the same size; the first one only carries the deck's glow. */
+.deck-panel .deck-cards .card:first-child { margin: 0; }
 .deck-random { align-self: center; padding: 16px; font-style: italic; color: #cfd6e2; }
 .vs-col { --vs: clamp(36px, 4.4vw, 68px); position: relative; display: grid; place-items: center; min-width: 0; }
 .vs { align-self: center; margin-top: 0; transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.4), opacity 0.4s; font-family: var(--display); font-weight: 800; font-size: var(--vs); color: var(--gold-2); text-shadow: 0 0 24px rgba(233, 185, 58, 0.65), 0 4px 0 rgba(90, 60, 8, 0.7); padding: 0 6px; }
