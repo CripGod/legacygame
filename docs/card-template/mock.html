@@ -1,0 +1,80 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Crimson+Pro:ital,wght@0,500;0,600;0,700;1,500&display=swap">
+<style>
+  body { margin: 0; background: #222; display: flex; gap: 40px; padding: 40px; font-family: 'Crimson Pro', Georgia, serif; }
+  /* The card is laid out at the template's native 1103 x 1426 and scaled for the screenshot. */
+  .card { position: relative; width: 1103px; height: 1426px; overflow: hidden; border-radius: 28px; background: #08131f; color: #1b1a17; }
+  .bleed { position: absolute; inset: -6%; background-size: cover; background-position: center 20%; filter: blur(14px) brightness(0.45) saturate(0.8); }
+  .bleed::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 30%, rgba(8,19,31,0) 30%, rgba(8,19,31,0.75) 100%); }
+  .art { position: absolute; left: 140px; top: 82px; width: 818px; height: 566px; background-size: cover; background-position: center 18%; }
+  .frame { position: absolute; inset: 0; width: 1103px; height: 1426px; pointer-events: none; }
+  .num { position: absolute; font-family: 'Cinzel', Georgia, serif; font-weight: 800; color: #fff; text-align: center; transform: translate(-50%, -50%); text-shadow: 0 3px 4px rgba(0,0,0,0.55), 0 0 2px rgba(0,0,0,0.6); }
+  .cost { left: 182px; top: 130px; font-size: 92px; }
+  .inf { left: 152px; top: 1252px; font-size: 100px; }
+  .force { left: 945px; top: 1252px; font-size: 100px; }
+  .kind { position: absolute; left: 182px; top: 252px; transform: translate(-50%, -50%); width: 60px; height: 60px; }
+  .kind svg { width: 100%; height: 100%; fill: none; stroke: #f6d77a; stroke-width: 5; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.6)); }
+  .pennant { position: absolute; right: 100px; top: 18px; width: 150px; height: 350px; background: linear-gradient(180deg, #14305a, #0b1e3c); border: 6px solid #d8a83a; border-top: 0; clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%); box-shadow: 0 6px 18px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 24px 10px; box-sizing: border-box; }
+  .pennant .sun { width: 84px; height: 84px; margin: 6px 0 18px; }
+  .pennant .motto { font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 20px; line-height: 1.35; letter-spacing: 0.1em; color: #f3e8cf; text-align: center; }
+  .pennant .dia { color: #f6d77a; font-size: 22px; margin-top: 14px; }
+  .name { position: absolute; left: 150px; right: 150px; top: 676px; height: 77px; display: flex; align-items: center; justify-content: center; font-family: 'Cinzel', Georgia, serif; font-weight: 800; font-size: 66px; letter-spacing: 0.03em; color: #f3e8cf; text-shadow: 0 3px 6px rgba(0,0,0,0.7); white-space: nowrap; }
+  .name.long { font-size: 54px; }
+  .name.xlong { font-size: 44px; }
+  .tag { position: absolute; left: 50%; top: 742px; transform: translateX(-50%); padding: 6px 44px; background: linear-gradient(180deg, #2d63d6, #12308a); border: 4px solid #e9b93a; border-radius: 10px; font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 32px; letter-spacing: 0.22em; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+  .era { position: absolute; left: 0; right: 0; top: 812px; text-align: center; font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 30px; letter-spacing: 0.12em; color: #2a2418; }
+  .rules { position: absolute; left: 165px; right: 160px; top: 866px; height: 350px; font-size: 34px; line-height: 1.24; color: #1b1a17; font-weight: 500; overflow: hidden; }
+  .rules .kw { font-family: 'Cinzel', Georgia, serif; font-weight: 800; font-size: 30px; letter-spacing: 0.06em; color: #12308a; }
+  .rules b { font-weight: 700; }
+  .rules .sep { text-align: center; color: #b58a1c; font-size: 26px; margin: 10px 0 8px; position: relative; }
+  .rules .sep::before, .rules .sep::after { content: ''; position: absolute; top: 55%; width: 42%; border-top: 2px solid #c9a53a; }
+  .rules .sep::before { left: 0; } .rules .sep::after { right: 0; }
+  .rules.fit { font-size: 30px; line-height: 1.2; } .rules.fit .kw { font-size: 26px; }
+  .quote { position: absolute; left: 270px; right: 270px; top: 1240px; height: 56px; display: flex; align-items: center; justify-content: center; text-align: center; font-style: italic; font-size: 28px; line-height: 1.15; color: #f3e8cf; text-shadow: 0 2px 3px rgba(0,0,0,0.7); }
+  .card.event .art { background-position: center; }
+  .card.event .tag { background: linear-gradient(180deg, #7a5cc6, #3a2570); }
+  .card.mythic .tag { background: linear-gradient(180deg, #c0392b, #6a1410); }
+</style>
+<body></body>
+<script>
+const ART = '../../public/art/';
+const CARDS = [
+  { id: 'david_ruggles', kind: 'characters', name: 'David Ruggles', tag: 'Vigilance', era: '1810–1849', cost: 3, inf: 3, force: 1, icon: 'book', motto: 'Truth organizes freedom',
+    rules: [['Reveal', 'The <b>Slaveholders Directory:</b> an Informant at your Gates at this Location is found out and sent back to the hand of the player who planted it (discarded if that hand is full). With none here to name, he prints anyway: draw a card.'], ['Established', 'The Committee of Vigilance: your Characters at this Location cannot be blocked from entering.']],
+    quote: '“The press is a weapon against slavery.”' },
+  { id: 'shango', kind: 'characters', cls: 'mythic', name: 'Shango', tag: 'Mythic', era: 'Yoruba · Oyo', cost: 6, inf: 6, force: 6, icon: 'bolt', motto: 'Thunder keeps the law',
+    rules: [['Reveal', '<b>Thunder:</b> CHALLENGE every opposing Gate Character here. Each with lower Force than Shango is displaced to a random other Location.'], ['Established', 'Your Characters confront Threats here with +2 Force.']],
+    quote: '“The axe and the drum never fell silent.”' },
+  { id: 'reparations', kind: 'events', cls: 'event', name: 'Reparations', tag: 'Event', era: 'Every era', cost: 1, inf: null, force: null, icon: 'star', motto: 'The debt is owed where it was run up',
+    rules: [['Play', 'Choose a Location: +1 lasting Influence there for each Setback you have suffered this match (max +4). It counts at the end no matter when you play it. <b>In the Americas:</b> +1 more.']],
+    quote: '“Only neutral historical harm counts.”' },
+];
+const ICONS = {
+  book: '<svg viewBox="0 0 64 64"><path d="M8 14c8-4 16-4 24 2 8-6 16-6 24-2v36c-8-4-16-4-24 2-8-6-16-6-24-2z"/><path d="M32 16v38"/></svg>',
+  bolt: '<svg viewBox="0 0 64 64"><path d="M36 4 14 36h16l-4 24 24-34H34z"/></svg>',
+  star: '<svg viewBox="0 0 64 64"><path d="M32 6l6 18h19l-15 11 6 19-16-12-16 12 6-19L7 24h19z"/></svg>',
+};
+const SUN = '<svg class="sun" viewBox="0 0 64 64" fill="none" stroke="#f6d77a" stroke-width="2.5" stroke-linecap="round"><path d="M32 4v14M32 46v14M4 32h14M46 32h14M12 12l10 10M42 42l10 10M52 12L42 22M22 42 12 52"/><path d="M32 22l4 8 8 2-8 2-4 8-4-8-8-2 8-2z" fill="#f6d77a"/></svg>';
+for (const c of CARDS) {
+  const el = document.createElement('div');
+  el.className = `card ${c.cls ?? ''}`; el.dataset.id = c.id;
+  const src = `${ART}${c.kind}/${c.id}.jpg`;
+  const nameCls = c.name.length > 15 ? (c.name.length > 22 ? 'xlong' : 'long') : '';
+  el.innerHTML = `
+    <div class="bleed" style="background-image:url('${src}')"></div>
+    <div class="art" style="background-image:url('${src}')"></div>
+    <img class="frame" src="card-frame.png">
+    <div class="num cost">${c.cost}</div>
+    <div class="kind">${ICONS[c.icon]}</div>
+    <div class="pennant">${SUN}<div class="motto">${c.motto.toUpperCase()}</div><div class="dia">✦</div></div>
+    <div class="name ${nameCls}">${c.name}</div>
+    <div class="tag">${c.tag.toUpperCase()}</div>
+    <div class="era">${c.era}</div>
+    <div class="rules">${c.rules.map(([k, t]) => `<div><span class="kw">${k.toUpperCase()}:</span> ${t}</div>`).join('<div class="sep">◆</div>')}</div>
+    <div class="quote">${c.quote}</div>
+    ${c.inf !== null ? `<div class="num inf">${c.inf}</div><div class="num force">${c.force}</div>` : ''}`;
+  document.body.appendChild(el);
+  const r = el.querySelector('.rules'); if (r.scrollHeight > r.clientHeight) r.classList.add('fit');
+}
+</script>
