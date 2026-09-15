@@ -1199,7 +1199,7 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .deck-cards {
   --card-w: 196px;
   /* No edge mask: a masked scroller is rasterized as one bitmap and the card type goes soft. Room above and below for the hover lift. */
-  display: flex; flex-wrap: nowrap; gap: 0; margin-top: 8px; padding: 18px 2px 12px;
+  display: flex; flex-wrap: nowrap; gap: 0; margin-top: 8px; padding: 38px 2px 8px;
   overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scroll-snap-type: x proximity;
   scrollbar-width: thin; scrollbar-color: var(--gold-dark) transparent;
 }

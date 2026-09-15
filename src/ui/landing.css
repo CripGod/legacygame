@@ -119,7 +119,7 @@
 .deck-panel.theirs .deck-tabs button.primary { background: linear-gradient(180deg, #a9d0ff, #4d8fe6); border-color: #cfe4ff; color: #04162e; }
 .deck-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; align-items: start; }
 .deck-panel .deck-cards { align-items: flex-start; }
-.deck-panel .deck-cards { margin-top: 0; padding: 18px 2px 12px; }
+.deck-panel .deck-cards { margin-top: 0; padding: 38px 2px 8px; }
 /* The soft fade at the row's right edge is an overlay, not a mask on the scroller: a masked scroller is rasterized as
    one bitmap and the card type goes soft. */
 .deck-row { position: relative; }
