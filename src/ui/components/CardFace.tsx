@@ -42,6 +42,45 @@ function kindOf(def: { kind: string; category?: string; keywords?: string[]; cur
 }
 
 /** One stroke icon per kind, drawn in the frame's gold. */
+/**
+ * The two words in the band at the foot of a Character card, one each side of the frame's centre diamond: a field
+ * and a role, read from the card's tags (first and last, past the kind tags), with a hand-picked pair where the
+ * tags give only one word or an awkward one.
+ */
+const BAND_WORDS: Record<string, [string, string]> = {
+  harriet_tubman: ['Abolition', 'Freedom'],
+  john_brown: ['Abolition', 'Harpers Ferry'],
+  katherine_johnson: ['Science', 'Spaceflight'],
+  zora_neale_hurston: ['Harlem', 'Writer'],
+  alonzo_herndon: ['Atlanta', 'Business'],
+  madam_cj_walker: ['Business', 'Philanthropy'],
+  scott_joplin: ['Ragtime', 'Music'],
+  claudette_colvin: ['Montgomery', 'Civil Rights'],
+  bessie_coleman: ['Flight', 'Aviator'],
+  organizer: ['Organizing', 'Movement'],
+  og: ['Elder', 'Community'],
+  chairteenth: ['Gathering', 'Defense'],
+  peter_prioleau: ['Charleston', 'Informant'],
+  george_wilson: ['Charleston', 'Informant'],
+  pharoah_and_tom: ['Richmond', 'Informant'],
+  ben_woolfolk: ['Richmond', 'Informant'],
+  henry_ossawa_tanner: ['Painter', 'Faith'],
+  robert_duncanson: ['Landscape', 'Painter'],
+  edward_bannister: ['Providence', 'Painter'],
+  harriet_powers: ['Quilter', 'Faith'],
+  dave_the_potter: ['Potter', 'Letters'],
+};
+const KIND_TAGS = new Set(['Black', 'Ally', 'Mythic', 'Gathering', 'Archetype', 'Artist']);
+function bandFor(def: { id: string; tags: string[] }): [string, string] {
+  const fixed = BAND_WORDS[def.id];
+  if (fixed) return fixed;
+  const rest = def.tags.filter((t) => !KIND_TAGS.has(t));
+  if (rest.length >= 2) return [rest[0], rest[rest.length - 1]];
+  return [rest[0] ?? def.tags[0] ?? '', ''];
+}
+/** Long words step the band's type down so they stay inside their half. */
+const bandSize = (w: string) => (w.length >= 14 ? 'xlong' : w.length >= 11 ? 'long' : '');
+
 /* Each viewBox is shifted so the glyph's ink (measured with getBBox) is centred in the box, not just its 64-unit square. */
 const KIND_ICONS: Record<CardKind, React.ReactNode> = {
   historical: (
@@ -167,7 +206,7 @@ export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id
       ro.disconnect();
     };
   }, [id, big]);
-  const strip = isChar ? def.tags.filter((t) => t !== 'Black').join(' · ') : curse ? 'Lands on the other side' : 'Played, then gone';
+  const band = isChar ? bandFor(def) : null;
   return (
     <div className={`card tpl ${big ? 'big' : ''} ${isChar ? '' : 'event'} ${curse ? 'curse' : ''} ${kind === 'informant' ? 'informant' : ''} ${kind === 'artist' ? 'artist' : ''} k-${kind}`} onClick={onClick} role={onClick ? 'button' : undefined}>
       <div className="tpl-art" style={{ background: hueFor(id) }}>
@@ -203,7 +242,12 @@ export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id
           )}
         </div>
       </div>
-      {big && isChar && !placeholders && <div className="tpl-strip">{strip}</div>}
+      {big && band && !placeholders && (
+        <div className="tpl-strip">
+          <span className={`tpl-strip-l ${bandSize(band[0])}`}>{band[0]}</span>
+          <span className={`tpl-strip-r ${bandSize(band[1])}`}>{band[1]}</span>
+        </div>
+      )}
       {isChar && (
         <>
           <div className="tpl-num tpl-inf" {...tip(HINTS.influence)}>

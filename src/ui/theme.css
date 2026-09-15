@@ -1570,7 +1570,14 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl .tpl-sep::before { left: 0; } .card.tpl .tpl-sep::after { right: 0; }
 .card.tpl .tpl-blurb { margin-top: 1.3cqw; padding-top: 1.1cqw; border-top: 0.18cqw dotted #c9a53a; font-style: italic; color: #4a3f28; font-size: 3.5cqw; }
 /* The bottom band: the Character's tags; the Event band has a gem through its middle and carries nothing. */
-.card.tpl .tpl-strip { z-index: 3; left: 25cqw; right: 25cqw; top: 112.2cqw; height: 5cqw; display: flex; align-items: center; justify-content: center; text-align: center; font-family: var(--display); font-weight: 600; font-size: 2.3cqw; letter-spacing: 0.14em; text-transform: uppercase; line-height: 1.1; color: var(--parchment); text-shadow: 0 0.18cqw 0.27cqw rgba(0, 0, 0, 0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* The band at the foot: the navy runs x 272-833 of the 1103-wide frame and its centre diamond rises to a tip at
+   x 551, so the band is two word spaces (280-522 and 581-823) either side of a gap the diamond owns, each word
+   centred in its own half. */
+.card.tpl .tpl-strip { z-index: 3; left: 25.4cqw; right: 25.4cqw; top: 112cqw; height: 5.9cqw; display: grid; grid-template-columns: 1fr 5.4cqw 1fr; align-items: center; font-family: var(--display); font-weight: 600; font-size: 2.3cqw; letter-spacing: 0.14em; text-transform: uppercase; line-height: 1.1; color: var(--parchment); text-shadow: 0 0.18cqw 0.27cqw rgba(0, 0, 0, 0.7); white-space: nowrap; }
+.card.tpl .tpl-strip-l, .card.tpl .tpl-strip-r { min-width: 0; text-align: center; overflow: hidden; text-overflow: ellipsis; padding: 0 0.3cqw; }
+.card.tpl .tpl-strip-r { grid-column: 3; }
+.card.tpl .tpl-strip .long { font-size: 1.95cqw; letter-spacing: 0.1em; }
+.card.tpl .tpl-strip .xlong { font-size: 1.7cqw; letter-spacing: 0.08em; }
 .card.tpl.event .tpl-strip { display: none; }
 .card.tpl.curse .tpl-rules, .card.tpl.curse .tpl-summary { color: #2a1d40; }
 .hand .card-wrap.unaffordable .card.tpl { box-shadow: none; filter: saturate(0.4) brightness(0.75) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.6)); }
