@@ -1198,9 +1198,9 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 /* One row, scrolled sideways, so the picker stays short. A faded edge hints that more cards follow. */
 .deck-cards {
   --card-w: 196px;
-  display: flex; flex-wrap: nowrap; gap: 0; margin-top: 8px; padding: 6px 2px 10px;
+  /* No edge mask: a masked scroller is rasterized as one bitmap and the card type goes soft. Room above and below for the hover lift. */
+  display: flex; flex-wrap: nowrap; gap: 0; margin-top: 8px; padding: 34px 2px 36px;
   overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scroll-snap-type: x proximity;
-  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
   scrollbar-width: thin; scrollbar-color: var(--gold-dark) transparent;
 }
 .deck-cards::-webkit-scrollbar { height: 6px; }
@@ -1208,7 +1208,10 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 /* The frame carries a transparent margin on each side, so the cards overlap by that much and the gold edges nearly touch. */
 .deck-cards .card { flex: none; scroll-snap-align: start; cursor: pointer; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.55); transition: transform 0.15s, box-shadow 0.15s; }
 .deck-cards .card.tpl + .card.tpl { margin-left: calc(var(--card-w) * -0.09) !important; }
-.deck-cards .card:hover { transform: translateY(-3px); box-shadow: 0 10px 18px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--gold-2); }
+/* Hover lifts a landing card the way the hand does, so the one you are looking at is the big one. */
+.deck-cards .card.tpl { transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1), filter 160ms; }
+.deck-cards .card.tpl:hover { transform: scale(1.28); z-index: 5; filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.7)); }
+@media (prefers-reduced-motion: reduce) { .deck-cards .card.tpl { transition: none; } .deck-cards .card.tpl:hover { transform: none; } }
 @media (width <= 700px) { .deck-cards { --card-w: 96px; gap: 6px; } .deck-cards .card .ability { display: block; } }
 
 /* ---------- Card names scale with the card, not the window ---------- */
