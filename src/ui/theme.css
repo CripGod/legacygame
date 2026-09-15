@@ -1580,6 +1580,6 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 /* Landing-page thumbnails are a first impression, read at a glance: the name is one size, wraps to two lines when it
    must, and sits over a gold rule; the summary is a teaser, clamped to three lines with an ellipsis. */
 .deck-cards .card.tpl .tpl-name, .deck-cards .card.tpl .tpl-name.long, .deck-cards .card.tpl .tpl-name.xlong { font-size: max(6.2cqw, 13px); white-space: normal; text-wrap: balance; line-height: 1.05; padding: 0.4cqw 0 3px; margin-bottom: 4px; border-bottom: 1px solid #c9a53a; }
-.deck-cards .card.tpl .tpl-name > span { display: block; }
+.deck-cards .card.tpl .tpl-name > span { display: block; width: 100%; text-align: center; }
 .deck-cards .card.tpl .tpl-summary { font-size: max(4.4cqw, 11px); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .deck-cards .card.tpl .tpl-num { font-size: max(9cqw, 16px); }
