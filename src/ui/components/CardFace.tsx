@@ -1,6 +1,8 @@
 import { CARD_BY_ID, type CharacterInstance, type GameState, charInfluence, isSuppressed } from '../../engine';
 import { abilityLines, cardName, cardShort, hueFor, initials, useDisplay } from '../display';
+import { useState } from 'react';
 import { Art } from './Art';
+import { artMissing, artUrl, markArtMissing } from '../art';
 import { tip, HINTS } from '../tip';
 
 /** The one-word role under the name: Mythic, Curse, Event, or the card's most specific tag. */
@@ -29,56 +31,129 @@ function nameSize(name: string): string {
   return '';
 }
 
-/** Full collectible card (hand, inspection). Always a 5:7 rigid rectangle. */
+/** The kind of card, for the frame's marks: the icon in the ribbon under the cost and the colour of the tag pill. */
+type CardKind = 'historical' | 'mythic' | 'artist' | 'informant' | 'event' | 'curse';
+function kindOf(def: { kind: string; category?: string; keywords?: string[]; curse?: boolean }): CardKind {
+  if (def.kind === 'event') return def.curse ? 'curse' : 'event';
+  if (def.keywords?.includes('INFORMANT')) return 'informant';
+  if (def.category === 'mythic') return 'mythic';
+  if (def.category === 'artist') return 'artist';
+  return 'historical';
+}
+
+/** One stroke icon per kind, drawn in the frame's gold. */
+const KIND_ICONS: Record<CardKind, React.ReactNode> = {
+  historical: (
+    <svg viewBox="0 0 64 64">
+      <path d="M8 14c8-4 16-4 24 2 8-6 16-6 24-2v36c-8-4-16-4-24 2-8-6-16-6-24-2z" />
+      <path d="M32 16v38" />
+    </svg>
+  ),
+  mythic: (
+    <svg viewBox="0 0 64 64">
+      <path d="M36 4 14 36h16l-4 24 24-34H34z" />
+    </svg>
+  ),
+  artist: (
+    <svg viewBox="0 0 64 64">
+      <path d="M32 6C17 6 6 17 6 30c0 14 10 22 20 22 5 0 6-3 6-6 0-4 3-6 7-6h6c8 0 13-5 13-12C58 15 46 6 32 6z" />
+      <circle cx="20" cy="26" r="3" />
+      <circle cx="30" cy="17" r="3" />
+      <circle cx="43" cy="20" r="3" />
+    </svg>
+  ),
+  informant: (
+    <svg viewBox="0 0 64 64">
+      <path d="M8 22c8-6 40-6 48 0-2 16-10 26-24 30C18 48 10 38 8 22z" />
+      <path d="M18 30c4-3 8-3 12 0M34 30c4-3 8-3 12 0" />
+    </svg>
+  ),
+  event: (
+    <svg viewBox="0 0 64 64">
+      <path d="M32 6l6 18h19l-15 11 6 19-16-12-16 12 6-19L7 24h19z" />
+    </svg>
+  ),
+  curse: (
+    <svg viewBox="0 0 64 64">
+      <path d="M32 8c-10 0-18 8-18 18 0 8 4 12 8 16v6h20v-6c4-4 8-8 8-16 0-10-8-18-18-18z" />
+      <path d="M24 30h4M36 30h4M26 54h12" />
+    </svg>
+  ),
+};
+
+/**
+ * The frame: the designer's PNG with its window knocked out, exported as WebP at two sizes (public/art/frames). Events
+ * take their own frame when it exists and the Character frame until then; a missing file falls back the same way.
+ */
+function Frame({ kind, big }: { kind: 'character' | 'event'; big: boolean }) {
+  const want = `${kind}${big ? '' : '-sm'}`;
+  const back = `character${big ? '' : '-sm'}`;
+  const [id, setId] = useState(() => (artMissing('frames', want) ? back : want));
+  return <img className="tpl-frame" src={artUrl('frames', id, 'webp')} alt="" draggable={false} onError={() => { markArtMissing('frames', id); if (id !== back) setId(back); }} />;
+}
+
+/**
+ * Full collectible card (hand, inspection), laid out on the frame from docs/card-template.md: every measurement is a
+ * percentage of the card's width (cqw), so the one layout holds at hand size and at Codex size. At hand size the
+ * parchment carries the one-line summary; the big card prints every ability and the blurb and scrolls when they run
+ * long. Always a 1103 : 1426 rectangle, the frame's own shape.
+ */
 export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id: string; big?: boolean; onClick?: () => void; /** Cost right now, after discounts (defaults to the printed cost). */ cost?: number; costWhy?: string[]; /** A live chip over the art (Reparations: the Setback count). */ note?: string }) {
   const { placeholders } = useDisplay();
   const def = CARD_BY_ID[id];
   if (!def) return null;
   const isChar = def.kind === 'character';
-  const curse = !isChar && !!(def as { curse?: boolean }).curse;
+  const kind = kindOf(def);
+  const curse = kind === 'curse';
+  const name = cardName(id, placeholders);
+  const lines = big ? abilityLines(def) : [];
+  const strip = isChar ? def.tags.filter((t) => t !== 'Black').join(' · ') : curse ? 'A Curse: it lands on the other side' : 'An Event: played, then gone';
   return (
-    <div className={`card ${big ? 'big' : ''} ${isChar ? '' : 'event'} ${curse ? 'curse' : ''} ${isChar && def.keywords.includes('INFORMANT') ? 'informant' : ''} ${isChar && def.category === 'artist' ? 'artist' : ''}`} onClick={onClick} role={onClick ? 'button' : undefined}>
-      <div className={`cost ${cost !== undefined && cost < def.cost ? 'discounted' : ''}`} {...tip(cost !== undefined && cost < def.cost ? `Costs ${cost} right now instead of ${def.cost}${costWhy?.length ? ': ' + costWhy.join(', ') : ''}.` : HINTS.cost)}>
+    <div className={`card tpl ${big ? 'big' : ''} ${isChar ? '' : 'event'} ${curse ? 'curse' : ''} ${kind === 'informant' ? 'informant' : ''} ${kind === 'artist' ? 'artist' : ''} k-${kind}`} onClick={onClick} role={onClick ? 'button' : undefined}>
+      <div className="tpl-art" style={{ background: hueFor(id) }}>
+        {placeholders ? <span className="ini">{initials(id, true)}</span> : <Art kind={isChar ? 'characters' : 'events'} id={id} className="tpl-art-img" fallback={<span className="ini">{initials(id, false)}</span>} alt={def.name} />}
+        {note && <span className="card-note">{note}</span>}
+      </div>
+      <Frame kind={isChar ? 'character' : 'event'} big={big} />
+      <div className={`tpl-num tpl-cost ${cost !== undefined && cost < def.cost ? 'discounted' : ''}`} {...tip(cost !== undefined && cost < def.cost ? `Costs ${cost} right now instead of ${def.cost}${costWhy?.length ? ': ' + costWhy.join(', ') : ''}.` : HINTS.cost)}>
         {cost ?? def.cost}
       </div>
+      <div className="tpl-kind" aria-hidden>
+        {KIND_ICONS[kind]}
+      </div>
+      <div className={`tpl-name ${nameSize(name)}`}>{name}</div>
+      {!placeholders && <div className="tpl-tag">{ribbonFor(def)}</div>}
+      {big && isChar && !placeholders && <div className="tpl-era">{def.era}</div>}
+      <div className="tpl-rules">
+        {big ? (
+          <>
+            {lines.map((l, i) => (
+              <div key={l.label}>
+                {i > 0 && <div className="tpl-sep" aria-hidden>◆</div>}
+                <span className="kw">{l.label}:</span> {l.text}
+              </div>
+            ))}
+            {!placeholders && <div className="tpl-blurb">{def.blurb}</div>}
+          </>
+        ) : (
+          !placeholders && <div className="tpl-summary">{abilityFor(def)}</div>
+        )}
+      </div>
+      {big && !placeholders && <div className="tpl-strip">{strip}</div>}
       {isChar ? (
         <>
-          <div className="hex i" {...tip(HINTS.influence)}>
+          <div className="tpl-num tpl-inf" {...tip(HINTS.influence)}>
             {def.influence}
           </div>
-          <div className="hex f" {...tip(HINTS.force)}>
+          <div className="tpl-num tpl-force" {...tip(HINTS.force)}>
             {def.force}
           </div>
         </>
       ) : (
-        <div className="hex e" {...tip(HINTS.event)}>
+        <div className="tpl-num tpl-ev" aria-hidden {...tip(HINTS.event)}>
           EV
         </div>
       )}
-      <div className="card-art" style={{ background: hueFor(id) }}>
-        {placeholders ? <span className="ini">{initials(id, true)}</span> : <Art kind={isChar ? 'characters' : 'events'} id={id} className="portrait-img" fallback={<span className="ini">{initials(id, false)}</span>} alt={def.name} />}
-        {note && <span className="card-note">{note}</span>}
-      </div>
-      <div className="card-body">
-        <div className={`name ${nameSize(cardName(id, placeholders))}`}>{cardName(id, placeholders)}</div>
-        {!placeholders && <div className="ribbon">{ribbonFor(def)}</div>}
-        {!big && !placeholders && <div className="rule-line" aria-hidden />}
-        {!big && !placeholders && <div className="ability">{abilityFor(def)}</div>}
-        {big && isChar && !placeholders && <div className="era">{def.era}</div>}
-        <div className="text">
-        {big && abilityLines(def).map((l) => (
-          <div key={l.label}>
-            <span className="kw">{l.label}:</span> {l.text}
-          </div>
-        ))}
-        {big && !placeholders && <div className="blurb">{def.blurb}</div>}
-        {big && isChar && (
-          <div className="era" style={{ marginTop: 6 }}>
-            {def.tags.length ? def.tags.join(' · ') : ''}
-          </div>
-        )}
-        </div>
-      </div>
     </div>
   );
 }

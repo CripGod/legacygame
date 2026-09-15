@@ -9,7 +9,8 @@ Drop files into `public/art/<kind>/<id>.jpg`. The UI loads them by id and falls 
 | Character portrait | `public/art/characters/<id>.jpg` | 512 × 512, JPG, quality 80, under 120 KB | Square. Chest-up, face centred in the middle 60% (it is shown as a circle on the card and cropped to a square on board tiles). Dark, muted background so the player-colour borders read. No text. |
 | Location banner | `public/art/locations/<id>.jpg` | 1200 × 400, JPG, quality 80, under 200 KB | 3:1 wide scene. Keep the important content in the middle 70%: the name is overlaid in the centre and the era bottom-right. Mid-to-dark values so white type stays legible. |
 | Threat | `public/art/threats/<id>.jpg` | 512 × 512, JPG | Symbolic, not a portrait of a person. Used in the Threat sheet. |
-| Event | `public/art/events/<id>.jpg` | 512 × 512, JPG | Symbolic. Shown as the circle on the Event card. |
+| Event | `public/art/events/<id>.jpg` | 512 × 512, JPG | Symbolic. Shown in the Event card's art window. |
+| Card frame | `public/art/frames/<kind>.webp` and `<kind>-sm.webp` | 1103 × 1426 and 552 × 714, WebP with alpha | The designer's frame with the art window knocked out: `character` (blue) and, when supplied, `event` (purple). See `docs/card-template.md`. |
 
 Style: one consistent painterly treatment across the set (the same brush, the same palette temperature) so archetypes and historical figures sit together. Historical figures should be recognisable but not photographic. Archetypes (Organizer, OG, Karen, Pullman Porter) are invented people, period-appropriate.
 

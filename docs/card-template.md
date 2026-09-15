@@ -1,7 +1,8 @@
-# The universal card template (sketch, not in the game yet)
+# The universal card template
 
-The frame the designer supplied (`docs/card-template/card-template.png`, 1103 × 1426) becomes the one card face
-for every kind of card: Characters, Mythics, Artists, Informants, Events and Curses. This note records how it is
+The frame the designer supplied (`docs/card-template/card-template.png`, 1103 × 1426) is the one card face for every
+kind of card, in the game since build 174 (`src/ui/components/CardFace.tsx`, the `.card.tpl` rules in `theme.css`, the
+frame exported as WebP at 1103 and 552 px in `public/art/frames`): Characters, Mythics, Artists, Informants, Events and Curses. This note records how it is
 cut up, what goes where, and how it would be built, so the eventual `CardFace` v2 (and the Unity prefab) follow the
 same measurements. `docs/card-template/mock.html` is the working sketch: open it in a browser (it reads the art from
 `public/art`) and it lays out three cards on the frame, one at a time, with the rules scrolling; `mock-*.png` are
