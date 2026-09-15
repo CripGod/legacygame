@@ -1197,7 +1197,7 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 /* Each preset shows its cards in miniature; tap one for the Compendium sheet. */
 /* One row, scrolled sideways, so the picker stays short. A faded edge hints that more cards follow. */
 .deck-cards {
-  --card-w: 112px;
+  --card-w: 128px;
   display: flex; flex-wrap: nowrap; gap: 0; margin-top: 8px; padding: 6px 2px 10px;
   overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scroll-snap-type: x proximity;
   -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
@@ -1536,11 +1536,11 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl .card-note { z-index: 3; right: 15cqw; bottom: auto; top: 51cqw; }
 /* The medallions: cost top-left, Influence and Force bottom corners (the Event frame has laurels there instead). */
 .card.tpl .tpl-num { z-index: 5; font-family: var(--display); font-weight: 800; color: #fff; text-align: center; transform: translate(-50%, -50%); line-height: 1; text-shadow: 0 0.45cqw 0.9cqw rgba(0, 0, 0, 0.9), 0 0 1.4cqw rgba(0, 0, 0, 0.7), 0 0.18cqw 0.27cqw rgba(0, 0, 0, 0.9); }
-.card.tpl .tpl-cost { left: 16.5cqw; top: 11.8cqw; font-size: max(8.3cqw, 11px); }
+.card.tpl .tpl-cost { left: 16.5cqw; top: 11.8cqw; font-size: max(8.3cqw, 13px); }
 .card.tpl.event .tpl-cost { left: 14cqw; top: 13.6cqw; font-size: max(9cqw, 11px); }
 .card.tpl .tpl-cost.discounted { color: #d8ffe4; filter: drop-shadow(0 0 0.8cqw #7ef0a0); }
-.card.tpl .tpl-inf { left: 13.6cqw; top: 112.9cqw; font-size: max(9cqw, 12px); }
-.card.tpl .tpl-force { left: 85.7cqw; top: 112.9cqw; font-size: max(9cqw, 12px); }
+.card.tpl .tpl-inf { left: 13.6cqw; top: 112.9cqw; font-size: max(9cqw, 14px); }
+.card.tpl .tpl-force { left: 85.7cqw; top: 112.9cqw; font-size: max(9cqw, 14px); }
 .card.tpl .tpl-ev { display: none; }
 .card.tpl .tpl-kind { z-index: 5; left: 16.6cqw; top: 23.75cqw; transform: translate(-50%, -50%); width: 5.8cqw; height: 5.8cqw; }
 .card.tpl.event .tpl-kind { left: 13.6cqw; top: 26.3cqw; width: 6.2cqw; height: 6.2cqw; }
@@ -1548,14 +1548,14 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 /* The parchment: name, meta line, rules. */
 .card.tpl .tpl-body { z-index: 3; left: 15cqw; right: 14.3cqw; top: 65cqw; height: 39cqw; display: flex; flex-direction: column; align-items: stretch; gap: 0; }
 .card.tpl.event .tpl-body { left: 13cqw; right: 12.8cqw; top: 67.5cqw; height: 37cqw; }
-.card.tpl .tpl-name { position: static; display: flex; justify-content: center; align-items: center; flex: none; width: 100%; font-family: var(--display); font-weight: 800; font-size: max(6.2cqw, 8.5px); line-height: 1.08; letter-spacing: 0.02em; color: #14110c; white-space: nowrap; padding: 0.4cqw 0 0; transform-origin: 50% 50%; overflow: visible; text-shadow: none; }
-.card.tpl .tpl-name.long { font-size: max(5.2cqw, 7.5px); }
-.card.tpl .tpl-name.xlong { font-size: max(4.4cqw, 6.5px); }
+.card.tpl .tpl-name { position: static; display: flex; justify-content: center; align-items: center; flex: none; width: 100%; font-family: var(--display); font-weight: 800; font-size: max(6.2cqw, 11px); line-height: 1.08; letter-spacing: 0.02em; color: #14110c; white-space: nowrap; padding: 0.4cqw 0 0; transform-origin: 50% 50%; overflow: visible; text-shadow: none; }
+.card.tpl .tpl-name.long { font-size: max(5.2cqw, 10px); }
+.card.tpl .tpl-name.xlong { font-size: max(4.4cqw, 9px); }
 .card.tpl .tpl-meta { position: static; flex: none; text-align: center; font-family: var(--display); font-weight: 700; font-size: max(2.5cqw, 5px); letter-spacing: 0.16em; text-transform: uppercase; color: #8a6a14; padding: 0.6cqw 0 0.9cqw; border-bottom: 0.18cqw solid #c9a53a; margin-bottom: 1cqw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .card.tpl:not(.big) .tpl-meta { display: none; }
 .card.tpl .tpl-rules { position: static; flex: 1 1 auto; min-height: 0; padding-right: 1.2cqw; font-size: 4cqw; line-height: 1.22; font-weight: 500; color: var(--ink); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #c9a53a transparent; }
-.card.tpl:not(.big) .tpl-rules { overflow: hidden; padding-top: 1cqw; }
-.card.tpl .tpl-summary { font-family: var(--font); font-weight: 600; font-size: max(4.4cqw, 7.5px); line-height: 1.15; text-align: center; color: #2a2418; }
+.card.tpl:not(.big) .tpl-rules { overflow: hidden; padding: 0.8cqw 0.4cqw 0 0; }
+.card.tpl .tpl-summary { font-family: var(--font); font-weight: 600; font-size: max(4.4cqw, 9.5px); line-height: 1.12; text-align: center; color: #2a2418; }
 .card.tpl .tpl-rules .kw { font-family: var(--display); font-weight: 800; font-size: 3.5cqw; letter-spacing: 0.05em; color: #12308a; }
 .card.tpl.event .tpl-rules .kw { color: #4a2d8a; }
 .card.tpl .tpl-sep { text-align: center; color: #b58a1c; font-size: 2.5cqw; margin: 0.9cqw 0 0.7cqw; position: relative; }

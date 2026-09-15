@@ -122,7 +122,7 @@ export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id
       const need = text.getBoundingClientRect().width;
       if (!avail || need <= avail) return;
       const base = parseFloat(getComputedStyle(el).fontSize);
-      const floor = Math.max(big ? 12 : 6.5, base * 0.72);
+      const floor = Math.max(big ? 12 : 9, base * 0.8);
       const size = Math.max(floor, (base * avail) / need);
       el.style.fontSize = `${size.toFixed(2)}px`;
       const still = text.getBoundingClientRect().width;
@@ -140,6 +140,30 @@ export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id
       ro.disconnect();
     };
   }, [name, big]);
+  // The hand card's summary steps down, never below 8.5px, when it would run past the parchment, so no line is cut.
+  const rulesRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const box = rulesRef.current;
+    const text = box?.firstElementChild as HTMLElement | null;
+    if (!box || !text || big) return;
+    const fit = () => {
+      text.style.fontSize = '';
+      let size = parseFloat(getComputedStyle(text).fontSize);
+      for (let i = 0; i < 8 && box.scrollHeight > box.clientHeight + 1 && size > 8.5; i++) {
+        size = Math.max(8.5, size - 0.5);
+        text.style.fontSize = `${size}px`;
+      }
+    };
+    fit();
+    let live = true;
+    document.fonts?.ready.then(() => live && fit());
+    const ro = new ResizeObserver(fit);
+    ro.observe(box);
+    return () => {
+      live = false;
+      ro.disconnect();
+    };
+  }, [id, big]);
   const strip = isChar ? def.tags.filter((t) => t !== 'Black').join(' · ') : curse ? 'Lands on the other side' : 'Played, then gone';
   return (
     <div className={`card tpl ${big ? 'big' : ''} ${isChar ? '' : 'event'} ${curse ? 'curse' : ''} ${kind === 'informant' ? 'informant' : ''} ${kind === 'artist' ? 'artist' : ''} k-${kind}`} onClick={onClick} role={onClick ? 'button' : undefined}>
@@ -160,7 +184,7 @@ export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id
           <span>{name}</span>
         </div>
         {!placeholders && <div className="tpl-meta">{isChar ? `${ribbonFor(def)}${def.era ? ` · ${def.era}` : ''}` : ribbonFor(def)}</div>}
-        <div className="tpl-rules">
+        <div className="tpl-rules" ref={rulesRef}>
           {big ? (
             <>
               {lines.map((l, i) => (
