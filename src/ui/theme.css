@@ -1197,7 +1197,7 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 /* Each preset shows its cards in miniature; tap one for the Compendium sheet. */
 /* One row, scrolled sideways, so the picker stays short. A faded edge hints that more cards follow. */
 .deck-cards {
-  --card-w: 128px;
+  --card-w: 176px;
   display: flex; flex-wrap: nowrap; gap: 0; margin-top: 8px; padding: 6px 2px 10px;
   overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scroll-snap-type: x proximity;
   -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
@@ -1533,7 +1533,9 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl .tpl-art .tpl-art-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 18%; }
 .card.tpl .tpl-art .ini { font-family: var(--display); font-weight: 800; font-size: 18cqw; color: rgba(255, 255, 255, 0.85); }
 .card.tpl .tpl-frame { inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; user-select: none; }
-.card.tpl .card-note { z-index: 3; right: 15cqw; bottom: auto; top: 51cqw; }
+/* The live chip (Reparations: the Setback count) rides above the frame, tucked into the window's lower right. */
+.card.tpl .tpl-note { z-index: 4; left: auto; right: 16cqw; bottom: auto; top: 50cqw; }
+.card.tpl.event .tpl-note { right: 13cqw; top: 54cqw; }
 /* The medallions: cost top-left, Influence and Force bottom corners (the Event frame has laurels there instead). */
 .card.tpl .tpl-num { z-index: 5; font-family: var(--display); font-weight: 800; color: #fff; text-align: center; transform: translate(-50%, -50%); line-height: 1; text-shadow: 0 0.45cqw 0.9cqw rgba(0, 0, 0, 0.9), 0 0 1.4cqw rgba(0, 0, 0, 0.7), 0 0.18cqw 0.27cqw rgba(0, 0, 0, 0.9); }
 .card.tpl .tpl-cost { left: 16.5cqw; top: 11.8cqw; font-size: max(8.3cqw, 13px); }
@@ -1570,3 +1572,9 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .deck-panel .deck-cards .card.tpl:first-child { filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 12px var(--pc-soft)); }
 @media (width <= 700px) { .card.tpl.big { --bw: min(84vw, 360px); } }
 .dig-card .card.tpl.big { --bw: min(30vw, 300px); }
+/* Landing-page thumbnails are read at a glance, so their type floors sit higher than the hand's. */
+.deck-cards .card.tpl .tpl-name { font-size: max(6.2cqw, 13px); }
+.deck-cards .card.tpl .tpl-name.long { font-size: max(5.2cqw, 12px); }
+.deck-cards .card.tpl .tpl-name.xlong { font-size: max(4.4cqw, 11px); }
+.deck-cards .card.tpl .tpl-summary { font-size: max(4.4cqw, 11px); }
+.deck-cards .card.tpl .tpl-num { font-size: max(9cqw, 16px); }

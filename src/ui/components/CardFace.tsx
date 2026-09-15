@@ -169,8 +169,8 @@ export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id
     <div className={`card tpl ${big ? 'big' : ''} ${isChar ? '' : 'event'} ${curse ? 'curse' : ''} ${kind === 'informant' ? 'informant' : ''} ${kind === 'artist' ? 'artist' : ''} k-${kind}`} onClick={onClick} role={onClick ? 'button' : undefined}>
       <div className="tpl-art" style={{ background: hueFor(id) }}>
         {placeholders ? <span className="ini">{initials(id, true)}</span> : <Art kind={isChar ? 'characters' : 'events'} id={id} className="tpl-art-img" fallback={<span className="ini">{initials(id, false)}</span>} alt={def.name} />}
-        {note && <span className="card-note">{note}</span>}
       </div>
+      {note && <span className="card-note tpl-note">{note}</span>}
       <Frame kind={isChar ? 'character' : 'event'} big={big} />
       <div className={`tpl-num tpl-cost ${cost !== undefined && cost < def.cost ? 'discounted' : ''}`} {...tip(cost !== undefined && cost < def.cost ? `Costs ${cost} right now instead of ${def.cost}${costWhy?.length ? ': ' + costWhy.join(', ') : ''}.` : HINTS.cost)}>
         {cost ?? def.cost}
