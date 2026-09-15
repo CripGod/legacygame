@@ -69,10 +69,10 @@ export function bank(delta: number, why: string): void {
   if (!(delta > 0)) return;
   commit({ ...ledger, banked: ledger.banked + delta, log: [...ledger.log, { at: new Date().toISOString(), delta, why }].slice(-50) });
 }
-/** Where a card starts: its printed cost sets the rank (1-2 Bronze, 3-4 Silver, 5 and up Gold); Legacy raises it. */
+/** Where a card starts: its printed cost sets the rank (0-1 Bronze, 2-3 Silver, 4 and up Gold); Legacy raises it. */
 export function baseRank(cardId: string): Rank {
   const cost = (CARD_BY_ID[cardId] as { cost?: number } | undefined)?.cost ?? 1;
-  return cost >= 5 ? 'gold' : cost >= 3 ? 'silver' : 'bronze';
+  return cost >= 4 ? 'gold' : cost >= 2 ? 'silver' : 'bronze';
 }
 export function rankOf(cardId: string): Rank {
   const bought = ledger.ranks[cardId];

@@ -14,11 +14,11 @@ declare global {
 
 /** The track that plays everywhere for now. */
 export const MUSIC_TRACK = { id: 'echoes-of-the-past', title: 'Echoes of the Past' };
-/** The Threat's music: takes over while the Mob stands on the landing page (thirty seconds cut from the piece). */
+/** The Threat's music: takes over while the Mob stands on the landing page (the piece's last twenty seconds, its crescendo). */
 export const THREAT_TRACK = { id: 'threat-mob', title: 'Threat', ext: 'mp3' };
-const THREAT_VOLUME = 0.55;
-/** How far the main track drops under the Threat's. */
-const UNDER_THREAT = 0.12;
+const THREAT_VOLUME = 0.6;
+/** The crossfade when the Mob rises: the main track out, the Threat's in. */
+const CROSS_MS = 1100;
 
 const VOLUME = 0.3;
 const FADE_IN_MS = 1200;
@@ -68,7 +68,7 @@ export function syncMusic(): void {
   const a = ensure();
   if (should) {
     if (a.paused) a.play().catch(() => undefined);
-    fadeTo(threatOn ? VOLUME * UNDER_THREAT : VOLUME, a.volume === 0 ? FADE_IN_MS : 300);
+    if (!threatOn) fadeTo(VOLUME, a.volume === 0 ? FADE_IN_MS : 300);
   } else if (!a.paused) {
     fadeTo(0, FADE_OUT_MS, true);
   }
@@ -101,8 +101,8 @@ function fadeThreat(target: number, ms: number, pauseAtEnd = false): void {
 }
 
 /**
- * The Threat's music, over the main track: on when the Mob rises (it opens with its hit, so it starts at once and
- * the main track drops under it), off when the fists meet (it fades out over the heal and the main track comes back).
+ * The Threat's music in place of the main track: on when the Mob rises (a crossfade: the main track fades out as the
+ * Threat's fades in), off when the fists meet (it fades out over the heal and the main track fades back).
  * Unity: a second music source with a snapshot transition on the main bus.
  */
 export function threatMusic(on: boolean): void {
@@ -124,13 +124,13 @@ function syncThreat(): void {
     threatEl.currentTime = 0;
     threatEl.volume = 0;
     threatEl.play().catch(() => undefined);
-    fadeThreat(THREAT_VOLUME, 250);
+    fadeThreat(THREAT_VOLUME, CROSS_MS);
     const a = ensure();
-    if (!a.paused) fadeTo(VOLUME * UNDER_THREAT, 600);
+    if (!a.paused) fadeTo(0, CROSS_MS);
   } else {
-    fadeThreat(0, 1400, true);
+    fadeThreat(0, 1600, true);
     const a = ensure();
-    if (!a.paused && wanted && getAudioSettings().music) fadeTo(VOLUME, 900);
+    if (!a.paused && wanted && getAudioSettings().music) fadeTo(VOLUME, 1600);
   }
 }
 
