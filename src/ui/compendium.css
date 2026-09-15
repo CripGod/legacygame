@@ -926,3 +926,17 @@ a.cx-refs-link { display: inline-block; width: auto; justify-self: start; align-
 .refs-by { margin-left: 8px; font-family: var(--display); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cx-ink-3); }
 .refs-note { font-size: 13px; color: var(--cx-ink-2); margin-top: 2px; }
 .refs-empty { font-style: italic; color: var(--cx-ink-2); }
+
+/* ---------- Frames and ranks ---------- */
+.cx-frames { gap: 8px; }
+.cx-frames-lede { margin: 0; font-size: 14px; line-height: 1.5; color: var(--cx-ink-2); max-width: 78ch; }
+.cx-frames-note { margin: 0; font-size: 13px; line-height: 1.5; color: var(--cx-ink-2); max-width: 78ch; }
+.cx-frames-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 12px 10px; margin: 4px 0 6px; }
+.cx-frames-row.finishes { grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); max-width: 620px; }
+.cx-frame-fig { margin: 0; display: grid; justify-items: center; gap: 6px; text-align: center; }
+.cx-frame-fig img { width: 100%; max-width: 110px; aspect-ratio: 1103 / 1426; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35)); }
+.cx-frame-fig figcaption { display: grid; gap: 1px; }
+.cx-frame-fig b { font-family: var(--display); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cx-ink); }
+.cx-frame-fig span { font-size: 12px; color: var(--cx-ink-2); }
+.cx-frame-fig small { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cx-ink-3); }
+@media (width <= 700px) { .cx-frames-row { grid-template-columns: repeat(3, 1fr); } .cx-frames-row.finishes { grid-template-columns: repeat(2, 1fr); } }

@@ -7,11 +7,13 @@ import { CodexSheet } from '../components/CodexSheet';
 import { RefsModal } from '../components/RefsModal';
 import { Art } from '../components/Art';
 import { artMissing, artUrl, markArtMissing } from '../art';
+import { FINISHES, FINISH_LABEL, RANKS, RANK_LABEL, RANK_PRICE, useLedger } from '../legacy';
 import { locationName, threatLabel, useDisplay } from '../display';
 import { Wordmark } from '../components/Wordmark';
 
 /** The chapters, in reading order. `short` is the label in the sticky nav. */
 const CHAPTERS = [
+  { id: 'frames', title: 'Frames and ranks', short: 'Frames', lede: 'How a card earns its frame.' },
   { id: 'historical', title: 'Historical', short: 'Historical', lede: 'People who lived. Each card prints what it costs to play, the Influence it brings and the Force it can bring to bear against a Threat.' },
   { id: 'artists', title: 'Artists', short: 'Artists', lede: 'Sculptors, painters, a quilter and a potter. The work outlasts its maker: their Reveals leave lasting Influence on the Location itself, which stays when they are gone.' },
   { id: 'mythic', title: 'Mythic', short: 'Mythic', lede: 'Orisha, tricksters and figures of faith and folklore. Every deck carries at least one.' },
@@ -301,6 +303,58 @@ function ThreatEntry({ t, placeholders, onRefs }: { t: ThreatDef; placeholders: 
   );
 }
 
+/**
+ * Frames and ranks: the ladder a card climbs with Legacy, the finishes the store will sell, and the rules around them.
+ * Every frame is shown from its own small export, so the plate is the same picture the cards wear.
+ */
+function FramesPlate() {
+  const l = useLedger();
+  const have = l.banked - l.spent;
+  const starts: Record<string, string> = { wood: 'costs 0 and 1', bronze: 'cost 2', silver: 'cost 3', emerald: 'costs 4 and 5', ruby: 'cost 6 and up', diamond: 'never' };
+  return (
+    <section id="cx-frames" className="cx-legend-plate cx-frames cx-framed" aria-label="Frames and ranks">
+      <div className="cx-kicker">Frames and ranks</div>
+      <p className="cx-frames-lede">
+        Every Character card wears a frame. Six form a ladder, climbed with Legacy: a match pays its Legacy to the winner (1 for a plain win, 4 to 16 behind an early Stand), and you spend it on any card you like, from the card itself. A frame is only a frame: the same card, the same numbers.
+      </p>
+      <div className="cx-frames-row" role="list">
+        {RANKS.map((r, i) => (
+          <figure key={r} className={`cx-frame-fig rank-${r}`} role="listitem">
+            <img src={artUrl('frames', `character-sm-${r}`, 'webp')} alt="" loading="lazy" />
+            <figcaption>
+              <b>{RANK_LABEL[r]}</b>
+              <span>{i === 0 ? 'where cards start' : `${RANK_PRICE[r]} Legacy`}</span>
+              <small>{r === 'diamond' ? 'never a start' : `starts at ${starts[r]}`}</small>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+      <p className="cx-frames-note">
+        A card's printed cost sets where it starts, so the cheap cards have the most to climb. Nothing starts at Diamond: every card has a rank still to earn. Diamond catches the light, a glare across the frame every few seconds.
+      </p>
+      <div className="cx-kicker">Finishes</div>
+      <p className="cx-frames-lede">
+        Four more frames sit outside the ladder. A finish is worn in place of the rank's frame; the rank goes on climbing underneath. They will be the store's, bought with Legacy like everything else; for now a few cards wear them so you can see them in play, the rarer the finish the fewer the cards.
+      </p>
+      <div className="cx-frames-row finishes" role="list">
+        {FINISHES.map((f, i) => (
+          <figure key={f} className={`cx-frame-fig rank-${f}`} role="listitem">
+            <img src={artUrl('frames', `character-sm-${f}`, 'webp')} alt="" loading="lazy" />
+            <figcaption>
+              <b>{FINISH_LABEL[f]}</b>
+              <span>{['common', 'uncommon', 'rare', 'rarest'][i]}</span>
+              <small>store, later</small>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+      <p className="cx-frames-note">
+        Events keep a frame of their own and take no rank. You hold <b>{have} Legacy</b>{l.banked ? ` (${l.banked} won, ${l.spent} spent)` : ''}: open any Character card to promote it.
+      </p>
+    </section>
+  );
+}
+
 /** The whole game in one illuminated atlas: Characters by kind, Events, Locations with their art, Threats. */
 export function CardsScreen({ onBack, initialRefs }: { onBack: () => void; /** Deep link: open this entry's references on arrival (#refs=<id>). */ initialRefs?: string | null }) {
   const { placeholders } = useDisplay();
@@ -415,6 +469,8 @@ export function CardsScreen({ onBack, initialRefs }: { onBack: () => void; /** D
             An illuminated atlas of the whole game: {total} cards, {locations.length} Locations and {THREATS.length} Threats, with the history behind each.
           </p>
         </header>
+
+        <FramesPlate />
 
         <section className="cx-legend-plate cx-framed" aria-label="Reading the orbs">
           <div className="cx-kicker">Reading the orbs</div>
