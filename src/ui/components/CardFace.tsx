@@ -1,6 +1,6 @@
 import { CARD_BY_ID, type CharacterInstance, type GameState, charInfluence, isSuppressed } from '../../engine';
 import { abilityLines, cardName, cardShort, hueFor, initials, useDisplay } from '../display';
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { Art } from './Art';
 import { artMissing, artUrl, markArtMissing } from '../art';
 import { tip, HINTS } from '../tip';
@@ -107,6 +107,39 @@ export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id
   const curse = kind === 'curse';
   const name = cardName(id, placeholders);
   const lines = big ? abilityLines(def) : [];
+  // The name fits its banner at every card size: it steps down to a legible floor, then compresses the rest, the way
+  // a printed card squeezes a long name rather than letting it run into the corners. Re-measured when the card resizes.
+  const nameRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = nameRef.current;
+    if (!el) return;
+    const text = el.firstElementChild as HTMLElement | null;
+    if (!text) return;
+    const fit = () => {
+      el.style.fontSize = '';
+      el.style.transform = '';
+      const avail = el.clientWidth;
+      const need = text.getBoundingClientRect().width;
+      if (!avail || need <= avail) return;
+      const base = parseFloat(getComputedStyle(el).fontSize);
+      const floor = Math.max(big ? 12 : 6.5, base * 0.72);
+      const size = Math.max(floor, (base * avail) / need);
+      el.style.fontSize = `${size.toFixed(2)}px`;
+      const still = text.getBoundingClientRect().width;
+      if (still > avail) el.style.transform = `scaleX(${(avail / still).toFixed(3)})`;
+    };
+    fit();
+    // The display font may land after the first paint; measure again when it does.
+    let live = true;
+    document.fonts?.ready.then(() => live && fit());
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    ro.observe(text);
+    return () => {
+      live = false;
+      ro.disconnect();
+    };
+  }, [name, big]);
   const strip = isChar ? def.tags.filter((t) => t !== 'Black').join(' · ') : curse ? 'A Curse: it lands on the other side' : 'An Event: played, then gone';
   return (
     <div className={`card tpl ${big ? 'big' : ''} ${isChar ? '' : 'event'} ${curse ? 'curse' : ''} ${kind === 'informant' ? 'informant' : ''} ${kind === 'artist' ? 'artist' : ''} k-${kind}`} onClick={onClick} role={onClick ? 'button' : undefined}>
@@ -121,7 +154,9 @@ export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id
       <div className="tpl-kind" aria-hidden>
         {KIND_ICONS[kind]}
       </div>
-      <div className={`tpl-name ${nameSize(name)}`}>{name}</div>
+      <div className={`tpl-name ${nameSize(name)}`} ref={nameRef}>
+        <span>{name}</span>
+      </div>
       {!placeholders && <div className="tpl-tag">{ribbonFor(def)}</div>}
       {big && isChar && !placeholders && <div className="tpl-era">{def.era}</div>}
       <div className="tpl-rules">
