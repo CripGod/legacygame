@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CARD_BY_ID, viewFor, legalOptions, validatePlan, gateRoom, GATE_CAPACITY, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, filterEvents, LOCATION_BY_ID } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
+import { TutFigure } from '../components/TutFigure';
 import type { DropHighlight, BoardFx } from '../components/Battlefield';
 import { previewPlan, remainingPlan, isPlannedUid, PLANNED_PREFIX, foreseePlan } from '../preview';
 import type { MatchController } from '../useMatch';
@@ -1787,6 +1788,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
                 Tutorial · {tutIdx + 1} of {lessons.length}
               </div>
               <h3>{lesson.title}</h3>
+              {lesson.figure && <TutFigure kind={lesson.figure} cardId={view.players[me].hand[0]} />}
               <p>{lesson.text}</p>
               <div className="actions" style={{ justifyContent: 'center' }}>
                 <button className="primary" autoFocus onClick={() => setTutIdx((i) => i + 1)}>

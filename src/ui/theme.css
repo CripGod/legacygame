@@ -1681,3 +1681,25 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .app .card.tpl:not(.big).k-artist .tpl-kind { top: 20.4cqw; }
 .card.tpl:not(.big) .tpl-summary { font-size: max(4.4cqw, 11px); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .deck-cards .card.tpl .tpl-num { font-size: max(9cqw, 16px); }
+
+/* ---------- Tutorial figures ---------- */
+/* A picture of the thing the lesson names, built from the real parts, with a red ring on the part in question. */
+.tut-fig { display: grid; justify-items: center; gap: 6px; margin: 2px auto 4px; }
+.tut-fig-cap { font-family: var(--display); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.tut-fig-card { position: relative; width: 150px; container-type: inline-size; }
+.tut-fig-card .card.tpl { --card-w: 150px; width: 150px; }
+.tut-ring { position: absolute; border: 3px solid #ff5a48; border-radius: 50%; box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.65), 0 0 16px rgba(255, 90, 72, 0.9); pointer-events: none; animation: tut-ring 1.2s ease-in-out infinite; z-index: 8; }
+.tut-ring.cost { left: 16.06cqw; top: 12.1cqw; width: 17cqw; height: 17cqw; transform: translate(-50%, -50%); }
+@keyframes tut-ring { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } 50% { transform: translate(-50%, -50%) scale(1.18); opacity: 0.75; } }
+.tut-fig-bar { display: flex; align-items: center; gap: 10px; width: 300px; padding: 8px 6px; }
+.tut-fig-end { position: relative; width: 36px; height: 36px; border-radius: 50%; border: 2.5px solid; display: grid; place-items: center; font-family: var(--display); font-weight: 800; font-size: 17px; background: #08131f; }
+.tut-fig-end.mine { color: var(--gold-2); border-color: var(--gold-2); }
+.tut-fig-end.theirs { color: #8fb6ff; border-color: #6fa3ff; }
+.tut-ring.end { left: 50%; top: 50%; width: 50px; height: 50px; transform: translate(-50%, -50%); }
+.tut-fig-track { position: relative; flex: 1 1 auto; height: 8px; border-radius: 999px; background: #2f6fd6; overflow: visible; }
+.tut-fig-track i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: linear-gradient(90deg, #f6d77a, #e0b23c); }
+.tut-fig-track b { position: absolute; left: 75%; top: 50%; width: 12px; height: 12px; background: #fff; transform: translate(-50%, -50%) rotate(45deg); box-shadow: 0 0 8px rgba(255, 255, 255, 0.8); }
+.tut-fig-stand { position: relative; padding: 10px 14px; }
+.tut-fig-stand .stand-btn { display: inline-block; font-size: 15px; min-width: 0; padding: 8px 22px; pointer-events: none; }
+.tut-ring.wide { left: 50%; top: 50%; width: 100%; height: 100%; border-radius: 16px; transform: translate(-50%, -50%); }
+@media (prefers-reduced-motion: reduce) { .tut-ring { animation: none; } }

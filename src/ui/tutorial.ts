@@ -29,8 +29,10 @@ export const TUTORIAL_DECKS = { A: 'railroad', B: 'blackstar' } as const;
 /** After this turn the script ends and the regular coach takes over. */
 export const TUTORIAL_LAST_TURN = 5;
 
+export type TutFigureKind = 'cost' | 'bar' | 'stand';
+
 export type Lesson =
-  | { kind: 'read'; title: string; text: string }
+  | { kind: 'read'; title: string; text: string; /** A small picture of the thing the lesson names (TutFigure). */ figure?: TutFigureKind }
   | {
       kind: 'do';
       text: string;
@@ -104,7 +106,7 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
   const mine = charsOf(view, me);
   const turn = view.turn;
   const energy = Math.min(turn, 10) + (view.players[me].energyBonus ?? 0);
-  const read = (title: string, text: string): Lesson => ({ kind: 'read', title, text });
+  const read = (title: string, text: string, figure?: TutFigureKind): Lesson => ({ kind: 'read', title, text, figure });
 
   if (turn === 1) {
     const play = playLesson(view, me, placeholders, '');
@@ -112,13 +114,13 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
     const straight = played?.kind === 'character' && played.keywords.includes('STRAIGHT_INSIDE');
     const who = played ? `${nm(played.id)}'s card` : 'Your card';
     return script([
-      { point: read('Welcome', 'You and your opponent (Harborlight) are vying for control of three Locations. Whoever leads Influence at two of them when Turn 8 ends wins. The clock is stopped in here, so take your time.'), act: play },
+      { point: read('Welcome', 'You and your opponent (Harborlight) are vying for control of three Locations: the three panels across the middle of the board. Whoever leads Influence at two of them when Turn 8 ends wins. The clock is stopped in here, so take your time.'), act: play },
       {
         point: read(
           'The Gates',
           straight
-            ? `Most cards wait a turn at the Gates, the strip below the Location, and count their Influence from there. ${who} is the exception: Straight Inside means it walks in the moment it lands. All three Locations are still hidden, so this first commit is blind for both players.`
-            : `${who} now waits at the Gates, the strip below the Location. It counts its Influence from there this turn. All three Locations are still hidden, so this first commit is blind for both players.`,
+            ? `Most cards wait a turn at the Gates, the row of slots labelled Your Gates just below the Location panel, and count their Influence from there. ${who} is the exception: Straight Inside means it walks in the moment it lands. All three Locations are still hidden, so this first commit is blind for both players.`
+            : `${who} now waits at the Gates, the row of slots labelled Your Gates just below the Location panel. It counts its Influence from there this turn. All three Locations are still hidden, so this first commit is blind for both players.`,
         ),
         act: lock('Press Lock In. The bar inside the button is the turn clock: in a real match it drains over two minutes and locks whatever you have planned. In here it only ticks for show.'),
       },
@@ -139,11 +141,11 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
     const play = playLesson(view, me, placeholders, '');
     return script([
       {
-        point: read('What just happened', `${what}${where}${reveal} The i button at the left edge replays any turn beat by beat whenever you want it.`),
+        point: read('What just happened', `${what}${where}${reveal} The round i button at the left edge of the screen replays any turn beat by beat whenever you want it.`),
         act: play,
       },
       {
-        point: read('Energy', `Energy equals the turn number, so it grows every turn: ${energy} now, ${ENERGY_CURVE[Math.min(view.turn, 7)]} next turn. Every card costs Energy, the green circle in its corner, and the cards you cannot afford are dimmed.`),
+        point: read('Energy', `Energy equals the turn number, so it grows every turn: ${energy} now, ${ENERGY_CURVE[Math.min(view.turn, 7)]} next turn. Every card costs Energy: the number in the green circle in the card's upper-left corner. Cards you cannot afford go dark, and that circle turns red.`, 'cost'),
         act: lock(),
       },
     ]);
@@ -155,9 +157,9 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
     const ready = mine.find((c) => c.zone === 'gate' && c.ready && legal.includes(c.uid));
     if (!ready) return { act: null };
     const def = CARD_BY_ID[ready.defId];
-    const standingText = def?.kind === 'character' && def.established ? ` Inside, the card becomes Established and its standing ability turns on: ${def.established.text}` : ' Inside is where a card is safe from what happens at the Gates.';
+    const standingText = ` Inside, a Character counts +1 Influence${def?.kind === 'character' && def.established ? `, becomes Established, and its standing ability turns on: ${def.established.text}` : ', and is safe from what happens at the Gates.'}`;
     return {
-      point: read('Ready', `${nm(ready.defId)}'s card was Fresh when it arrived and is Ready now, so it can go Inside.${standingText}`),
+      point: read('Ready', `${nm(ready.defId)}'s tile at your Gates read FRESH when it arrived and reads READY now, so it can go Inside: the rows of slots up in the Location panel.${standingText}`),
       act: { kind: 'do', text: `Drag ${nm(ready.defId)}'s card from the Gates into ${ln(ready.location)}. Entering is free and does not use your card play for the turn.`, flash: 'enter', location: ready.location, done: (_v, plan) => plan.enters.includes(ready.uid) },
     };
   };
@@ -167,7 +169,7 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
     return script([
       enterBeat(),
       {
-        point: opened ? read('A Location revealed', `${ln(opened.index)} is open: ${locDef(view, opened.index).rule} Tap any Location's title bar to read its rule again. One more opens each turn until all three are showing.`) : undefined,
+        point: opened ? read('A Location revealed', `${ln(opened.index)} is open: ${locDef(view, opened.index).rule} Tap a Location's title bar, the parchment strip across the top of its panel, to read its rule again. One more opens each turn until all three are showing.`) : undefined,
         act: play,
       },
       { act: lock() },
@@ -189,7 +191,7 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
           const eff = confrontForce(view, who, t);
           const forceLine = eff > base ? `${nm(who.defId)}'s card shows ${base} Force, and ${ln(loc.index)} adds +${eff - base} to anyone confronting here: ${eff} in all, enough on its own.` : `${nm(who.defId)}'s card has ${eff} Force, enough on its own.`;
           beats.push({
-            point: read('A Threat', `${label} arrived at ${ln(loc.index)}. Threats are neutral: nobody owns them and either player can fight them. This one needs ${need} Force in one turn. While it stands: ${tdef.text}`),
+            point: read('A Threat', `${label} arrived at ${ln(loc.index)}: the portrait tile at the right edge of the panel's rows. Threats are neutral: nobody owns them and either player can fight them. This one needs ${need} Force in one turn. While it stands: ${tdef.text}`),
             act: {
               kind: 'do',
               text: `${forceLine} Drag the tile onto the Threat to confront it. Confronting is free; Force is the red number.`,
@@ -220,9 +222,9 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
         ),
         act: play,
       });
-      beats.push({ point: read('Reading the board', `${standing(view, me, placeholders)} The numbers on each end of a Location's bar are the two sides' Influence; the bigger one leads. Two of three at the end of Turn 8 wins.`), act: lock() });
+      beats.push({ point: read('Reading the board', `${standing(view, me, placeholders)} The two numbers at either end of the bar across each Location panel are the two sides' Influence: gold on the left is yours, blue on the right is Harborlight's, and the bigger one leads. Two of three at the end of Turn 8 wins.`, 'bar'), act: lock() });
     } else {
-      beats.push({ point: read('Reading the board', `${standing(view, me, placeholders)} The numbers on each end of a Location's bar are the two sides' Influence; the bigger one leads. Two of three at the end of Turn 8 wins.`), act: play });
+      beats.push({ point: read('Reading the board', `${standing(view, me, placeholders)} The two numbers at either end of the bar across each Location panel are the two sides' Influence: gold on the left is yours, blue on the right is Harborlight's, and the bigger one leads. Two of three at the end of Turn 8 wins.`, 'bar'), act: play });
       beats.push({ act: lock() });
     }
     return script(beats);
@@ -232,7 +234,7 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
     return script([
       enterBeat(),
       {
-        point: read('Stand on Business', `${standing(view, me, placeholders)} The red button doubles the Legacy this match is worth and adds a 9th turn. Harborlight then gets one turn to Sit Down at the old price, keep playing, or stand back. Once you stand, you cannot Sit Down.`),
+        point: read('Stand on Business', `${standing(view, me, placeholders)} The blue STAND ON BUSINESS banner at the top centre of the screen raises the Legacy this match is worth (the coin just under it) and adds a 9th turn. Harborlight then gets one turn to Sit Down at the old price, keep playing, or stand back. Once you stand, you cannot Sit Down.`, 'stand'),
         act: play ?? lock(),
       },
       { act: play ? lock() : null },
