@@ -1,9 +1,10 @@
 import '../compendium.css';
 import { HINTS } from '../tip';
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { CHARACTERS, EVENTS, LOCATIONS, LOCATION_BY_ID, THREATS, type CardDef, type LocationDef, type ThreatDef } from '../../engine';
+import { CARD_BY_ID, CHARACTERS, EVENTS, LOCATIONS, LOCATION_BY_ID, THREATS, type CardDef, type LocationDef, type ThreatDef } from '../../engine';
 import { CardFace } from '../components/CardFace';
 import { CodexSheet } from '../components/CodexSheet';
+import { RefsModal } from '../components/RefsModal';
 import { Art } from '../components/Art';
 import { artMissing, artUrl, markArtMissing } from '../art';
 import { locationName, threatLabel, useDisplay } from '../display';
@@ -142,7 +143,7 @@ function CardGrid({ cards, onOpen }: { cards: CardDef[]; onOpen: (id: string) =>
 type NightArt = 'unknown' | 'ok' | 'missing';
 
 /** One atlas plate per Location: the painting in a wide band, the rule of the place, the story. */
-function LocationPlate({ loc, n, placeholders }: { loc: LocationDef; n: number; placeholders: boolean }) {
+function LocationPlate({ loc, n, placeholders, onRefs }: { loc: LocationDef; n: number; placeholders: boolean; onRefs: (id: string) => void }) {
   const [night, setNight] = useState(false);
   const nightId = `${loc.id}_night`;
   // A night painting is drawn only once it is known to exist, so the toggle never shows a broken image:
@@ -217,6 +218,12 @@ function LocationPlate({ loc, n, placeholders }: { loc: LocationDef; n: number; 
           {loc.rule}
         </div>
         {!placeholders && loc.blurb && <p className="cx-blurb">{loc.blurb}</p>}
+        {!placeholders && loc.history && <p className="cx-blurb cx-loc-history">{loc.history}</p>}
+        {!placeholders && (
+          <button className="cx-refs-link" onClick={() => onRefs(loc.id)}>
+            References →
+          </button>
+        )}
         {(chips.length > 0 || clock) && (
           <div className="cx-chips">
             {clock && (
@@ -247,7 +254,7 @@ function familyClass(family: string): string {
   return '';
 }
 
-function ThreatEntry({ t, placeholders }: { t: ThreatDef; placeholders: boolean }) {
+function ThreatEntry({ t, placeholders, onRefs }: { t: ThreatDef; placeholders: boolean; onRefs: (id: string) => void }) {
   const name = threatLabel(t.id, placeholders);
   const medal = <Medallion text={monogram(name)} />;
   return (
@@ -271,14 +278,28 @@ function ThreatEntry({ t, placeholders }: { t: ThreatDef; placeholders: boolean 
         </div>
       </div>
       {!placeholders && t.blurb && <p className="cx-blurb cx-threat-blurb">{t.blurb}</p>}
+      {!placeholders && (
+        <button className="cx-refs-link" onClick={() => onRefs(t.id)}>
+          References →
+        </button>
+      )}
     </article>
   );
 }
 
 /** The whole game in one illuminated atlas: Characters by kind, Events, Locations with their art, Threats. */
-export function CardsScreen({ onBack }: { onBack: () => void }) {
+export function CardsScreen({ onBack, initialRefs }: { onBack: () => void; /** Deep link: open this entry's references on arrival (#refs=<id>). */ initialRefs?: string | null }) {
   const { placeholders } = useDisplay();
   const [open, setOpen] = useState<string | null>(null);
+  const [refs, setRefs] = useState<string | null>(initialRefs ?? null);
+  // A deep link lands on the entry's chapter.
+  useEffect(() => {
+    if (!initialRefs) return;
+    const chapter = LOCATION_BY_ID[initialRefs] ? 'locations' : THREATS.some((t) => t.id === initialRefs) ? 'threats' : null;
+    if (chapter) document.getElementById(`cx-${chapter}`)?.scrollIntoView({ block: 'start' });
+    else if (CARD_BY_ID[initialRefs]) setOpen(initialRefs); // a card: the card itself opens under its references
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [active, setActive] = useState<ChapterId>('historical');
   const [edges, setEdges] = useState({ l: false, r: false });
   const rootRef = useRef<HTMLDivElement>(null);
@@ -463,7 +484,7 @@ export function CardsScreen({ onBack }: { onBack: () => void }) {
         <section id="cx-locations" className="cx-chapter">
           <ChapterHead n={6} title={chapter('locations').title} lede={chapter('locations').lede} count={locations.length} unit="plates" />
           {locations.map((l, i) => (
-            <LocationPlate key={l.id} loc={l} n={i} placeholders={placeholders} />
+            <LocationPlate key={l.id} loc={l} n={i} placeholders={placeholders} onRefs={setRefs} />
           ))}
         </section>
 
@@ -472,7 +493,7 @@ export function CardsScreen({ onBack }: { onBack: () => void }) {
           <Page>
             <div className="cx-threats">
               {THREATS.map((t) => (
-                <ThreatEntry key={t.id} t={t} placeholders={placeholders} />
+                <ThreatEntry key={t.id} t={t} placeholders={placeholders} onRefs={setRefs} />
               ))}
             </div>
           </Page>
@@ -487,6 +508,7 @@ export function CardsScreen({ onBack }: { onBack: () => void }) {
         </footer>
 
         {open && <CodexSheet id={open} label={sheetLabel.get(open) ?? 'Compendium'} onClose={() => setOpen(null)} />}
+        {refs && <RefsModal id={refs} name={LOCATION_BY_ID[refs]?.name ?? THREATS.find((t) => t.id === refs)?.name ?? CARD_BY_ID[refs]?.name ?? refs} onClose={() => setRefs(null)} />}
       </div>
     </div>
   );

@@ -166,6 +166,18 @@ export const LOCATIONS: LocationDef[] = [
     region: 'americas',
     weight: 0.9,
   },
+  {
+    id: 'jim_crow',
+    name: 'Jim Crow',
+    era: 'The South, 1877–1965',
+    rule: 'Disfranchised: Characters at the Gates here count no Influence. Only those Inside are counted. Reveals with a Segregationist Patrol in the area.',
+    blurb: 'The laws and customs that sorted Southern life by race from the end of Reconstruction to the 1960s: separate schools, cars, counters and cemeteries, and a vote taken back by poll taxes, literacy tests and violence.',
+    history:
+      "The name came from a minstrel character, a Black caricature that the white performer Thomas D. Rice sang and danced in blackface from the 1830s. After federal troops left the South in 1877, the states rewrote their constitutions to take back the vote the Fifteenth Amendment had guaranteed: Mississippi's 1890 convention set a poll tax and a literacy test, and the rest of the region copied it. In Louisiana, 130,000 Black men were registered to vote in 1896; by 1904 there were 1,342. In Plessy v. Ferguson (1896) the Supreme Court held that a Louisiana law requiring separate railway cars was constitutional so long as the accommodations were \"equal\", and separation spread to schools, streetcars, waiting rooms, courtrooms, hospitals, parks and cemeteries, enforced by law, by custom and by lynching. Brown v. Board of Education (1954) ruled separate schools unequal; the Civil Rights Act of 1964 outlawed segregation in public places; the Voting Rights Act of 1965 put the ballot back.",
+    effect: { type: 'gatesUncounted' },
+    spawnOnReveal: 'segregationist_patrol',
+    region: 'americas',
+  },
 ];
 
 export const UNKNOWN_LOCATION: LocationDef = {

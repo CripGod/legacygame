@@ -241,7 +241,8 @@ export type LocationEffect =
   | { type: 'restEnergy'; count: number; amount: number } // Oak Bluffs: players with `count` Inside gain Energy next turn
   | { type: 'turncoatAtEnd' } // Charleston, 1822: the Fresh Gate Character here with the lowest Influence changes sides at the end of the turn
   | { type: 'nightInside'; amount: number } // The Stroll: after dark (even turns) your Characters Inside here gain Influence
-  | { type: 'crossing'; toll: number }; // The Middle Passage: no Inside, every Gate Character pays the toll each turn, leavers arrive Ready
+  | { type: 'crossing'; toll: number } // The Middle Passage: no Inside, every Gate Character pays the toll each turn, leavers arrive Ready
+  | { type: 'gatesUncounted' }; // Jim Crow: Characters at the Gates here count no Influence; only those Inside are counted
 
 export interface LocationDef {
   id: string;

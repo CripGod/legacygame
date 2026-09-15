@@ -4,8 +4,10 @@ import { CHARACTERS, CHARACTER_BY_ID, GATHERING_DEFS } from './characters';
 import { EVENTS, EVENT_BY_ID } from './events';
 import { LOCATIONS, LOCATION_BY_ID, UNKNOWN_LOCATION } from './locations';
 import { THREATS, THREAT_BY_ID, RANDOM_THREAT_POOL } from './threats';
+import { REFERENCES, referencesFor, type Reference } from './references';
 
-export { CHARACTERS, GATHERING_DEFS, CHARACTER_BY_ID, EVENTS, EVENT_BY_ID, LOCATIONS, LOCATION_BY_ID, UNKNOWN_LOCATION, THREATS, THREAT_BY_ID, RANDOM_THREAT_POOL };
+export { CHARACTERS, GATHERING_DEFS, CHARACTER_BY_ID, EVENTS, EVENT_BY_ID, LOCATIONS, LOCATION_BY_ID, UNKNOWN_LOCATION, THREATS, THREAT_BY_ID, RANDOM_THREAT_POOL, REFERENCES, referencesFor };
+export type { Reference };
 
 export const CARD_BY_ID: Record<string, CardDef> = { ...CHARACTER_BY_ID, ...EVENT_BY_ID };
 

@@ -167,7 +167,12 @@ export function charInfluence(state: GameState, c: CharacterInstance): number {
 /** Raw Influence per player at a Location, before leader-based modifiers. */
 export function rawInfluence(state: GameState, location: number, p: PlayerId): number {
   let v = (state.locations[location].tempInfluence[p] ?? 0) + (state.locations[location].permInfluence?.[p] ?? 0);
-  for (const c of charsAt(state, location, p)) v += charInfluence(state, c);
+  const l = state.locations[location];
+  const uncounted = l.revealed && LOCATION_BY_ID[l.defId]?.effect.type === 'gatesUncounted';
+  for (const c of charsAt(state, location, p)) {
+    if (uncounted && c.zone === 'gate') continue; // Jim Crow: the Gates are not counted
+    v += charInfluence(state, c);
+  }
   return Math.max(0, v);
 }
 

@@ -5,6 +5,7 @@ import { cardName, useDisplay } from '../display';
 import { sfx } from '../audio';
 import { RANK_LABEL, RANK_PRICE, balance, nextRank, promote, rankOf, useLedger } from '../legacy';
 import { tip } from '../tip';
+import { RefsModal } from './RefsModal';
 import '../compendium.css';
 
 /**
@@ -23,6 +24,7 @@ export function CodexSheet({ id, label, onClose, children, flat }: { id: string;
   const price = next ? RANK_PRICE[next] : 0;
   const can = !!next && balance() >= price;
   const [flash, setFlash] = useState(false);
+  const [refs, setRefs] = useState(false);
   const mountedAt = useRef(performance.now());
   useEffect(() => {
     sfx('sheet.open');
@@ -129,10 +131,14 @@ export function CodexSheet({ id, label, onClose, children, flat }: { id: string;
               <h3>{cardName(id, placeholders)}</h3>
               {mythic && <div className="cx-history-tag">A figure of faith and folklore, not a historical person. Here is where the story comes from.</div>}
               <p>{history}</p>
+              <button className="cx-refs-link" onClick={() => setRefs(true)}>
+                References →
+              </button>
             </div>
           </aside>
         )}
       </div>
+      {refs && <RefsModal id={id} name={cardName(id, placeholders)} onClose={() => setRefs(false)} />}
     </div>
   );
 }

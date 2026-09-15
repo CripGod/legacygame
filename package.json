@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "sim": "tsx scripts/sim.ts",
-    "docs": "tsx scripts/docs.ts"
+    "docs": "tsx scripts/docs.ts",
+    "refs:check": "tsx scripts/refs-check.ts"
   },
   "dependencies": {
     "react": "^19.2.8",

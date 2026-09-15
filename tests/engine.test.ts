@@ -228,7 +228,7 @@ describe('abilities', () => {
     expect(s.characters[ida.uid].location).toBe(1);
   });
   it('Mansa Musa gains +1 when a hidden Location he was committed to reveals', () => {
-    let s = rig(createMatch({ seed: 2 }), { handA: ['mansa_musa'] });
+    let s = rig(createMatch({ seed: 2 }), { handA: ['mansa_musa'], locations: ['greenwood', 'great_migration', 'juneteenth'] });
     const target = s.revealOrder[1]; // reveals on turn 2
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'mansa_musa', location: target }] }, B: pass() }).state;
     const m = charsOf(s, 'A')[0];
@@ -865,7 +865,17 @@ describe('AI vs AI smoke', () => {
     }
   });
   it('all pool Locations are defined', () => {
-    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(15);
+    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(16);
+  });
+  it('Jim Crow: Characters at the Gates count no Influence, those Inside do', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['jim_crow', 'great_migration', 'juneteenth'], revealAll: true });
+    addChar(s, 'harriet_tubman', 'A', 0, 'gate');
+    addChar(s, 'zora_neale_hurston', 'B', 0, 'inside');
+    expect(influenceAt(s, 0).A).toBe(0);
+    expect(influenceAt(s, 0).B).toBe(charDef('zora_neale_hurston').influence + 1);
+    // Elsewhere the Gates count as usual.
+    addChar(s, 'harriet_tubman', 'A', 1, 'gate');
+    expect(influenceAt(s, 1).A).toBe(charDef('harriet_tubman').influence);
   });
 });
 
@@ -1525,7 +1535,7 @@ describe('home ground and Straight Inside', () => {
 });
 
 describe('history moves twice', () => {
-  it('a second random Threat arrives on Turn 5 in roughly 60% of matches', () => {
+  it('a second random Threat arrives on Turn 5 in a good share of matches (it needs a revealed Location with no Threat, and some arrive with one)', () => {
     let hits = 0;
     const N = 120;
     for (let seed = 1; seed <= N; seed++) {
@@ -1536,7 +1546,7 @@ describe('history moves twice', () => {
       const events = s.lastEvents.filter((e) => e.type === 'threatSpawned');
       if (events.length) hits++;
     }
-    expect(hits / N).toBeGreaterThan(0.4);
+    expect(hits / N).toBeGreaterThan(0.3);
     expect(hits / N).toBeLessThan(0.8);
   });
 });

@@ -680,6 +680,11 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - rule: After dark (even turns) your Characters Inside here gain +1 Influence. By day it is just a street.
 - blurb: State Street from 26th to 39th, the Black Belt's night strip: theaters, cabarets, and everybody out walking.
 
+### Jim Crow (`jim_crow`)
+- era: The South, 1877–1965
+- rule: Disfranchised: Characters at the Gates here count no Influence. Only those Inside are counted. Reveals with a Segregationist Patrol in the area.
+- blurb: The laws and customs that sorted Southern life by race from the end of Reconstruction to the 1960s: separate schools, cars, counters and cemeteries, and a vote taken back by poll taxes, literacy tests and violence.
+
 ## Hints (tap or hover explanations)
 
 - `influence`: Influence: how much this Character counts toward controlling its Location. Gate Characters count; Established Characters (Inside) count +1 more.
@@ -760,12 +765,23 @@ raf = requestAnimationFrame(tick);
 raf = requestAnimationFrame(tick);
 cancelAnimationFrame(raf);
 window.removeEventListener('resize', resize);
+0 ? 'has' : ''} {...tip(`$… Legacy in hand: $… won, $… spent on card ranks. A match pays its Legacy to the winner; open a card to promote it.`)}>
+★ … Legacy
 m.addEventListener('change', on);
+devGranted = true;
+bank(n, 'dev grant');
+root.current?.style.setProperty('--heal-x', `$…px`);
+root.current?.style.setProperty('--heal-y', `$…px`);
+setShattered(true);
+threatMusic(false); // fades out over the heal
 mobVisits.current += 1;
+setShattered(false);
 setMobState('up');
+threatMusic(true); // its music opens with the hit: the entrance cue
 el.style.setProperty('--mx', x.toFixed(3));
 el.style.setProperty('--my', y.toFixed(3));
 window.addEventListener('pointermove', onMove, …);
+Decks
 onChange(o.key)}>
 setOpen(id)} />
 A fresh hand every match: ten Characters drawn from the whole pool, plus both Events.
@@ -921,6 +937,7 @@ Main menu
 - Tied on Influence: total Force decides.
 - ${handle(other(me))} sat down.
 - ${handle(winner)} wins ${r.stakes} Legacy
+- Won ${r.stakes} vs ${handle(other(me))}
 - That is the move. Press Lock It In.
 - That works too. Or ${guide.text.charAt(0).toLowerCase()}${guide.text.slice(1)}
 - ${nm} cannot be played right now.
@@ -991,7 +1008,11 @@ Main menu
 - Choose where ${cardName(selected, placeholders)} plays from the card's tray, or press 1-3. Close the card to put it back.
 - Harriet Tubman: drag any of your Characters to another Location and she takes them straight Inside. Free, and she gets them out of a curfew (optional).
 - ${cardName(yemojaPlay.cardId, placeholders)}: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : 
-- Drag a card onto a Location, or tap it to open it and choose where it plays.
+- No cards in hand. Lock in to end the turn and draw.
+- Nothing in hand fits your ${energyLeft} Energy this turn. Lock in, or move and confront with what is on the board.
+-  ${inf} Influence would put you ahead at ${locationName(s.l.defId, placeholders)}.
+-  ${inf} Influence would take the lead at ${locationName(s.l.defId, placeholders)} (you trail by ${s.gap}).
+- ${name} (${cost} of your ${energyLeft} Energy): ${what}${where} Drag it onto a Location, or tap it to choose.${others > 0 ? 
 - Sit Down: give up the match now. ${view.players[other(me)].handle} takes ${opts.stepOffCost} Legacy.
 - app ${resolving ? 'resolving' : ''}
 - replay-banner kind-clash ${verdict.tone === 'win' ? 'miss' : verdict.tone === 'draw' ? 'arrive' : ''}

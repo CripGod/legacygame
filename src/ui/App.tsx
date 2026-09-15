@@ -86,7 +86,9 @@ function MatchHost({ seed, mode, dev, coach, decks, tutorial, onMenu }: { seed: 
 
 export function App() {
   const initialDev = new URLSearchParams(window.location.search).get('dev') === '1';
-  const [screen, setScreen] = useState<Screen>('start');
+  // #refs=<id>: a link straight to one entry's references in the Compendium.
+  const refsLink = /^#refs=([\w-]+)$/.exec(window.location.hash)?.[1] ?? null;
+  const [screen, setScreen] = useState<Screen>(refsLink ? 'cards' : 'start');
   // Sound: one gesture unlocks it; the landing page and the match play the music, the reading screens fade it out.
   useEffect(() => installAudio(), []);
   useEffect(() => {
@@ -105,7 +107,7 @@ export function App() {
     <DisplayContext.Provider value={{ placeholders: opts.placeholders }}>
       {screen === 'start' && <StartScreen onPlay={start} onRules={() => setScreen('rules')} onCards={() => setScreen('cards')} initialDev={opts.dev} />}
       {screen === 'rules' && <RulesScreen onBack={() => setScreen('start')} />}
-      {screen === 'cards' && <CardsScreen onBack={() => setScreen('start')} />}
+      {screen === 'cards' && <CardsScreen onBack={() => setScreen('start')} initialRefs={refsLink} />}
       {screen === 'match' && (
         <ErrorBoundary onReset={() => setScreen('start')}>
           <MatchHost key={matchKey} seed={seed} mode={opts.mode} dev={opts.dev} coach={opts.coach} decks={{ A: opts.deckA, B: opts.deckB }} tutorial={!!opts.tutorial} onMenu={() => setScreen('start')} />
