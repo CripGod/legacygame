@@ -1,5 +1,7 @@
 import { SettingsMenu } from '../components/SettingsMenu';
 import { threatMusic } from '../audio';
+import { bank, useLedger } from '../legacy';
+import { tip } from '../tip';
 import { useEffect, useRef, useState } from 'react';
 import { resetCoach } from '../components/Coach';
 import { resetGuide } from '../guide';
@@ -37,6 +39,7 @@ const TAGLINE: Record<string, string> = {
 };
 /** The Threat spotlighted at the foot of Harborlight's panel. */
 const SPOTLIGHT_THREAT = 'mob';
+let devGranted = false;
 
 /** Drifting embers over the plates: warm on the left, cool on the right. Pure canvas, no library. */
 function Embers() {
@@ -170,6 +173,17 @@ function MobSparks({ burst }: { burst: number }) {
   return <canvas ref={ref} className="mob-sparks" aria-hidden />;
 }
 
+/** The Legacy in hand, in the landing corner. */
+function Wallet() {
+  const l = useLedger();
+  const have = l.banked - l.spent;
+  return (
+    <span className={`wallet ${have > 0 ? 'has' : ''}`} {...tip(`${have} Legacy in hand: ${l.banked} won, ${l.spent} spent on card ranks. A match pays its Legacy to the winner; open a card to promote it.`)}>
+      ★ {have} <small>Legacy</small>
+    </span>
+  );
+}
+
 /** True on phones and small tablets: the match is desktop-only for now; the landing page and Compendium still work. */
 function useSmallScreen(): boolean {
   const q = '(max-width: 820px), ((pointer: coarse) and (max-width: 1100px))';
@@ -213,6 +227,15 @@ function Fist({ side }: { side: 'left' | 'right' }) {
 
 export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: (o: StartOptions) => void; onRules: () => void; onCards: () => void; initialDev: boolean }) {
   const [dev, setDev] = useState(initialDev);
+  // Dev: ?legacy=N grants N Legacy once per page load, to review ranks without playing.
+  useEffect(() => {
+    if (!initialDev) return;
+    const n = Number(new URLSearchParams(window.location.search).get('legacy'));
+    if (n > 0 && !devGranted) {
+      devGranted = true;
+      bank(n, 'dev grant');
+    }
+  }, [initialDev]);
   const small = useSmallScreen();
   const [seed, setSeed] = useState('');
   const [placeholders, setPlaceholders] = useState(false);
@@ -300,7 +323,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
             <p className="deck-style" title={d.style}>{TAGLINE[d.key] ?? d.style}</p>
           </div>
           <span className="deck-note" aria-hidden>
-            {note}
+            <span className="deck-note-text">{note}</span>
           </span>
         </div>
         <div className="deck-tabs-lbl" id={`decks-${side}`}>Decks</div>
@@ -369,6 +392,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
         <div className="hero-tag">People. Strategy. A stronger tomorrow.</div>
       </header>
       <div className="audio-corner">
+        <Wallet />
         <SettingsMenu />
       </div>
 

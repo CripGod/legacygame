@@ -110,8 +110,12 @@
 .deck-head { display: grid; grid-template-columns: minmax(0, 1fr); padding-right: 46%; min-height: 44px; }
 .deck-panel .lbl { font-family: var(--display); font-weight: 700; font-size: clamp(11px, 1vw, 14px); letter-spacing: 0.3em; text-transform: uppercase; color: #f4e9d0; white-space: normal; overflow: visible; }
 .deck-style { margin: 4px 0 0; font-size: clamp(11px, 0.85vw, 13px); line-height: 1.35; color: #cfd6e2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.deck-note { position: absolute; top: 12px; right: 18px; font-family: var(--script); font-size: clamp(15px, 1.3vw, 21px); color: var(--gold-2); transform: rotate(-8deg); white-space: nowrap; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8); pointer-events: none; }
-.deck-panel.theirs .deck-note { color: #9fc8ff; }
+/* The deck's motto on a ribbon: a banner in the deck's colour that runs off the panel's right edge, a swallowtail at
+   its free end and a dark fold where it wraps the edge. Drawn in CSS, so any line fits and Unity can use one sprite. */
+.deck-note { --rb: linear-gradient(180deg, #f6d77a 0%, #e0b23c 45%, #b98a1e 100%); --rb-ink: #2a1c05; --rb-fold: #7a5a12; position: absolute; top: 16px; right: -12px; height: 26px; padding: 0 22px 0 26px; display: flex; align-items: center; transform: rotate(-3deg); transform-origin: right center; background: var(--rb); color: var(--rb-ink); font-family: var(--display); font-weight: 700; font-size: clamp(9.5px, 0.8vw, 12px); letter-spacing: 0.16em; text-transform: uppercase; white-space: nowrap; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%); filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.55)); pointer-events: none; z-index: 2; }
+.deck-note::after { content: ''; position: absolute; right: 0; top: 100%; width: 12px; height: 8px; background: var(--rb-fold); clip-path: polygon(0 0, 100% 0, 0 100%); }
+.deck-note-text { text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25); }
+.deck-panel.theirs .deck-note { --rb: linear-gradient(180deg, #cfe4ff 0%, #6fa8ff 45%, #2f6fd6 100%); --rb-ink: #04162e; --rb-fold: #1d4a94; }
 /* A small label over the deck tabs; the panel's own gap closes up between the two. */
 .deck-tabs-lbl { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; margin-bottom: -4px; font-family: var(--display); font-weight: 700; font-size: 9.5px; letter-spacing: 0.3em; text-indent: 0.3em; text-transform: uppercase; color: var(--gold-2); text-align: center; }
 /* A hairline either side, fading to the panel's edges, with a small diamond at the inner end. */
@@ -277,6 +281,6 @@
 
 /* Sound switches under the tagline. */
 /* The sound switches sit in the top-right corner, above the tagline there, so the hero spends no height on them. */
-.landing > .audio-corner { position: absolute; top: 12px; right: clamp(14px, 3vw, 44px); z-index: 3; animation: rise 0.9s ease-out backwards 0.1s; }
+.landing > .audio-corner { position: absolute; top: 12px; right: clamp(14px, 3vw, 44px); z-index: 3; display: flex; align-items: center; gap: 8px; animation: rise 0.9s ease-out backwards 0.1s; }
 .audio-corner .settings-btn { width: 36px; height: 36px; }
 .audio-corner .settings-btn svg { width: 19px; height: 19px; }

@@ -1488,6 +1488,33 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .float-num.theirs { --pulse: 111, 163, 255; color: #e2ecff; }
 @keyframes float-num { 0% { opacity: 0; transform: translate(-50%, -30%) scale(0.6); } 20% { opacity: 1; transform: translate(-50%, -60%) scale(1.15); } 100% { opacity: 0; transform: translate(-50%, -160%) scale(1); } }
 
+/* ---------- Card ranks ---------- */
+/* Bronze, silver, gold: the frame file changes (Frame in CardFace.tsx) and the gold accents on the parchment and the
+   pennant follow it. Everything else on the card is the same at every rank. */
+.card.tpl { --rank-line: #c9a53a; --rank-ink: #f6d77a; }
+.card.tpl.rank-silver { --rank-line: #9aa3b2; --rank-ink: #e6ebf2; }
+.card.tpl.rank-bronze { --rank-line: #a86a34; --rank-ink: #e8a86a; }
+.card.tpl .tpl-kind svg { stroke: var(--rank-ink); }
+.card.tpl .tpl-meta { border-bottom-color: var(--rank-line); }
+.card.tpl .tpl-sep::before, .card.tpl .tpl-sep::after { border-top-color: var(--rank-line); }
+.card.tpl .tpl-blurb { border-top-color: var(--rank-line); }
+.card.tpl:not(.big) .tpl-name { border-bottom-color: var(--rank-line); }
+.card.tpl .tpl-rules { scrollbar-color: var(--rank-line) transparent; }
+/* In the Codex: the rank under the card and the way up. */
+.cx-rank { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; font-family: var(--display); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #cfc3a6; }
+.cx-rank-medal { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid rgba(0, 0, 0, 0.6); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15), 0 2px 6px rgba(0, 0, 0, 0.6); background: radial-gradient(circle at 35% 30%, #f6d77a, #c99a2a 55%, #8a6a14); }
+.cx-rank.rank-silver .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #f4f7fb, #b9c1cc 55%, #6f7885); }
+.cx-rank.rank-bronze .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #f0b27a, #b5713a 55%, #6e4220); }
+.cx-rank-btn { font-size: 11px; padding: 4px 12px; }
+.cx-rank-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.cx-rank-max { color: var(--gold-2); }
+.cx-rank.flash .cx-rank-medal { animation: rank-flash 0.9s ease-out both; }
+@keyframes rank-flash { 0% { transform: scale(1); filter: brightness(1); } 25% { transform: scale(1.9); filter: brightness(2.2); } 100% { transform: scale(1); filter: brightness(1); } }
+/* The wallet in the landing corner. */
+.wallet { display: inline-flex; align-items: baseline; gap: 4px; padding: 5px 12px; border-radius: 999px; border: 1.5px solid var(--gold-dark); background: linear-gradient(180deg, #14233a, #0a1626); font-family: var(--display); font-weight: 700; font-size: 13px; color: #cfc3a6; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.5); cursor: default; }
+.wallet.has { color: var(--gold-2); border-color: var(--gold); }
+.wallet small { font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: #cfc3a6; }
+
 /* ---------- Settings gear and its menu ---------- */
 .settings { position: relative; display: inline-block; }
 .settings-btn { width: 30px; height: 30px; min-width: 0; min-height: 0; padding: 0; margin: 0; border-radius: 999px; clip-path: none; box-shadow: none; border: 1.5px solid var(--gold-dark); background: #0a1626; color: #cfc3a6; display: inline-grid; place-items: center; cursor: pointer; opacity: 0.6; transition: opacity 0.2s, transform 0.4s cubic-bezier(0.2, 0.8, 0.3, 1), border-color 0.2s; }

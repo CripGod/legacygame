@@ -19,6 +19,7 @@ import { DigReveal, type DigShow, type DigPhase } from '../components/DigReveal'
 import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, ThreatSheet, ancestorsDangers, CLASH_TITLES, adviceFor, showdownWhy, type ShowdownData } from '../components/Sheets';
 import { markGuideDone, suggest } from '../guide';
 import { lessonsFor, tutorialActive } from '../tutorial';
+import { bank } from '../legacy';
 import { EMOTES } from '../useMatch';
 import { cardName, locationName, spawnText, useDisplay } from '../display';
 import { tip, HINTS } from '../tip';
@@ -977,6 +978,8 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       const reason = r.reason === 'locations' ? 'Two of three Locations.' : r.reason === 'tiebreak-influence' ? 'One Location each: total Influence decides.' : r.reason === 'tiebreak-force' ? 'Tied on Influence: total Force decides.' : r.reason === 'stepOff' ? (mineWon ? `${handle(other(me))} sat down.` : 'You sat down.') : 'Nothing separates them.';
       setVerdict({ title: winner ? (mineWon ? 'Victory' : 'Defeat') : 'Draw', line: winner ? `${handle(winner)} wins ${r.stakes} Legacy` : 'Nobody wins the Legacy', reason, tone: winner ? (mineWon ? 'win' : 'loss') : 'draw' });
       sfx(winner ? (mineWon ? 'win' : 'lose') : 'draw.game');
+      // The winner banks the match's Legacy (not in the tutorial).
+      if (mineWon && !tutorial && r.stakes > 0) bank(r.stakes, `Won ${r.stakes} vs ${handle(other(me))}`);
     })();
     return () => {
       cancelled = true;

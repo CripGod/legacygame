@@ -3,6 +3,8 @@ import { CARD_BY_ID } from '../../engine';
 import { CardFace } from './CardFace';
 import { cardName, useDisplay } from '../display';
 import { sfx } from '../audio';
+import { RANK_LABEL, RANK_PRICE, balance, nextRank, promote, rankOf, useLedger } from '../legacy';
+import { tip } from '../tip';
 import '../compendium.css';
 
 /**
@@ -15,6 +17,12 @@ import '../compendium.css';
 export function CodexSheet({ id, label, onClose, children, flat }: { id: string; label: string; onClose: () => void; children?: ReactNode; /** No backdrop blur: for the match, where the board behind keeps animating and a blurred backdrop would re-render every frame. */ flat?: boolean }) {
   const { placeholders } = useDisplay();
   const [open, setOpen] = useState(false);
+  useLedger();
+  const rank = rankOf(id);
+  const next = nextRank(id);
+  const price = next ? RANK_PRICE[next] : 0;
+  const can = !!next && balance() >= price;
+  const [flash, setFlash] = useState(false);
   const mountedAt = useRef(performance.now());
   useEffect(() => {
     sfx('sheet.open');
@@ -87,6 +95,29 @@ export function CodexSheet({ id, label, onClose, children, flat }: { id: string;
               {open ? 'Close' : mythic ? 'Origins' : 'History'}
             </button>
           )}
+          {/* The card's rank, and the way up: Legacy buys the next frame. Cosmetic only; the numbers never change. */}
+          <div className={`cx-rank rank-${rank} ${flash ? 'flash' : ''}`}>
+            <span className="cx-rank-medal" aria-hidden />
+            <span className="cx-rank-lbl">{RANK_LABEL[rank]} rank</span>
+            {next ? (
+              <button
+                className="cx-btn cx-ctl cx-rank-btn"
+                disabled={!can}
+                data-sfx={can ? 'card.select' : 'off'}
+                onClick={() => {
+                  if (promote(id) === 'ok') {
+                    setFlash(true);
+                    window.setTimeout(() => setFlash(false), 900);
+                  }
+                }}
+                {...tip(can ? `Promote ${cardName(id, placeholders)} to ${RANK_LABEL[next]} for ${price} Legacy. You have ${balance()}. The frame changes; the card does not.` : `${RANK_LABEL[next]} costs ${price} Legacy; you have ${balance()}. Win matches to earn it: a match pays its Legacy to the winner.`)}
+              >
+                {RANK_LABEL[next]} · {price} ★
+              </button>
+            ) : (
+              <span className="cx-rank-max">Highest rank</span>
+            )}
+          </div>
           {children && <div className="cx-tray">{children}</div>}
         </div>
         {history && (

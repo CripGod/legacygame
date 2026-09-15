@@ -1,6 +1,7 @@
 import { CARD_BY_ID, type CharacterInstance, type GameState, charInfluence, isSuppressed } from '../../engine';
 import { abilityLines, cardName, cardShort, hueFor, initials, useDisplay } from '../display';
 import { useLayoutEffect, useRef, useState } from 'react';
+import { rankOf, useLedger, type Rank } from '../legacy';
 import { Art } from './Art';
 import { artMissing, artUrl, markArtMissing } from '../art';
 import { tip, HINTS } from '../tip';
@@ -125,10 +126,16 @@ const KIND_ICONS: Record<CardKind, React.ReactNode> = {
  * The frame: the designer's PNG with its window knocked out, exported as WebP at two sizes (public/art/frames). Events
  * take their own frame when it exists and the Character frame until then; a missing file falls back the same way.
  */
-function Frame({ kind, big }: { kind: 'character' | 'event'; big: boolean }) {
-  const want = `${kind}${big ? '' : '-sm'}`;
-  const back = `character${big ? '' : '-sm'}`;
+/* The frame at a rank: the gold export is the original; silver and bronze are the same file with only its gold pixels
+   remapped (scratch script), so the medallions, the navy and the parchment are identical across ranks. */
+function Frame({ kind, big, rank }: { kind: 'character' | 'event'; big: boolean; rank: Rank }) {
+  const size = big ? '' : '-sm';
+  const want = `${kind}${size}${rank === 'gold' ? '' : `-${rank}`}`;
+  const back = `character${size}`;
   const [id, setId] = useState(() => (artMissing('frames', want) ? back : want));
+  useLayoutEffect(() => {
+    setId(artMissing('frames', want) ? back : want);
+  }, [want, back]);
   return <img className="tpl-frame" src={artUrl('frames', id, 'webp')} alt="" draggable={false} onError={() => { markArtMissing('frames', id); if (id !== back) setId(back); }} />;
 }
 
@@ -140,6 +147,8 @@ function Frame({ kind, big }: { kind: 'character' | 'event'; big: boolean }) {
  */
 export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id: string; big?: boolean; onClick?: () => void; /** Cost right now, after discounts (defaults to the printed cost). */ cost?: number; costWhy?: string[]; /** A live chip over the art (Reparations: the Setback count). */ note?: string }) {
   const { placeholders } = useDisplay();
+  useLedger();
+  const rank = rankOf(id);
   const def = CARD_BY_ID[id];
   if (!def) return null;
   const isChar = def.kind === 'character';
@@ -214,12 +223,12 @@ export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id
   }, [id, big]);
   const band = isChar ? bandFor(def) : null;
   return (
-    <div className={`card tpl ${big ? 'big' : ''} ${isChar ? '' : 'event'} ${curse ? 'curse' : ''} ${kind === 'informant' ? 'informant' : ''} ${kind === 'artist' ? 'artist' : ''} k-${kind}`} onClick={onClick} role={onClick ? 'button' : undefined}>
+    <div className={`card tpl ${big ? 'big' : ''} ${isChar ? '' : 'event'} ${curse ? 'curse' : ''} ${kind === 'informant' ? 'informant' : ''} ${kind === 'artist' ? 'artist' : ''} k-${kind} rank-${rank}`} onClick={onClick} role={onClick ? 'button' : undefined}>
       <div className="tpl-art" style={{ background: hueFor(id) }}>
         {placeholders ? <span className="ini">{initials(id, true)}</span> : <Art kind={isChar ? 'characters' : 'events'} id={id} className="tpl-art-img" fallback={<span className="ini">{initials(id, false)}</span>} alt={def.name} />}
       </div>
       {note && <span className="card-note tpl-note">{note}</span>}
-      <Frame kind={isChar ? 'character' : 'event'} big={big} />
+      <Frame kind={isChar ? 'character' : 'event'} big={big} rank={rank} />
       <div className={`tpl-num tpl-cost ${cost !== undefined && cost < def.cost ? 'discounted' : ''}`} {...tip(cost !== undefined && cost < def.cost ? `Costs ${cost} right now instead of ${def.cost}${costWhy?.length ? ': ' + costWhy.join(', ') : ''}.` : HINTS.cost)}>
         {cost ?? def.cost}
       </div>

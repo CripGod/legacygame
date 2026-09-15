@@ -1,4 +1,26 @@
-# The Legacy economy (design note, not built)
+# The Legacy economy
+
+## Built: card ranks (bronze, silver, gold)
+
+The first sink is live. Every card starts at **Bronze**; Legacy promotes it to **Silver** (3) and then **Gold** (8).
+A rank is a frame and nothing else: the same card, the same numbers, on a bronze, silver or gold frame, wherever
+the card shows (the hand, the Codex, the landing row). The frames are the one gold export with only its gold pixels
+remapped (the medallions, the navy and the parchment are untouched), so no new artwork is needed per rank.
+
+- **Earning.** A match won pays its Legacy to the winner (1 for a plain win, 4 to 16 behind an early Stand). The
+  tutorial pays nothing. Losing takes nothing.
+- **Spending.** Open a card (the Codex, from the landing row or the Cards screen) and promote it; the button says
+  the price and what you have. The landing corner shows the wallet.
+- **Where it lives.** `src/ui/legacy.ts`: the ledger (`banked`, `spent`, `ranks` by card id, a short log) in
+  localStorage under `bhcb.legacy.v1`, with `bank`, `promote`, `rankOf` and a `useLedger` hook. `CardFace` reads the
+  rank for the frame and the accents; `CodexSheet` shows the rank and the button; `MatchScreen` banks a win.
+- **Dev.** `?dev=1&legacy=20` grants 20 Legacy once per page load, to review ranks without playing.
+- **Unity.** The ledger is a save-file shape (an int, an int, a dictionary of card id to rank, a list of entries);
+  the three frames are three sprites, or one sprite with a hue-remap material; the rank badge and the promote button
+  are the same two controls on the card view. The rule that a rank changes nothing in the engine holds there too:
+  the engine never reads the ledger.
+
+## The rest (design note, not built)
 
 Legacy is what a match is worth, and the plan is for it to become the currency of everything around the match: the
 Legacy you win buys the things that make your side of the board yours. Nothing here is coded. This note is the brief
