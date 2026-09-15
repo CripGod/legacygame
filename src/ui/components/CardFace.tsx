@@ -155,7 +155,7 @@ export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id
     if (!el) return;
     const text = el.firstElementChild as HTMLElement | null;
     // The landing page's thumbnails wrap the name instead of fitting it.
-    if (!text || el.closest('.deck-cards')) return;
+    if (!text || !big) return; // small cards wrap the name instead of compressing it
     const fit = () => {
       el.style.fontSize = '';
       el.style.transform = '';
@@ -190,10 +190,16 @@ export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id
     if (!box || !text || big || box.closest('.deck-cards')) return;
     const fit = () => {
       text.style.fontSize = '';
+      text.style.webkitLineClamp = '';
       let size = parseFloat(getComputedStyle(text).fontSize);
       for (let i = 0; i < 8 && box.scrollHeight > box.clientHeight + 1 && size > 8.5; i++) {
         size = Math.max(8.5, size - 0.5);
         text.style.fontSize = `${size}px`;
+      }
+      // Still too tall at the floor: end on the last whole line that fits, with an ellipsis, never a half-cut line.
+      if (box.scrollHeight > box.clientHeight + 1) {
+        const lh = parseFloat(getComputedStyle(text).lineHeight) || size * 1.12;
+        text.style.webkitLineClamp = String(Math.max(1, Math.floor((box.clientHeight - text.offsetTop + box.offsetTop) / lh)));
       }
     };
     fit();

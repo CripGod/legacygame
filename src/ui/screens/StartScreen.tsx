@@ -1,4 +1,5 @@
 import { AudioControl } from '../components/AudioControl';
+import { threatMusic } from '../audio';
 import { useEffect, useRef, useState } from 'react';
 import { resetCoach } from '../components/Coach';
 import { resetGuide } from '../guide';
@@ -245,6 +246,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
         }
         setBurst((b) => b + 1);
         setShattered(true);
+        threatMusic(false); // fades out over the heal
       }, FIST_IMPACT);
       return 'falling';
     });
@@ -257,12 +259,14 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
       mobVisits.current += 1;
       setShattered(false);
       setMobState('up');
+      threatMusic(true); // its music opens with the hit: the entrance cue
     };
     const next = mobState === 'hidden' ? rise : mobState === 'up' ? defeatMob : mobState === 'falling' ? () => setMobState('down') : mobState === 'down' ? () => setMobState('fading') : () => setMobState('hidden');
     const id = window.setTimeout(next, wait);
     return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mobState]);
+  useEffect(() => () => threatMusic(false), []);
   // Parallax: the plates and the hero drift a few pixels against the pointer.
   useEffect(() => {
     const el = root.current;

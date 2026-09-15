@@ -1586,11 +1586,13 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .dig-card .card.tpl.big { --bw: min(30vw, 300px); }
 /* Landing-page thumbnails are a first impression, read at a glance: the name is one size, wraps to two lines when it
    must, and sits over a gold rule; the summary is a teaser, clamped to three lines with an ellipsis. */
-.deck-cards .card.tpl .tpl-name, .deck-cards .card.tpl .tpl-name.long, .deck-cards .card.tpl .tpl-name.xlong { font-size: max(6.2cqw, 13px); white-space: normal; text-wrap: balance; line-height: 1.05; padding: 0.4cqw 0 3px; margin-bottom: 4px; border-bottom: 1px solid #c9a53a; }
-.deck-cards .card.tpl .tpl-name > span { display: block; width: 100%; text-align: center; }
-/* The landing thumbnails are the one place the kind icon is read at 8px: same centre as the big card, but drawn
-   larger with a heavier stroke and a hard one-pixel shadow instead of a blur, which at that size only smudged it. */
-.deck-cards .card.tpl .tpl-kind { width: 5cqw; height: 5cqw; top: 20.1cqw; }
-.deck-cards .card.tpl .tpl-kind svg { stroke-width: 7.5; filter: drop-shadow(0 0.6px 0 rgba(0, 0, 0, 0.9)); }
-.deck-cards .card.tpl .tpl-summary { font-size: max(4.4cqw, 11px); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+/* Every small card face (the hand, the Codex grid, the landing row): the name wraps to two balanced lines over a
+   gold rule rather than being squeezed onto one; the big card keeps its single fitted line. */
+.card.tpl:not(.big) .tpl-name, .card.tpl:not(.big) .tpl-name.long, .card.tpl:not(.big) .tpl-name.xlong { font-size: max(6.2cqw, 13px); white-space: normal; text-wrap: balance; line-height: 1.05; padding: 0.4cqw 0 3px; margin-bottom: 4px; border-bottom: 1px solid #c9a53a; }
+.card.tpl:not(.big) .tpl-name > span { display: block; width: 100%; text-align: center; }
+/* Small card faces (landing row, hand, Codex grid) read the kind icon at 8px: it sits a little higher than on the big
+   card and is drawn larger with a heavier stroke and a hard one-pixel shadow instead of a blur, which only smudged it. */
+.card.tpl:not(.big) .tpl-kind { width: 5cqw; height: 5cqw; top: 20.1cqw; }
+.card.tpl:not(.big) .tpl-kind svg { stroke-width: 7.5; filter: drop-shadow(0 0.6px 0 rgba(0, 0, 0, 0.9)); }
+.card.tpl:not(.big) .tpl-summary { font-size: max(4.4cqw, 11px); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .deck-cards .card.tpl .tpl-num { font-size: max(9cqw, 16px); }
