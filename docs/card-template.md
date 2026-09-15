@@ -1,5 +1,10 @@
 # The universal card template
 
+> Revised: the frames now carry no nameplate (`card-frame.png`, `card-frame-event.png` are the current exports).
+> The name is set big and black at the top of the parchment with the tag and era under it in gold, then the rules.
+> The Event frame is 987 × 1246 and is fitted into the 1103 × 1426 box. The slot table below describes the earlier
+> nameplate layout; the live measurements are the `.card.tpl` rules in `src/ui/theme.css`.
+
 The frame the designer supplied (`docs/card-template/card-template.png`, 1103 × 1426) is the one card face for every
 kind of card, in the game since build 174 (`src/ui/components/CardFace.tsx`, the `.card.tpl` rules in `theme.css`, the
 frame exported as WebP at 1103 and 552 px in `public/art/frames`): Characters, Mythics, Artists, Informants, Events and Curses. This note records how it is

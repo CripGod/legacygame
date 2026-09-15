@@ -154,28 +154,30 @@ export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id
       <div className="tpl-kind" aria-hidden>
         {KIND_ICONS[kind]}
       </div>
-      <div className={`tpl-name ${nameSize(name)}`} ref={nameRef}>
-        <span>{name}</span>
+      {/* The parchment: the name big and black at the top, the tag and era under it in gold, then the rules. */}
+      <div className="tpl-body">
+        <div className={`tpl-name ${nameSize(name)}`} ref={nameRef}>
+          <span>{name}</span>
+        </div>
+        {!placeholders && <div className="tpl-meta">{isChar ? `${ribbonFor(def)}${def.era ? ` · ${def.era}` : ''}` : ribbonFor(def)}</div>}
+        <div className="tpl-rules">
+          {big ? (
+            <>
+              {lines.map((l, i) => (
+                <div key={l.label}>
+                  {i > 0 && <div className="tpl-sep" aria-hidden>◆</div>}
+                  <span className="kw">{l.label}:</span> {l.text}
+                </div>
+              ))}
+              {!placeholders && <div className="tpl-blurb">{def.blurb}</div>}
+            </>
+          ) : (
+            !placeholders && <div className="tpl-summary">{abilityFor(def)}</div>
+          )}
+        </div>
       </div>
-      {!placeholders && <div className="tpl-tag">{ribbonFor(def)}</div>}
-      {big && isChar && !placeholders && <div className="tpl-era">{def.era}</div>}
-      <div className="tpl-rules">
-        {big ? (
-          <>
-            {lines.map((l, i) => (
-              <div key={l.label}>
-                {i > 0 && <div className="tpl-sep" aria-hidden>◆</div>}
-                <span className="kw">{l.label}:</span> {l.text}
-              </div>
-            ))}
-            {!placeholders && <div className="tpl-blurb">{def.blurb}</div>}
-          </>
-        ) : (
-          !placeholders && <div className="tpl-summary">{abilityFor(def)}</div>
-        )}
-      </div>
-      {big && !placeholders && <div className="tpl-strip">{strip}</div>}
-      {isChar ? (
+      {big && isChar && !placeholders && <div className="tpl-strip">{strip}</div>}
+      {isChar && (
         <>
           <div className="tpl-num tpl-inf" {...tip(HINTS.influence)}>
             {def.influence}
@@ -184,10 +186,6 @@ export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id
             {def.force}
           </div>
         </>
-      ) : (
-        <div className="tpl-num tpl-ev" aria-hidden {...tip(HINTS.event)}>
-          EV
-        </div>
       )}
     </div>
   );
