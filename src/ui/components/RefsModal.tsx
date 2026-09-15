@@ -1,15 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { referencesFor } from '../../engine';
 import { sfx } from '../audio';
 
 /**
- * The references for one entry, over whatever is open: a short list of sources with outbound links, and a link to
- * this list in the Compendium (`#refs=<id>`) that can be copied and shared. "Don't trust us: see for yourself."
+ * The references for one entry, over whatever is open: a short list of sources with outbound links. The same list
+ * answers a deep link into the Compendium (`#refs=<id>`). "Don't trust us: see for yourself."
  */
 export function RefsModal({ id, name, onClose }: { id: string; name: string; onClose: () => void }) {
   const refs = referencesFor(id);
-  const [copied, setCopied] = useState(false);
-  const link = `${window.location.origin}${window.location.pathname}#refs=${id}`;
   useEffect(() => {
     sfx('sheet.open');
     const key = (e: KeyboardEvent) => {
@@ -53,25 +51,6 @@ export function RefsModal({ id, name, onClose }: { id: string; name: string; onC
         ) : (
           <p className="refs-empty">The sources for this entry are still being gathered. The history above is written from the record; the links will follow.</p>
         )}
-        <div className="refs-foot">
-          <span className="refs-link" title={link}>
-            {link.replace(/^https?:\/\//, '')}
-          </span>
-          <button
-            className="cx-btn cx-ctl refs-copy"
-            onClick={() => {
-              navigator.clipboard?.writeText(link).then(
-                () => {
-                  setCopied(true);
-                  window.setTimeout(() => setCopied(false), 1500);
-                },
-                () => undefined,
-              );
-            }}
-          >
-            {copied ? 'Copied' : 'Copy link'}
-          </button>
-        </div>
       </div>
     </div>
   );

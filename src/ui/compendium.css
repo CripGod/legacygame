@@ -926,6 +926,3 @@ body:has(.cx-inner) .tip {
 .refs-by { margin-left: 8px; font-family: var(--display); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cx-ink-3); }
 .refs-note { font-size: 13px; color: var(--cx-ink-2); margin-top: 2px; }
 .refs-empty { font-style: italic; color: var(--cx-ink-2); }
-.refs-foot { display: flex; align-items: center; gap: 10px; margin-top: 16px; padding-top: 10px; border-top: 1px solid var(--cx-rule-soft); }
-.refs-link { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: ui-monospace, monospace; font-size: 11px; color: var(--cx-ink-3); }
-.refs-copy { flex: none; font-size: 11px; padding: 4px 12px; }
