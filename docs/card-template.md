@@ -10,9 +10,11 @@ its renders. Every measurement is in `cqw` (percent of the card's width), so the
 ## The layers, bottom to top
 
 1. **Art.** The portrait, cover-fitted to the window (face at about 18% from the top).
-2. **Frame.** `card-frame.png`: the designer's PNG with the blue window knocked out to transparent, so the portrait
+2. **Frame.** `card-frame.png`: the designer's PNG with the window knocked out (supplied that way), so the portrait
    shows through it and the cost medallion and ribbon, painted across the window's corner, sit over the art as part
-   of the frame. (`card-template.png` is the original with the blue still in.)
+   of the frame. (`card-template.png` is the first export with the blue still in.) `card-back.png` (1086 × 1448) is
+   the card back: a gold Africa under a compass star, broken chains, laurels, an open book and the red, green and
+   gold ribbon.
 3. **Marks and text.** Numbers in the medallions, the kind icon in the ribbon, the name, the tag pill, the era, the
    rules (which scroll when they run long, like the current big card), the quote. The motto pennant at the top right
    is a reward players win, so it is hidden for now; its slot stays reserved.
@@ -75,4 +77,4 @@ All copy rules apply: real words from or about the person, no editorializing, so
 
 - Whether the motto pennant is part of the frame PNG (one export with it drawn) or stays a drawn element.
 - The Event medallions (see above).
-- Whether the card back also comes from this template family.
+- The card back is supplied (`card-back.png`); whether the hidden Location backs use it too.

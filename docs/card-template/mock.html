@@ -13,6 +13,7 @@
   .tab.on { background: linear-gradient(180deg, #f6d77a, #d7a422 60%, #b4851a); color: #1a1200; border-color: var(--gold-2); }
   .tab:focus-visible { outline: 2px solid var(--gold-2); outline-offset: 2px; }
   .stage { display: grid; place-items: center; }
+  .cardback { display: block; width: 100%; height: auto; }
   .slide { width: min(100%, 680px); filter: drop-shadow(0 30px 50px rgba(0,0,0,0.6)); }
   section.notes { margin-top: 44px; border-top: 1px solid var(--line); padding-top: 24px; display: grid; gap: 10px; max-width: 70ch; color: var(--muted); }
   section.notes b { color: var(--parchment); font-weight: 600; }
@@ -59,7 +60,7 @@
     <h1>Universal Card Template</h1>
     <p>Your frame with the window knocked out, the portrait under it; the rules are set at reading size and scroll when they run long. The motto pennant is hidden until it is something a player has won.</p>
   </header>
-  <div class="tabs" role="tablist"><button type="button" class="tab on" data-for="david_ruggles" id="tab-david_ruggles">David Ruggles</button><button type="button" class="tab" data-for="shango" id="tab-shango">Shango</button><button type="button" class="tab" data-for="reparations" id="tab-reparations">Reparations</button></div>
+  <div class="tabs" role="tablist"><button type="button" class="tab on" data-for="david_ruggles" id="tab-david_ruggles">David Ruggles</button><button type="button" class="tab" data-for="shango" id="tab-shango">Shango</button><button type="button" class="tab" data-for="reparations" id="tab-reparations">Reparations</button><button type="button" class="tab" data-for="back" id="tab-back">Card back</button></div>
   <div class="stage"><section class="slide" data-id="david_ruggles"><div class="card " data-id="david_ruggles">
       <div class="art" style="background-image:url('../../public/art/characters/david_ruggles.jpg')"></div>
       <div class="frame"></div>
@@ -96,7 +97,7 @@
       <div class="rules"><div><span class="kw">PLAY:</span> Choose a Location: +1 lasting Influence there for each Setback you have suffered this match (max +4). It counts at the end no matter when you play it. <b>In the Americas:</b> +1 more.</div><div class="blurb">Only neutral historical harm counts. What the opponent did to you is not the same thing. The debt is owed where it was run up.</div></div>
       <div class="quote">“The debt is owed where it was run up.”</div>
       
-    </div></section></div>
+    </div></section><section class="slide back" data-id="back" hidden><img class="cardback" src="card-back.png" alt="The card back: a gold Africa under a compass star, broken chains, laurels, an open book and the red, green and gold ribbon"></section></div>
   <section class="notes">
     <h2>Open questions</h2>
     <div><b>Events.</b> No Influence or Force, so the bottom medallions sit empty. Either a second frame without them, or they carry Event marks (a Location glyph, an hourglass for “counts at the end”).</div>
