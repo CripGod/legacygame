@@ -220,9 +220,16 @@ function LocationPlate({ loc, n, placeholders, onRefs }: { loc: LocationDef; n: 
         {!placeholders && loc.blurb && <p className="cx-blurb">{loc.blurb}</p>}
         {!placeholders && loc.history && <p className="cx-blurb cx-loc-history">{loc.history}</p>}
         {!placeholders && (
-          <button className="cx-refs-link" onClick={() => onRefs(loc.id)}>
+          <a
+            className="cx-refs-link"
+            href={`#refs=${loc.id}`}
+            onClick={(e) => {
+              e.preventDefault();
+              onRefs(loc.id);
+            }}
+          >
             References →
-          </button>
+          </a>
         )}
         {(chips.length > 0 || clock) && (
           <div className="cx-chips">
@@ -279,9 +286,16 @@ function ThreatEntry({ t, placeholders, onRefs }: { t: ThreatDef; placeholders: 
       </div>
       {!placeholders && t.blurb && <p className="cx-blurb cx-threat-blurb">{t.blurb}</p>}
       {!placeholders && (
-        <button className="cx-refs-link" onClick={() => onRefs(t.id)}>
+        <a
+          className="cx-refs-link"
+          href={`#refs=${t.id}`}
+          onClick={(e) => {
+            e.preventDefault();
+            onRefs(t.id);
+          }}
+        >
           References →
-        </button>
+        </a>
       )}
     </article>
   );

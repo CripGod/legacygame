@@ -131,9 +131,16 @@ export function CodexSheet({ id, label, onClose, children, flat }: { id: string;
               <h3>{cardName(id, placeholders)}</h3>
               {mythic && <div className="cx-history-tag">A figure of faith and folklore, not a historical person. Here is where the story comes from.</div>}
               <p>{history}</p>
-              <button className="cx-refs-link" onClick={() => setRefs(true)}>
+              <a
+                className="cx-refs-link"
+                href={`#refs=${id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setRefs(true);
+                }}
+              >
                 References →
-              </button>
+              </a>
             </div>
           </aside>
         )}

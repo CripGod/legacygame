@@ -910,7 +910,7 @@ body:has(.cx-inner) .tip {
 
 /* ---------- References ---------- */
 /* At the end of every history, and on each Location and Threat plate: the way to check us. */
-.cx-refs-link { display: inline-block; margin-top: 10px; padding: 0; border: 0; background: none; font-family: var(--display); font-weight: 700; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-2); cursor: pointer; border-bottom: 1px dotted rgba(233, 185, 58, 0.6); }
+a.cx-refs-link { display: inline-block; width: auto; margin-top: 10px; padding: 0; font-family: var(--display); font-weight: 700; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-2); text-decoration: none; border-bottom: 1px dotted rgba(233, 185, 58, 0.6); cursor: pointer; }
 .cx-refs-link:hover { color: #fff3c4; border-bottom-style: solid; }
 .cx-loc .cx-refs-link, .cx-threat .cx-refs-link { color: #6b4e0c; border-bottom-color: rgba(138, 106, 20, 0.6); }
 .cx-loc .cx-refs-link:hover, .cx-threat .cx-refs-link:hover { color: #3a2a06; }
