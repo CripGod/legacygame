@@ -1541,6 +1541,12 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl .tpl-cost.discounted { color: #d8ffe4; filter: drop-shadow(0 0 0.8cqw #7ef0a0); }
 .card.tpl .tpl-inf { left: 14.4cqw; top: 112.8cqw; font-size: max(9cqw, 12px); }
 .card.tpl .tpl-force { left: 85.6cqw; top: 112.8cqw; font-size: max(9cqw, 12px); }
+/* The Event frame (1086 x 1448, fitted into the 1103 x 1426 box) puts its medallion and ribbon 14px to the right of the
+   Character frame's, and its bottom band is narrower, between the laurels. */
+.card.tpl.event .tpl-cost { left: 17.8cqw; top: 11.6cqw; }
+.card.tpl.event .tpl-kind { left: 17.8cqw; top: 23.6cqw; }
+/* The Event frame's bottom band has a gem rising through its middle, so it carries no text; the pill already says Event. */
+.card.tpl.event .tpl-strip { display: none; }
 /* The Event frame carries laurels where the Character frame has its Influence and Force medallions: nothing to print there. */
 .card.tpl .tpl-ev { display: none; }
 .card.tpl .tpl-kind { z-index: 5; left: 16.6cqw; top: 23.75cqw; transform: translate(-50%, -50%); width: 5.8cqw; height: 5.8cqw; }

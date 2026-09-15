@@ -140,7 +140,7 @@ export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id
       ro.disconnect();
     };
   }, [name, big]);
-  const strip = isChar ? def.tags.filter((t) => t !== 'Black').join(' · ') : curse ? 'A Curse: it lands on the other side' : 'An Event: played, then gone';
+  const strip = isChar ? def.tags.filter((t) => t !== 'Black').join(' · ') : curse ? 'Lands on the other side' : 'Played, then gone';
   return (
     <div className={`card tpl ${big ? 'big' : ''} ${isChar ? '' : 'event'} ${curse ? 'curse' : ''} ${kind === 'informant' ? 'informant' : ''} ${kind === 'artist' ? 'artist' : ''} k-${kind}`} onClick={onClick} role={onClick ? 'button' : undefined}>
       <div className="tpl-art" style={{ background: hueFor(id) }}>
