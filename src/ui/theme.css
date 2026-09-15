@@ -1530,8 +1530,8 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl.big { --bw: min(78vw, 400px); width: var(--bw); height: auto; aspect-ratio: 1103 / 1426; display: block; max-height: none; }
 .card.tpl > * { position: absolute; }
 /* The art window. */
-.card.tpl .tpl-art { left: 14cqw; top: 7.7cqw; width: 72cqw; height: 52.2cqw; z-index: 1; overflow: hidden; display: grid; place-items: center; }
-.card.tpl.event .tpl-art { left: 10.9cqw; top: 8.2cqw; width: 78.4cqw; height: 55.3cqw; }
+.card.tpl .tpl-art { left: 13.4cqw; top: 6.9cqw; width: 73.4cqw; height: 54.6cqw; z-index: 1; overflow: hidden; display: grid; place-items: center; }
+.card.tpl.event .tpl-art { left: 10.3cqw; top: 7.4cqw; width: 79.6cqw; height: 57.5cqw; }
 .card.tpl .tpl-art .tpl-art-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 18%; }
 .card.tpl .tpl-art .ini { font-family: var(--display); font-weight: 800; font-size: 18cqw; color: rgba(255, 255, 255, 0.85); }
 .card.tpl .tpl-frame { inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; user-select: none; }
