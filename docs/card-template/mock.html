@@ -1,80 +1,123 @@
-<!doctype html>
-<meta charset="utf-8">
+<title>Universal Card Template</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Crimson+Pro:ital,wght@0,500;0,600;0,700;1,500&display=swap">
 <style>
-  body { margin: 0; background: #222; display: flex; gap: 40px; padding: 40px; font-family: 'Crimson Pro', Georgia, serif; }
-  /* The card is laid out at the template's native 1103 x 1426 and scaled for the screenshot. */
-  .card { position: relative; width: 1103px; height: 1426px; overflow: hidden; border-radius: 28px; background: #08131f; color: #1b1a17; }
-  .bleed { position: absolute; inset: -6%; background-size: cover; background-position: center 20%; filter: blur(14px) brightness(0.45) saturate(0.8); }
-  .bleed::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 30%, rgba(8,19,31,0) 30%, rgba(8,19,31,0.75) 100%); }
-  .art { position: absolute; left: 140px; top: 82px; width: 818px; height: 566px; background-size: cover; background-position: center 18%; }
-  .frame { position: absolute; inset: 0; width: 1103px; height: 1426px; pointer-events: none; }
-  .num { position: absolute; font-family: 'Cinzel', Georgia, serif; font-weight: 800; color: #fff; text-align: center; transform: translate(-50%, -50%); text-shadow: 0 3px 4px rgba(0,0,0,0.55), 0 0 2px rgba(0,0,0,0.6); }
-  .cost { left: 182px; top: 130px; font-size: 92px; }
-  .inf { left: 152px; top: 1252px; font-size: 100px; }
-  .force { left: 945px; top: 1252px; font-size: 100px; }
-  .kind { position: absolute; left: 182px; top: 252px; transform: translate(-50%, -50%); width: 60px; height: 60px; }
-  .kind svg { width: 100%; height: 100%; fill: none; stroke: #f6d77a; stroke-width: 5; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.6)); }
-  .pennant { position: absolute; right: 100px; top: 18px; width: 150px; height: 350px; background: linear-gradient(180deg, #14305a, #0b1e3c); border: 6px solid #d8a83a; border-top: 0; clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%); box-shadow: 0 6px 18px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 24px 10px; box-sizing: border-box; }
-  .pennant .sun { width: 84px; height: 84px; margin: 6px 0 18px; }
-  .pennant .motto { font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 20px; line-height: 1.35; letter-spacing: 0.1em; color: #f3e8cf; text-align: center; }
-  .pennant .dia { color: #f6d77a; font-size: 22px; margin-top: 14px; }
-  .name { position: absolute; left: 150px; right: 150px; top: 676px; height: 77px; display: flex; align-items: center; justify-content: center; font-family: 'Cinzel', Georgia, serif; font-weight: 800; font-size: 66px; letter-spacing: 0.03em; color: #f3e8cf; text-shadow: 0 3px 6px rgba(0,0,0,0.7); white-space: nowrap; }
-  .name.long { font-size: 54px; }
-  .name.xlong { font-size: 44px; }
-  .tag { position: absolute; left: 50%; top: 742px; transform: translateX(-50%); padding: 6px 44px; background: linear-gradient(180deg, #2d63d6, #12308a); border: 4px solid #e9b93a; border-radius: 10px; font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 32px; letter-spacing: 0.22em; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-  .era { position: absolute; left: 0; right: 0; top: 812px; text-align: center; font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 30px; letter-spacing: 0.12em; color: #2a2418; }
-  .rules { position: absolute; left: 165px; right: 160px; top: 866px; height: 350px; font-size: 34px; line-height: 1.24; color: #1b1a17; font-weight: 500; overflow: hidden; }
-  .rules .kw { font-family: 'Cinzel', Georgia, serif; font-weight: 800; font-size: 30px; letter-spacing: 0.06em; color: #12308a; }
-  .rules b { font-weight: 700; }
-  .rules .sep { text-align: center; color: #b58a1c; font-size: 26px; margin: 10px 0 8px; position: relative; }
-  .rules .sep::before, .rules .sep::after { content: ''; position: absolute; top: 55%; width: 42%; border-top: 2px solid #c9a53a; }
-  .rules .sep::before { left: 0; } .rules .sep::after { right: 0; }
-  .rules.fit { font-size: 30px; line-height: 1.2; } .rules.fit .kw { font-size: 26px; }
-  .quote { position: absolute; left: 270px; right: 270px; top: 1240px; height: 56px; display: flex; align-items: center; justify-content: center; text-align: center; font-style: italic; font-size: 28px; line-height: 1.15; color: #f3e8cf; text-shadow: 0 2px 3px rgba(0,0,0,0.7); }
-  .card.event .art { background-position: center; }
+  :root { --frame: url("card-template.png"); --bg: #08131f; --panel: #0f1f33; --line: #2a4466; --text: #f1e9d6; --muted: #a9b4c2; --gold: #e9b93a; --gold-2: #f6d77a; --parchment: #f3e8cf; --display: 'Cinzel', 'Trajan Pro', Georgia, serif; --font: 'Crimson Pro', Georgia, serif; }
+  body { margin: 0; background: var(--bg) radial-gradient(ellipse at 50% -10%, #142a44 0%, var(--bg) 60%); color: var(--text); font-family: var(--font); font-size: 18px; line-height: 1.45; padding-block: 28px 64px; padding-inline: clamp(16px, 4vw, 48px); }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 18px; }
+  .eyebrow { font-family: var(--display); font-weight: 600; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); }
+  h1 { font-family: var(--display); font-weight: 800; font-size: clamp(24px, 4vw, 40px); letter-spacing: 0.04em; margin: 6px 0 8px; color: var(--parchment); text-wrap: balance; }
+  header p { max-width: 60ch; margin: 0 auto; color: var(--muted); }
+  .tabs { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 18px 0 22px; }
+  .tab { font-family: var(--display); font-weight: 700; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--parchment); background: var(--panel); border: 1.5px solid var(--line); padding: 10px 18px; cursor: pointer; min-height: 44px; }
+  .tab.on { background: linear-gradient(180deg, #f6d77a, #d7a422 60%, #b4851a); color: #1a1200; border-color: var(--gold-2); }
+  .tab:focus-visible { outline: 2px solid var(--gold-2); outline-offset: 2px; }
+  .stage { display: grid; place-items: center; }
+  .slide { width: min(100%, 680px); filter: drop-shadow(0 30px 50px rgba(0,0,0,0.6)); }
+  section.notes { margin-top: 44px; border-top: 1px solid var(--line); padding-top: 24px; display: grid; gap: 10px; max-width: 70ch; color: var(--muted); }
+  section.notes b { color: var(--parchment); font-weight: 600; }
+  h2 { font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-2); margin: 0 0 4px; }
+
+  /* One card = the template's 1103 x 1426 box; every measurement is a percentage of the card's width (cqw), so the
+     same layout holds at hand size and at Codex size. The frame is the designer's PNG, untouched: the portrait sits
+     on top of it, clipped to the blue window. */
+  .card { position: relative; container-type: inline-size; width: 100%; aspect-ratio: 1103 / 1426; font-family: var(--font); color: #1b1a17; }
+  .card > * { position: absolute; }
+  .card .frame { inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; background: var(--frame) center / 100% 100% no-repeat; }
+  /* The cost medallion and its ribbon are painted on the frame over the window, so two more passes of the same PNG,
+     cut to just those shapes (a circle for the medallion, the ribbon's pennant outline), ride above the portrait. */
+  .card .frame-medal, .card .frame-ribbon { inset: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none; background: var(--frame) center / 100% 100% no-repeat; }
+  .card .frame-medal { -webkit-mask: radial-gradient(circle at 16.50cqw 11.79cqw, #000 6.05cqw, transparent 6.15cqw); mask: radial-gradient(circle at 16.50cqw 11.79cqw, #000 6.05cqw, transparent 6.15cqw); }
+  .card .frame-ribbon { clip-path: polygon(11.85cqw 17.60cqw, 21.35cqw 17.60cqw, 21.35cqw 30.40cqw, 16.60cqw 27.10cqw, 11.85cqw 30.40cqw); }
+  .card .art { left: 13.78cqw; top: 8.52cqw; width: 71.99cqw; height: 49.50cqw; z-index: 3; background-size: cover; background-position: center 18%; }
+  .card .num { z-index: 5; font-family: var(--display); font-weight: 800; color: #fff; text-align: center; transform: translate(-50%, -50%); text-shadow: 0 0.27cqw 0.36cqw rgba(0,0,0,0.55), 0 0 0.18cqw rgba(0,0,0,0.6); line-height: 1; }
+  .card .cost { left: 16.50cqw; top: 11.79cqw; font-size: 8.34cqw; }
+  .card .inf { left: 13.78cqw; top: 113.51cqw; font-size: 9.07cqw; }
+  .card .force { left: 85.68cqw; top: 113.51cqw; font-size: 9.07cqw; }
+  .card .kindicon { z-index: 5; left: 16.50cqw; top: 22.85cqw; transform: translate(-50%, -50%); width: 5.44cqw; height: 5.44cqw; }
+  .card .kindicon svg { width: 100%; height: 100%; fill: none; stroke: #f6d77a; stroke-width: 5; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 0.18cqw 0.18cqw rgba(0,0,0,0.6)); }
+  .card .pennant { z-index: 3; right: 9.07cqw; top: 1.63cqw; width: 13.60cqw; height: 31.73cqw; background: linear-gradient(180deg, #14305a, #0b1e3c); border: 0.54cqw solid #d8a83a; border-top: 0; clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%); box-shadow: 0 0.54cqw 1.63cqw rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; padding: 2.18cqw 0.91cqw; box-sizing: border-box; }
+  .card .pennant .sun { width: 7.62cqw; height: 7.62cqw; margin: 0.54cqw 0 1.63cqw; }
+  .card .pennant .motto { font-family: var(--display); font-weight: 700; font-size: 1.81cqw; line-height: 1.35; letter-spacing: 0.1em; color: #f3e8cf; text-align: center; }
+  .card .pennant .dia { color: #f6d77a; font-size: 1.99cqw; margin-top: 1.27cqw; }
+  .card .name { z-index: 3; left: 13.60cqw; right: 13.60cqw; top: 61.29cqw; height: 6.98cqw; display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 800; font-size: 5.98cqw; letter-spacing: 0.03em; color: #f3e8cf; text-shadow: 0 0.27cqw 0.54cqw rgba(0,0,0,0.7); white-space: nowrap; }
+  .card .name.long { font-size: 4.90cqw; }
+  .card .name.xlong { font-size: 3.99cqw; }
+  .card .tag { z-index: 4; left: 50%; top: 67.27cqw; transform: translateX(-50%); padding: 0.54cqw 3.99cqw; background: linear-gradient(180deg, #2d63d6, #12308a); border: 0.36cqw solid #e9b93a; border-radius: 0.91cqw; font-family: var(--display); font-weight: 700; font-size: 2.90cqw; letter-spacing: 0.22em; color: #fff; box-shadow: 0 0.36cqw 0.91cqw rgba(0,0,0,0.5); white-space: nowrap; }
   .card.event .tag { background: linear-gradient(180deg, #7a5cc6, #3a2570); }
   .card.mythic .tag { background: linear-gradient(180deg, #c0392b, #6a1410); }
+  .card .era { z-index: 3; left: 0; right: 0; top: 73.07cqw; text-align: center; font-family: var(--display); font-weight: 700; font-size: 2.72cqw; letter-spacing: 0.12em; color: #2a2418; }
+  /* The rules read at Codex size and scroll when they run long, like the current big card. */
+  .card .rules { z-index: 3; left: 14.51cqw; right: 13.60cqw; top: 77.79cqw; height: 26.80cqw; padding-right: 1.27cqw; font-size: 4.17cqw; line-height: 1.22; font-weight: 500; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #c9a53a transparent; }
+  .card .rules .kw { font-family: var(--display); font-weight: 800; font-size: 3.63cqw; letter-spacing: 0.05em; color: #12308a; }
+  .card .rules b { font-weight: 700; }
+  .card .rules .sep { text-align: center; color: #b58a1c; font-size: 2.54cqw; margin: 0.91cqw 0 0.73cqw; position: relative; }
+  .card .rules .sep::before, .card .rules .sep::after { content: ''; position: absolute; top: 55%; width: 42%; border-top: 0.18cqw solid #c9a53a; }
+  .card .rules .sep::before { left: 0; } .card .rules .sep::after { right: 0; }
+  .card .rules .blurb { margin-top: 1.27cqw; padding-top: 1.09cqw; border-top: 0.18cqw dotted #c9a53a; font-style: italic; color: #4a3f28; font-size: 3.63cqw; }
+  .card .quote { z-index: 3; left: 24.48cqw; right: 24.48cqw; top: 112.42cqw; height: 5.08cqw; display: flex; align-items: center; justify-content: center; text-align: center; font-style: italic; font-size: 2.72cqw; line-height: 1.12; color: #f3e8cf; text-shadow: 0 0.18cqw 0.27cqw rgba(0,0,0,0.7); }
+
 </style>
-<body></body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Stand on Business · sketch, not in the game yet</div>
+    <h1>Universal Card Template</h1>
+    <p>Your PNG, untouched, as the frame. The portrait sits over the blue window; the rules are set at reading size and scroll when they run long.</p>
+  </header>
+  <div class="tabs" role="tablist"><button type="button" class="tab on" data-for="david_ruggles" id="tab-david_ruggles">David Ruggles</button><button type="button" class="tab" data-for="shango" id="tab-shango">Shango</button><button type="button" class="tab" data-for="reparations" id="tab-reparations">Reparations</button></div>
+  <div class="stage"><section class="slide" data-id="david_ruggles"><div class="card " data-id="david_ruggles">
+      <div class="art" style="background-image:url('../../public/art/characters/david_ruggles.jpg')"></div>
+      <div class="frame"></div>
+      <div class="frame-medal"></div>
+      <div class="frame-ribbon"></div>
+      <div class="num cost">3</div>
+      <div class="kindicon"><svg viewBox="0 0 64 64"><path d="M8 14c8-4 16-4 24 2 8-6 16-6 24-2v36c-8-4-16-4-24 2-8-6-16-6-24-2z"/><path d="M32 16v38"/></svg></div>
+      <div class="pennant"><svg class="sun" viewBox="0 0 64 64" fill="none" stroke="#f6d77a" stroke-width="2.5" stroke-linecap="round"><path d="M32 4v14M32 46v14M4 32h14M46 32h14M12 12l10 10M42 42l10 10M52 12L42 22M22 42 12 52"/><path d="M32 22l4 8 8 2-8 2-4 8-4-8-8-2 8-2z" fill="#f6d77a"/></svg><div class="motto">TRUTH ORGANIZES FREEDOM</div><div class="dia">✦</div></div>
+      <div class="name ">David Ruggles</div>
+      <div class="tag">VIGILANCE</div>
+      <div class="era">1810–1849</div>
+      <div class="rules"><div><span class="kw">REVEAL:</span> The <b>Slaveholders Directory:</b> an Informant at your Gates at this Location is found out and sent back to the hand of the player who planted it (discarded if that hand is full). With none here to name, he prints anyway: draw a card.</div><div class="sep">◆</div><div><span class="kw">ESTABLISHED:</span> The Committee of Vigilance: your Characters at this Location cannot be blocked from entering.</div><div class="blurb">Secretary of the New York Committee of Vigilance. He found out who was taking Black people off the streets and printed their names, two police officers and the city's Recorder included.</div></div>
+      <div class="quote">“The press is a weapon against slavery.”</div>
+      <div class="num inf">3</div><div class="num force">1</div>
+    </div></section><section class="slide" data-id="shango" hidden><div class="card mythic" data-id="shango">
+      <div class="art" style="background-image:url('../../public/art/characters/shango.jpg')"></div>
+      <div class="frame"></div>
+      <div class="frame-medal"></div>
+      <div class="frame-ribbon"></div>
+      <div class="num cost">6</div>
+      <div class="kindicon"><svg viewBox="0 0 64 64"><path d="M36 4 14 36h16l-4 24 24-34H34z"/></svg></div>
+      <div class="pennant"><svg class="sun" viewBox="0 0 64 64" fill="none" stroke="#f6d77a" stroke-width="2.5" stroke-linecap="round"><path d="M32 4v14M32 46v14M4 32h14M46 32h14M12 12l10 10M42 42l10 10M52 12L42 22M22 42 12 52"/><path d="M32 22l4 8 8 2-8 2-4 8-4-8-8-2 8-2z" fill="#f6d77a"/></svg><div class="motto">THUNDER KEEPS THE LAW</div><div class="dia">✦</div></div>
+      <div class="name ">Shango</div>
+      <div class="tag">MYTHIC</div>
+      <div class="era">Yoruba · Oyo</div>
+      <div class="rules"><div><span class="kw">REVEAL:</span> <b>Thunder:</b> CHALLENGE every opposing Gate Character here. Each with lower Force than Shango is displaced to a random other Location.</div><div class="sep">◆</div><div><span class="kw">ESTABLISHED:</span> Your Characters confront Threats here with +2 Force.</div><div class="blurb">Fourth king of Oyo and orisha of thunder and justice, whose double-headed axe and drum travelled to Cuba, Brazil and Trinidad and never fell silent.</div></div>
+      <div class="quote">“The axe and the drum never fell silent.”</div>
+      <div class="num inf">6</div><div class="num force">6</div>
+    </div></section><section class="slide" data-id="reparations" hidden><div class="card event" data-id="reparations">
+      <div class="art" style="background-image:url('../../public/art/events/reparations.jpg')"></div>
+      <div class="frame"></div>
+      <div class="frame-medal"></div>
+      <div class="frame-ribbon"></div>
+      <div class="num cost">1</div>
+      <div class="kindicon"><svg viewBox="0 0 64 64"><path d="M32 6l6 18h19l-15 11 6 19-16-12-16 12 6-19L7 24h19z"/></svg></div>
+      <div class="pennant"><svg class="sun" viewBox="0 0 64 64" fill="none" stroke="#f6d77a" stroke-width="2.5" stroke-linecap="round"><path d="M32 4v14M32 46v14M4 32h14M46 32h14M12 12l10 10M42 42l10 10M52 12L42 22M22 42 12 52"/><path d="M32 22l4 8 8 2-8 2-4 8-4-8-8-2 8-2z" fill="#f6d77a"/></svg><div class="motto">THE DEBT IS OWED WHERE IT WAS RUN UP</div><div class="dia">✦</div></div>
+      <div class="name ">Reparations</div>
+      <div class="tag">EVENT</div>
+      <div class="era">Every era</div>
+      <div class="rules"><div><span class="kw">PLAY:</span> Choose a Location: +1 lasting Influence there for each Setback you have suffered this match (max +4). It counts at the end no matter when you play it. <b>In the Americas:</b> +1 more.</div><div class="blurb">Only neutral historical harm counts. What the opponent did to you is not the same thing. The debt is owed where it was run up.</div></div>
+      <div class="quote">“The debt is owed where it was run up.”</div>
+      
+    </div></section></div>
+  <section class="notes">
+    <h2>Open questions</h2>
+    <div><b>Events.</b> No Influence or Force, so the bottom medallions sit empty. Either a second frame without them, or they carry Event marks (a Location glyph, an hourglass for “counts at the end”).</div>
+    <div><b>Two copy fields.</b> A motto for the pennant and a quotation for the strip. Stand-ins here, borrowed from each blurb.</div>
+    <div><b>The pennant.</b> Drawn in CSS here; it could be painted into the frame instead.</div>
+  </section>
+</div>
 <script>
-const ART = '../../public/art/';
-const CARDS = [
-  { id: 'david_ruggles', kind: 'characters', name: 'David Ruggles', tag: 'Vigilance', era: '1810–1849', cost: 3, inf: 3, force: 1, icon: 'book', motto: 'Truth organizes freedom',
-    rules: [['Reveal', 'The <b>Slaveholders Directory:</b> an Informant at your Gates at this Location is found out and sent back to the hand of the player who planted it (discarded if that hand is full). With none here to name, he prints anyway: draw a card.'], ['Established', 'The Committee of Vigilance: your Characters at this Location cannot be blocked from entering.']],
-    quote: '“The press is a weapon against slavery.”' },
-  { id: 'shango', kind: 'characters', cls: 'mythic', name: 'Shango', tag: 'Mythic', era: 'Yoruba · Oyo', cost: 6, inf: 6, force: 6, icon: 'bolt', motto: 'Thunder keeps the law',
-    rules: [['Reveal', '<b>Thunder:</b> CHALLENGE every opposing Gate Character here. Each with lower Force than Shango is displaced to a random other Location.'], ['Established', 'Your Characters confront Threats here with +2 Force.']],
-    quote: '“The axe and the drum never fell silent.”' },
-  { id: 'reparations', kind: 'events', cls: 'event', name: 'Reparations', tag: 'Event', era: 'Every era', cost: 1, inf: null, force: null, icon: 'star', motto: 'The debt is owed where it was run up',
-    rules: [['Play', 'Choose a Location: +1 lasting Influence there for each Setback you have suffered this match (max +4). It counts at the end no matter when you play it. <b>In the Americas:</b> +1 more.']],
-    quote: '“Only neutral historical harm counts.”' },
-];
-const ICONS = {
-  book: '<svg viewBox="0 0 64 64"><path d="M8 14c8-4 16-4 24 2 8-6 16-6 24-2v36c-8-4-16-4-24 2-8-6-16-6-24-2z"/><path d="M32 16v38"/></svg>',
-  bolt: '<svg viewBox="0 0 64 64"><path d="M36 4 14 36h16l-4 24 24-34H34z"/></svg>',
-  star: '<svg viewBox="0 0 64 64"><path d="M32 6l6 18h19l-15 11 6 19-16-12-16 12 6-19L7 24h19z"/></svg>',
-};
-const SUN = '<svg class="sun" viewBox="0 0 64 64" fill="none" stroke="#f6d77a" stroke-width="2.5" stroke-linecap="round"><path d="M32 4v14M32 46v14M4 32h14M46 32h14M12 12l10 10M42 42l10 10M52 12L42 22M22 42 12 52"/><path d="M32 22l4 8 8 2-8 2-4 8-4-8-8-2 8-2z" fill="#f6d77a"/></svg>';
-for (const c of CARDS) {
-  const el = document.createElement('div');
-  el.className = `card ${c.cls ?? ''}`; el.dataset.id = c.id;
-  const src = `${ART}${c.kind}/${c.id}.jpg`;
-  const nameCls = c.name.length > 15 ? (c.name.length > 22 ? 'xlong' : 'long') : '';
-  el.innerHTML = `
-    <div class="bleed" style="background-image:url('${src}')"></div>
-    <div class="art" style="background-image:url('${src}')"></div>
-    <img class="frame" src="card-frame.png">
-    <div class="num cost">${c.cost}</div>
-    <div class="kind">${ICONS[c.icon]}</div>
-    <div class="pennant">${SUN}<div class="motto">${c.motto.toUpperCase()}</div><div class="dia">✦</div></div>
-    <div class="name ${nameCls}">${c.name}</div>
-    <div class="tag">${c.tag.toUpperCase()}</div>
-    <div class="era">${c.era}</div>
-    <div class="rules">${c.rules.map(([k, t]) => `<div><span class="kw">${k.toUpperCase()}:</span> ${t}</div>`).join('<div class="sep">◆</div>')}</div>
-    <div class="quote">${c.quote}</div>
-    ${c.inf !== null ? `<div class="num inf">${c.inf}</div><div class="num force">${c.force}</div>` : ''}`;
-  document.body.appendChild(el);
-  const r = el.querySelector('.rules'); if (r.scrollHeight > r.clientHeight) r.classList.add('fit');
-}
+  for (const t of document.querySelectorAll('.tab')) t.addEventListener('click', () => {
+    for (const x of document.querySelectorAll('.tab')) x.classList.toggle('on', x === t);
+    for (const s of document.querySelectorAll('.slide')) s.hidden = s.dataset.id !== t.dataset.for;
+  });
 </script>

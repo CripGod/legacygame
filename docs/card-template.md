@@ -4,17 +4,19 @@ The frame the designer supplied (`docs/card-template/card-template.png`, 1103 ×
 for every kind of card: Characters, Mythics, Artists, Informants, Events and Curses. This note records how it is
 cut up, what goes where, and how it would be built, so the eventual `CardFace` v2 (and the Unity prefab) follow the
 same measurements. `docs/card-template/mock.html` is the working sketch: open it in a browser (it reads the art from
-`public/art`) and it lays out three cards on the frame; `mock-*.png` are its renders.
+`public/art`) and it lays out three cards on the frame, one at a time, with the rules scrolling; `mock-*.png` are
+its renders. Every measurement is in `cqw` (percent of the card's width), so the one layout holds at any size.
 
 ## The layers, bottom to top
 
-1. **Bleed.** The portrait again, blurred and darkened, covering the whole card. It is what shows through the gaps
-   between the frame and the card edge, so the painting seems to run under the frame the way the target render does.
-2. **Art window.** The portrait, cover-fitted to the window (face at about 18% from the top).
-3. **Frame.** `card-frame.png`: the template with its blue window keyed to transparent (the alpha was cut in
-   Chromium by colour; the gold bevel around the window survives). Everything above this is text or small marks.
-4. **Marks and text.** Numbers in the medallions, the kind icon in the pennant under the cost, the motto pennant at
-   the top right, the name, the tag pill, the era, the rules, the quote.
+1. **Frame.** `card-template.png`, the designer's PNG exactly as supplied: transparent outside the frame, solid blue
+   inside the art window. It is never edited.
+2. **Art.** The portrait, cover-fitted to the window rectangle and layered *over* the frame's blue (face at about
+   18% from the top). The window's gold bevel stays visible around it.
+3. **Medallion and ribbon.** The cost medallion and the pennant under it are painted on the frame across the window,
+   so two more passes of the same PNG, cut to just those shapes (a circle, the pennant outline), sit above the art.
+4. **Marks and text.** Numbers in the medallions, the kind icon in the ribbon, the motto pennant at the top right,
+   the name, the tag pill, the era, the rules (which scroll when they run long, like the current big card), the quote.
 
 ## Slot geometry (px on the 1103 × 1426 template; percentages for CSS or Unity anchors)
 
@@ -27,7 +29,7 @@ same measurements. `docs/card-template/mock.html` is the working sketch: open it
 | Name banner (navy) | x 150–950, y 676–753 | 13.6%, 47.4%, 72.5% × 5.4% | the name, Cinzel 800, 66px; 54px over 15 characters, 44px over 22 |
 | Tag pill | centred, y 742 (overlapping the banner's bottom edge) | 50%, 52% | one word: the most specific tag, or Mythic / Artist / Informant / Event / Curse |
 | Era line | y 812, centred | 57% | dates or place, Cinzel 700, 30px, ink |
-| Rules box (parchment) | x 165–943, y 866–1216 | 15%, 60.7%, 70.5% × 24.5% | Crimson Pro 500, 34px, line 1.24; steps to 30px when it overflows; keyword labels in Cinzel 800 navy; a diamond rule between abilities |
+| Rules box (parchment) | x 160–953, y 858–1154 | 14.5%, 60.2%, 71.9% × 20.8% | Crimson Pro 500, 46px, line 1.22, scrolling when it overflows (like the big card today); keyword labels in Cinzel 800 navy; a diamond rule between abilities; the blurb in italics under a dotted rule |
 | Quote strip (navy, bottom) | x 270–833, y 1240–1296 | 24.5%, 87%, 51% × 3.9% | a short quotation, Crimson Pro italic, 28px, parchment |
 | Influence medallion (gold) | centre (152, 1252), r ≈ 72 | 13.8%, 87.8% | Influence, Cinzel 800, 100px |
 | Force medallion (red) | centre (945, 1252), r ≈ 72 | 85.7%, 87.8% | Force, Cinzel 800, 100px |
@@ -64,8 +66,8 @@ All copy rules apply: real words from or about the person, no editorializing, so
   ~130px wide) and at Codex size (~600px). At hand size the rules text is unreadable at any font, so the small card
   shows the art, the name banner, the pill and the three numbers, and hides the rules, era, quote and pennant; the
   Codex shows everything. Numbers use `font-size` in `cqw` units (container query width) so they scale with the card.
-- **Assets**: `card-frame.png` at 1103 × 1426 (about 1.6 MB as PNG; ship it as WebP with alpha, ~250 KB, plus a
-  400px version for the hand). The full-bleed blur is computed from the portrait, not an asset.
+- **Assets**: the supplied `card-template.png` at 1103 × 1426 (1.7 MB as PNG; ship it as WebP with alpha, ~250 KB,
+  plus a 400px version for the hand).
 - **Unity**: a prefab with the same four layers: a full-bleed `SpriteRenderer` (portrait, blurred by a material),
   the portrait in a `SpriteMask` for the window, the frame sprite, and TextMeshPro fields anchored at the table's
   percentages in a 1103 × 1426 rect. The percentages are the contract between the two builds.
