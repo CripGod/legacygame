@@ -1495,6 +1495,12 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl.rank-silver { --rank-line: #9aa3b2; --rank-ink: #e6ebf2; }
 .card.tpl.rank-bronze { --rank-line: #a86a34; --rank-ink: #e8a86a; }
 .card.tpl.rank-diamond { --rank-line: #9fdcff; --rank-ink: #f2fbff; }
+/* The glare: a soft white band, screened over the frame, that crosses it once every five seconds. Masked to the frame
+   image so it lights only the metal. Unity: a scrolling additive sprite under the frame's alpha, on a 5 s timer. */
+.card.tpl .tpl-glare { position: absolute; inset: 0; z-index: 2; overflow: hidden; pointer-events: none; mask-size: 100% 100%; -webkit-mask-size: 100% 100%; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; }
+.card.tpl .tpl-glare::before { content: ''; position: absolute; top: -20%; bottom: -20%; left: 0; width: 100%; mix-blend-mode: screen; background: linear-gradient(105deg, rgba(255, 255, 255, 0) 30%, rgba(210, 240, 255, 0.38) 42%, rgba(255, 255, 255, 0.8) 50%, rgba(210, 240, 255, 0.38) 58%, rgba(255, 255, 255, 0) 70%); transform: translateX(-120%); animation: tpl-glare 5s linear infinite; }
+@keyframes tpl-glare { 0% { transform: translateX(-120%); } 26% { transform: translateX(120%); } 100% { transform: translateX(120%); } }
+@media (prefers-reduced-motion: reduce) { .card.tpl .tpl-glare::before { animation: none; opacity: 0; } }
 .card.tpl.rank-diamond .tpl-kind svg { filter: drop-shadow(0 0.27cqw 0.45cqw rgba(0, 0, 0, 0.85)) drop-shadow(0 0 0.6cqw rgba(160, 225, 255, 0.7)); }
 .card.tpl .tpl-meta { border-bottom-color: var(--rank-line); }
 .card.tpl .tpl-sep::before, .card.tpl .tpl-sep::after { border-top-color: var(--rank-line); }

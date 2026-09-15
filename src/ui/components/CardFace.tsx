@@ -136,7 +136,14 @@ function Frame({ kind, big, rank }: { kind: 'character' | 'event'; big: boolean;
   useLayoutEffect(() => {
     setId(artMissing('frames', want) ? back : want);
   }, [want, back]);
-  return <img className="tpl-frame" src={artUrl('frames', id, 'webp')} alt="" draggable={false} onError={() => { markArtMissing('frames', id); if (id !== back) setId(back); }} />;
+  const src = artUrl('frames', id, 'webp');
+  return (
+    <>
+      <img className="tpl-frame" src={src} alt="" draggable={false} onError={() => { markArtMissing('frames', id); if (id !== back) setId(back); }} />
+      {/* Diamond: a glare sweeps the frame every few seconds, masked to the frame's own pixels so it never crosses the art. */}
+      {rank === 'diamond' && <span className="tpl-glare" aria-hidden style={{ WebkitMaskImage: `url("${src}")`, maskImage: `url("${src}")` }} />}
+    </>
+  );
 }
 
 /**
