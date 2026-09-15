@@ -1541,7 +1541,8 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl .tpl-cost.discounted { color: #d8ffe4; filter: drop-shadow(0 0 0.8cqw #7ef0a0); }
 .card.tpl .tpl-inf { left: 14.4cqw; top: 112.8cqw; font-size: max(9cqw, 12px); }
 .card.tpl .tpl-force { left: 85.6cqw; top: 112.8cqw; font-size: max(9cqw, 12px); }
-.card.tpl .tpl-ev { left: 14.4cqw; top: 112.8cqw; font-size: max(5cqw, 8px); letter-spacing: 0.08em; }
+/* The Event frame carries laurels where the Character frame has its Influence and Force medallions: nothing to print there. */
+.card.tpl .tpl-ev { display: none; }
 .card.tpl .tpl-kind { z-index: 5; left: 16.6cqw; top: 23.75cqw; transform: translate(-50%, -50%); width: 5.8cqw; height: 5.8cqw; }
 .card.tpl .tpl-kind svg { width: 100%; height: 100%; fill: none; stroke: #f6d77a; stroke-width: 5; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 0.27cqw 0.45cqw rgba(0, 0, 0, 0.85)); }
 .card.tpl .tpl-name { z-index: 3; left: 16cqw; right: 16cqw; top: 61.3cqw; height: 7cqw; display: flex; align-items: center; justify-content: center; transform-origin: 50% 50%; overflow: visible; font-family: var(--display); font-weight: 800; font-size: max(5.98cqw, 8.5px); letter-spacing: 0.03em; color: var(--parchment); text-shadow: 0 0.27cqw 0.54cqw rgba(0, 0, 0, 0.7); white-space: nowrap; padding: 0; line-height: 1; }

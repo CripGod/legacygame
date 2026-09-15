@@ -47,10 +47,10 @@ board has to be relearned.
 - **Artist**: palette icon, green pill (the artist's trail colour on the board).
 - **Informant**: mask icon, a slate pill; the name banner could take a faint hatched texture so an Informant reads
   as one at arm's length.
-- **Event**: purple pill, star icon, one rules block led by "PLAY:". Events have no Influence or Force, so the bottom
-  medallions are empty in the sketch. Two options for the real thing: a second frame export without the bottom
-  medallions, or the medallions carry the Event's own marks (a Location glyph on the left when it needs a Location,
-  a "counts at the end" hourglass on the right). The second keeps one PNG.
+- **Event**: the purple frame (`docs/card-template/card-frame-event.png`, 1086 × 1448, fitted into the 1103 × 1426
+  box centred with 17px side margins), a purple cost medallion, laurels instead of the bottom medallions, star icon,
+  one rules block led by "PLAY:". Every other slot sits where the Character frame's does, so the one layout serves
+  both frames.
 - **Curse**: the Event layout with the parchment tinted violet and the pill dark; the frame stays gold.
 
 ## Data the template wants that the cards do not have yet
@@ -77,5 +77,4 @@ All copy rules apply: real words from or about the person, no editorializing, so
 ## What is not decided
 
 - Whether the motto pennant is part of the frame PNG (one export with it drawn) or stays a drawn element.
-- The Event medallions (see above).
 - The card back is supplied (`card-back.png`); whether the hidden Location backs use it too.
