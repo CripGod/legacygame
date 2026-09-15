@@ -1608,7 +1608,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl:not(.big) .tpl-name > span { display: block; width: 100%; text-align: center; }
 /* Small card faces (landing row, hand, Codex grid) read the kind icon at 8px: it sits a little higher than on the big
    card and is drawn larger with a heavier stroke and a hard one-pixel shadow instead of a blur, which only smudged it. */
-.card.tpl:not(.big) .tpl-kind { width: 4.6cqw; height: 4.6cqw; top: 20.8cqw; }
+.card.tpl:not(.big) .tpl-kind { width: 4.6cqw; height: 4.6cqw; top: 19.9cqw; }
 .card.tpl:not(.big) .tpl-kind svg { stroke-width: 7.5; filter: drop-shadow(0 0.6px 0 rgba(0, 0, 0, 0.9)); }
 .card.tpl:not(.big) .tpl-summary { font-size: max(4.4cqw, 11px); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .deck-cards .card.tpl .tpl-num { font-size: max(9cqw, 16px); }
