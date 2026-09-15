@@ -847,6 +847,7 @@ body:has(.cx-inner) .tip {
    animation fills backwards only, so once it ends the tilt transform below is the one that applies. */
 .cx-card3d-inner {
   position: relative;
+  container-type: inline-size;
   --rx: 0deg; --ry: 0deg; --gx: 50%; --gy: 40%;
   transform: rotateX(var(--rx)) rotateY(var(--ry));
   transform-style: preserve-3d;
@@ -860,11 +861,14 @@ body:has(.cx-inner) .tip {
   position: absolute; inset: 0; pointer-events: none; z-index: 6; opacity: 0;
   background: radial-gradient(circle at var(--gx) var(--gy), rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.08) 28%, transparent 58%);
   mix-blend-mode: screen; transition: opacity 0.3s;
-  clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+  /* The sheen is cut to the card itself: the frame's own alpha plus the art window (--frame is set by CodexSheet). */
+  -webkit-mask: var(--frame) center / 100% 100% no-repeat, linear-gradient(#000, #000) 12.7cqw 7.4cqw / 74.2cqw 51.8cqw no-repeat;
+  -webkit-mask-composite: source-over;
+  mask: var(--frame) center / 100% 100% no-repeat, linear-gradient(#000, #000) 12.7cqw 7.4cqw / 74.2cqw 51.8cqw no-repeat;
+  mask-composite: add;
 }
 .cx-card3d-inner.tilting .cx-glare { opacity: 1; }
 @media (hover: none) { .cx-glare { display: none; } }
-.cx-card3d .card.big { box-shadow: 0 0 0 1px rgba(233, 185, 58, 0.5); }
 @keyframes cx-card-in { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .cx-history-btn { min-width: 140px; }
 /* The story: closed it has no width; open it grows beside the card, which slides left as the stage widens. */

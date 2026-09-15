@@ -149,7 +149,7 @@ export function Hand({
             ['--rot' as string]: `${rot}deg`,
             ['--ty' as string]: `${ty}px`,
             ['--z' as string]: i,
-            marginLeft: i === 0 ? 0 : compact ? 'calc(var(--card-w) * -0.4)' : 'calc(var(--card-w) * -0.1)',
+            marginLeft: i === 0 ? 0 : compact ? 'calc(var(--card-w) * -0.44)' : 'calc(var(--card-w) * -0.17)',
             position: 'relative',
           };
           const name = cardName(id, placeholders);

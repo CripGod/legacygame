@@ -774,7 +774,7 @@ body.dragging { cursor: grabbing; user-select: none; }
 /* Cards screen */
 .cards-screen { --card-w: 112px; }
 .cards-screen h2 { margin: 14px 0 6px; font-size: 16px; letter-spacing: 0.04em; }
-.card-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+.card-grid { display: flex; flex-wrap: wrap; gap: 2px 0; }
 .card-grid .card { cursor: pointer; }
 .compendium { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
 .compendium li { border-left: 3px solid var(--line-2); padding: 4px 10px; font-size: 14px; }

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { CARD_BY_ID } from '../../engine';
 import { CardFace } from './CardFace';
+import { artUrl } from '../art';
 import { cardName, useDisplay } from '../display';
 import { sfx } from '../audio';
 import '../compendium.css';
@@ -83,7 +84,7 @@ export function CodexSheet({ id, label, onClose, children, flat }: { id: string;
         <div className="cx-card3d">
           <div className="cx-card3d-inner" ref={tiltRef} onPointerMove={onMove} onPointerLeave={onLeave} onPointerCancel={onLeave}>
             <CardFace id={id} big />
-            <div className="cx-glare" aria-hidden />
+            <div className="cx-glare" aria-hidden style={{ ['--frame' as string]: `url("${artUrl('frames', 'character', 'webp')}")` }} />
           </div>
           {history && (
             <button className={`cx-btn cx-ctl cx-history-btn ${open ? 'on' : ''}`} onClick={() => setOpen((o) => !o)} aria-expanded={open}>
