@@ -1494,7 +1494,6 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl { --rank-line: #c9a53a; --rank-ink: #f6d77a; }
 .card.tpl.rank-silver { --rank-line: #9aa3b2; --rank-ink: #e6ebf2; }
 .card.tpl.rank-bronze { --rank-line: #a86a34; --rank-ink: #e8a86a; }
-.card.tpl .tpl-kind svg { stroke: var(--rank-ink); }
 .card.tpl .tpl-meta { border-bottom-color: var(--rank-line); }
 .card.tpl .tpl-sep::before, .card.tpl .tpl-sep::after { border-top-color: var(--rank-line); }
 .card.tpl .tpl-blurb { border-top-color: var(--rank-line); }
@@ -1594,7 +1593,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl .tpl-ev { display: none; }
 .card.tpl .tpl-kind { z-index: 5; left: 15.8cqw; top: 22.1cqw; transform: translate(-50%, -50%); width: 4.4cqw; height: 4.4cqw; }
 .card.tpl.event .tpl-kind { left: 13.65cqw; top: 24.3cqw; width: 4.6cqw; height: 4.6cqw; }
-.card.tpl .tpl-kind svg { width: 100%; height: 100%; fill: none; stroke: #f6d77a; stroke-width: 5; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 0.27cqw 0.45cqw rgba(0, 0, 0, 0.85)); }
+.card.tpl .tpl-kind svg { width: 100%; height: 100%; fill: none; stroke: var(--rank-ink, #f6d77a); stroke-width: 5; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 0.27cqw 0.45cqw rgba(0, 0, 0, 0.85)); }
 /* The parchment: name, meta line, rules. */
 .card.tpl .tpl-body { z-index: 3; left: 15cqw; right: 14.3cqw; top: 65cqw; height: 39cqw; display: flex; flex-direction: column; align-items: stretch; gap: 0; }
 .card.tpl.event .tpl-body { left: 13cqw; right: 12.8cqw; top: 67.5cqw; height: 37cqw; }
