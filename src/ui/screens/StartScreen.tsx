@@ -1,4 +1,4 @@
-import { AudioControl } from '../components/AudioControl';
+import { SettingsMenu } from '../components/SettingsMenu';
 import { threatMusic } from '../audio';
 import { useEffect, useRef, useState } from 'react';
 import { resetCoach } from '../components/Coach';
@@ -369,7 +369,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
         <div className="hero-tag">People. Strategy. A stronger tomorrow.</div>
       </header>
       <div className="audio-corner">
-        <AudioControl />
+        <SettingsMenu />
       </div>
 
       {small && (

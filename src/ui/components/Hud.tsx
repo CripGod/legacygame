@@ -2,7 +2,7 @@ import { CARD_BY_ID, MAX_HAND, LEGEND_READY, type GameState, type PlayerId, effe
 import { initials, useDisplay } from '../display';
 import { tip, HINTS } from '../tip';
 import { Art } from './Art';
-import { AudioControl } from './AudioControl';
+import { SettingsMenu } from './SettingsMenu';
 
 export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: GameState; me: PlayerId; onProfile: (p: PlayerId) => void; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void; stand?: { on: boolean; disabled: boolean; flash?: boolean; onToggle: () => void; /** What the Legacy becomes if the planned Stand goes through. */ proposed?: number; /** The press: the button slams. */ slam?: boolean; /** The clap: the coin flips to the new price. */ flip?: boolean } }) {
   const { placeholders } = useDisplay();
@@ -55,7 +55,7 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
             {(view.pendingRaises.length > 0 || stand?.on) && <em>→{stand?.on && stand.proposed ? stand.proposed : effectiveStakes(view)}</em>}
             <small>legacy</small>
           </span>
-          <AudioControl />
+          <SettingsMenu className="hud-settings" />
         </div>
       </div>
       {profile('B', true)}

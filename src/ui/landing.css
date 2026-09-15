@@ -278,4 +278,5 @@
 /* Sound switches under the tagline. */
 /* The sound switches sit in the top-right corner, above the tagline there, so the hero spends no height on them. */
 .landing > .audio-corner { position: absolute; top: 12px; right: clamp(14px, 3vw, 44px); z-index: 3; animation: rise 0.9s ease-out backwards 0.1s; }
-.audio-corner .audio-btn { width: 34px; height: 30px; font-size: 15px; }
+.audio-corner .settings-btn { width: 36px; height: 36px; }
+.audio-corner .settings-btn svg { width: 19px; height: 19px; }
