@@ -86,9 +86,9 @@ export function Hand({
       window.setTimeout(() => sfx('card.deal'), k * 140);
     }
   });
-  // The fan is laid out over the whole hand, planned cards included: a planned card stays in its place as a dim
-  // gap (tap it to take it back), so nothing re-centres while you plan. Only a draw changes the fan, and that glides.
-  const visible = hand;
+  // A planned card leaves the hand: it is on the board now, as its preview tile, and the plan chip under the hand (or
+  // Undo) takes it back. The fan re-centres on what is left, and that glides like a draw does.
+  const visible = hand.filter((id) => !plan.plays.some((pl) => pl.cardId === id));
   const n = visible.length;
   const mid = (n - 1) / 2;
   const fanRef = useRef<HTMLDivElement>(null);
