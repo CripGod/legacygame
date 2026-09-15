@@ -1,7 +1,7 @@
 <title>Universal Card Template</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Crimson+Pro:ital,wght@0,500;0,600;0,700;1,500&display=swap">
 <style>
-  :root { --frame: url("card-template.png"); --bg: #08131f; --panel: #0f1f33; --line: #2a4466; --text: #f1e9d6; --muted: #a9b4c2; --gold: #e9b93a; --gold-2: #f6d77a; --parchment: #f3e8cf; --display: 'Cinzel', 'Trajan Pro', Georgia, serif; --font: 'Crimson Pro', Georgia, serif; }
+  :root { --frame: url("card-frame.png"); --bg: #08131f; --panel: #0f1f33; --line: #2a4466; --text: #f1e9d6; --muted: #a9b4c2; --gold: #e9b93a; --gold-2: #f6d77a; --parchment: #f3e8cf; --display: 'Cinzel', 'Trajan Pro', Georgia, serif; --font: 'Crimson Pro', Georgia, serif; }
   body { margin: 0; background: var(--bg) radial-gradient(ellipse at 50% -10%, #142a44 0%, var(--bg) 60%); color: var(--text); font-family: var(--font); font-size: 18px; line-height: 1.45; padding-block: 28px 64px; padding-inline: clamp(16px, 4vw, 48px); }
   .wrap { max-width: 1100px; margin: 0 auto; }
   header { text-align: center; margin-bottom: 18px; }
@@ -19,24 +19,19 @@
   h2 { font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-2); margin: 0 0 4px; }
 
   /* One card = the template's 1103 x 1426 box; every measurement is a percentage of the card's width (cqw), so the
-     same layout holds at hand size and at Codex size. The frame is the designer's PNG, untouched: the portrait sits
-     on top of it, clipped to the blue window. */
+     same layout holds at hand size and at Codex size. The frame is the designer's PNG with its window knocked out,
+     so the portrait sits under it and the medallions and ribbon are simply part of the frame. */
   .card { position: relative; container-type: inline-size; width: 100%; aspect-ratio: 1103 / 1426; font-family: var(--font); color: #1b1a17; }
   .card > * { position: absolute; }
   .card .frame { inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; background: var(--frame) center / 100% 100% no-repeat; }
-  /* The cost medallion and its ribbon are painted on the frame over the window, so two more passes of the same PNG,
-     cut to just those shapes (a circle for the medallion, the ribbon's pennant outline), ride above the portrait. */
-  .card .frame-medal, .card .frame-ribbon { inset: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none; background: var(--frame) center / 100% 100% no-repeat; }
-  .card .frame-medal { -webkit-mask: radial-gradient(circle at 16.50cqw 11.79cqw, #000 6.05cqw, transparent 6.15cqw); mask: radial-gradient(circle at 16.50cqw 11.79cqw, #000 6.05cqw, transparent 6.15cqw); }
-  .card .frame-ribbon { clip-path: polygon(11.85cqw 17.60cqw, 21.35cqw 17.60cqw, 21.35cqw 30.40cqw, 16.60cqw 27.10cqw, 11.85cqw 30.40cqw); }
-  .card .art { left: 13.78cqw; top: 8.52cqw; width: 71.99cqw; height: 49.50cqw; z-index: 3; background-size: cover; background-position: center 18%; }
+  .card .art { left: 12.70cqw; top: 7.40cqw; width: 74.20cqw; height: 51.80cqw; z-index: 1; background-size: cover; background-position: center 18%; }
   .card .num { z-index: 5; font-family: var(--display); font-weight: 800; color: #fff; text-align: center; transform: translate(-50%, -50%); text-shadow: 0 0.27cqw 0.36cqw rgba(0,0,0,0.55), 0 0 0.18cqw rgba(0,0,0,0.6); line-height: 1; }
   .card .cost { left: 16.50cqw; top: 11.79cqw; font-size: 8.34cqw; }
   .card .inf { left: 13.78cqw; top: 113.51cqw; font-size: 9.07cqw; }
   .card .force { left: 85.68cqw; top: 113.51cqw; font-size: 9.07cqw; }
   .card .kindicon { z-index: 5; left: 16.50cqw; top: 22.85cqw; transform: translate(-50%, -50%); width: 5.44cqw; height: 5.44cqw; }
   .card .kindicon svg { width: 100%; height: 100%; fill: none; stroke: #f6d77a; stroke-width: 5; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 0.18cqw 0.18cqw rgba(0,0,0,0.6)); }
-  .card .pennant { z-index: 3; right: 9.07cqw; top: 1.63cqw; width: 13.60cqw; height: 31.73cqw; background: linear-gradient(180deg, #14305a, #0b1e3c); border: 0.54cqw solid #d8a83a; border-top: 0; clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%); box-shadow: 0 0.54cqw 1.63cqw rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; padding: 2.18cqw 0.91cqw; box-sizing: border-box; }
+  .card .pennant { z-index: 3; right: 9.07cqw; top: 1.63cqw; width: 13.60cqw; height: 31.73cqw; background: linear-gradient(180deg, #14305a, #0b1e3c); border: 0.54cqw solid #d8a83a; border-top: 0; clip-path: polygon(0 0, 100% 0, 100% 84%, 50% 100%, 0 84%); box-shadow: 0 0.54cqw 1.63cqw rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; padding: 2.18cqw 0.91cqw; box-sizing: border-box; display: none; }
   .card .pennant .sun { width: 7.62cqw; height: 7.62cqw; margin: 0.54cqw 0 1.63cqw; }
   .card .pennant .motto { font-family: var(--display); font-weight: 700; font-size: 1.81cqw; line-height: 1.35; letter-spacing: 0.1em; color: #f3e8cf; text-align: center; }
   .card .pennant .dia { color: #f6d77a; font-size: 1.99cqw; margin-top: 1.27cqw; }
@@ -62,14 +57,12 @@
   <header>
     <div class="eyebrow">Stand on Business · sketch, not in the game yet</div>
     <h1>Universal Card Template</h1>
-    <p>Your PNG, untouched, as the frame. The portrait sits over the blue window; the rules are set at reading size and scroll when they run long.</p>
+    <p>Your frame with the window knocked out, the portrait under it; the rules are set at reading size and scroll when they run long. The motto pennant is hidden until it is something a player has won.</p>
   </header>
   <div class="tabs" role="tablist"><button type="button" class="tab on" data-for="david_ruggles" id="tab-david_ruggles">David Ruggles</button><button type="button" class="tab" data-for="shango" id="tab-shango">Shango</button><button type="button" class="tab" data-for="reparations" id="tab-reparations">Reparations</button></div>
   <div class="stage"><section class="slide" data-id="david_ruggles"><div class="card " data-id="david_ruggles">
       <div class="art" style="background-image:url('../../public/art/characters/david_ruggles.jpg')"></div>
       <div class="frame"></div>
-      <div class="frame-medal"></div>
-      <div class="frame-ribbon"></div>
       <div class="num cost">3</div>
       <div class="kindicon"><svg viewBox="0 0 64 64"><path d="M8 14c8-4 16-4 24 2 8-6 16-6 24-2v36c-8-4-16-4-24 2-8-6-16-6-24-2z"/><path d="M32 16v38"/></svg></div>
       <div class="pennant"><svg class="sun" viewBox="0 0 64 64" fill="none" stroke="#f6d77a" stroke-width="2.5" stroke-linecap="round"><path d="M32 4v14M32 46v14M4 32h14M46 32h14M12 12l10 10M42 42l10 10M52 12L42 22M22 42 12 52"/><path d="M32 22l4 8 8 2-8 2-4 8-4-8-8-2 8-2z" fill="#f6d77a"/></svg><div class="motto">TRUTH ORGANIZES FREEDOM</div><div class="dia">✦</div></div>
@@ -82,8 +75,6 @@
     </div></section><section class="slide" data-id="shango" hidden><div class="card mythic" data-id="shango">
       <div class="art" style="background-image:url('../../public/art/characters/shango.jpg')"></div>
       <div class="frame"></div>
-      <div class="frame-medal"></div>
-      <div class="frame-ribbon"></div>
       <div class="num cost">6</div>
       <div class="kindicon"><svg viewBox="0 0 64 64"><path d="M36 4 14 36h16l-4 24 24-34H34z"/></svg></div>
       <div class="pennant"><svg class="sun" viewBox="0 0 64 64" fill="none" stroke="#f6d77a" stroke-width="2.5" stroke-linecap="round"><path d="M32 4v14M32 46v14M4 32h14M46 32h14M12 12l10 10M42 42l10 10M52 12L42 22M22 42 12 52"/><path d="M32 22l4 8 8 2-8 2-4 8-4-8-8-2 8-2z" fill="#f6d77a"/></svg><div class="motto">THUNDER KEEPS THE LAW</div><div class="dia">✦</div></div>
@@ -96,8 +87,6 @@
     </div></section><section class="slide" data-id="reparations" hidden><div class="card event" data-id="reparations">
       <div class="art" style="background-image:url('../../public/art/events/reparations.jpg')"></div>
       <div class="frame"></div>
-      <div class="frame-medal"></div>
-      <div class="frame-ribbon"></div>
       <div class="num cost">1</div>
       <div class="kindicon"><svg viewBox="0 0 64 64"><path d="M32 6l6 18h19l-15 11 6 19-16-12-16 12 6-19L7 24h19z"/></svg></div>
       <div class="pennant"><svg class="sun" viewBox="0 0 64 64" fill="none" stroke="#f6d77a" stroke-width="2.5" stroke-linecap="round"><path d="M32 4v14M32 46v14M4 32h14M46 32h14M12 12l10 10M42 42l10 10M52 12L42 22M22 42 12 52"/><path d="M32 22l4 8 8 2-8 2-4 8-4-8-8-2 8-2z" fill="#f6d77a"/></svg><div class="motto">THE DEBT IS OWED WHERE IT WAS RUN UP</div><div class="dia">✦</div></div>
@@ -112,7 +101,7 @@
     <h2>Open questions</h2>
     <div><b>Events.</b> No Influence or Force, so the bottom medallions sit empty. Either a second frame without them, or they carry Event marks (a Location glyph, an hourglass for “counts at the end”).</div>
     <div><b>Two copy fields.</b> A motto for the pennant and a quotation for the strip. Stand-ins here, borrowed from each blurb.</div>
-    <div><b>The pennant.</b> Drawn in CSS here; it could be painted into the frame instead.</div>
+    <div><b>The pennant.</b> A reward, so hidden for now; the slot at the top right stays reserved for it.</div>
   </section>
 </div>
 <script>

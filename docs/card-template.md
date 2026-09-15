@@ -9,14 +9,13 @@ its renders. Every measurement is in `cqw` (percent of the card's width), so the
 
 ## The layers, bottom to top
 
-1. **Frame.** `card-template.png`, the designer's PNG exactly as supplied: transparent outside the frame, solid blue
-   inside the art window. It is never edited.
-2. **Art.** The portrait, cover-fitted to the window rectangle and layered *over* the frame's blue (face at about
-   18% from the top). The window's gold bevel stays visible around it.
-3. **Medallion and ribbon.** The cost medallion and the pennant under it are painted on the frame across the window,
-   so two more passes of the same PNG, cut to just those shapes (a circle, the pennant outline), sit above the art.
-4. **Marks and text.** Numbers in the medallions, the kind icon in the ribbon, the motto pennant at the top right,
-   the name, the tag pill, the era, the rules (which scroll when they run long, like the current big card), the quote.
+1. **Art.** The portrait, cover-fitted to the window (face at about 18% from the top).
+2. **Frame.** `card-frame.png`: the designer's PNG with the blue window knocked out to transparent, so the portrait
+   shows through it and the cost medallion and ribbon, painted across the window's corner, sit over the art as part
+   of the frame. (`card-template.png` is the original with the blue still in.)
+3. **Marks and text.** Numbers in the medallions, the kind icon in the ribbon, the name, the tag pill, the era, the
+   rules (which scroll when they run long, like the current big card), the quote. The motto pennant at the top right
+   is a reward players win, so it is hidden for now; its slot stays reserved.
 
 ## Slot geometry (px on the 1103 × 1426 template; percentages for CSS or Unity anchors)
 
