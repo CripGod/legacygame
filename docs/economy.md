@@ -1,24 +1,35 @@
 # The Legacy economy
 
-## Built: card ranks (bronze, silver, gold)
+## Built: card frames, ranked and finished
 
-The first sink is live. A card's printed cost sets where it starts: 0 and 1 at **Bronze**, 2 and 3 at **Silver**, 4 and up at **Gold**. Legacy promotes it from there, to **Silver** (3), **Gold** (8) and **Diamond** (20). No card starts at Diamond, so every card has a rank still to earn; the Diamond frame is the gold export pushed through a chrome curve with a prism sheen.
-A rank is a frame and nothing else: the same card, the same numbers, on a bronze, silver or gold frame, wherever
-the card shows (the hand, the Codex, the landing row). The frames are the one gold export with only its gold pixels
-remapped (the medallions, the navy and the parchment are untouched), so no new artwork is needed per rank.
+Ten frames, one geometry, from the same hand: the ladder and the finishes.
+
+**The ladder** (bought with Legacy): **Wood** → **Bronze** (3) → **Silver** (8) → **Emerald** (14) → **Ruby** (20) → **Diamond** (30).
+A card's printed cost sets where it starts: 0 and 1 at Wood, 2 at Bronze, 3 at Silver, 4 and 5 at Emerald, 6 and up
+at Ruby. Nothing starts at Diamond, so every card has a rank still to earn. Diamond carries a glare that sweeps the
+frame every five seconds.
+
+**The finishes** (cosmetic, for the store later): **Tiger's Eye**, **Turquoise**, **Amethyst**, **Onyx**. A finish is
+worn in place of the rank's frame; the rank is still there underneath and still climbs. Until finishes are owned and
+equipped, about one card in five wears one, picked by a stable hash of its id and weighted by rarity (Tiger's Eye
+the most common, Onyx the rarest), so the deck rows carry a mix from the first visit.
+
+Every frame is the same 1047×1411 export fitted into the card's 1103×1426 box, so one set of positions serves all
+ten. **Events are exempt** for now: they keep their own frame, take no rank, and show no rank row in the Codex.
 
 - **Earning.** A match won pays its Legacy to the winner (1 for a plain win, 4 to 16 behind an early Stand). The
   tutorial pays nothing. Losing takes nothing.
 - **Spending.** Open a card (the Codex, from the landing row or the Cards screen) and promote it; the button says
   the price and what you have. The landing corner shows the wallet.
 - **Where it lives.** `src/ui/legacy.ts`: the ledger (`banked`, `spent`, `ranks` by card id, a short log) in
-  localStorage under `bhcb.legacy.v1`, with `bank`, `promote`, `rankOf` and a `useLedger` hook. `CardFace` reads the
-  rank for the frame and the accents; `CodexSheet` shows the rank and the button; `MatchScreen` banks a win.
+  localStorage under `bhcb.legacy.v1`, with `bank`, `promote`, `rankOf`, `finishOf`, `frameOf` and a `useLedger`
+  hook. `CardFace` reads the frame for the image and the accents; `CodexSheet` shows the rank (and the finish) and
+  the button; `MatchScreen` banks a win.
 - **Dev.** `?dev=1&legacy=20` grants 20 Legacy once per page load, to review ranks without playing.
 - **Unity.** The ledger is a save-file shape (an int, an int, a dictionary of card id to rank, a list of entries);
-  the three frames are three sprites, or one sprite with a hue-remap material; the rank badge and the promote button
-  are the same two controls on the card view. The rule that a rank changes nothing in the engine holds there too:
-  the engine never reads the ledger.
+  the frames are ten sprites sharing one layout; the rank badge and the promote button are the same two controls on
+  the card view. The rule that a rank changes nothing in the engine holds there too: the engine never reads the
+  ledger.
 
 ## The rest (design note, not built)
 

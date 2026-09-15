@@ -3,7 +3,7 @@ import { CARD_BY_ID } from '../../engine';
 import { CardFace } from './CardFace';
 import { cardName, useDisplay } from '../display';
 import { sfx } from '../audio';
-import { RANK_LABEL, RANK_PRICE, balance, nextRank, promote, rankOf, useLedger } from '../legacy';
+import { FINISH_LABEL, RANK_LABEL, RANK_PRICE, balance, finishOf, nextRank, promote, rankOf, useLedger } from '../legacy';
 import { tip } from '../tip';
 import { RefsModal } from './RefsModal';
 import '../compendium.css';
@@ -20,6 +20,7 @@ export function CodexSheet({ id, label, onClose, children, flat }: { id: string;
   const [open, setOpen] = useState(false);
   useLedger();
   const rank = rankOf(id);
+  const finish = finishOf(id);
   const next = nextRank(id);
   const price = next ? RANK_PRICE[next] : 0;
   const can = !!next && balance() >= price;
@@ -98,9 +99,10 @@ export function CodexSheet({ id, label, onClose, children, flat }: { id: string;
             </button>
           )}
           {/* The card's rank, and the way up: Legacy buys the next frame. Cosmetic only; the numbers never change. */}
-          <div className={`cx-rank rank-${rank} ${flash ? 'flash' : ''}`}>
+          {def.kind === 'character' && (
+          <div className={`cx-rank rank-${finish ?? rank} ${flash ? 'flash' : ''}`}>
             <span className="cx-rank-medal" aria-hidden />
-            <span className="cx-rank-lbl">{RANK_LABEL[rank]} rank</span>
+            <span className="cx-rank-lbl">{finish ? `${FINISH_LABEL[finish]} finish · ${RANK_LABEL[rank]} rank` : `${RANK_LABEL[rank]} rank`}</span>
             {next ? (
               <button
                 className="cx-btn cx-ctl cx-rank-btn"
@@ -120,6 +122,7 @@ export function CodexSheet({ id, label, onClose, children, flat }: { id: string;
               <span className="cx-rank-max">Highest rank</span>
             )}
           </div>
+          )}
           {children && <div className="cx-tray">{children}</div>}
         </div>
         {history && (

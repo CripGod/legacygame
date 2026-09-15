@@ -7,11 +7,18 @@ import { CARD_BY_ID } from '../engine';
  * gold frame on the same card, the same numbers. A card's cost sets where it starts; Legacy raises it from there. Local for now (localStorage); the account is meant to own it later
  * (docs/economy.md). Unity: the same shape as a save file, the ranks a dictionary keyed by card id.
  */
-export type Rank = 'bronze' | 'silver' | 'gold' | 'diamond';
-export const RANKS: Rank[] = ['bronze', 'silver', 'gold', 'diamond'];
+export type Rank = 'wood' | 'bronze' | 'silver' | 'emerald' | 'ruby' | 'diamond';
+/** The ladder, bought with Legacy. */
+export const RANKS: Rank[] = ['wood', 'bronze', 'silver', 'emerald', 'ruby', 'diamond'];
 /** What the next rank costs, in Legacy. A plain win pays 1; a Stand taken early pays 4 to 16. No card starts at Diamond. */
-export const RANK_PRICE: Record<Rank, number> = { bronze: 0, silver: 3, gold: 8, diamond: 20 };
-export const RANK_LABEL: Record<Rank, string> = { bronze: 'Bronze', silver: 'Silver', gold: 'Gold', diamond: 'Diamond' };
+export const RANK_PRICE: Record<Rank, number> = { wood: 0, bronze: 3, silver: 8, emerald: 14, ruby: 20, diamond: 30 };
+export const RANK_LABEL: Record<Rank, string> = { wood: 'Wood', bronze: 'Bronze', silver: 'Silver', emerald: 'Emerald', ruby: 'Ruby', diamond: 'Diamond' };
+/** Finishes: frames outside the ladder, cosmetic, for the store later. Shown now on a few cards so the decks carry a mix. */
+export type Finish = 'tigers-eye' | 'turquoise' | 'amethyst' | 'onyx';
+export const FINISHES: Finish[] = ['tigers-eye', 'turquoise', 'amethyst', 'onyx'];
+export const FINISH_LABEL: Record<Finish, string> = { 'tigers-eye': "Tiger's Eye", turquoise: 'Turquoise', amethyst: 'Amethyst', onyx: 'Onyx' };
+/** Every frame a card can wear. */
+export type FrameId = Rank | Finish;
 
 export interface Ledger {
   banked: number;
@@ -69,10 +76,32 @@ export function bank(delta: number, why: string): void {
   if (!(delta > 0)) return;
   commit({ ...ledger, banked: ledger.banked + delta, log: [...ledger.log, { at: new Date().toISOString(), delta, why }].slice(-50) });
 }
-/** Where a card starts: its printed cost sets the rank (0-1 Bronze, 2-3 Silver, 4 and up Gold; never Diamond); Legacy raises it. */
+/** Where a card starts: its printed cost sets the rank (0-1 Wood, 2 Bronze, 3 Silver, 4-5 Emerald, 6 and up Ruby; never Diamond); Legacy raises it. */
 export function baseRank(cardId: string): Rank {
   const cost = (CARD_BY_ID[cardId] as { cost?: number } | undefined)?.cost ?? 1;
-  return cost >= 4 ? 'gold' : cost >= 2 ? 'silver' : 'bronze';
+  return cost >= 6 ? 'ruby' : cost >= 4 ? 'emerald' : cost >= 3 ? 'silver' : cost >= 2 ? 'bronze' : 'wood';
+}
+/** A small stable hash of a card id, 0..1. */
+function hash01(id: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < id.length; i++) h = Math.imul(h ^ id.charCodeAt(i), 16777619);
+  return ((h >>> 0) % 10000) / 10000;
+}
+/**
+ * The finish a card wears for now, by rarity: about one card in five, Tiger's Eye the most common and Onyx the rarest.
+ * A preview of the store's frames; once finishes are owned and equipped this reads the profile instead.
+ */
+export function finishOf(cardId: string): Finish | null {
+  const r = hash01(cardId);
+  if (r < 0.1) return 'tigers-eye';
+  if (r < 0.16) return 'turquoise';
+  if (r < 0.2) return 'amethyst';
+  if (r < 0.22) return 'onyx';
+  return null;
+}
+/** The frame on the card: a finish if it wears one, otherwise its rank. */
+export function frameOf(cardId: string): FrameId {
+  return finishOf(cardId) ?? rankOf(cardId);
 }
 /** Showcase: ranks held for review, above anything bought. Remove before release; nothing should start at Diamond. */
 const SHOWCASE_RANKS: Record<string, Rank> = { frederick_douglass: 'diamond' };

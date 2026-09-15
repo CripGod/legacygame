@@ -1,7 +1,7 @@
 import { CARD_BY_ID, type CharacterInstance, type GameState, charInfluence, isSuppressed } from '../../engine';
 import { abilityLines, cardName, cardShort, hueFor, initials, useDisplay } from '../display';
 import { useLayoutEffect, useRef, useState } from 'react';
-import { rankOf, useLedger, type Rank } from '../legacy';
+import { frameOf, useLedger, type FrameId } from '../legacy';
 import { Art } from './Art';
 import { artMissing, artUrl, markArtMissing } from '../art';
 import { tip, HINTS } from '../tip';
@@ -126,12 +126,12 @@ const KIND_ICONS: Record<CardKind, React.ReactNode> = {
  * The frame: the designer's PNG with its window knocked out, exported as WebP at two sizes (public/art/frames). Events
  * take their own frame when it exists and the Character frame until then; a missing file falls back the same way.
  */
-/* The frame at a rank: the gold export is the original; silver and bronze are the same file with only its gold pixels
-   remapped (scratch script), so the medallions, the navy and the parchment are identical across ranks. */
-function Frame({ kind, big, rank }: { kind: 'character' | 'event'; big: boolean; rank: Rank }) {
+/* The frame a card wears: one of the ten ranked exports (public/art/frames/character-<frame>.webp, fitted into the
+   card's box by a scratch script). Events keep their own frame and are exempt from ranks for now. */
+function Frame({ kind, big, rank }: { kind: 'character' | 'event'; big: boolean; rank: FrameId }) {
   const size = big ? '' : '-sm';
-  const want = `${kind}${size}${rank === 'gold' ? '' : `-${rank}`}`;
-  const back = `character${size}`;
+  const want = kind === 'event' ? `event${size}` : `character${size}-${rank}`;
+  const back = `character${size}-wood`;
   const [id, setId] = useState(() => (artMissing('frames', want) ? back : want));
   useLayoutEffect(() => {
     setId(artMissing('frames', want) ? back : want);
@@ -155,7 +155,7 @@ function Frame({ kind, big, rank }: { kind: 'character' | 'event'; big: boolean;
 export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id: string; big?: boolean; onClick?: () => void; /** Cost right now, after discounts (defaults to the printed cost). */ cost?: number; costWhy?: string[]; /** A live chip over the art (Reparations: the Setback count). */ note?: string }) {
   const { placeholders } = useDisplay();
   useLedger();
-  const rank = rankOf(id);
+  const rank = frameOf(id);
   const def = CARD_BY_ID[id];
   if (!def) return null;
   const isChar = def.kind === 'character';

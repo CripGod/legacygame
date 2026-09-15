@@ -1506,17 +1506,18 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 /* ---------- Card ranks ---------- */
 /* Bronze, silver, gold: the frame file changes (Frame in CardFace.tsx) and the gold accents on the parchment and the
    pennant follow it. Everything else on the card is the same at every rank. */
-.card.tpl { --rank-line: #c9a53a; --rank-ink: #f6d77a; }
-.card.tpl.rank-silver { --rank-line: #9aa3b2; --rank-ink: #e6ebf2; }
+.card.tpl { --rank-line: #a5763c; --rank-ink: #e2b878; }
+.card.tpl.rank-wood { --rank-line: #a5763c; --rank-ink: #e2b878; }
 .card.tpl.rank-bronze { --rank-line: #a86a34; --rank-ink: #e8a86a; }
+.card.tpl.rank-silver { --rank-line: #9aa3b2; --rank-ink: #e6ebf2; }
+.card.tpl.rank-tigers-eye { --rank-line: #b8772a; --rank-ink: #f0b45a; }
+.card.tpl.rank-turquoise { --rank-line: #3aa6a0; --rank-ink: #a7f0ea; }
+.card.tpl.rank-emerald { --rank-line: #2f9a5a; --rank-ink: #9ff0b8; }
+.card.tpl.rank-amethyst { --rank-line: #8a5bc4; --rank-ink: #d9b8ff; }
+.card.tpl.rank-ruby { --rank-line: #c0303a; --rank-ink: #ffb0b6; }
+.card.tpl.rank-onyx { --rank-line: #4a4a55; --rank-ink: #d8d8e0; }
 .card.tpl.rank-diamond { --rank-line: #9fdcff; --rank-ink: #f2fbff; }
-/* The glare: a soft white band, screened over the frame, that crosses it once every five seconds. Masked to the frame
-   image so it lights only the metal. Unity: a scrolling additive sprite under the frame's alpha, on a 5 s timer. */
-.card.tpl .tpl-glare { position: absolute; inset: 0; z-index: 2; overflow: hidden; pointer-events: none; mask-size: 100% 100%; -webkit-mask-size: 100% 100%; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; }
-.card.tpl .tpl-glare::before { content: ''; position: absolute; top: -20%; bottom: -20%; left: 0; width: 100%; mix-blend-mode: screen; background: linear-gradient(105deg, rgba(255, 255, 255, 0) 30%, rgba(210, 240, 255, 0.38) 42%, rgba(255, 255, 255, 0.8) 50%, rgba(210, 240, 255, 0.38) 58%, rgba(255, 255, 255, 0) 70%); transform: translateX(-120%); animation: tpl-glare 5s linear infinite; }
-@keyframes tpl-glare { 0% { transform: translateX(-120%); } 26% { transform: translateX(120%); } 100% { transform: translateX(120%); } }
-@media (prefers-reduced-motion: reduce) { .card.tpl .tpl-glare::before { animation: none; opacity: 0; } }
-.card.tpl.rank-diamond .tpl-kind svg { filter: drop-shadow(0 0.27cqw 0.45cqw rgba(0, 0, 0, 0.85)) drop-shadow(0 0 0.6cqw rgba(160, 225, 255, 0.7)); }
+.card.tpl.event { --rank-line: #c9a53a; --rank-ink: #f6d77a; }
 .card.tpl .tpl-meta { border-bottom-color: var(--rank-line); }
 .card.tpl .tpl-sep::before, .card.tpl .tpl-sep::after { border-top-color: var(--rank-line); }
 .card.tpl .tpl-blurb { border-top-color: var(--rank-line); }
@@ -1524,9 +1525,15 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl .tpl-rules { scrollbar-color: var(--rank-line) transparent; }
 /* In the Codex: the rank under the card and the way up. */
 .cx-rank { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; font-family: var(--display); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #cfc3a6; }
-.cx-rank-medal { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid rgba(0, 0, 0, 0.6); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15), 0 2px 6px rgba(0, 0, 0, 0.6); background: radial-gradient(circle at 35% 30%, #f6d77a, #c99a2a 55%, #8a6a14); }
-.cx-rank.rank-silver .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #f4f7fb, #b9c1cc 55%, #6f7885); }
+.cx-rank-medal { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid rgba(0, 0, 0, 0.6); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15), 0 2px 6px rgba(0, 0, 0, 0.6); background: radial-gradient(circle at 35% 30%, #d9a86a, #8a5a2a 55%, #4a2e12); }
 .cx-rank.rank-bronze .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #f0b27a, #b5713a 55%, #6e4220); }
+.cx-rank.rank-silver .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #f4f7fb, #b9c1cc 55%, #6f7885); }
+.cx-rank.rank-tigers-eye .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #ffd07a, #b8772a 55%, #5a3410); }
+.cx-rank.rank-turquoise .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #c8fff9, #3aa6a0 55%, #1d5a58); }
+.cx-rank.rank-emerald .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #b8ffd0, #2f9a5a 55%, #14522c); }
+.cx-rank.rank-amethyst .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #efd9ff, #8a5bc4 55%, #45266b); }
+.cx-rank.rank-ruby .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #ffc8cc, #c0303a 55%, #5e1218); }
+.cx-rank.rank-onyx .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #9a9aa8, #3a3a44 55%, #101014); }
 .cx-rank.rank-diamond .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #ffffff, #cfeeff 40%, #8fb8d8 70%, #4d6f8f); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 0 10px rgba(160, 225, 255, 0.8); }
 .cx-rank-btn { font-size: 11px; padding: 4px 12px; }
 .cx-rank-btn:disabled { opacity: 0.45; cursor: not-allowed; }
@@ -1599,7 +1606,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl.big { --bw: min(78vw, 400px); width: var(--bw); height: auto; aspect-ratio: 1103 / 1426; display: block; max-height: none; }
 .card.tpl > * { position: absolute; }
 /* The art window. */
-.card.tpl .tpl-art { left: 13.4cqw; top: 6.9cqw; width: 73.4cqw; height: 54.6cqw; z-index: 1; overflow: hidden; display: grid; place-items: center; }
+.card.tpl .tpl-art { left: 14.2cqw; top: 7.6cqw; width: 71.5cqw; height: 53.3cqw; z-index: 1; overflow: hidden; display: grid; place-items: center; }
 .card.tpl.event .tpl-art { left: 10.3cqw; top: 7.4cqw; width: 79.6cqw; height: 57.5cqw; }
 .card.tpl .tpl-art .tpl-art-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 18%; }
 .card.tpl .tpl-art .ini { font-family: var(--display); font-weight: 800; font-size: 18cqw; color: rgba(255, 255, 255, 0.85); }
@@ -1609,17 +1616,17 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl.event .tpl-note { right: 13cqw; top: 54cqw; }
 /* The medallions: cost top-left, Influence and Force bottom corners (the Event frame has laurels there instead). */
 .card.tpl .tpl-num { z-index: 5; font-family: var(--display); font-weight: 800; color: #fff; text-align: center; transform: translate(-50%, -50%); line-height: 1; text-shadow: 0 0.45cqw 0.9cqw rgba(0, 0, 0, 0.9), 0 0 1.4cqw rgba(0, 0, 0, 0.7), 0 0.18cqw 0.27cqw rgba(0, 0, 0, 0.9); }
-.card.tpl .tpl-cost { left: 16.5cqw; top: 11.8cqw; font-size: max(8.3cqw, 13px); }
+.card.tpl .tpl-cost { left: 16.06cqw; top: 12.1cqw; font-size: max(8.3cqw, 13px); }
 .card.tpl.event .tpl-cost { left: 14cqw; top: 13.6cqw; font-size: max(9cqw, 11px); }
 .card.tpl .tpl-cost.discounted { color: #d8ffe4; filter: drop-shadow(0 0 0.8cqw #7ef0a0); }
-.card.tpl .tpl-inf { left: 13.6cqw; top: 112.9cqw; font-size: max(9cqw, 14px); }
-.card.tpl .tpl-force { left: 85.7cqw; top: 112.9cqw; font-size: max(9cqw, 14px); }
+.card.tpl .tpl-inf { left: 13.2cqw; top: 114.2cqw; font-size: max(9cqw, 14px); }
+.card.tpl .tpl-force { left: 86.4cqw; top: 114.2cqw; font-size: max(9cqw, 14px); }
 .card.tpl .tpl-ev { display: none; }
-.card.tpl .tpl-kind { z-index: 5; left: 15.8cqw; top: 22.1cqw; transform: translate(-50%, -50%); width: 4.4cqw; height: 4.4cqw; }
+.card.tpl .tpl-kind { z-index: 5; left: 15.4cqw; top: 23.1cqw; transform: translate(-50%, -50%); width: 4.4cqw; height: 4.4cqw; }
 .card.tpl.event .tpl-kind { left: 13.65cqw; top: 24.3cqw; width: 4.6cqw; height: 4.6cqw; }
 .card.tpl .tpl-kind svg { width: 100%; height: 100%; fill: none; stroke: var(--rank-ink, #f6d77a); stroke-width: 5; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 0.27cqw 0.45cqw rgba(0, 0, 0, 0.85)); }
 /* The parchment: name, meta line, rules. */
-.card.tpl .tpl-body { z-index: 3; left: 15cqw; right: 14.3cqw; top: 65cqw; height: 39cqw; display: flex; flex-direction: column; align-items: stretch; gap: 0; }
+.card.tpl .tpl-body { z-index: 3; left: 14.9cqw; right: 14.9cqw; top: 64.1cqw; height: 41.3cqw; display: flex; flex-direction: column; align-items: stretch; gap: 0; }
 .card.tpl.event .tpl-body { left: 13cqw; right: 12.8cqw; top: 67.5cqw; height: 37cqw; }
 .card.tpl .tpl-name { position: static; display: flex; justify-content: center; align-items: center; flex: none; width: 100%; font-family: var(--display); font-weight: 800; font-size: max(6.2cqw, 11px); line-height: 1.08; letter-spacing: 0.02em; color: #14110c; white-space: nowrap; padding: 0.4cqw 0 0; transform-origin: 50% 50%; overflow: visible; text-shadow: none; }
 .card.tpl .tpl-name.long { font-size: max(5.2cqw, 10px); }
@@ -1636,10 +1643,10 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl .tpl-sep::before { left: 0; } .card.tpl .tpl-sep::after { right: 0; }
 .card.tpl .tpl-blurb { margin-top: 1.3cqw; padding-top: 1.1cqw; border-top: 0.18cqw dotted #c9a53a; font-style: italic; color: #4a3f28; font-size: 3.5cqw; }
 /* The bottom band: the Character's tags; the Event band has a gem through its middle and carries nothing. */
-/* The band at the foot: the navy runs x 272-833 of the 1103-wide frame and its centre diamond rises to a tip at
-   x 551, so the band is two word spaces (280-522 and 581-823) either side of a gap the diamond owns, each word
+/* The band at the foot (ranked frame, in the 1103 box): the navy runs x 270-835 and its centre diamond rises to a tip
+   at x 551, so the band is two word spaces (275-528 and 573-826) either side of a gap the diamond owns, each word
    centred in its own half. */
-.card.tpl .tpl-strip { z-index: 3; left: 25.4cqw; right: 25.4cqw; top: 112cqw; height: 5.9cqw; display: grid; grid-template-columns: 1fr 5.4cqw 1fr; align-items: center; font-family: var(--display); font-weight: 600; font-size: 2.3cqw; letter-spacing: 0.14em; text-transform: uppercase; line-height: 1.1; color: var(--parchment); text-shadow: 0 0.18cqw 0.27cqw rgba(0, 0, 0, 0.7); white-space: nowrap; }
+.card.tpl .tpl-strip { z-index: 3; left: 24.9cqw; right: 25.1cqw; top: 113cqw; height: 5.6cqw; display: grid; grid-template-columns: 1fr 4.1cqw 1fr; align-items: center; font-family: var(--display); font-weight: 600; font-size: 2.3cqw; letter-spacing: 0.14em; text-transform: uppercase; line-height: 1.1; color: var(--parchment); text-shadow: 0 0.18cqw 0.27cqw rgba(0, 0, 0, 0.7); white-space: nowrap; }
 .card.tpl .tpl-strip-l, .card.tpl .tpl-strip-r { min-width: 0; text-align: center; overflow: hidden; text-overflow: ellipsis; padding: 0 0.3cqw; }
 .card.tpl .tpl-strip-r { grid-column: 3; }
 .card.tpl .tpl-strip .long { font-size: 1.95cqw; letter-spacing: 0.1em; }
@@ -1658,10 +1665,10 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl:not(.big) .tpl-name > span { display: block; width: 100%; text-align: center; }
 /* Small card faces (landing row, hand, Codex grid) read the kind icon at 8px: it sits a little higher than on the big
    card and is drawn larger with a heavier stroke and a hard one-pixel shadow instead of a blur, which only smudged it. */
-.card.tpl:not(.big) .tpl-kind { width: 4.6cqw; height: 4.6cqw; top: 20.2cqw; }
+.card.tpl:not(.big) .tpl-kind { width: 4.6cqw; height: 4.6cqw; top: 21.2cqw; }
 .card.tpl:not(.big) .tpl-kind svg { stroke-width: 7.5; filter: drop-shadow(0 0.6px 0 rgba(0, 0, 0, 0.9)); }
 /* In the match, the book (Historical) sits a little higher on the small cards; each icon gets its own spacing from here on. */
-.app .card.tpl:not(.big).k-historical .tpl-kind { top: 19.4cqw; }
-.app .card.tpl:not(.big).k-artist .tpl-kind { top: 19.4cqw; }
+.app .card.tpl:not(.big).k-historical .tpl-kind { top: 20.4cqw; }
+.app .card.tpl:not(.big).k-artist .tpl-kind { top: 20.4cqw; }
 .card.tpl:not(.big) .tpl-summary { font-size: max(4.4cqw, 11px); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .deck-cards .card.tpl .tpl-num { font-size: max(9cqw, 16px); }
