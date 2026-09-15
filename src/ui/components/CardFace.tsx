@@ -289,6 +289,7 @@ export function Pic({
   state,
   c,
   strip,
+  ready,
   onClick,
   onContextMenu,
   highlight,
@@ -299,6 +300,8 @@ export function Pic({
   state: GameState;
   c: CharacterInstance;
   strip?: string;
+  /** Replay: read Ready from the turn's start, so no tile says Ready before the beats have played. */
+  ready?: boolean;
   onClick?: () => void;
   /** Right-click reads the piece, the way it reads a hand card. */
   onContextMenu?: (e: React.MouseEvent) => void;
@@ -316,7 +319,7 @@ export function Pic({
   const inf = charInfluence(state, c);
   let label = strip;
   if (!label && c.zone === 'gate') {
-    label = def.keywords.includes('INFORMANT') && !c.amnestied ? 'Informant' : c.blockedEnterTurn === state.turn ? 'Blocked' : c.ready ? 'Ready' : 'Fresh';
+    label = def.keywords.includes('INFORMANT') && !c.amnestied ? 'Informant' : c.blockedEnterTurn === state.turn ? 'Blocked' : (ready ?? c.ready) ? 'Ready' : 'Fresh';
   }
   const cls = label ? label.toLowerCase() : '';
   const locNow = state.locations[c.location];

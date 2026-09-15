@@ -1656,7 +1656,11 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl .tpl-strip .xlong { font-size: 1.7cqw; letter-spacing: 0.08em; }
 .card.tpl.event .tpl-strip { display: none; }
 .card.tpl.curse .tpl-rules, .card.tpl.curse .tpl-summary { color: #2a1d40; }
-.hand .card-wrap.unaffordable .card.tpl { box-shadow: none; filter: saturate(0.4) brightness(0.75) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.6)); }
+/* A card you cannot afford this turn reads as shut: drained and dark, its cost disc red-lit. The coloured frames made
+   the old dimming too easy to miss. */
+.hand .card-wrap.unaffordable .card.tpl { box-shadow: none; filter: saturate(0.15) brightness(0.5) contrast(0.95) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.6)); }
+.hand .card-wrap.unaffordable .card.tpl .tpl-cost { color: #ff6b62; filter: drop-shadow(0 0 0.7cqw rgba(224, 74, 63, 0.95)) brightness(1.6); }
+.hand .card-wrap.unaffordable .card.tpl .tpl-art::after { content: ''; position: absolute; inset: 0; background: rgba(6, 10, 18, 0.35); pointer-events: none; }
 .deck-panel .deck-cards .card.tpl:first-child { filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 12px var(--pc-soft)); }
 @media (width <= 700px) { .card.tpl.big { --bw: min(84vw, 360px); } }
 .dig-card .card.tpl.big { --bw: min(30vw, 300px); }

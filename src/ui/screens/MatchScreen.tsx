@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CARD_BY_ID, influenceAt, viewFor, legalOptions, validatePlan, gateRoom, GATE_CAPACITY, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, filterEvents, LOCATION_BY_ID } from '../../engine';
+import { CARD_BY_ID, viewFor, legalOptions, validatePlan, gateRoom, GATE_CAPACITY, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, filterEvents, LOCATION_BY_ID } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
-import { CardFace, Pic, abilityFor } from '../components/CardFace';
+import { CardFace, Pic } from '../components/CardFace';
 import type { DropHighlight, BoardFx } from '../components/Battlefield';
 import { previewPlan, remainingPlan, isPlannedUid, PLANNED_PREFIX, foreseePlan } from '../preview';
 import type { MatchController } from '../useMatch';
@@ -1652,35 +1652,17 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     if (planItems.length) return '';
     return handHint(affordable.map((o) => o.cardId));
   })();
-  /**
-   * The idle hint reads the hand: it names the biggest card you can afford, says what it does, and, when a Location is
-   * close, where it would tell. With nothing affordable it says so; with an empty hand it says that.
-   */
+  /** The idle hint, one thing at a time: the biggest card you can afford and what to do with it. */
   function handHint(ids: string[]): string {
     const hand = view.players[me].hand.filter((id) => !plan.plays.some((pl) => pl.cardId === id));
-    if (!hand.length) return 'No cards in hand. Lock in to end the turn and draw.';
-    if (!ids.length) return `Nothing in hand fits your ${energyLeft} Energy this turn. Lock in, or move and confront with what is on the board.`;
+    if (!hand.length) return 'Hand empty. Lock in.';
+    if (!ids.length) return `Nothing in hand fits your ${energyLeft} Energy. Lock in.`;
     const defs = ids.map((id) => CARD_BY_ID[id]).filter((d): d is NonNullable<typeof d> => !!d);
     const chars = defs.filter((d) => d.kind === 'character');
     const pick = (chars.length ? chars : defs).slice().sort((a, b) => cardCost(b.id, view, me) - cardCost(a.id, view, me) || ((b as { influence?: number }).influence ?? 0) - ((a as { influence?: number }).influence ?? 0))[0];
     const name = cardName(pick.id, placeholders);
     const cost = cardCost(pick.id, view, me);
-    const inf = (pick as { influence?: number }).influence ?? 0;
-    // A revealed Location you could tip or hold with this card.
-    let where = '';
-    if (pick.kind === 'character' && inf > 0) {
-      const spots = view.locations
-        .map((l, i) => ({ l, i, ...influenceAt(view, i) }))
-        .filter(({ l }) => l.revealed && !l.lost)
-        .map((s) => ({ ...s, gap: s[other(me)] - s[me] }))
-        .filter((s) => s.gap >= 0 && s.gap < inf)
-        .sort((a, b) => b.gap - a.gap);
-      const s = spots[0];
-      if (s) where = s.gap === 0 ? ` ${inf} Influence would put you ahead at ${locationName(s.l.defId, placeholders)}.` : ` ${inf} Influence would take the lead at ${locationName(s.l.defId, placeholders)} (you trail by ${s.gap}).`;
-    }
-    const others = ids.length - 1;
-    const what = abilityFor(pick as Parameters<typeof abilityFor>[0]);
-    return `${name} (${cost} of your ${energyLeft} Energy): ${what}${where} Drag it onto a Location, or tap it to choose.${others > 0 ? ` ${others} other card${others > 1 ? 's' : ''} also fit${others > 1 ? '' : 's'}.` : ''}`;
+    return `${name} fits your ${energyLeft} Energy (${cost}). Drag it onto a Location.`;
   }
 
   // The opponent Stood on Business and the raise has not landed yet: this is the one cheap turn to Sit Down.
@@ -1694,6 +1676,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       <div className="main-wrap">
         <Battlefield
           view={boardView}
+          readyBaseline={m.replay ? viewFor(m.replay.before, me) : null}
           me={me}
           plan={plan}
           targetable={targetable}

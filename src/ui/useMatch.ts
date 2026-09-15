@@ -46,7 +46,7 @@ export interface MatchController {
   /** Events from the most recent resolution, as seen by the perspective player. */
   lastTurn: GameEvent[];
   /** The turn being replayed one beat at a time, or null when the board shows the live state. */
-  replay: { steps: TraceStep[]; idx: number; plan: TurnPlan } | null;
+  replay: { steps: TraceStep[]; idx: number; plan: TurnPlan; /** The state the turn started from. */ before: GameState } | null;
   replayNext: () => void;
   replaySkip: () => void;
   /** Tile animation stagger for the opponent's pieces. */
@@ -85,7 +85,9 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
   const [lastTurn, setLastTurn] = useState<GameEvent[]>([]);
   const [delays, setDelays] = useState<Record<string, number>>({});
   const [busy, setBusy] = useState(false);
-  const [replay, setReplay] = useState<{ steps: TraceStep[]; idx: number; plan: TurnPlan } | null>(null);
+  const [replay, setReplay] = useState<{ steps: TraceStep[]; idx: number; plan: TurnPlan; before: GameState } | null>(null);
+  const trueStateRef = useRef(trueState);
+  trueStateRef.current = trueState;
   const [secondsLeft, setSecondsLeft] = useState(PLANNING_SECONDS);
   const [handoff, setHandoff] = useState<PlayerId | null>(null);
   const [log, setLog] = useState<GameEvent[]>([]);
@@ -135,6 +137,7 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
 
   const finishResolution = useCallback(
     (next: GameState, events: GameEvent[], seen: PlayerId, steps?: TraceStep[], lockedPlan?: TurnPlan) => {
+      const before = trueStateRef.current;
       setTrueState(next);
       setLog((l) => [...l, ...events]);
       const visible = filterEvents(events, seen).filter((e) => e.text && e.type !== 'draw');
@@ -143,7 +146,7 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
       setBusy(true);
       if (steps && steps.length) {
         // The screen replays the turn one beat at a time and clears busy when it is done.
-        setReplay({ steps, idx: 0, plan: lockedPlan ?? emptyPlan() });
+        setReplay({ steps, idx: 0, plan: lockedPlan ?? emptyPlan(), before });
       } else {
         window.setTimeout(() => setBusy(false), 900);
       }
