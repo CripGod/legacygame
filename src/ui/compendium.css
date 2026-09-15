@@ -841,13 +841,12 @@ body:has(.cx-inner) .tip {
 
 /* ---------- The card sheet: just the card, in 3D, with the story beside it ---------- */
 .cx-stage { position: relative; display: flex; align-items: stretch; gap: 0; max-width: 96vw; }
-.cx-stage-x { position: absolute; top: -14px; right: -14px; z-index: 5; }
+.cx-stage-x { position: absolute; top: -12px; right: 6px; z-index: 5; }
 .cx-card3d { position: relative; display: grid; justify-items: center; gap: 14px; flex: none; perspective: 1100px; }
 /* The card leans toward the pointer (--rx/--ry set from CodexSheet) and a sheen follows it (--gx/--gy). The entrance
    animation fills backwards only, so once it ends the tilt transform below is the one that applies. */
 .cx-card3d-inner {
   position: relative;
-  container-type: inline-size;
   --rx: 0deg; --ry: 0deg; --gx: 50%; --gy: 40%;
   transform: rotateX(var(--rx)) rotateY(var(--ry));
   transform-style: preserve-3d;
@@ -862,9 +861,9 @@ body:has(.cx-inner) .tip {
   background: radial-gradient(circle at var(--gx) var(--gy), rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.08) 28%, transparent 58%);
   mix-blend-mode: screen; transition: opacity 0.3s;
   /* The sheen is cut to the card itself: the frame's own alpha plus the art window (--frame is set by CodexSheet). */
-  -webkit-mask: var(--frame) center / 100% 100% no-repeat, linear-gradient(#000, #000) 12.7cqw 7.4cqw / 74.2cqw 51.8cqw no-repeat;
+  -webkit-mask: var(--frame) center / 100% 100% no-repeat, linear-gradient(#000, #000) 49.2% 15.35% / 74.2% 51.8% no-repeat;
   -webkit-mask-composite: source-over;
-  mask: var(--frame) center / 100% 100% no-repeat, linear-gradient(#000, #000) 12.7cqw 7.4cqw / 74.2cqw 51.8cqw no-repeat;
+  mask: var(--frame) center / 100% 100% no-repeat, linear-gradient(#000, #000) 49.2% 15.35% / 74.2% 51.8% no-repeat;
   mask-composite: add;
 }
 .cx-card3d-inner.tilting .cx-glare { opacity: 1; }
