@@ -1647,5 +1647,6 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl:not(.big) .tpl-kind svg { stroke-width: 7.5; filter: drop-shadow(0 0.6px 0 rgba(0, 0, 0, 0.9)); }
 /* In the match, the book (Historical) sits a little higher on the small cards; each icon gets its own spacing from here on. */
 .app .card.tpl:not(.big).k-historical .tpl-kind { top: 19.4cqw; }
+.app .card.tpl:not(.big).k-artist .tpl-kind { top: 19.4cqw; }
 .card.tpl:not(.big) .tpl-summary { font-size: max(4.4cqw, 11px); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .deck-cards .card.tpl .tpl-num { font-size: max(9cqw, 16px); }

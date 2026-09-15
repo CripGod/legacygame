@@ -74,7 +74,11 @@ export function baseRank(cardId: string): Rank {
   const cost = (CARD_BY_ID[cardId] as { cost?: number } | undefined)?.cost ?? 1;
   return cost >= 4 ? 'gold' : cost >= 2 ? 'silver' : 'bronze';
 }
+/** Showcase: ranks held for review, above anything bought. Remove before release; nothing should start at Diamond. */
+const SHOWCASE_RANKS: Record<string, Rank> = { frederick_douglass: 'diamond' };
 export function rankOf(cardId: string): Rank {
+  const shown = SHOWCASE_RANKS[cardId];
+  if (shown) return shown;
   const bought = ledger.ranks[cardId];
   const base = baseRank(cardId);
   return bought && RANKS.indexOf(bought) > RANKS.indexOf(base) ? bought : base;
