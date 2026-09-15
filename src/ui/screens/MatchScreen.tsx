@@ -421,6 +421,11 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     if (victimRect) {
       impactAt(victimRect);
       if (d.actor.force !== undefined && d.theirForce !== undefined && outcome !== 'hexed') floatText(victimRect.left + victimRect.width / 2, victimRect.top + victimRect.height * 0.3, `${d.actor.force} vs ${d.theirForce}`, `clash ${tone === 'miss' ? 'miss' : ''}`);
+      // A siege (Yaa Asantewaa): the loss floats down off the victim, and the owner's score here looks hurt.
+      if (outcome === 'hexed') {
+        floatText(victimRect.left + victimRect.width / 2, victimRect.top + victimRect.height * 0.55, `−${d.theirForce ?? 1}`, 'drop');
+        if (d.from !== undefined) setFx((f) => patch(f, { hurt: { location: d.from!, owner: d.victim.owner } }));
+      }
     }
     if (ag) void jolt(ag, 260, 5);
     if (vg) {
@@ -469,7 +474,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     // 5. The verdict holds.
     await wait(last ? 1200 : 900);
     if (!alive()) return;
-    setFx((f) => (f ? { ...f, stamp: undefined, land: undefined, flash: undefined } : f));
+    setFx((f) => (f ? { ...f, stamp: undefined, land: undefined, flash: undefined, hurt: undefined } : f));
   };
 
   /**

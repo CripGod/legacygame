@@ -92,10 +92,10 @@ function useBump(value: number): boolean {
   return bump;
 }
 
-function Score({ p, value }: { p: PlayerId; value: number }) {
+function Score({ p, value, hurt }: { p: PlayerId; value: number; hurt?: boolean }) {
   const bump = useBump(value);
   return (
-    <div className={`score p${p} ${bump ? 'bump' : ''}`} {...tip(p === 'A' ? HINTS.scoreA : HINTS.scoreB)}>
+    <div className={`score p${p} ${bump ? 'bump' : ''} ${hurt ? 'hurt' : ''}`} {...tip(p === 'A' ? HINTS.scoreA : HINTS.scoreB)}>
       {value}
     </div>
   );
@@ -111,6 +111,8 @@ export interface BoardFx {
   hidden: string[];
   windup?: string;
   flash?: { uid: string; kind: 'hit' | 'held' | 'hexed' };
+  /** A siege just took Influence from this player here: their score on the meter looks hurt for a beat. */
+  hurt?: { location: number; owner: PlayerId };
   stamp?: { uid: string; title: string; sub?: string; tone?: 'hit' | 'miss' | 'hex' };
   land?: string;
   /** Threats neutralized this beat that still look alive: the showdown has not reached them yet. */
@@ -539,13 +541,13 @@ export function Battlefield(props: BattlefieldProps) {
                 {summon && <span className="summon-tag">{summon}</span>}
               </div>
               <div className="influence">
-                <Score p="A" value={inf.A} />
+                <Score p="A" value={inf.A} hurt={fx?.hurt?.location === loc.index && fx.hurt.owner === 'A'} />
                 <div className={`line ${winner && winner !== 'lost' ? `won-${winner}` : ''}`} {...tip(HINTS.line)}>
                   <div className="fillA" style={{ width: `${fracA * 100}%` }} />
                   <div className="fillB" style={{ width: `${(1 - fracA) * 100}%` }} />
                   <div className="mark" style={{ left: `${fracA * 100}%` }} />
                 </div>
-                <Score p="B" value={inf.B} />
+                <Score p="B" value={inf.B} hurt={fx?.hurt?.location === loc.index && fx.hurt.owner === 'B'} />
               </div>
               {(() => {
                 const rank = (t: ThreatInstance) => (t.target ? (t.target === me ? 2 : 0) : 1);

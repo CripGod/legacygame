@@ -1486,6 +1486,21 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .float-num.artist { --pulse: 79, 209, 138; color: #d8ffe8; }
 .float-num.mine { --pulse: 255, 227, 179; }
 .float-num.theirs { --pulse: 111, 163, 255; color: #e2ecff; }
+/* A loss: red, and it sinks instead of rising. */
+.float-num.drop { --pulse: 224, 74, 63; color: #ffb3ae; animation: float-drop 1.4s cubic-bezier(0.3, 0.6, 0.5, 1) both; }
+@keyframes float-drop { 0% { opacity: 0; transform: translate(-50%, -60%) scale(0.6); } 18% { opacity: 1; transform: translate(-50%, -30%) scale(1.2); } 100% { opacity: 0; transform: translate(-50%, 130%) scale(0.95); } }
+/* The score on the meter, hurt: a red flash and a flinch, then it stays sore for a beat before the colour comes back. */
+.score.hurt { animation: score-hurt 1.8s ease-out both; }
+@keyframes score-hurt {
+  0% { color: #fff; background: #7a1410; border-color: #ff6a5c; box-shadow: 0 0 0 1px #000, 0 0 18px rgba(224, 74, 63, 0.9); transform: translateX(0) scale(1.25); }
+  8% { transform: translateX(-3px) scale(1.2); }
+  16% { transform: translateX(3px) scale(1.15); }
+  24% { transform: translateX(-2px) scale(1.1); }
+  32% { transform: translateX(0) scale(1); color: #ff8a80; background: #2a0d0d; border-color: #c94a40; box-shadow: 0 0 0 1px #000, 0 0 10px rgba(224, 74, 63, 0.5); }
+  80% { color: #ff8a80; background: #2a0d0d; border-color: #c94a40; box-shadow: 0 0 0 1px #000, 0 0 10px rgba(224, 74, 63, 0.5); }
+  100% { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .score.hurt { animation: none; } .float-num.drop { animation: none; opacity: 0; } }
 @keyframes float-num { 0% { opacity: 0; transform: translate(-50%, -30%) scale(0.6); } 20% { opacity: 1; transform: translate(-50%, -60%) scale(1.15); } 100% { opacity: 0; transform: translate(-50%, -160%) scale(1); } }
 
 /* ---------- Card ranks ---------- */
