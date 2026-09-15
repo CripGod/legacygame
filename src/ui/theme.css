@@ -1494,6 +1494,8 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl { --rank-line: #c9a53a; --rank-ink: #f6d77a; }
 .card.tpl.rank-silver { --rank-line: #9aa3b2; --rank-ink: #e6ebf2; }
 .card.tpl.rank-bronze { --rank-line: #a86a34; --rank-ink: #e8a86a; }
+.card.tpl.rank-diamond { --rank-line: #9fdcff; --rank-ink: #f2fbff; }
+.card.tpl.rank-diamond .tpl-kind svg { filter: drop-shadow(0 0.27cqw 0.45cqw rgba(0, 0, 0, 0.85)) drop-shadow(0 0 0.6cqw rgba(160, 225, 255, 0.7)); }
 .card.tpl .tpl-meta { border-bottom-color: var(--rank-line); }
 .card.tpl .tpl-sep::before, .card.tpl .tpl-sep::after { border-top-color: var(--rank-line); }
 .card.tpl .tpl-blurb { border-top-color: var(--rank-line); }
@@ -1504,6 +1506,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .cx-rank-medal { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid rgba(0, 0, 0, 0.6); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15), 0 2px 6px rgba(0, 0, 0, 0.6); background: radial-gradient(circle at 35% 30%, #f6d77a, #c99a2a 55%, #8a6a14); }
 .cx-rank.rank-silver .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #f4f7fb, #b9c1cc 55%, #6f7885); }
 .cx-rank.rank-bronze .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #f0b27a, #b5713a 55%, #6e4220); }
+.cx-rank.rank-diamond .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #ffffff, #cfeeff 40%, #8fb8d8 70%, #4d6f8f); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 0 10px rgba(160, 225, 255, 0.8); }
 .cx-rank-btn { font-size: 11px; padding: 4px 12px; }
 .cx-rank-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 .cx-rank-max { color: var(--gold-2); }

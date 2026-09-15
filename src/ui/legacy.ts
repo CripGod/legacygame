@@ -7,11 +7,11 @@ import { CARD_BY_ID } from '../engine';
  * gold frame on the same card, the same numbers. A card's cost sets where it starts; Legacy raises it from there. Local for now (localStorage); the account is meant to own it later
  * (docs/economy.md). Unity: the same shape as a save file, the ranks a dictionary keyed by card id.
  */
-export type Rank = 'bronze' | 'silver' | 'gold';
-export const RANKS: Rank[] = ['bronze', 'silver', 'gold'];
-/** What the next rank costs, in Legacy. A plain win pays 1; a Stand taken early pays 4 to 16. */
-export const RANK_PRICE: Record<Rank, number> = { bronze: 0, silver: 3, gold: 8 };
-export const RANK_LABEL: Record<Rank, string> = { bronze: 'Bronze', silver: 'Silver', gold: 'Gold' };
+export type Rank = 'bronze' | 'silver' | 'gold' | 'diamond';
+export const RANKS: Rank[] = ['bronze', 'silver', 'gold', 'diamond'];
+/** What the next rank costs, in Legacy. A plain win pays 1; a Stand taken early pays 4 to 16. No card starts at Diamond. */
+export const RANK_PRICE: Record<Rank, number> = { bronze: 0, silver: 3, gold: 8, diamond: 20 };
+export const RANK_LABEL: Record<Rank, string> = { bronze: 'Bronze', silver: 'Silver', gold: 'Gold', diamond: 'Diamond' };
 
 export interface Ledger {
   banked: number;
@@ -69,7 +69,7 @@ export function bank(delta: number, why: string): void {
   if (!(delta > 0)) return;
   commit({ ...ledger, banked: ledger.banked + delta, log: [...ledger.log, { at: new Date().toISOString(), delta, why }].slice(-50) });
 }
-/** Where a card starts: its printed cost sets the rank (0-1 Bronze, 2-3 Silver, 4 and up Gold); Legacy raises it. */
+/** Where a card starts: its printed cost sets the rank (0-1 Bronze, 2-3 Silver, 4 and up Gold; never Diamond); Legacy raises it. */
 export function baseRank(cardId: string): Rank {
   const cost = (CARD_BY_ID[cardId] as { cost?: number } | undefined)?.cost ?? 1;
   return cost >= 4 ? 'gold' : cost >= 2 ? 'silver' : 'bronze';
