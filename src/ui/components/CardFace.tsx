@@ -114,7 +114,8 @@ export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id
     const el = nameRef.current;
     if (!el) return;
     const text = el.firstElementChild as HTMLElement | null;
-    if (!text) return;
+    // The landing page's thumbnails wrap the name instead of fitting it.
+    if (!text || el.closest('.deck-cards')) return;
     const fit = () => {
       el.style.fontSize = '';
       el.style.transform = '';
@@ -145,7 +146,8 @@ export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id
   useLayoutEffect(() => {
     const box = rulesRef.current;
     const text = box?.firstElementChild as HTMLElement | null;
-    if (!box || !text || big) return;
+    // The landing page's thumbnails clamp the summary with an ellipsis instead of shrinking it.
+    if (!box || !text || big || box.closest('.deck-cards')) return;
     const fit = () => {
       text.style.fontSize = '';
       let size = parseFloat(getComputedStyle(text).fontSize);

@@ -1577,9 +1577,9 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .deck-panel .deck-cards .card.tpl:first-child { filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 12px var(--pc-soft)); }
 @media (width <= 700px) { .card.tpl.big { --bw: min(84vw, 360px); } }
 .dig-card .card.tpl.big { --bw: min(30vw, 300px); }
-/* Landing-page thumbnails are read at a glance, so their type floors sit higher than the hand's. */
-.deck-cards .card.tpl .tpl-name { font-size: max(6.2cqw, 13px); }
-.deck-cards .card.tpl .tpl-name.long { font-size: max(5.2cqw, 12px); }
-.deck-cards .card.tpl .tpl-name.xlong { font-size: max(4.4cqw, 11px); }
-.deck-cards .card.tpl .tpl-summary { font-size: max(4.4cqw, 11px); }
+/* Landing-page thumbnails are a first impression, read at a glance: the name is one size, wraps to two lines when it
+   must, and sits over a gold rule; the summary is a teaser, clamped to three lines with an ellipsis. */
+.deck-cards .card.tpl .tpl-name, .deck-cards .card.tpl .tpl-name.long, .deck-cards .card.tpl .tpl-name.xlong { font-size: max(6.2cqw, 13px); white-space: normal; text-wrap: balance; line-height: 1.05; padding: 0.4cqw 0 3px; margin-bottom: 4px; border-bottom: 1px solid #c9a53a; }
+.deck-cards .card.tpl .tpl-name > span { display: block; }
+.deck-cards .card.tpl .tpl-summary { font-size: max(4.4cqw, 11px); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .deck-cards .card.tpl .tpl-num { font-size: max(9cqw, 16px); }
