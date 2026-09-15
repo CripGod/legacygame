@@ -1199,7 +1199,7 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .deck-cards {
   --card-w: 196px;
   /* No edge mask: a masked scroller is rasterized as one bitmap and the card type goes soft. Room above and below for the hover lift. */
-  display: flex; flex-wrap: nowrap; gap: 0; margin-top: 8px; padding: 64px 2px 12px;
+  display: flex; flex-wrap: nowrap; gap: 0; margin-top: 8px; padding: 18px 2px 12px;
   overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scroll-snap-type: x proximity;
   scrollbar-width: thin; scrollbar-color: var(--gold-dark) transparent;
 }
@@ -1210,7 +1210,7 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .deck-cards .card.tpl + .card.tpl { margin-left: calc(var(--card-w) * -0.09) !important; }
 /* Hover lifts a landing card the way the hand does, so the one you are looking at is the big one. */
 .deck-cards .card.tpl { transform-origin: 50% 100%; transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1), filter 160ms; }
-.deck-cards .card.tpl:hover { transform: scale(1.24); z-index: 5; filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.7)); }
+.deck-cards .card.tpl:hover { transform: translateY(-6px) scale(1.1); z-index: 5; filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.7)); }
 @media (prefers-reduced-motion: reduce) { .deck-cards .card.tpl { transition: none; } .deck-cards .card.tpl:hover { transform: none; } }
 @media (width <= 700px) { .deck-cards { --card-w: 96px; gap: 6px; } .deck-cards .card .ability { display: block; } }
 
