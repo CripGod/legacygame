@@ -120,6 +120,10 @@
 .deck-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; align-items: start; }
 .deck-panel .deck-cards { align-items: flex-start; }
 .deck-panel .deck-cards { margin-top: 0; padding: 18px 2px 12px; }
+/* The soft fade at the row's right edge is an overlay, not a mask on the scroller: a masked scroller is rasterized as
+   one bitmap and the card type goes soft. */
+.deck-row { position: relative; }
+.deck-row::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 64px; pointer-events: none; z-index: 6; background: linear-gradient(to right, rgba(6, 14, 24, 0), rgba(6, 14, 24, 0.92)); }
 /* Every card in the row is the same size; the first one only carries the deck's glow. */
 .deck-panel .deck-cards .card:first-child { margin: 0; }
 .deck-random { align-self: center; padding: 16px; font-style: italic; color: #cfd6e2; }
