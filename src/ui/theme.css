@@ -1583,7 +1583,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .deck-cards .card.tpl .tpl-name > span { display: block; width: 100%; text-align: center; }
 /* The landing thumbnails are the one place the kind icon is read at 8px: same centre as the big card, but drawn
    larger with a heavier stroke and a hard one-pixel shadow instead of a blur, which at that size only smudged it. */
-.deck-cards .card.tpl .tpl-kind { width: 6.4cqw; height: 6.4cqw; }
+.deck-cards .card.tpl .tpl-kind { width: 5.6cqw; height: 5.6cqw; }
 .deck-cards .card.tpl .tpl-kind svg { stroke-width: 7.5; filter: drop-shadow(0 0.6px 0 rgba(0, 0, 0, 0.9)); }
 .deck-cards .card.tpl .tpl-summary { font-size: max(4.4cqw, 11px); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .deck-cards .card.tpl .tpl-num { font-size: max(9cqw, 16px); }
