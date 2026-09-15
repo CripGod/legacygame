@@ -2,7 +2,7 @@
 
 ## Built: card ranks (bronze, silver, gold)
 
-The first sink is live. Every card starts at **Bronze**; Legacy promotes it to **Silver** (3) and then **Gold** (8).
+The first sink is live. A card's printed cost sets where it starts: 1 and 2 at **Bronze**, 3 and 4 at **Silver**, 5 and up at **Gold**. Legacy promotes it from there, to **Silver** (3) and then **Gold** (8), so the cheap cards are the ones with the most to gain.
 A rank is a frame and nothing else: the same card, the same numbers, on a bronze, silver or gold frame, wherever
 the card shows (the hand, the Codex, the landing row). The frames are the one gold export with only its gold pixels
 remapped (the medallions, the navy and the parchment are untouched), so no new artwork is needed per rank.

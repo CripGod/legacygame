@@ -1,9 +1,10 @@
 import { useSyncExternalStore } from 'react';
+import { CARD_BY_ID } from '../engine';
 
 /**
  * The Legacy ledger: what the player has won, what they have spent, and the rank of every card they have promoted.
  * Legacy is only earned (a match won pays its Legacy); it buys card ranks, which are cosmetic: a bronze, silver or
- * gold frame on the same card, the same numbers. Local for now (localStorage); the account is meant to own it later
+ * gold frame on the same card, the same numbers. A card's cost sets where it starts; Legacy raises it from there. Local for now (localStorage); the account is meant to own it later
  * (docs/economy.md). Unity: the same shape as a save file, the ranks a dictionary keyed by card id.
  */
 export type Rank = 'bronze' | 'silver' | 'gold';
@@ -68,8 +69,15 @@ export function bank(delta: number, why: string): void {
   if (!(delta > 0)) return;
   commit({ ...ledger, banked: ledger.banked + delta, log: [...ledger.log, { at: new Date().toISOString(), delta, why }].slice(-50) });
 }
+/** Where a card starts: its printed cost sets the rank (1-2 Bronze, 3-4 Silver, 5 and up Gold); Legacy raises it. */
+export function baseRank(cardId: string): Rank {
+  const cost = (CARD_BY_ID[cardId] as { cost?: number } | undefined)?.cost ?? 1;
+  return cost >= 5 ? 'gold' : cost >= 3 ? 'silver' : 'bronze';
+}
 export function rankOf(cardId: string): Rank {
-  return ledger.ranks[cardId] ?? 'bronze';
+  const bought = ledger.ranks[cardId];
+  const base = baseRank(cardId);
+  return bought && RANKS.indexOf(bought) > RANKS.indexOf(base) ? bought : base;
 }
 export function nextRank(cardId: string): Rank | null {
   const i = RANKS.indexOf(rankOf(cardId));
