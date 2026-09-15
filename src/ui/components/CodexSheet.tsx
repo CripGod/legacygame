@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { CARD_BY_ID } from '../../engine';
 import { CardFace } from './CardFace';
-import { artUrl } from '../art';
 import { cardName, useDisplay } from '../display';
 import { sfx } from '../audio';
 import '../compendium.css';
@@ -28,7 +27,7 @@ export function CodexSheet({ id, label, onClose, children, flat }: { id: string;
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
-  // 3D tilt: the card leans toward the pointer, with a sheen that follows it. Modal only.
+  // 3D tilt: the card leans toward the pointer, gently, and settles back when it leaves. Modal only.
   // Pointer moves are coalesced into one style write per animation frame, so a burst of events never queues up.
   const tiltRef = useRef<HTMLDivElement>(null);
   const pending = useRef<{ x: number; y: number } | null>(null);
@@ -42,10 +41,8 @@ export function CodexSheet({ id, label, onClose, children, flat }: { id: string;
     const r = el.getBoundingClientRect();
     const px = Math.min(1, Math.max(0, (p.x - r.left) / r.width));
     const py = Math.min(1, Math.max(0, (p.y - r.top) / r.height));
-    el.style.setProperty('--ry', `${((px - 0.5) * 24).toFixed(2)}deg`);
-    el.style.setProperty('--rx', `${((0.5 - py) * 18).toFixed(2)}deg`);
-    el.style.setProperty('--gx', `${(px * 100).toFixed(1)}%`);
-    el.style.setProperty('--gy', `${(py * 100).toFixed(1)}%`);
+    el.style.setProperty('--ry', `${((px - 0.5) * 18).toFixed(2)}deg`);
+    el.style.setProperty('--rx', `${((0.5 - py) * 13).toFixed(2)}deg`);
     el.classList.add('tilting');
   };
   const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -84,7 +81,6 @@ export function CodexSheet({ id, label, onClose, children, flat }: { id: string;
         <div className="cx-card3d">
           <div className="cx-card3d-inner" ref={tiltRef} onPointerMove={onMove} onPointerLeave={onLeave} onPointerCancel={onLeave}>
             <CardFace id={id} big />
-            <div className="cx-glare" aria-hidden style={{ ['--frame' as string]: `url("${artUrl('frames', 'character', 'webp')}")` }} />
           </div>
           {history && (
             <button className={`cx-btn cx-ctl cx-history-btn ${open ? 'on' : ''}`} onClick={() => setOpen((o) => !o)} aria-expanded={open}>
