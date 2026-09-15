@@ -42,6 +42,7 @@ function kindOf(def: { kind: string; category?: string; keywords?: string[]; cur
 }
 
 /** One stroke icon per kind, drawn in the frame's gold. */
+/* Each viewBox is shifted so the glyph's ink (measured with getBBox) is centred in the box, not just its 64-unit square. */
 const KIND_ICONS: Record<CardKind, React.ReactNode> = {
   historical: (
     <svg viewBox="0 0 64 64">
@@ -55,7 +56,7 @@ const KIND_ICONS: Record<CardKind, React.ReactNode> = {
     </svg>
   ),
   artist: (
-    <svg viewBox="0 0 64 64">
+    <svg viewBox="0 -3 64 64">
       <path d="M32 6C17 6 6 17 6 30c0 14 10 22 20 22 5 0 6-3 6-6 0-4 3-6 7-6h6c8 0 13-5 13-12C58 15 46 6 32 6z" />
       <circle cx="20" cy="26" r="3" />
       <circle cx="30" cy="17" r="3" />
@@ -63,18 +64,18 @@ const KIND_ICONS: Record<CardKind, React.ReactNode> = {
     </svg>
   ),
   informant: (
-    <svg viewBox="0 0 64 64">
+    <svg viewBox="0 2.8 64 64">
       <path d="M8 22c8-6 40-6 48 0-2 16-10 26-24 30C18 48 10 38 8 22z" />
       <path d="M18 30c4-3 8-3 12 0M34 30c4-3 8-3 12 0" />
     </svg>
   ),
   event: (
-    <svg viewBox="0 0 64 64">
+    <svg viewBox="0 -2 64 64">
       <path d="M32 6l6 18h19l-15 11 6 19-16-12-16 12 6-19L7 24h19z" />
     </svg>
   ),
   curse: (
-    <svg viewBox="0 0 64 64">
+    <svg viewBox="0 -1 64 64">
       <path d="M32 8c-10 0-18 8-18 18 0 8 4 12 8 16v6h20v-6c4-4 8-8 8-16 0-10-8-18-18-18z" />
       <path d="M24 30h4M36 30h4M26 54h12" />
     </svg>
