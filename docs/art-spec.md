@@ -59,7 +59,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `dewolf_trade` **The DeWolf Trade**: The DeWolfs of Bristol, Rhode Island, ran more slaving voyages than any family in American history: about ninety between 1769 and 1820, some ten thousand people. James DeWolf kept at it after the 1808 ban, sat in the United States Senate, and died one of the richest men in the country.
 - `whites_only_door` **Whites-Only Door**: The house rule at the Cotton Club: Black performers on the stage, a white audience at the tables, and Black patrons turned away at the door. The performers' own families could not buy a ticket to watch them.
 
-### locations (9)
+### locations (10)
 
 - `middle_passage` **The Middle Passage** (Atlantic, 1526–1867): Twelve and a half million people were carried across the Atlantic in chains, and ten and a half million landed. What they carried, they kept: the languages, the faiths, the stories, the songs.
 - `charleston_1822` **Charleston, 1822** (South Carolina, 1822): Denmark Vesey's rising was set for July. Two informants ended it in June, and thirty-five people hanged.
@@ -70,6 +70,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `the_stroll` **The Stroll** (Chicago, 1910s–20s): State Street from 26th to 39th, the Black Belt's night strip: theaters, cabarets, and everybody out walking.
 - `jim_crow` **Jim Crow** (The South, 1877–1965): The laws and customs that sorted Southern life by race from the end of Reconstruction to the 1960s: separate schools, cars, counters and cemeteries, and a vote taken back by poll taxes, literacy tests and violence.
 - `cotton_club` **The Cotton Club** (Harlem, 1923–1935): A Harlem nightclub at Lenox Avenue and 142nd Street: Black performers on the stage, a white audience at the tables, and the best band in the country broadcasting from the bandstand.
+- `harlem_renaissance` **The Harlem Renaissance** (Harlem, 1918–1937): A generation of Black writers, painters, sculptors and musicians in one neighborhood, publishing, exhibiting and playing to each other and then to the world.
 
 ### locations (night) (1)
 

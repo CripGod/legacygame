@@ -694,6 +694,11 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - rule: The floor show: your Characters Inside here gain +1 Influence, and Music Characters +1 more. Opening night: reveals with a Whites-Only Door.
 - blurb: A Harlem nightclub at Lenox Avenue and 142nd Street: Black performers on the stage, a white audience at the tables, and the best band in the country broadcasting from the bandstand.
 
+### The Harlem Renaissance (`harlem_renaissance`)
+- era: Harlem, 1918–1937
+- rule: The New Negro: your writers, artists and musicians Inside here gain +2 Influence.
+- blurb: A generation of Black writers, painters, sculptors and musicians in one neighborhood, publishing, exhibiting and playing to each other and then to the world.
+
 ## Hints (tap or hover explanations)
 
 - `influence`: Influence: how much this Character counts toward controlling its Location. Gate Characters count; Established Characters (Inside) count +1 more.

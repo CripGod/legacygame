@@ -243,7 +243,7 @@ export type LocationEffect =
   | { type: 'nightInside'; amount: number } // The Stroll: after dark (even turns) your Characters Inside here gain Influence
   | { type: 'crossing'; toll: number } // The Middle Passage: no Inside, every Gate Character pays the toll each turn, leavers arrive Ready
   | { type: 'gatesUncounted' } // Jim Crow: Characters at the Gates here count no Influence; only those Inside are counted
-  | { type: 'showcase'; amount: number; tag: string; tagBonus: number }; // The Cotton Club: your Characters Inside here gain Influence; those with `tag` gain `tagBonus` more
+  | { type: 'showcase'; amount: number; tag: string | string[]; tagBonus: number }; // The Cotton Club, the Harlem Renaissance: your Characters Inside here gain Influence; those with any of `tag` gain `tagBonus` more
 
 export interface LocationDef {
   id: string;

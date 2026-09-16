@@ -190,6 +190,17 @@ export const LOCATIONS: LocationDef[] = [
     spawnOnReveal: 'whites_only_door',
     region: 'americas',
   },
+  {
+    id: 'harlem_renaissance',
+    name: 'The Harlem Renaissance',
+    era: 'Harlem, 1918–1937',
+    rule: 'The New Negro: your writers, artists and musicians Inside here gain +2 Influence.',
+    blurb: 'A generation of Black writers, painters, sculptors and musicians in one neighborhood, publishing, exhibiting and playing to each other and then to the world.',
+    history:
+      "The Great Migration filled Harlem: by the mid-1920s some 175,000 Black people lived between 125th and 155th Streets, and the neighborhood became the capital of Black America. Alain Locke's anthology The New Negro (1925) named the movement; the Crisis, edited by W. E. B. Du Bois, and Opportunity, edited by Charles S. Johnson, published its writers and ran the prize dinners that introduced them to publishers. Langston Hughes, Zora Neale Hurston, Claude McKay, Countee Cullen, Jessie Fauset and Nella Larsen wrote; Aaron Douglas painted and Augusta Savage sculpted and taught; Duke Ellington's orchestra played the Cotton Club and Fletcher Henderson's the Roseland. Arturo Schomburg's collection, bought for the 135th Street branch library in 1926, gave the movement its archive. Marcus Garvey's UNIA had its headquarters on 135th Street. The Depression cut the money off, the patrons went home, and the riot of March 1935 is the usual end date, though the Apollo had opened in 1934 and the neighborhood's writers and musicians kept working.",
+    effect: { type: 'showcase', amount: 0, tag: ['Artist', 'Writer', 'Poet', 'Letters', 'Music', 'Harlem Renaissance'], tagBonus: 2 },
+    region: 'americas',
+  },
 ];
 
 export const UNKNOWN_LOCATION: LocationDef = {

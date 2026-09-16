@@ -882,7 +882,7 @@ describe('AI vs AI smoke', () => {
     }
   });
   it('all pool Locations are defined', () => {
-    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(17);
+    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(18);
   });
   it('Jim Crow: Characters at the Gates count no Influence, those Inside do', () => {
     const s = rig(createMatch({ seed: 2 }), { locations: ['jim_crow', 'great_migration', 'juneteenth'], revealAll: true });
@@ -930,6 +930,22 @@ describe('The Cotton Club', () => {
     // Elsewhere it is worth its printed number.
     s.characters[band.uid].location = 1;
     expect(charInfluence(s, band)).toBe(charDef('cotton_club_orchestra').influence);
+  });
+});
+
+describe('The Harlem Renaissance', () => {
+  it('writers, artists and musicians Inside gain +2; everyone else counts as usual', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['harlem_renaissance', 'great_migration', 'juneteenth'], revealAll: true });
+    const zora = addChar(s, 'zora_neale_hurston', 'A', 0, 'inside'); // Writer, and at home here
+    const joplin = addChar(s, 'scott_joplin', 'A', 0, 'inside'); // Music
+    const lewis = addChar(s, 'edmonia_lewis', 'B', 0, 'inside'); // Artist
+    const harriet = addChar(s, 'harriet_tubman', 'B', 0, 'inside');
+    const gateJoplin = addChar(s, 'scott_joplin', 'B', 0, 'gate'); // the bonus is for Inside only
+    expect(charInfluence(s, zora)).toBe(charDef('zora_neale_hurston').influence + 1 + 2 + 1);
+    expect(charInfluence(s, joplin)).toBe(charDef('scott_joplin').influence + 1 + 2);
+    expect(charInfluence(s, lewis)).toBe(charDef('edmonia_lewis').influence + 1 + 2);
+    expect(charInfluence(s, harriet)).toBe(charDef('harriet_tubman').influence + 1);
+    expect(charInfluence(s, gateJoplin)).toBe(charDef('scott_joplin').influence);
   });
 });
 
@@ -1695,10 +1711,17 @@ describe('Anansi retells', () => {
     expect(s.players.A.hand.length).toBe(handBefore + 1); // played one, drew one from the Reveal, one more at the turn start
     const small = addChar(s, 'bud_billiken', 'B', 0, 'inside');
     const garvey = charsOf(s, 'B').find((c) => c.defId === 'marcus_garvey')!;
-    expect(charInfluence(s, s.characters[small.uid])).toBe(charDef('bud_billiken').influence + 2 + 1); // web, and Inside
-    expect(charInfluence(s, garvey)).toBe(charDef('marcus_garvey').influence - 1 + 1); // web, and Inside
     const anansi = charsOf(s, 'A').find((c) => c.defId === 'anansi')!;
-    expect(charInfluence(s, anansi)).toBe(charDef('anansi').influence + (charDef('anansi').cost <= 1 ? 2 : charDef('anansi').cost >= 3 ? -1 : 0)); // the web judges him by his own cost
+    // The retold place has a rule of its own (it is random), so measure the web as the difference it makes.
+    const webbed = (c: CharacterInstance) => {
+      s.locations[0].webbed = false;
+      const plain = charInfluence(s, c);
+      s.locations[0].webbed = true;
+      return charInfluence(s, c) - plain;
+    };
+    expect(webbed(s.characters[small.uid])).toBe(2); // the small grow
+    expect(webbed(garvey)).toBe(-1); // the large shrink
+    expect(webbed(anansi)).toBe(charDef('anansi').cost <= 1 ? 2 : charDef('anansi').cost >= 3 ? -1 : 0); // the web judges him by his own cost
     // Same seed, same plans: the same story. PvP replays agree.
     let t = rig(createMatch({ seed: 2 }), { locations: ['great_migration', 'juneteenth', 'black_star'], revealAll: true, handA: ['anansi'] });
     addChar(t, 'marcus_garvey', 'B', 0, 'inside');

@@ -141,7 +141,10 @@ export function charInfluence(state: GameState, c: CharacterInstance): number {
     v += INSIDE_INFLUENCE_BONUS;
     if (ldef?.effect.type === 'insideInfluence') v += ldef.effect.amount;
     if (ldef?.effect.type === 'nightInside' && isNight(state)) v += ldef.effect.amount;
-    if (ldef?.effect.type === 'showcase') v += ldef.effect.amount + (def.tags.includes(ldef.effect.tag) ? ldef.effect.tagBonus : 0);
+    if (ldef?.effect.type === 'showcase') {
+      const tags = Array.isArray(ldef.effect.tag) ? ldef.effect.tag : [ldef.effect.tag];
+      v += ldef.effect.amount + (def.tags.some((t) => tags.includes(t)) ? ldef.effect.tagBonus : 0);
+    }
     for (const d of hasEstablished(state, c.owner, c.location, 'auraInfluenceOthersHere')) {
       if (d.uid !== c.uid) v += amountOf(d);
     }

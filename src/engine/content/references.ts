@@ -116,6 +116,7 @@ export const REFERENCES: Record<string, Reference[]> = {
   the_stroll: [wiki('Bronzeville, Chicago', 'Bronzeville,_Chicago')],
   jim_crow: [wiki('Jim Crow laws', 'Jim_Crow_laws'), wiki('Plessy v. Ferguson', 'Plessy_v._Ferguson'), wiki('Voting Rights Act of 1965', 'Voting_Rights_Act_of_1965')],
   cotton_club: [wiki('Cotton Club', 'Cotton_Club'), wiki('Owney Madden', 'Owney_Madden'), wiki('Harlem Renaissance', 'Harlem_Renaissance')],
+  harlem_renaissance: [wiki('Harlem Renaissance', 'Harlem_Renaissance'), wiki('The New Negro', 'The_New_Negro'), wiki('Schomburg Center for Research in Black Culture', 'Schomburg_Center_for_Research_in_Black_Culture')],
   // ---- Threats
   mob: [wiki('Lynching in the United States', 'Lynching_in_the_United_States'), wiki('Tulsa race massacre', 'Tulsa_race_massacre')],
   paddy_roller: [wiki('Slave patrol', 'Slave_patrol')],
