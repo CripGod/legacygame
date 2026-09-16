@@ -24,7 +24,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Missing
 
-### characters (31)
+### characters (28)
 
 - `callie_house` **Callie House** (1861–1928): A Nashville washerwoman who built a 300,000-member movement demanding pensions for the formerly enslaved. The government jailed her for it.
 - `robert_smalls` **Robert Smalls** (1839–1915): Steered a Confederate steamer out of Charleston harbor with his family aboard and handed it to the Union.
@@ -36,7 +36,6 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `roger_taney` **Roger Taney** (1777–1864): Chief Justice who wrote Dred Scott: Black people had "no rights which the white man was bound to respect." Useful to whoever plays him for a turn, then a liability to whoever is winning.
 - `abraham_lincoln` **Abraham Lincoln** (1809–1865): Declared free on New Year's Day 1863 everyone enslaved in the states still in rebellion, the loyal states and a few occupied districts excepted, then spent his last winter whipping the votes for the amendment that freed the rest.
 - `william_lloyd_garrison` **William Lloyd Garrison** (1805–1879): Printed The Liberator every week for thirty-five years and would not retreat a single inch. 'I will be heard.'
-- `charles_sumner` **Charles Sumner** (1811–1874): Beaten nearly to death at his Senate desk for a speech against slavery. Came back three years later. His last words were to take care of the civil rights bill; it passed a year after he died.
 - `yaa_asantewaa` **Yaa Asantewaa** (c. 1840–1921): Queen Mother of Ejisu who shamed the Asante chiefs into war in 1900 and besieged the British garrison in its fort at Kumasi for three months.
 - `desmond_tutu` **Desmond Tutu** (1931–2021): Archbishop of Cape Town and chair of the Truth and Reconciliation Commission, which heard victims in public and granted amnesty for full disclosure of politically motivated crimes.
 - `peter_prioleau` **Peter Prioleau** (Charleston, 1822): The enslaved cook who told his master about the Vesey plot. Freed by the state for it, with a pension.
@@ -46,7 +45,6 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `henry_ossawa_tanner` **Henry Ossawa Tanner** (1859–1937): Painter of The Banjo Lesson and The Annunciation; son of an AME bishop, first Black artist honored by the Paris Salon.
 - `robert_duncanson` **Robert Duncanson** (1821–1872): Hudson River School painter of the Ohio valley; the first Black artist to win an international reputation.
 - `edward_bannister` **Edward Bannister** (1828–1901): Providence landscape painter whose Under the Oaks won the 1876 Centennial medal; the judges tried to revoke it when they saw who he was.
-- `harriet_powers` **Harriet Powers** (1837–1910): Quilter from Athens, Georgia, whose two surviving story quilts hang in the Smithsonian and the Museum of Fine Arts, Boston.
 - `dave_the_potter` **David Drake** (c. 1801–c. 1875): "Dave the Potter" of Edgefield, South Carolina: an enslaved man who signed, dated and wrote verses on forty-gallon jars when literacy was a crime.
 - `booker_t_washington` **Booker T. Washington** (1856–1915): Built Tuskegee from a shanty and a church into a campus the students made with their own hands.
 - `george_washington_carver` **George Washington Carver** (c. 1864–1943): Taught the South to rest its soil and found three hundred uses for the peanut.
@@ -55,7 +53,6 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `nehanda` **Nehanda Nyakasikana** (c. 1840–1898): Spirit medium of the Shona who told the colonial court her bones would rise again.
 - `boukman_dutty` **Boukman Dutty** (d. 1791): The Bois Caïman ceremony, and a week later the north of Saint-Domingue was burning.
 - `cecile_fatiman` **Cécile Fatiman** (c. 1771–1883): The mambo at Bois Caïman. Lived to be over a hundred and saw the republic she helped start.
-- `ayuba_suleiman_diallo` **Ayuba Suleiman Diallo** (1701–1773): Wrote a letter in Arabic from a Maryland tobacco farm and it carried him home.
 - `omar_ibn_said` **Omar ibn Said** (c. 1770–1864): Twenty-five years a scholar in Futa Toro, fifty-six years enslaved in Carolina, and he kept writing.
 
 ### events (2)
@@ -86,7 +83,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Have
 
-- characters: absalom_jones, alonzo_herndon, anansi, bessie_coleman, black_jesus, bud_billiken, cathay_williams, chairteenth, daniel_payne, david_ruggles, denmark_vesey, edmonia_lewis, elizabeth_freeman, frederick_douglass, harriet_tubman, henry_mcneal_turner, ida_b_wells, james_lafayette, john_brown, john_russwurm, katherine_johnson, lewis_hayden, madam_cj_walker, mami_wata, mansa_musa, marcus_garvey, mary_ann_shadd_cary, mary_ellen_pleasant, mary_seacole, menelik_ii, og, ogun, organizer, oshun, queen_nzinga, richard_allen, samuel_ajayi_crowther, scott_joplin, shango, sleeping_car_porters, sojourner_truth, thaddeus_stevens, toussaint_louverture, victor_hugo_green, william_parker, william_still, yemoja, zora_neale_hurston, zumbi_dos_palmares
+- characters: absalom_jones, alonzo_herndon, anansi, ayuba_suleiman_diallo, bessie_coleman, black_jesus, bud_billiken, cathay_williams, chairteenth, charles_sumner, daniel_payne, david_ruggles, denmark_vesey, edmonia_lewis, elizabeth_freeman, frederick_douglass, harriet_powers, harriet_tubman, henry_mcneal_turner, ida_b_wells, james_lafayette, john_brown, john_russwurm, katherine_johnson, lewis_hayden, madam_cj_walker, mami_wata, mansa_musa, marcus_garvey, mary_ann_shadd_cary, mary_ellen_pleasant, mary_seacole, menelik_ii, og, ogun, organizer, oshun, queen_nzinga, richard_allen, samuel_ajayi_crowther, scott_joplin, shango, sleeping_car_porters, sojourner_truth, thaddeus_stevens, toussaint_louverture, victor_hugo_green, william_parker, william_still, yemoja, zora_neale_hurston, zumbi_dos_palmares
 - events: community_defense, reparations
 - threats: comfortable_complicity, housing_restriction, mob, paddy_roller, segregationist_patrol
 - locations: accra_ghana, black_star, gary_indiana, great_migration, greenwood, harpers_ferry, juneteenth, lagos, sundown_town
