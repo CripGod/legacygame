@@ -1008,11 +1008,8 @@ Main menu
 - Choose where ${cardName(selected, placeholders)} plays from the card's tray, or press 1-3. Close the card to put it back.
 - Harriet Tubman: drag any of your Characters to another Location and she takes them straight Inside. Free, and she gets them out of a curfew (optional).
 - ${cardName(yemojaPlay.cardId, placeholders)}: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : 
-- No cards in hand. Lock in to end the turn and draw.
-- Nothing in hand fits your ${energyLeft} Energy this turn. Lock in, or move and confront with what is on the board.
--  ${inf} Influence would put you ahead at ${locationName(s.l.defId, placeholders)}.
--  ${inf} Influence would take the lead at ${locationName(s.l.defId, placeholders)} (you trail by ${s.gap}).
-- ${name} (${cost} of your ${energyLeft} Energy): ${what}${where} Drag it onto a Location, or tap it to choose.${others > 0 ? 
+- Nothing in hand fits your ${energyLeft} Energy. Lock in.
+- ${name} fits your ${energyLeft} Energy (${cost}). Drag it onto a Location.
 - Sit Down: give up the match now. ${view.players[other(me)].handle} takes ${opts.stepOffCost} Legacy.
 - app ${resolving ? 'resolving' : ''}
 - replay-banner kind-clash ${verdict.tone === 'win' ? 'miss' : verdict.tone === 'draw' ? 'arrive' : ''}
@@ -1524,7 +1521,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 ### src/ui/components/Battlefield.tsx
 
 - s resolution is animating: the player
-- score p${p} ${bump ? 'bump' : ''}
+- score p${p} ${bump ? 'bump' : ''} ${hurt ? 'hurt' : ''}
 - The opponent played an Event here. It flips when it resolves.
 - gate-slot event-slot ${state} ${def.curse ? 'curse' : ''} ${foreseen ? 'foreseen' : ''}
 - The Ancestors foresee: ${def.name} is played here.
