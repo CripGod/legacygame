@@ -24,15 +24,11 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Missing
 
-### characters (7)
+### characters (3)
 
 - `cotton_club_orchestra` **The Cotton Club Orchestra** (Harlem, 1927–1940): The house band of the Cotton Club: Duke Ellington's orchestra from 1927 to 1931, Cab Calloway's after it. The club's radio wire carried them across the country.
-- `yaa_asantewaa` **Yaa Asantewaa** (c. 1840–1921): Queen Mother of Ejisu who shamed the Asante chiefs into war in 1900 and besieged the British garrison in its fort at Kumasi for three months.
 - `pharoah_and_tom` **Pharoah and Tom** (Richmond, 1800): Two enslaved men on Mosby Sheppard's place who gave up Gabriel's rising on the day it was to begin.
 - `ben_woolfolk` **Ben Woolfolk** (Richmond, 1800): A recruiter for Gabriel's rising who turned state's witness and testified against the men he had enlisted.
-- `edward_bannister` **Edward Bannister** (1828–1901): Providence landscape painter whose Under the Oaks won the 1876 Centennial medal; the judges tried to revoke it when they saw who he was.
-- `dave_the_potter` **David Drake** (c. 1801–c. 1875): "Dave the Potter" of Edgefield, South Carolina: an enslaved man who signed, dated and wrote verses on forty-gallon jars when literacy was a crime.
-- `george_washington_carver` **George Washington Carver** (c. 1864–1943): Taught the South to rest its soil and found three hundred uses for the peanut.
 
 ### events (3)
 
@@ -65,7 +61,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Have
 
-- characters: abraham_lincoln, absalom_jones, alonzo_herndon, anansi, ayuba_suleiman_diallo, bass_reeves, bessie_coleman, black_jesus, booker_t_washington, boukman_dutty, bud_billiken, callie_house, cathay_williams, cecile_fatiman, chairteenth, charles_sumner, claudette_colvin, daniel_payne, david_ruggles, denmark_vesey, edmonia_lewis, elizabeth_freeman, frederick_douglass, george_wilson, harriet_powers, harriet_tubman, henry_mcneal_turner, henry_ossawa_tanner, ida_b_wells, james_lafayette, john_brown, john_russwurm, katherine_johnson, lewis_hayden, madam_cj_walker, mami_wata, mansa_musa, marcus_garvey, marie_laveau, mary_ann_shadd_cary, mary_ellen_pleasant, mary_seacole, menelik_ii, nanny_of_the_maroons, nehanda, og, ogun, omar_ibn_said, organizer, oshun, paul_laurence_dunbar, peter_prioleau, queen_nzinga, richard_allen, robert_duncanson, robert_smalls, roger_taney, samuel_ajayi_crowther, scott_joplin, shango, sleeping_car_porters, sojourner_truth, taytu_betul, thaddeus_stevens, tom_bass, toussaint_louverture, victor_hugo_green, william_lloyd_garrison, william_parker, william_still, yemoja, zora_neale_hurston, zumbi_dos_palmares
+- characters: abraham_lincoln, absalom_jones, alonzo_herndon, anansi, ayuba_suleiman_diallo, bass_reeves, bessie_coleman, black_jesus, booker_t_washington, boukman_dutty, bud_billiken, callie_house, cathay_williams, cecile_fatiman, chairteenth, charles_sumner, claudette_colvin, daniel_payne, dave_the_potter, david_ruggles, denmark_vesey, edmonia_lewis, edward_bannister, elizabeth_freeman, frederick_douglass, george_washington_carver, george_wilson, harriet_powers, harriet_tubman, henry_mcneal_turner, henry_ossawa_tanner, ida_b_wells, james_lafayette, john_brown, john_russwurm, katherine_johnson, lewis_hayden, madam_cj_walker, mami_wata, mansa_musa, marcus_garvey, marie_laveau, mary_ann_shadd_cary, mary_ellen_pleasant, mary_seacole, menelik_ii, nanny_of_the_maroons, nehanda, og, ogun, omar_ibn_said, organizer, oshun, paul_laurence_dunbar, peter_prioleau, queen_nzinga, richard_allen, robert_duncanson, robert_smalls, roger_taney, samuel_ajayi_crowther, scott_joplin, shango, sleeping_car_porters, sojourner_truth, taytu_betul, thaddeus_stevens, tom_bass, toussaint_louverture, victor_hugo_green, william_lloyd_garrison, william_parker, william_still, yaa_asantewaa, yemoja, zora_neale_hurston, zumbi_dos_palmares
 - events: community_defense, reparations
 - threats: comfortable_complicity, dred_scott, housing_restriction, mob, paddy_roller, segregationist_patrol
 - locations: accra_ghana, black_star, gary_indiana, great_migration, greenwood, harpers_ferry, juneteenth, lagos, sundown_town
