@@ -160,6 +160,7 @@ body { font-family: var(--font); font-size: 16px; }
 .column.targetable .loc-glow { filter: drop-shadow(0 0 14px rgba(246, 215, 122, 0.75)); }
 .location .art .lost-tag.daytag { color: #5d5240; background: rgba(233, 185, 58, 0.25); }
 .location .art .lost-tag.nighttag { color: #fff; background: #1d2a6b; }
+.location .art .lost-tag.treaty { color: #fff; background: #6e2a1a; }
 .location .loc-bg { border-radius: 0; }
 .location .loc-bg::after { background: linear-gradient(to bottom, rgba(8, 19, 31, 0.08) 0%, rgba(8, 19, 31, 0.3) 30%, rgba(8, 19, 31, 0.68) 60%, rgba(8, 19, 31, 0.9) 100%); }
 .location.lead-A .loc-bg::after, .location.lead-B .loc-bg::after { background: linear-gradient(to bottom, rgba(8, 19, 31, 0.08) 0%, rgba(8, 19, 31, 0.3) 30%, rgba(8, 19, 31, 0.68) 60%, rgba(8, 19, 31, 0.9) 100%); }

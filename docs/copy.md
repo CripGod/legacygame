@@ -327,6 +327,13 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - blurb: Emperor who repudiated the Italian treaty and broke an Italian army at Adwa in 1896, the victory that kept Ethiopia its own.
 - history: Sahle Maryam was born on 17 August 1844, became king of Shewa in 1865 and Emperor Menelik II of Ethiopia in 1889. That May he signed the Treaty of Wuchale with Italy; the Italian text of Article 17 bound Ethiopia to deal with other powers through Italy, which Italy announced to Europe as a protectorate, the Amharic text made it optional, and in 1893 he repudiated it. When Italy advanced from Eritrea he called the empire to arms, and on 1 March 1896 at Adwa an army of around 100,000, with Empress Taytu Betul commanding her own contingent, destroyed General Oreste Baratieri's force of some 17,000; between 6,000 and 7,000 Italians and askari died, and the Treaty of Addis Ababa that October annulled Wuchale and recognized Ethiopia's independence while the rest of the continent was being partitioned. The same army had spent the previous decade doubling the empire southward, over the Arsi Oromo, Harar, Wolaita and Kaffa, with killing and enslavement those peoples still mourn; hundreds of captured Eritrean askari lost a hand and a foot after Adwa as traitors, and slavery outlived him in Ethiopia until 1942. He founded Addis Ababa with Taytu, began the railway from Djibouti (it reached his capital only in 1917, after his death), strung the first telegraph lines and opened the first modern school, and died on 12 December 1913. The diaspora claimed Adwa at once: Garvey's UNIA sang 'Ethiopia, Thou Land of Our Fathers.'
 
+### Taytu Betul (`taytu_betul`)
+- cost 5 · Influence 4 · Force 3 · historical · era: c. 1851–1918
+- reveal: Wuchale: no treaty. Any Event the opponent plays at this Location this turn or next is torn up before it resolves.
+- established: Mekelle: the water is cut. Opposing Gate Characters at this Location do not become Ready while she is Established here.
+- blurb: Empress who refused the Italian treaty, cut the water at Mekelle and led her own troops at Adwa. Addis Ababa was her idea and her name for it.
+- history: Taytu Betul was born around 1851 into the nobility of Semien and Begemder, read and wrote Amharic and Ge'ez, and in 1883 married Menelik, then king of Shewa; she was crowned empress beside him in 1889. In 1886 she chose the hot springs below Entoto for a new capital and named it Addis Ababa, "new flower". When the Italian reading of the Treaty of Wuchale surfaced she pressed the court to repudiate it, telling the Italian envoy that she was a woman and did not love war, but would rather die than accept it. In January 1896 her plan broke the siege of the Italian fort at Mekelle: she had the spring that supplied it seized and held under fire until the garrison surrendered. At Adwa on 1 March she commanded her own contingent of some five thousand and organized the women who carried water and tended the wounded. After Menelik's strokes she ran the government from 1909 until the nobles forced her from power in 1910. She died at Entoto on 11 February 1918.
+
 ### David Ruggles (`david_ruggles`)
 - cost 3 · Influence 3 · Force 1 · historical · era: 1810–1849
 - reveal: The Slaveholders Directory: an Informant at your Gates at this Location is found out and sent back to the hand of the player who planted it (discarded if that hand is full). With none here to name, he prints anyway: draw a card.
@@ -703,6 +710,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 - `influence`: Influence: how much this Character counts toward controlling its Location. Gate Characters count; Established Characters (Inside) count +1 more.
 - `force`: Force: strength when confronting Threats or answering a challenge. Force never attacks players directly.
+- `treatyTorn`: No treaty: Taytu Betul tore it up. Any Event the other side plays at this Location this turn is torn up before it resolves.
 - `lastWord`: THE LAST WORD: the ninth turn, here only because somebody stood on business. Both sides get 10 Energy and an extra card. Whatever stands after this turn is the legacy.
 - `rebuilt`: Rebuilt: this Location was Lost, and the people who stayed put it back up. It is back in play, and everyone who stayed gained +1 Influence.
 - `finalTurn`: Last scheduled turn. A Stand on Business now adds a 9th turn; otherwise whatever stands after this one is counted: two Locations of three, then total Influence, then total Force.
@@ -1672,6 +1680,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}) and is held off.
 - no opposing Established Character here to besiege.
 - besieges ${targets.map((x) => charDef(x.defId).name).join(', ')}: −${amount} Influence each for the rest of the match.
+- Wuchale: no treaty. Any Event ${state.players[opp].handle} plays at ${locName(state, loc)} ${until > state.turn ? 'this turn or next' : 'this turn'} is torn up before it resolves.
 - no Informant at ${state.players[p].handle}'s Gates here to name. The names go to press anyway: ${state.players[p].handle} draws a card.
 - no Informant at these Gates to send packing. The house holds: ${state.players[p].handle}'s ${held.length} Character${held.length === 1 ? '' : 's'} here cannot be displaced or turned this turn.
 - no Informant at these Gates and no Threat here to confront.
@@ -1734,6 +1743,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${ps.handle} plays ${def.name} (${def.influence}/${def.force}) at the Gates of ${locName(state, play.location)}.
 - ${name(state, c)} cannot enter: no room Inside.
 - First on the scene: ${name(state, c)} was played at ${locName(state, first)} before it was revealed and gains +1 Influence for the rest of the match.
+- ${state.players[p].handle}'s ${eventDef(play.cardId).name} at ${locName(state, play.location)} is torn up before it resolves: Taytu Betul will have no treaty here.
 - ${name(state, c)} cannot enter ${locName(state, c.location)}: ${blocked}.
 - ${name(state, c)} cannot enter ${locName(state, c.location)}: no room Inside.
 - ${name(state, c)} confronts ${threatName(state, t)} with ${f} Force${isAssist(t, c.owner) ? ' (Assist)' : ''}.
@@ -1754,6 +1764,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${def.name} targets ${name(state, victim)}.
 - ${locName(state, loc.index)} is LOST: ${loc.lostReason} Neither player can win it.
 - Broken pact: both players lose 1 Influence at each of their other Locations.
+- ${name(state, c)} waits at ${locName(state, c.location)}: the water is cut while ${charDef(cut[0].defId).name} holds the Inside.
 - ${name(state, c)} is Ready to enter ${locName(state, c.location)}.
 - ${charDef(_farm.defId).name}: ${CARD_BY_ID[best]?.name ?? best} in ${ps.handle}'s hand now costs ${cardCost(best, state, p)}.
 - ${charDef(painter.defId).name}: ${locName(state, painter.location)} gains +${eff.amount} lasting Influence for ${state.players[p].handle}.

@@ -66,6 +66,7 @@ export const REFERENCES: Record<string, Reference[]> = {
   yaa_asantewaa: [wiki('Yaa Asantewaa', 'Yaa_Asantewaa'), wiki('War of the Golden Stool', 'War_of_the_Golden_Stool')],
   zumbi_dos_palmares: [wiki('Zumbi', 'Zumbi'), wiki('Palmares (quilombo)', 'Palmares_(quilombo)')],
   menelik_ii: [wiki('Menelik II', 'Menelik_II'), wiki('Battle of Adwa', 'Battle_of_Adwa')],
+  taytu_betul: [wiki('Taytu Betul', 'Taytu_Betul'), wiki('Battle of Adwa', 'Battle_of_Adwa'), wiki('Treaty of Wuchale', 'Treaty_of_Wuchale')],
   david_ruggles: [wiki('David Ruggles', 'David_Ruggles')],
   lewis_hayden: [wiki('Lewis Hayden', 'Lewis_Hayden')],
   william_parker: [wiki('William Parker (abolitionist)', 'William_Parker_(abolitionist)'), wiki('Christiana Riot', 'Christiana_Riot')],

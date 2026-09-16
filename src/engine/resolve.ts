@@ -599,6 +599,11 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       say(`besieges ${targets.map((x) => charDef(x.defId).name).join(', ')}: −${amount} Influence each for the rest of the match.`);
       break;
     }
+    case 'tearTreaty': {
+      const until = state.locations[loc].treatyTorn?.until ?? state.turn;
+      say(`Wuchale: no treaty. Any Event ${state.players[opp].handle} plays at ${locName(state, loc)} ${until > state.turn ? 'this turn or next' : 'this turn'} is torn up before it resolves.`);
+      break;
+    }
     case 'foundOut': {
       // The Informant at your Gates is yours on the board (owner = p, the victim); plantedBy is the side that sent it.
       // Nothing protects an Informant from the side holding it: no shielded() or isProtected() check, on purpose.
@@ -1267,6 +1272,8 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       wasHiddenAtCommit: !loc.revealed || loc.revealedTurn === state.turn,
     };
     state.characters[c.uid] = c;
+    // Taytu: the treaty is torn the moment she lands, before any Event here resolves.
+    if (!informant && def.reveal?.effect.type === 'tearTreaty') loc.treatyTorn = { by: p, until: state.turn + def.reveal.effect.turns - 1 };
     if (ps.nextCharacterDiscount && state.turn > ps.nextCharacterDiscount.since) ps.nextCharacterDiscount = undefined;
     for (const spider of hasEstablished(state, other(p), play.location, 'drawOnOpposingPlay')) {
       drawCard(state, spider.owner, events);
@@ -1312,6 +1319,13 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     if (guessed.length) trace('info', `First on the scene at ${locName(state, first)}`, { uids: guessed.map(({ c }) => c.uid), location: first });
   }
   for (const { p, play } of eventPlays) {
+    const torn = state.locations[play.location].treatyTorn;
+    if (torn && torn.by === other(p) && state.turn <= torn.until) {
+      events.push({ type: 'info', text: `${state.players[p].handle}'s ${eventDef(play.cardId).name} at ${locName(state, play.location)} is torn up before it resolves: Taytu Betul will have no treaty here.`, player: p, cardId: play.cardId, location: play.location, data: { torn: true } });
+      resolvedEvents.add(play.cardId);
+      trace('event', `${state.players[p].handle}'s ${eventDef(play.cardId).name} is torn up at ${locName(state, play.location)}`, { location: play.location, player: p, cardId: play.cardId }, true);
+      continue;
+    }
     playEvent(state, p, play, events);
     resolvedEvents.add(play.cardId);
     trace('event', `${state.players[p].handle} plays ${eventDef(play.cardId).name} at ${locName(state, play.location)}`, { location: play.location, player: p, cardId: play.cardId }, true);
@@ -1566,6 +1580,12 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     if (c.zone !== 'gate' || c.ready || isInformant(c)) continue;
     const loc = state.locations[c.location];
     const ldef = loc.revealed ? LOCATION_BY_ID[loc.defId] : undefined;
+    // Mekelle: the water is cut. Nobody at the Gates readies while Taytu holds the Inside against them.
+    const cut = hasEstablished(state, other(c.owner), c.location, 'cutWater');
+    if (cut.length && c.arrivedTurn < state.turn) {
+      events.push({ type: 'info', text: `${name(state, c)} waits at ${locName(state, c.location)}: the water is cut while ${charDef(cut[0].defId).name} holds the Inside.`, uid: c.uid, player: c.owner, location: c.location });
+      continue;
+    }
     const organized = hasEstablished(state, c.owner, c.location, 'freshReadyHere').length > 0 || hasEstablished(state, c.owner, c.location, 'cookout').length > 0;
     if (c.arrivedTurn < state.turn || organized || ldef?.effect.type === 'readyOnArrival') {
       readyUp(c);

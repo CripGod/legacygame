@@ -116,9 +116,11 @@ export function mayWear(cardId: string, finish: Finish): boolean {
   if (finish === 'camouflage') return isMilitary(cardId);
   return true;
 }
+/** Finishes a card wears no matter the rotation: the Adwa pair in Camouflage. */
+const FORCED_FINISH: Record<string, Finish> = { menelik_ii: 'camouflage', taytu_betul: 'camouflage' };
 const IN_DECK = new Set<string>();
 const PREVIEW: Record<string, Finish> = (() => {
-  const out: Record<string, Finish> = {};
+  const out: Record<string, Finish> = { ...FORCED_FINISH };
   Object.values(PRESET_DECKS).forEach((deck, d) => {
     const chars = deck.cards.filter((id) => CARD_BY_ID[id]?.kind === 'character' && !FIXED_RANK[id]);
     let k = d * 2;
@@ -150,7 +152,7 @@ function hashedFinish(cardId: string): Finish | null {
 }
 export function finishOf(cardId: string): Finish | null {
   if (FIXED_RANK[cardId]) return null;
-  return PREVIEW[cardId] ?? hashedFinish(cardId);
+  return FORCED_FINISH[cardId] ?? PREVIEW[cardId] ?? hashedFinish(cardId);
 }
 /** The frame on the card: a finish if it wears one, otherwise its rank. */
 export function frameOf(cardId: string): FrameId {

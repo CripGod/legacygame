@@ -949,6 +949,45 @@ describe('The Harlem Renaissance', () => {
   });
 });
 
+describe('Taytu Betul', () => {
+  it('Wuchale: opposing Events at her Location are torn up this turn and next, her own resolve, and the third turn is clear', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'juneteenth'], revealAll: true, handA: ['taytu_betul', 'word_of_mouth'], handB: ['word_of_mouth', 'reparations', 'community_defense'] });
+    let r = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'taytu_betul', location: 0 }, { cardId: 'word_of_mouth', location: 0 }] }, B: { ...pass(), plays: [{ cardId: 'word_of_mouth', location: 0 }] } });
+    s = r.state;
+    expect(r.events.filter((e) => (e.data as { torn?: boolean } | undefined)?.torn).map((e) => e.player)).toEqual(['B']);
+    expect(s.players.B.discard).toContain('word_of_mouth');
+    expect(r.events.some((e) => e.type === 'eventPlayed' && e.player === 'A')).toBe(true);
+    expect(r.events.some((e) => e.type === 'eventPlayed' && e.player === 'B')).toBe(false);
+    expect(s.locations[0].treatyTorn).toEqual({ by: 'A', until: 2 });
+    // Next turn: still torn here, but not elsewhere.
+    s.players.B.hand = ['reparations', 'community_defense'];
+    r = resolveTurn(s, { A: pass(), B: { ...pass(), plays: [{ cardId: 'reparations', location: 0 }, { cardId: 'community_defense', location: 1 }] } });
+    s = r.state;
+    expect(r.events.filter((e) => (e.data as { torn?: boolean } | undefined)?.torn).map((e) => e.cardId)).toEqual(['reparations']);
+    // The turn after, the window has closed.
+    s.players.B.hand = ['reparations'];
+    r = resolveTurn(s, { A: pass(), B: { ...pass(), plays: [{ cardId: 'reparations', location: 0 }] } });
+    expect(r.events.some((e) => (e.data as { torn?: boolean } | undefined)?.torn)).toBe(false);
+  });
+  it('Mekelle: while she is Established, opposing Gate Characters there never become Ready; her own do, and they ready once she leaves', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'juneteenth'], revealAll: true });
+    addChar(s, 'taytu_betul', 'A', 0, 'inside');
+    const theirs = addChar(s, 'harriet_tubman', 'B', 0, 'gate', false);
+    const mine = addChar(s, 'organizer', 'A', 0, 'gate', false);
+    const elsewhere = addChar(s, 'bud_billiken', 'B', 1, 'gate', false);
+    for (const c of [theirs, mine, elsewhere]) s.characters[c.uid].arrivedTurn = 0;
+    s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(s.characters[theirs.uid].ready).toBe(false);
+    expect(s.characters[mine.uid].ready).toBe(true);
+    expect(s.characters[elsewhere.uid].ready).toBe(true);
+    // She steps out to the Gates: the water flows again.
+    const taytu = charsOf(s, 'A').find((c) => c.defId === 'taytu_betul')!;
+    s.characters[taytu.uid].zone = 'gate';
+    s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(s.characters[theirs.uid].ready).toBe(true);
+  });
+});
+
 describe('cost flow', () => {
   it('Booker T. Washington makes Characters cheaper, never below 0, and Omar only touches Events', () => {
     const s = rig(createMatch({ seed: 5 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, energy: true, handA: ['nat_turner', 'bud_billiken', 'reparations'] });

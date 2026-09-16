@@ -24,13 +24,14 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Missing
 
-### characters (17)
+### characters (18)
 
 - `paul_laurence_dunbar` **Paul Laurence Dunbar** (1872–1906): The first Black poet with a national audience. "We Wear the Mask." Dead of tuberculosis at 33.
 - `cotton_club_orchestra` **The Cotton Club Orchestra** (Harlem, 1927–1940): The house band of the Cotton Club: Duke Ellington's orchestra from 1927 to 1931, Cab Calloway's after it. The club's radio wire carried them across the country.
 - `roger_taney` **Roger Taney** (1777–1864): Chief Justice who wrote Dred Scott: Black people had "no rights which the white man was bound to respect." Useful to whoever plays him for a turn, then a liability to whoever is winning.
 - `william_lloyd_garrison` **William Lloyd Garrison** (1805–1879): Printed The Liberator every week for thirty-five years and would not retreat a single inch. 'I will be heard.'
 - `yaa_asantewaa` **Yaa Asantewaa** (c. 1840–1921): Queen Mother of Ejisu who shamed the Asante chiefs into war in 1900 and besieged the British garrison in its fort at Kumasi for three months.
+- `taytu_betul` **Taytu Betul** (c. 1851–1918): Empress who refused the Italian treaty, cut the water at Mekelle and led her own troops at Adwa. Addis Ababa was her idea and her name for it.
 - `peter_prioleau` **Peter Prioleau** (Charleston, 1822): The enslaved cook who told his master about the Vesey plot. Freed by the state for it, with a pension.
 - `george_wilson` **George Wilson** (Charleston, 1822): A class leader in the African church who confirmed the plot to his master. Freed, and never at peace with it.
 - `pharoah_and_tom` **Pharoah and Tom** (Richmond, 1800): Two enslaved men on Mosby Sheppard's place who gave up Gabriel's rising on the day it was to begin.

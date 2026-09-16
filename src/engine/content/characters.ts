@@ -1200,6 +1200,32 @@ export const CHARACTERS: CharacterDef[] = [
     history:
       "Sahle Maryam was born on 17 August 1844, became king of Shewa in 1865 and Emperor Menelik II of Ethiopia in 1889. That May he signed the Treaty of Wuchale with Italy; the Italian text of Article 17 bound Ethiopia to deal with other powers through Italy, which Italy announced to Europe as a protectorate, the Amharic text made it optional, and in 1893 he repudiated it. When Italy advanced from Eritrea he called the empire to arms, and on 1 March 1896 at Adwa an army of around 100,000, with Empress Taytu Betul commanding her own contingent, destroyed General Oreste Baratieri's force of some 17,000; between 6,000 and 7,000 Italians and askari died, and the Treaty of Addis Ababa that October annulled Wuchale and recognized Ethiopia's independence while the rest of the continent was being partitioned. The same army had spent the previous decade doubling the empire southward, over the Arsi Oromo, Harar, Wolaita and Kaffa, with killing and enslavement those peoples still mourn; hundreds of captured Eritrean askari lost a hand and a foot after Adwa as traitors, and slavery outlived him in Ethiopia until 1942. He founded Addis Ababa with Taytu, began the railway from Djibouti (it reached his capital only in 1917, after his death), strung the first telegraph lines and opened the first modern school, and died on 12 December 1913. The diaspora claimed Adwa at once: Garvey's UNIA sang 'Ethiopia, Thou Land of Our Fathers.'",
   },
+  {
+    kind: 'character',
+    id: 'taytu_betul',
+    cost: 5,
+    category: 'historical',
+    name: 'Taytu Betul',
+    short: 'Taytu',
+    summary: 'Opposing Events here are torn up this turn and next. Est.: opposing Gate Characters here never Ready.',
+    influence: 4,
+    force: 3,
+    tags: ['Black', 'Ethiopia', 'Military', 'Ruler', 'Empress'],
+    keywords: [],
+    reveal: {
+      text: 'Wuchale: no treaty. Any Event the opponent plays at this Location this turn or next is torn up before it resolves.',
+      effect: { type: 'tearTreaty', turns: 2 },
+    },
+    established: {
+      text: 'Mekelle: the water is cut. Opposing Gate Characters at this Location do not become Ready while she is Established here.',
+      effect: { type: 'cutWater' },
+    },
+    identity: ['the refused treaty', 'Mekelle', 'Adwa', 'Addis Ababa'],
+    era: 'c. 1851–1918',
+    blurb: 'Empress who refused the Italian treaty, cut the water at Mekelle and led her own troops at Adwa. Addis Ababa was her idea and her name for it.',
+    history:
+      "Taytu Betul was born around 1851 into the nobility of Semien and Begemder, read and wrote Amharic and Ge'ez, and in 1883 married Menelik, then king of Shewa; she was crowned empress beside him in 1889. In 1886 she chose the hot springs below Entoto for a new capital and named it Addis Ababa, \"new flower\". When the Italian reading of the Treaty of Wuchale surfaced she pressed the court to repudiate it, telling the Italian envoy that she was a woman and did not love war, but would rather die than accept it. In January 1896 her plan broke the siege of the Italian fort at Mekelle: she had the spring that supplied it seized and held under fire until the garrison surrendered. At Adwa on 1 March she commanded her own contingent of some five thousand and organized the women who carried water and tended the wounded. After Menelik's strokes she ran the government from 1909 until the nobles forced her from power in 1910. She died at Entoto on 11 February 1918.",
+  },
   // ---------- Found out (build 140): the answer to a planted Informant ----------
   {
     kind: 'character',

@@ -95,7 +95,8 @@ export type RevealEffect =
   | { type: 'foundOut'; mode: 'expose' | 'arrest' | 'amnesty'; fallback: 'draw' | 'hold' | 'confront'; leave?: boolean } // David Ruggles, Lewis Hayden, William Parker, Desmond Tutu: the Informant at your Gates here is found out. expose: back to the planter's hand (their discard if that hand is full); arrest: out of the match, into the planter's discard; amnesty: it testifies and stays, Fresh, as the holder's own Character from now on; leave: this Character then moves on to your Gates elsewhere, Fresh. No Informant here: draw a card, hold (yours here cannot be displaced this turn) or confront a Threat here with +1 Force
   | { type: 'siegeInside'; amount: number } // Yaa Asantewaa: every opposing Established Character here loses Influence for good
   | { type: 'challengeAllInside' } // Menelik II: every opposing Established Character here with lower Force returns to its Gates, Fresh, while their Gates have room
-  | { type: 'drawPerFriendHere'; max: number }; // Denmark Vesey: draw per other friendly Character here: permanent Influence on the Location itself, which stays when the artist leaves
+  | { type: 'drawPerFriendHere'; max: number } // Denmark Vesey: draw per other friendly Character here: permanent Influence on the Location itself, which stays when the artist leaves
+  | { type: 'tearTreaty'; turns: number }; // Taytu Betul: every Event the opponent plays at this Location, this turn and `turns - 1` more, is torn up before it resolves
 
 export type EstablishedEffect =
   | { type: 'readyRelocatedIn' } // Harriet
@@ -134,7 +135,8 @@ export type EstablishedEffect =
   | { type: 'drawOnThreatCleared'; count: number } // Callie House: draw when a Threat here is neutralized
   | { type: 'growLowestHere'; amount: number } // Oshun: each turn your weakest Character here grows: the Location gains permanent Influence for you every turn he stays
   | { type: 'recordInformantsHere' } // William Still: every Informant at your Gates here is written down and counts 0 against you (it still holds the slot)
-  | { type: 'shieldHere' }; // Nanny of the Maroons: opposing Reveals cannot target your Characters here
+  | { type: 'shieldHere' } // Nanny of the Maroons: opposing Reveals cannot target your Characters here
+  | { type: 'cutWater' }; // Taytu Betul: opposing Gate Characters at this Location do not become Ready while she is Established
 
 /** Gatherings are never in a deck: they spawn on the board when the world earns them. */
 export type CharacterCategory = 'historical' | 'archetype' | 'mythic' | 'gathering' | 'artist';
@@ -353,6 +355,8 @@ export interface LocationState {
   rebuiltTurn?: number;
   /** A timed Threat carried over from a retold Location (the Mob still comes to a retold Greenwood). */
   pendingTimedThreat?: { turn: number; threatId: string };
+  /** Taytu Betul tore up the treaty here: Events the other side plays at this Location through `until` never resolve. */
+  treatyTorn?: { by: PlayerId; until: number };
   /** Anansi retold this Location: it became a random one not in the match, with his web over it (WEB_SMALL / WEB_LARGE). */
   webbed?: boolean;
   webbedBy?: PlayerId;
