@@ -1691,10 +1691,10 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl:not(.big).k-mythic .tpl-kind { top: 20.3cqw; }
 .app .card.tpl:not(.big).k-historical .tpl-kind { top: 19.1cqw; }
 .app .card.tpl:not(.big).k-artist .tpl-kind { top: 20.4cqw; }
-/* Compendium thumbs: every kind icon sits 2px (about 1.4cqw at the 150px card) higher than the same small card elsewhere. */
-.cx-cards .card.tpl:not(.big) .tpl-kind { top: 19.8cqw; }
-.cx-cards .card.tpl:not(.big).event .tpl-kind { top: 22.9cqw; }
-.cx-cards .card.tpl:not(.big).k-historical .tpl-kind, .cx-cards .card.tpl:not(.big).k-mythic .tpl-kind { top: 18.9cqw; }
+/* Compendium thumbs: every kind icon sits 2.5px (about 1.75cqw at the 150px card) higher than the same small card elsewhere. */
+.cx-cards .card.tpl:not(.big) .tpl-kind { top: 19.45cqw; }
+.cx-cards .card.tpl:not(.big).event .tpl-kind { top: 22.55cqw; }
+.cx-cards .card.tpl:not(.big).k-historical .tpl-kind, .cx-cards .card.tpl:not(.big).k-mythic .tpl-kind { top: 18.55cqw; }
 .card.tpl:not(.big) .tpl-summary { font-size: max(4.4cqw, 11px); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .deck-cards .card.tpl .tpl-num { font-size: max(9cqw, 16px); }
 
