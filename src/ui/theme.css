@@ -1520,6 +1520,12 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl.rank-ruby { --rank-line: #c0303a; --rank-ink: #ffb0b6; }
 .card.tpl.rank-onyx { --rank-line: #4a4a55; --rank-ink: #d8d8e0; }
 .card.tpl.rank-diamond { --rank-line: #9fdcff; --rank-ink: #f2fbff; }
+.card.tpl.rank-gold { --rank-line: #c9a53a; --rank-ink: #f6d77a; }
+.card.tpl.rank-marble { --rank-line: #8e939c; --rank-ink: #f2f3f6; }
+.card.tpl.rank-ice { --rank-line: #7cc4e8; --rank-ink: #eafaff; }
+.card.tpl.rank-camouflage { --rank-line: #6f7f3c; --rank-ink: #d6e39a; }
+.card.tpl.rank-lava { --rank-line: #d4541c; --rank-ink: #ffb26a; }
+.card.tpl.rank-usa { --rank-line: #b23a48; --rank-ink: #f4f6ff; }
 .card.tpl.event { --rank-line: #c9a53a; --rank-ink: #f6d77a; }
 .card.tpl .tpl-meta { border-bottom-color: var(--rank-line); }
 .card.tpl .tpl-sep::before, .card.tpl .tpl-sep::after { border-top-color: var(--rank-line); }
@@ -1537,6 +1543,12 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .cx-rank.rank-amethyst .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #efd9ff, #8a5bc4 55%, #45266b); }
 .cx-rank.rank-ruby .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #ffc8cc, #c0303a 55%, #5e1218); }
 .cx-rank.rank-onyx .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #9a9aa8, #3a3a44 55%, #101014); }
+.cx-rank.rank-gold .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #ffe89a, #c9a53a 55%, #6e5210); }
+.cx-rank.rank-marble .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #ffffff, #b8bcc4 55%, #5e6470); }
+.cx-rank.rank-ice .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #f4fdff, #7cc4e8 55%, #2a6a90); }
+.cx-rank.rank-camouflage .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #d6e39a, #6f7f3c 55%, #2f3a14); }
+.cx-rank.rank-lava .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #ffd08a, #d4541c 55%, #3a1408); }
+.cx-rank.rank-usa .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #ffffff, #b23a48 55%, #1f2f6e); }
 .cx-rank.rank-diamond .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #ffffff, #cfeeff 40%, #8fb8d8 70%, #4d6f8f); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 0 10px rgba(160, 225, 255, 0.8); }
 .cx-rank-btn { font-size: 11px; padding: 4px 12px; }
 .cx-rank-btn:disabled { opacity: 0.45; cursor: not-allowed; }

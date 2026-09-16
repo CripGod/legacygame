@@ -2,20 +2,25 @@
 
 ## Built: card frames, ranked and finished
 
-Ten frames, one geometry, from the same hand: the ladder and the finishes.
+Sixteen frames, one geometry, from the same hand: the ladder and the finishes.
 
-**The ladder** (bought with Legacy): **Wood** → **Bronze** (3) → **Silver** (8) → **Emerald** (14) → **Ruby** (20) → **Diamond** (30).
-A card's printed cost sets where it starts: 0 and 1 at Wood, 2 at Bronze, 3 at Silver, 4 and 5 at Emerald, 6 and up
-at Ruby. Nothing starts at Diamond, so every card has a rank still to earn. Diamond carries a glare that sweeps the
-frame every five seconds.
+**The ladder** (bought with Legacy): **Wood** → **Bronze** (3) → **Silver** (8) → **Gold** (12) → **Emerald** (16) →
+**Ruby** (22) → **Diamond** (30). A card's printed cost sets where it starts: 0 and 1 at Wood, 2 at Bronze, 3 at
+Silver, 4 at Gold, 5 at Emerald, 6 and up at Ruby. Nothing starts at Diamond, so every card has a rank still to earn.
+Diamond carries a glare that sweeps the frame every five seconds. **The frame never outranks the card:** the ladder
+frame shown is exactly the rank held (bought, or the starting rank), never a step above it.
 
-**The finishes** (cosmetic, for the store later): **Tiger's Eye**, **Turquoise**, **Amethyst**, **Onyx**. A finish is
-worn in place of the rank's frame; the rank is still there underneath and still climbs. Until finishes are owned and
-equipped, about one card in five wears one, picked by a stable hash of its id and weighted by rarity (Tiger's Eye
-the most common, Onyx the rarest), so the deck rows carry a mix from the first visit.
+**The finishes** (cosmetic, for the store later): **Tiger's Eye**, **Turquoise**, **Amethyst**, **Onyx**, **Marble**,
+**Ice**, **Camouflage**, **Lava**, **Stars and Stripes**. A finish is worn in place of the rank's frame; the rank is
+still there underneath and still climbs, and a finish says nothing about rank (a player is assumed to have won it,
+been granted it, or bought it). Until finishes are owned and equipped, about one card in five wears one of the first
+four, picked by a stable hash of its id and weighted by rarity (Tiger's Eye the most common, Onyx the rarest), and
+each preset deck carries one of the newer five (Marble to Railroad, Ice to Black Star, Camouflage to Bois Caïman,
+Lava to Pantheon, Stars and Stripes to Mirror, on the third eligible Character of the deck), so every deck shows one.
 
 Every frame is the same 1047×1411 export fitted into the card's 1103×1426 box, so one set of positions serves all
-ten. **Events are exempt** for now: they keep their own frame, take no rank, and show no rank row in the Codex.
+sixteen. **Events are exempt** for now: they keep their own frame, take no rank, and show no rank row in the Codex.
+The Compendium opens with Chapter I, "Reading a card": the three orbs, the ladder and the finishes.
 
 - **Earning.** A match won pays its Legacy to the winner (1 for a plain win, 4 to 16 behind an early Stand). The
   tutorial pays nothing. Losing takes nothing.
@@ -27,7 +32,7 @@ ten. **Events are exempt** for now: they keep their own frame, take no rank, and
   the button; `MatchScreen` banks a win.
 - **Dev.** `?dev=1&legacy=20` grants 20 Legacy once per page load, to review ranks without playing.
 - **Unity.** The ledger is a save-file shape (an int, an int, a dictionary of card id to rank, a list of entries);
-  the frames are ten sprites sharing one layout; the rank badge and the promote button are the same two controls on
+  the frames are sixteen sprites sharing one layout; the rank badge and the promote button are the same two controls on
   the card view. The rule that a rank changes nothing in the engine holds there too: the engine never reads the
   ledger.
 

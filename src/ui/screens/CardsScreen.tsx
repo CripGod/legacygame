@@ -13,7 +13,7 @@ import { Wordmark } from '../components/Wordmark';
 
 /** The chapters, in reading order. `short` is the label in the sticky nav. */
 const CHAPTERS = [
-  { id: 'frames', title: 'Frames and ranks', short: 'Frames', lede: 'How a card earns its frame.' },
+  { id: 'reading', title: 'Reading a card', short: 'Reading', lede: 'What a card face says before you read a word: three orbs for its numbers, a frame for its rank, a finish if it wears one.' },
   { id: 'historical', title: 'Historical', short: 'Historical', lede: 'People who lived. Each card prints what it costs to play, the Influence it brings and the Force it can bring to bear against a Threat.' },
   { id: 'artists', title: 'Artists', short: 'Artists', lede: 'Sculptors, painters, a quilter and a potter. The work outlasts its maker: their Reveals leave lasting Influence on the Location itself, which stays when they are gone.' },
   { id: 'mythic', title: 'Mythic', short: 'Mythic', lede: 'Orisha, tricksters and figures of faith and folklore. Every deck carries at least one.' },
@@ -24,6 +24,9 @@ const CHAPTERS = [
 ] as const;
 
 type ChapterId = (typeof CHAPTERS)[number]['id'];
+const chapterOf = (id: ChapterId) => CHAPTERS.find((c) => c.id === id)!;
+/** A chapter's number, from its place in the reading order. */
+const chapterNo = (id: ChapterId) => CHAPTERS.findIndex((c) => c.id === id) + 1;
 
 const REGION: Record<string, string> = { americas: 'The Americas', africa: 'Africa', atlantic: 'The Atlantic' };
 
@@ -307,55 +310,86 @@ function ThreatEntry({ t, placeholders, onRefs }: { t: ThreatDef; placeholders: 
  * Frames and ranks: the ladder a card climbs with Legacy, the finishes the store will sell, and the rules around them.
  * Every frame is shown from its own small export, so the plate is the same picture the cards wear.
  */
-function FramesPlate() {
+function ReadingChapter({ n }: { n: number }) {
   const l = useLedger();
   const have = l.banked - l.spent;
-  const starts: Record<string, string> = { wood: 'costs 0 and 1', bronze: 'cost 2', silver: 'cost 3', emerald: 'costs 4 and 5', ruby: 'cost 6 and up', diamond: 'never' };
+  const starts: Record<string, string> = { wood: 'costs 0 and 1', bronze: 'cost 2', silver: 'cost 3', gold: 'cost 4', emerald: 'cost 5', ruby: 'cost 6 and up' };
+  const rarity: Record<string, string> = { 'tigers-eye': 'common', turquoise: 'uncommon', amethyst: 'rare', onyx: 'rarest', marble: 'one deck', ice: 'one deck', camouflage: 'one deck', lava: 'one deck', usa: 'one deck' };
   return (
-    <section id="cx-frames" className="cx-legend-plate cx-frames cx-framed" aria-label="Frames and ranks">
-      <div className="cx-kicker">Frames and ranks</div>
-      <p className="cx-frames-lede">
-        Every Character card wears a frame. Six form a ladder, climbed with Legacy: a match pays its Legacy to the winner (1 for a plain win, 4 to 16 behind an early Stand), and you spend it on any card you like, from the card itself. A frame is only a frame: the same card, the same numbers.
-      </p>
-      <div className="cx-frames-row" role="list">
-        {RANKS.map((r, i) => (
-          <figure key={r} className={`cx-frame-fig rank-${r}`} role="listitem">
-            <img src={artUrl('frames', `character-sm-${r}`, 'webp')} alt="" loading="lazy" />
-            <figcaption>
-              <b>{RANK_LABEL[r]}</b>
-              <span>{i === 0 ? 'where cards start' : `${RANK_PRICE[r]} Legacy`}</span>
-              <small>{r === 'diamond' ? 'never a start' : `starts at ${starts[r]}`}</small>
-            </figcaption>
-          </figure>
-        ))}
-      </div>
-      <p className="cx-frames-note">
-        A card's printed cost sets where it starts, so the cheap cards have the most to climb. Nothing starts at Diamond: every card has a rank still to earn. Diamond catches the light, a glare across the frame every few seconds.
-      </p>
-      <div className="cx-kicker">Finishes</div>
-      <p className="cx-frames-lede">
-        Four more frames sit outside the ladder. A finish is worn in place of the rank's frame; the rank goes on climbing underneath. They will be the store's, bought with Legacy like everything else; for now a few cards wear them so you can see them in play, the rarer the finish the fewer the cards.
-      </p>
-      <div className="cx-frames-row finishes" role="list">
-        {FINISHES.map((f, i) => (
-          <figure key={f} className={`cx-frame-fig rank-${f}`} role="listitem">
-            <img src={artUrl('frames', `character-sm-${f}`, 'webp')} alt="" loading="lazy" />
-            <figcaption>
-              <b>{FINISH_LABEL[f]}</b>
-              <span>{['common', 'uncommon', 'rare', 'rarest'][i]}</span>
-              <small>store, later</small>
-            </figcaption>
-          </figure>
-        ))}
-      </div>
-      <p className="cx-frames-note">
-        Events keep a frame of their own and take no rank. You hold <b>{have} Legacy</b>{l.banked ? ` (${l.banked} won, ${l.spent} spent)` : ''}: open any Character card to promote it.
-      </p>
+    <section id="cx-reading" className="cx-chapter">
+      <ChapterHead n={n} title={chapterOf('reading').title} lede={chapterOf('reading').lede} count={RANKS.length + FINISHES.length} unit="frames" />
+      <Page className="cx-reading">
+        <div className="cx-sub">
+          <b>The orbs</b>
+        </div>
+        <div className="cx-legend row" id="cx-orbs">
+          <div>
+            <i className="cx-orb cost">3</i>
+            <span>{HINTS.cost}</span>
+          </div>
+          <div>
+            <i className="cx-orb inf">2</i>
+            <span>{HINTS.influence}</span>
+          </div>
+          <div>
+            <i className="cx-orb">1</i>
+            <span>{HINTS.force}</span>
+          </div>
+          <div>
+            <i className="cx-orb ev">EV</i>
+            <span>{HINTS.event}</span>
+          </div>
+        </div>
+        <p className="cx-frames-note">Every frame keeps the three orbs in the same corners: cost top left, Influence bottom left, Force bottom right. Whatever the frame, the numbers are the card's own.</p>
+
+        <div className="cx-sub" id="cx-frames">
+          <b>The ladder</b>
+        </div>
+        <p className="cx-frames-lede">
+          Every Character card wears a frame, and seven form a ladder climbed with Legacy: a match pays its Legacy to the winner (1 for a plain win, 4 to 16 behind an early Stand), and you spend it on any card you like, from the card itself. A frame is only a frame: the same card, the same numbers. The frame never outranks the card.
+        </p>
+        <div className="cx-frames-row" role="list">
+          {RANKS.map((r, i) => (
+            <figure key={r} className={`cx-frame-fig rank-${r}`} role="listitem">
+              <img src={artUrl('frames', `character-sm-${r}`, 'webp')} alt="" loading="lazy" />
+              <figcaption>
+                <b>{RANK_LABEL[r]}</b>
+                <span>{i === 0 ? 'where cards start' : `${RANK_PRICE[r]} Legacy`}</span>
+                <small>{r === 'diamond' ? 'never a start' : `starts at ${starts[r]}`}</small>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+        <p className="cx-frames-note">
+          A card's printed cost sets where it starts, so the cheap cards have the most to climb. Nothing starts at Diamond: every card has a rank still to earn. Diamond catches the light, a glare across the frame every few seconds.
+        </p>
+
+        <div className="cx-sub">
+          <b>The finishes</b>
+        </div>
+        <p className="cx-frames-lede">
+          Nine more frames sit outside the ladder. A finish is worn in place of the rank's frame; the rank goes on climbing underneath, and a finish says nothing about it. They will be the store's, bought with Legacy or won; for now a few cards wear them so you can see them in play, the rarer the finish the fewer the cards, and each preset deck carries one of the newest five.
+        </p>
+        <div className="cx-frames-row finishes" role="list">
+          {FINISHES.map((f) => (
+            <figure key={f} className={`cx-frame-fig rank-${f}`} role="listitem">
+              <img src={artUrl('frames', `character-sm-${f}`, 'webp')} alt="" loading="lazy" />
+              <figcaption>
+                <b>{FINISH_LABEL[f]}</b>
+                <span>{rarity[f]}</span>
+                <small>store, later</small>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+        <p className="cx-frames-note">
+          Events keep a frame of their own and take no rank. You hold <b>{have} Legacy</b>{l.banked ? ` (${l.banked} won, ${l.spent} spent)` : ''}: open any Character card to promote it.
+        </p>
+      </Page>
     </section>
   );
 }
 
-/** The whole game in one illuminated atlas: Characters by kind, Events, Locations with their art, Threats. */
 export function CardsScreen({ onBack, initialRefs }: { onBack: () => void; /** Deep link: open this entry's references on arrival (#refs=<id>). */ initialRefs?: string | null }) {
   const { placeholders } = useDisplay();
   const [open, setOpen] = useState<string | null>(null);
@@ -368,7 +402,7 @@ export function CardsScreen({ onBack, initialRefs }: { onBack: () => void; /** D
     else if (CARD_BY_ID[initialRefs]) setOpen(initialRefs); // a card: the card itself opens under its references
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const [active, setActive] = useState<ChapterId>('historical');
+  const [active, setActive] = useState<ChapterId>('reading');
   const [edges, setEdges] = useState({ l: false, r: false });
   const rootRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
@@ -397,8 +431,8 @@ export function CardsScreen({ onBack, initialRefs }: { onBack: () => void; /** D
   }
   for (const l of LOCATIONS) add(l);
 
-  const chapter = (id: ChapterId) => CHAPTERS.find((c) => c.id === id)!;
-  const chapterLabel = (id: ChapterId) => `Chapter ${roman(CHAPTERS.findIndex((c) => c.id === id) + 1)} · ${chapter(id).title}`;
+  const chapter = chapterOf;
+  const chapterLabel = (id: ChapterId) => `Chapter ${roman(chapterNo(id))} · ${chapter(id).title}`;
   // The sheet is labelled by the chapter its card came from.
   const sheetLabel = new Map<string, string>();
   for (const c of historical) sheetLabel.set(c.id, chapterLabel('historical'));
@@ -470,30 +504,6 @@ export function CardsScreen({ onBack, initialRefs }: { onBack: () => void; /** D
           </p>
         </header>
 
-        <FramesPlate />
-
-        <section className="cx-legend-plate cx-framed" aria-label="Reading the orbs">
-          <div className="cx-kicker">Reading the orbs</div>
-          <div className="cx-legend row">
-            <div>
-              <i className="cx-orb cost">3</i>
-              <span>{HINTS.cost}</span>
-            </div>
-            <div>
-              <i className="cx-orb inf">2</i>
-              <span>{HINTS.influence}</span>
-            </div>
-            <div>
-              <i className="cx-orb">1</i>
-              <span>{HINTS.force}</span>
-            </div>
-            <div>
-              <i className="cx-orb ev">EV</i>
-              <span>{HINTS.event}</span>
-            </div>
-          </div>
-        </section>
-
         <nav className="cx-nav" aria-label="Chapters">
           <button className="cx-back" onClick={onBack}>
             ← Back
@@ -509,8 +519,10 @@ export function CardsScreen({ onBack, initialRefs }: { onBack: () => void; /** D
           </div>
         </nav>
 
+        <ReadingChapter n={chapterNo('reading')} />
+
         <section id="cx-historical" className="cx-chapter">
-          <ChapterHead n={1} title={chapter('historical').title} lede={chapter('historical').lede} count={historical.length} unit="cards" />
+          <ChapterHead n={chapterNo('historical')} title={chapter('historical').title} lede={chapter('historical').lede} count={historical.length} unit="cards" />
           <Page>
             {costs.map((cost) => (
               <div className="cx-group" key={cost}>
@@ -524,42 +536,42 @@ export function CardsScreen({ onBack, initialRefs }: { onBack: () => void; /** D
         </section>
 
         <section id="cx-artists" className="cx-chapter">
-          <ChapterHead n={2} title={chapter('artists').title} lede={chapter('artists').lede} count={artists.length} unit="cards" />
+          <ChapterHead n={chapterNo('artists')} title={chapter('artists').title} lede={chapter('artists').lede} count={artists.length} unit="cards" />
           <Page>
             <CardGrid cards={artists} onOpen={setOpen} />
           </Page>
         </section>
 
         <section id="cx-mythic" className="cx-chapter">
-          <ChapterHead n={3} title={chapter('mythic').title} lede={chapter('mythic').lede} count={mythic.length} unit="cards" />
+          <ChapterHead n={chapterNo('mythic')} title={chapter('mythic').title} lede={chapter('mythic').lede} count={mythic.length} unit="cards" />
           <Page>
             <CardGrid cards={mythic} onOpen={setOpen} />
           </Page>
         </section>
 
         <section id="cx-arrivals" className="cx-chapter">
-          <ChapterHead n={4} title={chapter('arrivals').title} lede={chapter('arrivals').lede} count={arrivals.length} unit="cards" />
+          <ChapterHead n={chapterNo('arrivals')} title={chapter('arrivals').title} lede={chapter('arrivals').lede} count={arrivals.length} unit="cards" />
           <Page>
             <CardGrid cards={arrivals} onOpen={setOpen} />
           </Page>
         </section>
 
         <section id="cx-events" className="cx-chapter">
-          <ChapterHead n={5} title={chapter('events').title} lede={chapter('events').lede} count={events.length} unit="cards" />
+          <ChapterHead n={chapterNo('events')} title={chapter('events').title} lede={chapter('events').lede} count={events.length} unit="cards" />
           <Page>
             <CardGrid cards={events} onOpen={setOpen} />
           </Page>
         </section>
 
         <section id="cx-locations" className="cx-chapter">
-          <ChapterHead n={6} title={chapter('locations').title} lede={chapter('locations').lede} count={locations.length} unit="plates" />
+          <ChapterHead n={chapterNo('locations')} title={chapter('locations').title} lede={chapter('locations').lede} count={locations.length} unit="plates" />
           {locations.map((l, i) => (
             <LocationPlate key={l.id} loc={l} n={i} placeholders={placeholders} onRefs={setRefs} />
           ))}
         </section>
 
         <section id="cx-threats" className="cx-chapter">
-          <ChapterHead n={7} title={chapter('threats').title} lede={chapter('threats').lede} count={THREATS.length} unit="entries" />
+          <ChapterHead n={chapterNo('threats')} title={chapter('threats').title} lede={chapter('threats').lede} count={THREATS.length} unit="entries" />
           <Page>
             <div className="cx-threats">
               {THREATS.map((t) => (
