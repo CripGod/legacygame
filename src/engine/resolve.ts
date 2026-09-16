@@ -1620,6 +1620,22 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
           }
         }
       }
+      if (def.effect === 'landOffice' && state.turn - t.spawnedTurn + 1 === (def.window ?? 3)) {
+        // The office closes. Whoever holds two Inside has proved up: the Threat lifts and they take the ground for good.
+        const provers = PLAYERS.filter((p) => charsAt(state, loc.index, p, 'inside').length >= 2);
+        if (provers.length) {
+          for (const p of provers) {
+            loc.permInfluence = loc.permInfluence ?? { A: 0, B: 0 };
+            loc.permInfluence[p] += 1;
+            events.push({ type: 'threatActs', text: `${state.players[p].handle} proves up at ${locName(state, loc.index)}: two of theirs held the ground while the office was open. +1 lasting Influence.`, location: loc.index, player: p, data: { provedUp: true } });
+          }
+          events.push({ type: 'threatNeutralized', text: `${def.name} at ${locName(state, loc.index)} closes with the land claimed: it lifts.`, location: loc.index, data: { by: provers[0], threatUid: t.uid, defId: t.defId, target: t.target } });
+          loc.threats = loc.threats.filter((x) => x.uid !== t.uid);
+          trace('threat', `${def.name} closes at ${locName(state, loc.index)}: proved up`, { location: loc.index });
+          continue;
+        }
+        events.push({ type: 'threatActs', text: `${def.name} at ${locName(state, loc.index)} closes: all the land is spoken for. Nobody else enters until ${t.forceRequired} Force clears it.`, location: loc.index, data: { spokenFor: true } });
+      }
       if (def.effect === 'mobDisplace') {
         const leader = leaderAt(state, loc.index);
         if (leader) {

@@ -370,6 +370,10 @@ export function ancestorsDangers(view: GameState, me: PlayerId, placeholders: bo
     }
     for (const t of l.threats) {
       const td = THREAT_BY_ID[t.defId];
+      if (td?.window && !l.lost) {
+        const closes = t.spawnedTurn + td.window - 1;
+        dangers.push(view.turn <= closes ? `${def?.name ?? locLabel(l.index)}: ${td.name} closes at the end of Turn ${closes}. Hold two Inside by then to prove up, or ${t.forceRequired} Force clears it; the Inside shrinks by a seat each turn until then.` : `${def?.name ?? locLabel(l.index)}: ${td.name} has closed. Nobody enters until ${t.forceRequired} Force clears it in one turn.`);
+      }
       if (td?.lostAfterTurns && !l.lost) dangers.push(`${def?.name ?? locLabel(l.index)}: ${td.name} closes the Location at the end of Turn ${t.spawnedTurn + td.lostAfterTurns - 1} unless ${t.forceRequired} Force answers it in one turn.`);
     }
   }

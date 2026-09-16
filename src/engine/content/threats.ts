@@ -64,18 +64,29 @@ export const THREATS: ThreatDef[] = [
     blurb: 'The DeWolfs of Bristol, Rhode Island, ran more slaving voyages than any family in American history: about ninety between 1769 and 1820, some ten thousand people. James DeWolf kept at it after the 1808 ban, sat in the United States Senate, and died one of the richest men in the country.',
   },
   {
-    id: 'whites_only_door',
-    name: 'Whites-Only Door',
+    id: 'color_line',
+    name: 'The Color Line',
     family: 'Systemic Pressure',
-    text: 'Opening night: the house seats a white audience only. While active, Gate Characters here cannot enter, for either player. Neutralize with 3 Force in one turn.',
+    text: 'Opening night: the color line runs at the door. While active, Gate Characters here cannot enter, for either player. Neutralize with 3 Force in one turn.',
     split: false,
     force: 3,
     effect: 'blockEntry',
     blurb: "The house rule at the Cotton Club: Black performers on the stage, a white audience at the tables, and Black patrons turned away at the door. The performers' own families could not buy a ticket to watch them.",
+  },
+  {
+    id: 'land_office',
+    name: 'The Land Office',
+    family: 'Systemic Pressure',
+    text: 'The office is open for 3 turns. Each turn it stands, the Inside here holds one fewer Character for each player; when it closes, nobody else enters. Prove up: hold 2 of your Characters Inside when it closes and it lifts, with +1 lasting Influence for you. Or neutralize with 4 Force in one turn.',
+    split: false,
+    force: 4,
+    effect: 'landOffice',
+    window: 3,
+    blurb: 'The Homestead Act of 1862 offered 160 acres for five years of residence, to citizens, which Black Americans were not until 1866. The Southern Homestead Act then opened poor land for ten years through slow and hostile land offices; about four thousand Black families got through. On the Plains some 3,500 more proved up, at Nicodemus, DeWitty, Dearfield and Blackdom, out of 1.6 million homesteads in all.',
   },
 ];
 
 export const THREAT_BY_ID: Record<string, ThreatDef> = Object.fromEntries(THREATS.map((t) => [t.id, t]));
 
 /** Threats that may appear via the mid-match "history moves" trigger. */
-export const RANDOM_THREAT_POOL = ['segregationist_patrol', 'comfortable_complicity', 'housing_restriction', 'dewolf_trade'];
+export const RANDOM_THREAT_POOL = ['segregationist_patrol', 'comfortable_complicity', 'housing_restriction', 'dewolf_trade', 'land_office'];

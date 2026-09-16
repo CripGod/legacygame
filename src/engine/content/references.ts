@@ -122,7 +122,8 @@ export const REFERENCES: Record<string, Reference[]> = {
   mob: [wiki('Lynching in the United States', 'Lynching_in_the_United_States'), wiki('Tulsa race massacre', 'Tulsa_race_massacre')],
   paddy_roller: [wiki('Slave patrol', 'Slave_patrol')],
   segregationist_patrol: [wiki('Jim Crow laws', 'Jim_Crow_laws')],
-  whites_only_door: [wiki('Cotton Club', 'Cotton_Club'), wiki('Racial segregation in the United States', 'Racial_segregation_in_the_United_States')],
+  color_line: [wiki('Cotton Club', 'Cotton_Club'), wiki('Color line (racism)', 'Color_line_(racism)'), wiki('Racial segregation in the United States', 'Racial_segregation_in_the_United_States')],
+  land_office: [wiki('Homestead Acts', 'Homestead_Acts'), wiki('Southern Homestead Act of 1866', 'Southern_Homestead_Act_of_1866'), wiki('Exodusters', 'Exodusters'), wiki('Nicodemus, Kansas', 'Nicodemus,_Kansas')],
   housing_restriction: [wiki('Redlining', 'Redlining'), wiki('Racial covenant', 'Racial_covenant')],
   dewolf_trade: [wiki('James DeWolf', 'James_DeWolf')],
   // ---- Events

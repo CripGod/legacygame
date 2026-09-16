@@ -98,7 +98,22 @@ export function threatActiveFor(state: GameState, location: number, effect: stri
 export function insideCapacity(state: GameState, location: number): number {
   const loc = state.locations[location];
   if (loc.revealed && LOCATION_BY_ID[loc.defId]?.effect.type === 'crossing') return 0;
-  return threatActiveFor(state, location, 'capacity', 'A') ? 2 : INSIDE_CAPACITY;
+  let cap = threatActiveFor(state, location, 'capacity', 'A') ? 2 : INSIDE_CAPACITY;
+  // The Land Office: one seat fewer per turn it stands; none once the office has closed.
+  for (const t of loc.threats) {
+    const def = THREAT_BY_ID[t.defId];
+    if (def.effect !== 'landOffice') continue;
+    const standing = state.turn - t.spawnedTurn;
+    cap = Math.min(cap, standing >= (def.window ?? 3) ? 0 : Math.max(0, INSIDE_CAPACITY - standing));
+  }
+  return cap;
+}
+/** The Land Office: seats left this turn, and the turn it closes. */
+export function landOfficeAt(state: GameState, location: number): { threat: ThreatInstance; closesTurn: number; closed: boolean } | null {
+  const t = state.locations[location].threats.find((x) => THREAT_BY_ID[x.defId].effect === 'landOffice');
+  if (!t) return null;
+  const closesTurn = t.spawnedTurn + (THREAT_BY_ID[t.defId].window ?? 3) - 1;
+  return { threat: t, closesTurn, closed: state.turn > closesTurn };
 }
 
 export function gateOpen(state: GameState, location: number, owner: PlayerId): boolean {

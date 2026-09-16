@@ -182,12 +182,12 @@ export const LOCATIONS: LocationDef[] = [
     id: 'cotton_club',
     name: 'The Cotton Club',
     era: 'Harlem, 1923–1935',
-    rule: 'The floor show: your Characters Inside here gain +1 Influence, and Music Characters +1 more. Opening night: reveals with a Whites-Only Door.',
+    rule: 'The floor show: your Characters Inside here gain +1 Influence, and Music Characters +1 more. Opening night: reveals with the Color Line at the door.',
     blurb: "A Harlem nightclub at Lenox Avenue and 142nd Street: Black performers on the stage, a white audience at the tables, and the best band in the country broadcasting from the bandstand.",
     history:
       "The Cotton Club opened in 1923 at 644 Lenox Avenue, in the room that had been the boxer Jack Johnson's Club Deluxe, under the ownership of the bootlegger Owney Madden, who used it as an outlet for his beer. It seated about seven hundred, was decorated as a Southern plantation, and admitted a white audience only, while the performers, the chorus and the orchestra were Black. Duke Ellington's orchestra opened there on 4 December 1927 and stayed until 1931; the club's radio wire carried the band across the country and made it famous. Cab Calloway's orchestra followed. Ethel Waters, Bill Robinson, the Nicholas Brothers and a sixteen-year-old Lena Horne, in the chorus in 1933, all worked the room. After the Harlem riot of March 1935 the white trade stopped coming uptown; the club closed in February 1936, reopened that autumn on Broadway at 48th Street, and closed for good in June 1940.",
     effect: { type: 'showcase', amount: 1, tag: 'Music', tagBonus: 1 },
-    spawnOnReveal: 'whites_only_door',
+    spawnOnReveal: 'color_line',
     region: 'americas',
   },
   {

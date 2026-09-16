@@ -604,10 +604,15 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - text: At the end of each turn, the Fresh Gate Character here with the lowest Influence is shipped away: to The Middle Passage if it is in play, otherwise to a random Location. A Setback for its player. Neutralize with 5 Force in one turn (either player, or both together).
 - blurb: The DeWolfs of Bristol, Rhode Island, ran more slaving voyages than any family in American history: about ninety between 1769 and 1820, some ten thousand people. James DeWolf kept at it after the 1808 ban, sat in the United States Senate, and died one of the richest men in the country.
 
-### Whites-Only Door (`whites_only_door`)
+### The Color Line (`color_line`)
 - family: Systemic Pressure
-- text: Opening night: the house seats a white audience only. While active, Gate Characters here cannot enter, for either player. Neutralize with 3 Force in one turn.
+- text: Opening night: the color line runs at the door. While active, Gate Characters here cannot enter, for either player. Neutralize with 3 Force in one turn.
 - blurb: The house rule at the Cotton Club: Black performers on the stage, a white audience at the tables, and Black patrons turned away at the door. The performers' own families could not buy a ticket to watch them.
+
+### The Land Office (`land_office`)
+- family: Systemic Pressure
+- text: The office is open for 3 turns. Each turn it stands, the Inside here holds one fewer Character for each player; when it closes, nobody else enters. Prove up: hold 2 of your Characters Inside when it closes and it lifts, with +1 lasting Influence for you. Or neutralize with 4 Force in one turn.
+- blurb: The Homestead Act of 1862 offered 160 acres for five years of residence, to citizens, which Black Americans were not until 1866. The Southern Homestead Act then opened poor land for ten years through slow and hostile land offices; about four thousand Black families got through. On the Plains some 3,500 more proved up, at Nicodemus, DeWitty, Dearfield and Blackdom, out of 1.6 million homesteads in all.
 
 ## Locations
 
@@ -698,7 +703,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### The Cotton Club (`cotton_club`)
 - era: Harlem, 1923–1935
-- rule: The floor show: your Characters Inside here gain +1 Influence, and Music Characters +1 more. Opening night: reveals with a Whites-Only Door.
+- rule: The floor show: your Characters Inside here gain +1 Influence, and Music Characters +1 more. Opening night: reveals with the Color Line at the door.
 - blurb: A Harlem nightclub at Lenox Avenue and 142nd Street: Black performers on the stage, a white audience at the tables, and the best band in the country broadcasting from the bandstand.
 
 ### The Harlem Renaissance (`harlem_renaissance`)
@@ -1132,6 +1137,11 @@ export function ancestorsDangers(view: GameState, me: PlayerId, placeholders: bo
     }
     for (const t of l.threats) {
       const td = THREAT_BY_ID[t.defId];
+      if (td?.window && !l.lost) {
+        const closes = t.spawnedTurn + td.window - 1;
+        dangers.push(view.turn <= closes ? 
+- );
+      }
       if (td?.lostAfterTurns && !l.lost) dangers.push(
 - );
     }
@@ -1777,6 +1787,9 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - The Summon at ${locName(state, sA)} fails${loc.lost ? '' : 
 - ${state.players[by].handle} called for a Summon at ${locName(state, at)}, but ${state.players[other(by)].handle} did not join.
 - ${def.name} takes ${name(state, victim)}.
+- ${state.players[p].handle} proves up at ${locName(state, loc.index)}: two of theirs held the ground while the office was open. +1 lasting Influence.
+- ${def.name} at ${locName(state, loc.index)} closes with the land claimed: it lifts.
+- ${def.name} at ${locName(state, loc.index)} closes: all the land is spoken for. Nobody else enters until ${t.forceRequired} Force clears it.
 - ${def.name} targets ${name(state, victim)}.
 - ${locName(state, loc.index)} is LOST: ${loc.lostReason} Neither player can win it.
 - Broken pact: both players lose 1 Influence at each of their other Locations.

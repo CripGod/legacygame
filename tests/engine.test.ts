@@ -897,11 +897,11 @@ describe('AI vs AI smoke', () => {
 });
 
 describe('The Cotton Club', () => {
-  it('the floor show: +1 Influence Inside, +2 for Music; the Whites-Only Door reveals with the room and bars both players', () => {
+  it('the floor show: +1 Influence Inside, +2 for Music; the Color Line reveals with the room and bars both players', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['cotton_club', 'great_migration', 'juneteenth'], revealAll: true });
     // Reveal in rig is direct, so spawn the door the way a reveal would.
-    spawnThreat(s, 0, 'whites_only_door', []);
-    expect(s.locations[0].threats.map((t) => t.defId)).toEqual(['whites_only_door']);
+    spawnThreat(s, 0, 'color_line', []);
+    expect(s.locations[0].threats.map((t) => t.defId)).toEqual(['color_line']);
     const a = addChar(s, 'harriet_tubman', 'A', 0, 'gate');
     const b = addChar(s, 'scott_joplin', 'B', 0, 'gate');
     // The door holds both sides at the Gates.
@@ -1074,6 +1074,38 @@ describe('Bois Caïman, the Event', () => {
     expect(s.locations[0].oath).toBeUndefined();
     expect(r.events.some((e) => (e.data as { oath?: boolean } | undefined)?.oath === false)).toBe(true);
     expect(lockReason(s, s.characters[mine.uid])).toBeNull();
+  });
+});
+
+describe('The Land Office', () => {
+  it('the Inside shrinks a seat a turn, two Established prove up when it closes and lift it, otherwise it is spoken for until Force clears it', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['great_migration', 'gary_indiana', 'juneteenth'], revealAll: true });
+    spawnThreat(s, 0, 'land_office', []);
+    spawnThreat(s, 1, 'land_office', []);
+    expect(insideCapacity(s, 0)).toBe(5);
+    // Two of A's hold Location 1; B has one at Location 2.
+    addChar(s, 'organizer', 'A', 0, 'inside');
+    addChar(s, 'harriet_tubman', 'A', 0, 'inside');
+    addChar(s, 'bud_billiken', 'B', 1, 'inside');
+    s = resolveTurn(s, { A: pass(), B: pass() }).state; // turn 2: one turn standing
+    expect(insideCapacity(s, 0)).toBe(4);
+    s = resolveTurn(s, { A: pass(), B: pass() }).state; // turn 3
+    expect(insideCapacity(s, 0)).toBe(3);
+    const r = resolveTurn(s, { A: pass(), B: pass() }); // end of turn 3: the office closes
+    s = r.state;
+    expect(s.locations[0].threats).toHaveLength(0); // A proved up
+    expect(s.locations[0].permInfluence?.A).toBe(1);
+    expect(r.events.some((e) => (e.data as { provedUp?: boolean } | undefined)?.provedUp && e.player === 'A')).toBe(true);
+    expect(s.locations[1].threats).toHaveLength(1); // B alone did not
+    expect(insideCapacity(s, 1)).toBe(0);
+    expect(r.events.some((e) => (e.data as { spokenFor?: boolean } | undefined)?.spokenFor)).toBe(true);
+    // Spoken for: still nobody enters next turn; Force clears it.
+    s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(insideCapacity(s, 1)).toBe(0);
+    const big = addChar(s, 'menelik_ii', 'B', 1, 'gate'); // Force 6
+    s = resolveTurn(s, { A: pass(), B: { ...pass(), confronts: [{ uid: big.uid, threatUid: s.locations[1].threats[0].uid }] } }).state;
+    expect(s.locations[1].threats).toHaveLength(0);
+    expect(insideCapacity(s, 1)).toBe(5);
   });
 });
 

@@ -279,7 +279,7 @@ export interface LocationDef {
 
 export type ThreatFamily = 'Open Hostility' | 'Systemic Pressure' | 'Complicit Beneficiary' | 'Collaborator' | 'Crisis';
 
-export type ThreatEffect = 'blockEntry' | 'leaderBonus' | 'capacity' | 'mobDisplace' | 'zeroGateInfluence' | 'shipsAway';
+export type ThreatEffect = 'blockEntry' | 'leaderBonus' | 'capacity' | 'mobDisplace' | 'zeroGateInfluence' | 'shipsAway' | 'landOffice';
 
 export interface ThreatDef {
   id: string;
@@ -295,6 +295,8 @@ export interface ThreatDef {
   effect: ThreatEffect;
   /** If unresolved for this many full turns, the Location becomes LOST. */
   lostAfterTurns?: number;
+  /** The Land Office: turns the office stays open. The Inside shrinks by one seat per player each turn it stands; at the close, two Established prove up and lift it, otherwise nobody else enters until Force clears it. */
+  window?: number;
   blurb: string;
 }
 
