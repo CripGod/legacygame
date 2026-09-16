@@ -104,8 +104,17 @@ export function fixedRank(cardId: string): Rank | null {
  */
 /** Finishes that only some cards may wear. Stars and Stripes: American political figures only, for now. */
 const USA_POLITICAL = new Set(['abraham_lincoln', 'thaddeus_stevens', 'charles_sumner', 'robert_smalls', 'henry_mcneal_turner', 'roger_taney', 'frederick_douglass']);
+/** Camouflage: soldiers, rebels, war leaders and the war-involved, by tag or by name. */
+const MILITARY_TAGS = new Set(['Military', 'Soldier', 'Rebellion', 'Revolution', 'Defense', 'Spy', 'Maroon']);
+const MILITARY_IDS = new Set(['john_brown', 'harriet_tubman', 'robert_smalls', 'henry_mcneal_turner', 'lewis_hayden', 'ogun', 'shango', 'mary_seacole', 'abraham_lincoln']);
+function isMilitary(cardId: string): boolean {
+  const def = CARD_BY_ID[cardId] as { tags?: string[] } | undefined;
+  return MILITARY_IDS.has(cardId) || !!def?.tags?.some((t) => MILITARY_TAGS.has(t));
+}
 export function mayWear(cardId: string, finish: Finish): boolean {
-  return finish !== 'usa' || USA_POLITICAL.has(cardId);
+  if (finish === 'usa') return USA_POLITICAL.has(cardId);
+  if (finish === 'camouflage') return isMilitary(cardId);
+  return true;
 }
 const IN_DECK = new Set<string>();
 const PREVIEW: Record<string, Finish> = (() => {

@@ -15,7 +15,7 @@ frame shown is exactly the rank held (bought, or the starting rank), never a ste
 still there underneath and still climbs, and a finish says nothing about rank (a player is assumed to have won it,
 been granted it, or bought it). Until finishes are owned and equipped, every fourth Character of each preset deck (in deck order) wears the next
 finish in the list, each deck starting two further along, so every deck shows a few and every finish is worn by two
-or three cards; cards outside the decks fall to a stable hash, about one in five. Stars and Stripes is restricted to American political figures (`USA_POLITICAL` in `legacy.ts`: Lincoln, Stevens, Sumner, Smalls, Turner, Taney, Douglass); a card that would have drawn it takes the next finish instead, and at least two eligible cards wear it.
+or three cards; cards outside the decks fall to a stable hash, about one in five. Stars and Stripes is restricted to American political figures (`USA_POLITICAL` in `legacy.ts`: Lincoln, Stevens, Sumner, Smalls, Turner, Taney, Douglass); a card that would have drawn it takes the next finish instead, and at least two eligible cards wear it. Camouflage is reserved the same way for the military, militant and war-involved: any card tagged Military, Soldier, Rebellion, Revolution, Defense, Spy or Maroon, plus John Brown, Harriet Tubman, Robert Smalls, Henry McNeal Turner, Lewis Hayden, Ogun, Shango, Mary Seacole and Lincoln (`MILITARY_TAGS` / `MILITARY_IDS`).
 
 Every frame is the same 1047×1411 export fitted into the card's 1103×1426 box, so one set of positions serves all
 sixteen. **Events are exempt** for now: they keep their own frame, take no rank, and show no rank row in the Codex.
