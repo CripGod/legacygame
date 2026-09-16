@@ -38,6 +38,8 @@ body { font-family: var(--font); font-size: 16px; }
     radial-gradient(120% 70% at 50% 0%, #10253d 0%, #08131f 55%, #050c15 100%),
     repeating-linear-gradient(45deg, rgba(255,255,255,0.012) 0 2px, transparent 2px 6px);
 }
+.app { position: relative; isolation: isolate; }
+.app-bg { position: fixed; inset: 0; z-index: -1; background-size: cover; background-position: center 35%; background-repeat: no-repeat; pointer-events: none; }
 .main-wrap, .battlefield { background: transparent; }
 
 /* ---------- beveled gold frames ----------
