@@ -289,6 +289,7 @@ function ThreatEntry({ t, placeholders, onRefs }: { t: ThreatDef; placeholders: 
           {t.split && <span className="cx-chip">One per player</span>}
           {t.lostAfterTurns && <span className="cx-chip warn">Location lost after {t.lostAfterTurns} turns</span>}
           {t.window && <span className="cx-chip warn">Office open {t.window} turns, then nobody enters</span>}
+          {t.firesAfterTurns && <span className="cx-chip warn">Comes down after {t.firesAfterTurns} turns, then lifts</span>}
         </div>
       </div>
       {!placeholders && t.blurb && <p className="cx-blurb cx-threat-blurb">{t.blurb}</p>}

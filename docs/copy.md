@@ -149,13 +149,6 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - blurb: The Chicago Defender's mascot for its children's page: guardian of every Black kid, dreamed up in 1923.
 - history: Bud Billiken was invented in 1923 by Robert S. Abbott and Lucius Harper of the Chicago Defender as the cartoon patron of the paper's youth section, the Defender Junior. Kids joined the Bud Billiken Club by the thousands; a ten-year-old Willard Motley, later the novelist, was among the first to write the column.
 
-### Roger Taney (`roger_taney`)
-- cost 1 · Influence 1 · Force 1 · historical · era: 1777–1864
-- reveal: The opposing Ready Gate Character here with the highest Influence cannot enter this turn. Then Taney becomes unstable.
-- passive: While present, the leading player at his Location loses 1 Influence. At the end of each turn he may relocate to a random Location.
-- blurb: Chief Justice who wrote Dred Scott: Black people had "no rights which the white man was bound to respect." Useful to whoever plays him for a turn, then a liability to whoever is winning.
-- history: Roger Brooke Taney of Maryland was Chief Justice of the United States from 1836 to 1864. In Dred Scott v. Sandford (1857) he held that people of African descent could never be citizens and that Congress could not bar slavery from the territories, a ruling meant to settle the question that instead helped bring the Civil War. He died in office in 1864; his statue was removed from the Maryland State House in 2017 and from the Capitol in 2022.
-
 ### Sleeping Car Porters (`sleeping_car_porters`)
 - cost 2 · Influence 2 · Force 2 · historical · era: Brotherhood, 1925
 - keywords: STRAIGHT_INSIDE
@@ -321,7 +314,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - blurb: Emperor who repudiated the Italian treaty and broke an Italian army at Adwa in 1896, the victory that kept Ethiopia its own.
 - history: Sahle Maryam was born on 17 August 1844, became king of Shewa in 1865 and Emperor Menelik II of Ethiopia in 1889. That May he signed the Treaty of Wuchale with Italy; the Italian text of Article 17 bound Ethiopia to deal with other powers through Italy, which Italy announced to Europe as a protectorate, the Amharic text made it optional, and in 1893 he repudiated it. When Italy advanced from Eritrea he called the empire to arms, and on 1 March 1896 at Adwa an army of around 100,000, with Empress Taytu Betul commanding her own contingent, destroyed General Oreste Baratieri's force of some 17,000; between 6,000 and 7,000 Italians and askari died, and the Treaty of Addis Ababa that October annulled Wuchale and recognized Ethiopia's independence while the rest of the continent was being partitioned. The same army had spent the previous decade doubling the empire southward, over the Arsi Oromo, Harar, Wolaita and Kaffa, with killing and enslavement those peoples still mourn; hundreds of captured Eritrean askari lost a hand and a foot after Adwa as traitors, and slavery outlived him in Ethiopia until 1942. He founded Addis Ababa with Taytu, began the railway from Djibouti (it reached his capital only in 1917, after his death), strung the first telegraph lines and opened the first modern school, and died on 12 December 1913. The diaspora claimed Adwa at once: Garvey's UNIA sang 'Ethiopia, Thou Land of Our Fathers.'
 
-### Taytu Betul (`taytu_betul`)
+### Empress Taytu Betul (`taytu_betul`)
 - cost 5 · Influence 4 · Force 3 · historical · era: c. 1851–1918
 - reveal: Wuchale: no treaty. Any Event the opponent plays at this Location this turn or next is torn up before it resolves.
 - established: Mekelle: the water is cut. Opposing Gate Characters at this Location do not become Ready while she is Established here.
@@ -614,6 +607,11 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - text: The office is open for 3 turns. Each turn it stands, the Inside here holds one fewer Character for each player; when it closes, nobody else enters. Prove up: hold 2 of your Characters Inside when it closes and it lifts, with +1 lasting Influence for you. Or neutralize with 4 Force in one turn.
 - blurb: The Homestead Act of 1862 offered 160 acres for five years of residence, to citizens, which Black Americans were not until 1866. The Southern Homestead Act then opened poor land for ten years through slow and hostile land offices; about four thousand Black families got through. On the Plains some 3,500 more proved up, at Nicodemus, DeWitty, Dearfield and Blackdom, out of 1.6 million homesteads in all.
 
+### The Dred Scott Decision (`dred_scott`)
+- family: Systemic Pressure
+- text: Standing for 2 turns. Then everyone at this Location, both sides, Gate and Inside, is displaced to open Gates elsewhere, as far as the Gates allow, and the decision lifts. Protected Characters keep their place. Neutralize with 4 Force in one turn to stop it.
+- blurb: Chief Justice Roger Taney, March 1857: Black people had "no rights which the white man was bound to respect", and could not be citizens. The Fourteenth Amendment made the ruling a dead letter eleven years later.
+
 ## Locations
 
 ### Greenwood District (`greenwood`)
@@ -885,7 +883,7 @@ Rules
 ### Team-ups
 - Some pairs belong together. Get both Established at the same Location for your side and the team-up fires: its name shows on the Location panel and in the log, and each card's Codex entry says who it teams with and what happens.
 - Standing team-ups hold while both stay Inside there and break the turn one leaves: Bois Caïman (Boukman Dutty and Cécile Fatiman: nothing displaces, sends back, blocks, suppresses or hexes your Characters there, and Threats cannot act on them), The Raid (John Brown and Harriet Tubman: +2 Force against Threats there), Tuskegee (Booker T. Washington and George Washington Carver: your Characters cost 1 less), The Pilots (Harriet Tubman and Robert Smalls: +1 Relocation a turn), Sweet Auburn (Madam C.J. Walker and Alonzo Herndon: +1 Energy a turn), The Maroons (Nanny of the Maroons and Zumbi dos Palmares: your arrivals at those Gates are Ready at once).
-- Once a match team-ups fire for whoever assembles them first, and then the window is closed for both players, whichever side holds the cards: Adwa (Menelik II and Taytu Betul: every Threat at that Location is broken), Free African Society (Richard Allen and Absalom Jones: +3 Energy next turn), Vigilance (David Ruggles and William Still: every Informant planted on you, anywhere, is sent back to the planter's hand), Reconstruction (Thaddeus Stevens and Charles Sumner: +1 lasting Influence for you at every Location), Iron and Thunder (Ogun and Shango: every Threat at that Location needs 3 less Force, for good), Rent Party (Zora Neale Hurston and the Cotton Club Orchestra: your other Characters there gain +1 Influence for good), The Press (Ida B. Wells and John Russwurm: draw 2).
+- Once a match team-ups fire for whoever assembles them first, and then the window is closed for both players, whichever side holds the cards: Adwa (Menelik II and Empress Taytu Betul: every Threat at that Location is broken), Free African Society (Richard Allen and Absalom Jones: +3 Energy next turn), Vigilance (David Ruggles and William Still: every Informant planted on you, anywhere, is sent back to the planter's hand), Reconstruction (Thaddeus Stevens and Charles Sumner: +1 lasting Influence for you at every Location), Iron and Thunder (Ogun and Shango: every Threat at that Location needs 3 less Force, for good), Rent Party (Zora Neale Hurston and the Cotton Club Orchestra: your other Characters there gain +1 Influence for good), The Press (Ida B. Wells and John Russwurm: draw 2).
 - The Event Bois Caïman is a different oath: play it on a Location with a Threat, and until that Threat is neutralized every Character there, yours and theirs, confronts it every turn with full Force, and nobody relocates out. Only Harriet Tubman's Reveal moves anyone.
 ### Special arrivals
 - Straight Inside (Sleeping Car Porters) always goes Inside the turn it is played. Direct Entry (Bessie Coleman) may: tap ⇅ on the planned move to choose Gates or Inside.
@@ -1011,7 +1009,7 @@ Main menu
 - Gate Characters enter the Location they are waiting at. Play Harriet Tubman first and she can move one of them to another Gate.
 - ${nm} is Fresh: it arrived this turn and waits one turn at the Gates before it can enter.
 - ${blocked.slice('blocked by '.length)} blocks your entries at ${locNameAt(i)}. Neutralize it with ${door?.forceRequired ?? 3} Force in one turn.
-- An opposing Reveal (Karen or OG) stopped ${nm} from entering this turn. Try again next turn.
+- An opposing Reveal (OG) stopped ${nm} from entering this turn. Try again next turn.
 - Housing Restriction caps you at ${cap} Established Characters here. Neutralize it with ${hr?.forceRequired ?? 4} Force.
 - All five of your Inside slots at ${locNameAt(i)} are full.
 - ${col(i)} [data-drop="inside"]
@@ -1137,6 +1135,11 @@ export function ancestorsDangers(view: GameState, me: PlayerId, placeholders: bo
     }
     for (const t of l.threats) {
       const td = THREAT_BY_ID[t.defId];
+      if (td?.firesAfterTurns && !l.lost) {
+        const fires = t.spawnedTurn + td.firesAfterTurns - 1;
+        dangers.push(
+- );
+      }
       if (td?.window && !l.lost) {
         const closes = t.spawnedTurn + td.window - 1;
         dangers.push(view.turn <= closes ? 
@@ -1787,6 +1790,8 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - The Summon at ${locName(state, sA)} fails${loc.lost ? '' : 
 - ${state.players[by].handle} called for a Summon at ${locName(state, at)}, but ${state.players[other(by)].handle} did not join.
 - ${def.name} takes ${name(state, victim)}.
+- ${def.name} comes down at ${locName(state, loc.index)}: ${victims.length ? 'everyone here is turned out' : 'nobody here to turn out'}.
+- ${def.name} at ${locName(state, loc.index)} has run its course${moved ? 
 - ${state.players[p].handle} proves up at ${locName(state, loc.index)}: two of theirs held the ground while the office was open. +1 lasting Influence.
 - ${def.name} at ${locName(state, loc.index)} closes with the land claimed: it lifts.
 - ${def.name} at ${locName(state, loc.index)} closes: all the land is spoken for. Nobody else enters until ${t.forceRequired} Force clears it.

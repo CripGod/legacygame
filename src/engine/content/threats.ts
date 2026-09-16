@@ -84,9 +84,20 @@ export const THREATS: ThreatDef[] = [
     window: 3,
     blurb: 'The Homestead Act of 1862 offered 160 acres for five years of residence, to citizens, which Black Americans were not until 1866. The Southern Homestead Act then opened poor land for ten years through slow and hostile land offices; about four thousand Black families got through. On the Plains some 3,500 more proved up, at Nicodemus, DeWitty, Dearfield and Blackdom, out of 1.6 million homesteads in all.',
   },
+  {
+    id: 'dred_scott',
+    name: 'The Dred Scott Decision',
+    family: 'Systemic Pressure',
+    text: 'Standing for 2 turns. Then everyone at this Location, both sides, Gate and Inside, is displaced to open Gates elsewhere, as far as the Gates allow, and the decision lifts. Protected Characters keep their place. Neutralize with 4 Force in one turn to stop it.',
+    split: false,
+    force: 4,
+    effect: 'banishAll',
+    firesAfterTurns: 2,
+    blurb: "Chief Justice Roger Taney, March 1857: Black people had \"no rights which the white man was bound to respect\", and could not be citizens. The Fourteenth Amendment made the ruling a dead letter eleven years later.",
+  },
 ];
 
 export const THREAT_BY_ID: Record<string, ThreatDef> = Object.fromEntries(THREATS.map((t) => [t.id, t]));
 
 /** Threats that may appear via the mid-match "history moves" trigger. */
-export const RANDOM_THREAT_POOL = ['segregationist_patrol', 'comfortable_complicity', 'housing_restriction', 'dewolf_trade', 'land_office'];
+export const RANDOM_THREAT_POOL = ['segregationist_patrol', 'comfortable_complicity', 'housing_restriction', 'dewolf_trade', 'land_office', 'dred_scott'];

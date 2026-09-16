@@ -577,6 +577,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'roger_taney',
+    hidden: true, // retired as a card: he is the Dred Scott Decision Threat now
     cost: 1,
     category: 'historical',
     name: 'Roger Taney',
@@ -1206,7 +1207,7 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'taytu_betul',
     cost: 5,
     category: 'historical',
-    name: 'Taytu Betul',
+    name: 'Empress Taytu Betul',
     short: 'Taytu',
     summary: 'Opposing Events here are torn up this turn and next. Est.: opposing Gate Characters here never Ready.',
     influence: 4,

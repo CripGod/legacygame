@@ -1353,7 +1353,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           const door = view.locations[i].threats.find((t) => THREAT_BY_ID[t.defId]?.effect === 'blockEntry' && (!THREAT_BY_ID[t.defId].split || t.target === me));
           return { text: `${blocked.slice('blocked by '.length)} blocks your entries at ${locNameAt(i)}. Neutralize it with ${door?.forceRequired ?? 3} Force in one turn.`, shake: door ? [`[data-threat="${door.uid}"]`] : [] };
         }
-        if (blocked) return { text: `An opposing Reveal (Karen or OG) stopped ${nm} from entering this turn. Try again next turn.`, shake: [tile] };
+        if (blocked) return { text: `An opposing Reveal (OG) stopped ${nm} from entering this turn. Try again next turn.`, shake: [tile] };
         const cap = insideCapacity(view, i);
         if (charsAt(view, i, me, 'inside').length + plan.enters.filter((u) => view.characters[u]?.location === i).length >= cap) {
           if (cap < 5) {

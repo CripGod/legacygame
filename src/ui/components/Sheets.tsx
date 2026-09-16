@@ -370,6 +370,10 @@ export function ancestorsDangers(view: GameState, me: PlayerId, placeholders: bo
     }
     for (const t of l.threats) {
       const td = THREAT_BY_ID[t.defId];
+      if (td?.firesAfterTurns && !l.lost) {
+        const fires = t.spawnedTurn + td.firesAfterTurns - 1;
+        dangers.push(`${def?.name ?? locLabel(l.index)}: ${td.name} comes down at the end of Turn ${fires}: everyone here, both sides, is turned out to open Gates elsewhere unless ${t.forceRequired} Force stops it in one turn. Protected Characters stay.`);
+      }
       if (td?.window && !l.lost) {
         const closes = t.spawnedTurn + td.window - 1;
         dangers.push(view.turn <= closes ? `${def?.name ?? locLabel(l.index)}: ${td.name} closes at the end of Turn ${closes}. Hold two Inside by then to prove up, or ${t.forceRequired} Force clears it; the Inside shrinks by a seat each turn until then.` : `${def?.name ?? locLabel(l.index)}: ${td.name} has closed. Nobody enters until ${t.forceRequired} Force clears it in one turn.`);

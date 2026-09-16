@@ -1620,6 +1620,17 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
           }
         }
       }
+      if (def.effect === 'banishAll' && state.turn - t.spawnedTurn + 1 >= (def.firesAfterTurns ?? 2)) {
+        // The decision comes down: everyone here, both sides, is sent as far as the open Gates allow. Then it lifts.
+        const victims = charsAt(state, loc.index).filter((c) => !isInformant(c) && !isProtected(state, c)).sort((a, b) => charInfluence(state, b) - charInfluence(state, a));
+        events.push({ type: 'threatActs', text: `${def.name} comes down at ${locName(state, loc.index)}: ${victims.length ? 'everyone here is turned out' : 'nobody here to turn out'}.`, location: loc.index, data: { banishAll: true } });
+        let moved = 0;
+        for (const v of victims) if (displace(state, v, def.name, events)) moved++;
+        events.push({ type: 'threatNeutralized', text: `${def.name} at ${locName(state, loc.index)} has run its course${moved ? ` (${moved} displaced)` : ''}: the Location is open again.`, location: loc.index, data: { threatUid: t.uid, defId: t.defId, target: t.target, lifted: true } });
+        loc.threats = loc.threats.filter((x) => x.uid !== t.uid);
+        trace('threat', `${def.name} comes down at ${locName(state, loc.index)}`, { location: loc.index, uids: victims.map((v) => v.uid) });
+        continue;
+      }
       if (def.effect === 'landOffice' && state.turn - t.spawnedTurn + 1 === (def.window ?? 3)) {
         // The office closes. Whoever holds two Inside has proved up: the Threat lifts and they take the ground for good.
         const provers = PLAYERS.filter((p) => charsAt(state, loc.index, p, 'inside').length >= 2);

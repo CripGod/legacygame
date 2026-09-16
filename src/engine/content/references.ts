@@ -123,6 +123,7 @@ export const REFERENCES: Record<string, Reference[]> = {
   paddy_roller: [wiki('Slave patrol', 'Slave_patrol')],
   segregationist_patrol: [wiki('Jim Crow laws', 'Jim_Crow_laws')],
   color_line: [wiki('Cotton Club', 'Cotton_Club'), wiki('Color line (racism)', 'Color_line_(racism)'), wiki('Racial segregation in the United States', 'Racial_segregation_in_the_United_States')],
+  dred_scott: [wiki('Dred Scott v. Sandford', 'Dred_Scott_v._Sandford'), wiki('Roger B. Taney', 'Roger_B._Taney'), wiki('Fourteenth Amendment to the United States Constitution', 'Fourteenth_Amendment_to_the_United_States_Constitution')],
   land_office: [wiki('Homestead Acts', 'Homestead_Acts'), wiki('Southern Homestead Act of 1866', 'Southern_Homestead_Act_of_1866'), wiki('Exodusters', 'Exodusters'), wiki('Nicodemus, Kansas', 'Nicodemus,_Kansas')],
   housing_restriction: [wiki('Redlining', 'Redlining'), wiki('Racial covenant', 'Racial_covenant')],
   dewolf_trade: [wiki('James DeWolf', 'James_DeWolf')],
@@ -210,6 +211,7 @@ export const MORE_REFERENCES: Record<string, Reference[]> = {
   // ---- Threats
   land_office: [brit('Homestead Act', 'Homestead-Act', 'topic'), src('Homestead National Historical Park', 'https://www.nps.gov/home/index.htm', 'National Park Service'), src('Black Homesteaders', 'https://www.nps.gov/home/learn/historyculture/black-homesteaders.htm', 'National Park Service'), src('Nicodemus National Historic Site', 'https://www.nps.gov/nico/index.htm', 'National Park Service')],
   color_line: [brit('Cotton Club', 'Cotton-Club', 'topic')],
+  dred_scott: [brit('Dred Scott decision', 'Dred-Scott-decision', 'event'), src('Dred Scott v. Sandford', 'https://www.loc.gov/item/usrep060393/', 'Library of Congress')],
   mob: [brit('Tulsa race massacre of 1921', 'Tulsa-race-massacre-of-1921', 'event')],
   // ---- Events
   bois_caiman: [brit('Haitian Revolution', 'Haitian-Revolution', 'topic')],

@@ -1109,6 +1109,28 @@ describe('The Land Office', () => {
   });
 });
 
+describe('The Dred Scott Decision', () => {
+  it('stands two turns, then turns everyone out to open Gates elsewhere, both sides, and lifts; the protected stay', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['great_migration', 'gary_indiana', 'juneteenth'], revealAll: true });
+    spawnThreat(s, 0, 'dred_scott', []);
+    const a1 = addChar(s, 'organizer', 'A', 0, 'inside');
+    const a2 = addChar(s, 'harriet_tubman', 'A', 0, 'gate');
+    const b1 = addChar(s, 'bud_billiken', 'B', 0, 'inside');
+    addChar(s, 'toussaint_louverture', 'B', 0, 'inside'); // his own side cannot be displaced here
+    s = resolveTurn(s, { A: pass(), B: pass() }).state; // one turn standing: nothing yet
+    expect(s.locations[0].threats).toHaveLength(1);
+    expect(s.characters[a1.uid].location).toBe(0);
+    const r = resolveTurn(s, { A: pass(), B: pass() }); // end of the second: it comes down
+    s = r.state;
+    expect(s.locations[0].threats).toHaveLength(0);
+    expect(s.characters[a1.uid].location).not.toBe(0);
+    expect(s.characters[a2.uid].location).not.toBe(0);
+    expect(s.characters[a1.uid].zone).toBe('gate');
+    expect(s.characters[b1.uid].location).toBe(0); // Toussaint's Established protection holds B's people
+    expect(r.events.some((e) => (e.data as { lifted?: boolean } | undefined)?.lifted)).toBe(true);
+  });
+});
+
 describe('cost flow', () => {
   it('Booker T. Washington makes Characters cheaper, never below 0, and Omar only touches Events', () => {
     const s = rig(createMatch({ seed: 5 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, energy: true, handA: ['nat_turner', 'bud_billiken', 'reparations'] });
@@ -1848,7 +1870,9 @@ describe('Eight turns, 24 cards', () => {
       const r = resolveTurn(s, { A: pass(), B: pass() });
       expect(r.state.turn).toBe(7);
       if (r.events.some((e) => e.type === 'threatSpawned')) moved++;
-      expect(r.state.locations.reduce((n, l) => n + l.threats.length, 0)).toBeGreaterThanOrEqual(before);
+      // Dred Scott and the Land Office lift themselves; nothing else takes a Threat off the board without a showdown.
+      const lifted = r.events.filter((e) => e.type === 'threatNeutralized').length;
+      expect(r.state.locations.reduce((n, l) => n + l.threats.length, 0)).toBeGreaterThanOrEqual(before - lifted);
     }
     expect(moved).toBeGreaterThan(0);
     expect(moved).toBeLessThan(12);

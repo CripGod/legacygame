@@ -188,7 +188,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'zora_neale_hurston',
       'tom_bass',
       'george_wilson',
-      'roger_taney',
+      'callie_house',
       'lewis_hayden',
       'oshun',
       'edward_bannister',
