@@ -251,7 +251,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
   const [shattered, setShattered] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const MOB_FIRST = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('mob') ? 400 : 30000; // hidden → up, the first time (?mob: at once)
-  const MOB_AGAIN = 60000; // hidden → up, every time after
+  const MOB_AGAIN = 90000; // hidden → up, every time after
   const MOB_STANDS = 15000; // up → breaks on its own if nobody clicks
   const MOB_MESSAGE = 10000; // down → the message starts to fade
   const MOB_FADE = 1800; // fading → hidden
