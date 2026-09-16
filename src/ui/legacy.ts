@@ -115,6 +115,7 @@ const PREVIEW: Record<string, Finish> = (() => {
   return out;
 })();
 export function finishOf(cardId: string): Finish | null {
+  if (FIXED_RANK[cardId]) return null;
   return PREVIEW[cardId] ?? hashedFinish(cardId);
 }
 /** The frame on the card: a finish if it wears one, otherwise its rank. */
@@ -122,12 +123,20 @@ export function frameOf(cardId: string): FrameId {
   return finishOf(cardId) ?? rankOf(cardId);
 }
 /** The rank a card holds: what was bought for it, or its starting rank, whichever is higher. The ladder frame never sits above this. */
+/** Cards that come in one rank only, above the ladder: never promoted, never finished. Black Jesus only comes in Diamond. */
+const FIXED_RANK: Record<string, Rank> = { black_jesus: 'diamond' };
+export function fixedRank(cardId: string): Rank | null {
+  return FIXED_RANK[cardId] ?? null;
+}
 export function rankOf(cardId: string): Rank {
+  const fixed = FIXED_RANK[cardId];
+  if (fixed) return fixed;
   const bought = ledger.ranks[cardId];
   const base = baseRank(cardId);
   return bought && RANKS.indexOf(bought) > RANKS.indexOf(base) ? bought : base;
 }
 export function nextRank(cardId: string): Rank | null {
+  if (FIXED_RANK[cardId]) return null;
   const i = RANKS.indexOf(rankOf(cardId));
   return i < RANKS.length - 1 ? RANKS[i + 1] : null;
 }

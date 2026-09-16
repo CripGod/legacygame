@@ -3,7 +3,7 @@ import { CARD_BY_ID } from '../../engine';
 import { CardFace } from './CardFace';
 import { cardName, useDisplay } from '../display';
 import { sfx } from '../audio';
-import { FINISH_LABEL, RANK_LABEL, RANK_PRICE, balance, finishOf, nextRank, promote, rankOf, useLedger } from '../legacy';
+import { FINISH_LABEL, RANK_LABEL, RANK_PRICE, balance, finishOf, fixedRank, nextRank, promote, rankOf, useLedger } from '../legacy';
 import { tip } from '../tip';
 import { RefsModal } from './RefsModal';
 import '../compendium.css';
@@ -119,7 +119,7 @@ export function CodexSheet({ id, label, onClose, children, flat }: { id: string;
                 {RANK_LABEL[next]} · {price} ★
               </button>
             ) : (
-              <span className="cx-rank-max">Highest rank</span>
+              <span className="cx-rank-max">{fixedRank(id) ? `Only comes in ${RANK_LABEL[rank]}` : 'Highest rank'}</span>
             )}
           </div>
           )}
