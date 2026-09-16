@@ -348,12 +348,12 @@ function ThreatTile({ t, view, me, plan, drop, flash, onThreat, gone, hidden, hi
         e.stopPropagation();
         if (!gone) onThreat(t.uid);
       }}
-      {...(gone ? {} : tip(who === 'area' ? `${tdef.name}: in the area, either player can confront it. ${tdef.text}` : who === 'yours' ? `${tdef.name}, aimed at you. ${tdef.text}` : `${tdef.name}, aimed at ${view.players[other(me)].handle}. ${tdef.text}`))}
+      {...(gone ? {} : tip(who === 'area' ? `${tdef.name}: ${tdef.standing ? `${tdef.standing};` : 'in the area,'} either player can confront it. ${tdef.text}` : who === 'yours' ? `${tdef.name}, aimed at you. ${tdef.text}` : `${tdef.name}, aimed at ${view.players[other(me)].handle}. ${tdef.text}`))}
     >
       <div className="threat-art">{placeholders ? <span className="ini">{initials(t.defId, true)}</span> : <Art kind="threats" id={t.defId} className="threat-img" fallback={<span className="ini">{initials(t.defId, false)}</span>} alt="" />}</div>
       <b className="threat-need">{tdef.requiresBoth ? 'both' : committed > 0 ? `${committed}/${need}` : need}</b>
       <div className="threat-name">{threatLabel(t.defId, placeholders)}</div>
-      <div className="threat-who">{who === 'yours' ? 'Yours' : who === 'theirs' ? 'Theirs' : 'In the area'}</div>
+      <div className="threat-who">{who === 'yours' ? 'Yours' : who === 'theirs' ? 'Theirs' : (tdef.standing ?? 'In the area')}</div>
       {stamp ? (
         <div className={`stamp verdict ${stamp.tone ?? 'hit'}`}>
           <b>{stamp.title}</b>
