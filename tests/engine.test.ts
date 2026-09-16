@@ -901,18 +901,18 @@ describe('The Cotton Club', () => {
     expect(charInfluence(s, s.characters[a.uid])).toBe(charDef('harriet_tubman').influence + 1 + 1);
     expect(charInfluence(s, s.characters[b.uid])).toBe(charDef('scott_joplin').influence + 1 + 2);
   });
-  it('Ellington lifts up to three of his own for good and counts one more at the club', () => {
-    let s = rig(createMatch({ seed: 2 }), { locations: ['cotton_club', 'great_migration', 'juneteenth'], revealAll: true, handA: ['duke_ellington'] });
+  it('the Orchestra lifts up to three of its own for good and counts one more at the club', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['cotton_club', 'great_migration', 'juneteenth'], revealAll: true, handA: ['cotton_club_orchestra'] });
     const a = addChar(s, 'organizer', 'A', 0, 'gate');
     const b = addChar(s, 'bud_billiken', 'A', 0, 'gate');
-    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'duke_ellington', location: 0 }] }, B: pass() }).state;
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'cotton_club_orchestra', location: 0 }] }, B: pass() }).state;
     expect(s.characters[a.uid].permInfluence).toBe(1);
     expect(s.characters[b.uid].permInfluence).toBe(1);
-    const duke = charsOf(s, 'A').find((c) => c.defId === 'duke_ellington')!;
-    expect(charInfluence(s, duke)).toBe(charDef('duke_ellington').influence + 1);
-    // Elsewhere he is worth his printed number.
-    s.characters[duke.uid].location = 1;
-    expect(charInfluence(s, duke)).toBe(charDef('duke_ellington').influence);
+    const band = charsOf(s, 'A').find((c) => c.defId === 'cotton_club_orchestra')!;
+    expect(charInfluence(s, band)).toBe(charDef('cotton_club_orchestra').influence + 1);
+    // Elsewhere it is worth its printed number.
+    s.characters[band.uid].location = 1;
+    expect(charInfluence(s, band)).toBe(charDef('cotton_club_orchestra').influence);
   });
 });
 

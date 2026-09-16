@@ -125,11 +125,11 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - blurb: The King of Ragtime. "Maple Leaf Rag" sold a million copies; his opera waited sixty years for a stage.
 - history: Scott Joplin was born in Texas around 1868, the son of a formerly enslaved railroad laborer, and learned piano from a German teacher in Texarkana. In Sedalia, Missouri, he published "Maple Leaf Rag" in 1899, the first sheet music by a Black composer to sell in the hundreds of thousands, and wrote some forty rags that turned a saloon style into a composed art. He spent his last years in New York trying to stage his opera Treemonisha and died in 1917. Treemonisha was finally produced in 1972 and won him a Pulitzer in 1976.
 
-### Duke Ellington (`duke_ellington`)
-- cost 4 · Influence 3 · Force 1 · historical · era: 1899–1974
+### The Cotton Club Orchestra (`cotton_club_orchestra`)
+- cost 4 · Influence 3 · Force 1 · historical · era: Harlem, 1927–1940
 - reveal: The orchestra: your other Characters at this Location (up to three, the strongest first) gain +1 Influence for the rest of the match.
-- blurb: Led his orchestra for fifty years and wrote or co-wrote more than a thousand pieces for it. The Cotton Club, 1927 to 1931, put him on the radio and the radio put him everywhere.
-- history: Edward Kennedy Ellington was born in Washington, D.C., in 1899, the son of a butler who sometimes worked at the White House, and was called Duke by his schoolmates for his manners and his clothes. He came to New York in 1923 and took over the band that became the Duke Ellington Orchestra. On 4 December 1927 the orchestra opened at the Cotton Club in Harlem, and the club's nightly radio broadcasts carried it across the country; "Black and Tan Fantasy", "The Mooche" and "Mood Indigo" date from those years. He led the orchestra without a break until his death in 1974, wrote or co-wrote more than a thousand compositions, and with Billy Strayhorn built a book that ran from three-minute records to suites and sacred concerts; Black, Brown and Beige, his portrait of Black American history, opened his first Carnegie Hall concert in 1943. He received the Presidential Medal of Freedom in 1969 and a special Pulitzer citation in 1999, thirty-four years after the Pulitzer board had overruled its jury's recommendation to honor him.
+- blurb: The house band of the Cotton Club: Duke Ellington's orchestra from 1927 to 1931, Cab Calloway's after it. The club's radio wire carried them across the country.
+- history: The Cotton Club hired its house bands to play the floor shows, two a night, and to broadcast. Duke Ellington's orchestra opened there on 4 December 1927, after King Oliver had turned the job down, and the nightly radio broadcasts from the bandstand made it the best-known Black orchestra in the country; "Black and Tan Fantasy", "The Mooche" and "Mood Indigo" date from those years, and Johnny Hodges, Harry Carney and Cootie Williams joined the band while it was there. Cab Calloway's orchestra took over in 1931, the year of "Minnie the Moocher", and Jimmie Lunceford's followed in 1934. The revues the bands played were written by white songwriters for the room: Jimmy McHugh and Dorothy Fields ("I Can't Give You Anything but Love", 1928), then Harold Arlen and Ted Koehler ("Stormy Weather", sung by Ethel Waters in 1933). The musicians, the singers and the chorus were Black; the audience they played to was not allowed to be.
 
 ### Claudette Colvin (`claudette_colvin`)
 - cost 1 · Influence 2 · Force 1 · historical · era: 1939–
@@ -993,7 +993,7 @@ Main menu
 - You have already used your Relocation this turn. Undo it to move ${nm} instead.
 - Gate Characters enter the Location they are waiting at. Play Harriet Tubman first and she can move one of them to another Gate.
 - ${nm} is Fresh: it arrived this turn and waits one turn at the Gates before it can enter.
-- Segregationist Patrol blocks your entries at ${locNameAt(i)}. Neutralize it with ${patrol?.forceRequired ?? 3} Force in one turn.
+- ${blocked.slice('blocked by '.length)} blocks your entries at ${locNameAt(i)}. Neutralize it with ${door?.forceRequired ?? 3} Force in one turn.
 - An opposing Reveal (Karen or OG) stopped ${nm} from entering this turn. Try again next turn.
 - Housing Restriction caps you at ${cap} Established Characters here. Neutralize it with ${hr?.forceRequired ?? 4} Force.
 - All five of your Inside slots at ${locNameAt(i)} are full.

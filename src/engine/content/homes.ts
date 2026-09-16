@@ -31,7 +31,7 @@ export const HOMES: Record<string, HomeGround> = {
   robert_smalls: { locations: ['charleston_1822'], why: 'Charleston harbor, 1862: he sailed the Planter past the forts to the Union fleet.' },
   madam_cj_walker: { locations: ['great_migration'], why: 'St. Louis, Denver, Indianapolis, Harlem: her company moved with the Migration.' },
   paul_laurence_dunbar: { locations: ['great_migration'], why: 'His parents fled Kentucky for Dayton a generation before the Migration proper.', thematic: true },
-  duke_ellington: { locations: ['cotton_club'], why: 'House band from 4 December 1927 to 1931. The radio wire from that bandstand made the orchestra famous.' },
+  cotton_club_orchestra: { locations: ['cotton_club'], why: "The house band, 1927 to 1940: Ellington's orchestra, then Calloway's. The radio wire from that bandstand made them famous." },
   scott_joplin: { locations: ['juneteenth'], why: 'Born in Texas in 1868, three years after Galveston.', thematic: true },
   claudette_colvin: { locations: ['montgomery'], why: 'March 2, 1955: she would not give up her seat, nine months before Rosa Parks.' },
   bass_reeves: { locations: ['justice_system'], why: 'Deputy U.S. Marshal for Judge Parker\'s court at Fort Smith for thirty-two years.' },

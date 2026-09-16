@@ -39,7 +39,7 @@ export const REFERENCES: Record<string, Reference[]> = {
   madam_cj_walker: [wiki('Madam C. J. Walker', 'Madam_C._J._Walker')],
   paul_laurence_dunbar: [wiki('Paul Laurence Dunbar', 'Paul_Laurence_Dunbar')],
   scott_joplin: [wiki('Scott Joplin', 'Scott_Joplin')],
-  duke_ellington: [wiki('Duke Ellington', 'Duke_Ellington'), wiki('Cotton Club', 'Cotton_Club'), wiki('Black, Brown and Beige', 'Black,_Brown_and_Beige')],
+  cotton_club_orchestra: [wiki('Cotton Club', 'Cotton_Club'), wiki('Duke Ellington', 'Duke_Ellington'), wiki('Cab Calloway', 'Cab_Calloway')],
   claudette_colvin: [wiki('Claudette Colvin', 'Claudette_Colvin')],
   bass_reeves: [wiki('Bass Reeves', 'Bass_Reeves')],
   tom_bass: [wiki('Tom Bass', 'Tom_Bass')],
