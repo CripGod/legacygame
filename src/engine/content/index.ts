@@ -5,9 +5,11 @@ import { EVENTS, EVENT_BY_ID } from './events';
 import { LOCATIONS, LOCATION_BY_ID, UNKNOWN_LOCATION } from './locations';
 import { THREATS, THREAT_BY_ID, RANDOM_THREAT_POOL } from './threats';
 import { REFERENCES, referencesFor, type Reference } from './references';
+import { TEAM_UPS, TEAM_UP_BY_ID, teamUpsFor, type TeamUpDef, type TeamUpStanding, type TeamUpOnce } from './teamups';
 
 export { CHARACTERS, GATHERING_DEFS, CHARACTER_BY_ID, EVENTS, EVENT_BY_ID, LOCATIONS, LOCATION_BY_ID, UNKNOWN_LOCATION, THREATS, THREAT_BY_ID, RANDOM_THREAT_POOL, REFERENCES, referencesFor };
-export type { Reference };
+export { TEAM_UPS, TEAM_UP_BY_ID, teamUpsFor };
+export type { Reference, TeamUpDef, TeamUpStanding, TeamUpOnce };
 
 export const CARD_BY_ID: Record<string, CardDef> = { ...CHARACTER_BY_ID, ...EVENT_BY_ID };
 
@@ -47,7 +49,7 @@ export function isCharacterCard(id: string): boolean {
 export const PRESET_DECKS: Record<string, { name: string; style: string; cards: string[] }> = {
   railroad: {
     name: 'Railroad',
-    style: 'Movement and organizing. Harriet moves people, Douglass and Organizer build a Location, Freeman and Stevens hold it, Ruggles names the informer, Pleasant bankrolls the late turns, John Brown is elsewhere: Nzinga breaks the Threats.',
+    style: 'Movement and organizing. Harriet moves people, Douglass and Organizer build a Location, Freeman and Stevens hold it, Ruggles names the informer, Smalls and Harriet together are The Pilots (+1 Relocation), Pleasant bankrolls the late turns, John Brown is elsewhere: Nzinga breaks the Threats.',
     cards: [
       'harriet_tubman',
       'frederick_douglass',
@@ -66,7 +68,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'john_russwurm',
       'bud_billiken',
       'sojourner_truth',
-      'tom_bass',
+      'robert_smalls',
       'david_ruggles',
       'ayuba_suleiman_diallo',
       'katherine_johnson',
@@ -96,7 +98,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'og',
       'madam_cj_walker',
       'oshun',
-      'claudette_colvin',
+      'taytu_betul',
       'dave_the_potter',
       'harriet_powers',
       'scott_joplin',
@@ -106,8 +108,8 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
     ],
   },
   caiman: {
-    name: 'Bois Caïman',
-    style: 'The cost flow. Fatiman, Booker T. and Carver bring prices down, Rebellion Characters (Zumbi among them) make Boukman (8) cheaper still, his Uprising sends every Ready Character Inside at once, and Lincoln readies the Gates where you trail.',
+    name: 'Uprising',
+    style: 'The cost flow. Fatiman, Booker T. and Carver bring prices down, Rebellion Characters (Zumbi among them) make Boukman (8) cheaper still, his Uprising sends every Ready Character Inside at once, Bois Caïman makes both sides fight a Threat until it breaks, and Lincoln readies the Gates where you trail.',
     cards: [
       'boukman_dutty',
       'cecile_fatiman',
@@ -126,7 +128,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'william_parker',
       'john_brown',
       'oshun',
-      'absalom_jones',
+      'bois_caiman',
       'daniel_payne',
       'robert_smalls',
       'henry_ossawa_tanner',

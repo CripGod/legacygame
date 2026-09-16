@@ -1,7 +1,7 @@
 import '../compendium.css';
 import { HINTS } from '../tip';
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { CARD_BY_ID, CHARACTERS, EVENTS, LOCATIONS, LOCATION_BY_ID, THREATS, type CardDef, type LocationDef, type ThreatDef } from '../../engine';
+import { CARD_BY_ID, CHARACTERS, EVENTS, LOCATIONS, LOCATION_BY_ID, THREATS, TEAM_UPS, type CardDef, type LocationDef, type ThreatDef } from '../../engine';
 import { CardFace } from '../components/CardFace';
 import { CodexSheet } from '../components/CodexSheet';
 import { RefsModal } from '../components/RefsModal';
@@ -19,6 +19,7 @@ const CHAPTERS = [
   { id: 'mythic', title: 'Mythic', short: 'Mythic', lede: 'Orisha, tricksters and figures of faith and folklore. Every deck carries at least one.' },
   { id: 'arrivals', title: 'Gatherings and arrivals', short: 'Gatherings', lede: 'Never in a deck. The board hands them out when the world earns them: a set completed, a crowd assembled, a ship that lands.' },
   { id: 'events', title: 'Events', short: 'Events', lede: 'Played into the Event slot beneath a Location. They resolve everywhere at once; the Location only decides what is added. Curses act on the opponent.' },
+  { id: 'teamups', title: 'Team-ups', short: 'Team-ups', lede: 'Two who belong together, Established at the same Location for the same side. A standing team-up holds while both stay Inside. A once-only team-up fires for whoever assembles it first, and then the window is closed for everyone.' },
   { id: 'locations', title: 'Locations', short: 'Locations', lede: 'Three are drawn each match. Every place has a rule of its own; some transform, some fall under curfew at night, some never see a Threat at all.' },
   { id: 'threats', title: 'Threats', short: 'Threats', lede: 'History pushes back. Bring enough Force to bear in a single turn to clear one, or learn to live under it.' },
 ] as const;
@@ -560,6 +561,29 @@ export function CardsScreen({ onBack, initialRefs }: { onBack: () => void; /** D
           <ChapterHead n={chapterNo('events')} title={chapter('events').title} lede={chapter('events').lede} count={events.length} unit="cards" />
           <Page>
             <CardGrid cards={events} onOpen={setOpen} />
+          </Page>
+        </section>
+
+        <section id="cx-teamups" className="cx-chapter">
+          <ChapterHead n={chapterNo('teamups')} title={chapter('teamups').title} lede={chapter('teamups').lede} count={TEAM_UPS.length} unit="pairs" />
+          <Page className="cx-teamups">
+            {TEAM_UPS.filter((t) => t.members.every((m) => !(CARD_BY_ID[m] as { hidden?: boolean } | undefined)?.hidden)).map((t) => (
+              <article className="cx-teamup-row" key={t.id}>
+                <div className="cx-teamup-pair">
+                  {t.members.map((m) => (
+                    <div className="cx-card" key={m}>
+                      <CardFace id={m} onClick={() => setOpen(m)} />
+                    </div>
+                  ))}
+                </div>
+                <div className="cx-teamup-body">
+                  <div className="cx-kicker">{t.kind === 'once' ? 'Once a match · first to assemble it' : 'Standing · while both stay Inside'}</div>
+                  <h3>{t.name}</h3>
+                  <p className="cx-teamup-text">{t.text}</p>
+                  <p className="cx-blurb">{t.blurb}</p>
+                </div>
+              </article>
+            ))}
           </Page>
         </section>
 

@@ -1,7 +1,7 @@
 /**
  * Read-only queries over GameState: Influence, Force, capacity, legal actions.
  */
-import { charDef, cardDef, LOCATION_BY_ID, THREAT_BY_ID, CARD_BY_ID } from './content';
+import { charDef, cardDef, LOCATION_BY_ID, THREAT_BY_ID, CARD_BY_ID, TEAM_UPS, type TeamUpDef, type TeamUpStanding } from './content';
 import type {
   CharacterDef,
   GameState,
@@ -29,6 +29,8 @@ export function lockReason(state: GameState, c: CharacterInstance): string | nul
   const bridle = hasEstablished(state, other(c.owner), c.location, 'bridleHere')[0];
   if (bridle) return `${charDef(bridle.defId).name} holds this Location: nobody relocates out against ${charDef(bridle.defId).name === 'Tom Bass' ? 'him' : 'her'}`;
   if (c.zone === 'inside' && isHeldInside(state, c)) return `${def?.name ?? 'this Location'} holds anyone Inside for two turns`;
+  const oath = loc.oath && loc.threats.find((t) => t.uid === loc.oath!.threatUid);
+  if (oath) return `the oath at Bois Caïman holds everyone here until ${THREAT_BY_ID[oath.defId].name} is broken`;
   return null;
 }
 
@@ -223,6 +225,7 @@ export function confrontForce(state: GameState, c: CharacterInstance, threat: Th
   for (const n of hasEstablished(state, c.owner, c.location, 'forceAuraHere')) f += amountOf(n);
   for (const n of hasEstablished(state, c.owner, c.location, 'confrontForceHere')) f += amountOf(n);
   if (state.players[c.owner].defendedLocation === c.location) f += 2;
+  for (const t of standingAt(state, c.owner, c.location, 'forceHere')) f += teamUpAmount(t);
   if (isAssist(threat, c.owner) && c.zone === 'inside' && !isSuppressed(state, c) && def.established?.effect.type === 'assistForceBonus') {
     f += def.established.effect.amount;
   }
@@ -244,6 +247,7 @@ export function energyFor(state: GameState, p: PlayerId): number {
   const base = ENERGY_CURVE[state.turn - 1] ?? ENERGY_CAP;
   let n = (lastWord ? LAST_WORD_ENERGY : Math.min(base, ENERGY_CAP)) + (state.players[p].energyBonus ?? 0) + (state.players[p].energyNextTurn ?? 0);
   for (const c of hasEstablishedAnywhere(state, p, 'extraEnergy')) n += amountOf(c);
+  for (const t of standingAnywhere(state, p, 'extraEnergy')) n += teamUpAmount(t);
   return n;
 }
 
@@ -258,6 +262,7 @@ export function cardCost(cardId: string, state?: GameState, p?: PlayerId): numbe
     if (def.kind === 'character') {
       if (ps.nextCharacterDiscount && state.turn > ps.nextCharacterDiscount.since) n -= ps.nextCharacterDiscount.amount;
       for (const c of hasEstablishedAnywhere(state, p, 'discountCharacters')) n -= amountOf(c);
+      for (const t of standingAnywhere(state, p, 'discountCharacters')) n -= teamUpAmount(t);
       for (const c of hasEstablishedAnywhere(state, p, 'discountTag')) {
         const eff = charDef(c.defId).established!.effect as { tag: string; amount: number };
         if (def.tags.includes(eff.tag)) n -= eff.amount;
@@ -315,13 +320,31 @@ export function threatForceNeeded(state: GameState, t: ThreatInstance): number {
 export function relocationsAllowed(state: GameState, p: PlayerId): number {
   let n = 1 + (state.players[p].relocationsBonus ?? 0);
   for (const c of hasEstablishedAnywhere(state, p, 'extraRelocation')) n += amountOf(c);
+  for (const t of standingAnywhere(state, p, 'extraRelocation')) n += teamUpAmount(t);
   return n;
 }
 
-/** The Bois Caïman oath: Boukman Dutty and Cécile Fatiman both Established here for `owner`. Everything of theirs here is sworn. */
-export function swornAt(state: GameState, owner: PlayerId, location: number): boolean {
+// ---------- Team-ups ----------
+
+/** Both members Established at `location` for `owner`. */
+export function teamUpAssembled(state: GameState, tu: TeamUpDef, owner: PlayerId, location: number): boolean {
   const inside = charsAt(state, location, owner, 'inside').map((c) => c.defId);
-  return inside.includes('boukman_dutty') && inside.includes('cecile_fatiman');
+  return tu.members.every((m) => inside.includes(m));
+}
+/** Standing team-ups of this effect type assembled at `location` for `owner`. */
+export function standingAt(state: GameState, owner: PlayerId, location: number, type: TeamUpStanding['type']): TeamUpDef[] {
+  return TEAM_UPS.filter((t) => t.kind === 'standing' && t.effect.type === type && teamUpAssembled(state, t, owner, location));
+}
+/** Standing team-ups of this effect type assembled anywhere for `owner`. */
+export function standingAnywhere(state: GameState, owner: PlayerId, type: TeamUpStanding['type']): TeamUpDef[] {
+  return TEAM_UPS.filter((t) => t.kind === 'standing' && t.effect.type === type && state.locations.some((l) => teamUpAssembled(state, t, owner, l.index)));
+}
+function teamUpAmount(t: TeamUpDef): number {
+  return (t.effect as { amount?: number }).amount ?? 0;
+}
+/** The Bois Caïman oath: sworn here for `owner`. */
+export function swornAt(state: GameState, owner: PlayerId, location: number): boolean {
+  return standingAt(state, owner, location, 'sworn').length > 0;
 }
 
 export function isBlockedFromEntering(state: GameState, c: CharacterInstance): string | null {
@@ -400,8 +423,8 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
       plays.push({
         cardId,
         kind: 'event',
-        // Events go in the Event slot under a Location: one per Location per player per turn.
-        locations: state.locations.filter((l) => !l.lost).map((l) => l.index),
+        // Events go in the Event slot under a Location: one per Location per player per turn. The oath needs a Threat to swear against.
+        locations: state.locations.filter((l) => !l.lost && (def.effect.type !== 'oath' || l.threats.length > 0)).map((l) => l.index),
         needsLocation: true,
         directEntry: false,
       });

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { CARD_BY_ID } from '../../engine';
+import { CARD_BY_ID, teamUpsFor } from '../../engine';
 import { CardFace } from './CardFace';
 import { cardName, useDisplay } from '../display';
 import { sfx } from '../audio';
@@ -123,6 +123,18 @@ export function CodexSheet({ id, label, onClose, children, flat }: { id: string;
             )}
           </div>
           )}
+          {def.kind === 'character' &&
+            teamUpsFor(id).map((t) => {
+              const partner = t.members.find((m) => m !== id)!;
+              return (
+                <div className="cx-teamup" key={t.id}>
+                  <span className="cx-teamup-k">Team-up</span>
+                  <span>
+                    with <b>{cardName(partner, placeholders)}</b>: <i>{t.name}</i>, {t.kind === 'once' ? 'once a match' : 'while both stay Inside'}. <small>{t.text}</small>
+                  </span>
+                </div>
+              );
+            })}
           {children && <div className="cx-tray">{children}</div>}
         </div>
         {history && (

@@ -131,12 +131,6 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - blurb: The house band of the Cotton Club: Duke Ellington's orchestra from 1927 to 1931, Cab Calloway's after it. The club's radio wire carried them across the country.
 - history: The Cotton Club hired its house bands to play the floor shows, two a night, and to broadcast. Duke Ellington's orchestra opened there on 4 December 1927, after King Oliver had turned the job down, and the nightly radio broadcasts from the bandstand made it the best-known Black orchestra in the country; "Black and Tan Fantasy", "The Mooche" and "Mood Indigo" date from those years, and Johnny Hodges, Harry Carney and Cootie Williams joined the band while it was there. Cab Calloway's orchestra took over in 1931, the year of "Minnie the Moocher", and Jimmie Lunceford's followed in 1934. The revues the bands played were written by white songwriters for the room: Jimmy McHugh and Dorothy Fields ("I Can't Give You Anything but Love", 1928), then Harold Arlen and Ted Koehler ("Stormy Weather", sung by Ethel Waters in 1933). The musicians, the singers and the chorus were Black; the audience they played to was not allowed to be.
 
-### Claudette Colvin (`claudette_colvin`)
-- cost 1 · Influence 2 · Force 1 · historical · era: 1939–
-- reveal: Keeps her seat: she cannot be displaced this turn.
-- blurb: Fifteen years old, Montgomery, March 1955. Nine months before Rosa Parks, she refused to move and was dragged off the bus.
-- history: On 2 March 1955, fifteen-year-old Claudette Colvin refused to give up her seat on a segregated Montgomery bus and was arrested, nine months before Rosa Parks. Movement leaders passed her over as the public face of the boycott, but she became one of the four plaintiffs in Browder v. Gayle, the 1956 case in which the Supreme Court struck down bus segregation in Alabama. Her juvenile record was finally expunged in 2021.
-
 ### Bass Reeves (`bass_reeves`)
 - cost 1 · Influence 2 · Force 3 · historical · era: 1838–1910
 - reveal: Confront one neutral Threat here with +1 Force.
@@ -524,7 +518,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 ### Boukman Dutty (`boukman_dutty`)
 - cost 8 · Influence 5 · Force 6 · historical · era: d. 1791
 - reveal: Uprising: every Character at your Gates, at every Location, enters Inside now, Ready or not. Only a block or a full Inside stops one.
-- passive: Costs 1 less for each of your Characters on the board with the Rebellion tag. Bois Caïman: with Cécile Fatiman Established beside him, everything of yours at this Location is sworn: nothing displaces, sends back, blocks, suppresses or hexes it while both remain Inside.
+- passive: Costs 1 less for each of your Characters on the board with the Rebellion tag.
 - blurb: The Bois Caïman ceremony, and a week later the north of Saint-Domingue was burning.
 - history: Dutty Boukman was a Jamaican-born enslaved man, a Vodou priest and a coachman on a plantation in the northern plain of Saint-Domingue. On the night of 14 August 1791 he presided, with the priestess Cécile Fatiman, over the ceremony at Bois Caïman where enslaved leaders swore to rise. The revolt began a week later and became the Haitian Revolution. Boukman was killed in November 1791 and the French displayed his head in Cap-Français to prove he was dead.
 
@@ -532,7 +526,6 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - cost 2 · Influence 2 · Force 2 · historical · era: c. 1771–1883
 - reveal: Ceremony: the most expensive card in your hand costs 2 less.
 - established: Your Characters with the Rebellion tag cost 2 less Energy.
-- passive: Bois Caïman: with Boukman Dutty Established beside them, everything of yours at this Location is sworn. Nothing displaces, sends back, blocks, suppresses or hexes it while both remain Inside.
 - blurb: The mambo at Bois Caïman. Lived to be over a hundred and saw the republic she helped start.
 - history: Cécile Fatiman was a Vodou priestess, a mambo, born around 1771 to an enslaved African mother and a Corsican father. Accounts of the Bois Caïman ceremony of August 1791 describe her presiding alongside Boukman, sacrificing a black pig and being possessed by the lwa Erzulie as the assembled leaders swore their oath. She later married Louis Michel Pierrot, who became president of Haiti, and is said to have lived to 112, dying in 1883.
 
@@ -561,6 +554,12 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - text: This turn none of your Characters, anywhere, can be blocked or displaced. Choose a Location: your Characters there also confront Threats with +2 Force.
 - blurb: Deacons for Defense, armed porches, neighbors who showed up.
 - history: The Deacons for Defense and Justice formed in Jonesboro, Louisiana, in 1964 and spread to Bogalusa and beyond: armed Black men, many of them veterans, who escorted civil rights workers and guarded their neighborhoods against Klan attacks when the police would not. Their presence let nonviolent campaigns keep going.
+
+### Bois Caïman (`bois_caiman`)
+- cost 3
+- text: The oath: choose a Location with a Threat. Until that Threat is neutralized, every Character there, yours and theirs, confronts it every turn with full Force, and nobody relocates out.
+- blurb: A pig, an oath, a week. Then the north of Saint-Domingue burned.
+- history: On the night of 14 August 1791, in the Alligator Woods near Morne Rouge in the northern plain of Saint-Domingue, enslaved leaders from the surrounding plantations met in a Vodou ceremony presided over by Boukman Dutty and the priestess Cécile Fatiman, sacrificed a black pig and swore together to rise. The revolt began on 22 August and became the Haitian Revolution; by 1804 Haiti was the first Black republic. Bois Caïman is remembered in Haiti as the night the oath was taken.
 
 ### The Ancestors (`the_ancestors`)
 - cost 0
@@ -711,7 +710,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 - `influence`: Influence: how much this Character counts toward controlling its Location. Gate Characters count; Established Characters (Inside) count +1 more.
 - `force`: Force: strength when confronting Threats or answering a challenge. Force never attacks players directly.
-- `sworn`: Sworn: Boukman Dutty and Cécile Fatiman stand together Inside here. Nothing displaces, sends back, blocks, suppresses or hexes their side's Characters at this Location while both remain.
+- `oath`: The oath at Bois Caïman: until the Threat here is broken, every Character at this Location, both sides, confronts it every turn, and nobody relocates out.
 - `treatyTorn`: No treaty: Taytu Betul tore it up. Any Event the other side plays at this Location this turn is torn up before it resolves.
 - `lastWord`: THE LAST WORD: the ninth turn, here only because somebody stood on business. Both sides get 10 Energy and an extra card. Whatever stands after this turn is the legacy.
 - `rebuilt`: Rebuilt: this Location was Lost, and the people who stayed put it back up. It is back in play, and everyone who stayed gained +1 Influence.
@@ -878,8 +877,11 @@ Rules
 - Word spreads. Clearing a Threat is heard at every other open Location: +1 lasting Influence at each of them. Alone, you take all of it; together, it splits by Force contributed (rounded down, the remainder to the larger share; equal shares split evenly). Everyone who helped gains a Legend. At Legend …, your Characters arrive at the Gates Ready, played or relocated: you have people everywhere.
 - A Setback is a loss suffered at the hands of injustice: a Threat or a hostile Location working against you. Your opponent's cards never cause one. Reparations converts Setbacks into lasting Influence on a Location; it counts at the end no matter when you play it.
 - Unresolved crises can make a Location Lost: nobody wins it.
-### The oath at Bois Caïman
-- Get Boukman Dutty and Cécile Fatiman both Established at the same Location and it is sworn for you: nothing displaces, sends back, blocks, suppresses or hexes your Characters there, Threats cannot act on them, and the oath holds while both remain Inside. Move or lose either one and it breaks.
+### Team-ups
+- Some pairs belong together. Get both Established at the same Location for your side and the team-up fires: its name shows on the Location panel and in the log, and each card's Codex entry says who it teams with and what happens.
+- Standing team-ups hold while both stay Inside there and break the turn one leaves: Bois Caïman (Boukman Dutty and Cécile Fatiman: nothing displaces, sends back, blocks, suppresses or hexes your Characters there, and Threats cannot act on them), The Raid (John Brown and Harriet Tubman: +2 Force against Threats there), Tuskegee (Booker T. Washington and George Washington Carver: your Characters cost 1 less), The Pilots (Harriet Tubman and Robert Smalls: +1 Relocation a turn), Sweet Auburn (Madam C.J. Walker and Alonzo Herndon: +1 Energy a turn), The Maroons (Nanny of the Maroons and Zumbi dos Palmares: your arrivals at those Gates are Ready at once).
+- Once a match team-ups fire for whoever assembles them first, and then the window is closed for both players, whichever side holds the cards: Adwa (Menelik II and Taytu Betul: every Threat at that Location is broken), Free African Society (Richard Allen and Absalom Jones: +3 Energy next turn), Vigilance (David Ruggles and William Still: every Informant planted on you, anywhere, is sent back to the planter's hand), Reconstruction (Thaddeus Stevens and Charles Sumner: +1 lasting Influence for you at every Location), Iron and Thunder (Ogun and Shango: every Threat at that Location needs 3 less Force, for good), Rent Party (Zora Neale Hurston and the Cotton Club Orchestra: your other Characters there gain +1 Influence for good), The Press (Ida B. Wells and John Russwurm: draw 2).
+- The Event Bois Caïman is a different oath: play it on a Location with a Threat, and until that Threat is neutralized every Character there, yours and theirs, confronts it every turn with full Force, and nobody relocates out. Only Harriet Tubman's Reveal moves anyone.
 ### Special arrivals
 - Straight Inside (Sleeping Car Porters) always goes Inside the turn it is played. Direct Entry (Bessie Coleman) may: tap ⇅ on the planned move to choose Gates or Inside.
 - The Ancestors are never in a deck. In one match out of four, holding three Characters Inside at Accra, Ghana brings them to your hand. Play them while planning to see your opponent's plan for the turn and every danger the board is about to spring.
@@ -1584,6 +1586,8 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - art ${loc.revealed ? 'reveal-anim' : 'hidden-art'}
 - linear-gradient(135deg, hsl(${(loc.defId.length * 47) % 360} 30% 24%), hsl(${(loc.defId.length * 47 + 60) % 360} 30% 14%))
 - ${def.name} arrives in ${Math.max(0, loc.revealedTurn + def.transformsInto.afterTurns - view.turn)} turn(s): everyone aboard gains +1 Influence and Gate Characters walk straight in.
+- lost-tag teamup ${t.owner === me ? 'mine' : 'theirs'}
+- Team-up, ${TEAM_UP_BY_ID[t.id].name} (${view.players[t.owner].handle}): ${TEAM_UP_BY_ID[t.id].text} It holds while both remain Inside.
 - line ${winner && winner !== 'lost' ? 
 - threat-col ${has ? '' : 'empty'}
 - LOST: ${loc.lostReason ?? 'an unresolved crisis'} Neither player can win here.
@@ -1637,6 +1641,8 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${name(state, c)} would rise again, but ${ps.handle}'s hand is full: she is discarded (${reason}).
 - ${name(state, c)} rises again: instead of being displaced (${reason}) she returns to ${ps.handle}'s hand and costs 0 the next time.
 - ${charDef(def.id).name} tricks ${charDef(target.defId).name} into waiting again.
+- ${threatName(state, t)} at ${locName(state, loc)} is broken at ${tu.name}.
+- ${tu.name}: ${sdef.name} is found out at ${locName(state, spy.location)} and sent back to ${home.handle}.
 - ${who} ${verb}.
 - ${name(state, c)} could not be displaced: no open Gate.
 - ${name(state, c)} is displaced from ${locName(state, from)} to the Gates of ${locName(state, dest)} (${reason}).
@@ -1732,6 +1738,8 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${def.name}: +${base + home} lasting Influence at ${locName(state, at)} (${ps.setbacks} Setback${ps.setbacks === 1 ? '' : 's'}${home ? 
 - ${def.name}: ${ps.handle} has been warned.${home ? 
 - ${def.name}: ${ps.handle} draws ${n} card${n > 1 ? 's' : ''}${crowd ? 
+- ${def.name}: no Threat at ${locName(state, at)} to swear against. Nothing happens.
+- ${def.name}: the oath is sworn at ${locName(state, at)}. Until ${threatName(state, t)} is broken, everyone here, both sides, confronts it every turn, and nobody leaves.
 - ${def.name}: none of ${ps.handle}'s Characters can be blocked or displaced this turn, and those at ${locName(state, play.location)} confront with +${def.effect.force} Force.
 - ${state.players[p].handle} steps off. ${state.players[other(p)].handle} wins ${state.stakes} Legacy.
 - ${state.players[p].handle}'s plan was illegal (${errs[0]}) and became a pass.
@@ -1750,8 +1758,9 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${state.players[p].handle}'s ${eventDef(play.cardId).name} at ${locName(state, play.location)} is torn up before it resolves: Taytu Betul will have no treaty here.
 - ${name(state, c)} cannot enter ${locName(state, c.location)}: ${blocked}.
 - ${name(state, c)} cannot enter ${locName(state, c.location)}: no room Inside.
-- Bois Caïman: Boukman Dutty and Cécile Fatiman stand together Inside ${locName(state, l.index)}. The oath is sworn: nothing displaces, sends back, blocks, suppresses or hexes ${state.players[p].handle}'s Characters here while both remain.
-- The oath at ${locName(state, l.index)} is broken: ${state.players[p].handle}'s pair no longer stands together Inside.
+- Team-up, ${tu.name}: ${pair.map((c) => charDef(c.defId).name).join(' and ')} stand together Inside ${locName(state, l.index)}. ${tu.text} It holds while both remain.
+- ${tu.name} is broken at ${locName(state, l.index)}: ${state.players[p].handle}'s pair no longer stands together Inside.
+- Team-up, ${tu.name}: ${pair.map((c) => charDef(c.defId).name).join(' and ')} stand together Inside ${locName(state, l.index)}, and ${state.players[p].handle} claims it first. ${tu.text} Once a match: the window is closed.
 - ${name(state, c)} confronts ${threatName(state, t)} with ${f} Force${isAssist(t, c.owner) ? ' (Assist)' : ''}.
 - Showdown at ${locName(state, loc.index)}: ${f.A + f.B} Force against ${threatName(state, t)}${def.requiresBoth ? ' (both sides needed)' : 
 - ${threatName(state, t)} at ${locName(state, loc.index)} holds (${f.A + f.B}/${needed} Force).
@@ -1761,6 +1770,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${name(state, c)} earns Solidarity.
 - ${name(state, ida)} gains +${amt} Influence.
 - ${name(state, house)}: the association pays out; ${state.players[p].handle} draws ${n} card${n > 1 ? 's' : ''}.
+- The oath at ${locName(state, loc.index)} is kept: the Threat is broken and everyone may leave.
 - Both players call on ${SUMMON.name} at ${locName(state, sA)}: ${state.players.A.handle} ${contrib.A} Force, ${state.players.B.handle} ${contrib.B} Force (${total}/${SUMMON.force}).
 - ${threatName(state, t)} at ${locName(state, sA)} dissolves before ${SUMMON.name}.
 - ${SUMMON.name} manifests at ${locName(state, sA)}. Every Character there gains +1 Influence, both players draw a card, and this Location can never be Lost.

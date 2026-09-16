@@ -32,7 +32,7 @@ const RANDOM_DECK = { key: 'random', name: 'Random', style: 'Ten random Characte
 const TAGLINE: Record<string, string> = {
   railroad: 'Movement and organizing. Harriet moves people, John Brown breaks Threats.',
   blackstar: 'Mobility and return. Relocate freely, come back when pushed out.',
-  caiman: 'The cost flow. Prices fall, then the Uprising sends everyone Inside.',
+  caiman: 'The cost flow. Prices fall, then the Uprising sends everyone Inside and the oath makes both sides fight.',
   pantheon: 'Four orisha with the church behind them. Call Black Jesus.',
   mirror: 'Both players get the same cards. The cleanest test.',
   random: 'Ten random Characters plus both Events. Different every match.',

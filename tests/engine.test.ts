@@ -988,8 +988,8 @@ describe('Taytu Betul', () => {
   });
 });
 
-describe('The oath at Bois Caïman', () => {
-  it('with both Established, nothing displaces, challenges, hexes or blocks their side there; one alone is no oath', () => {
+describe('Team-ups', () => {
+  it('Bois Caïman stands while both are Inside: nothing displaces, challenges or hexes their side there; one alone is no oath', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'juneteenth'], revealAll: true, handB: ['toussaint_louverture', 'marie_laveau', 'og'] });
     addChar(s, 'boukman_dutty', 'A', 0, 'inside');
     const cecile = addChar(s, 'cecile_fatiman', 'A', 0, 'inside');
@@ -997,22 +997,83 @@ describe('The oath at Bois Caïman', () => {
     const gate = addChar(s, 'organizer', 'A', 0, 'gate');
     let r = resolveTurn(s, { A: pass(), B: { ...pass(), plays: [{ cardId: 'toussaint_louverture', location: 0 }, { cardId: 'marie_laveau', location: 0 }] } });
     s = r.state;
-    expect(r.events.some((e) => (e.data as { sworn?: boolean } | undefined)?.sworn === true)).toBe(true);
-    expect(s.locations[0].sworn?.A).toBe(true);
+    expect(r.events.some((e) => (e.data as { teamUp?: string; formed?: boolean } | undefined)?.teamUp === 'bois_caiman' && (e.data as { formed?: boolean }).formed)).toBe(true);
+    expect(s.locations[0].teamUps).toEqual([{ id: 'bois_caiman', owner: 'A' }]);
     expect(s.characters[weak.uid].zone).toBe('inside'); // Toussaint's challenge cannot move him
     expect(s.characters[gate.uid].permInfluence).toBe(0); // Laveau's hex finds nobody
-    // The Mob leaves them alone too.
     spawnThreat(s, 0, 'mob', []);
     s = resolveTurn(s, { A: pass(), B: pass() }).state;
     expect(charsOf(s, 'A').filter((c) => c.location === 0).length).toBe(4);
-    // Cécile steps out: the oath breaks, and Toussaint's next challenge lands.
     s.characters[cecile.uid].zone = 'gate';
-    s.players.B.hand = ['toussaint_louverture'];
     s.locations[0].threats = [];
-    r = resolveTurn(s, { A: pass(), B: { ...pass(), plays: [{ cardId: 'toussaint_louverture', location: 1 }] } });
+    r = resolveTurn(s, { A: pass(), B: pass() });
     s = r.state;
-    expect(s.locations[0].sworn?.A).toBe(false);
-    expect(r.events.some((e) => (e.data as { sworn?: boolean } | undefined)?.sworn === false)).toBe(true);
+    expect(s.locations[0].teamUps).toEqual([]);
+    expect(r.events.some((e) => (e.data as { teamUp?: string; formed?: boolean } | undefined)?.teamUp === 'bois_caiman' && (e.data as { formed?: boolean }).formed === false)).toBe(true);
+  });
+  it('Adwa fires once, for whoever assembles it first: the other side gets nothing later', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'juneteenth'], revealAll: true });
+    spawnThreat(s, 0, 'housing_restriction', []);
+    spawnThreat(s, 0, 'segregationist_patrol', []);
+    spawnThreat(s, 1, 'housing_restriction', []);
+    addChar(s, 'menelik_ii', 'A', 0, 'inside');
+    addChar(s, 'taytu_betul', 'A', 0, 'inside');
+    let r = resolveTurn(s, { A: pass(), B: pass() });
+    s = r.state;
+    expect(s.locations[0].threats).toHaveLength(0);
+    expect(s.teamUps.adwa).toMatchObject({ claimedBy: 'A', location: 0 });
+    expect(r.events.some((e) => (e.data as { teamUp?: string; once?: boolean } | undefined)?.teamUp === 'adwa')).toBe(true);
+    // B assembles the same pair at Location 2: the window is closed.
+    addChar(s, 'menelik_ii', 'B', 1, 'inside');
+    addChar(s, 'taytu_betul', 'B', 1, 'inside');
+    r = resolveTurn(s, { A: pass(), B: pass() });
+    s = r.state;
+    expect(s.locations[1].threats).toHaveLength(1);
+    expect(s.teamUps.adwa.claimedBy).toBe('A');
+  });
+  it('Tuskegee is a standing discount on top of Booker\'s own; The Press draws two, once', () => {
+    let s = rig(createMatch({ seed: 5 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, energy: true, handA: ['nat_turner'] });
+    addChar(s, 'booker_t_washington', 'A', 0, 'inside');
+    expect(cardCost('nat_turner', s, 'A')).toBe(1);
+    addChar(s, 'george_washington_carver', 'A', 0, 'inside');
+    expect(cardCost('nat_turner', s, 'A')).toBe(0);
+    let t = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'juneteenth'], revealAll: true });
+    addChar(t, 'ida_b_wells', 'A', 2, 'inside');
+    addChar(t, 'john_russwurm', 'A', 2, 'inside');
+    t.players.A.hand = ['reparations'];
+    t = resolveTurn(t, { A: pass(), B: pass() }).state;
+    expect(t.players.A.hand.length).toBe(1 + 2 + 1); // two from The Press, one at the turn start
+    expect(t.teamUps.the_press.claimedBy).toBe('A');
+  });
+});
+
+describe('Bois Caïman, the Event', () => {
+  it('needs a Threat, then everyone there fights it every turn, both sides, and nobody leaves until it breaks', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'juneteenth'], revealAll: true, handA: ['bois_caiman'] });
+    // No Threat anywhere: the card has nowhere to go.
+    expect(legalOptions(s, 'A').plays.find((o) => o.cardId === 'bois_caiman')?.locations ?? []).toEqual([]);
+    spawnThreat(s, 0, 'housing_restriction', []); // 4 Force
+    expect(legalOptions(s, 'A').plays.find((o) => o.cardId === 'bois_caiman')?.locations).toEqual([0]);
+    const mine = addChar(s, 'organizer', 'A', 0, 'inside'); // Force 1
+    const theirs = addChar(s, 'bud_billiken', 'B', 0, 'gate'); // Force 1
+    const needed = s.locations[0].threats[0].forceRequired;
+    let r = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'bois_caiman', location: 0 }] }, B: pass() });
+    s = r.state;
+    const fought = r.events.filter((e) => e.type === 'threatActs' && /confronts/.test(e.text)).map((e) => e.uid);
+    expect(fought).toContain(mine.uid);
+    expect(fought).toContain(theirs.uid);
+    // Two Force against a bigger Threat: it holds, the oath stands, and nobody may relocate.
+    expect(s.locations[0].threats).toHaveLength(needed > 2 ? 1 : 0);
+    expect(lockReason(s, s.characters[mine.uid])).toMatch(/oath/);
+    expect(legalOptions(s, 'B').relocations.some((x) => x.uid === theirs.uid)).toBe(false);
+    // Reinforcements arrive; next turn everyone is thrown in again and the Threat breaks, which lifts the oath.
+    addChar(s, 'queen_nzinga', 'A', 0, 'inside');
+    r = resolveTurn(s, { A: pass(), B: pass() });
+    s = r.state;
+    expect(s.locations[0].threats).toHaveLength(0);
+    expect(s.locations[0].oath).toBeUndefined();
+    expect(r.events.some((e) => (e.data as { oath?: boolean } | undefined)?.oath === false)).toBe(true);
+    expect(lockReason(s, s.characters[mine.uid])).toBeNull();
   });
 });
 

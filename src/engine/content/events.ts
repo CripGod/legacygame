@@ -29,6 +29,20 @@ export const EVENTS: EventDef[] = [
   },
   {
     kind: 'event',
+    id: 'bois_caiman',
+    name: 'Bois Caïman',
+    short: 'Bois Caïman',
+    summary: 'Everyone at a Location with a Threat fights it every turn, both sides, and nobody leaves until it breaks.',
+    cost: 3,
+    text: 'The oath: choose a Location with a Threat. Until that Threat is neutralized, every Character there, yours and theirs, confronts it every turn with full Force, and nobody relocates out.',
+    effect: { type: 'oath' },
+    needsLocation: true,
+    blurb: 'A pig, an oath, a week. Then the north of Saint-Domingue burned.',
+    history:
+      'On the night of 14 August 1791, in the Alligator Woods near Morne Rouge in the northern plain of Saint-Domingue, enslaved leaders from the surrounding plantations met in a Vodou ceremony presided over by Boukman Dutty and the priestess Cécile Fatiman, sacrificed a black pig and swore together to rise. The revolt began on 22 August and became the Haitian Revolution; by 1804 Haiti was the first Black republic. Bois Caïman is remembered in Haiti as the night the oath was taken.',
+  },
+  {
+    kind: 'event',
     id: 'the_ancestors',
     name: 'The Ancestors',
     short: 'Ancestors',

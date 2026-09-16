@@ -24,7 +24,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Missing
 
-### characters (18)
+### characters (15)
 
 - `paul_laurence_dunbar` **Paul Laurence Dunbar** (1872–1906): The first Black poet with a national audience. "We Wear the Mask." Dead of tuberculosis at 33.
 - `cotton_club_orchestra` **The Cotton Club Orchestra** (Harlem, 1927–1940): The house band of the Cotton Club: Duke Ellington's orchestra from 1927 to 1931, Cab Calloway's after it. The club's radio wire carried them across the country.
@@ -41,12 +41,10 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `dave_the_potter` **David Drake** (c. 1801–c. 1875): "Dave the Potter" of Edgefield, South Carolina: an enslaved man who signed, dated and wrote verses on forty-gallon jars when literacy was a crime.
 - `george_washington_carver` **George Washington Carver** (c. 1864–1943): Taught the South to rest its soil and found three hundred uses for the peanut.
 - `marie_laveau` **Marie Laveau** (1801–1881): Hairdresser, healer and the most consulted woman in New Orleans.
-- `boukman_dutty` **Boukman Dutty** (d. 1791): The Bois Caïman ceremony, and a week later the north of Saint-Domingue was burning.
-- `cecile_fatiman` **Cécile Fatiman** (c. 1771–1883): The mambo at Bois Caïman. Lived to be over a hundred and saw the republic she helped start.
-- `omar_ibn_said` **Omar ibn Said** (c. 1770–1864): Twenty-five years a scholar in Futa Toro, fifty-six years enslaved in Carolina, and he kept writing.
 
-### events (2)
+### events (3)
 
+- `bois_caiman` **Bois Caïman**: A pig, an oath, a week. Then the north of Saint-Domingue burned.
 - `the_ancestors` **The Ancestors**: Never in a deck. In one match out of four they come to whoever holds three Characters Inside at Accra, Ghana.
 - `word_of_mouth` **Word of Mouth**: Free, fast and usually right. It travels further where more of your people are.
 
@@ -74,7 +72,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Have
 
-- characters: abraham_lincoln, absalom_jones, alonzo_herndon, anansi, ayuba_suleiman_diallo, bass_reeves, bessie_coleman, black_jesus, booker_t_washington, bud_billiken, callie_house, cathay_williams, chairteenth, charles_sumner, claudette_colvin, daniel_payne, david_ruggles, denmark_vesey, edmonia_lewis, elizabeth_freeman, frederick_douglass, harriet_powers, harriet_tubman, henry_mcneal_turner, henry_ossawa_tanner, ida_b_wells, james_lafayette, john_brown, john_russwurm, katherine_johnson, lewis_hayden, madam_cj_walker, mami_wata, mansa_musa, marcus_garvey, mary_ann_shadd_cary, mary_ellen_pleasant, mary_seacole, menelik_ii, nanny_of_the_maroons, nehanda, og, ogun, organizer, oshun, queen_nzinga, richard_allen, robert_smalls, samuel_ajayi_crowther, scott_joplin, shango, sleeping_car_porters, sojourner_truth, thaddeus_stevens, tom_bass, toussaint_louverture, victor_hugo_green, william_parker, william_still, yemoja, zora_neale_hurston, zumbi_dos_palmares
+- characters: abraham_lincoln, absalom_jones, alonzo_herndon, anansi, ayuba_suleiman_diallo, bass_reeves, bessie_coleman, black_jesus, booker_t_washington, boukman_dutty, bud_billiken, callie_house, cathay_williams, cecile_fatiman, chairteenth, charles_sumner, claudette_colvin, daniel_payne, david_ruggles, denmark_vesey, edmonia_lewis, elizabeth_freeman, frederick_douglass, harriet_powers, harriet_tubman, henry_mcneal_turner, henry_ossawa_tanner, ida_b_wells, james_lafayette, john_brown, john_russwurm, katherine_johnson, lewis_hayden, madam_cj_walker, mami_wata, mansa_musa, marcus_garvey, mary_ann_shadd_cary, mary_ellen_pleasant, mary_seacole, menelik_ii, nanny_of_the_maroons, nehanda, og, ogun, omar_ibn_said, organizer, oshun, queen_nzinga, richard_allen, robert_smalls, samuel_ajayi_crowther, scott_joplin, shango, sleeping_car_porters, sojourner_truth, thaddeus_stevens, tom_bass, toussaint_louverture, victor_hugo_green, william_parker, william_still, yemoja, zora_neale_hurston, zumbi_dos_palmares
 - events: community_defense, reparations
 - threats: comfortable_complicity, housing_restriction, mob, paddy_roller, segregationist_patrol
 - locations: accra_ghana, black_star, gary_indiana, great_migration, greenwood, harpers_ferry, juneteenth, lagos, sundown_town

@@ -71,6 +71,7 @@ export function createMatch(opts: MatchOptions): GameState {
     },
     locations,
     revealOrder,
+    teamUps: {},
     characters: {},
     initiative: nextInt(rng, 2) === 0 ? 'A' : 'B',
     stakes: 1,

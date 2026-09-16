@@ -17,7 +17,7 @@ import {
 import { initials, locationName, threatLabel, useDisplay } from '../display';
 import { Pic } from './CardFace';
 import { Art } from './Art';
-import { charDef, confrontForce, threatForceNeeded, isNight, lockReason, LOCATION_BY_ID, CARD_BY_ID } from '../../engine';
+import { charDef, confrontForce, threatForceNeeded, isNight, lockReason, LOCATION_BY_ID, CARD_BY_ID, TEAM_UP_BY_ID } from '../../engine';
 
 /** A Location under curfew right now: a curfew Location at night. */
 function curfewOn(view: GameState, index: number): boolean {
@@ -537,7 +537,8 @@ export function Battlefield(props: BattlefieldProps) {
                 {!loc.lost && loc.rebuilt && <span className="lost-tag rebuilt" {...tip(HINTS.rebuilt)}>REBUILT</span>}
                 {!loc.lost && loc.webbed && <span className="lost-tag webbed" {...tip(HINTS.webbed)}>WEBBED</span>}
                 {!loc.lost && loc.treatyTorn && view.turn <= loc.treatyTorn.until && <span className="lost-tag treaty" {...tip(HINTS.treatyTorn)}>NO TREATY</span>}
-                {!loc.lost && (loc.sworn?.A || loc.sworn?.B) && <span className="lost-tag sworn" {...tip(HINTS.sworn)}>SWORN</span>}
+                {!loc.lost && loc.teamUps?.map((t) => <span key={`${t.id}-${t.owner}`} className={`lost-tag teamup ${t.owner === me ? 'mine' : 'theirs'}`} {...tip(`Team-up, ${TEAM_UP_BY_ID[t.id].name} (${view.players[t.owner].handle}): ${TEAM_UP_BY_ID[t.id].text} It holds while both remain Inside.`)}>{TEAM_UP_BY_ID[t.id].name.toUpperCase()}</span>)}
+                {!loc.lost && loc.oath && loc.threats.some((t) => t.uid === loc.oath!.threatUid) && <span className="lost-tag oath" {...tip(HINTS.oath)}>OATH</span>}
                 {!loc.lost && loc.revealed && curfewOn(view, loc.index) && <span className="lost-tag curfew" {...tip(HINTS.locked)}>CURFEW</span>}
                 {!loc.lost && hasCurfew && !curfewOn(view, loc.index) && <span className="lost-tag daytag" {...tip(HINTS.dayNight)}>☀ DAY</span>}
                 {!loc.lost && nightHere && <span className="lost-tag nighttag" {...tip(HINTS.dayNight)}>🌙 NIGHT</span>}

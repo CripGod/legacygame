@@ -7,7 +7,7 @@
  *   4 voluntary Relocations · 5 Gate→Inside · 6 Enter effects · 7 Established recalculation
  *   8 Threat actions · 9 Assists · 10 cleanup · 11 Influence update
  */
-import { charDef, cardDef, eventDef, LOCATION_BY_ID, THREAT_BY_ID, SUMMON, EVENTS, CARD_BY_ID } from './content';
+import { charDef, cardDef, eventDef, LOCATION_BY_ID, THREAT_BY_ID, SUMMON, EVENTS, CARD_BY_ID, TEAM_UPS, type TeamUpDef } from './content';
 import { nextFloat, pick } from './rng';
 import { drawCard, locName, spawnThreat, startTurn, retellLocation } from './setup';
 import {
@@ -33,7 +33,7 @@ import {
   threatForceNeeded,
   validatePlan,
   cardCost,
-  lockReason, swornAt } from './query';
+  lockReason, swornAt, teamUpAssembled, standingAt } from './query';
 import type { CharacterDef, CharacterInstance, GameEvent, GameState, MatchResult, PlayAction, PlayerId, ResolveOptions, ResolveOutput, ThreatInstance, TraceStep, TurnPlan } from './types';
 import { MAX_STAKES, standMultiplier, PLAYERS, EXTENDED_TURNS, MAX_HAND, other, emptyPlan, LEGEND_READY } from './types';
 import { GATHERING_DEFS } from './content/characters';
@@ -108,6 +108,52 @@ function trickGate(state: GameState, events: GameEvent[], p: PlayerId, loc: numb
 }
 
 /** Informants are planted on the other side: never Ready, never Inside. */
+/** A once-only team-up fires for whoever assembled it first. */
+function applyTeamUpOnce(state: GameState, tu: TeamUpDef, p: PlayerId, loc: number, events: GameEvent[]): void {
+  const eff = tu.effect;
+  const ps = state.players[p];
+  const here = state.locations[loc];
+  switch (eff.type) {
+    case 'breakThreatsHere': {
+      for (const t of here.threats) events.push({ type: 'threatNeutralized', text: `${threatName(state, t)} at ${locName(state, loc)} is broken at ${tu.name}.`, location: loc, data: { by: p, threatUid: t.uid, defId: t.defId, target: t.target } });
+      here.threats = [];
+      break;
+    }
+    case 'energyNext':
+      ps.energyNextTurn = (ps.energyNextTurn ?? 0) + eff.amount;
+      break;
+    case 'foundOutEverywhere': {
+      for (const spy of Object.values(state.characters)) {
+        if (spy.owner !== p || !isInformant(spy) || !spy.plantedBy) continue;
+        const home = state.players[spy.plantedBy];
+        const sdef = charDef(spy.defId);
+        delete state.characters[spy.uid];
+        if (home.hand.length < MAX_HAND) home.hand.push(sdef.id);
+        else home.discard.push(sdef.id);
+        events.push({ type: 'moved', text: `${tu.name}: ${sdef.name} is found out at ${locName(state, spy.location)} and sent back to ${home.handle}.`, uid: spy.uid, location: spy.location, player: spy.plantedBy, data: { from: spy.location, to: -1, reason: 'exposed' } });
+      }
+      break;
+    }
+    case 'permInfluenceEverywhere':
+      for (const l of state.locations) {
+        l.permInfluence = l.permInfluence ?? { A: 0, B: 0 };
+        l.permInfluence[p] += eff.amount;
+      }
+      break;
+    case 'weakenThreatsHere':
+      for (const t of here.threats) t.forceRequired = Math.max(1, t.forceRequired - eff.amount);
+      break;
+    case 'permInfluenceOthersHere':
+      for (const c of charsAt(state, loc, p)) if (!tu.members.includes(c.defId) && !isInformant(c)) c.permInfluence += eff.amount;
+      break;
+    case 'draw':
+      for (let i = 0; i < eff.count; i++) drawCard(state, p, events);
+      break;
+    default:
+      break;
+  }
+}
+
 function isInformant(c: CharacterInstance): boolean {
   return charDef(c.defId).keywords.includes('INFORMANT') && !c.amnestied;
 }
@@ -1011,6 +1057,16 @@ function playEvent(state: GameState, p: PlayerId, play: PlayAction, events: Game
       events.push({ type: 'info', text: `${def.name}: ${ps.handle} draws ${n} card${n > 1 ? 's' : ''}${crowd ? ` (${def.effect.bonus.crowd}+ Characters at ${locName(state, at)})` : ''}.`, player: p, location: at });
       break;
     }
+    case 'oath': {
+      const t = here.threats[0];
+      if (!t) {
+        events.push({ type: 'info', text: `${def.name}: no Threat at ${locName(state, at)} to swear against. Nothing happens.`, player: p, location: at });
+        break;
+      }
+      here.oath = { threatUid: t.uid, by: p };
+      events.push({ type: 'info', text: `${def.name}: the oath is sworn at ${locName(state, at)}. Until ${threatName(state, t)} is broken, everyone here, both sides, confronts it every turn, and nobody leaves.`, player: p, location: at, data: { oath: true, threatUid: t.uid } });
+      break;
+    }
     case 'communityDefense': {
       ps.defendedLocation = play.location;
       ps.defendedTurn = state.turn;
@@ -1362,19 +1418,29 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     }
   }
 
-  // ---- 7. The oath at Bois Caïman: Boukman Dutty and Cécile Fatiman Established together swear the Location. ----
+  // ---- 7. Team-ups: two who belong together, Established at the same Location for the same side. ----
   for (const l of state.locations) {
     for (const p of PLAYERS) {
-      const now = swornAt(state, p, l.index);
-      const was = !!l.sworn?.[p];
-      if (now && !was) {
-        l.sworn = { ...(l.sworn ?? {}), [p]: true };
-        const pair = charsAt(state, l.index, p, 'inside').filter((c) => c.defId === 'boukman_dutty' || c.defId === 'cecile_fatiman');
-        events.push({ type: 'info', text: `Bois Caïman: Boukman Dutty and Cécile Fatiman stand together Inside ${locName(state, l.index)}. The oath is sworn: nothing displaces, sends back, blocks, suppresses or hexes ${state.players[p].handle}'s Characters here while both remain.`, player: p, location: l.index, uid: pair[0]?.uid, data: { sworn: true } });
-        trace('info', `The oath is sworn at ${locName(state, l.index)}`, { uids: pair.map((c) => c.uid), location: l.index, player: p });
-      } else if (!now && was) {
-        l.sworn = { ...(l.sworn ?? {}), [p]: false };
-        events.push({ type: 'info', text: `The oath at ${locName(state, l.index)} is broken: ${state.players[p].handle}'s pair no longer stands together Inside.`, player: p, location: l.index, data: { sworn: false } });
+      for (const tu of TEAM_UPS) {
+        const now = teamUpAssembled(state, tu, p, l.index);
+        const pair = charsAt(state, l.index, p, 'inside').filter((c) => tu.members.includes(c.defId));
+        if (tu.kind === 'standing') {
+          const list = l.teamUps ?? [];
+          const was = list.some((x) => x.id === tu.id && x.owner === p);
+          if (now && !was) {
+            l.teamUps = [...list, { id: tu.id, owner: p }];
+            events.push({ type: 'info', text: `Team-up, ${tu.name}: ${pair.map((c) => charDef(c.defId).name).join(' and ')} stand together Inside ${locName(state, l.index)}. ${tu.text} It holds while both remain.`, player: p, location: l.index, uid: pair[0]?.uid, data: { teamUp: tu.id, formed: true } });
+            trace('info', `Team-up: ${tu.name}`, { uids: pair.map((c) => c.uid), location: l.index, player: p });
+          } else if (!now && was) {
+            l.teamUps = list.filter((x) => !(x.id === tu.id && x.owner === p));
+            events.push({ type: 'info', text: `${tu.name} is broken at ${locName(state, l.index)}: ${state.players[p].handle}'s pair no longer stands together Inside.`, player: p, location: l.index, data: { teamUp: tu.id, formed: false } });
+          }
+        } else if (now && !state.teamUps[tu.id]) {
+          state.teamUps[tu.id] = { claimedBy: p, turn: state.turn, location: l.index };
+          events.push({ type: 'info', text: `Team-up, ${tu.name}: ${pair.map((c) => charDef(c.defId).name).join(' and ')} stand together Inside ${locName(state, l.index)}, and ${state.players[p].handle} claims it first. ${tu.text} Once a match: the window is closed.`, player: p, location: l.index, uid: pair[0]?.uid, data: { teamUp: tu.id, once: true } });
+          applyTeamUpOnce(state, tu, p, l.index, events);
+          trace('info', `Team-up: ${tu.name}`, { uids: pair.map((c) => c.uid), location: l.index, player: p });
+        }
       }
     }
   }
@@ -1401,6 +1467,12 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
   };
   for (const p of order) for (const cf of plans[p].confronts) addForce(cf.uid, cf.threatUid, 0);
   for (const pc of pendingConfronts) addForce(pc.uid, pc.threatUid, pc.bonus);
+  // The oath at Bois Caïman: everyone at a sworn Location fights its Threat, whether they planned to or not.
+  for (const loc of state.locations) {
+    if (!loc.oath || !loc.threats.some((t) => t.uid === loc.oath!.threatUid)) continue;
+    const already = new Set((forceByThreat.get(loc.oath.threatUid)?.fighters ?? []).map((f) => f.uid));
+    for (const c of charsAt(state, loc.index)) if (!isInformant(c) && !already.has(c.uid)) addForce(c.uid, loc.oath.threatUid, 0);
+  }
   for (const loc of state.locations) {
     const remaining: ThreatInstance[] = [];
     for (const t of loc.threats) {
@@ -1475,6 +1547,10 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       }
     }
     loc.threats = remaining;
+    if (loc.oath && !remaining.some((t) => t.uid === loc.oath!.threatUid)) {
+      events.push({ type: 'info', text: `The oath at ${locName(state, loc.index)} is kept: the Threat is broken and everyone may leave.`, location: loc.index, data: { oath: false } });
+      delete loc.oath;
+    }
     trace('showdown', `Showdown at ${locName(state, loc.index)}`, { location: loc.index });
   }
 
@@ -1602,7 +1678,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       events.push({ type: 'info', text: `${name(state, c)} waits at ${locName(state, c.location)}: the water is cut while ${charDef(cut[0].defId).name} holds the Inside.`, uid: c.uid, player: c.owner, location: c.location });
       continue;
     }
-    const organized = hasEstablished(state, c.owner, c.location, 'freshReadyHere').length > 0 || hasEstablished(state, c.owner, c.location, 'cookout').length > 0;
+    const organized = hasEstablished(state, c.owner, c.location, 'freshReadyHere').length > 0 || hasEstablished(state, c.owner, c.location, 'cookout').length > 0 || standingAt(state, c.owner, c.location, 'freshReadyHere').length > 0;
     if (c.arrivedTurn < state.turn || organized || ldef?.effect.type === 'readyOnArrival') {
       readyUp(c);
       events.push({ type: 'ready', text: `${name(state, c)} is Ready to enter ${locName(state, c.location)}.`, uid: c.uid, player: c.owner });

@@ -127,6 +127,7 @@ export const REFERENCES: Record<string, Reference[]> = {
   dewolf_trade: [wiki('James DeWolf', 'James_DeWolf')],
   // ---- Events
   reparations: [wiki('Reparations for slavery', 'Reparations_for_slavery')],
+  bois_caiman: [wiki('Bois Caïman', 'Bois_Ca%C3%AFman'), wiki('Haitian Revolution', 'Haitian_Revolution')],
 };
 
 export function referencesFor(id: string): Reference[] {

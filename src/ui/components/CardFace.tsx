@@ -83,6 +83,15 @@ function bandFor(def: { id: string; tags: string[] }): [string, string] {
 const bandSize = (w: string) => (w.length >= 14 ? 'xlong' : w.length >= 11 ? 'long' : '');
 
 /* Each viewBox is shifted so the glyph's ink (measured with getBBox) is centred in the box, not just its 64-unit square. */
+/** One-off icons for single cards: Black Jesus wears a cross, not the Mythic bolt. */
+const ICON_OVERRIDES: Record<string, React.ReactNode> = {
+  black_jesus: (
+    <svg viewBox="0 0 64 64">
+      <path d="M32 6v52" />
+      <path d="M14 22h36" />
+    </svg>
+  ),
+};
 const KIND_ICONS: Record<CardKind, React.ReactNode> = {
   historical: (
     <svg viewBox="0 0 64 64">
@@ -240,7 +249,7 @@ export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id
         {cost ?? def.cost}
       </div>
       <div className="tpl-kind" aria-hidden>
-        {KIND_ICONS[kind]}
+        {ICON_OVERRIDES[id] ?? KIND_ICONS[kind]}
       </div>
       {/* The parchment: the name big and black at the top, the tag and era under it in gold, then the rules. */}
       <div className="tpl-body">
