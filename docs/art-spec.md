@@ -24,20 +24,16 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Missing
 
-### characters (38)
+### characters (34)
 
-- `john_russwurm` **John Russwurm** (1799–1851): Co-founded Freedom's Journal in 1827, the first Black-owned newspaper in the United States. "We wish to plead our own cause."
-- `alonzo_herndon` **Alonzo Herndon** (1858–1927): Born enslaved, built the finest barbershop in Atlanta and then Atlanta Life Insurance. Everybody passed through his chairs.
 - `callie_house` **Callie House** (1861–1928): A Nashville washerwoman who built a 300,000-member movement demanding pensions for the formerly enslaved. The government jailed her for it.
 - `denmark_vesey` **Denmark Vesey** (c. 1767–1822): Won a lottery, bought his freedom, built a church and planned an uprising. Hanged with 34 others.
 - `robert_smalls` **Robert Smalls** (1839–1915): Steered a Confederate steamer out of Charleston harbor with his family aboard and handed it to the Union.
-- `madam_cj_walker` **Madam C.J. Walker** (1867–1919): Orphaned laundress who built a hair-care company, thousands of sales agents and the first self-made fortune by an American woman.
 - `paul_laurence_dunbar` **Paul Laurence Dunbar** (1872–1906): The first Black poet with a national audience. "We Wear the Mask." Dead of tuberculosis at 33.
 - `scott_joplin` **Scott Joplin** (1868–1917): The King of Ragtime. "Maple Leaf Rag" sold a million copies; his opera waited sixty years for a stage.
 - `claudette_colvin` **Claudette Colvin** (1939–): Fifteen years old, Montgomery, March 1955. Nine months before Rosa Parks, she refused to move and was dragged off the bus.
 - `bass_reeves` **Bass Reeves** (1838–1910): Born enslaved, fluent in several Native languages, one of the first Black deputy U.S. Marshals west of the Mississippi. Three thousand arrests, never wounded.
 - `tom_bass` **Tom Bass** (1859–1934): The greatest saddle-horse trainer of his day. Invented a bit that never hurt the horse and refused to patent it.
-- `bud_billiken` **Bud Billiken** (Chicago Defender, 1923): The Chicago Defender's mascot for its children's page: guardian of every Black kid, dreamed up in 1923.
 - `roger_taney` **Roger Taney** (1777–1864): Chief Justice who wrote Dred Scott: Black people had "no rights which the white man was bound to respect." Useful to whoever plays him for a turn, then a liability to whoever is winning.
 - `abraham_lincoln` **Abraham Lincoln** (1809–1865): Declared free on New Year's Day 1863 everyone enslaved in the states still in rebellion, the loyal states and a few occupied districts excepted, then spent his last winter whipping the votes for the amendment that freed the rest.
 - `william_lloyd_garrison` **William Lloyd Garrison** (1805–1879): Printed The Liberator every week for thirty-five years and would not retreat a single inch. 'I will be heard.'
@@ -91,7 +87,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Have
 
-- characters: absalom_jones, anansi, bessie_coleman, black_jesus, cathay_williams, chairteenth, daniel_payne, david_ruggles, elizabeth_freeman, frederick_douglass, harriet_tubman, henry_mcneal_turner, ida_b_wells, james_lafayette, john_brown, katherine_johnson, lewis_hayden, mami_wata, mansa_musa, marcus_garvey, mary_ann_shadd_cary, mary_ellen_pleasant, mary_seacole, menelik_ii, og, ogun, organizer, oshun, queen_nzinga, richard_allen, samuel_ajayi_crowther, shango, sleeping_car_porters, sojourner_truth, toussaint_louverture, victor_hugo_green, william_parker, william_still, yemoja, zora_neale_hurston, zumbi_dos_palmares
+- characters: absalom_jones, alonzo_herndon, anansi, bessie_coleman, black_jesus, bud_billiken, cathay_williams, chairteenth, daniel_payne, david_ruggles, elizabeth_freeman, frederick_douglass, harriet_tubman, henry_mcneal_turner, ida_b_wells, james_lafayette, john_brown, john_russwurm, katherine_johnson, lewis_hayden, madam_cj_walker, mami_wata, mansa_musa, marcus_garvey, mary_ann_shadd_cary, mary_ellen_pleasant, mary_seacole, menelik_ii, og, ogun, organizer, oshun, queen_nzinga, richard_allen, samuel_ajayi_crowther, shango, sleeping_car_porters, sojourner_truth, toussaint_louverture, victor_hugo_green, william_parker, william_still, yemoja, zora_neale_hurston, zumbi_dos_palmares
 - events: community_defense, reparations
 - threats: comfortable_complicity, housing_restriction, mob, paddy_roller, segregationist_patrol
 - locations: accra_ghana, black_star, gary_indiana, great_migration, greenwood, harpers_ferry, juneteenth, lagos, sundown_town
