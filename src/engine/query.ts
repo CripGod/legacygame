@@ -141,6 +141,7 @@ export function charInfluence(state: GameState, c: CharacterInstance): number {
     v += INSIDE_INFLUENCE_BONUS;
     if (ldef?.effect.type === 'insideInfluence') v += ldef.effect.amount;
     if (ldef?.effect.type === 'nightInside' && isNight(state)) v += ldef.effect.amount;
+    if (ldef?.effect.type === 'showcase') v += ldef.effect.amount + (def.tags.includes(ldef.effect.tag) ? ldef.effect.tagBonus : 0);
     for (const d of hasEstablished(state, c.owner, c.location, 'auraInfluenceOthersHere')) {
       if (d.uid !== c.uid) v += amountOf(d);
     }
@@ -319,7 +320,8 @@ export function isBlockedFromEntering(state: GameState, c: CharacterInstance): s
   if (hasEstablished(state, c.owner, c.location, 'sanctuary').length) return null;
   if (state.players[c.owner].defendedTurn === state.turn) return null;
   if (c.blockedEnterTurn === state.turn) return 'blocked by an opposing Character';
-  if (threatActiveFor(state, c.location, 'blockEntry', c.owner)) return 'blocked by Segregationist Patrol';
+  const door = state.locations[c.location].threats.find((t) => THREAT_BY_ID[t.defId].effect === 'blockEntry' && (!THREAT_BY_ID[t.defId].split || t.target === c.owner));
+  if (door) return `blocked by ${THREAT_BY_ID[door.defId].name}`;
   return null;
 }
 

@@ -1351,9 +1351,9 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         }
         if (!c.ready) return { text: `${nm} is Fresh: it arrived this turn and waits one turn at the Gates before it can enter.`, shake: [tile] };
         const blocked = isBlockedFromEntering(view, c);
-        if (blocked?.includes('Patrol')) {
-          const patrol = view.locations[i].threats.find((t) => t.defId === 'segregationist_patrol' && (!t.target || t.target === me));
-          return { text: `Segregationist Patrol blocks your entries at ${locNameAt(i)}. Neutralize it with ${patrol?.forceRequired ?? 3} Force in one turn.`, shake: patrol ? [`[data-threat="${patrol.uid}"]`] : [] };
+        if (blocked?.startsWith('blocked by ') && !blocked.includes('opposing Character')) {
+          const door = view.locations[i].threats.find((t) => THREAT_BY_ID[t.defId]?.effect === 'blockEntry' && (!THREAT_BY_ID[t.defId].split || t.target === me));
+          return { text: `${blocked.slice('blocked by '.length)} blocks your entries at ${locNameAt(i)}. Neutralize it with ${door?.forceRequired ?? 3} Force in one turn.`, shake: door ? [`[data-threat="${door.uid}"]`] : [] };
         }
         if (blocked) return { text: `An opposing Reveal (Karen or OG) stopped ${nm} from entering this turn. Try again next turn.`, shake: [tile] };
         const cap = insideCapacity(view, i);

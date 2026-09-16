@@ -39,6 +39,7 @@ export const REFERENCES: Record<string, Reference[]> = {
   madam_cj_walker: [wiki('Madam C. J. Walker', 'Madam_C._J._Walker')],
   paul_laurence_dunbar: [wiki('Paul Laurence Dunbar', 'Paul_Laurence_Dunbar')],
   scott_joplin: [wiki('Scott Joplin', 'Scott_Joplin')],
+  duke_ellington: [wiki('Duke Ellington', 'Duke_Ellington'), wiki('Cotton Club', 'Cotton_Club'), wiki('Black, Brown and Beige', 'Black,_Brown_and_Beige')],
   claudette_colvin: [wiki('Claudette Colvin', 'Claudette_Colvin')],
   bass_reeves: [wiki('Bass Reeves', 'Bass_Reeves')],
   tom_bass: [wiki('Tom Bass', 'Tom_Bass')],
@@ -114,10 +115,12 @@ export const REFERENCES: Record<string, Reference[]> = {
   oak_bluffs: [wiki('Oak Bluffs, Massachusetts', 'Oak_Bluffs,_Massachusetts')],
   the_stroll: [wiki('Bronzeville, Chicago', 'Bronzeville,_Chicago')],
   jim_crow: [wiki('Jim Crow laws', 'Jim_Crow_laws'), wiki('Plessy v. Ferguson', 'Plessy_v._Ferguson'), wiki('Voting Rights Act of 1965', 'Voting_Rights_Act_of_1965')],
+  cotton_club: [wiki('Cotton Club', 'Cotton_Club'), wiki('Owney Madden', 'Owney_Madden'), wiki('Harlem Renaissance', 'Harlem_Renaissance')],
   // ---- Threats
   mob: [wiki('Lynching in the United States', 'Lynching_in_the_United_States'), wiki('Tulsa race massacre', 'Tulsa_race_massacre')],
   paddy_roller: [wiki('Slave patrol', 'Slave_patrol')],
   segregationist_patrol: [wiki('Jim Crow laws', 'Jim_Crow_laws')],
+  whites_only_door: [wiki('Cotton Club', 'Cotton_Club'), wiki('Racial segregation in the United States', 'Racial_segregation_in_the_United_States')],
   housing_restriction: [wiki('Redlining', 'Redlining'), wiki('Racial covenant', 'Racial_covenant')],
   dewolf_trade: [wiki('James DeWolf', 'James_DeWolf')],
   // ---- Events

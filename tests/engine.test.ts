@@ -865,7 +865,7 @@ describe('AI vs AI smoke', () => {
     }
   });
   it('all pool Locations are defined', () => {
-    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(16);
+    expect(LOCATIONS.filter((l) => !l.notInPool)).toHaveLength(17);
   });
   it('Jim Crow: Characters at the Gates count no Influence, those Inside do', () => {
     const s = rig(createMatch({ seed: 2 }), { locations: ['jim_crow', 'great_migration', 'juneteenth'], revealAll: true });
@@ -876,6 +876,43 @@ describe('AI vs AI smoke', () => {
     // Elsewhere the Gates count as usual.
     addChar(s, 'harriet_tubman', 'A', 1, 'gate');
     expect(influenceAt(s, 1).A).toBe(charDef('harriet_tubman').influence);
+  });
+});
+
+describe('The Cotton Club', () => {
+  it('the floor show: +1 Influence Inside, +2 for Music; the Whites-Only Door reveals with the room and bars both players', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['cotton_club', 'great_migration', 'juneteenth'], revealAll: true });
+    // Reveal in rig is direct, so spawn the door the way a reveal would.
+    spawnThreat(s, 0, 'whites_only_door', []);
+    expect(s.locations[0].threats.map((t) => t.defId)).toEqual(['whites_only_door']);
+    const a = addChar(s, 'harriet_tubman', 'A', 0, 'gate');
+    const b = addChar(s, 'scott_joplin', 'B', 0, 'gate');
+    // The door holds both sides at the Gates.
+    s = resolveTurn(s, { A: { ...pass(), enters: [a.uid] }, B: { ...pass(), enters: [b.uid] } }).state;
+    expect(s.characters[a.uid].zone).toBe('gate');
+    expect(s.characters[b.uid].zone).toBe('gate');
+    // Door cleared: in they go, and the floor show counts.
+    s.locations[0].threats = [];
+    s.characters[a.uid].ready = true;
+    s.characters[b.uid].ready = true;
+    s = resolveTurn(s, { A: { ...pass(), enters: [a.uid] }, B: { ...pass(), enters: [b.uid] } }).state;
+    expect(s.characters[a.uid].zone).toBe('inside');
+    expect(s.characters[b.uid].zone).toBe('inside');
+    expect(charInfluence(s, s.characters[a.uid])).toBe(charDef('harriet_tubman').influence + 1 + 1);
+    expect(charInfluence(s, s.characters[b.uid])).toBe(charDef('scott_joplin').influence + 1 + 2);
+  });
+  it('Ellington lifts up to three of his own for good and counts one more at the club', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['cotton_club', 'great_migration', 'juneteenth'], revealAll: true, handA: ['duke_ellington'] });
+    const a = addChar(s, 'organizer', 'A', 0, 'gate');
+    const b = addChar(s, 'bud_billiken', 'A', 0, 'gate');
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'duke_ellington', location: 0 }] }, B: pass() }).state;
+    expect(s.characters[a.uid].permInfluence).toBe(1);
+    expect(s.characters[b.uid].permInfluence).toBe(1);
+    const duke = charsOf(s, 'A').find((c) => c.defId === 'duke_ellington')!;
+    expect(charInfluence(s, duke)).toBe(charDef('duke_ellington').influence + 1);
+    // Elsewhere he is worth his printed number.
+    s.characters[duke.uid].location = 1;
+    expect(charInfluence(s, duke)).toBe(charDef('duke_ellington').influence);
   });
 });
 

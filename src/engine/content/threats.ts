@@ -63,6 +63,16 @@ export const THREATS: ThreatDef[] = [
     effect: 'shipsAway',
     blurb: 'The DeWolfs of Bristol, Rhode Island, ran more slaving voyages than any family in American history: about ninety between 1769 and 1820, some ten thousand people. James DeWolf kept at it after the 1808 ban, sat in the United States Senate, and died one of the richest men in the country.',
   },
+  {
+    id: 'whites_only_door',
+    name: 'Whites-Only Door',
+    family: 'Systemic Pressure',
+    text: 'Opening night: the house seats a white audience only. While active, Gate Characters here cannot enter, for either player. Neutralize with 3 Force in one turn.',
+    split: false,
+    force: 3,
+    effect: 'blockEntry',
+    blurb: "The house rule at the Cotton Club: Black performers on the stage, a white audience at the tables, and Black patrons turned away at the door. The performers' own families could not buy a ticket to watch them.",
+  },
 ];
 
 export const THREAT_BY_ID: Record<string, ThreatDef> = Object.fromEntries(THREATS.map((t) => [t.id, t]));

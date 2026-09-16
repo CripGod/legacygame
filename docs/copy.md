@@ -125,6 +125,12 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - blurb: The King of Ragtime. "Maple Leaf Rag" sold a million copies; his opera waited sixty years for a stage.
 - history: Scott Joplin was born in Texas around 1868, the son of a formerly enslaved railroad laborer, and learned piano from a German teacher in Texarkana. In Sedalia, Missouri, he published "Maple Leaf Rag" in 1899, the first sheet music by a Black composer to sell in the hundreds of thousands, and wrote some forty rags that turned a saloon style into a composed art. He spent his last years in New York trying to stage his opera Treemonisha and died in 1917. Treemonisha was finally produced in 1972 and won him a Pulitzer in 1976.
 
+### Duke Ellington (`duke_ellington`)
+- cost 4 · Influence 3 · Force 1 · historical · era: 1899–1974
+- reveal: The orchestra: your other Characters at this Location (up to three, the strongest first) gain +1 Influence for the rest of the match.
+- blurb: Led his orchestra for fifty years and wrote or co-wrote more than a thousand pieces for it. The Cotton Club, 1927 to 1931, put him on the radio and the radio put him everywhere.
+- history: Edward Kennedy Ellington was born in Washington, D.C., in 1899, the son of a butler who sometimes worked at the White House, and was called Duke by his schoolmates for his manners and his clothes. He came to New York in 1923 and took over the band that became the Duke Ellington Orchestra. On 4 December 1927 the orchestra opened at the Cotton Club in Harlem, and the club's nightly radio broadcasts carried it across the country; "Black and Tan Fantasy", "The Mooche" and "Mood Indigo" date from those years. He led the orchestra without a break until his death in 1974, wrote or co-wrote more than a thousand compositions, and with Billy Strayhorn built a book that ran from three-minute records to suites and sacred concerts; Black, Brown and Beige, his portrait of Black American history, opened his first Carnegie Hall concert in 1943. He received the Presidential Medal of Freedom in 1969 and a special Pulitzer citation in 1999, thirty-four years after the Pulitzer board had overruled its jury's recommendation to honor him.
+
 ### Claudette Colvin (`claudette_colvin`)
 - cost 1 · Influence 2 · Force 1 · historical · era: 1939–
 - reveal: Keeps her seat: she cannot be displaced this turn.
@@ -598,6 +604,11 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - text: At the end of each turn, the Fresh Gate Character here with the lowest Influence is shipped away: to The Middle Passage if it is in play, otherwise to a random Location. A Setback for its player. Neutralize with 5 Force in one turn (either player, or both together).
 - blurb: The DeWolfs of Bristol, Rhode Island, ran more slaving voyages than any family in American history: about ninety between 1769 and 1820, some ten thousand people. James DeWolf kept at it after the 1808 ban, sat in the United States Senate, and died one of the richest men in the country.
 
+### Whites-Only Door (`whites_only_door`)
+- family: Systemic Pressure
+- text: Opening night: the house seats a white audience only. While active, Gate Characters here cannot enter, for either player. Neutralize with 3 Force in one turn.
+- blurb: The house rule at the Cotton Club: Black performers on the stage, a white audience at the tables, and Black patrons turned away at the door. The performers' own families could not buy a ticket to watch them.
+
 ## Locations
 
 ### Greenwood District (`greenwood`)
@@ -684,6 +695,11 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - era: The South, 1877–1965
 - rule: Disfranchised: Characters at the Gates here count no Influence. Only those Inside are counted. Reveals with a Segregationist Patrol in the area.
 - blurb: The laws and customs that sorted Southern life by race from the end of Reconstruction to the 1960s: separate schools, cars, counters and cemeteries, and a vote taken back by poll taxes, literacy tests and violence.
+
+### The Cotton Club (`cotton_club`)
+- era: Harlem, 1923–1935
+- rule: The floor show: your Characters Inside here gain +1 Influence, and Music Characters +1 more. Opening night: reveals with a Whites-Only Door.
+- blurb: A Harlem nightclub at Lenox Avenue and 142nd Street: Black performers on the stage, a white audience at the tables, and the best band in the country broadcasting from the bandstand.
 
 ## Hints (tap or hover explanations)
 

@@ -467,6 +467,28 @@ export const CHARACTERS: CharacterDef[] = [
   },
   {
     kind: 'character',
+    id: 'duke_ellington',
+    cost: 4,
+    identity: ['the orchestra', 'composition', 'the bandstand', 'the radio wire'],
+    era: '1899–1974',
+    category: 'historical',
+    name: 'Duke Ellington',
+    short: 'Ellington',
+    summary: 'Your other Characters here gain +1 Influence for good (up to 3).',
+    influence: 3,
+    force: 1,
+    tags: ['Black', 'Music', 'Harlem'],
+    keywords: [],
+    reveal: {
+      text: 'The orchestra: your other Characters at this Location (up to three, the strongest first) gain +1 Influence for the rest of the match.',
+      effect: { type: 'permInfluenceAllOthersHere', amount: 1, max: 3 },
+    },
+    blurb: 'Led his orchestra for fifty years and wrote or co-wrote more than a thousand pieces for it. The Cotton Club, 1927 to 1931, put him on the radio and the radio put him everywhere.',
+    history:
+      "Edward Kennedy Ellington was born in Washington, D.C., in 1899, the son of a butler who sometimes worked at the White House, and was called Duke by his schoolmates for his manners and his clothes. He came to New York in 1923 and took over the band that became the Duke Ellington Orchestra. On 4 December 1927 the orchestra opened at the Cotton Club in Harlem, and the club's nightly radio broadcasts carried it across the country; \"Black and Tan Fantasy\", \"The Mooche\" and \"Mood Indigo\" date from those years. He led the orchestra without a break until his death in 1974, wrote or co-wrote more than a thousand compositions, and with Billy Strayhorn built a book that ran from three-minute records to suites and sacred concerts; Black, Brown and Beige, his portrait of Black American history, opened his first Carnegie Hall concert in 1943. He received the Presidential Medal of Freedom in 1969 and a special Pulitzer citation in 1999, thirty-four years after the Pulitzer board had overruled its jury's recommendation to honor him.",
+  },
+  {
+    kind: 'character',
     id: 'claudette_colvin',
     cost: 1,
     identity: ['courage', 'refusal', 'youth', 'justice'],

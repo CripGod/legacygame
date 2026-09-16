@@ -24,11 +24,12 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Missing
 
-### characters (30)
+### characters (31)
 
 - `callie_house` **Callie House** (1861–1928): A Nashville washerwoman who built a 300,000-member movement demanding pensions for the formerly enslaved. The government jailed her for it.
 - `robert_smalls` **Robert Smalls** (1839–1915): Steered a Confederate steamer out of Charleston harbor with his family aboard and handed it to the Union.
 - `paul_laurence_dunbar` **Paul Laurence Dunbar** (1872–1906): The first Black poet with a national audience. "We Wear the Mask." Dead of tuberculosis at 33.
+- `duke_ellington` **Duke Ellington** (1899–1974): Led his orchestra for fifty years and wrote or co-wrote more than a thousand pieces for it. The Cotton Club, 1927 to 1931, put him on the radio and the radio put him everywhere.
 - `claudette_colvin` **Claudette Colvin** (1939–): Fifteen years old, Montgomery, March 1955. Nine months before Rosa Parks, she refused to move and was dragged off the bus.
 - `bass_reeves` **Bass Reeves** (1838–1910): Born enslaved, fluent in several Native languages, one of the first Black deputy U.S. Marshals west of the Mississippi. Three thousand arrests, never wounded.
 - `tom_bass` **Tom Bass** (1859–1934): The greatest saddle-horse trainer of his day. Invented a bit that never hurt the horse and refused to patent it.
@@ -62,11 +63,12 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `the_ancestors` **The Ancestors**: Never in a deck. In one match out of four they come to whoever holds three Characters Inside at Accra, Ghana.
 - `word_of_mouth` **Word of Mouth**: Free, fast and usually right. It travels further where more of your people are.
 
-### threats (1)
+### threats (2)
 
 - `dewolf_trade` **The DeWolf Trade**: The DeWolfs of Bristol, Rhode Island, ran more slaving voyages than any family in American history: about ninety between 1769 and 1820, some ten thousand people. James DeWolf kept at it after the 1808 ban, sat in the United States Senate, and died one of the richest men in the country.
+- `whites_only_door` **Whites-Only Door**: The house rule at the Cotton Club: Black performers on the stage, a white audience at the tables, and Black patrons turned away at the door. The performers' own families could not buy a ticket to watch them.
 
-### locations (8)
+### locations (9)
 
 - `middle_passage` **The Middle Passage** (Atlantic, 1526–1867): Twelve and a half million people were carried across the Atlantic in chains, and ten and a half million landed. What they carried, they kept: the languages, the faiths, the stories, the songs.
 - `charleston_1822` **Charleston, 1822** (South Carolina, 1822): Denmark Vesey's rising was set for July. Two informants ended it in June, and thirty-five people hanged.
@@ -76,6 +78,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `oak_bluffs` **Oak Bluffs** (Martha's Vineyard, 1912–): Shearer Cottage opened to Black guests in 1912 when the island's hotels would not. A century of summers followed: the Inkwell, the gingerbread cottages, families who came back every August.
 - `the_stroll` **The Stroll** (Chicago, 1910s–20s): State Street from 26th to 39th, the Black Belt's night strip: theaters, cabarets, and everybody out walking.
 - `jim_crow` **Jim Crow** (The South, 1877–1965): The laws and customs that sorted Southern life by race from the end of Reconstruction to the 1960s: separate schools, cars, counters and cemeteries, and a vote taken back by poll taxes, literacy tests and violence.
+- `cotton_club` **The Cotton Club** (Harlem, 1923–1935): A Harlem nightclub at Lenox Avenue and 142nd Street: Black performers on the stage, a white audience at the tables, and the best band in the country broadcasting from the bandstand.
 
 ### locations (night) (1)
 
