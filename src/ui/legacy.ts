@@ -116,8 +116,8 @@ export function mayWear(cardId: string, finish: Finish): boolean {
   if (finish === 'camouflage') return isMilitary(cardId);
   return true;
 }
-/** Finishes a card wears no matter the rotation: the Adwa pair in Camouflage. */
-const FORCED_FINISH: Record<string, Finish> = { menelik_ii: 'camouflage', taytu_betul: 'camouflage' };
+/** Finishes a card wears no matter the rotation: the Adwa pair in Camouflage, Lincoln in Stars and Stripes. */
+const FORCED_FINISH: Record<string, Finish> = { menelik_ii: 'camouflage', taytu_betul: 'camouflage', abraham_lincoln: 'usa' };
 const IN_DECK = new Set<string>();
 const PREVIEW: Record<string, Finish> = (() => {
   const out: Record<string, Finish> = { ...FORCED_FINISH };
