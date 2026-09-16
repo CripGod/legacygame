@@ -361,7 +361,7 @@ function ReadingChapter({ n }: { n: number }) {
           ))}
         </div>
         <p className="cx-frames-note">
-          A card's printed cost sets where it starts, so the cheap cards have the most to climb. Nothing starts at Diamond, with one exception: Black Jesus only comes in Diamond, and is neither promoted nor finished. Every other card has a rank still to earn. Diamond catches the light, a glare across the frame every few seconds.
+          A card's printed cost sets where it starts, so the cheap cards have the most to climb. Nothing starts at Diamond: every card has a rank still to earn, but one. Black Jesus only comes in Wood, and is neither promoted nor finished. Diamond catches the light, a glare across the frame every few seconds.
         </p>
 
         <div className="cx-sub">

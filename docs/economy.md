@@ -6,7 +6,7 @@ Sixteen frames, one geometry, from the same hand: the ladder and the finishes.
 
 **The ladder** (bought with Legacy): **Wood** → **Bronze** (3) → **Silver** (8) → **Gold** (12) → **Emerald** (16) →
 **Ruby** (22) → **Diamond** (30). A card's printed cost sets where it starts: 0 and 1 at Wood, 2 at Bronze, 3 at
-Silver, 4 at Gold, 5 at Emerald, 6 and up at Ruby. Nothing starts at Diamond, so every card has a rank still to earn, with one exception: **Black Jesus only comes in Diamond** (`FIXED_RANK` in `legacy.ts`: never promoted, never wears a finish).
+Silver, 4 at Gold, 5 at Emerald, 6 and up at Ruby. Nothing starts at Diamond, so every card has a rank still to earn, with one card outside the ladder altogether: **Black Jesus only comes in Wood** (`FIXED_RANK` in `legacy.ts`: never promoted, never wears a finish).
 Diamond carries a glare that sweeps the frame every five seconds. **The frame never outranks the card:** the ladder
 frame shown is exactly the rank held (bought, or the starting rank), never a step above it.
 

@@ -90,8 +90,8 @@ function hash01(id: string): number {
   for (let i = 0; i < id.length; i++) h = Math.imul(h ^ id.charCodeAt(i), 16777619);
   return ((h >>> 0) % 10000) / 10000;
 }
-/** Cards that come in one rank only, above the ladder: never promoted, never finished. Black Jesus only comes in Diamond. */
-const FIXED_RANK: Record<string, Rank> = { black_jesus: 'diamond' };
+/** Cards that come in one rank only, outside the ladder: never promoted, never finished. Black Jesus only comes in Wood. */
+const FIXED_RANK: Record<string, Rank> = { black_jesus: 'wood' };
 export function fixedRank(cardId: string): Rank | null {
   return FIXED_RANK[cardId] ?? null;
 }
