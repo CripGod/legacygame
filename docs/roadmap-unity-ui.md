@@ -39,8 +39,9 @@ frames, buttons, bars, readouts, sheets, tags, menus.
 | **Game session** (CripGod/legacygame) | The engine, the web UI, the cards, the tests, the Pages deploy, later the C# port | A kit importer, kit-driven chrome, screenshots, the Unity project |
 | **Owner** | Direction, taste, the word "blessed" | Relays requests and replies; decides what ships |
 
-With both repositories attached to Master Control's session, it can read UI Kit Maker's exporter and
-write the game's importer against the real manifest instead of a described one.
+UI Kit Maker's repository is public, so Master Control reads its exporter directly (a read-only clone;
+`docs/ui-kit-maker/what-the-exporter-does.md` records what was verified) and writes the game's importer
+against the real manifest. Nothing is pushed to that repository from here; requests go through the owner.
 
 ## The contract: one look, one manifest, two renderers
 
@@ -58,10 +59,11 @@ write the game's importer against the real manifest instead of a described one.
    `<name>-B`. No runtime tinting on either platform.
 6. **Text is live** everywhere: labels on the web are DOM text, in Unity TextMeshPro. Nothing with words
    is exported as a picture. Icons are swappable: inline SVG on the web, sprites in Unity.
-7. **The web ingests** the SVG pack (one SVG per component and state) plus the game-kit JSON manifest for
-   the insets; a script in the game repo (`scripts/kit.ts`) turns those into `src/ui/kit.css`
-   (`border-image` rules with the manifest's insets, custom properties per component). The kit is a build
-   input, never hand-pasted CSS.
+7. **The web ingests** the engine kit: the atomic 2x PNGs under `assets/` and `kit-manifest.json`, whose
+   rows carry each part's nine-slice insets and shell box (`docs/ui-kit-maker/what-the-exporter-does.md`).
+   A script in the game repo (`scripts/kit.ts`) turns those into `src/ui/kit.css` (`border-image` rules
+   from the manifest's insets, custom properties per component). The same files feed Unity, so the web
+   and the prefab are cut from identical pixels. The kit is a build input, never hand-pasted CSS.
 8. **Unity ingests** the Unity ZIP as exported (sprites, TMP fonts, prefab per component with uGUI
    sprite-swap states, a scene per board, the bundled importer). The game session wires prefabs to the
    C# event stream; nothing in the prefab is redrawn by hand.
@@ -88,7 +90,7 @@ Durations are rough and assume one relay round per day. Phases 4 and 5 run along
 
 ### Phase 0. Contracts and access (this week)
 
-- Owner attaches the UI Kit Maker repository to Master Control's session (the game's is attached already).
+- Master Control reads UI Kit Maker's exporter (done 2026-09-16) and keeps the facts file current.
 - The **component inventory** is frozen: every piece of chrome on screen today, its states, the words on
   it, and what the game drives at runtime (`docs/ui-kit-maker/inventory.md`).
 - UI Kit Maker answers the open questions in request 01 (custom fonts as TMP, the chamfer as a silhouette,
@@ -103,7 +105,7 @@ Durations are rough and assume one relay round per day. Phases 4 and 5 run along
   confirm dialog with a cost line, the settings gear and its switch rows, a slider, a segmented control,
   a stepper.
 - Composed on one board: the match HUD at 1920×1080, with real words.
-- Done: preview link, then the three exports (SVG pack, game kit, Unity ZIP) and `settings.json`.
+- Done: preview link, then the exports (engine kit, SVG pack, Unity ZIP) and `settings.json`.
   Acceptance: Master Control puts the board screenshot beside the live game at 1440×900 and lists every
   difference in one note. Nothing is "close enough"; the differences are either fixed in the kit or
   accepted in writing as the new look.
@@ -197,8 +199,8 @@ Rules that keep it clean:
 ## Risks and how the plan handles them
 
 - **Two engines drift** during the port. The parity harness (4.4) and the rule changelog (phase 6).
-- **The exporter cannot do something the game needs** (a custom font, the chamfer, two-colour exports).
-  Asked up front in request 01 as questions, not assumptions; the smoke scene (4.1) proves the export early.
+- **The exporter cannot do something the game needs.** Read from its code first (the facts file), then
+  asked in request 01 as specific questions; the smoke scene (4.1) proves the export early.
 - **The web and Unity disagree** on a piece. Both consume the same manifest; a disagreement is a bug in
   one importer, found by the side-by-side screenshots the loop requires.
 - **The cards and the chrome drift apart** in look, since two hands draw them. The look's palette and
@@ -211,6 +213,8 @@ Rules that keep it clean:
 
 ## Open decisions for the owner
 
-1. Attach the UI Kit Maker repository to Master Control's session (see the access walkthrough in chat).
-2. Unity 6 LTS, uGUI and TextMeshPro, landscape 1920×1080, as decided above? Say so once and both sides
+1. Unity 6 LTS, uGUI and TextMeshPro, landscape 1920×1080, as decided above? Say so once and both sides
    build to it.
+2. Two fonts are missing from UI Kit Maker's list (Crimson Pro, Kaushan Script). Request 01 asks for them
+   to be added. If that is refused or slow, the fallback is Cinzel for every label in the kit and the
+   game keeps Crimson Pro for body text it renders itself.
