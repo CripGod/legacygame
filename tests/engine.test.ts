@@ -129,6 +129,23 @@ describe('redacted view', () => {
 });
 
 describe('turn structure', () => {
+  it('first on the scene: Turn 1 plays at the Location that reveals first gain +1 Influence for good, Informants excepted', () => {
+    let s = rig(createMatch({ seed: 9 }), { handA: ['organizer', 'bud_billiken', 'peter_prioleau', 'reparations', 'harriet_tubman'], handB: ['organizer', 'bud_billiken', 'reparations', 'harriet_tubman', 'zora_neale_hurston'] });
+    const first = s.revealOrder[0];
+    const elsewhere = (first + 1) % 3;
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'organizer', location: first }, { cardId: 'bud_billiken', location: elsewhere }, { cardId: 'peter_prioleau', location: first }] }, B: { ...pass(), plays: [{ cardId: 'organizer', location: first }] } }).state;
+    const at = (id: string, p: PlayerId) => charsOf(s, p).find((c) => c.defId === id)!;
+    expect(at('organizer', 'A').permInfluence).toBe(1);
+    expect(at('organizer', 'B').permInfluence).toBe(1);
+    expect(at('bud_billiken', 'A').permInfluence).toBe(0);
+    expect(at('peter_prioleau', 'B').permInfluence).toBe(0); // the Informant planted on B's Gates
+    expect(s.lastEvents.filter((e) => (e.data as { trail?: string } | undefined)?.trail === 'first')).toHaveLength(2);
+    // Turn 2 at the second reveal pays nothing: the prize is for the blind turn only.
+    const second = s.revealOrder[1];
+    s.players.A.hand = ['harriet_tubman', 'zora_neale_hurston'];
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'zora_neale_hurston', location: second }] }, B: pass() }).state;
+    expect(at('zora_neale_hurston', 'A').permInfluence).toBe(0);
+  });
   it('reveals one Location per turn for the first three turns in the predetermined order', () => {
     let s = createMatch({ seed: 9 });
     const order = s.revealOrder.slice();

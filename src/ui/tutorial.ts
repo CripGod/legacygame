@@ -137,7 +137,8 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
       ? `${handle} played ${oppPlays.map((e) => `${nm(e.cardId!)} at ${ln(e.location!)}`).join(' and ')}.`
       : `${handle} played nothing.`;
     const where = oppGate.length ? ` You can see ${oppGate.length > 1 ? 'those cards' : 'that card'} in the strip above ${ln(oppGate[0].location)}: ${handle}'s Gates are always the top strip of a Location, yours the bottom.` : '';
-    const reveal = opened.length ? ` Then ${ln(opened[0].index)} was revealed.` : '';
+    const first = ev.filter((e) => e.player === me && (e.data as { trail?: string } | undefined)?.trail === 'first');
+    const reveal = opened.length ? ` Then ${ln(opened[0].index)} was revealed.${first.length ? ` You guessed it: ${first.map((e) => nm(view.characters[e.uid!]?.defId ?? '')).join(' and ')} ${first.length > 1 ? 'were' : 'was'} first on the scene and gained +1 Influence for the rest of the match.` : ''}` : '';
     const play = playLesson(view, me, placeholders, '');
     return script([
       {
