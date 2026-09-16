@@ -418,23 +418,23 @@ describe('Summon', () => {
 
 describe('energy', () => {
   it('Energy equals the turn number, cards cost Energy, and Organizer adds one', () => {
-    let s = rig(createMatch({ seed: 21 }), { energy: true, locations: ['black_star', 'great_migration', 'greenwood'], revealAll: true, handA: ['roger_taney', 'organizer', 'og', 'mansa_musa'] });
+    let s = rig(createMatch({ seed: 21 }), { energy: true, locations: ['black_star', 'great_migration', 'greenwood'], revealAll: true, handA: ['roger_taney', 'organizer', 'marie_laveau', 'mansa_musa'] });
     expect(legalOptions(s, 'A').energy).toBe(1);
-    // Turn 1: a 2-cost card is refused, a 1-cost card is fine.
-    expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'og', location: 1 }] })).not.toEqual([]);
+    // Turn 1: a 3-cost card is refused, a 1-cost card is fine.
+    expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'marie_laveau', location: 1 }] })).not.toEqual([]);
     expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'roger_taney', location: 1 }] })).toEqual([]);
     s = resolveTurn(s, { A: pass(), B: pass() }).state;
     expect(legalOptions(s, 'A').energy).toBe(2);
-    // Turn 2: two 1-cost cards, or one 2-cost card, not both.
+    // Turn 2: two 1-cost cards fit; a 3-cost card and a 1-cost card do not.
     expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'roger_taney', location: 1 }, { cardId: 'organizer', location: 1 }] })).toEqual([]);
-    expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'og', location: 1 }, { cardId: 'roger_taney', location: 2 }] })).not.toEqual([]);
+    expect(validatePlan(s, 'A', { ...pass(), plays: [{ cardId: 'marie_laveau', location: 1 }, { cardId: 'roger_taney', location: 2 }] })).not.toEqual([]);
     s.turn = 3;
     addChar(s, 'organizer', 'A', 0, 'inside');
-    expect(legalOptions(s, 'A').energy).toBe(3 + 1); // Turn 3, and the Organizer's +1: OG (3) and Taney (1) fit
-    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'og', location: 1 }, { cardId: 'roger_taney', location: 2 }] }, B: pass() }).state;
+    expect(legalOptions(s, 'A').energy).toBe(3 + 1); // Turn 3, and the Organizer's +1: Laveau (3) and Taney (1) fit
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'marie_laveau', location: 1 }, { cardId: 'roger_taney', location: 2 }] }, B: pass() }).state;
     expect(charsAt(s, 1, 'A', 'gate')).toHaveLength(1);
     expect(charsAt(s, 2, 'A', 'gate')).toHaveLength(1);
-    expect(s.players.A.hand).not.toContain('og');
+    expect(s.players.A.hand).not.toContain('marie_laveau');
   });
   it('every deck card has a cost and presets are 24 cards', () => {
     for (const d of Object.values(PRESET_DECKS)) {
@@ -1459,17 +1459,17 @@ describe('variety pass and lasting Reparations', () => {
   it('Zora digs, Walker banks Energy, Payne discounts the next Character, Green grants a Relocation, Vesey recruits', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, energy: true, handA: ['zora_neale_hurston', 'madam_cj_walker', 'daniel_payne', 'victor_hugo_green', 'denmark_vesey', 'john_russwurm'] });
     s.turn = 5;
-    s.players.A.energyBonus = 2; // Turn 5 pays 5; Zora (3) and Walker (4) need 7
+    s.players.A.energyBonus = 3; // Turn 5 pays 5; Zora (4) and Walker (4) need 8
     s.players.A.deck = ['mansa_musa', 'bud_billiken', 'harriet_tubman'];
     s.players.A.deckCount = 3;
     const handBefore = s.players.A.hand.length;
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'zora_neale_hurston', location: 0 }, { cardId: 'madam_cj_walker', location: 1 }] }, B: pass() }).state;
-    // Zora kept Mansa Musa (cost 4) over Bud Billiken (cost 0), which went to the bottom; then the turn draw took Harriet.
+    // Zora kept Mansa Musa (cost 7) over Bud Billiken (cost 0), which went to the bottom; then the turn draw took Harriet.
     expect(s.players.A.hand).toContain('mansa_musa');
     expect(s.players.A.deck).toEqual(['bud_billiken']);
     expect(s.players.A.hand.length).toBe(handBefore - 2 + 2);
     // Walker: +2 Energy next turn (turn 6, +2 bonus, +2 Walker).
-    expect(legalOptions(s, 'A').energy).toBe(6 + 2 + 2);
+    expect(legalOptions(s, 'A').energy).toBe(6 + 3 + 2);
     // Payne: the next Character costs 1 less from the following turn; Green: +1 Relocation next turn.
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'daniel_payne', location: 0 }, { cardId: 'victor_hugo_green', location: 1 }] }, B: pass() }).state;
     expect(cardCost('john_russwurm', s, 'A')).toBe(0);

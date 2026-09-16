@@ -4,10 +4,10 @@ import { CHARACTERS, CHARACTER_BY_ID, GATHERING_DEFS } from './characters';
 import { EVENTS, EVENT_BY_ID } from './events';
 import { LOCATIONS, LOCATION_BY_ID, UNKNOWN_LOCATION } from './locations';
 import { THREATS, THREAT_BY_ID, RANDOM_THREAT_POOL } from './threats';
-import { REFERENCES, referencesFor, type Reference } from './references';
+import { REFERENCES, MORE_REFERENCES, referencesFor, type Reference } from './references';
 import { TEAM_UPS, TEAM_UP_BY_ID, teamUpsFor, type TeamUpDef, type TeamUpStanding, type TeamUpOnce } from './teamups';
 
-export { CHARACTERS, GATHERING_DEFS, CHARACTER_BY_ID, EVENTS, EVENT_BY_ID, LOCATIONS, LOCATION_BY_ID, UNKNOWN_LOCATION, THREATS, THREAT_BY_ID, RANDOM_THREAT_POOL, REFERENCES, referencesFor };
+export { CHARACTERS, GATHERING_DEFS, CHARACTER_BY_ID, EVENTS, EVENT_BY_ID, LOCATIONS, LOCATION_BY_ID, UNKNOWN_LOCATION, THREATS, THREAT_BY_ID, RANDOM_THREAT_POOL, REFERENCES, MORE_REFERENCES, referencesFor };
 export { TEAM_UPS, TEAM_UP_BY_ID, teamUpsFor };
 export type { Reference, TeamUpDef, TeamUpStanding, TeamUpOnce };
 
@@ -100,7 +100,7 @@ export const PRESET_DECKS: Record<string, { name: string; style: string; cards: 
       'oshun',
       'taytu_betul',
       'dave_the_potter',
-      'harriet_powers',
+      'organizer',
       'scott_joplin',
       'mary_ann_shadd_cary',
       'yaa_asantewaa',

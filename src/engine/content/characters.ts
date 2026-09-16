@@ -9,7 +9,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'harriet_tubman',
-    cost: 2,
+    cost: 3,
     category: 'historical',
     name: 'Harriet Tubman',
     short: 'Harriet',
@@ -39,7 +39,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'frederick_douglass',
-    cost: 5,
+    cost: 6,
     category: 'historical',
     name: 'Frederick Douglass',
     short: 'Douglass',
@@ -64,7 +64,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'john_brown',
-    cost: 3,
+    cost: 4,
     category: 'historical',
     name: 'John Brown',
     short: 'J. Brown',
@@ -94,7 +94,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'katherine_johnson',
-    cost: 3,
+    cost: 4,
     category: 'historical',
     name: 'Katherine Johnson',
     short: 'Katherine',
@@ -144,7 +144,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'zora_neale_hurston',
-    cost: 3,
+    cost: 4,
     category: 'historical',
     name: 'Zora Neale Hurston',
     short: 'Zora',
@@ -191,7 +191,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'alonzo_herndon',
-    cost: 2,
+    cost: 3,
     identity: ['business', 'barbershop', 'wealth'],
     era: '1858–1927',
     category: 'historical',
@@ -213,7 +213,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'callie_house',
-    cost: 2,
+    cost: 3,
     identity: ['organizing', 'reparations', 'washerwoman'],
     era: '1861–1928',
     category: 'historical',
@@ -235,7 +235,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'richard_allen',
-    cost: 3,
+    cost: 4,
     identity: ['founding', 'independence', 'the pulpit', 'organizing'],
     era: '1760–1831',
     category: 'historical',
@@ -256,7 +256,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'absalom_jones',
-    cost: 1,
+    cost: 2,
     identity: ['priesthood', 'patience', 'the open door'],
     era: '1746–1818',
     category: 'historical',
@@ -375,7 +375,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'robert_smalls',
-    cost: 2,
+    cost: 3,
     identity: ['piloting', 'nerve', 'politics'],
     era: '1839–1915',
     category: 'historical',
@@ -447,7 +447,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'scott_joplin',
-    cost: 2,
+    cost: 3,
     identity: ['ragtime', 'composition', 'ambition'],
     era: '1868–1917',
     category: 'historical',
@@ -512,7 +512,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'bass_reeves',
-    cost: 1,
+    cost: 2,
     identity: ['law', 'grit', 'frontier'],
     era: '1838–1910',
     category: 'historical',
@@ -533,7 +533,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'tom_bass',
-    cost: 2,
+    cost: 3,
     identity: ['horsemanship', 'gentle control', 'the Bass bit'],
     era: '1859–1934',
     category: 'historical',
@@ -651,7 +651,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'og',
-    cost: 3,
+    cost: 4,
     category: 'archetype',
     name: 'OG',
     short: 'OG',
@@ -676,7 +676,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'ida_b_wells',
-    cost: 4,
+    cost: 5,
     category: 'historical',
     name: 'Ida B. Wells',
     short: 'Ida',
@@ -751,7 +751,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'marcus_garvey',
-    cost: 5,
+    cost: 6,
     category: 'historical',
     name: 'Marcus Garvey',
     short: 'Garvey',
@@ -776,7 +776,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'bessie_coleman',
-    cost: 2,
+    cost: 3,
     category: 'historical',
     name: 'Bessie Coleman',
     short: 'Bessie',
@@ -797,7 +797,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'sojourner_truth',
-    cost: 4,
+    cost: 5,
     category: 'historical',
     name: 'Sojourner Truth',
     short: 'Sojourner',
@@ -1365,7 +1365,7 @@ export const CHARACTERS: CharacterDef[] = [
 CHARACTERS.push({
   kind: 'character',
   id: 'victor_hugo_green',
-    cost: 3,
+    cost: 4,
   category: 'historical',
   name: 'Victor Hugo Green',
   short: 'V. H. Green',
@@ -1493,7 +1493,7 @@ const MYTHIC: CharacterDef[] = [
   {
     kind: 'character',
     id: 'ogun',
-    cost: 4,
+    cost: 5,
     category: 'mythic',
     name: 'Ogun',
     short: 'Ogun',
@@ -1803,7 +1803,7 @@ const GATHERINGS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'dave_the_potter',
-    cost: 1,
+    cost: 2,
     category: 'artist',
     name: 'David Drake',
     short: 'Dave',
@@ -1897,7 +1897,7 @@ CHARACTERS.push(
   {
     kind: 'character',
     id: 'nanny_of_the_maroons',
-    cost: 5,
+    cost: 6,
     identity: ['maroon', 'mountain', 'refuge'],
     era: 'c. 1686–1755',
     category: 'historical',
@@ -1919,7 +1919,7 @@ CHARACTERS.push(
   {
     kind: 'character',
     id: 'nehanda',
-    cost: 4,
+    cost: 5,
     identity: ['spirit medium', 'resistance', 'return'],
     era: 'c. 1840–1898',
     category: 'historical',
@@ -2017,7 +2017,7 @@ CHARACTERS.push(
   {
     kind: 'character',
     id: 'omar_ibn_said',
-    cost: 3,
+    cost: 4,
     identity: ['autobiography', 'reading', 'record'],
     era: 'c. 1770–1864',
     category: 'historical',

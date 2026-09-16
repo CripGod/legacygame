@@ -2,9 +2,9 @@
  * Confirms every reference link answers: a HEAD (then GET) request per URL, in series, with a short timeout.
  * Run on a connected machine: `npm run refs:check`. Exits non-zero if any link fails.
  */
-import { REFERENCES } from '../src/engine/content/references';
+import { REFERENCES, MORE_REFERENCES } from '../src/engine/content/references';
 
-const urls = [...new Set(Object.values(REFERENCES).flat().map((r) => r.url))];
+const urls = [...new Set([...Object.values(REFERENCES).flat(), ...Object.values(MORE_REFERENCES).flat()].map((r) => r.url))];
 let bad = 0;
 for (const url of urls) {
   let status = 0;

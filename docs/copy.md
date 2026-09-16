@@ -5,7 +5,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 ## Characters
 
 ### Harriet Tubman (`harriet_tubman`)
-- cost 2 · Influence 3 · Force 2 · historical · era: 1822–1913
+- cost 3 · Influence 3 · Force 2 · historical · era: 1822–1913
 - reveal: Conductor: move one of your Characters, at the Gates or Inside, from any Location straight Inside another Location (or to its Gates, Ready, if the Inside is full), even out of Sundown Town's curfew or The Justice System's hold. Moves before anyone enters and does not use your Relocation.
 - established: The first friendly Character relocated into Harriet's Location each turn becomes Ready immediately.
 - passive: No curfew holds Harriet herself: she leaves Sundown Town or The Justice System whenever she likes.
@@ -13,14 +13,14 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - history: Born Araminta Ross into slavery in Dorchester County, Maryland, around 1822, Harriet Tubman escaped in 1849 and then returned to the South roughly thirteen times, guiding about seventy people to freedom on the Underground Railroad and never losing a passenger. During the Civil War she worked for the Union Army as a nurse, scout and spy, and in June 1863 she guided the Combahee River Raid that freed more than seven hundred people, the first woman to lead an armed assault in the war. She spent her later years in Auburn, New York, campaigning for women's suffrage and running a home for the elderly.
 
 ### Frederick Douglass (`frederick_douglass`)
-- cost 5 · Influence 6 · Force 1 · historical · era: 1818–1895
+- cost 6 · Influence 6 · Force 1 · historical · era: 1818–1895
 - reveal: Another friendly Character here gains +1 Influence this turn.
 - established: Your other Characters here gain +1 Influence.
 - blurb: Escaped slavery and became the most photographed American of the 19th century through the power of his words.
 - history: Born enslaved on Maryland's Eastern Shore in 1818, Frederick Douglass taught himself to read, escaped to New York in 1838 and became the most famous Black man in the nineteenth-century world. His 1845 Narrative sold tens of thousands of copies, he edited the abolitionist paper The North Star, advised Lincoln on the recruitment of Black soldiers, and later served as U.S. Marshal for the District of Columbia and Minister to Haiti. He sat for more photographs than any other American of his century, because he believed the image of a dignified Black man was itself an argument.
 
 ### John Brown (`john_brown`)
-- cost 3 · Influence 3 · Force 5 · historical · era: 1800–1859
+- cost 4 · Influence 3 · Force 5 · historical · era: 1800–1859
 - reveal: Confront one neutral Threat here with +2 Force.
 - established: When assisting against a Threat, John Brown contributes +1 additional Force.
 - passive: Sundown Town has no hold on John Brown: no curfew, and it never runs him out. While he is there, one friendly Character who would be run out hides with him overnight instead.
@@ -28,7 +28,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - history: A white abolitionist from Connecticut, John Brown believed slavery could only be ended by force. After fighting pro-slavery settlers in Kansas, he led twenty-one men, five of them Black, in a raid on the federal armory at Harpers Ferry, Virginia, on 16 October 1859, hoping to arm an uprising. The raid failed within two days; Brown was tried for treason and hanged on 2 December 1859. His trial speeches and death made him a martyr in the North, and Union soldiers marched to 'John Brown's Body' eighteen months later.
 
 ### Katherine Johnson (`katherine_johnson`)
-- cost 3 · Influence 4 · Force 2 · historical · era: 1918–2020
+- cost 4 · Influence 4 · Force 2 · historical · era: 1918–2020
 - reveal: Launch window: your Characters at this Gate become Ready.
 - established: Characters you relocate cannot be displaced the turn they arrive.
 - blurb: NASA mathematician whose trajectory calculations put John Glenn in orbit and Apollo 11 on the Moon.
@@ -42,7 +42,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - history: Mansa Musa ruled the Mali Empire from about 1312 to 1337, at the height of its control over the West African gold and salt trade. His 1324 pilgrimage to Mecca, with a caravan reported at tens of thousands of people, spent so much gold in Cairo that the metal's value there dropped for years. He returned with scholars and architects, built mosques and madrasas in Timbuktu and Gao, and made Timbuktu a centre of Islamic learning. European maps of the era show him holding a gold nugget.
 
 ### Zora Neale Hurston (`zora_neale_hurston`)
-- cost 3 · Influence 4 · Force 1 · historical · era: 1891–1960
+- cost 4 · Influence 4 · Force 1 · historical · era: 1891–1960
 - reveal: Folklore: look at the top two cards of your deck. Keep the more expensive one; the other goes to the bottom.
 - established: Your Gate Characters here gain +1 Influence.
 - blurb: Novelist and anthropologist who recorded the folklore of the rural South and wrote Their Eyes Were Watching God.
@@ -55,25 +55,25 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - history: Born in Jamaica to a white American father and a Black mother, John Brown Russwurm graduated from Bowdoin in 1826, one of the first Black college graduates in the country. The next year he and Samuel Cornish launched Freedom's Journal in New York, answering the white press in its own medium. He later emigrated to Liberia, edited the Liberia Herald and governed the Maryland-in-Africa colony until his death in 1851.
 
 ### Alonzo Herndon (`alonzo_herndon`)
-- cost 2 · Influence 3 · Force 2 · historical · era: 1858–1927
+- cost 3 · Influence 3 · Force 2 · historical · era: 1858–1927
 - established: In and out: Relocations out of this Location do not count against your Relocation limit.
 - blurb: Born enslaved, built the finest barbershop in Atlanta and then Atlanta Life Insurance. Everybody passed through his chairs.
 - history: Alonzo Franklin Herndon was born enslaved in Walton County, Georgia, in 1858. He learned barbering, opened shops in Atlanta and made the Crystal Palace on Peachtree Street the most elegant barbershop in the South, its clientele white and wealthy. He put the money into real estate and in 1905 into the Atlanta Mutual Insurance Association, which became Atlanta Life. By his death in 1927 he was the richest Black man in Atlanta.
 
 ### Callie House (`callie_house`)
-- cost 2 · Influence 3 · Force 3 · historical · era: 1861–1928
+- cost 3 · Influence 3 · Force 3 · historical · era: 1861–1928
 - established: Mutual relief: whenever a Threat at this Location is neutralized, draw 2 cards.
 - blurb: A Nashville washerwoman who built a 300,000-member movement demanding pensions for the formerly enslaved. The government jailed her for it.
 - history: Callie Guy House was born enslaved near Nashville in 1861 and supported five children as a laundress. In the 1890s she helped found the National Ex-Slave Mutual Relief, Bounty and Pension Association, traveling the South to organize local chapters and petition Congress for pensions for freedpeople. The Post Office and Pension Bureau harassed the movement for years; in 1917 she was convicted of mail fraud on thin evidence and served nearly a year in Jefferson City. She died in 1928.
 
 ### Richard Allen (`richard_allen`)
-- cost 3 · Influence 4 · Force 1 · historical · era: 1760–1831
+- cost 4 · Influence 4 · Force 1 · historical · era: 1760–1831
 - established: Mother Bethel: whenever another of your Characters goes Inside here, draw a card.
 - blurb: Bought his own freedom, walked out of a segregated church and built his own denomination.
 - history: Richard Allen was born enslaved in Philadelphia in 1760, bought his freedom in his twenties and became a Methodist preacher. In 1787, after Black worshippers were pulled from their knees at St. George's Church, he and Absalom Jones founded the Free African Society, and in 1794 Allen opened Mother Bethel. In 1816 he brought several Black congregations together as the African Methodist Episcopal Church, the first independent Black denomination in the United States, and became its first bishop. Mother Bethel still stands on the oldest parcel of land continuously owned by Black Americans.
 
 ### Absalom Jones (`absalom_jones`)
-- cost 1 · Influence 2 · Force 2 · historical · era: 1746–1818
+- cost 2 · Influence 2 · Force 2 · historical · era: 1746–1818
 - established: The doors are open: your Characters arriving at this Gate are Ready at the end of the turn.
 - blurb: Bought his wife's freedom before his own. First Black priest in the Episcopal Church.
 - history: Absalom Jones was born enslaved in Delaware in 1746 and taught himself to read from the New Testament. He bought his wife's freedom first, so their children would be born free, and his own in 1784. With Richard Allen he founded the Free African Society in 1787, the first Black mutual-aid society in the country, and led the African Church of St. Thomas in Philadelphia, becoming the first Black priest ordained in the Episcopal Church in 1804. During the yellow fever epidemic of 1793 he and Allen organized Black nurses and grave diggers for a city that had fled.
@@ -100,7 +100,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - history: Denmark Vesey was bought as a boy by a Bermuda slave captain, won $1,500 in a Charleston lottery in 1799 and purchased his own freedom, though not his family's. A carpenter and a founder of the city's AME church, he organized what would have been one of the largest slave uprisings in American history for the summer of 1822. It was betrayed before it began. Vesey and 34 others were hanged, the church was razed, and the state built a citadel to guard against the next attempt. The church rebuilt as Mother Emanuel.
 
 ### Robert Smalls (`robert_smalls`)
-- cost 2 · Influence 3 · Force 2 · historical · era: 1839–1915
+- cost 3 · Influence 3 · Force 2 · historical · era: 1839–1915
 - reveal: The Planter: move one of your Gate Characters to another Location's open Gate for free, keeping its status. It does not use your Relocation and cannot break a curfew or a hold.
 - established: Characters who relocate out of this Location arrive Ready.
 - blurb: Steered a Confederate steamer out of Charleston harbor with his family aboard and handed it to the Union.
@@ -120,7 +120,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - history: Paul Laurence Dunbar was born in Dayton, Ohio, in 1872 to parents who had been enslaved in Kentucky. The only Black student in his high school class, he edited the school paper and ran an elevator to pay for printing his first book. Majors and Minors and Lyrics of Lowly Life made him famous by 25; he wrote novels, songs for the Broadway show Clorindy and the poems "Sympathy" and "We Wear the Mask." He died of tuberculosis in 1906, at 33.
 
 ### Scott Joplin (`scott_joplin`)
-- cost 2 · Influence 3 · Force 1 · historical · era: 1868–1917
+- cost 3 · Influence 3 · Force 1 · historical · era: 1868–1917
 - established: Ragtime: your Characters at this Gate gain +1 Influence.
 - blurb: The King of Ragtime. "Maple Leaf Rag" sold a million copies; his opera waited sixty years for a stage.
 - history: Scott Joplin was born in Texas around 1868, the son of a formerly enslaved railroad laborer, and learned piano from a German teacher in Texarkana. In Sedalia, Missouri, he published "Maple Leaf Rag" in 1899, the first sheet music by a Black composer to sell in the hundreds of thousands, and wrote some forty rags that turned a saloon style into a composed art. He spent his last years in New York trying to stage his opera Treemonisha and died in 1917. Treemonisha was finally produced in 1972 and won him a Pulitzer in 1976.
@@ -132,13 +132,13 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - history: The Cotton Club hired its house bands to play the floor shows, two a night, and to broadcast. Duke Ellington's orchestra opened there on 4 December 1927, after King Oliver had turned the job down, and the nightly radio broadcasts from the bandstand made it the best-known Black orchestra in the country; "Black and Tan Fantasy", "The Mooche" and "Mood Indigo" date from those years, and Johnny Hodges, Harry Carney and Cootie Williams joined the band while it was there. Cab Calloway's orchestra took over in 1931, the year of "Minnie the Moocher", and Jimmie Lunceford's followed in 1934. The revues the bands played were written by white songwriters for the room: Jimmy McHugh and Dorothy Fields ("I Can't Give You Anything but Love", 1928), then Harold Arlen and Ted Koehler ("Stormy Weather", sung by Ethel Waters in 1933). The musicians, the singers and the chorus were Black; the audience they played to was not allowed to be.
 
 ### Bass Reeves (`bass_reeves`)
-- cost 1 · Influence 2 · Force 3 · historical · era: 1838–1910
+- cost 2 · Influence 2 · Force 3 · historical · era: 1838–1910
 - reveal: Confront one neutral Threat here with +1 Force.
 - blurb: Born enslaved, fluent in several Native languages, one of the first Black deputy U.S. Marshals west of the Mississippi. Three thousand arrests, never wounded.
 - history: Bass Reeves was born enslaved in Arkansas in 1838 and escaped into Indian Territory during the Civil War. In 1875 Judge Isaac Parker made him a deputy U.S. Marshal, one of the first Black deputies west of the Mississippi. Over thirty-two years he made roughly three thousand arrests, including of his own son, and was never wounded despite many gunfights. Some argue he was the inspiration for the Lone Ranger.
 
 ### Tom Bass (`tom_bass`)
-- cost 2 · Influence 3 · Force 1 · historical · era: 1859–1934
+- cost 3 · Influence 3 · Force 1 · historical · era: 1859–1934
 - established: The Bass bit: gentle hands, full control. While Tom Bass is Established here, opposing Characters at this Location cannot relocate out. Harriet Tubman still can.
 - blurb: The greatest saddle-horse trainer of his day. Invented a bit that never hurt the horse and refused to patent it.
 - history: Tom Bass was born enslaved in Boone County, Missouri, on January 5, 1859, to Cornelia Gray and the man who owned her, and was raised by his grandparents Presley and Eliza Gray. After the war he found work as a stable boy in Mexico, Missouri, learned the trade there, and became the most celebrated saddle-horse trainer in the country: he won the world championship on the mare Miss Rex at the 1893 World's Columbian Exposition in Chicago, showed Belle Beach, trained horses for Buffalo Bill Cody, Will Rogers and Theodore Roosevelt, and performed for five presidents, from Cleveland to Coolidge. He invented the Bass bit, which controls a horse without hurting its mouth, and refused to patent it; it is still made. When he died on November 4, 1934, Will Rogers gave his whole newspaper column to him: "all they did was ride him."
@@ -171,14 +171,14 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - history: An archetype. The organizer is the person who runs the meeting, keeps the list and makes the phone calls: Ella Baker, who built the NAACP's Southern branches and mentored SNCC; Fannie Lou Hamer registering voters in Mississippi; the thousands of unnamed people who made the Montgomery bus boycott run for 381 days. The game's Organizer represents that role rather than one person.
 
 ### OG (`og`)
-- cost 3 · Influence 3 · Force 3 · archetype · era: Timeless
+- cost 4 · Influence 3 · Force 3 · archetype · era: Timeless
 - reveal: Opposing Gate Characters here cannot enter this turn.
 - established: Opposing Gate Characters here contribute 1 less Influence.
 - blurb: Everybody on the block knows who you talk to first.
 - history: An archetype. 'OG' (original gangster, now simply 'original') is the elder on the block whose standing comes from having been there first and stayed. The game uses the figure for territorial respect: the person you talk to before you do anything on that corner. No single historical figure is intended.
 
 ### Ida B. Wells (`ida_b_wells`)
-- cost 4 · Influence 5 · Force 1 · historical · era: 1862–1931
+- cost 5 · Influence 5 · Force 1 · historical · era: 1862–1931
 - reveal: EXPOSE: a Threat here permanently needs 2 less Force to neutralize.
 - established: Whenever a Threat at this Location is neutralized, Ida gains +2 Influence.
 - blurb: Investigative journalist who documented lynching with names, dates and evidence when no one else would print them.
@@ -199,21 +199,21 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - history: Born enslaved in Saint-Domingue around 1743, Toussaint Louverture rose to lead the revolution that began in 1791. He defeated French, Spanish and British forces in turn, abolished slavery across the colony and wrote its 1801 constitution naming himself governor for life. Napoleon sent an army to restore slavery; Toussaint was captured by treachery in 1802 and died in a French prison in the Jura in 1803. His lieutenants finished the war and declared Haiti independent on 1 January 1804.
 
 ### Marcus Garvey (`marcus_garvey`)
-- cost 5 · Influence 6 · Force 2 · historical · era: 1887–1940
+- cost 6 · Influence 6 · Force 2 · historical · era: 1887–1940
 - reveal: Each other friendly Character here gains +1 Influence this turn.
 - established: The Black Star Line: any Character you relocate away from this Location arrives at its new Gates Ready, not Fresh. (He does not move anyone himself; you choose the Relocation.)
 - blurb: Founded the UNIA and the Black Star Line, building the largest mass movement in Black history.
 - history: Marcus Garvey (1887–1940), born in Jamaica, founded the Universal Negro Improvement Association in 1914 and moved it to Harlem in 1916. At its peak the UNIA claimed millions of members across the Americas and Africa, published the Negro World and ran the Black Star Line, a shipping company financed by Black shareholders. The line failed, Garvey was convicted of mail fraud in 1923 and deported in 1927, but his ideas of Black pride and self-reliance shaped Rastafari, Pan-Africanism and the civil rights generation.
 
 ### Bessie Coleman (`bessie_coleman`)
-- cost 2 · Influence 2 · Force 3 · historical · era: 1892–1926
+- cost 3 · Influence 2 · Force 3 · historical · era: 1892–1926
 - keywords: STRAIGHT_INSIDE
 - established: Your Characters here cannot be blocked from entering.
 - blurb: Refused entry to every American flight school, she learned French, trained in Paris and came home a licensed pilot.
 - history: Bessie Coleman (1892–1926) was refused by every flight school in the United States because she was Black and a woman. She learned French, sailed to France and in 1921 earned an international pilot's licence from the Fédération Aéronautique Internationale, the first Black woman and first Native American woman to do so. Back home she flew barnstorming shows, refused to perform for segregated audiences, and died in a crash in Jacksonville in 1926 while preparing a show. Chicago's Bessie Coleman Drive leads to O'Hare.
 
 ### Sojourner Truth (`sojourner_truth`)
-- cost 4 · Influence 5 · Force 2 · historical · era: c. 1797–1883
+- cost 5 · Influence 5 · Force 2 · historical · era: c. 1797–1883
 - reveal: SUPPRESS the opposing Established Character here with the highest Influence until the end of next turn.
 - established: Your Characters here cannot be Suppressed.
 - blurb: Walked away from slavery, sued a white man for her son and won, and spoke truth that silenced rooms.
@@ -357,7 +357,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - history: William Still was born free in Shamong Township, Burlington County, New Jersey, in October 1821, the youngest child of parents who had come out of Maryland slavery. In 1847 the Pennsylvania Anti-Slavery Society in Philadelphia hired him as a clerk. In August 1850 a self-ransomed man of nearly fifty was sent to the office for advice on finding his parents, and Still's questions showed that Peter was his own brother, sold away from the family on Maryland's Eastern Shore as a boy more than forty years before; he later said that meeting was what moved him to keep the records. From December 1852 he chaired the Acting Committee of the reorganized Vigilance Committee, charged to keep a record of all its doings: arrivals were questioned closely, and for most of them he wrote down names, owners, places and the story of the escape, so that accounts could be checked against each other and against letters from agents like Thomas Garrett in Wilmington. When the Committee doubted a story it aided the man anyway, and one impostor suspicion was wrong. In March 1857 eight people from Dorchester County, Maryland, were walked by their guide, a Black man named Thomas Otwell, into the Dover, Delaware, jail for a $3,000 reward; they broke out through the sheriff's window and reached Philadelphia through the Delaware conductors. Garrett's letter of 13 March, marked to be shown to Still, named Otwell; Still printed it in 1872, with the Camden conductor William Brinkley's verdict that Otwell was 'dun for ever', and wrote that what became of the betrayer the Committee was never fully posted. He arrested and punished nobody; the record was the work. After John Brown's papers were captured in October 1859 he sent the books into hiding and kept the record on loose slips; he published it as The Underground Rail Road in 1872, and died in Philadelphia on 14 July 1902.
 
 ### Victor Hugo Green (`victor_hugo_green`)
-- cost 3 · Influence 4 · Force 1 · historical · era: 1892–1960
+- cost 4 · Influence 4 · Force 1 · historical · era: 1892–1960
 - reveal: The Green Book: next turn you may make one extra Relocation.
 - established: Characters you relocate out of this Location arrive Inside their destination (Established), not at the Gates.
 - blurb: Publisher of the Green Book, the guide that told Black travelers where they could eat, sleep and buy gas without danger, including how to get through sundown towns.
@@ -392,7 +392,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - history: Mythic (fantasy). Yemoja is the Yoruba mother of waters, patron of women, childbirth and the river Ogun. In the diaspora she became the goddess of the sea, Yemayá in Cuba and Iemanjá in Brazil, where millions bring flowers to the beach for her on 2 February and New Year's Eve. The card's crossing is a reference to the Middle Passage, over which her children were carried. The abilities are invention in her spirit.
 
 ### Ogun (`ogun`)
-- cost 4 · Influence 4 · Force 5 · mythic · era: Yoruba
+- cost 5 · Influence 4 · Force 5 · mythic · era: Yoruba
 - reveal: Iron: confront every Threat here with +2 Force.
 - established: Threats at this Location need 1 less Force to neutralize.
 - blurb: Orisha of iron, the forge and the machete, patron of everyone who works metal, from blacksmiths to the steel mills of Gary.
@@ -479,7 +479,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - history: Harriet Powers was born enslaved in Georgia in 1837 and farmed near Athens after emancipation. She exhibited her Bible Quilt at the Athens Cotton Fair in 1886 and, hard up in 1891, sold it for five dollars to Jennie Smith, an art teacher who wrote down Powers's own explanation of every panel. A second quilt, the Pictorial Quilt (about 1898), mixes Bible stories with remembered events like the 1833 meteor shower. The two are the only known works by her; the first is at the National Museum of American History, the second in Boston.
 
 ### David Drake (`dave_the_potter`)
-- cost 1 · Influence 1 · Force 2 · artist · era: c. 1801–c. 1875
+- cost 2 · Influence 1 · Force 2 · artist · era: c. 1801–c. 1875
 - reveal: Inscribed jar: this Location gains +1 lasting Influence for you. It stays even if he leaves.
 - blurb: "Dave the Potter" of Edgefield, South Carolina: an enslaved man who signed, dated and wrote verses on forty-gallon jars when literacy was a crime.
 - history: David Drake was born enslaved around 1801 and turned pots in the Edgefield district of South Carolina for the Landrum and Miles families. From the 1830s he signed and dated his jars and cut couplets into the wet clay: "I wonder where is all my relation / friendship to all and every nation" (1857). South Carolina had outlawed teaching enslaved people to write in 1834. He is recorded as a free man named Dave Drake in the 1870 census; his jars are in the Smithsonian, the Met and the Museum of Fine Arts, Boston.
@@ -504,13 +504,13 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - history: Marie Catherine Laveau was born free in New Orleans in 1801, a Creole of African, French and Native descent. A hairdresser to wealthy households, she became the city's best-known Vodou practitioner, leading ceremonies at Congo Square and on Lake Pontchartrain, nursing yellow fever patients and visiting prisoners on death row. Clients across every class came to her for charms, advice and intercession. She died in 1881; her tomb in St. Louis Cemetery No. 1 is still visited.
 
 ### Nanny of the Maroons (`nanny_of_the_maroons`)
-- cost 5 · Influence 6 · Force 4 · historical · era: c. 1686–1755
+- cost 6 · Influence 6 · Force 4 · historical · era: c. 1686–1755
 - established: Nanny Town: opposing Reveal abilities cannot target your Characters here.
 - blurb: Led the Windward Maroons from the Blue Mountains and held off the British for a decade.
 - history: Queen Nanny, born in the Gold Coast around 1686, led the Windward Maroons of Jamaica from a mountain settlement the British called Nanny Town. Through the First Maroon War of the 1720s and 1730s her people used the terrain, ambush and abeng horn signals to hold off repeated expeditions, and Maroon tradition credits her with spiritual power as well as command. A 1740 land grant recorded her name. Jamaica named her a National Hero in 1975; she is on the 500-dollar note.
 
 ### Nehanda Nyakasikana (`nehanda`)
-- cost 4 · Influence 5 · Force 3 · historical · era: c. 1840–1898
+- cost 5 · Influence 5 · Force 3 · historical · era: c. 1840–1898
 - passive: My bones will rise: if she is displaced she returns to your hand instead, and costs 0 the next time you play her. +1 Influence at any Location in Africa.
 - blurb: Spirit medium of the Shona who told the colonial court her bones would rise again.
 - history: Charwe Nyakasikana, born around 1840 in the Mazowe valley, was the medium of the ancestral spirit Nehanda among the Shona. In 1896 she and the medium Kaguvi helped lead the First Chimurenga against the British South Africa Company's rule in what is now Zimbabwe. Captured in 1897, she refused conversion and was hanged in Salisbury in April 1898. Her reported last words, that her bones would rise again, became a rallying cry of the liberation war of the 1960s and 1970s.
@@ -536,7 +536,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - history: Ayuba Suleiman Diallo, called Job ben Solomon in England, was a Fulani Muslim scholar from Bundu in Senegal, captured and sold in 1731 while himself on a trading journey. Enslaved on a tobacco plantation in Maryland, he wrote a letter in Arabic to his father that reached James Oglethorpe, who bought his freedom. In London he wrote out the Qur'an from memory, sat for a portrait and returned to Bundu in 1734. His account, published in 1734, is one of the earliest slave narratives.
 
 ### Omar ibn Said (`omar_ibn_said`)
-- cost 3 · Influence 4 · Force 2 · historical · era: c. 1770–1864
+- cost 4 · Influence 4 · Force 2 · historical · era: c. 1770–1864
 - reveal: Autobiography: see every card in your opponent's hand.
 - established: Scholar: your Events cost 1 less Energy.
 - blurb: Twenty-five years a scholar in Futa Toro, fifty-six years enslaved in Carolina, and he kept writing.
