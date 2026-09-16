@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { referencesFor } from '../../engine';
-import { sfx } from '../audio';
 
 /**
  * The references for one entry, over whatever is open: a short list of sources with outbound links. The same list
@@ -9,7 +8,6 @@ import { sfx } from '../audio';
 export function RefsModal({ id, name, onClose }: { id: string; name: string; onClose: () => void }) {
   const refs = referencesFor(id);
   useEffect(() => {
-    sfx('sheet.open');
     const key = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.stopPropagation();

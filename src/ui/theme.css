@@ -1649,7 +1649,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 /* The band at the foot (ranked frame, in the 1103 box): the navy runs x 270-835 and its centre diamond rises to a tip
    at x 551, so the band is two word spaces (275-528 and 573-826) either side of a gap the diamond owns, each word
    centred in its own half. */
-.card.tpl .tpl-strip { z-index: 3; left: 24.9cqw; right: 25.1cqw; top: 113cqw; height: 5.6cqw; display: grid; grid-template-columns: 1fr 4.1cqw 1fr; align-items: center; font-family: var(--display); font-weight: 600; font-size: 2.3cqw; letter-spacing: 0.14em; text-transform: uppercase; line-height: 1.1; color: var(--parchment); text-shadow: 0 0.18cqw 0.27cqw rgba(0, 0, 0, 0.7); white-space: nowrap; }
+.card.tpl .tpl-strip { z-index: 3; left: 24.9cqw; right: 25.1cqw; top: 113.5cqw; height: 5.6cqw; display: grid; grid-template-columns: 1fr 4.1cqw 1fr; align-items: center; font-family: var(--display); font-weight: 600; font-size: 2.3cqw; letter-spacing: 0.14em; text-transform: uppercase; line-height: 1.1; color: var(--parchment); text-shadow: 0 0.18cqw 0.27cqw rgba(0, 0, 0, 0.7); white-space: nowrap; }
 .card.tpl .tpl-strip-l, .card.tpl .tpl-strip-r { min-width: 0; text-align: center; overflow: hidden; text-overflow: ellipsis; padding: 0 0.3cqw; }
 .card.tpl .tpl-strip-r { grid-column: 3; }
 .card.tpl .tpl-strip .long { font-size: 1.95cqw; letter-spacing: 0.1em; }
