@@ -102,6 +102,11 @@ export function fixedRank(cardId: string): Rank | null {
  * least two cards. Cards outside the decks fall to a stable hash, about one in five. Once finishes are owned this
  * reads the profile instead.
  */
+/** Finishes that only some cards may wear. Stars and Stripes: American political figures only, for now. */
+const USA_POLITICAL = new Set(['abraham_lincoln', 'thaddeus_stevens', 'charles_sumner', 'robert_smalls', 'henry_mcneal_turner', 'roger_taney', 'frederick_douglass']);
+export function mayWear(cardId: string, finish: Finish): boolean {
+  return finish !== 'usa' || USA_POLITICAL.has(cardId);
+}
 const IN_DECK = new Set<string>();
 const PREVIEW: Record<string, Finish> = (() => {
   const out: Record<string, Finish> = {};
@@ -111,16 +116,28 @@ const PREVIEW: Record<string, Finish> = (() => {
     chars.forEach((id, i) => {
       IN_DECK.add(id);
       if (i % 4 !== 0 || out[id]) return;
-      out[id] = FINISHES[k % FINISHES.length];
+      let f = FINISHES[k % FINISHES.length];
+      if (!mayWear(id, f)) f = FINISHES[(k + 1) % FINISHES.length];
+      out[id] = f;
       k++;
     });
   });
+  // A restricted finish still shows on a couple of cards: eligible deck cards without a finish of their own wear it.
+  for (const f of FINISHES) {
+    const deckCards = [...new Set(Object.values(PRESET_DECKS).flatMap((deck) => deck.cards))];
+    while (Object.values(out).filter((x) => x === f).length < 2) {
+      const id = deckCards.find((c) => CARD_BY_ID[c]?.kind === 'character' && !FIXED_RANK[c] && !out[c] && mayWear(c, f));
+      if (!id) break;
+      out[id] = f;
+    }
+  }
   return out;
 })();
 function hashedFinish(cardId: string): Finish | null {
   if (IN_DECK.has(cardId)) return null;
   const r = hash01(cardId);
-  return r < 0.2 ? FINISHES[Math.floor((r / 0.2) * FINISHES.length)] : null;
+  const f = r < 0.2 ? FINISHES[Math.floor((r / 0.2) * FINISHES.length)] : null;
+  return f && mayWear(cardId, f) ? f : null;
 }
 export function finishOf(cardId: string): Finish | null {
   if (FIXED_RANK[cardId]) return null;
