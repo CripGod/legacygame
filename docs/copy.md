@@ -1043,6 +1043,7 @@ Main menu
 - ${name} fits your ${energyLeft} Energy (${cost}). Drag it onto a Location.
 - Sit Down: give up the match now. ${view.players[other(me)].handle} takes ${opts.stepOffCost} Legacy.
 - app ${resolving ? 'resolving' : ''}
+- linear-gradient(180deg, rgba(5, 12, 21, 0.55) 0%, rgba(5, 12, 21, 0.62) 55%, rgba(5, 12, 21, 0.78) 100%), url(${artUrl('landing', 'board')})
 - replay-banner kind-clash ${verdict.tone === 'win' ? 'miss' : verdict.tone === 'draw' ? 'arrive' : ''}
 - replay-banner kind-clash ${clashTell.tone}
 - replay-banner kind-${step.kind}
@@ -1588,13 +1589,15 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - ; shatter?: boolean; stamp?: BoardFx[
 - threat-tile ${who} ${fresh ? 'fresh' : ''} ${gone ? 'gone' : ''} ${confronting ? 'confronting' : ''} ${foreseen ? 'foreseen' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' && !gone ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''} ${hidden ? 'fx-hidden' : ''} ${hit ? 
 -  : ''} ${shatter ? 'fx-shatter' : ''}
-- ${tdef.name}: in the area, either player can confront it. ${tdef.text}
+- ${tdef.name}: ${tdef.standing ? 
+-  : 'in the area,'} either player can confront it. ${tdef.text}
 - ${tdef.name}, aimed at you. ${tdef.text}
 - ${tdef.name}, aimed at ${view.players[other(me)].handle}. ${tdef.text}
 - stamp verdict ${stamp.tone ?? 'hit'}
+- healing${fx?.healBy && fx.healBy !== 'both' ? 
 -  : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''}
 - Play here: ${loc.revealed ? locationName(loc.defId, placeholders) : 
-- loc-glow ${state}${healing ? ' healing' : ''}
+- loc-glow ${state}${healing ? 
 - loc-stamp ${fx.locStamp[loc.index].tone}
 - art ${loc.revealed ? 'reveal-anim' : 'hidden-art'}
 - linear-gradient(135deg, hsl(${(loc.defId.length * 47) % 360} 30% 24%), hsl(${(loc.defId.length * 47 + 60) % 360} 30% 14%))

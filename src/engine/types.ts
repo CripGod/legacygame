@@ -299,7 +299,7 @@ export interface ThreatDef {
   firesAfterTurns?: number;
   /** The Land Office: turns the office stays open. The Inside shrinks by one seat per player each turn it stands; at the close, two Established prove up and lift it, otherwise nobody else enters until Force clears it. */
   window?: number;
-  /** The tile's status line for a shared Threat, in place of "In the area" ("Taney rules"). */
+  /** The tile's status line for a shared Threat, in place of "In the area" ("Taney presiding"). */
   standing?: string;
   blurb: string;
 }
