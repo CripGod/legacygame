@@ -7,7 +7,7 @@ import { CodexSheet } from '../components/CodexSheet';
 import { RefsModal } from '../components/RefsModal';
 import { Art } from '../components/Art';
 import { artMissing, artUrl, markArtMissing } from '../art';
-import { FINISHES, FINISH_LABEL, RANKS, RANK_LABEL, RANK_PRICE, useLedger } from '../legacy';
+import { FINISHES, FINISH_LABEL, RANKS, RANK_LABEL, RANK_PRICE, finishOf, useLedger } from '../legacy';
 import { locationName, threatLabel, useDisplay } from '../display';
 import { Wordmark } from '../components/Wordmark';
 
@@ -314,7 +314,7 @@ function ReadingChapter({ n }: { n: number }) {
   const l = useLedger();
   const have = l.banked - l.spent;
   const starts: Record<string, string> = { wood: 'costs 0 and 1', bronze: 'cost 2', silver: 'cost 3', gold: 'cost 4', emerald: 'cost 5', ruby: 'cost 6 and up' };
-  const rarity: Record<string, string> = { 'tigers-eye': 'common', turquoise: 'uncommon', amethyst: 'rare', onyx: 'rarest', marble: 'one deck', ice: 'one deck', camouflage: 'one deck', lava: 'one deck', usa: 'one deck' };
+  const worn = (f: string) => CHARACTERS.filter((c) => !c.hidden && finishOf(c.id) === f).length;
   return (
     <section id="cx-reading" className="cx-chapter">
       <ChapterHead n={n} title={chapterOf('reading').title} lede={chapterOf('reading').lede} count={RANKS.length + FINISHES.length} unit="frames" />
@@ -368,7 +368,7 @@ function ReadingChapter({ n }: { n: number }) {
           <b>The finishes</b>
         </div>
         <p className="cx-frames-lede">
-          Nine more frames sit outside the ladder. A finish is worn in place of the rank's frame; the rank goes on climbing underneath, and a finish says nothing about it. They will be the store's, bought with Legacy or won; for now a few cards wear them so you can see them in play, the rarer the finish the fewer the cards, and each preset deck carries one of the newest five.
+          Nine more frames sit outside the ladder. A finish is worn in place of the rank's frame; the rank goes on climbing underneath, and a finish says nothing about it. They will be the store's, bought with Legacy or won; for now a few cards in every deck wear them so you can see each one in play.
         </p>
         <div className="cx-frames-row finishes" role="list">
           {FINISHES.map((f) => (
@@ -376,7 +376,7 @@ function ReadingChapter({ n }: { n: number }) {
               <img src={artUrl('frames', `character-sm-${f}`, 'webp')} alt="" loading="lazy" />
               <figcaption>
                 <b>{FINISH_LABEL[f]}</b>
-                <span>{rarity[f]}</span>
+                <span>worn by {worn(f)}</span>
                 <small>store, later</small>
               </figcaption>
             </figure>

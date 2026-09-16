@@ -90,30 +90,38 @@ function hash01(id: string): number {
   for (let i = 0; i < id.length; i++) h = Math.imul(h ^ id.charCodeAt(i), 16777619);
   return ((h >>> 0) % 10000) / 10000;
 }
-/**
- * The finish a card wears for now, by rarity: about one card in five, Tiger's Eye the most common and Onyx the rarest.
- * A preview of the store's frames; once finishes are owned and equipped this reads the profile instead.
- */
-function hashedFinish(cardId: string): Finish | null {
-  const r = hash01(cardId);
-  if (r < 0.1) return 'tigers-eye';
-  if (r < 0.16) return 'turquoise';
-  if (r < 0.2) return 'amethyst';
-  if (r < 0.22) return 'onyx';
-  return null;
+/** Cards that come in one rank only, above the ladder: never promoted, never finished. Black Jesus only comes in Diamond. */
+const FIXED_RANK: Record<string, Rank> = { black_jesus: 'diamond' };
+export function fixedRank(cardId: string): Rank | null {
+  return FIXED_RANK[cardId] ?? null;
 }
-/** The newer finishes, one to a preset deck so every deck shows one in play: the third eligible Character of each deck, in deck order. */
-const SHOWN_FINISHES: Finish[] = ['marble', 'ice', 'camouflage', 'lava', 'usa'];
+/**
+ * The finishes a card wears for now, a preview of the store's frames until finishes are owned and equipped: every
+ * fourth Character of each preset deck, in deck order, takes the next finish in the list, each deck starting two
+ * further along, so every deck shows a few (the first card of each row among them) and every finish is worn by at
+ * least two cards. Cards outside the decks fall to a stable hash, about one in five. Once finishes are owned this
+ * reads the profile instead.
+ */
+const IN_DECK = new Set<string>();
 const PREVIEW: Record<string, Finish> = (() => {
   const out: Record<string, Finish> = {};
-  Object.values(PRESET_DECKS).forEach((deck, i) => {
-    const finish = SHOWN_FINISHES[i % SHOWN_FINISHES.length];
-    const eligible = deck.cards.filter((id) => CARD_BY_ID[id]?.kind === 'character' && !out[id] && !hashedFinish(id));
-    const pick = eligible[Math.min(2, eligible.length - 1)];
-    if (pick) out[pick] = finish;
+  Object.values(PRESET_DECKS).forEach((deck, d) => {
+    const chars = deck.cards.filter((id) => CARD_BY_ID[id]?.kind === 'character' && !FIXED_RANK[id]);
+    let k = d * 2;
+    chars.forEach((id, i) => {
+      IN_DECK.add(id);
+      if (i % 4 !== 0 || out[id]) return;
+      out[id] = FINISHES[k % FINISHES.length];
+      k++;
+    });
   });
   return out;
 })();
+function hashedFinish(cardId: string): Finish | null {
+  if (IN_DECK.has(cardId)) return null;
+  const r = hash01(cardId);
+  return r < 0.2 ? FINISHES[Math.floor((r / 0.2) * FINISHES.length)] : null;
+}
 export function finishOf(cardId: string): Finish | null {
   if (FIXED_RANK[cardId]) return null;
   return PREVIEW[cardId] ?? hashedFinish(cardId);
@@ -123,11 +131,6 @@ export function frameOf(cardId: string): FrameId {
   return finishOf(cardId) ?? rankOf(cardId);
 }
 /** The rank a card holds: what was bought for it, or its starting rank, whichever is higher. The ladder frame never sits above this. */
-/** Cards that come in one rank only, above the ladder: never promoted, never finished. Black Jesus only comes in Diamond. */
-const FIXED_RANK: Record<string, Rank> = { black_jesus: 'diamond' };
-export function fixedRank(cardId: string): Rank | null {
-  return FIXED_RANK[cardId] ?? null;
-}
 export function rankOf(cardId: string): Rank {
   const fixed = FIXED_RANK[cardId];
   if (fixed) return fixed;

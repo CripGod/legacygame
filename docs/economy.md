@@ -13,10 +13,9 @@ frame shown is exactly the rank held (bought, or the starting rank), never a ste
 **The finishes** (cosmetic, for the store later): **Tiger's Eye**, **Turquoise**, **Amethyst**, **Onyx**, **Marble**,
 **Ice**, **Camouflage**, **Lava**, **Stars and Stripes**. A finish is worn in place of the rank's frame; the rank is
 still there underneath and still climbs, and a finish says nothing about rank (a player is assumed to have won it,
-been granted it, or bought it). Until finishes are owned and equipped, about one card in five wears one of the first
-four, picked by a stable hash of its id and weighted by rarity (Tiger's Eye the most common, Onyx the rarest), and
-each preset deck carries one of the newer five (Marble to Railroad, Ice to Black Star, Camouflage to Bois Caïman,
-Lava to Pantheon, Stars and Stripes to Mirror, on the third eligible Character of the deck), so every deck shows one.
+been granted it, or bought it). Until finishes are owned and equipped, every fourth Character of each preset deck (in deck order) wears the next
+finish in the list, each deck starting two further along, so every deck shows a few and every finish is worn by two
+or three cards; cards outside the decks fall to a stable hash, about one in five.
 
 Every frame is the same 1047×1411 export fitted into the card's 1103×1426 box, so one set of positions serves all
 sixteen. **Events are exempt** for now: they keep their own frame, take no rank, and show no rank row in the Codex.
