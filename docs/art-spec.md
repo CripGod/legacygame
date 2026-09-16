@@ -24,7 +24,7 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 
 ## Missing
 
-### characters (23)
+### characters (22)
 
 - `callie_house` **Callie House** (1861–1928): A Nashville washerwoman who built a 300,000-member movement demanding pensions for the formerly enslaved. The government jailed her for it.
 - `paul_laurence_dunbar` **Paul Laurence Dunbar** (1872–1906): The first Black poet with a national audience. "We Wear the Mask." Dead of tuberculosis at 33.
@@ -35,7 +35,6 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - `abraham_lincoln` **Abraham Lincoln** (1809–1865): Declared free on New Year's Day 1863 everyone enslaved in the states still in rebellion, the loyal states and a few occupied districts excepted, then spent his last winter whipping the votes for the amendment that freed the rest.
 - `william_lloyd_garrison` **William Lloyd Garrison** (1805–1879): Printed The Liberator every week for thirty-five years and would not retreat a single inch. 'I will be heard.'
 - `yaa_asantewaa` **Yaa Asantewaa** (c. 1840–1921): Queen Mother of Ejisu who shamed the Asante chiefs into war in 1900 and besieged the British garrison in its fort at Kumasi for three months.
-- `desmond_tutu` **Desmond Tutu** (1931–2021): Archbishop of Cape Town and chair of the Truth and Reconciliation Commission, which heard victims in public and granted amnesty for full disclosure of politically motivated crimes.
 - `peter_prioleau` **Peter Prioleau** (Charleston, 1822): The enslaved cook who told his master about the Vesey plot. Freed by the state for it, with a pension.
 - `george_wilson` **George Wilson** (Charleston, 1822): A class leader in the African church who confirmed the plot to his master. Freed, and never at peace with it.
 - `pharoah_and_tom` **Pharoah and Tom** (Richmond, 1800): Two enslaved men on Mosby Sheppard's place who gave up Gabriel's rising on the day it was to begin.

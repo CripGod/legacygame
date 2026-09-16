@@ -1309,6 +1309,7 @@ export const CHARACTERS: CharacterDef[] = [
   {
     kind: 'character',
     id: 'desmond_tutu',
+    hidden: true, // held back for now: he died in 2021, well past the public-domain line
     cost: 4,
     category: 'historical',
     name: 'Desmond Tutu',
