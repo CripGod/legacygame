@@ -497,7 +497,9 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     const loc = ev.location ?? -1;
     /** The Location heals when this was its last Threat: none live after the beat, none of this beat's fallen still shown alive. */
     const healed = (f: BoardFx | null) => d.cleared && loc >= 0 && view.locations[loc].threats.length === 0 && !neutralized.some((g) => g.location === loc && g.uid !== d.threatUid && (f?.alive ?? []).includes(g.uid));
-    const healPatch = (f: BoardFx | null): Partial<BoardFx> => (healed(f) ? { heal: [...(f?.heal ?? []).filter((i) => i !== loc), loc] } : {});
+    /** Whose light: the side that put up more Force broke it; an even split is both. */
+    const healBy: PlayerId | 'both' = d.force.A > d.force.B ? 'A' : d.force.B > d.force.A ? 'B' : 'both';
+    const healPatch = (f: BoardFx | null): Partial<BoardFx> => (healed(f) ? { heal: [...(f?.heal ?? []).filter((i) => i !== loc), loc], healBy } : {});
     if (!threatEl || reduceMotion() || !fighters.length) {
       sfx('clash.hit');
       if (d.cleared) {
@@ -578,7 +580,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         const to = document.querySelector(`.column[data-index="${e.location}"] .art`)?.getBoundingClientRect();
         if (!from || !to) continue;
         const amount = (e.data as { amount?: number }).amount;
-        shots.push({ from, to, color: TRAIL_COLORS[e.player ?? 'A'], label: amount ? `+${amount}` : undefined, kind: 'wave' });
+        shots.push({ from, to, color: TRAIL_COLORS[e.player ?? 'A'], ring: healBy === 'both' ? TRAIL_COLORS.heal : TRAIL_COLORS[healBy], label: amount ? `+${amount}` : undefined, kind: 'wave' });
         lands.push({ at: waveLandAt(from, to), location: e.location!, tone: e.player === me ? 'mine' : 'theirs' });
       }
       if (shots.length) {
@@ -599,7 +601,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     }
     await wait(hold);
     if (!alive()) return;
-    setFx((f) => (f ? { ...f, stamp: undefined, shatter: undefined, flash: undefined, heal: undefined, alive: (f.alive ?? []).filter((u) => u !== d.threatUid) } : f));
+    setFx((f) => (f ? { ...f, stamp: undefined, shatter: undefined, flash: undefined, heal: undefined, healBy: undefined, alive: (f.alive ?? []).filter((u) => u !== d.threatUid) } : f));
   };
 
   /**
@@ -829,17 +831,17 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       setTrail(shots);
       if (freezeAt === undefined) window.setTimeout(() => landFx(locs.map((location) => ({ location, amount: 1, tone: side === 'artist' ? 'artist' : side === 'A' ? 'mine' : 'theirs' }))), 1050);
     };
-    /** Dev: heal a Location and send its wave to others (window.__sobHeal(1, [0, 2], freezeAt?)); freezeAt holds one wave frame. */
-    (window as unknown as { __sobHeal?: (loc: number, locs: number[], freezeAt?: number) => void }).__sobHeal = (loc, locs, freezeAt) => {
+    /** Dev: heal a Location and send its wave to others (window.__sobHeal(1, [0, 2], freezeAt?, 'B')); freezeAt holds one wave frame; the last argument is who broke it. */
+    (window as unknown as { __sobHeal?: (loc: number, locs: number[], freezeAt?: number, by?: PlayerId | 'both') => void }).__sobHeal = (loc, locs, freezeAt, by = 'A') => {
       setTrailFreeze(freezeAt);
       const from = document.querySelector(`.column[data-index="${loc}"] .location`)?.getBoundingClientRect();
       if (!from) return;
-      setFx((f) => ({ ...(f ?? { hidden: [] }), heal: [loc] }));
-      window.setTimeout(() => setFx((f) => (f ? { ...f, heal: undefined } : f)), 1600);
+      setFx((f) => ({ ...(f ?? { hidden: [] }), heal: [loc], healBy: by }));
+      window.setTimeout(() => setFx((f) => (f ? { ...f, heal: undefined, healBy: undefined } : f)), 1600);
       const shots: TrailShot[] = [];
       for (const i of locs) {
         const to = document.querySelector(`.column[data-index="${i}"] .art`)?.getBoundingClientRect();
-        if (to) shots.push({ from, to, color: TRAIL_COLORS[i % 2 ? 'B' : 'A'], label: '+1', kind: 'wave' });
+        if (to) shots.push({ from, to, color: TRAIL_COLORS[i % 2 ? 'B' : 'A'], ring: by === 'both' ? TRAIL_COLORS.heal : TRAIL_COLORS[by], label: '+1', kind: 'wave' });
       }
       sfx('heal');
       setTrail(shots);

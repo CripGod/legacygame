@@ -125,6 +125,8 @@ export interface BoardFx {
   locStamp?: Record<number, { title: string; tone: 'mine' | 'theirs' | 'lost' | 'tie' }>;
   /** Locations healing this beat: their last Threat just broke, the picture floods back and light sweeps up it. */
   heal?: number[];
+  /** Who broke the Threat that healed them: the light takes their colour ('both' when the Force was even). */
+  healBy?: PlayerId | 'both';
 }
 
 const picFx = (fx: BoardFx | null | undefined, uid: string): 'windup' | 'knocked' | 'held' | 'hexed' | 'land' | undefined => {
@@ -468,7 +470,8 @@ export function Battlefield(props: BattlefieldProps) {
         // A Location is ailing while a Threat sits on it (or still looks alive in the replay); it heals the beat its last Threat breaks.
         const healing = !!fx?.heal?.includes(loc.index);
         const ailing = !healing && loc.revealed && (loc.threats.length > 0 || fallen.some((g) => fx?.alive?.includes(g.uid)));
-        const cls = ['location', loc.revealed ? '' : 'hidden-loc', state, ailing ? 'ailing' : '', healing ? 'healing' : ''].join(' ');
+        const healCls = healing ? `healing${fx?.healBy && fx.healBy !== 'both' ? ` heal-${fx.healBy}` : ''}` : '';
+        const cls = ['location', loc.revealed ? '' : 'hidden-loc', state, ailing ? 'ailing' : '', healCls].join(' ');
         const summon = summonLabel?.(loc.index);
         const title = loc.revealed ? (
           <div className="who">{locationName(loc.defId, placeholders)}</div>
@@ -500,7 +503,7 @@ export function Battlefield(props: BattlefieldProps) {
             }
           >
             <GateStrip {...common} owner={opp} index={loc.index} label="Opponent Gates" right={title} />
-            <div className={`loc-glow ${state}${healing ? ' healing' : ''}`}>
+            <div className={`loc-glow ${state}${healing ? ` ${healCls}` : ''}`}>
             <div className={cls}>
               {fx?.locStamp?.[loc.index] && <div className={`loc-stamp ${fx.locStamp[loc.index].tone}`}>{fx.locStamp[loc.index].title}</div>}
               {loc.revealed && !placeholders && (

@@ -23,6 +23,8 @@ export interface TrailShot {
   /** Text lifted with the embers on landing ("+1"). */
   label?: string;
   kind?: 'ribbon' | 'spray' | 'wave' | 'burst';
+  /** Wave shots: the colour of the ring and its motes (the one who broke the Threat); `color` stays the landing's. */
+  ring?: string;
 }
 
 const FLY_MS = 700;
@@ -101,6 +103,9 @@ interface Wave {
   y: number;
   /** How far the ring travels before it has faded out: past the farthest Location it pays. */
   reach: number;
+  /** The ring's colour: whoever broke the Threat. */
+  color: string;
+  sprite: HTMLCanvasElement;
   motes: { angle: number; jitter: number; size: number }[];
 }
 
@@ -189,7 +194,8 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
       const landAt = waveLandAt(shots[i].from, shots[i].to);
       let w = waves.find((v) => Math.abs(v.x - o.x) < 2 && Math.abs(v.y - o.y) < 2);
       if (!w) {
-        w = { x: o.x, y: o.y, reach: 0, motes: [] };
+        const color = shots[i].ring ?? TRAIL_COLORS.heal;
+        w = { x: o.x, y: o.y, reach: 0, color, sprite: glowSprite(color, 48), motes: [] };
         for (let k = 0; k < MOTES; k++) w.motes.push({ angle: (k / MOTES) * Math.PI * 2 + rng() * 0.1, jitter: (rng() - 0.5) * WAVE_BAND * 0.8, size: 5 + rng() * 6 });
         waves.push(w);
       }
@@ -318,7 +324,7 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
       // The wave: the healed Location blooms, then one ring of light sets out with motes riding its front,
       // fading as it travels; an echo ring follows a beat behind.
       for (const w of waves) {
-        const [r, g, b] = hexToRgb(TRAIL_COLORS.heal);
+        const [r, g, b] = hexToRgb(w.color);
         const bloom = el < WAVE_LEAD_MS + 260 ? Math.sin(Math.min(1, el / (WAVE_LEAD_MS + 260)) * Math.PI) : 0;
         if (bloom > 0) {
           const grad = ctx.createRadialGradient(w.x, w.y, 0, w.x, w.y, 90);
@@ -338,21 +344,22 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
           const inner = Math.max(0, radius - WAVE_BAND);
           const grad = ctx.createRadialGradient(w.x, w.y, inner, w.x, w.y, radius + 14);
           grad.addColorStop(0, `rgba(${r},${g},${b},0)`);
-          grad.addColorStop(0.62, `rgba(${r},${g},${b},${0.42 * k})`);
-          grad.addColorStop(0.9, `rgba(255,255,255,${0.55 * k})`);
-          grad.addColorStop(1, `rgba(255,255,255,0)`);
+          // The band reads in the breaker's colour; only the thin leading line is white.
+          grad.addColorStop(0.62, `rgba(${r},${g},${b},${0.6 * k})`);
+          grad.addColorStop(0.9, `rgba(${r},${g},${b},${0.85 * k})`);
+          grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
           ctx.fillStyle = grad;
           ctx.fillRect(w.x - radius - 16, w.y - radius - 16, (radius + 16) * 2, (radius + 16) * 2);
           ctx.beginPath();
           ctx.arc(w.x, w.y, radius, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(255,255,255,${0.75 * k})`;
-          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = `rgba(${r},${g},${b},${0.9 * k})`;
+          ctx.lineWidth = 2;
           ctx.stroke();
         }
         const front = WAVE_SPEED * (el - WAVE_LEAD_MS);
         if (front > 0 && front < w.reach) {
           const k = Math.pow(1 - front / w.reach, 0.8);
-          const sprite = healSprite;
+          const sprite = w.sprite;
           for (const m of w.motes) {
             const d = front + m.jitter;
             const x = w.x + Math.cos(m.angle) * d;

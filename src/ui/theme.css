@@ -1132,9 +1132,11 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6); display: flex; flex-direction: column; justify-content: flex-end;
   transition: transform 0.2s, box-shadow 0.2s;
 }
-.threat-tile .threat-art { position: absolute; inset: 0; display: grid; place-items: center; background: linear-gradient(160deg, #3a1a1e, #120709); }
+/* width/height auto: the Threat sheet's .threat-art (styles.css) fixes a 220px square, which would leave the tile showing one corner of the picture. */
+.threat-tile .threat-art { position: absolute; inset: 0; width: auto; height: auto; border-radius: 0; box-shadow: none; display: grid; place-items: center; background: linear-gradient(160deg, #3a1a1e, #120709); }
 .threat-tile .threat-art .ini { font-weight: 900; color: #ffb3ae; font-size: calc(var(--slot) * 0.32); }
-.threat-tile .threat-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* The art fills the tile (absolute, not a grid item: a percent size inside an auto grid track falls back to the picture's own size). */
+.threat-tile .threat-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; display: block; }
 .threat-tile .threat-need { position: absolute; top: 3px; right: 3px; z-index: 2; min-width: 22px; height: 22px; padding: 0 4px; border-radius: 12px; background: #08131f; border: 2px solid var(--danger); color: #fff; font-family: var(--display); font-weight: 700; font-size: clamp(9px, 0.85vw, 12px); display: grid; place-items: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6); }
 .threat-tile .threat-name { position: relative; z-index: 1; font-family: var(--display); font-weight: 600; font-size: clamp(6.5px, 0.56vw, 8.5px); overflow-wrap: normal; hyphens: manual; letter-spacing: 0.04em; line-height: 1.1; text-align: center; text-transform: uppercase; color: #f4e9d0; background: linear-gradient(to top, rgba(8, 19, 31, 0.96), rgba(8, 19, 31, 0.55)); padding: 8px 3px 1px; }
 .threat-tile .threat-who { position: relative; z-index: 1; font-family: var(--display); font-weight: 700; font-size: clamp(6px, 0.5vw, 7.5px); letter-spacing: 0.16em; text-transform: uppercase; text-align: center; color: #ff9c96; background: rgba(8, 19, 31, 0.96); padding: 0 2px 3px; }
@@ -1472,7 +1474,8 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 
 /* A Location under a live Threat is ailing: its picture drains and darkens and a dull red haze breathes over it.
    The beat its last Threat breaks, it heals: the picture floods back past full and settles, a band of light sweeps
-   up it, and the panel glows gold; the healing wave (Trails.tsx) carries that light on to the other Locations.
+   up it, and the panel glows in the colour of whoever broke the Threat (gold for A, blue for B, cream when both did);
+   the healing wave (Trails.tsx) carries that light on to the other Locations.
    Unity: two material parameters on the Location sprite (saturation, exposure) tweened by the same events, the haze
    an additive quad with a breathing alpha, the sweep a scrolling gradient on a second additive quad. */
 .location .loc-bg .loc-bg-img { transition: filter 1.2s ease; }
@@ -1483,9 +1486,14 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 @keyframes ail-breathe { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.8; } }
 .location.healing .loc-bg .loc-bg-img { animation: loc-heal 1.5s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
 @keyframes loc-heal { 0% { filter: saturate(0.4) brightness(0.62) contrast(1.06); } 40% { filter: saturate(1.25) brightness(1.22) contrast(1); } 100% { filter: saturate(1) brightness(1) contrast(1); } }
-.location.healing .loc-bg::before { opacity: 1; transition: none; background: linear-gradient(to top, rgba(255, 225, 154, 0) 0%, rgba(255, 225, 154, 0) 34%, rgba(255, 243, 205, 0.75) 50%, rgba(255, 225, 154, 0) 66%, rgba(255, 225, 154, 0) 100%); background-size: 100% 300%; mix-blend-mode: screen; animation: loc-heal-sweep 1.1s ease-out both; }
+.location.healing { --heal: 255, 236, 200; --heal-core: 255, 248, 230; }
+.location.healing.heal-A { --heal: 255, 215, 120; --heal-core: 255, 243, 205; }
+.location.healing.heal-B { --heal: 90, 150, 255; --heal-core: 205, 225, 255; }
+.location.healing .loc-bg::before { opacity: 1; transition: none; background: linear-gradient(to top, rgba(var(--heal), 0) 0%, rgba(var(--heal), 0) 34%, rgba(var(--heal-core), 0.75) 50%, rgba(var(--heal), 0) 66%, rgba(var(--heal), 0) 100%); background-size: 100% 300%; mix-blend-mode: screen; animation: loc-heal-sweep 1.1s ease-out both; }
 @keyframes loc-heal-sweep { 0% { background-position: 50% 0%; opacity: 1; } 80% { opacity: 1; } 100% { background-position: 50% 100%; opacity: 0; } }
-.loc-glow.healing { --pulse: 255, 225, 154; animation: loc-pulse 1.5s ease-out both; }
+.loc-glow.healing { --pulse: 255, 236, 200; animation: loc-pulse 1.5s ease-out both; }
+.loc-glow.healing.heal-A { --pulse: 255, 215, 120; }
+.loc-glow.healing.heal-B { --pulse: 90, 150, 255; }
 @media (prefers-reduced-motion: reduce) {
   .location .loc-bg .loc-bg-img, .location .loc-bg::before { transition: none; }
   .location.ailing:not(.lost) .loc-bg::before, .location.healing .loc-bg .loc-bg-img, .location.healing .loc-bg::before, .loc-glow.healing { animation: none; }
