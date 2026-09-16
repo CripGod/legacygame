@@ -537,6 +537,7 @@ export function Battlefield(props: BattlefieldProps) {
                 {!loc.lost && loc.rebuilt && <span className="lost-tag rebuilt" {...tip(HINTS.rebuilt)}>REBUILT</span>}
                 {!loc.lost && loc.webbed && <span className="lost-tag webbed" {...tip(HINTS.webbed)}>WEBBED</span>}
                 {!loc.lost && loc.treatyTorn && view.turn <= loc.treatyTorn.until && <span className="lost-tag treaty" {...tip(HINTS.treatyTorn)}>NO TREATY</span>}
+                {!loc.lost && (loc.sworn?.A || loc.sworn?.B) && <span className="lost-tag sworn" {...tip(HINTS.sworn)}>SWORN</span>}
                 {!loc.lost && loc.revealed && curfewOn(view, loc.index) && <span className="lost-tag curfew" {...tip(HINTS.locked)}>CURFEW</span>}
                 {!loc.lost && hasCurfew && !curfewOn(view, loc.index) && <span className="lost-tag daytag" {...tip(HINTS.dayNight)}>☀ DAY</span>}
                 {!loc.lost && nightHere && <span className="lost-tag nighttag" {...tip(HINTS.dayNight)}>🌙 NIGHT</span>}

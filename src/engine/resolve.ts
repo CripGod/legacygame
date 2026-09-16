@@ -33,8 +33,7 @@ import {
   threatForceNeeded,
   validatePlan,
   cardCost,
-  lockReason,
-} from './query';
+  lockReason, swornAt } from './query';
 import type { CharacterDef, CharacterInstance, GameEvent, GameState, MatchResult, PlayAction, PlayerId, ResolveOptions, ResolveOutput, ThreatInstance, TraceStep, TurnPlan } from './types';
 import { MAX_STAKES, standMultiplier, PLAYERS, EXTENDED_TURNS, MAX_HAND, other, emptyPlan, LEGEND_READY } from './types';
 import { GATHERING_DEFS } from './content/characters';
@@ -58,6 +57,7 @@ function setback(state: GameState, p: PlayerId, reason: string, events: GameEven
 }
 
 function isProtected(state: GameState, c: CharacterInstance): boolean {
+  if (swornAt(state, c.owner, c.location)) return true;
   if (state.players[c.owner].defendedTurn === state.turn) return true;
   if (c.protectedTurn === state.turn) return true;
   if (state.locations[c.location].revealed && LOCATION_BY_ID[state.locations[c.location].defId]?.effect.type === 'noDisplace') return true;
@@ -69,7 +69,7 @@ function isProtected(state: GameState, c: CharacterInstance): boolean {
 
 /** Nanny of the Maroons: opposing Reveal abilities cannot single out your Characters here. */
 function shielded(state: GameState, c: CharacterInstance): boolean {
-  return hasEstablished(state, c.owner, c.location, 'shieldHere').length > 0;
+  return hasEstablished(state, c.owner, c.location, 'shieldHere').length > 0 || swornAt(state, c.owner, c.location);
 }
 
 /** Nehanda: a Character that rises again leaves the board for the hand instead of being displaced, and costs 0 next time. */
@@ -1362,6 +1362,22 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     }
   }
 
+  // ---- 7. The oath at Bois Caïman: Boukman Dutty and Cécile Fatiman Established together swear the Location. ----
+  for (const l of state.locations) {
+    for (const p of PLAYERS) {
+      const now = swornAt(state, p, l.index);
+      const was = !!l.sworn?.[p];
+      if (now && !was) {
+        l.sworn = { ...(l.sworn ?? {}), [p]: true };
+        const pair = charsAt(state, l.index, p, 'inside').filter((c) => c.defId === 'boukman_dutty' || c.defId === 'cecile_fatiman');
+        events.push({ type: 'info', text: `Bois Caïman: Boukman Dutty and Cécile Fatiman stand together Inside ${locName(state, l.index)}. The oath is sworn: nothing displaces, sends back, blocks, suppresses or hexes ${state.players[p].handle}'s Characters here while both remain.`, player: p, location: l.index, uid: pair[0]?.uid, data: { sworn: true } });
+        trace('info', `The oath is sworn at ${locName(state, l.index)}`, { uids: pair.map((c) => c.uid), location: l.index, player: p });
+      } else if (!now && was) {
+        l.sworn = { ...(l.sworn ?? {}), [p]: false };
+        events.push({ type: 'info', text: `The oath at ${locName(state, l.index)} is broken: ${state.players[p].handle}'s pair no longer stands together Inside.`, player: p, location: l.index, data: { sworn: false } });
+      }
+    }
+  }
   // ---- 8/9. Threats: confrontations, then Threat actions ----
   const forceByThreat = new Map<string, { A: number; B: number; assists: Set<string>; fighters: { uid: string; defId: string; owner: PlayerId; force: number }[] }>();
   const addForce = (uid: string, threatUid: string, bonus: number) => {

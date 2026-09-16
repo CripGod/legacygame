@@ -49,6 +49,10 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
           <li>A <b>Setback</b> is a loss suffered at the hands of injustice: a Threat or a hostile Location working against you. Your opponent's cards never cause one. <b>Reparations</b> converts Setbacks into lasting Influence on a Location; it counts at the end no matter when you play it.</li>
           <li>Unresolved crises can make a Location <b>Lost</b>: nobody wins it.</li>
         </ul>
+        <h2>The oath at Bois Caïman</h2>
+        <ul>
+          <li>Get <b>Boukman Dutty</b> and <b>Cécile Fatiman</b> both Established at the same Location and it is <b>sworn</b> for you: nothing displaces, sends back, blocks, suppresses or hexes your Characters there, Threats cannot act on them, and the oath holds while both remain Inside. Move or lose either one and it breaks.</li>
+        </ul>
         <h2>Special arrivals</h2>
         <ul>
           <li><b>Straight Inside</b> (Sleeping Car Porters) always goes Inside the turn it is played. <b>Direct Entry</b> (Bessie Coleman) may: tap ⇅ on the planned move to choose Gates or Inside.</li>

@@ -46,6 +46,7 @@ export function tip(text: string) {
 export const HINTS = {
   influence: 'Influence: how much this Character counts toward controlling its Location. Gate Characters count; Established Characters (Inside) count +1 more.',
   force: 'Force: strength when confronting Threats or answering a challenge. Force never attacks players directly.',
+  sworn: 'Sworn: Boukman Dutty and Cécile Fatiman stand together Inside here. Nothing displaces, sends back, blocks, suppresses or hexes their side\'s Characters at this Location while both remain.',
   treatyTorn: 'No treaty: Taytu Betul tore it up. Any Event the other side plays at this Location this turn is torn up before it resolves.',
   webbed: "Webbed: Anansi retold this Location into a random one not in the match and spun his web over it. Characters that cost 1 or less gain +2 Influence here; 3 or more lose 1. Both players.",
   lastWord: 'THE LAST WORD: the ninth turn, here only because somebody stood on business. Both sides get 10 Energy and an extra card. Whatever stands after this turn is the legacy.',

@@ -988,6 +988,34 @@ describe('Taytu Betul', () => {
   });
 });
 
+describe('The oath at Bois Caïman', () => {
+  it('with both Established, nothing displaces, challenges, hexes or blocks their side there; one alone is no oath', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'juneteenth'], revealAll: true, handB: ['toussaint_louverture', 'marie_laveau', 'og'] });
+    addChar(s, 'boukman_dutty', 'A', 0, 'inside');
+    const cecile = addChar(s, 'cecile_fatiman', 'A', 0, 'inside');
+    const weak = addChar(s, 'bud_billiken', 'A', 0, 'inside');
+    const gate = addChar(s, 'organizer', 'A', 0, 'gate');
+    let r = resolveTurn(s, { A: pass(), B: { ...pass(), plays: [{ cardId: 'toussaint_louverture', location: 0 }, { cardId: 'marie_laveau', location: 0 }] } });
+    s = r.state;
+    expect(r.events.some((e) => (e.data as { sworn?: boolean } | undefined)?.sworn === true)).toBe(true);
+    expect(s.locations[0].sworn?.A).toBe(true);
+    expect(s.characters[weak.uid].zone).toBe('inside'); // Toussaint's challenge cannot move him
+    expect(s.characters[gate.uid].permInfluence).toBe(0); // Laveau's hex finds nobody
+    // The Mob leaves them alone too.
+    spawnThreat(s, 0, 'mob', []);
+    s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(charsOf(s, 'A').filter((c) => c.location === 0).length).toBe(4);
+    // Cécile steps out: the oath breaks, and Toussaint's next challenge lands.
+    s.characters[cecile.uid].zone = 'gate';
+    s.players.B.hand = ['toussaint_louverture'];
+    s.locations[0].threats = [];
+    r = resolveTurn(s, { A: pass(), B: { ...pass(), plays: [{ cardId: 'toussaint_louverture', location: 1 }] } });
+    s = r.state;
+    expect(s.locations[0].sworn?.A).toBe(false);
+    expect(r.events.some((e) => (e.data as { sworn?: boolean } | undefined)?.sworn === false)).toBe(true);
+  });
+});
+
 describe('cost flow', () => {
   it('Booker T. Washington makes Characters cheaper, never below 0, and Omar only touches Events', () => {
     const s = rig(createMatch({ seed: 5 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, energy: true, handA: ['nat_turner', 'bud_billiken', 'reparations'] });

@@ -318,7 +318,14 @@ export function relocationsAllowed(state: GameState, p: PlayerId): number {
   return n;
 }
 
+/** The Bois Caïman oath: Boukman Dutty and Cécile Fatiman both Established here for `owner`. Everything of theirs here is sworn. */
+export function swornAt(state: GameState, owner: PlayerId, location: number): boolean {
+  const inside = charsAt(state, location, owner, 'inside').map((c) => c.defId);
+  return inside.includes('boukman_dutty') && inside.includes('cecile_fatiman');
+}
+
 export function isBlockedFromEntering(state: GameState, c: CharacterInstance): string | null {
+  if (swornAt(state, c.owner, c.location)) return null;
   if (hasEstablished(state, c.owner, c.location, 'noBlockHere').length) return null;
   if (hasEstablished(state, c.owner, c.location, 'sanctuary').length) return null;
   if (state.players[c.owner].defendedTurn === state.turn) return null;

@@ -524,7 +524,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 ### Boukman Dutty (`boukman_dutty`)
 - cost 8 · Influence 5 · Force 6 · historical · era: d. 1791
 - reveal: Uprising: every Character at your Gates, at every Location, enters Inside now, Ready or not. Only a block or a full Inside stops one.
-- passive: Costs 1 less for each of your Characters on the board with the Rebellion tag.
+- passive: Costs 1 less for each of your Characters on the board with the Rebellion tag. Bois Caïman: with Cécile Fatiman Established beside him, everything of yours at this Location is sworn: nothing displaces, sends back, blocks, suppresses or hexes it while both remain Inside.
 - blurb: The Bois Caïman ceremony, and a week later the north of Saint-Domingue was burning.
 - history: Dutty Boukman was a Jamaican-born enslaved man, a Vodou priest and a coachman on a plantation in the northern plain of Saint-Domingue. On the night of 14 August 1791 he presided, with the priestess Cécile Fatiman, over the ceremony at Bois Caïman where enslaved leaders swore to rise. The revolt began a week later and became the Haitian Revolution. Boukman was killed in November 1791 and the French displayed his head in Cap-Français to prove he was dead.
 
@@ -532,6 +532,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - cost 2 · Influence 2 · Force 2 · historical · era: c. 1771–1883
 - reveal: Ceremony: the most expensive card in your hand costs 2 less.
 - established: Your Characters with the Rebellion tag cost 2 less Energy.
+- passive: Bois Caïman: with Boukman Dutty Established beside them, everything of yours at this Location is sworn. Nothing displaces, sends back, blocks, suppresses or hexes it while both remain Inside.
 - blurb: The mambo at Bois Caïman. Lived to be over a hundred and saw the republic she helped start.
 - history: Cécile Fatiman was a Vodou priestess, a mambo, born around 1771 to an enslaved African mother and a Corsican father. Accounts of the Bois Caïman ceremony of August 1791 describe her presiding alongside Boukman, sacrificing a black pig and being possessed by the lwa Erzulie as the assembled leaders swore their oath. She later married Louis Michel Pierrot, who became president of Haiti, and is said to have lived to 112, dying in 1883.
 
@@ -710,6 +711,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 - `influence`: Influence: how much this Character counts toward controlling its Location. Gate Characters count; Established Characters (Inside) count +1 more.
 - `force`: Force: strength when confronting Threats or answering a challenge. Force never attacks players directly.
+- `sworn`: Sworn: Boukman Dutty and Cécile Fatiman stand together Inside here. Nothing displaces, sends back, blocks, suppresses or hexes their side's Characters at this Location while both remain.
 - `treatyTorn`: No treaty: Taytu Betul tore it up. Any Event the other side plays at this Location this turn is torn up before it resolves.
 - `lastWord`: THE LAST WORD: the ninth turn, here only because somebody stood on business. Both sides get 10 Energy and an extra card. Whatever stands after this turn is the legacy.
 - `rebuilt`: Rebuilt: this Location was Lost, and the people who stayed put it back up. It is back in play, and everyone who stayed gained +1 Influence.
@@ -876,6 +878,8 @@ Rules
 - Word spreads. Clearing a Threat is heard at every other open Location: +1 lasting Influence at each of them. Alone, you take all of it; together, it splits by Force contributed (rounded down, the remainder to the larger share; equal shares split evenly). Everyone who helped gains a Legend. At Legend …, your Characters arrive at the Gates Ready, played or relocated: you have people everywhere.
 - A Setback is a loss suffered at the hands of injustice: a Threat or a hostile Location working against you. Your opponent's cards never cause one. Reparations converts Setbacks into lasting Influence on a Location; it counts at the end no matter when you play it.
 - Unresolved crises can make a Location Lost: nobody wins it.
+### The oath at Bois Caïman
+- Get Boukman Dutty and Cécile Fatiman both Established at the same Location and it is sworn for you: nothing displaces, sends back, blocks, suppresses or hexes your Characters there, Threats cannot act on them, and the oath holds while both remain Inside. Move or lose either one and it breaks.
 ### Special arrivals
 - Straight Inside (Sleeping Car Porters) always goes Inside the turn it is played. Direct Entry (Bessie Coleman) may: tap ⇅ on the planned move to choose Gates or Inside.
 - The Ancestors are never in a deck. In one match out of four, holding three Characters Inside at Accra, Ghana brings them to your hand. Play them while planning to see your opponent's plan for the turn and every danger the board is about to spring.
@@ -1746,6 +1750,8 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${state.players[p].handle}'s ${eventDef(play.cardId).name} at ${locName(state, play.location)} is torn up before it resolves: Taytu Betul will have no treaty here.
 - ${name(state, c)} cannot enter ${locName(state, c.location)}: ${blocked}.
 - ${name(state, c)} cannot enter ${locName(state, c.location)}: no room Inside.
+- Bois Caïman: Boukman Dutty and Cécile Fatiman stand together Inside ${locName(state, l.index)}. The oath is sworn: nothing displaces, sends back, blocks, suppresses or hexes ${state.players[p].handle}'s Characters here while both remain.
+- The oath at ${locName(state, l.index)} is broken: ${state.players[p].handle}'s pair no longer stands together Inside.
 - ${name(state, c)} confronts ${threatName(state, t)} with ${f} Force${isAssist(t, c.owner) ? ' (Assist)' : ''}.
 - Showdown at ${locName(state, loc.index)}: ${f.A + f.B} Force against ${threatName(state, t)}${def.requiresBoth ? ' (both sides needed)' : 
 - ${threatName(state, t)} at ${locName(state, loc.index)} holds (${f.A + f.B}/${needed} Force).

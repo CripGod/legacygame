@@ -355,6 +355,8 @@ export interface LocationState {
   rebuiltTurn?: number;
   /** A timed Threat carried over from a retold Location (the Mob still comes to a retold Greenwood). */
   pendingTimedThreat?: { turn: number; threatId: string };
+  /** Bois Caïman: Boukman Dutty and Cécile Fatiman are both Established here for this player, and everything of theirs here is sworn (untouchable). */
+  sworn?: Partial<Record<PlayerId, boolean>>;
   /** Taytu Betul tore up the treaty here: Events the other side plays at this Location through `until` never resolve. */
   treatyTorn?: { by: PlayerId; until: number };
   /** Anansi retold this Location: it became a random one not in the match, with his web over it (WEB_SMALL / WEB_LARGE). */

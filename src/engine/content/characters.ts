@@ -1957,7 +1957,7 @@ CHARACTERS.push(
       effect: { type: 'massEnter' },
     },
     passive: {
-      text: 'Costs 1 less for each of your Characters on the board with the Rebellion tag.',
+      text: 'Costs 1 less for each of your Characters on the board with the Rebellion tag. Bois Caïman: with Cécile Fatiman Established beside him, everything of yours at this Location is sworn: nothing displaces, sends back, blocks, suppresses or hexes it while both remain Inside.',
       tagDiscount: { tag: 'Rebellion', amount: 1 },
     },
     blurb: 'The Bois Caïman ceremony, and a week later the north of Saint-Domingue was burning.',
@@ -1968,6 +1968,9 @@ CHARACTERS.push(
     kind: 'character',
     id: 'cecile_fatiman',
     cost: 2,
+    passive: {
+      text: 'Bois Caïman: with Boukman Dutty Established beside them, everything of yours at this Location is sworn. Nothing displaces, sends back, blocks, suppresses or hexes it while both remain Inside.',
+    },
     identity: ['ceremony', 'priestess', 'preparation'],
     era: 'c. 1771–1883',
     category: 'historical',
