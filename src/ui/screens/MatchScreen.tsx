@@ -502,7 +502,6 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       if (d.cleared) {
         sfx('threat.clear');
         sfx('cheer');
-        sfx('fireworks');
       }
       setFx((f) => patch(f, { ...healPatch(f), alive: (f?.alive ?? []).filter((u) => u !== d.threatUid), stamp: threatEl ? { uid: d.threatUid, title: d.cleared ? 'NEUTRALIZED' : 'HOLDS', sub: d.requiresBoth ? undefined : `${total} of ${d.needed}`, tone } : undefined }));
       // Word spreads without the wave: each paid Location pulses and its +N floats up.
@@ -550,8 +549,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     if (d.cleared) {
       sfx('threat.clear');
       sfx('cheer');
-      sfx('fireworks');
-      setFireworks(tRect);
+      // No fireworks: the cheer, the shatter and the Location healing are the celebration. (The dev hook __sobFireworks still fires them for review.)
       // The Threat breaks; if it was the Location's last, the Location heals at once (the picture floods back, light sweeps up it).
       setFx((f) => patch(f, { ...healPatch(f), alive: (f?.alive ?? []).filter((u) => u !== d.threatUid), shatter: d.threatUid, flash: undefined }));
     } else {
