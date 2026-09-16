@@ -606,7 +606,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### The Color Line (`color_line`)
 - family: Systemic Pressure
-- text: Opening night: the color line runs at the door. While active, Gate Characters here cannot enter, for either player. Neutralize with 3 Force in one turn.
+- text: Opening night: the house is whites only, and the color line runs at the door. While active, Gate Characters here cannot enter, for either player. Neutralize with 3 Force in one turn.
 - blurb: The house rule at the Cotton Club: Black performers on the stage, a white audience at the tables, and Black patrons turned away at the door. The performers' own families could not buy a ticket to watch them.
 
 ### The Land Office (`land_office`)

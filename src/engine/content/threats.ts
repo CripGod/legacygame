@@ -67,7 +67,7 @@ export const THREATS: ThreatDef[] = [
     id: 'color_line',
     name: 'The Color Line',
     family: 'Systemic Pressure',
-    text: 'Opening night: the color line runs at the door. While active, Gate Characters here cannot enter, for either player. Neutralize with 3 Force in one turn.',
+    text: 'Opening night: the house is whites only, and the color line runs at the door. While active, Gate Characters here cannot enter, for either player. Neutralize with 3 Force in one turn.',
     split: false,
     force: 3,
     effect: 'blockEntry',
