@@ -29,9 +29,10 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 - none
 
 
-### events (1)
+### events (0)
 
-- `word_of_mouth` **Word of Mouth**: Free, fast and usually right. It travels further where more of your people are.
+- none
+
 
 ### threats (0)
 
@@ -51,6 +52,6 @@ Confronting a Threat should feel like a showdown. To stage it we want, per Threa
 ## Have
 
 - characters: abraham_lincoln, absalom_jones, alonzo_herndon, anansi, ayuba_suleiman_diallo, bass_reeves, ben_woolfolk, bessie_coleman, black_jesus, booker_t_washington, boukman_dutty, bud_billiken, callie_house, cathay_williams, cecile_fatiman, chairteenth, charles_sumner, claudette_colvin, cotton_club_orchestra, daniel_payne, dave_the_potter, david_ruggles, denmark_vesey, edmonia_lewis, edward_bannister, elizabeth_freeman, frederick_douglass, george_washington_carver, george_wilson, harriet_powers, harriet_tubman, henry_mcneal_turner, henry_ossawa_tanner, ida_b_wells, james_lafayette, john_brown, john_russwurm, katherine_johnson, lewis_hayden, madam_cj_walker, mami_wata, mansa_musa, marcus_garvey, marie_laveau, mary_ann_shadd_cary, mary_ellen_pleasant, mary_seacole, menelik_ii, nanny_of_the_maroons, nehanda, og, ogun, omar_ibn_said, organizer, oshun, paul_laurence_dunbar, peter_prioleau, pharoah_and_tom, queen_nzinga, richard_allen, robert_duncanson, robert_smalls, roger_taney, samuel_ajayi_crowther, scott_joplin, shango, sleeping_car_porters, sojourner_truth, taytu_betul, thaddeus_stevens, tom_bass, toussaint_louverture, victor_hugo_green, william_lloyd_garrison, william_parker, william_still, yaa_asantewaa, yemoja, zora_neale_hurston, zumbi_dos_palmares
-- events: bois_caiman, community_defense, reparations, the_ancestors
+- events: bois_caiman, community_defense, reparations, the_ancestors, word_of_mouth
 - threats: color_line, comfortable_complicity, dewolf_trade, dred_scott, housing_restriction, land_office, mob, paddy_roller, segregationist_patrol
 - locations: accra_ghana, black_star, charleston_1822, cotton_club, gary_indiana, great_migration, greenwood, harlem_renaissance, harpers_ferry, jim_crow, juneteenth, justice_system, lagos, middle_passage, montgomery, oak_bluffs, sundown_town, sundown_town_night, the_stroll, the_tabernacle
