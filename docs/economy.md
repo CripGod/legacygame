@@ -63,7 +63,7 @@ for when it is, so the engine, the profile and the Unity port grow toward it ins
 | Winning a match | the match's Legacy (1 to 16) | the Stand multiplier is the main lever: the earlier the Stand, the more a win pays and a loss costs |
 | Losing a match | 0 | nothing is taken from the wallet; the Legacy at stake was never yours. Sitting Down early keeps the other side's payout small |
 | A Threat cleared | +1 per Legend earned | the same counter that makes arrivals Ready at `LEGEND_READY` |
-| First time a Location is won | +2 once per Location | seventeen Locations, so a modest tour bonus |
+| First time a Location is won | +2 once per Location | sixteen Locations, so a modest tour bonus |
 | Daily first win | +2 | the only calendar hook, and a soft one |
 | Tutorial and Compendium reads | +1 each for the first read of every card's history | learning is paid, once |
 
