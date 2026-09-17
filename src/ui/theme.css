@@ -1773,20 +1773,22 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .end-panel.loss .end-title { color: #ff9c96; text-shadow: 0 0 22px rgba(224, 74, 63, 0.5); }
 .end-panel.draw .end-title { color: #dfe6f2; text-shadow: none; }
 
-/* The result panel: rises over the hand, the board stays above it. */
+/* The result panel: centred over a near-black scrim; the board is barely there behind it until "Look at the board". */
+.end-scrim { position: fixed; inset: 0; z-index: 43; background: rgba(2, 5, 10, 0.9); animation: end-scrim-in 0.4s ease-out both; }
+@keyframes end-scrim-in { from { opacity: 0; } to { opacity: 1; } }
 .end-panel {
-  position: fixed; left: 50%; bottom: 0; z-index: 44; transform: translateX(-50%);
-  width: min(96vw, 860px); max-height: min(62vh, 560px); overflow: auto; scrollbar-width: thin;
-  padding: 14px 18px 16px; box-sizing: border-box;
-  border: 1px solid var(--gold); border-bottom: 0; border-radius: 14px 14px 0 0;
+  position: fixed; left: 50%; top: 50%; z-index: 44; transform: translate(-50%, -50%);
+  width: min(96vw, 860px); max-height: min(92vh, 720px); overflow: auto; scrollbar-width: thin;
+  padding: 16px 20px 18px; box-sizing: border-box;
+  border: 1px solid var(--gold); border-radius: 14px;
   background: linear-gradient(180deg, rgba(20, 34, 56, 0.98), rgba(8, 19, 31, 0.98));
   box-shadow: 0 -18px 50px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(233, 185, 58, 0.25);
   color: var(--cream); font-family: var(--font);
   animation: end-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
-.end-panel.win { border-color: var(--gold-2); box-shadow: 0 -18px 50px rgba(0, 0, 0, 0.7), 0 0 40px rgba(246, 215, 122, 0.25), inset 0 0 0 1px rgba(246, 215, 122, 0.3); }
-.end-panel.loss { border-color: var(--danger); box-shadow: 0 -18px 50px rgba(0, 0, 0, 0.7), 0 0 40px rgba(224, 74, 63, 0.2), inset 0 0 0 1px rgba(224, 74, 63, 0.3); }
-@keyframes end-rise { from { opacity: 0; transform: translate(-50%, 40px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.end-panel.win { border-color: var(--gold-2); box-shadow: 0 24px 70px rgba(0, 0, 0, 0.8), 0 0 60px rgba(246, 215, 122, 0.25), inset 0 0 0 1px rgba(246, 215, 122, 0.3); }
+.end-panel.loss { border-color: var(--danger); box-shadow: 0 24px 70px rgba(0, 0, 0, 0.8), 0 0 60px rgba(224, 74, 63, 0.2), inset 0 0 0 1px rgba(224, 74, 63, 0.3); }
+@keyframes end-rise { from { opacity: 0; transform: translate(-50%, calc(-50% + 30px)) scale(0.97); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
 .end-head { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px; margin-bottom: 10px; }
 .end-profile { display: grid; justify-items: center; gap: 4px; opacity: 0.6; }
 .end-profile.won { opacity: 1; }
@@ -1820,7 +1822,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .end-bar.win .end-bar-text b { color: var(--gold-2); }
 .end-bar.loss .end-bar-text b { color: #ff9c96; }
 @media (width <= 700px) {
-  .end-panel { width: 100vw; padding: 12px 12px 14px; max-height: 70vh; }
+  .end-panel { width: 96vw; padding: 12px 12px 14px; max-height: 92vh; }
   .end-head { gap: 10px; }
   .end-avatar { width: 44px; height: 44px; }
   .end-actions button { flex: 1 1 40%; }

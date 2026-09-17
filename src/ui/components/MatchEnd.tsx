@@ -6,8 +6,8 @@ import { balance } from '../legacy';
 
 /**
  * The end of a match, on the board (Hearthstone's banner, Snap's result panel): the word slams in over the
- * stamped Locations, then lifts to make room for the result panel, which rises over the hand while the board
- * stays in view behind it. No separate screen.
+ * stamped Locations, then fades as the result panel opens in the centre over a near-black scrim; "Look at the
+ * board" lifts the scrim and leaves a slim bar. No separate screen.
  *   stage 1: the banner only.  stage 2: the banner lifts, the panel rises.
  */
 export function MatchEnd({
@@ -86,6 +86,7 @@ export function MatchEnd({
           </button>
         </div>
       )}
+      {stage >= 2 && !collapsed && <div className="end-scrim" aria-hidden />}
       {stage >= 2 && !collapsed && (
         <div className={`end-panel ${tone}`} role="dialog" aria-label="Match result">
           <div className="end-title">{title}</div>
