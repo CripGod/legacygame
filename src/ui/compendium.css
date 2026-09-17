@@ -842,7 +842,8 @@ body:has(.cx-inner) .tip {
 /* ---------- The card sheet: just the card, in 3D, with the story beside it ---------- */
 .cx-stage { position: relative; display: flex; align-items: stretch; gap: 0; max-width: 96vw; }
 .cx-stage-x { position: absolute; top: -12px; right: 6px; z-index: 5; }
-.cx-card3d { position: relative; display: grid; justify-items: center; gap: 14px; flex: none; perspective: 1100px; }
+/* The column scrolls rather than run off a short window (a team-up row under the rank line can push it). */
+.cx-card3d { position: relative; display: grid; justify-items: center; gap: 14px; flex: none; perspective: 1100px; max-height: calc(100vh - 24px); overflow-y: auto; scrollbar-width: thin; padding: 6px 12px; }
 /* The card leans toward the pointer (--rx/--ry set from CodexSheet): a short ease while it follows, a longer one to
    settle. The entrance animation fills backwards only, so once it ends the tilt transform below is the one that applies. */
 .cx-card3d-inner {
@@ -862,11 +863,13 @@ body:has(.cx-inner) .tip {
 .cx-history {
   width: 0; opacity: 0; overflow: hidden; margin-left: 0;
   transition: width 0.55s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease 0.1s, margin-left 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
-  max-height: calc(min(78vw, 400px) * 1.4 + 60px);
+  max-height: calc(var(--big-w) * 1.4 + 60px);
 }
-.cx-stage.open .cx-history { width: min(460px, 46vw); opacity: 1; margin-left: 28px; }
+/* Beside a card that may run to 600px, the story takes what is left of the stage. */
+.cx-stage { --story-w: min(460px, 46vw, calc(96vw - var(--big-w) - 60px)); }
+.cx-stage.open .cx-history { width: var(--story-w); opacity: 1; margin-left: 28px; }
 .cx-history-scroll {
-  height: 100%; max-height: calc(min(78vw, 400px) * 1.4 + 60px); overflow: auto; padding: 6px 12px 12px 4px; width: min(460px, 46vw);
+  height: 100%; max-height: calc(var(--big-w) * 1.4 + 60px); overflow: auto; padding: 6px 12px 12px 4px; width: var(--story-w);
   color: var(--parchment); scrollbar-width: thin; scrollbar-color: var(--gold-dark) transparent;
 }
 .cx-history-scroll .cx-kicker { color: var(--gold-2); }
@@ -887,9 +890,9 @@ body:has(.cx-inner) .tip {
 
 /* ---------- The stage in the match: an action tray under the card ---------- */
 /* A hand card or a board Character opens on the same dark stage as the Compendium; what you can do with it
-   sits under the card in a tray, light on dark, and scrolls if it runs long. The card yields a little
-   height on short screens so the tray stays on screen. */
-.cx-stage.has-tray { --stage-w: min(78vw, 400px, 50vh); }
+   sits under the card in a tray, light on dark, and scrolls if it runs long. The card yields height for
+   the tray (--big-reserve) so the tray stays on screen. */
+.cx-stage.has-tray { --big-reserve: 330px; --stage-w: var(--big-w); }
 .cx-stage.has-tray .card.big { --bw: var(--stage-w); }
 /* Safety net for very short windows: the column scrolls rather than the tray falling off the screen. */
 .cx-stage.has-tray .cx-card3d { max-height: calc(100vh - 32px); overflow-y: auto; scrollbar-width: thin; padding: 4px 6px; }

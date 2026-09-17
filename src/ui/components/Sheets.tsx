@@ -54,7 +54,7 @@ export function CardSheet({
   onClose: () => void;
   /** A live readout for cards that track the match (Reparations: what it would pay right now). */
   extra?: React.ReactNode;
-  /** While the card stands in the hand: "Play at …" buttons and "Put back", the no-drag way to commit. */
+  /** While the card stands in the hand: "Play at …" buttons and "Put back", the no-drag way to commit. Shown only in assist mode (src/ui/assist.ts, docs/accessibility.md). */
   actions?: React.ReactNode;
 }) {
   return (

@@ -25,6 +25,7 @@ import { bank } from '../legacy';
 import { EMOTES } from '../useMatch';
 import { cardName, locationName, spawnText, useDisplay } from '../display';
 import { tip, HINTS } from '../tip';
+import { assistButtons } from '../assist';
 
 type SheetState =
   | { kind: 'card'; id: string }
@@ -1647,7 +1648,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     if (locked) return m.mode === 'ai' ? 'Locked. Harborlight is deciding…' : 'Locked.';
     if (view.players[me].hand.length - plan.plays.length >= MAX_HAND && view.players[me].deckCount > 0 && !selected) return `Hand full (${MAX_HAND}). Play a card or your next draw is discarded.`;
     if (drag?.payload.kind === 'card') return `Drop ${cardName(drag.payload.cardId, placeholders)} on a lit Location. Let go anywhere else, or press Escape, to put it back.`;
-    if (selected) return `Choose where ${cardName(selected, placeholders)} plays from the card's tray, or press 1-3. Close the card to put it back.`;
+    if (selected) return assistButtons() ? `Choose where ${cardName(selected, placeholders)} plays from the card's tray, or press 1-3. Close the card to put it back.` : `Press 1-3 to play ${cardName(selected, placeholders)} at a Location, or close the card and drag it there.`;
     if (harrietPlay && !harrietPlay.target) return 'Harriet Tubman: drag any of your Characters to another Location and she takes them straight Inside. Free, and she gets them out of a curfew (optional).';
     if (yemojaPlay && !yemojaPlay.target) return `${cardName(yemojaPlay.cardId, placeholders)}: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : `Location ${yemojaPlay.location + 1}`} (optional).`;
     const affordable = opts.plays.filter((o) => !plan.plays.some((pl) => pl.cardId === o.cardId) && cardCost(o.cardId, view, me) <= energyLeft);
@@ -1932,7 +1933,9 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           actions={
             planning && sheet.id !== selected && view.players[me].hand.includes(sheet.id) && !selectable(sheet.id) && !plan.plays.some((pl) => pl.cardId === sheet.id) ? (
               <div className="muted cx-why">{whyCannotPlay(sheet.id).text}</div>
-            ) : planning && sheet.id === selected ? (
+            ) : planning && sheet.id === selected && assistButtons() ? (
+              // Assist mode only (docs/accessibility.md): by default the sheet is the card and its History, and the
+              // card plays by drag, by tapping a Location, or with the 1-3 keys.
               <>
                 {targetable.map((i) => (
                   <button key={i} className="small chip" onClick={() => commitPlay(i, sheet.id)}>

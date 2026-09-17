@@ -92,6 +92,10 @@ Developer tools (`?dev=1` or the button on the start screen): fixed seeds, AI re
 - **Sundown Town** is drawn about a third as often as other Locations and does nothing on the turn it reveals. **Gary, Indiana** (Steel and Soul) joins the pool. **Paddy Roller** is one shared Threat "in the area" rather than one per player.
 - Player Gates are shown under each Location panel (the wireframe omitted them; the brief requires them).
 
+## Accessibility
+
+See `docs/accessibility.md`: the card sheet is card and History only; the no-drag placement buttons stay in the code behind an assist flag (`?assist=1`), for a Settings toggle later.
+
 ## Design intents to keep
 
 Things that play well and should survive any rebalancing:

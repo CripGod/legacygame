@@ -1398,12 +1398,14 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 
 /* ---------- The big card keeps the card's proportions ---------- */
 /* Same 5:7 as every card on the table; long rules scroll inside the parchment instead of stretching the card. */
-.card.big { --bw: min(78vw, 400px); width: var(--bw); height: calc(var(--bw) * 1.4); aspect-ratio: auto; max-height: none; display: flex; flex-direction: column; }
+/* --big-w: as large as the window allows, 400px up to 600px (150%), never taller than the window less room for the History button, the rank line and the close (--big-reserve). */
+.cx-stage, .card.big { --big-w: clamp(min(78vw, 400px), calc((100vh - var(--big-reserve, 250px)) / 1.3), min(78vw, 600px)); }
+.card.big { --bw: var(--big-w); width: var(--bw); height: calc(var(--bw) * 1.4); aspect-ratio: auto; max-height: none; display: flex; flex-direction: column; }
 .card.big .card-art { flex: none; height: calc(var(--bw) * 0.56); }
 .card.big .card-body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding-bottom: 50px; }
 .card.big .name, .card.big .ribbon, .card.big .era { flex: none; }
 .card.big .text { flex: 1 1 auto; min-height: 0; max-height: none; overflow: auto; scrollbar-width: thin; }
-@media (width <= 700px) { .card.big { --bw: min(84vw, 360px); } }
+@media (width <= 700px) { .card.big { --bw: min(84vw, 360px, calc((100vh - var(--big-reserve, 250px)) / 1.4)); } }
 
 /* ---------- Move preview: a ghost stays where the piece was, with an arrow toward where it is going ---------- */
 .slot.ghost { position: relative; overflow: hidden; border: 2px dashed var(--gold-dark); background: rgba(6, 12, 22, 0.55); cursor: pointer; }
@@ -1637,7 +1639,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
    rules (the summary at hand size; every ability and the blurb on the big card, scrolling when they run long). */
 .card.tpl { container-type: inline-size; width: var(--card-w); height: auto; aspect-ratio: 1103 / 1426; display: block; overflow: visible; background: none !important; border: 0 !important; border-radius: 0 !important; clip-path: none !important; box-shadow: none !important; filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.6)); color: var(--ink); font-family: var(--font); }
 .card.tpl::before, .card.tpl::after { content: none !important; display: none !important; }
-.card.tpl.big { --bw: min(78vw, 400px); width: var(--bw); height: auto; aspect-ratio: 1103 / 1426; display: block; max-height: none; }
+.card.tpl.big { --bw: var(--big-w); width: var(--bw); height: auto; aspect-ratio: 1103 / 1426; display: block; max-height: none; }
 .card.tpl > * { position: absolute; }
 /* The art window. */
 .card.tpl .tpl-art { left: 14.2cqw; top: 7.6cqw; width: 71.5cqw; height: 53.3cqw; z-index: 1; overflow: hidden; display: grid; place-items: center; }
@@ -1693,7 +1695,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .hand .card-wrap.unaffordable .card.tpl .tpl-cost { color: #ff6b62; filter: drop-shadow(0 0 0.7cqw rgba(224, 74, 63, 0.95)) brightness(1.6); }
 .hand .card-wrap.unaffordable .card.tpl .tpl-art::after { content: ''; position: absolute; inset: 0; background: rgba(6, 10, 18, 0.35); pointer-events: none; }
 .deck-panel .deck-cards .card.tpl:first-child { filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 12px var(--pc-soft)); }
-@media (width <= 700px) { .card.tpl.big { --bw: min(84vw, 360px); } }
+@media (width <= 700px) { .card.tpl.big { --bw: min(84vw, 360px, calc((100vh - var(--big-reserve, 250px)) / 1.3)); } }
 .dig-card .card.tpl.big { --bw: min(30vw, 300px); }
 /* Landing-page thumbnails are a first impression, read at a glance: the name is one size, wraps to two lines when it
    must, and sits over a gold rule; the summary is a teaser, clamped to three lines with an ellipsis. */
