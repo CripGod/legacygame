@@ -1544,6 +1544,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl.rank-camouflage { --rank-line: #6f7f3c; --rank-ink: #d6e39a; }
 .card.tpl.rank-lava { --rank-line: #d4541c; --rank-ink: #ffb26a; }
 .card.tpl.rank-usa { --rank-line: #b23a48; --rank-ink: #f4f6ff; }
+.card.tpl.rank-jungle { --rank-line: #4f8f2a; --rank-ink: #d9f7a8; }
 .card.tpl.event { --rank-line: #c9a53a; --rank-ink: #f6d77a; }
 .card.tpl .tpl-meta { border-bottom-color: var(--rank-line); }
 .card.tpl .tpl-sep::before, .card.tpl .tpl-sep::after { border-top-color: var(--rank-line); }
@@ -1567,6 +1568,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .cx-rank.rank-camouflage .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #d6e39a, #6f7f3c 55%, #2f3a14); }
 .cx-rank.rank-lava .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #ffd08a, #d4541c 55%, #3a1408); }
 .cx-rank.rank-usa .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #ffffff, #b23a48 55%, #1f2f6e); }
+.cx-rank.rank-jungle .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #d9f7a8, #4f8f2a 55%, #1d3a0f); }
 .cx-rank.rank-diamond .cx-rank-medal { background: radial-gradient(circle at 35% 30%, #ffffff, #cfeeff 40%, #8fb8d8 70%, #4d6f8f); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 0 10px rgba(160, 225, 255, 0.8); }
 .cx-rank-btn { font-size: 11px; padding: 4px 12px; }
 .cx-teamup { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; align-items: baseline; width: min(400px, 92vw); margin-top: 8px; padding: 8px 10px; border: 1px solid rgba(233, 185, 58, 0.25); border-radius: 6px; background: rgba(8, 16, 30, 0.7); font-size: 12.5px; line-height: 1.35; color: var(--parchment); }

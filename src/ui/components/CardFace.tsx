@@ -135,7 +135,7 @@ const KIND_ICONS: Record<CardKind, React.ReactNode> = {
  * The frame: the designer's PNG with its window knocked out, exported as WebP at two sizes (public/art/frames). Events
  * take their own frame when it exists and the Character frame until then; a missing file falls back the same way.
  */
-/* The frame a card wears: one of the ten ranked exports (public/art/frames/character-<frame>.webp, fitted into the
+/* The frame a card wears: one of the seventeen frame exports, seven ranks and ten finishes (public/art/frames/character-<frame>.webp, fitted into the
    card's box by a scratch script). Events keep their own frame and are exempt from ranks for now. */
 function Frame({ kind, big, rank }: { kind: 'character' | 'event'; big: boolean; rank: FrameId }) {
   const size = big ? '' : '-sm';

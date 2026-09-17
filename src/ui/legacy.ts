@@ -17,9 +17,11 @@ export const RANK_LABEL: Record<Rank, string> = { wood: 'Wood', bronze: 'Bronze'
  * Finishes: frames outside the ladder, cosmetic, for the store later. Shown now on a few cards so the decks carry a
  * mix. The frame can never outrank the card: a finish is assumed won, bought or granted, and says nothing about rank.
  */
-export type Finish = 'tigers-eye' | 'turquoise' | 'amethyst' | 'onyx' | 'marble' | 'ice' | 'camouflage' | 'lava' | 'usa';
-export const FINISHES: Finish[] = ['tigers-eye', 'turquoise', 'amethyst', 'onyx', 'marble', 'ice', 'camouflage', 'lava', 'usa'];
-export const FINISH_LABEL: Record<Finish, string> = { 'tigers-eye': "Tiger's Eye", turquoise: 'Turquoise', amethyst: 'Amethyst', onyx: 'Onyx', marble: 'Marble', ice: 'Ice', camouflage: 'Camouflage', lava: 'Lava', usa: 'Stars and Stripes' };
+export type Finish = 'tigers-eye' | 'turquoise' | 'amethyst' | 'onyx' | 'marble' | 'ice' | 'camouflage' | 'lava' | 'usa' | 'jungle';
+export const FINISHES: Finish[] = ['tigers-eye', 'turquoise', 'amethyst', 'onyx', 'marble', 'ice', 'camouflage', 'lava', 'usa', 'jungle'];
+export const FINISH_LABEL: Record<Finish, string> = { 'tigers-eye': "Tiger's Eye", turquoise: 'Turquoise', amethyst: 'Amethyst', onyx: 'Onyx', marble: 'Marble', ice: 'Ice', camouflage: 'Camouflage', lava: 'Lava', usa: 'Stars and Stripes', jungle: 'Jungle' };
+/** The finishes the preview rotation deals out; Jungle is reserved and placed by name instead, so adding it moved nothing. */
+const ROTATION: Finish[] = FINISHES.filter((f) => f !== 'jungle');
 /** Every frame a card can wear. */
 export type FrameId = Rank | Finish;
 
@@ -111,13 +113,20 @@ function isMilitary(cardId: string): boolean {
   const def = CARD_BY_ID[cardId] as { tags?: string[] } | undefined;
   return MILITARY_IDS.has(cardId) || !!def?.tags?.some((t) => MILITARY_TAGS.has(t));
 }
+/** Jungle: the forest and the maroon, whose ground was the bush, the hills and the quilombo, by tag or by name. */
+const JUNGLE_IDS = new Set(['anansi', 'nanny_of_the_maroons', 'zumbi_dos_palmares', 'yaa_asantewaa', 'queen_nzinga', 'boukman_dutty', 'cecile_fatiman', 'nehanda', 'harriet_tubman']);
+function isJungle(cardId: string): boolean {
+  const def = CARD_BY_ID[cardId] as { tags?: string[] } | undefined;
+  return JUNGLE_IDS.has(cardId) || !!def?.tags?.includes('Maroon');
+}
 export function mayWear(cardId: string, finish: Finish): boolean {
   if (finish === 'usa') return USA_POLITICAL.has(cardId);
   if (finish === 'camouflage') return isMilitary(cardId);
+  if (finish === 'jungle') return isJungle(cardId);
   return true;
 }
-/** Finishes a card wears no matter the rotation: the Adwa pair in Camouflage, Lincoln in Stars and Stripes. */
-const FORCED_FINISH: Record<string, Finish> = { menelik_ii: 'camouflage', taytu_betul: 'camouflage', abraham_lincoln: 'usa' };
+/** Finishes a card wears no matter the rotation: the Adwa pair in Camouflage, Lincoln in Stars and Stripes, the forest four in Jungle (Anansi carries it in the Railroad deck). */
+const FORCED_FINISH: Record<string, Finish> = { menelik_ii: 'camouflage', taytu_betul: 'camouflage', abraham_lincoln: 'usa', anansi: 'jungle', nanny_of_the_maroons: 'jungle', zumbi_dos_palmares: 'jungle', yaa_asantewaa: 'jungle' };
 const IN_DECK = new Set<string>();
 const PREVIEW: Record<string, Finish> = (() => {
   const out: Record<string, Finish> = { ...FORCED_FINISH };
@@ -127,8 +136,8 @@ const PREVIEW: Record<string, Finish> = (() => {
     chars.forEach((id, i) => {
       IN_DECK.add(id);
       if (i % 4 !== 0 || out[id]) return;
-      let f = FINISHES[k % FINISHES.length];
-      if (!mayWear(id, f)) f = FINISHES[(k + 1) % FINISHES.length];
+      let f = ROTATION[k % ROTATION.length];
+      if (!mayWear(id, f)) f = ROTATION[(k + 1) % ROTATION.length];
       out[id] = f;
       k++;
     });
@@ -147,7 +156,7 @@ const PREVIEW: Record<string, Finish> = (() => {
 function hashedFinish(cardId: string): Finish | null {
   if (IN_DECK.has(cardId)) return null;
   const r = hash01(cardId);
-  const f = r < 0.2 ? FINISHES[Math.floor((r / 0.2) * FINISHES.length)] : null;
+  const f = r < 0.2 ? ROTATION[Math.floor((r / 0.2) * ROTATION.length)] : null;
   return f && mayWear(cardId, f) ? f : null;
 }
 export function finishOf(cardId: string): Finish | null {

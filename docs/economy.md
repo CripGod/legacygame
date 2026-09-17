@@ -2,7 +2,7 @@
 
 ## Built: card frames, ranked and finished
 
-Sixteen frames, one geometry, from the same hand: the ladder and the finishes.
+Seventeen frames, one geometry, from the same hand: the ladder and the finishes.
 
 **The ladder** (bought with Legacy): **Wood** → **Bronze** (3) → **Silver** (8) → **Gold** (12) → **Emerald** (16) →
 **Ruby** (22) → **Diamond** (30). A card's printed cost sets where it starts: 0 and 1 at Wood, 2 at Bronze, 3 at
@@ -11,14 +11,14 @@ Diamond carries a glare that sweeps the frame every five seconds. **The frame ne
 frame shown is exactly the rank held (bought, or the starting rank), never a step above it.
 
 **The finishes** (cosmetic, for the store later): **Tiger's Eye**, **Turquoise**, **Amethyst**, **Onyx**, **Marble**,
-**Ice**, **Camouflage**, **Lava**, **Stars and Stripes**. A finish is worn in place of the rank's frame; the rank is
+**Ice**, **Camouflage**, **Lava**, **Stars and Stripes**, **Jungle**. A finish is worn in place of the rank's frame; the rank is
 still there underneath and still climbs, and a finish says nothing about rank (a player is assumed to have won it,
 been granted it, or bought it). Until finishes are owned and equipped, every fourth Character of each preset deck (in deck order) wears the next
 finish in the list, each deck starting two further along, so every deck shows a few and every finish is worn by two
-or three cards; cards outside the decks fall to a stable hash, about one in five. Stars and Stripes is restricted to American political figures (`USA_POLITICAL` in `legacy.ts`: Lincoln, Stevens, Sumner, Smalls, Turner, Taney, Douglass); a card that would have drawn it takes the next finish instead, and at least two eligible cards wear it. Camouflage is reserved the same way for the military, militant and war-involved: any card tagged Military, Soldier, Rebellion, Revolution, Defense, Spy or Maroon, plus John Brown, Harriet Tubman, Robert Smalls, Henry McNeal Turner, Lewis Hayden, Ogun, Shango, Mary Seacole and Lincoln (`MILITARY_TAGS` / `MILITARY_IDS`).
+or three cards; cards outside the decks fall to a stable hash, about one in five. Stars and Stripes is restricted to American political figures (`USA_POLITICAL` in `legacy.ts`: Lincoln, Stevens, Sumner, Smalls, Turner, Taney, Douglass); a card that would have drawn it takes the next finish instead, and at least two eligible cards wear it. Camouflage is reserved the same way for the military, militant and war-involved: any card tagged Military, Soldier, Rebellion, Revolution, Defense, Spy or Maroon, plus John Brown, Harriet Tubman, Robert Smalls, Henry McNeal Turner, Lewis Hayden, Ogun, Shango, Mary Seacole and Lincoln (`MILITARY_TAGS` / `MILITARY_IDS`). Jungle is reserved for the forest and the maroon (any card tagged Maroon, plus Anansi, Nanny of the Maroons, Zumbi, Yaa Asantewaa, Queen Nzinga, Boukman, Fatiman, Nehanda and Harriet Tubman); it sits outside the rotation and is placed by name, on Anansi (the Railroad deck), Nanny of the Maroons, Zumbi dos Palmares and Yaa Asantewaa.
 
 Every frame is the same 1047×1411 export fitted into the card's 1103×1426 box, so one set of positions serves all
-sixteen. **Events are exempt** for now: they keep their own frame, take no rank, and show no rank row in the Codex.
+seventeen. **Events are exempt** for now: they keep their own frame, take no rank, and show no rank row in the Codex.
 The Compendium opens with Chapter I, "Reading a card": the three orbs, the ladder and the finishes.
 
 - **Earning.** A match won pays its Legacy to the winner (1 for a plain win, 4 to 16 behind an early Stand). The
@@ -31,7 +31,7 @@ The Compendium opens with Chapter I, "Reading a card": the three orbs, the ladde
   the button; `MatchScreen` banks a win.
 - **Dev.** `?dev=1&legacy=20` grants 20 Legacy once per page load, to review ranks without playing.
 - **Unity.** The ledger is a save-file shape (an int, an int, a dictionary of card id to rank, a list of entries);
-  the frames are sixteen sprites sharing one layout; the rank badge and the promote button are the same two controls on
+  the frames are seventeen sprites sharing one layout; the rank badge and the promote button are the same two controls on
   the card view. The rule that a rank changes nothing in the engine holds there too: the engine never reads the
   ledger.
 
@@ -63,7 +63,7 @@ for when it is, so the engine, the profile and the Unity port grow toward it ins
 | Winning a match | the match's Legacy (1 to 16) | the Stand multiplier is the main lever: the earlier the Stand, the more a win pays and a loss costs |
 | Losing a match | 0 | nothing is taken from the wallet; the Legacy at stake was never yours. Sitting Down early keeps the other side's payout small |
 | A Threat cleared | +1 per Legend earned | the same counter that makes arrivals Ready at `LEGEND_READY` |
-| First time a Location is won | +2 once per Location | sixteen Locations, so a modest tour bonus |
+| First time a Location is won | +2 once per Location | seventeen Locations, so a modest tour bonus |
 | Daily first win | +2 | the only calendar hook, and a soft one |
 | Tutorial and Compendium reads | +1 each for the first read of every card's history | learning is paid, once |
 
