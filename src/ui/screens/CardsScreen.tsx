@@ -181,7 +181,10 @@ function LocationPlate({ loc, n, placeholders, onRefs }: { loc: LocationDef; n: 
   if (loc.noThreats) chips.push(<span key="nothreats" className="cx-chip good">Threats never appear here</span>);
   if (loc.immuneThreats?.length) chips.push(<span key="immune" className="cx-chip good">Immune to {loc.immuneThreats.map((t) => threatLabel(t, placeholders)).join(', ')}</span>);
   if (loc.timedThreat) chips.push(<span key="timed" className="cx-chip warn">Turn {loc.timedThreat.turn}: {threatLabel(loc.timedThreat.threatId, placeholders)} arrives</span>);
-  if (loc.spawnOnReveal) chips.push(<span key="spawn" className="cx-chip warn">Reveals with a {threatLabel(loc.spawnOnReveal, placeholders)}</span>);
+  if (loc.spawnOnReveal) {
+    const t = threatLabel(loc.spawnOnReveal, placeholders);
+    chips.push(<span key="spawn" className="cx-chip warn">Reveals with {/^the /i.test(t) ? t : `a ${t}`}</span>);
+  }
   if (loc.transformsInto) chips.push(<span key="transform" className="cx-chip">Becomes {locationName(loc.transformsInto.id, placeholders)} after {loc.transformsInto.afterTurns} turns</span>);
   if (loc.notInPool) {
     const from = LOCATIONS.find((l) => l.transformsInto?.id === loc.id);
