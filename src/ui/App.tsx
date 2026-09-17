@@ -4,7 +4,6 @@ import { DisplayContext } from './display';
 import { StartScreen, type StartOptions } from './screens/StartScreen';
 import { RulesScreen } from './screens/RulesScreen';
 import { CardsScreen } from './screens/CardsScreen';
-import { ResultScreen } from './screens/ResultScreen';
 import { MatchScreen } from './screens/MatchScreen';
 import { useMatch, type Mode } from './useMatch';
 import { DevPanel } from './components/DevPanel';
@@ -39,7 +38,6 @@ class ErrorBoundary extends Component<{ children: ReactNode; onReset: () => void
 
 function MatchHost({ seed, mode, dev, coach, decks, tutorial, onMenu }: { seed: number; mode: Mode; dev: boolean; coach: boolean; decks: Record<'A' | 'B', string>; tutorial: boolean; onMenu: () => void }) {
   const m = useMatch(seed, mode, decks, { tutorial });
-  const [screen, setScreen] = useState<'match' | 'result'>('match');
   const [devOpen, setDevOpen] = useState(false);
   if (m.handoff) {
     return (
@@ -57,23 +55,7 @@ function MatchHost({ seed, mode, dev, coach, decks, tutorial, onMenu }: { seed: 
   }
   return (
     <>
-      {screen === 'match' ? (
-        <MatchScreen m={m} coach={coach} tutorial={tutorial} onExit={() => setScreen('result')} />
-      ) : (
-        <ResultScreen
-          state={m.trueState}
-          onAgain={() => {
-            m.newMatch();
-            setScreen('match');
-          }}
-          onRematch={() => {
-            m.newMatch(m.seed);
-            setScreen('match');
-          }}
-          onMenu={onMenu}
-          onBoard={() => setScreen('match')}
-        />
-      )}
+      <MatchScreen m={m} coach={coach} tutorial={tutorial} onAgain={() => m.newMatch()} onRematch={() => m.newMatch(m.seed)} onMenu={onMenu} />
       {dev && (
         <button className="small dev-toggle" onClick={() => setDevOpen((o) => !o)} title="Developer tools">
           ⚙

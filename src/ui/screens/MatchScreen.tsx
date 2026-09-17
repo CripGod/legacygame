@@ -16,6 +16,7 @@ import { sfx, voice } from '../audio';
 import type { TraceStep } from '../../engine';
 import { Trails, TRAIL_COLORS, waveLandAt, type TrailShot } from '../components/Trails';
 import { Fireworks } from '../components/Fireworks';
+import { MatchEnd } from '../components/MatchEnd';
 import { ghostOf, fly, jolt, partWay, clearGhosts, wait, painted, type Ghost } from '../fly';
 import { DigReveal, type DigShow, type DigPhase } from '../components/DigReveal';
 import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, ThreatSheet, ancestorsDangers, CLASH_TITLES, adviceFor, showdownWhy, type ShowdownData } from '../components/Sheets';
@@ -135,7 +136,7 @@ function useCompact(): boolean {
   return compact;
 }
 
-export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchController; coach: boolean; tutorial?: boolean; onExit: () => void }) {
+export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, onMenu }: { m: MatchController; coach: boolean; tutorial?: boolean; onAgain: () => void; onRematch: () => void; onMenu: () => void }) {
   const { view, perspective: me, plan, setPlan: setPlanRaw, locked, busy } = m;
   // Undo history for the current plan.
   const [history, setHistory] = useState<TurnPlan[]>([]);
@@ -185,7 +186,18 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
   const [sheet, setSheet] = useState<SheetState>(null);
   const [flash, setFlash] = useState<string | null>(null);
   /** Match over and the player chose to look at the final board instead of the result card. */
-  const [peek, setPeek] = useState(() => m.view.phase === 'ended');
+  /** The end of the match on the board: 1 the banner slams in, 2 it lifts and the result panel rises; collapsed = looking at the board. */
+  const [endStage, setEndStage] = useState<0 | 1 | 2>(() => (m.view.phase === 'ended' ? 2 : 0));
+  const [endCollapsed, setEndCollapsed] = useState(false);
+  // A new match clears the last one's verdict.
+  useEffect(() => {
+    if (view.phase !== 'ended') {
+      setVerdict(null);
+      setEndStage(0);
+      setEndCollapsed(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view.phase]);
   /** The Reckoning's verdict, once every Location has taken its stamp. */
   const [verdict, setVerdict] = useState<{ title: string; line: string; reason: string; tone: 'win' | 'loss' | 'draw' } | null>(null);
   const reckoned = useRef(false);
@@ -576,13 +588,14 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
     if (spread.length && loc >= 0) {
       const from = document.querySelector(`.column[data-index="${loc}"] .location`)?.getBoundingClientRect();
       const shots: TrailShot[] = [];
-      const lands: { at: number; location: number; tone: 'mine' | 'theirs' }[] = [];
+      const lands: { at: number; location: number; tone: 'mine' | 'theirs'; amount?: number }[] = [];
       for (const e of spread) {
         const to = document.querySelector(`.column[data-index="${e.location}"] .art`)?.getBoundingClientRect();
         if (!from || !to) continue;
         const amount = (e.data as { amount?: number }).amount;
-        shots.push({ from, to, color: TRAIL_COLORS[e.player ?? 'A'], ring: healBy === 'both' ? TRAIL_COLORS.heal : TRAIL_COLORS[healBy], label: amount ? `+${amount}` : undefined, kind: 'wave' });
-        lands.push({ at: waveLandAt(from, to), location: e.location!, tone: e.player === me ? 'mine' : 'theirs' });
+        // The ring takes the breaker's colour; when both sides broke it, each side's payout rides its own ring.
+        shots.push({ from, to, color: TRAIL_COLORS[e.player ?? 'A'], ring: healBy === 'both' ? TRAIL_COLORS[e.player ?? 'A'] : TRAIL_COLORS[healBy], label: amount ? `+${amount}` : undefined, kind: 'wave' });
+        lands.push({ at: waveLandAt(from, to), location: e.location!, tone: e.player === me ? 'mine' : 'theirs', amount });
       }
       if (shots.length) {
         sfx('heal');
@@ -593,8 +606,9 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           const chime = l.at - lastChime > 140;
           if (chime) lastChime = l.at;
           window.setTimeout(() => {
-            if (chime) sfx('influence.up');
-            landFx([{ location: l.location, tone: l.tone }]);
+            // landFx chimes itself when an amount lands; the chime flag keeps landings a beat apart from doubling it.
+            landFx([{ location: l.location, tone: l.tone, amount: chime ? l.amount : undefined }]);
+            if (!chime && l.amount) floatNum(l.location, l.amount, l.tone);
           }, l.at);
         }
         hold = Math.max(hold, Math.max(...lands.map((l) => l.at)) + 900);
@@ -694,7 +708,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         // When the trail lands (~1050ms): a pulse on the Location's panel and the chime. The +N rides the embers.
         window.setTimeout(() => {
           if (list.some((e) => (e.data as { amount?: number }).amount)) sfx('influence.up');
-          landFx(list.map((e) => ({ location: e.location!, tone: (e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs' })));
+          landFx(list.map((e) => ({ location: e.location!, amount: (e.data as { amount?: number }).amount, tone: (e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs' })));
         }, 1050);
         return shots.length;
       };
@@ -842,11 +856,12 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       const shots: TrailShot[] = [];
       for (const i of locs) {
         const to = document.querySelector(`.column[data-index="${i}"] .art`)?.getBoundingClientRect();
-        if (to) shots.push({ from, to, color: TRAIL_COLORS[i % 2 ? 'B' : 'A'], ring: by === 'both' ? TRAIL_COLORS.heal : TRAIL_COLORS[by], label: '+1', kind: 'wave' });
+        const side: PlayerId = locs.indexOf(i) % 2 ? 'B' : 'A';
+        if (to) shots.push({ from, to, color: TRAIL_COLORS[side], ring: by === 'both' ? TRAIL_COLORS[side] : TRAIL_COLORS[by], label: '+1', kind: 'wave' });
       }
       sfx('heal');
       setTrail(shots);
-      if (freezeAt === undefined) for (const s of shots) window.setTimeout(() => landFx([{ location: locs[shots.indexOf(s)], tone: 'mine' }]), waveLandAt(from, s.to));
+      if (freezeAt === undefined) for (const s of shots) window.setTimeout(() => landFx([{ location: locs[shots.indexOf(s)], tone: 'mine', amount: 1 }]), waveLandAt(from, s.to));
     };
     /** Dev: play a clash between two tiles on the board as it stands (window.__sobClash(actorUid, victimUid, 'displaced', 1)). */
     (window as unknown as { __sobClash?: (actor: string, victim: string, outcome?: string, to?: number) => void }).__sobClash = (actor, victim, outcome = 'displaced', to = 1) => {
@@ -988,6 +1003,18 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
       sfx(winner ? (mineWon ? 'win' : 'lose') : 'draw.game');
       // The winner banks the match's Legacy (not in the tutorial).
       if (mineWon && !tutorial && r.stakes > 0) bank(r.stakes, `Won ${r.stakes} vs ${handle(other(me))}`);
+      // The banner slams in over the board; a win gets its burst. Then it lifts and the result panel rises.
+      setEndStage(1);
+      if (mineWon && !reduceMotion()) {
+        const bf = document.querySelector('.battlefield')?.getBoundingClientRect();
+        if (bf) {
+          sfx('fireworks');
+          setFireworks(new DOMRect(bf.x + bf.width / 2 - 120, bf.y + bf.height * 0.42, 240, 40));
+        }
+      }
+      await wait(1900);
+      if (cancelled) return;
+      setEndStage(2);
     })();
     return () => {
       cancelled = true;
@@ -1727,23 +1754,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           glowLocation={guideLocation}
           summonLabel={summonState}
         />
-        {verdict ? (
-          <div className={`replay-banner kind-clash ${verdict.tone === 'win' ? 'miss' : verdict.tone === 'draw' ? 'arrive' : ''}`} role="status">
-            <span className="replay-kind">Reckoning</span>
-            <span className="replay-text">
-              {verdict.line}
-              <span className="replay-sub">{verdict.reason}</span>
-            </span>
-            <button className="small primary" onClick={onExit}>
-              See the result
-            </button>
-            {!peek && (
-              <button className="small" onClick={() => setPeek(true)}>
-                Stay on the board
-              </button>
-            )}
-          </div>
-        ) : clashTell ? (
+        {verdict ? null : clashTell ? (
           <div className={`replay-banner kind-clash ${clashTell.tone}`} role="status">
             <span className="replay-kind">{clashTell.title}</span>
             <span className="replay-text">
@@ -1869,9 +1880,11 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
         </div>
         <div className="lock-panel">
           {view.phase === 'ended' ? (
-            <button className="primary lock-btn" onClick={onExit}>
-              SEE RESULT
-            </button>
+            endCollapsed ? (
+              <button className="primary lock-btn" onClick={() => setEndCollapsed(false)}>
+                SEE RESULT
+              </button>
+            ) : null
           ) : (
             <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning} onClick={lockNow} title={HINTS.timer}>
               <span>{planning ? 'LOCK IN' : locked ? 'LOCKED ✓' : 'RESOLVING…'}</span>
@@ -1896,9 +1909,11 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
             Sit Down
           </button>
           {view.phase === 'ended' ? (
-            <button className="primary lock-btn" onClick={onExit}>
-              SEE RESULT
-            </button>
+            endCollapsed ? (
+              <button className="primary lock-btn" onClick={() => setEndCollapsed(false)}>
+                SEE RESULT
+              </button>
+            ) : null
           ) : (
             <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning} onClick={lockNow} title={HINTS.timer}>
               <span>{planning ? 'LOCK IN' : locked ? 'LOCKED ✓' : 'RESOLVING…'}</span>
@@ -2028,11 +2043,7 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
           }}
         />
       )}
-      {verdict && !peek && (
-        <div className={`verdict-flash ${verdict.tone}`} aria-hidden>
-          {verdict.title}
-        </div>
-      )}
+      {verdict && endStage >= 1 && <MatchEnd view={view} me={me} stage={endStage === 1 ? 1 : 2} collapsed={endCollapsed} onCollapse={setEndCollapsed} onAgain={onAgain} onRematch={onRematch} onMenu={onMenu} />}
     </div>
   );
 }

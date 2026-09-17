@@ -106,6 +106,8 @@ interface Wave {
   /** The ring's colour: whoever broke the Threat. */
   color: string;
   sprite: HTMLCanvasElement;
+  /** A second ring from the same origin (both sides broke it) sets out this many ms behind the first. */
+  delay: number;
   motes: { angle: number; jitter: number; size: number }[];
 }
 
@@ -192,10 +194,11 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
       if (!isWave(i)) continue;
       const o = centre(shots[i].from);
       const landAt = waveLandAt(shots[i].from, shots[i].to);
-      let w = waves.find((v) => Math.abs(v.x - o.x) < 2 && Math.abs(v.y - o.y) < 2);
+      const color = shots[i].ring ?? TRAIL_COLORS.heal;
+      let w = waves.find((v) => Math.abs(v.x - o.x) < 2 && Math.abs(v.y - o.y) < 2 && v.color === color);
       if (!w) {
-        const color = shots[i].ring ?? TRAIL_COLORS.heal;
-        w = { x: o.x, y: o.y, reach: 0, color, sprite: glowSprite(color, 48), motes: [] };
+        const siblings = waves.filter((v) => Math.abs(v.x - o.x) < 2 && Math.abs(v.y - o.y) < 2).length;
+        w = { x: o.x, y: o.y, reach: 0, color, sprite: glowSprite(color, 48), delay: siblings * 170, motes: [] };
         for (let k = 0; k < MOTES; k++) w.motes.push({ angle: (k / MOTES) * Math.PI * 2 + rng() * 0.1, jitter: (rng() - 0.5) * WAVE_BAND * 0.8, size: 5 + rng() * 6 });
         waves.push(w);
       }
@@ -244,6 +247,7 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
     const ease = (t: number) => 1 - Math.pow(1 - t, 3);
     const frame = (now: number) => {
       const el = now - t0;
+      const elAll = el;
       ctx.clearRect(0, 0, W, H);
       ctx.globalCompositeOperation = 'lighter';
       // The burst: a flash, two shockwave rings, a glow that lingers, sparks out and down, embers rising slowly.
@@ -325,6 +329,7 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
       // fading as it travels; an echo ring follows a beat behind.
       for (const w of waves) {
         const [r, g, b] = hexToRgb(w.color);
+        const el = Math.max(0, elAll - w.delay);
         const bloom = el < WAVE_LEAD_MS + 260 ? Math.sin(Math.min(1, el / (WAVE_LEAD_MS + 260)) * Math.PI) : 0;
         if (bloom > 0) {
           const grad = ctx.createRadialGradient(w.x, w.y, 0, w.x, w.y, 90);

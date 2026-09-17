@@ -1742,3 +1742,86 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .tut-fig-stand .stand-btn { display: inline-block; font-size: 15px; min-width: 0; padding: 8px 22px; pointer-events: none; }
 .tut-ring.wide { left: 50%; top: 50%; width: 100%; height: 100%; border-radius: 16px; transform: translate(-50%, -50%); }
 @media (prefers-reduced-motion: reduce) { .tut-ring { animation: none; } }
+
+/* ---------- The end of the match, on the board ---------- */
+/* Hearthstone's banner, Snap's result panel: the word slams in over the stamped Locations with a flash (and, for a
+   win, the fireworks), lifts after a beat, and the result panel rises over the hand with the board still in view. */
+.end-banner { position: fixed; inset: 0; z-index: 45; display: grid; place-items: center; pointer-events: none; }
+.end-flash { position: absolute; left: 50%; top: 42%; width: 40vmax; height: 40vmax; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, rgba(255, 244, 214, 0.9) 0%, rgba(246, 215, 122, 0.45) 28%, rgba(246, 215, 122, 0) 62%); mix-blend-mode: screen; animation: end-flash 0.9s ease-out both; }
+.end-banner.loss .end-flash { background: radial-gradient(circle, rgba(255, 220, 214, 0.8) 0%, rgba(224, 74, 63, 0.4) 28%, rgba(224, 74, 63, 0) 62%); }
+.end-banner.draw .end-flash { background: radial-gradient(circle, rgba(230, 236, 246, 0.7) 0%, rgba(160, 175, 200, 0.35) 28%, rgba(160, 175, 200, 0) 62%); }
+@keyframes end-flash { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.2); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.6); } }
+.end-word {
+  position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%);
+  padding: 10px 7vw; font-family: var(--display); font-weight: 800; font-size: clamp(44px, 7.5vw, 112px); letter-spacing: 0.18em; text-transform: uppercase; line-height: 1;
+  color: var(--gold-2); text-shadow: 0 0 34px rgba(246, 215, 122, 0.85), 0 6px 22px rgba(0, 0, 0, 0.9);
+  background: linear-gradient(180deg, rgba(14, 26, 42, 0.96), rgba(6, 14, 24, 0.96));
+  border-top: 3px solid var(--gold); border-bottom: 3px solid var(--gold);
+  box-shadow: 0 0 0 1px rgba(233, 185, 58, 0.35), 0 24px 60px rgba(0, 0, 0, 0.75);
+  clip-path: polygon(3% 0, 97% 0, 100% 50%, 97% 100%, 3% 100%, 0 50%);
+  animation: end-slam 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.25) both;
+}
+.end-banner.loss .end-word { color: #ff9c96; border-color: var(--danger); text-shadow: 0 0 34px rgba(224, 74, 63, 0.75), 0 6px 22px rgba(0, 0, 0, 0.9); box-shadow: 0 0 0 1px rgba(224, 74, 63, 0.4), 0 24px 60px rgba(0, 0, 0, 0.75); }
+.end-banner.draw .end-word { color: #dfe6f2; border-color: #8a9ab5; text-shadow: 0 0 24px rgba(200, 210, 230, 0.5), 0 6px 22px rgba(0, 0, 0, 0.9); box-shadow: 0 0 0 1px rgba(138, 154, 181, 0.4), 0 24px 60px rgba(0, 0, 0, 0.75); }
+@keyframes end-slam { 0% { opacity: 0; transform: translate(-50%, -50%) scale(2.6); filter: blur(6px); } 55% { opacity: 1; transform: translate(-50%, -50%) scale(0.96); filter: blur(0); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+/* Lifted: the word fades as the panel rises and takes the title over. */
+.end-banner.lift .end-word { animation: end-fade 0.45s ease-out both; }
+@keyframes end-fade { from { opacity: 1; transform: translate(-50%, -50%) scale(1); } to { opacity: 0; transform: translate(-50%, -62%) scale(1.08); } }
+.end-banner.lift .end-flash { display: none; }
+@media (prefers-reduced-motion: reduce) { .end-flash { display: none; } .end-word { animation: none; } .end-banner.lift .end-word { animation: none; opacity: 0; } }
+.end-title { font-family: var(--display); font-weight: 800; font-size: clamp(22px, 2.6vw, 32px); letter-spacing: 0.22em; text-align: center; margin: 0 0 8px; color: var(--gold-2); text-shadow: 0 0 22px rgba(246, 215, 122, 0.6); }
+.end-panel.loss .end-title { color: #ff9c96; text-shadow: 0 0 22px rgba(224, 74, 63, 0.5); }
+.end-panel.draw .end-title { color: #dfe6f2; text-shadow: none; }
+
+/* The result panel: rises over the hand, the board stays above it. */
+.end-panel {
+  position: fixed; left: 50%; bottom: 0; z-index: 44; transform: translateX(-50%);
+  width: min(96vw, 860px); max-height: min(62vh, 560px); overflow: auto; scrollbar-width: thin;
+  padding: 14px 18px 16px; box-sizing: border-box;
+  border: 1px solid var(--gold); border-bottom: 0; border-radius: 14px 14px 0 0;
+  background: linear-gradient(180deg, rgba(20, 34, 56, 0.98), rgba(8, 19, 31, 0.98));
+  box-shadow: 0 -18px 50px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(233, 185, 58, 0.25);
+  color: var(--cream); font-family: var(--font);
+  animation: end-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.end-panel.win { border-color: var(--gold-2); box-shadow: 0 -18px 50px rgba(0, 0, 0, 0.7), 0 0 40px rgba(246, 215, 122, 0.25), inset 0 0 0 1px rgba(246, 215, 122, 0.3); }
+.end-panel.loss { border-color: var(--danger); box-shadow: 0 -18px 50px rgba(0, 0, 0, 0.7), 0 0 40px rgba(224, 74, 63, 0.2), inset 0 0 0 1px rgba(224, 74, 63, 0.3); }
+@keyframes end-rise { from { opacity: 0; transform: translate(-50%, 40px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.end-head { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px; margin-bottom: 10px; }
+.end-profile { display: grid; justify-items: center; gap: 4px; opacity: 0.6; }
+.end-profile.won { opacity: 1; }
+.end-avatar { width: 58px; height: 58px; border-radius: 50%; overflow: hidden; border: 2px solid var(--line-2); background: #0b1520; display: grid; place-items: center; font-family: var(--display); font-weight: 700; }
+.end-avatar .avatar-img { width: 100%; height: 100%; object-fit: cover; }
+.end-profile.pA.won .end-avatar { border-color: var(--gold-2); box-shadow: 0 0 18px rgba(246, 215, 122, 0.6); }
+.end-profile.pB.won .end-avatar { border-color: #6fa3ff; box-shadow: 0 0 18px rgba(111, 163, 255, 0.6); }
+.end-handle { font-family: var(--display); font-size: 12px; letter-spacing: 0.06em; }
+.end-vs { text-align: center; display: grid; gap: 3px; }
+.end-vs b { font-family: var(--display); font-size: clamp(15px, 1.6vw, 20px); letter-spacing: 0.04em; }
+.end-vs small { color: var(--muted); font-size: 12px; }
+.end-rows { display: grid; gap: 6px; margin: 4px 0 10px; }
+.end-legacy { display: flex; align-items: baseline; justify-content: center; gap: 10px; margin: 2px 0 12px; font-family: var(--display); }
+.end-legacy-lbl { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.end-wallet { font-size: 26px; color: var(--gold-2); }
+.end-gain { font-size: 15px; color: var(--ok); animation: end-gain 0.6s ease-out 0.5s both; }
+@keyframes end-gain { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.end-stats { margin: 0 0 12px; }
+.end-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+/* Collapsed to look at the board: one slim bar along the bottom. */
+.end-bar {
+  position: fixed; left: 50%; bottom: 10px; z-index: 44; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px; max-width: 94vw; padding: 7px 10px 7px 14px;
+  border: 1px solid var(--gold); border-radius: 6px;
+  background: linear-gradient(180deg, rgba(20, 34, 56, 0.97), rgba(8, 19, 31, 0.97));
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65), inset 0 0 0 1px rgba(233, 185, 58, 0.25);
+  color: var(--cream); font-family: var(--font); font-size: 13px; animation: replay-in 260ms ease-out;
+}
+.end-bar.loss { border-color: var(--danger); }
+.end-bar-text b { font-family: var(--display); letter-spacing: 0.1em; margin-right: 4px; }
+.end-bar.win .end-bar-text b { color: var(--gold-2); }
+.end-bar.loss .end-bar-text b { color: #ff9c96; }
+@media (width <= 700px) {
+  .end-panel { width: 100vw; padding: 12px 12px 14px; max-height: 70vh; }
+  .end-head { gap: 10px; }
+  .end-avatar { width: 44px; height: 44px; }
+  .end-actions button { flex: 1 1 40%; }
+}

@@ -205,7 +205,7 @@ export const LOCATIONS: LocationDef[] = [
 
 export const UNKNOWN_LOCATION: LocationDef = {
   id: 'unknown',
-  name: 'Hidden Location',
+  name: 'Unknown Location',
   era: '',
   rule: 'This Location has not been revealed.',
   blurb: '',

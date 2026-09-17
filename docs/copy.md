@@ -862,7 +862,7 @@ Rules
 - Gate Characters count toward Influence but are Fresh for the turn they arrive and the following turn. Then they are Ready and may enter Inside (up to five per player). Inside counts more: every Established Character contributes +1 Influence on top of its card.
 - Inside, a Character is Established: its Established ability is live and it is safe from Gate-only effects.
 - Straight Inside and Direct Entry Characters can skip the wait (see Special arrivals below).
-### Hidden Locations
+### Unknown Locations
 - All three Locations start hidden. One reveals after each of the first three turns, in a random order. Turn 1 is a blind commitment, with a prize for guessing right: first on the scene, the Characters you play on Turn 1 at the Location that reveals first gain +1 Influence for the rest of the match. Both players can collect it; Informants never do.
 - A Character committed blind is never rejected retroactively; it lives with whatever the Location turns out to be.
 ### Influence and Force
@@ -919,19 +919,27 @@ An Event is dropped on a Location the same way a Character is: it goes into the 
 ### Threats
 ← Back
 
-## Result screen
+## End of the match
 
-{l.revealed ? locationName(l.defId, placeholders) : `Location $…`}
-{w === 'lost' ? 'LOST' : w ? `$…` : 'Tie'}
+r.reason === 'locations' ? 'Two of three Locations.' : r.reason === 'tiebreak-influence' ? 'One Location each: total Influence decides.' : r.reason === 'tiebreak-force' ? 'Tied on Influence: total Force decides.' : r.reason === 'stepOff' ? (mineWon ? `$… sat down.` : 'You sat down.') : 'Nothing separates them.';
+= 2 ? 'lift' : ''} aria-live="assertive">
+onCollapse(false)}>
+Show result
+Play again
+… Turn ….
+0 ? 'gain' : ''}>
+Your Legacy
+{gain > 0 && +…}
 Location lead changes…
 Final-turn flips…
 Relocations… / …
-Setbacks (neutral)… / …
+Setbacks… / …
 Solidarity earned… / …
 Play again
-View the final board
-Rematch (same seed …)
-Main menu
+Rematch
+onCollapse(true)}>
+Look at the board
+Menu
 
 ## In-match feedback, toasts and sheets
 
@@ -956,6 +964,7 @@ Main menu
 - clash ${d.cleared ? 'miss' : ''}
 - .column[data-index="${loc}"] .location
 - .column[data-index="${e.location}"] .art
+- s colour; when both sides broke it, each side
 - cubic-bezier(0.2, 0.8, 0.2, 1)
 - .column[data-index="${i}"] .art
 - ${adef.name} beats ${vdef.name} (${adef.force} Force against ${vdef.force}) and knocks them away to the Gates of another Location.
@@ -1045,7 +1054,6 @@ Main menu
 - Sit Down: give up the match now. ${view.players[other(me)].handle} takes ${opts.stepOffCost} Legacy.
 - app ${resolving ? 'resolving' : ''}
 - url(${artUrl('landing', 'board')})
-- replay-banner kind-clash ${verdict.tone === 'win' ? 'miss' : verdict.tone === 'draw' ? 'arrive' : ''}
 - replay-banner kind-clash ${clashTell.tone}
 - replay-banner kind-${step.kind}
 - ${view.players[other(me)].handle} holds ${peekShow.cards.length} card${peekShow.cards.length > 1 ? 's' : ''}
@@ -1063,7 +1071,6 @@ Main menu
 - card-flash p${arrival.owner}
 - drag-ghost ${drag.payload.kind === 'card' ? 'card-ghost' : ''} ${drag.pointerType !== 'mouse' ? 'touch' : ''} ${drag.returning ? 'returning' : ''} ${drag.snap ? 'snap' : ''}
 - You give up the match, now. ${view.players[other(me)].handle} takes ${opts.stepOffCost} Legacy.${raisedOnMe ? 
-- verdict-flash ${verdict.tone}
 - rep-readout ${n > 0 ? 'live' : ''}
 - Nothing owed yet. Every Setback you suffer from here on adds +1 (up to +4).
 - Played now: +${base} lasting Influence at the Location you choose${base < n ? ' (the cap is 4)' : ''}, and +1 more in the Americas${americas.length ? 

@@ -78,7 +78,7 @@ md.push('', '## First-turn guide', '');
 for (const s of literals('src/ui/guide.ts', 20)) md.push(`- ${s}`);
 md.push('', '## Start screen', '', jsxText('src/ui/screens/StartScreen.tsx'));
 md.push('', '## How to play (rules screen)', '', jsxText('src/ui/screens/RulesScreen.tsx'));
-md.push('', '## Result screen', '', jsxText('src/ui/screens/ResultScreen.tsx'));
+md.push('', '## End of the match', '', jsxText('src/ui/components/MatchEnd.tsx'));
 md.push('', '## In-match feedback, toasts and sheets', '');
 for (const f of ['src/ui/screens/MatchScreen.tsx', 'src/ui/components/Sheets.tsx', 'src/ui/components/Battlefield.tsx', 'src/ui/components/Hand.tsx', 'src/ui/components/Hud.tsx', 'src/ui/display.ts']) {
   const ls = literals(f, 28);

@@ -37,7 +37,7 @@ export function cardShort(id: string, placeholders: boolean): string {
 export function locationName(id: string, placeholders: boolean): string {
   const def = LOCATION_BY_ID[id];
   if (!def) return id;
-  if (def.hidden) return 'Hidden Location';
+  if (def.hidden) return 'Unknown Location';
   return placeholders ? `Site ${locIndex[id]}` : def.name;
 }
 
