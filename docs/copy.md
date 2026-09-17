@@ -1037,13 +1037,14 @@ Main menu
 - Hand full (${MAX_HAND}). Play a card or your next draw is discarded.
 - Drop ${cardName(drag.payload.cardId, placeholders)} on a lit Location. Let go anywhere else, or press Escape, to put it back.
 - Choose where ${cardName(selected, placeholders)} plays from the card's tray, or press 1-3. Close the card to put it back.
+- Press 1-3 to play ${cardName(selected, placeholders)} at a Location, or close the card and drag it there.
 - Harriet Tubman: drag any of your Characters to another Location and she takes them straight Inside. Free, and she gets them out of a curfew (optional).
 - ${cardName(yemojaPlay.cardId, placeholders)}: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : 
 - Nothing in hand fits your ${energyLeft} Energy. Lock in.
 - ${name} fits your ${energyLeft} Energy (${cost}). Drag it onto a Location.
 - Sit Down: give up the match now. ${view.players[other(me)].handle} takes ${opts.stepOffCost} Legacy.
 - app ${resolving ? 'resolving' : ''}
-- linear-gradient(180deg, rgba(5, 12, 21, 0.55) 0%, rgba(5, 12, 21, 0.62) 55%, rgba(5, 12, 21, 0.78) 100%), url(${artUrl('landing', 'board')})
+- url(${artUrl('landing', 'board')})
 - replay-banner kind-clash ${verdict.tone === 'win' ? 'miss' : verdict.tone === 'draw' ? 'arrive' : ''}
 - replay-banner kind-clash ${clashTell.tone}
 - replay-banner kind-${step.kind}
