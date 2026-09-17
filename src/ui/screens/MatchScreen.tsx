@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CARD_BY_ID, viewFor, legalOptions, validatePlan, gateRoom, GATE_CAPACITY, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, filterEvents, LOCATION_BY_ID } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
-import { artUrl } from '../art';
+import { artUrl, videoUrl } from '../art';
 import { TutFigure } from '../components/TutFigure';
 import type { DropHighlight, BoardFx } from '../components/Battlefield';
 import { previewPlan, remainingPlan, isPlannedUid, PLANNED_PREFIX, foreseePlan } from '../preview';
@@ -1675,8 +1675,30 @@ export function MatchScreen({ m, coach, tutorial = false, onExit }: { m: MatchCo
 
   return (
     <div className={`app ${resolving ? 'resolving' : ''}`}>
-      {/* The board's backdrop: the lakeside plaza under the mountain, washed dark so the panels read. */}
-      <div className="app-bg" style={{ backgroundImage: `linear-gradient(180deg, rgba(5, 12, 21, 0.55) 0%, rgba(5, 12, 21, 0.62) 55%, rgba(5, 12, 21, 0.78) 100%), url(${artUrl('landing', 'board')})` }} aria-hidden />
+      {/* The board's backdrop: the lakeside plaza under the mountain, a 20s loop over its still (the still is the poster, the
+          reduced-motion fallback and what shows if autoplay is refused); the dark wash (.app-bg::after) sits over both. */}
+      <div className="app-bg" style={{ backgroundImage: `url(${artUrl('landing', 'board')})` }} aria-hidden>
+        {!reduceMotion() && (
+          <video
+            className="app-bg-video"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            poster={artUrl('landing', 'board')}
+            ref={(el) => {
+              // The muted property must be set before play() for autoplay to be allowed; React sets it, this makes sure.
+              if (!el) return;
+              el.muted = true;
+              el.play?.().catch(() => undefined);
+            }}
+          >
+            <source src={videoUrl('board.webm')} type="video/webm" />
+            <source src={videoUrl('board.mp4')} type="video/mp4" />
+          </video>
+        )}
+      </div>
       <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, flash: flash === 'stakes' || flash === 'final', onToggle: toggleStand, proposed: opts.proposedStakes, slam: standSlam, flip: coinFlip }} />
       <div className="main-wrap">
         <Battlefield

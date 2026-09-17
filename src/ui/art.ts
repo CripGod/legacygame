@@ -10,7 +10,16 @@ const missing = new Set<string>();
 declare global {
   interface Window {
     __ART__?: Record<string, string>;
+    /** Single-file builds: video files by name ("board.mp4"), as URLs. */
+    __VIDEO__?: Record<string, string>;
   }
+}
+
+/** A video under public/art/video, by file name ("board.mp4"). */
+export function videoUrl(file: string): string {
+  const inline = typeof window !== 'undefined' ? window.__VIDEO__?.[file] : undefined;
+  if (inline) return inline;
+  return `${import.meta.env.BASE_URL}art/video/${file}`;
 }
 
 export function artUrl(kind: ArtKind, id: string, ext?: 'jpg' | 'webp' | 'png' | 'svg'): string {
