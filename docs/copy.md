@@ -986,7 +986,8 @@ Menu
 - cubic-bezier(0.2, 0.7, 0.3, 1)
 - translateY(-46px) scale(1.9)
 - translateY(-10px) scale(1.05)
-- +${(e.data as { amount?: number }).amount} correct guess
+- +${amount} First Location bonus
+- +${(e.data as { amount?: number }).amount} First Location bonus
 - .column[data-index="${i}"] .art
 - ${adef.name} beats ${vdef.name} (${adef.force} Force against ${vdef.force}) and knocks them away to the Gates of another Location.
 - .column[data-index="${to}"] .gates
@@ -1805,7 +1806,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${ps.handle} plays ${def.name} (${def.influence}/${def.force}) at the Gates of ${locName(state, play.location)}.
 - ${name(state, c)} cannot enter ${locName(state, play.location)}: ${blocked}. It waits at the Gates.
 - ${name(state, c)} cannot enter: no room Inside.
-- First on the scene: ${name(state, c)} was played at ${locName(state, first)} before it was revealed and gains +1 Influence for the rest of the match.
+- First Location bonus: ${name(state, c)} was played at ${locName(state, first)} before it was revealed and gains +1 Influence for the rest of the match.
 - ${state.players[p].handle}'s ${eventDef(play.cardId).name} at ${locName(state, play.location)} is torn up before it resolves: Taytu Betul will have no treaty here.
 - ${name(state, c)} cannot enter ${locName(state, c.location)}: ${blocked}.
 - ${name(state, c)} cannot enter ${locName(state, c.location)}: no room Inside.

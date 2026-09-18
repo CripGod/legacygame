@@ -1370,7 +1370,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     trace('play', `${ps.handle} plays ${def.name} ${straightIn ? 'straight Inside' : 'at'} ${locName(state, play.location)}`, { uids: [c.uid], location: play.location, player: p, cardId: def.id });
     }
   }
-  // First on the scene: Turn 1 is a blind commitment, and whoever guessed the Location that reveals first is paid
+  // First Location bonus: Turn 1 is a blind commitment, and whoever guessed the Location that reveals first is paid
   // for it. Every Character played there this turn (either side; never an Informant) gains +1 Influence for good.
   // The prize is for the blind guess only: the Location must have opened at this turn's reveal.
   if (state.turn === 1 && state.revealOrder.length && state.locations[state.revealOrder[0]].revealedTurn === 1) {
@@ -1378,9 +1378,9 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     const guessed = newChars.filter(({ c }) => c.location === first && !isInformant(c));
     for (const { c } of guessed) {
       c.permInfluence += 1;
-      events.push({ type: 'info', text: `First on the scene: ${name(state, c)} was played at ${locName(state, first)} before it was revealed and gains +1 Influence for the rest of the match.`, uid: c.uid, player: c.owner, location: first, data: { trail: 'first', amount: 1, color: c.owner } });
+      events.push({ type: 'info', text: `First Location bonus: ${name(state, c)} was played at ${locName(state, first)} before it was revealed and gains +1 Influence for the rest of the match.`, uid: c.uid, player: c.owner, location: first, data: { trail: 'first', amount: 1, color: c.owner } });
     }
-    if (guessed.length) trace('info', `First on the scene at ${locName(state, first)}`, { uids: guessed.map(({ c }) => c.uid), location: first });
+    if (guessed.length) trace('info', `First Location bonus at ${locName(state, first)}`, { uids: guessed.map(({ c }) => c.uid), location: first });
   }
   for (const { p, play } of eventPlays) {
     const torn = state.locations[play.location].treatyTorn;

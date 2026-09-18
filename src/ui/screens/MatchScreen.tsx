@@ -281,7 +281,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   /**
    * A +N rises from a Location's art, swells, then jumps into that side's Influence circle on the meter and the
    * circle takes the hit. `big` is the wave landing: the number comes up huge. `label` replaces the bare +N
-   * ("+1 correct guess"). `side` is whose circle it lands in; by default the tone decides.
+   * ("+1 First Location bonus"). `side` is whose circle it lands in; by default the tone decides.
    */
   const floatNum = (location: number, amount: number, tone: 'artist' | 'mine' | 'theirs', opts: { big?: boolean; label?: string; side?: PlayerId } = {}) => {
     const art = document.querySelector(`.column[data-index="${location}"] .art`);
@@ -861,14 +861,14 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           const amount = (e.data as { amount?: number }).amount;
           const tone = (e.data as { color?: string }).color;
           const first = (e.data as { trail?: string }).trail === 'first';
-          shots.push({ from, to, color: tone === 'artist' ? TRAIL_COLORS.artist : TRAIL_COLORS[e.player ?? 'A'], label: amount ? (first ? `+${amount} correct guess` : `+${amount}`) : undefined });
+          shots.push({ from, to, color: tone === 'artist' ? TRAIL_COLORS.artist : TRAIL_COLORS[e.player ?? 'A'], label: amount ? (first ? `+${amount} First Location bonus` : `+${amount}`) : undefined });
         }
         if (shots.length) sfx('trail');
         setTrail(shots.length ? shots : null);
         // When the trail lands (~1050ms): a pulse on the Location's panel and the chime. The +N rides the embers.
         window.setTimeout(() => {
           if (list.some((e) => (e.data as { amount?: number }).amount)) sfx('influence.up');
-          landFx(list.map((e) => ({ location: e.location!, amount: (e.data as { amount?: number }).amount, tone: (e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs', side: e.player, label: (e.data as { trail?: string }).trail === 'first' && (e.data as { amount?: number }).amount ? `+${(e.data as { amount?: number }).amount} correct guess` : undefined })));
+          landFx(list.map((e) => ({ location: e.location!, amount: (e.data as { amount?: number }).amount, tone: (e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs', side: e.player, label: (e.data as { trail?: string }).trail === 'first' && (e.data as { amount?: number }).amount ? `+${(e.data as { amount?: number }).amount} First Location bonus` : undefined })));
         }, 1050);
         return shots.length;
       };
