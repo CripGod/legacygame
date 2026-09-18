@@ -145,7 +145,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Bud Billiken (`bud_billiken`)
 - cost 0 · Influence 1 · Force 1 · historical · era: Chicago Defender, 1923
-- reveal: Bud Billiken Club: each of your other Characters at this Location that costs 1 or less gains +1 Influence.
+- established: Bud Billiken Club: while Established at the Location he was played into, each of your other Characters there that costs 1 or less counts +1 Influence, Gates or Inside. The club meets where it was founded: move him and it stays behind.
 - blurb: The Chicago Defender's mascot for its children's page: guardian of every Black kid, dreamed up in 1923.
 - history: Bud Billiken was invented in 1923 by Robert S. Abbott and Lucius Harper of the Chicago Defender as the cartoon patron of the paper's youth section, the Defender Junior. Kids joined the Bud Billiken Club by the thousands; a ten-year-old Willard Motley, later the novelist, was among the first to write the column.
 
@@ -970,6 +970,7 @@ Menu
 - cubic-bezier(0.55, 0, 0.85, 0.35)
 - ${d.actor.force} vs ${d.theirForce}
 - clash ${tone === 'miss' ? 'miss' : ''}
+- .column[data-index="${d.from}"] .score.p${d.victim.owner}
 - s ghost flies to where it was sent; the striker
 - cubic-bezier(0.15, 0.7, 0.2, 1)
 - cubic-bezier(0.25, 0.75, 0.3, 1)

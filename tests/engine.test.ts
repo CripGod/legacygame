@@ -589,6 +589,23 @@ describe('special arrivals', () => {
     expect(bj).toBeTruthy();
     expect(bj!.zone).toBe('gate');
   });
+  it("Bud Billiken's club is an Established aura at the Location he was played into, and only there", () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['great_migration', 'gary_indiana', 'greenwood'], revealAll: true, handA: ['bud_billiken'] });
+    const kid = addChar(s, 'organizer', 'A', 0, 'gate', true);
+    const before = charInfluence(s, kid);
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'bud_billiken', location: 0 }] }, B: pass() }).state;
+    const bud = charsOf(s, 'A').find((c) => c.defId === 'bud_billiken')!;
+    expect(bud.playedAt).toBe(0);
+    expect(charInfluence(s, s.characters[kid.uid])).toBe(before); // at the Gates he is not Established yet
+    s.characters[bud.uid].zone = 'inside';
+    expect(charInfluence(s, s.characters[kid.uid])).toBe(before + 1);
+    // The club stays behind when he moves: Established elsewhere, he counts nobody there.
+    const other2 = addChar(s, 'organizer', 'A', 1, 'gate', true);
+    const alone = charInfluence(s, s.characters[other2.uid]);
+    s.characters[bud.uid].location = 1;
+    expect(charInfluence(s, s.characters[other2.uid])).toBe(alone);
+    expect(charInfluence(s, s.characters[kid.uid])).toBe(before);
+  });
   it('Black Jesus appears when the church fills The Tabernacle and blesses every Location', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['the_tabernacle', 'great_migration', 'gary_indiana'], revealAll: true });
     s.turn = 4;
@@ -1773,11 +1790,17 @@ describe('Dunbar, Bud Billiken and the neutralized stamp', () => {
     const spy = addChar(s, 'peter_prioleau', 'A', 0, 'gate', false); // an informant B planted on A: owner A, cost 0
     spy.plantedBy = 'B';
     const elsewhere = addChar(s, 'claudette_colvin', 'A', 1, 'inside');
+    const was = { kid: charInfluence(s, kid), grown: charInfluence(s, grown), spy: charInfluence(s, spy), elsewhere: charInfluence(s, elsewhere) };
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'bud_billiken', location: 0 }] }, B: pass() }).state;
-    expect(s.characters[kid.uid].permInfluence).toBe(1);
-    expect(s.characters[grown.uid].permInfluence).toBe(0);
-    expect(s.characters[spy.uid].permInfluence).toBe(0);
-    expect(s.characters[elsewhere.uid].permInfluence).toBe(0);
+    const bud = charsOf(s, 'A').find((c) => c.defId === 'bud_billiken')!;
+    // Nothing is written on anyone: the club is an aura, and it counts once Bud is Established.
+    expect(s.characters[kid.uid].permInfluence).toBe(0);
+    expect(charInfluence(s, s.characters[kid.uid])).toBe(was.kid);
+    s.characters[bud.uid].zone = 'inside';
+    expect(charInfluence(s, s.characters[kid.uid])).toBe(was.kid + 1);
+    expect(charInfluence(s, s.characters[grown.uid])).toBe(was.grown);
+    expect(charInfluence(s, s.characters[spy.uid])).toBe(was.spy);
+    expect(charInfluence(s, s.characters[elsewhere.uid])).toBe(was.elsewhere);
   });
   it('a neutralized Threat names itself in the event so the board can stamp it', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['gary_indiana', 'great_migration', 'greenwood'], revealAll: true, handA: [], handB: [] });

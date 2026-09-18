@@ -153,6 +153,13 @@ export function charInfluence(state: GameState, c: CharacterInstance): number {
     if (def.cost <= 1) v += WEB_SMALL;
     else if (def.cost >= 3) v -= WEB_LARGE;
   }
+  // Bud Billiken's club: while he is Established at the Location he was played into, your other cheap Characters there, Gates or Inside, count more.
+  if (!informant) {
+    for (const b of hasEstablished(state, c.owner, c.location, 'clubFounded')) {
+      const eff = charDef(b.defId).established?.effect as { maxCost: number; amount: number };
+      if (b.uid !== c.uid && b.playedAt === c.location && def.cost <= eff.maxCost) v += eff.amount;
+    }
+  }
   if (c.zone === 'inside') {
     // Inside counts more than the Gates.
     v += INSIDE_INFLUENCE_BONUS;

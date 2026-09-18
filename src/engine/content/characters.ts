@@ -559,14 +559,14 @@ export const CHARACTERS: CharacterDef[] = [
     category: 'historical',
     name: 'Bud Billiken',
     short: 'Bud',
-    summary: 'Your other 0–1 cost Characters here get +1 Influence.',
+    summary: 'Est.: your other 0–1 cost Characters here count +1, where he was first played.',
     influence: 1,
     force: 1,
     tags: ['Black', 'Chicago', 'Youth'],
     keywords: [],
-    reveal: {
-      text: 'Bud Billiken Club: each of your other Characters at this Location that costs 1 or less gains +1 Influence.',
-      effect: { type: 'clubHere', maxCost: 1, amount: 1 },
+    established: {
+      text: 'Bud Billiken Club: while Established at the Location he was played into, each of your other Characters there that costs 1 or less counts +1 Influence, Gates or Inside. The club meets where it was founded: move him and it stays behind.',
+      effect: { type: 'clubFounded', maxCost: 1, amount: 1 },
     },
     blurb: 'The Chicago Defender\'s mascot for its children\'s page: guardian of every Black kid, dreamed up in 1923.',
     history:

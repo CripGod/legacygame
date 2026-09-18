@@ -103,6 +103,7 @@ export type EstablishedEffect =
   | { type: 'relocatedInReady' } // Mary Ann Shadd Cary: every Character you relocate into this Location arrives Ready
   | { type: 'bridleHere' } // Tom Bass: opposing Characters at this Location cannot relocate out (Harriet still can)
   | { type: 'auraInfluenceOthersHere'; amount: number } // Douglass
+  | { type: 'clubFounded'; maxCost: number; amount: number } // Bud Billiken: the club meets where it was founded, and only there
   | { type: 'assistForceBonus'; amount: number } // John Brown
   | { type: 'relocatedNoDisplace' } // Katherine
   | { type: 'blessNextEstablished'; amount: number } // Mansa Musa
@@ -331,6 +332,8 @@ export interface CharacterInstance {
   blessedUid?: string | null;
   /** Committed while the Location was hidden (Mansa Musa). */
   wasHiddenAtCommit?: boolean;
+  /** The Location this Character was played into: where Bud Billiken's club was founded. */
+  playedAt?: number;
   pendingRevealBonus?: number;
   /** Community Defense protection this turn. */
   protectedTurn?: number;

@@ -1326,6 +1326,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       permInfluence: 0,
       tempInfluence: 0,
       wasHiddenAtCommit: !loc.revealed || loc.revealedTurn === state.turn,
+      playedAt: play.location,
     };
     state.characters[c.uid] = c;
     // Taytu: the treaty is torn the moment she lands, before any Event here resolves.
