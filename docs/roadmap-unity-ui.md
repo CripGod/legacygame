@@ -1,6 +1,6 @@
 # Roadmap: the UI through UI Kit Maker, on the web first, then Unity
 
-Written 2026-09-15, revised 2026-09-18 (second pass), by Master Control, the coordinating session that sits between
+Written 2026-09-15, revised 2026-09-18 (third pass, after UI Kit Maker's reply 01), by Master Control, the coordinating session that sits between
 UI Kit Maker (the app that makes the UI) and Stand on Business (the game). The owner relays between the
 three of us. This document is the plan and the contract. The paste-ready requests live in `docs/ui-kit-maker/`.
 
@@ -80,14 +80,15 @@ against the real manifest. Nothing is pushed to that repository from here; reque
    `<name>-B`. No runtime tinting on either platform.
 6. **Text is live** everywhere: labels on the web are DOM text, in Unity TextMeshPro. Nothing with words
    is exported as a picture. Icons are swappable: inline SVG on the web, sprites in Unity.
-7. **The web ingests** the engine kit: the atomic 2x PNGs under `assets/` and `kit-manifest.json`, whose
-   rows carry each part's nine-slice insets and shell box (`docs/ui-kit-maker/what-the-exporter-does.md`).
-   A script in the game repo (`scripts/kit.ts`) turns those into `src/ui/kit.css` (`border-image` rules
-   from the manifest's insets, custom properties per component). The same files feed Unity, so the web
-   and the prefab are cut from identical pixels. The kit is a build input, never hand-pasted CSS.
-8. **Unity ingests** the Unity ZIP as exported (sprites, TMP fonts, prefab per component with uGUI
-   sprite-swap states, a scene per board, the bundled importer). The game session wires prefabs to the
-   C# event stream; nothing in the prefab is redrawn by hand.
+7. **The web ingests** the kit ZIP's `assets/` (atomic 2x PNGs) and `kit-manifest.json`, whose rows carry
+   each part's nine-slice insets and shell box and whose `boards` list carries every item's centre, size
+   and anchor on the 1920×1080 stage (`docs/ui-kit-maker/what-the-exporter-does.md`). A script in the
+   game repo (`scripts/kit.ts`) turns those into `src/ui/kit.css` and a layout table per screen. The
+   same manifest builds the Unity scenes, so the web and Unity are cut from identical pixels and
+   identical numbers. The kit is a build input, never hand-pasted CSS.
+8. **Unity ingests** the same ZIP (sprites, TMP fonts, a prefab per component with uGUI sprite-swap
+   states, a scene per board, the bundled importer under `UIKitMaker/Editor`). The game session wires
+   prefabs to the C# event stream; nothing in the prefab is redrawn by hand.
 9. **Fonts**: Cinzel (display), Crimson Pro (body), Kaushan Script (wordmark only). All SIL Open Font
    License, so they may ship inside a Unity build as TMP font assets.
 10. **Nothing in the kit changes a game result.** The engine is the only authority on state, on both
@@ -126,8 +127,7 @@ Durations are rough and assume one relay round per day. Phases 4 and 5 run along
 - The owner tweaks in the app. Master Control reviews each board against the request (every piece
   present, every word right, every hook live) and against the cards (a card on the match board in the
   screenshot). Differences are fixed or accepted in writing.
-- Done: the owner blesses the boards; UI Kit Maker exports the engine kit, the Unity ZIP and
-  `settings.json`. **Bless every board before the first Unity import**: the importer never rewrites a
+- Done: the owner blesses the boards; UI Kit Maker exports the kit ZIP and `settings.json`. **Bless every board before the first Unity import**: the importer never rewrites a
   generated scene, so a board changed later arrives as a new scene, not an edit.
 
 ### Phase 2. Into the web build (weeks 3 to 7, game side, overlapping phase 1)
@@ -156,7 +156,7 @@ tractable: **the engine is a plain C# class library with no Unity dependency**, 
 the .NET SDK in the game session's container, so the port and its tests run without the Unity Editor.
 Only the UI layer needs the editor, and the owner runs that loop.
 
-1. **Smoke scene first.** As soon as a draft Unity ZIP exists (week 3), the owner opens it in Unity 6,
+1. **Smoke scene first.** As soon as a draft kit ZIP exists (week 3), the owner opens it in Unity 6,
    runs the bundled importer, and the game session drives the Legacy coin and the Stand button from a
    fake state. This tests the exporter, the target settings and the owner's editor loop before any
    engine code lands in Unity.
@@ -187,7 +187,7 @@ The owner has set three months for the Unity build. Thirteen weeks, three lanes,
 |---|---|---|---|
 | 1 (Sep 21) | Request 01 answered; the look and the match board drafted | Port `types`, `rng`, `setup`; port the first tests | Empty Unity 6 project with the target settings, in the game repo under `unity/` |
 | 2 (Sep 28) | All eleven boards drafted on a preview | Port `query`, `resolve` | |
-| 3 (Oct 5) | Owner tweaks; draft export for the importer | Port `view`, the rest of the tests; parity harness starts | Smoke scene from the draft ZIP |
+| 3 (Oct 5) | Owner tweaks; draft export of the match board for the importer | Port `view`, the rest of the tests; parity harness starts | Smoke scene from the draft ZIP |
 | 4 (Oct 12) | Boards blessed; final export | Parity green on 1,000 seeded matches | Card prefab from `docs/card-template.md` |
 | 5 (Oct 19) | Web: match and landing on the kit | Content tables generated as ScriptableObjects | Import the blessed kit; scenes generated |
 | 6 (Oct 26) | Web: sheets, result, compendium, settings | Harborlight ported; parity for AI plans | Match screen: board, tiles, HUD wired to the event stream |
