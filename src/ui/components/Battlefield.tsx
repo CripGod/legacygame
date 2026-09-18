@@ -220,6 +220,8 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
             }
             const planned = isPlannedUid(s.uid);
             const moving = plan.relocations.some((r) => r.uid === s.uid) || plan.plays.some((pl) => pl.target?.charUid === s.uid);
+            const movingTo = plan.relocations.find((r) => r.uid === s.uid)?.to ?? plan.plays.find((pl) => pl.target?.charUid === s.uid)?.target?.location;
+            const moveDir: 'left' | 'right' | 'up' = movingTo === undefined || movingTo === index ? 'up' : movingTo < index ? 'left' : 'right';
             const confronting = plan.confronts.some((c) => c.uid === s.uid);
             const draggable =
               owner === me && dragProps ? dragProps(planned ? { kind: 'card', cardId: s.uid.slice(PLANNED_PREFIX.length) } : { kind: 'char', uid: s.uid }) : {};
@@ -236,6 +238,11 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                       <b>{fx.stamp.title}</b>
                       {fx.stamp.sub && <i>{fx.stamp.sub}</i>}
                     </div>
+                  )}
+                  {moving && owner === me && (
+                    <span className={`ghost-arrow ${moveDir}`} aria-hidden>
+                      ›
+                    </span>
                   )}
                   <Pic state={view} c={s} ready={readyBaseline ? !!readyBaseline.characters[s.uid]?.ready : undefined} badges fx={picFx(fx, s.uid)} focus={focus?.includes(s.uid)} strip={planned ? 'Placed' : moving ? 'Moving' : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockReason(view, s) ? 'Held' : undefined} onClick={() => onChar(s.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(s.uid); }} />
                 </div>

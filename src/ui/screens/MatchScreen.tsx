@@ -1079,6 +1079,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     const add = (uid: string, why: string, to?: number) => {
       const c = view.characters[uid];
       if (!c || c.owner !== me) return;
+      // A Gate piece relocating (or conducted) is still on its tile in the preview, marked Moving: no ghost beside it.
+      if (c.zone === 'gate' && why !== 'enters') return;
       const dir = to === undefined || to === c.location ? 'up' : to < c.location ? 'left' : 'right';
       (out[c.location] ??= []).push({ uid, defId: c.defId, why, zone: c.zone, dir });
     };

@@ -19,8 +19,8 @@ export const RANK_LABEL: Record<Rank, string> = { wood: 'Wood', bronze: 'Bronze'
  */
 export type Finish = 'tigers-eye' | 'turquoise' | 'amethyst' | 'onyx' | 'marble' | 'ice' | 'camouflage' | 'lava' | 'usa' | 'jungle';
 export const FINISHES: Finish[] = ['tigers-eye', 'turquoise', 'amethyst', 'onyx', 'marble', 'ice', 'camouflage', 'lava', 'usa', 'jungle'];
-export const FINISH_LABEL: Record<Finish, string> = { 'tigers-eye': "Tiger's Eye", turquoise: 'Turquoise', amethyst: 'Amethyst', onyx: 'Onyx', marble: 'Marble', ice: 'Ice', camouflage: 'Camouflage', lava: 'Lava', usa: 'Stars and Stripes', jungle: 'Jungle' };
-/** The finishes the preview rotation deals out; Jungle is reserved and placed by name instead, so adding it moved nothing. */
+export const FINISH_LABEL: Record<Finish, string> = { 'tigers-eye': "Tiger's Eye", turquoise: 'Turquoise', amethyst: 'Amethyst', onyx: 'Onyx', marble: 'Marble', ice: 'Ice', camouflage: 'Camouflage', lava: 'Lava', usa: 'Stars and Stripes', jungle: 'Nature Boy' };
+/** The finishes the preview rotation deals out; Nature Boy (id jungle) is reserved and placed by name instead, so adding it moved nothing. */
 const ROTATION: Finish[] = FINISHES.filter((f) => f !== 'jungle');
 /** Every frame a card can wear. */
 export type FrameId = Rank | Finish;
@@ -113,7 +113,7 @@ function isMilitary(cardId: string): boolean {
   const def = CARD_BY_ID[cardId] as { tags?: string[] } | undefined;
   return MILITARY_IDS.has(cardId) || !!def?.tags?.some((t) => MILITARY_TAGS.has(t));
 }
-/** Jungle: the forest and the maroon, whose ground was the bush, the hills and the quilombo, by tag or by name. */
+/** Nature Boy (id jungle): the forest and the maroon, whose ground was the bush, the hills and the quilombo, by tag or by name. */
 const JUNGLE_IDS = new Set(['anansi', 'nanny_of_the_maroons', 'zumbi_dos_palmares', 'yaa_asantewaa', 'queen_nzinga', 'boukman_dutty', 'cecile_fatiman', 'nehanda', 'harriet_tubman']);
 function isJungle(cardId: string): boolean {
   const def = CARD_BY_ID[cardId] as { tags?: string[] } | undefined;
@@ -125,7 +125,7 @@ export function mayWear(cardId: string, finish: Finish): boolean {
   if (finish === 'jungle') return isJungle(cardId);
   return true;
 }
-/** Finishes a card wears no matter the rotation: the Adwa pair in Camouflage, Lincoln in Stars and Stripes, the forest four in Jungle (Anansi carries it in the Railroad deck). */
+/** Finishes a card wears no matter the rotation: the Adwa pair in Camouflage, Lincoln in Stars and Stripes, the forest four in Nature Boy (Anansi carries it in the Railroad deck). */
 const FORCED_FINISH: Record<string, Finish> = { menelik_ii: 'camouflage', taytu_betul: 'camouflage', abraham_lincoln: 'usa', anansi: 'jungle', nanny_of_the_maroons: 'jungle', zumbi_dos_palmares: 'jungle', yaa_asantewaa: 'jungle' };
 const IN_DECK = new Set<string>();
 const PREVIEW: Record<string, Finish> = (() => {

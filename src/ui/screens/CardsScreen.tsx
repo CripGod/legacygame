@@ -374,7 +374,7 @@ function ReadingChapter({ n }: { n: number }) {
           <b>The finishes</b>
         </div>
         <p className="cx-frames-lede">
-          Ten more frames sit outside the ladder. A finish is worn in place of the rank's frame; the rank goes on climbing underneath, and a finish says nothing about it. They will be the store's, bought with Legacy or won; for now a few cards in every deck wear them so you can see each one in play. Stars and Stripes is worn by American political figures only, Camouflage by soldiers, rebels and the war-involved, and Jungle by the forest and the maroon.
+          Ten more frames sit outside the ladder. A finish is worn in place of the rank's frame; the rank goes on climbing underneath, and a finish says nothing about it. They will be the store's, bought with Legacy or won; for now a few cards in every deck wear them so you can see each one in play. Stars and Stripes is worn by American political figures only, Camouflage by soldiers, rebels and the war-involved, and Nature Boy by the forest and the maroon.
         </p>
         <div className="cx-frames-row finishes" role="list">
           {FINISHES.map((f) => (
