@@ -2294,7 +2294,7 @@ describe('word spreads', () => {
     const out = resolveTurn(s, { A: { ...pass(), confronts: [{ uid: og.uid, threatUid: 'hr' }] }, B: pass() });
     expect(gains(out.state, 'A')).toEqual([0, 1, 1]);
   });
-  it('a shared clear splits the pool by Force, the remainder to the larger share; equal shares split evenly', () => {
+  it('a shared clear puts three points on the table: the larger share everywhere, the smaller where it trails most; equal shares both everywhere', () => {
     let s = stage();
     const a1 = addChar(s, 'og', 'A', 0, 'gate', true);
     const a2 = addChar(s, 'og', 'A', 0, 'gate', true);
@@ -2303,22 +2303,20 @@ describe('word spreads', () => {
     s.locations[0].threats.push({ uid: 'hr', defId: 'housing_restriction', location: 0, forceRequired: 6 + fB, spawnedTurn: 1 });
     let out = resolveTurn(s, { A: { ...pass(), confronts: [{ uid: a1.uid, threatUid: 'hr' }, { uid: a2.uid, threatUid: 'hr' }] }, B: { ...pass(), confronts: [{ uid: b.uid, threatUid: 'hr' }] } });
     expect(out.state.locations[0].threats).toEqual([]);
-    const total = 6 + fB;
-    const shareB = Math.floor((2 * fB) / total);
-    const shareA = 2 - shareB; // the remainder goes to the larger share
-    expect(gains(out.state, 'A').reduce((x, y) => x + y, 0)).toBe(shareA);
-    expect(gains(out.state, 'B').reduce((x, y) => x + y, 0)).toBe(shareB);
+    // A brought 6 Force, B less: A takes +1 at both other Locations, B +1 at one of them.
+    expect(gains(out.state, 'A')).toEqual([0, 1, 1]);
+    expect(gains(out.state, 'B').reduce((x, y) => x + y, 0)).toBe(1);
+    expect(gains(out.state, 'B')[0]).toBe(0);
     expect(out.state.players.A.legend).toBe(1);
     expect(out.state.players.B.legend).toBe(1);
-    // Equal Force: one Location each.
+    // Equal Force: both take +1 at every other Location.
     s = stage();
     const a = addChar(s, 'og', 'A', 0, 'gate', true);
     const b2 = addChar(s, 'og', 'B', 0, 'gate', true);
     s.locations[0].threats.push({ uid: 'hr', defId: 'housing_restriction', location: 0, forceRequired: 6, spawnedTurn: 1 });
     out = resolveTurn(s, { A: { ...pass(), confronts: [{ uid: a.uid, threatUid: 'hr' }] }, B: { ...pass(), confronts: [{ uid: b2.uid, threatUid: 'hr' }] } });
-    expect(gains(out.state, 'A').reduce((x, y) => x + y, 0)).toBe(1);
-    expect(gains(out.state, 'B').reduce((x, y) => x + y, 0)).toBe(1);
-    expect(gains(out.state, 'A').map((g, i) => g + gains(out.state, 'B')[i])).toEqual([0, 1, 1]);
+    expect(gains(out.state, 'A')).toEqual([0, 1, 1]);
+    expect(gains(out.state, 'B')).toEqual([0, 1, 1]);
   });
   it('at Legend 2 your Characters arrive at the Gates Ready, played or relocated', () => {
     const s = stage();

@@ -34,7 +34,7 @@ import {
   validatePlan,
   cardCost,
   lockReason, swornAt, teamUpAssembled, standingAt } from './query';
-import type { CharacterDef, CharacterInstance, GameEvent, GameState, MatchResult, PlayAction, PlayerId, ResolveOptions, ResolveOutput, ThreatInstance, TraceStep, TurnPlan } from './types';
+import type { CharacterDef, CharacterInstance, GameEvent, GameState, MatchResult, PlayAction, PlayerId, ResolveOptions, ResolveOutput, ThreatInstance, TraceStep, TurnPlan, LocationState } from './types';
 import { MAX_STAKES, standMultiplier, PLAYERS, EXTENDED_TURNS, MAX_HAND, other, emptyPlan, LEGEND_READY } from './types';
 import { GATHERING_DEFS } from './content/characters';
 
@@ -1507,25 +1507,28 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       const by = PLAYERS.filter((p) => (f![p] ?? 0) > 0);
       events.push({ type: 'threatNeutralized', text: `${threatName(state, t)} at ${locName(state, loc.index)} is neutralized.`, location: loc.index, data: { by, threatUid: t.uid, defId: t.defId, target: t.target } });
       // Word spreads: clearing a Threat is heard at every other open Location, hidden ones included (the word is
-      // waiting there when it opens). The pool is +1 lasting Influence per other Location; alone you take all of it, together it is split by Force contributed (rounded down,
-      // the remainder to the larger share; equal shares split evenly, the larger share choosing its Locations first).
-      // Everyone who helped gains a Legend; at LEGEND_READY their Characters arrive at the Gates Ready.
+      // waiting there when it opens). Alone, you take +1 lasting Influence at every other Location. Together, three
+      // points are on the table: the larger Force share takes +1 at every other Location, the smaller takes +1 at
+      // the one other Location where it trails by the most (the lower index on a tie); equal Force, both take +1
+      // everywhere. Everyone who helped gains a Legend; at LEGEND_READY their Characters arrive at the Gates Ready.
       const others = state.locations.filter((l) => l.index !== loc.index && !l.lost);
       if (others.length && by.length) {
-        const total = by.reduce((s, p) => s + f![p], 0);
-        const shares: Record<PlayerId, number> = { A: 0, B: 0 };
-        for (const p of by) shares[p] = Math.floor((others.length * f![p]) / total);
-        const ranked = [...by].sort((a, b) => f![b] - f![a] || (a === state.initiative ? -1 : 1));
-        let left = others.length - by.reduce((s, p) => s + shares[p], 0);
-        for (let i = 0; left > 0; i = (i + 1) % ranked.length, left--) shares[ranked[i]] += 1;
-        let cursor = 0;
-        for (const p of ranked) {
-          for (const l of others.slice(cursor, cursor + shares[p])) {
-            l.permInfluence = l.permInfluence ?? { A: 0, B: 0 };
-            l.permInfluence[p] += 1;
-            events.push({ type: 'info', text: `Word spreads: ${state.players[p].handle} gains +1 lasting Influence at ${locName(state, l.index)} for clearing ${threatName(state, t)}.`, player: p, location: l.index, data: { trail: 'legend', amount: 1, color: p, threatUid: t.uid } });
+        const pay = (p: PlayerId, l: LocationState) => {
+          l.permInfluence = l.permInfluence ?? { A: 0, B: 0 };
+          l.permInfluence[p] += 1;
+          events.push({ type: 'info', text: `Word spreads: ${state.players[p].handle} gains +1 lasting Influence at ${locName(state, l.index)} for clearing ${threatName(state, t)}.`, player: p, location: l.index, data: { trail: 'legend', amount: 1, color: p, threatUid: t.uid } });
+        };
+        const ranked = [...by].sort((a, b) => f![b] - f![a]);
+        const top = ranked[0];
+        for (const p of by) {
+          if (by.length === 1 || f![p] === f![top]) {
+            for (const l of others) pay(p, l);
+            continue;
           }
-          cursor += shares[p];
+          // The smaller share: one Location, where it trails by the most.
+          const deficit = (l: LocationState) => influenceAt(state, l.index)[other(p)] - influenceAt(state, l.index)[p];
+          const where = [...others].sort((x, y) => deficit(y) - deficit(x) || x.index - y.index)[0];
+          pay(p, where);
         }
         for (const p of by) {
           const ps = state.players[p];
