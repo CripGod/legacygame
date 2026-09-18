@@ -1386,6 +1386,7 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .stamp.verdict.miss { background: rgba(20, 110, 55, 0.94); border-color: #d9ffe6; box-shadow: 0 0 0 2px rgba(20, 110, 55, 0.6), 0 8px 24px rgba(0, 0, 0, 0.7); }
 .stamp.verdict.hex { background: rgba(90, 30, 150, 0.94); border-color: #ead9ff; box-shadow: 0 0 0 2px rgba(90, 30, 150, 0.6), 0 8px 24px rgba(0, 0, 0, 0.7); }
 .gate-slot.filled:has(> .stamp.verdict), .slot.filled:has(> .stamp.verdict) { overflow: visible; z-index: 9; }
+.gate-slot.filled > .stamp.verdict, .slot.filled > .stamp.verdict, .threat-tile > .stamp.verdict { width: max-content; max-width: none; }
 .stamp.verdict b { font-size: clamp(9px, 0.85vw, 13px); letter-spacing: 0.14em; }
 .stamp.verdict i { font-family: var(--font); font-style: italic; font-weight: 500; text-transform: none; letter-spacing: 0; font-size: clamp(8px, 0.7vw, 11px); opacity: 0.95; }
 @keyframes stamp-slam { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(-14deg) scale(2.4); } 60% { opacity: 1; transform: translate(-50%, -50%) rotate(-14deg) scale(0.92); } 100% { opacity: 1; transform: translate(-50%, -50%) rotate(-14deg) scale(1); } }
@@ -1597,7 +1598,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .wallet.has { color: var(--gold-2); border-color: var(--gold); }
 .wallet small { font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: #cfc3a6; }
 
-/* ---------- Settings gear and its menu ---------- */
+/* ---------- Settings speaker and its menu ---------- */
 .settings { position: relative; display: inline-block; }
 .settings-btn { width: 30px; height: 30px; min-width: 0; min-height: 0; padding: 0; margin: 0; border-radius: 999px; clip-path: none; box-shadow: none; border: 1.5px solid var(--gold-dark); background: #0a1626; color: #cfc3a6; display: inline-grid; place-items: center; cursor: pointer; opacity: 0.6; transition: opacity 0.2s, transform 0.4s cubic-bezier(0.2, 0.8, 0.3, 1), border-color 0.2s; }
 .hud-settings .settings-btn { width: 26px; height: 26px; }

@@ -19,7 +19,7 @@ import { Fireworks } from '../components/Fireworks';
 import { MatchEnd } from '../components/MatchEnd';
 import { ghostOf, fly, jolt, partWay, clearGhosts, wait, painted, type Ghost } from '../fly';
 import { DigReveal, type DigShow, type DigPhase } from '../components/DigReveal';
-import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, ThreatSheet, ancestorsDangers, CLASH_TITLES, adviceFor, showdownWhy, type ShowdownData } from '../components/Sheets';
+import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, ThreatSheet, ancestorsDangers, CLASH_TITLES, clashTitle, adviceFor, showdownWhy, type ShowdownData } from '../components/Sheets';
 import { markGuideDone, suggest } from '../guide';
 import { lessonsFor, tutorialActive } from '../tutorial';
 import { bank } from '../legacy';
@@ -391,7 +391,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     const d = ev.data as ClashData;
     const outcome = d.outcome;
     const tone: 'hit' | 'miss' | 'hex' = outcome === 'held' || outcome === 'amnestied' ? 'miss' : outcome === 'hexed' ? 'hex' : 'hit';
-    const title = CLASH_TITLES[outcome] ?? String(outcome).toUpperCase();
+    const title = clashTitle(d);
     const victimUid = d.victim.uid;
     const actorUid = actorUidFor(d, prevView ?? view);
     const toName = d.to !== undefined ? locationName(view.locations[d.to].revealed ? view.locations[d.to].defId : 'unknown', placeholders) : undefined;

@@ -45,6 +45,7 @@ export const REFERENCES: Record<string, Reference[]> = {
   tom_bass: [wiki('Tom Bass', 'Tom_Bass')],
   bud_billiken: [wiki('Bud Billiken Parade and Picnic', 'Bud_Billiken_Parade_and_Picnic')],
   roger_taney: [wiki('Roger B. Taney', 'Roger_B._Taney'), wiki('Dred Scott v. Sandford', 'Dred_Scott_v._Sandford')],
+  organizer: [wiki('Ella Baker', 'Ella_Baker'), wiki('Fannie Lou Hamer', 'Fannie_Lou_Hamer'), wiki('Montgomery bus boycott', 'Montgomery_bus_boycott')],
   sleeping_car_porters: [wiki('Brotherhood of Sleeping Car Porters', 'Brotherhood_of_Sleeping_Car_Porters'), wiki('A. Philip Randolph', 'A._Philip_Randolph')],
   ida_b_wells: [wiki('Ida B. Wells', 'Ida_B._Wells')],
   queen_nzinga: [wiki('Nzinga of Ndongo and Matamba', 'Nzinga_of_Ndongo_and_Matamba')],

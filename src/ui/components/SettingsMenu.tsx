@@ -3,7 +3,7 @@ import { MUSIC_TRACK, setAudioSettings, sfx, useAudioSettings } from '../audio';
 import { tip } from '../tip';
 
 /**
- * A gear that opens a small menu of switches: music and sound effects. Lives in the landing page's corner and under
+ * A speaker that opens a small menu of switches: music and sound effects. Lives in the landing page's corner and under
  * the Stand button in the match, so the switches themselves stay out of the way.
  */
 export function SettingsMenu({ className }: { className?: string }) {
@@ -27,9 +27,9 @@ export function SettingsMenu({ className }: { className?: string }) {
   }, [open]);
   return (
     <div className={`settings ${open ? 'open' : ''} ${className ?? ''}`} ref={root}>
-      <button className="settings-btn" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen((o) => !o)} {...tip('Settings: music and sound.')}>
+      <button className="settings-btn" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen((o) => !o)} {...tip('Sound: music and effects.')}>
         <svg viewBox="0 0 24 24" aria-hidden>
-          <path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm8.4 3.5a8.6 8.6 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a8 8 0 0 0-2.1-1.2L15.4 3h-4l-.4 2.6a8 8 0 0 0-2.1 1.2l-2.4-1-2 3.4 2 1.6a8.6 8.6 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a8 8 0 0 0 2.1 1.2l.4 2.6h4l.4-2.6a8 8 0 0 0 2.1-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z" />
+          <path d="M3 9.5v5h3.6L12 19V5L6.6 9.5H3zm11.5-1.2v7.4a3.9 3.9 0 0 0 0-7.4zm0-3.6v2.1a5.6 5.6 0 0 1 0 10.4v2.1a7.6 7.6 0 0 0 0-14.6z" />
         </svg>
       </button>
       {open && (

@@ -13,7 +13,6 @@ import { Wordmark } from '../components/Wordmark';
 
 /** The chapters, in reading order. `short` is the label in the sticky nav. */
 const CHAPTERS = [
-  { id: 'reading', title: 'Reading a card', short: 'Reading', lede: 'What a card face says before you read a word: three orbs for its numbers, a frame for its rank, a finish if it wears one.' },
   { id: 'historical', title: 'Historical', short: 'Historical', lede: 'People who lived. Each card prints what it costs to play, the Influence it brings and the Force it can bring to bear against a Threat.' },
   { id: 'artists', title: 'Artists', short: 'Artists', lede: 'Sculptors, painters, a quilter and a potter. The work outlasts its maker: their Reveals leave lasting Influence on the Location itself, which stays when they are gone.' },
   { id: 'mythic', title: 'Mythic', short: 'Mythic', lede: 'Orisha, tricksters and figures of faith and folklore. Every deck carries at least one.' },
@@ -22,6 +21,7 @@ const CHAPTERS = [
   { id: 'teamups', title: 'Team-ups', short: 'Team-ups', lede: 'Two who belong together, Established at the same Location for the same side. A standing team-up holds while both stay Inside. A once-only team-up fires for whoever assembles it first, and then the window is closed for everyone.' },
   { id: 'locations', title: 'Locations', short: 'Locations', lede: 'Three are drawn each match. Every place has a rule of its own; some transform, some fall under curfew at night, some never see a Threat at all.' },
   { id: 'threats', title: 'Threats', short: 'Threats', lede: 'History pushes back. Bring enough Force to bear in a single turn to clear one, or learn to live under it.' },
+  { id: 'reading', title: 'Reading a card', short: 'Reading', lede: 'What a card face says before you read a word: three orbs for its numbers, a frame for its rank, a finish if it wears one.' },
 ] as const;
 
 type ChapterId = (typeof CHAPTERS)[number]['id'];
@@ -527,7 +527,6 @@ export function CardsScreen({ onBack, initialRefs }: { onBack: () => void; /** D
           </div>
         </nav>
 
-        <ReadingChapter n={chapterNo('reading')} />
 
         <section id="cx-historical" className="cx-chapter">
           <ChapterHead n={chapterNo('historical')} title={chapter('historical').title} lede={chapter('historical').lede} count={historical.length} unit="cards" />
@@ -611,6 +610,8 @@ export function CardsScreen({ onBack, initialRefs }: { onBack: () => void; /** D
             </div>
           </Page>
         </section>
+
+        <ReadingChapter n={chapterNo('reading')} />
 
         <footer className="cx-colophon">
           <StarRule />

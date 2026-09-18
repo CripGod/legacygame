@@ -982,6 +982,9 @@ Menu
 - cubic-bezier(0.2, 0.8, 0.2, 1)
 - Taney's opinion stands: nobody here has rights the court will respect. Everyone at the Location, both sides, is turned out to open Gates elsewhere, Waiting. Then the Decision lifts.
 - Nobody was here to turn out. The Decision lifts.
+- cubic-bezier(0.2, 0.7, 0.3, 1)
+- translateY(-46px) scale(1.9)
+- translateY(-10px) scale(1.05)
 - +${(e.data as { amount?: number }).amount} correct guess
 - .column[data-index="${i}"] .art
 - ${adef.name} beats ${vdef.name} (${adef.force} Force against ${vdef.force}) and knocks them away to the Gates of another Location.
@@ -1087,7 +1090,7 @@ Menu
 - danger sit-btn ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}
 - turn-mini ${finalTurnLabel(view) ? 'final' : ''}
 - T${Math.min(view.turn, view.maxTurns)}/${view.maxTurns}
-- card-flash p${arrival.owner} ${arrival.slam ? 'slam' : ''}
+- card-flash p${arrival.owner}
 - drag-ghost ${drag.payload.kind === 'card' ? 'card-ghost' : ''} ${drag.pointerType !== 'mouse' ? 'touch' : ''} ${drag.returning ? 'returning' : ''} ${drag.snap ? 'snap' : ''}
 - You give up the match, now. ${view.players[other(me)].handle} takes ${opts.stepOffCost} Legacy.${raisedOnMe ? 
 - rep-readout ${n > 0 ? 'live' : ''}
@@ -1436,6 +1439,8 @@ export const CLASH_TITLES: Record<'displaced' | 'held' | 'blocked' | 'sentBack' 
   arrested: 'ARRESTED',
   amnestied: 'AMNESTIED',
 };
+/** The word stamped on the one it happened to: Yaa Asantewaa's siege reads as a siege, not Laveau's hex. */
+export const clashTitle = (d: { outcome: keyof typeof CLASH_TITLES; actor: { id: string } }): string => (d.outcome === 'hexed' && d.actor.id === 'yaa_asantewaa' ? 'BESIEGED' : CLASH_TITLES[d.outcome] ?? String(d.outcome).toUpperCase());
 
 export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: GameState; me: PlayerId; onClose: () => void }) {
   const { placeholders } = useDisplay();
