@@ -1854,10 +1854,12 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
    tile; the tile's picture sits in the frame's window. The other side keeps the drawn plate until it has frames of its own. */
 .gates-strip.mine .gate-slot:not(.event-slot) { border: 0; border-radius: 0; box-shadow: none; background: var(--gate-off) center / 100% 100% no-repeat; color: rgba(255, 224, 150, 0.85); }
 .gates-strip.mine .gate-slot.later { opacity: 0.5; }
-.gates-strip.mine .gate-slot.filled:not(.event-slot), .gates-strip.mine .gate-slot.reserved { box-sizing: border-box; background: transparent !important; clip-path: none !important; padding: 8% 13.4% 7.4% !important; overflow: visible; }
+.gates-strip.mine .gates { --gw: min(var(--mini), calc((100cqw - 24px) / 4)); --gi-x: calc(var(--gw) * 0.134); --gi-t: calc(var(--mini-h) * 0.08); --gi-b: calc(var(--mini-h) * 0.074); }
+.gates-strip.mine .gate-slot.filled:not(.event-slot), .gates-strip.mine .gate-slot.reserved { box-sizing: border-box; width: var(--gw); background: transparent !important; clip-path: none !important; padding: var(--gi-t) var(--gi-x) var(--gi-b) !important; overflow: visible; }
+.gates-strip.mine .gate-slot.reserved .pic-img { inset: var(--gi-t) var(--gi-x) var(--gi-b); width: auto; height: auto; }
 .gates-strip.mine .gate-slot.filled:not(.event-slot)::after, .gates-strip.mine .gate-slot.reserved::after { display: none; }
 .gates-strip.mine .gate-slot.filled:not(.event-slot)::before, .gates-strip.mine .gate-slot.reserved::before { content: ''; position: absolute; inset: 0; background: var(--gate-on) center / 100% 100% no-repeat; pointer-events: none; z-index: 4; }
 .gates-strip.mine .gate-slot.reserved::before { background-image: var(--gate-off); }
 .gates-strip.mine .gate-slot.filled .pic { clip-path: none; border-radius: 0; }
 .gates-strip.mine .gate-slot.filled .pic .b, .gates-strip.mine .gate-slot.reserved .ghost-arrow, .gates-strip.mine .gate-slot.filled > .ghost-arrow, .gates-strip.mine .gate-slot.filled .stamp { z-index: 5; }
-.gates-strip.mine .gate-slot.reserved .strip.leaving { left: 13.4%; right: 13.4%; bottom: 7.4%; }
+.gates-strip.mine .gate-slot.reserved .strip.leaving { left: var(--gi-x); right: var(--gi-x); bottom: var(--gi-b); }
