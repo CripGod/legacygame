@@ -1,29 +1,41 @@
 # Roadmap: the UI through UI Kit Maker, on the web first, then Unity
 
-Written 2026-09-15, revised 2026-09-16, by Master Control, the coordinating session that sits between
+Written 2026-09-15, revised 2026-09-18, by Master Control, the coordinating session that sits between
 UI Kit Maker (the app that makes the UI) and Stand on Business (the game). The owner relays between the
 three of us. This document is the plan and the contract. The paste-ready requests live in `docs/ui-kit-maker/`.
 
 ## Decisions already made by the owner
 
+- **It is a redesign.** Everything except the cards is designed new in UI Kit Maker: look, fonts,
+  silhouettes, palette of the chrome, and the layout of every screen. The current web chrome is not a
+  target. The request tells UI Kit Maker *what* to build and what each piece must do, not how it looks.
+- **A board per screen.** UI Kit Maker composes every screen the game has or needs as a board on the
+  1920×1080 stage, so the owner tweaks in the app instead of building from scratch. Eleven boards
+  (`docs/ui-kit-maker/request-01-the-redesign.md`).
 - **Landscape only.** No portrait boards, no portrait Unity build, for now.
-- **The cards are the game's.** The card face, the card frames (the ten ranked frames and four finishes in
-  `public/art/frames`, colours baked in), the card back and the Codex card stay as the game has crafted
-  them. UI Kit Maker does not draw cards. This may change later; if it does, it is a new numbered request.
-- **Colours are baked, not tinted.** The designer's frames carry their colours in the pixels. The kit
-  follows the same rule: where a piece exists in two player colours, it is exported twice (A gold, B blue),
-  never as one neutral frame tinted at runtime. What the web shows is what Unity shows.
+- **The cards are the game's.** The card face, the ten ranked frames and four finishes in
+  `public/art/frames` (colours baked in), the card back and the Codex card stay as crafted. They are the
+  anchor the new chrome sits beside. Their printed text faces (Cinzel, Crimson Pro) can change to match
+  the new chrome if the owner wants, since that text is live.
+- **Colours are baked, not tinted.** Where a piece exists in two player colours, it is exported twice
+  (A, B), never as one neutral frame tinted at runtime. What the web shows is what Unity shows.
+- **Order of delivery.** Boards first, then the assets into the current web build for testing, then the
+  Unity port. Three months are set aside for the Unity build (see "The three months" below).
 
 ## The short answer
 
-Yes: the UI chrome can be built in UI Kit Maker, tested on the web, then brought into Unity, on one
-condition. The web game must consume the *same artefact* Unity gets (the kit's sprites, cut with the
-kit's nine-slice insets), not a hand-drawn CSS imitation of it. The card frames already work this way:
-they are the designer's WebP files, laid out in percentages of the card's width so one geometry serves the
-web and the Unity prefab (`docs/card-template.md`). The HUD chrome does not yet: the plates, the Stand
-button, Lock In, the Location panels and the sheets are still painted in CSS as chamfered octagons
-(`theme.css`, "beveled gold frames"). Phase 2 moves that chrome onto kit sprites. From then on, what you
-see on GitHub Pages is what lands in the Unity prefab, and the web is the fast preview for Unity.
+Yes: the UI can be designed on boards in UI Kit Maker, pushed into the current web build, tested there,
+then brought into Unity, on one condition. The web game must consume the *same artefact* Unity gets
+(the kit's sprites, cut with the kit's nine-slice insets, laid out from the boards' positions), not a
+CSS imitation of it. The card frames already work this way: they are the designer's WebP files, laid
+out in percentages so one geometry serves the web and the Unity prefab (`docs/card-template.md`). The
+chrome does not yet: it is painted in CSS. Phase 2 replaces that CSS with the kit's sprites and the
+boards' layout. From then on, what you see on GitHub Pages is what lands in the Unity scene, and the
+web is the fast preview for Unity.
+
+The web step is cheap because the boards ride in `settings.json` with every item's position, scale and
+stretch on the 1920×1080 stage. A script turns that into the web layout (percent positions in a 16:9
+stage) and the manifest into `border-image` CSS. The game session does not redraw anything by eye.
 
 Three things stay outside UI Kit Maker on both platforms: the cards (above), the particles and flying
 clones (the game's effects library, which becomes Unity ParticleSystems), and the historical art
@@ -97,55 +109,48 @@ Durations are rough and assume one relay round per day. Phases 4 and 5 run along
   the manifest schema, per-player exports).
 - Done: request 01 is answered and the look exists on a preview link.
 
-### Phase 1. The look (about a week)
+### Phase 1. The redesign on boards (weeks 1 to 4)
 
-- UI Kit Maker builds the `stand-on-business` look and the **first batch**: plate (A and B), the Legend
-  pill, the Stand on Business button (with its `on` state), the Legacy coin, Lock In, Sit Down, the turn
-  panel, the timer bar, the Location panel frame, the CTA button, the small button, a toast, the sheet, a
-  confirm dialog with a cost line, the settings gear and its switch rows, a slider, a segmented control,
-  a stepper.
-- Composed on one board: the match HUD at 1920×1080, with real words.
-- Done: preview link, then the exports (engine kit, SVG pack, Unity ZIP) and `settings.json`.
-  Acceptance: Master Control puts the board screenshot beside the live game at 1440×900 and lists every
-  difference in one note. Nothing is "close enough"; the differences are either fixed in the kit or
-  accepted in writing as the new look.
+- UI Kit Maker builds the look and all eleven boards from request 01 in one pass: landing, match,
+  sheets, result, compendium, rules, settings, tutorial, deck builder, store, history. Every piece with
+  its four states and the game's own states; holes where the cards, art and effects go.
+- The owner tweaks in the app. Master Control reviews each board against the request (every piece
+  present, every word right, every hook live) and against the cards (a card on the match board in the
+  screenshot). Differences are fixed or accepted in writing.
+- Done: the owner blesses the boards; UI Kit Maker exports the engine kit, the Unity ZIP and
+  `settings.json`. **Bless every board before the first Unity import**: the importer never rewrites a
+  generated scene, so a board changed later arrives as a new scene, not an edit.
 
-### Phase 2. The web pipeline (about a week, game side)
+### Phase 2. Into the web build (weeks 3 to 7, game side, overlapping phase 1)
 
-- Game session adds `scripts/kit.ts` (manifest and SVG pack in, `src/ui/kit.css` out), a `?kit=1` flag
-  that loads `kit.css` after `theme.css`, and moves the Stand button, the plates and Lock In onto kit
-  sprites first. The CSS-drawn chamfers stay as the fallback until the kit version is blessed.
-- Screenshots at 1440×900 and 1280×680, kit on and off, sent back through the owner. (The phone layout
-  at 390×844 stays the game's own concern; nine-sliced sprites scale down without new assets.)
-- Done: the flag becomes the default, the old chamfer CSS is deleted, GitHub Pages shows the kit.
-  This is the moment "test it on the web" becomes true: from here every kit change is a re-export,
-  a re-run of the importer and a deploy.
+- Week 3, before the boards are final: the game session writes `scripts/kit.ts` against a draft export.
+  It reads `kit-manifest.json` (insets, shell boxes) and the boards in `settings.json` (positions) and
+  emits `src/ui/kit.css` plus a layout table per screen. A `?kit=1` flag loads the kit after `theme.css`.
+- Weeks 4 to 6: screen by screen, the existing React components take the kit's classes and the boards'
+  positions; the hand, the tiles, the cards, the sheets' behaviour and every animation stay as they are.
+  The new screens (settings in full, the result ledger, deck builder, store, history) are built as new
+  React components on the kit; the engine and the ledger already carry their data.
+- Week 7: screenshots at 1440×900 and 1280×680 of every screen beside its board; the owner tests on
+  GitHub Pages; the flag becomes the default and the old chrome CSS is deleted.
+- Done: the web build runs on the kit. Every later kit change is a re-export, a re-run of the importer
+  and a deploy.
 
-### Phase 3. The screens the game does not have yet (three to four weeks, in batches)
+### Phase 3. Unity UI on the event stream (weeks 6 to 12)
 
-Each batch is one request to UI Kit Maker, one board, one export, one game-side wiring pass.
-Order by what the game needs most:
+See "The three months" below for the week plan. In short: the smoke scene first, the card prefab, the
+match screen on the C# event stream, then landing, result and the sheets, then the rest as time allows.
 
-1. **Settings, full**: the gear menu today has two switches (music, sound effects). Grow it to motion,
-   text size and colour-blind tints on the kit's switch, slider and segmented control.
-2. **Result screen and ledger**: the verdict plate, the earned-this-match ledger rows, Play again,
-   Rematch, Menu. The Legacy ledger exists (`src/ui/legacy.ts`); the result screen does not yet show it.
-3. **Wallet and the finishes store**: the rank ladder is built (the Codex sells Bronze to Diamond for
-   Legacy); the four finishes are designed for a store that is not built. Balance pill, catalogue tile
-   with preview and price, equip toggle, confirm-with-cost. The card previews inside the tiles are the
-   game's own card face.
-4. **Deck builder**: filters by era and archetype, a 24-card tray, validity messages. Card thumbnails are
-   the game's.
-5. **Match history and profile**; Compendium chrome (the `cx-` plates, chapter heads, chips, the
-   References modal) moved onto the kit so the Compendium and the match share one set of frames.
+### Phase 4. Unity foundation (weeks 1 to 6, in parallel with everything above)
 
-### Phase 4. Unity foundation (starts now, in parallel; four to six weeks)
+Independent of the kit. This is the game session's work and it is the long pole. One rule makes it
+tractable: **the engine is a plain C# class library with no Unity dependency**, built and tested with
+the .NET SDK in the game session's container, so the port and its tests run without the Unity Editor.
+Only the UI layer needs the editor, and the owner runs that loop.
 
-Independent of the kit. This is the game session's work and it is the long pole.
-
-1. **Smoke scene first.** As soon as the first Unity ZIP exists (end of phase 1), open it in Unity 6, run
-   the bundled importer, place the HUD board in a scene, drive the Legacy coin and the Stand button from a
-   fake state. This tests the exporter and the target settings before any engine code exists.
+1. **Smoke scene first.** As soon as a draft Unity ZIP exists (week 3), the owner opens it in Unity 6,
+   runs the bundled importer, and the game session drives the Legacy coin and the Stand button from a
+   fake state. This tests the exporter, the target settings and the owner's editor loop before any
+   engine code lands in Unity.
 2. **Card prefab** from `docs/card-template.md`: the ten frame sprites on one RectTransform layout with
    percentage anchors, the portrait under the knocked-out window, TMP text in every slot. The game
    session owns this; it is the one piece of UI that is not from the kit.
@@ -159,21 +164,49 @@ Independent of the kit. This is the game session's work and it is the long pole.
    by hand. The Legacy ledger becomes a save file of the same shape.
 6. **Harborlight** ported last; it reads only the redacted view, so it ports as a plain class.
 
-### Phase 5. Unity UI on the event stream (three to four weeks, after phases 2 and 4.1)
-
-- Import each blessed board's Unity export; the game session wires prefabs to `resolveTurn`'s ordered
-  events, the same beats the web replays. Clash strikes, trails, fireworks and the wave become
-  ParticleSystems per the README's effects table; the hand becomes the one-machine hand the README
-  describes; sound keeps the `SFX_EVENTS` names as an `AudioEvent` enum.
-- Every screen is compared against the web at 1920×1080. Differences go back to UI Kit Maker as
-  "lands differently in Unity" fixes, which is inside its remit.
-- Done: a Unity build plays a full match against Harborlight with the kit chrome and the game's cards.
-
-### Phase 6. Balance and polish, continuous
+### Phase 5. Balance and polish, continuous
 
 The game is about 70% there and not fully balanced. None of this waits on Unity: balance lives in the
 engine and content tables, which both platforms share. The sim (`npm run sim`) measures it; the parity
 harness carries every change into C#. Keep a short changelog of rule changes so the port never drifts.
+
+## The three months
+
+The owner has set three months for the Unity build. Thirteen weeks, three lanes, one cut line.
+
+| Week | UI lane (UI Kit Maker, owner, web) | Engine lane (game session, plain C#) | Unity lane (game session writes, owner runs the editor) |
+|---|---|---|---|
+| 1 | Request 01 answered; the look and the match board drafted | Port `types`, `rng`, `setup`; port the first tests | Owner installs Unity 6 LTS; empty project with the target settings |
+| 2 | All eleven boards drafted on a preview | Port `query`, `resolve` | |
+| 3 | Owner tweaks; draft export for the importer | Port `view`, the rest of the tests; parity harness starts | Smoke scene from the draft ZIP |
+| 4 | Boards blessed; final export | Parity green on 1,000 seeded matches | Card prefab from `docs/card-template.md` |
+| 5 | Web: match and landing on the kit | Content tables generated as ScriptableObjects | Import the blessed kit; scenes generated |
+| 6 | Web: sheets, result, compendium, settings | Harborlight ported; parity for AI plans | Match screen: board, tiles, HUD wired to the event stream |
+| 7 | Web: deck builder, store, history; the flag becomes default | Save file (the ledger) | Match screen: the hand machine, plans and Lock In |
+| 8 | Web bless; kit fixes from Unity feed back | | Replay: clash, showdown, arrival beats as world-space clones |
+| 9 | | | Effects: trails, sprays, fireworks, wave as ParticleSystems |
+| 10 | | | Audio: the `SFX_EVENTS` enum, clips, place sounds, music |
+| 11 | | Balance pass in TypeScript carried across by parity | Landing, result, the sheets, settings, tutorial |
+| 12 | | | Deck builder, store, history if on schedule; else cut |
+| 13 | | | Stabilise: a full match on desktop with no console errors; a build |
+
+**The cut line at week 13**: a Unity build that plays a full match against Harborlight with the new
+chrome, the game's cards, the replay and effects, sound, landing, result and the sheets, landscape,
+desktop. Deck builder, store, history, tablet touch, PvP and the balance to "done" are after the three
+months unless the lanes run ahead. That is achievable in thirteen weeks on three conditions:
+
+1. The boards are blessed by the end of week 4. Every week of slip there is a week off the Unity end.
+2. The engine port starts in week 1 as plain C# with the tests as the spec, and the parity harness is
+   green before any UI is wired. The port is mechanical (about 3,200 lines of TypeScript); the harness
+   is what makes it safe to keep balancing in TypeScript meanwhile.
+3. The owner runs the Unity Editor loop from week 3: open the project, press play, send screenshots
+   and the console. The game session cannot run the editor in its container, so every Unity check is a
+   relay, and the match screen (the hand, the flying clones, the staged replay) is the part that needs
+   the most of them. Budget an hour a day for it in weeks 6 to 13.
+
+What would break the schedule: a second design pass after the first Unity import (scenes do not
+regenerate), a mid-port rules change without the harness, or the editor loop running at one relay a
+day instead of several.
 
 ## The relay loop (how a week runs)
 
@@ -203,9 +236,9 @@ Rules that keep it clean:
   asked in request 01 as specific questions; the smoke scene (4.1) proves the export early.
 - **The web and Unity disagree** on a piece. Both consume the same manifest; a disagreement is a bug in
   one importer, found by the side-by-side screenshots the loop requires.
-- **The cards and the chrome drift apart** in look, since two hands draw them. The look's palette and
-  the chamfer geometry are taken from the card frames, not the other way round, and the acceptance
-  screenshot always shows a card on the board beside the chrome.
+- **The cards and the chrome drift apart** in look, since two hands draw them. The cards are the
+  anchor; the acceptance screenshot of every board that holds a card shows one, and the card text
+  faces can change to match the chrome if the owner prefers.
 - **Scope creep in the kit.** The inventory (phase 0) is the shopping list; new pieces are added as new
   numbered requests, never slipped into a batch.
 - **The owner's time.** Every relay is a paste. Attaching the UI Kit Maker repo to Master Control removes
@@ -215,6 +248,6 @@ Rules that keep it clean:
 
 1. Unity 6 LTS, uGUI and TextMeshPro, landscape 1920×1080, as decided above? Say so once and both sides
    build to it.
-2. Two fonts are missing from UI Kit Maker's list (Crimson Pro, Kaushan Script). Request 01 asks for them
-   to be added. If that is refused or slow, the fallback is Cinzel for every label in the kit and the
-   game keeps Crimson Pro for body text it renders itself.
+2. Whether the cards' printed text faces change to match the new chrome, once the chrome's faces are
+   chosen. The game's side of that is one line per face.
+3. The week-13 cut line above: agree it now so the lanes are planned to it.
