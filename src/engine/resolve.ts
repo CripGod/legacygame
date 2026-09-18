@@ -1518,7 +1518,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
           for (const l of others) {
             l.permInfluence = l.permInfluence ?? { A: 0, B: 0 };
             l.permInfluence[p] += amount;
-            events.push({ type: 'info', text: `Word spreads: ${state.players[p].handle} gains +${amount} lasting Influence at ${locName(state, l.index)} for clearing ${threatName(state, t)}${amount === 2 && by.length > 1 ? ' (the larger share)' : ''}.`, player: p, location: l.index, data: { trail: 'legend', amount, color: p, threatUid: t.uid } });
+            events.push({ type: 'info', text: `Word spreads: ${state.players[p].handle} gains +${amount} lasting Influence at ${locName(state, l.index)} for clearing ${threatName(state, t)}${by.length > 1 ? (amount === 2 ? (by.every((q) => f![q] === top) ? ' (an equal share)' : ' (the larger share)') : ' (the smaller share)') : ''}.`, player: p, location: l.index, data: { trail: 'legend', amount, color: p, threatUid: t.uid } });
           }
         }
         for (const p of by) {

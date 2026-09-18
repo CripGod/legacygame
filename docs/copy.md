@@ -1659,7 +1659,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - Initiative: this player's Reveals and moves resolve first this turn. It alternates every turn.
 - legend-pill ${(ps.legend ?? 0) >= LEGEND_READY ? 'spread' : ''}
 - Legend ${ps.legend}: word has spread. ${p === me ? 'Your' : 'Their'} Characters arrive at the Gates Ready. ${p === me ? 'You have' : 'They have'} people everywhere.
-- Legend ${ps.legend ?? 0}: Threats ${p === me ? 'you' : 'they'} helped clear. Clearing one pays +1 lasting Influence at the other Locations (alone, all of it; together, split by Force). At ${LEGEND_READY}, Characters arrive at the Gates Ready.
+- Legend ${ps.legend ?? 0}: Threats ${p === me ? 'you' : 'they'} helped clear. Clearing one pays +1 lasting Influence at every other Location to everyone who brought Force, +2 to whoever brought the most. At ${LEGEND_READY}, Characters arrive at the Gates Ready.
 - Quick chat: emotes and Summon.
 - bubble ${right ? 'right' : ''}
 - stand-btn ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''} ${stand.slam ? 'slam' : ''}
@@ -1815,7 +1815,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - Showdown at ${locName(state, loc.index)}: ${f.A + f.B} Force against ${threatName(state, t)}${def.requiresBoth ? ' (both sides needed)' : 
 - ${threatName(state, t)} at ${locName(state, loc.index)} holds (${f.A + f.B}/${needed} Force).
 - ${threatName(state, t)} at ${locName(state, loc.index)} is neutralized.
-- Word spreads: ${state.players[p].handle} gains +${amount} lasting Influence at ${locName(state, l.index)} for clearing ${threatName(state, t)}${amount === 2 && by.length > 1 ? ' (the larger share)' : ''}.
+- Word spreads: ${state.players[p].handle} gains +${amount} lasting Influence at ${locName(state, l.index)} for clearing ${threatName(state, t)}${by.length > 1 ? (amount === 2 ? (by.every((q) => f![q] === top) ? ' (an equal share)' : ' (the larger share)') : ' (the smaller share)') : ''}.
 - ${ps.handle}'s legend has spread: from now on their Characters arrive at the Gates Ready. They have people everywhere.
 - ${name(state, c)} earns Solidarity.
 - ${name(state, ida)} gains +${amt} Influence.

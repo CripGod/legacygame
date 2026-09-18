@@ -18,7 +18,7 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
           <div className="handle">{ps.handle}</div>
           <div className="sub">
             {ps.hand.length}/{MAX_HAND} in hand · {ps.deckCount} in deck{p === me ? ' · you' : ''}
-            <span className={`legend-pill ${(ps.legend ?? 0) >= LEGEND_READY ? 'spread' : ''}`} {...tip((ps.legend ?? 0) >= LEGEND_READY ? `Legend ${ps.legend}: word has spread. ${p === me ? 'Your' : 'Their'} Characters arrive at the Gates Ready. ${p === me ? 'You have' : 'They have'} people everywhere.` : `Legend ${ps.legend ?? 0}: Threats ${p === me ? 'you' : 'they'} helped clear. Clearing one pays +1 lasting Influence at the other Locations (alone, all of it; together, split by Force). At ${LEGEND_READY}, Characters arrive at the Gates Ready.`)}>
+            <span className={`legend-pill ${(ps.legend ?? 0) >= LEGEND_READY ? 'spread' : ''}`} {...tip((ps.legend ?? 0) >= LEGEND_READY ? `Legend ${ps.legend}: word has spread. ${p === me ? 'Your' : 'Their'} Characters arrive at the Gates Ready. ${p === me ? 'You have' : 'They have'} people everywhere.` : `Legend ${ps.legend ?? 0}: Threats ${p === me ? 'you' : 'they'} helped clear. Clearing one pays +1 lasting Influence at every other Location to everyone who brought Force, +2 to whoever brought the most. At ${LEGEND_READY}, Characters arrive at the Gates Ready.`)}>
               ★ {ps.legend ?? 0}
             </span>
           </div>

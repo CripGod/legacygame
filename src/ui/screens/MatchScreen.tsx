@@ -547,7 +547,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     const tone: 'hit' | 'miss' = d.cleared ? 'miss' : 'hit';
     const patch = (f: BoardFx | null, p: Partial<BoardFx>): BoardFx => ({ ...(f ?? { hidden: [] }), ...p });
     // Word spreads: who the clear pays, and where.
-    const word = spread.length ? ` Word spreads: ${(['A', 'B'] as PlayerId[]).filter((p) => spread.some((e) => e.player === p)).map((p) => `${view.players[p].handle} +1 at ${spread.filter((e) => e.player === p).map((e) => (view.locations[e.location!].revealed ? locationName(view.locations[e.location!].defId, placeholders) : `Location ${e.location! + 1}`)).join(' and ')}`).join('; ')}.` : '';
+    const word = spread.length ? ` Word spreads: ${(['A', 'B'] as PlayerId[]).filter((p) => spread.some((e) => e.player === p)).map((p) => `${view.players[p].handle} +${(spread.find((e) => e.player === p)?.data as { amount?: number } | undefined)?.amount ?? 1} at ${spread.filter((e) => e.player === p).map((e) => (view.locations[e.location!].revealed ? locationName(view.locations[e.location!].defId, placeholders) : `Location ${e.location! + 1}`)).join(' and ')}`).join('; ')}.` : '';
     setClashTell({ title: d.cleared ? 'NEUTRALIZED' : 'HOLDS', text: ev.text, sub: `${showdownWhy(d, view, placeholders)}${word}`, tone });
     const threatEl = tileOf(d.threatUid);
     const fighters = d.fighters.map((f) => f.uid).filter((uid) => !!tileOf(uid));
