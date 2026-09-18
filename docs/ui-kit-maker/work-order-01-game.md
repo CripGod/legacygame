@@ -29,6 +29,11 @@ video); read each item against current `main` before acting.
    state words the player can see (the Event tile's `planned` and the Threat tile's `fresh` are the
    class names; find where they surface as words) become plain words such as "Waiting"; every +N rides
    its landing up into the Location's Influence readout; the Word-spreads wave's +N is the big one.
+   Landed by Master Control on 2026-09-18, from the owner's report that the wave "said +1 but did not add
+   the point": the beat's snapshot already carried the payout, so the score rose two seconds before the
+   wave arrived and then sat still as the +1 landed. The paid Locations now hold their old score until the
+   wave reaches each one, then bump (`hold` in `BoardFx`). The rest of this item (the words, the +N riding
+   into the readout, the big one on a wave) is still open.
 5. **Taney's beat.** The owner: "We weren't able to stop Taney in time, so everybody got pushed out. We
    need to show the Taney card slamming down, like a gavel, and all of the cards being cast out. We
    need some evil laugh audio when this happens." Roger Taney (`src/engine/content/characters.ts`) is

@@ -127,6 +127,9 @@ export interface BoardFx {
   heal?: number[];
   /** Who broke the Threat that healed them: the light takes their colour ('both' when the Force was even). */
   healBy?: PlayerId | 'both';
+  /** Word spreads still in the air: the payout is already in the state, but the wave has not reached the Location, so
+   *  its score holds the old value until the landing (the cause is seen before the effect). */
+  hold?: { location: number; owner: PlayerId; amount: number }[];
 }
 
 const picFx = (fx: BoardFx | null | undefined, uid: string): 'windup' | 'knocked' | 'held' | 'hexed' | 'land' | undefined => {
@@ -453,7 +456,10 @@ export function Battlefield(props: BattlefieldProps) {
     <div className="battlefield" ref={rootRef}>
       {view.locations.map((loc) => {
         const def = locDef(view, loc.index);
-        const inf = influenceAt(view, loc.index);
+        const infNow = influenceAt(view, loc.index);
+        // A Word-spreads payout that has not landed yet is held back from the readout until its wave arrives.
+        const held = (p: PlayerId) => (fx?.hold ?? []).filter((h) => h.location === loc.index && h.owner === p).reduce((n, h) => n + h.amount, 0);
+        const inf = { A: Math.max(0, infNow.A - held('A')), B: Math.max(0, infNow.B - held('B')) };
         const ended = view.phase === 'ended' && view.result;
         const winner = ended ? view.result!.locationWinners[loc.index] : null;
         const lead = inf.A === inf.B ? null : inf.A > inf.B ? 'A' : 'B';

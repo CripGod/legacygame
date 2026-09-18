@@ -265,7 +265,11 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     if (!staging || !step) return null;
     const alive = step.events.filter((e) => e.type === 'showdown').map((e) => (e.data as ShowdownData).threatUid);
     const hidden = step.events.filter((e) => e.type === 'spawned' && !!e.cardId && !!e.player && !!e.uid).map((e) => e.uid!);
-    return alive.length || hidden.length ? { hidden, alive } : null;
+    // The Word-spreads payouts of this beat's showdowns hold their scores back until the wave lands on each Location.
+    const hold = step.events
+      .filter((e) => (e.data as { trail?: string } | undefined)?.trail === 'legend' && e.location !== undefined && !!e.player && alive.includes((e.data as { threatUid?: string }).threatUid ?? ''))
+      .map((e) => ({ location: e.location!, owner: e.player!, amount: (e.data as { amount?: number }).amount ?? 1 }));
+    return alive.length || hidden.length ? { hidden, alive, hold } : null;
   }, [staging, step]);
   const [shake, setShake] = useState(false);
   /** Text floats up from a point on the screen: a +N over a Location, the Force readout over a clash. */
@@ -588,14 +592,14 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     if (spread.length && loc >= 0) {
       const from = document.querySelector(`.column[data-index="${loc}"] .location`)?.getBoundingClientRect();
       const shots: TrailShot[] = [];
-      const lands: { at: number; location: number; tone: 'mine' | 'theirs'; amount?: number }[] = [];
+      const lands: { at: number; location: number; tone: 'mine' | 'theirs'; amount?: number; owner?: PlayerId }[] = [];
       for (const e of spread) {
         const to = document.querySelector(`.column[data-index="${e.location}"] .art`)?.getBoundingClientRect();
         if (!from || !to) continue;
         const amount = (e.data as { amount?: number }).amount;
         // The ring takes the breaker's colour; when both sides broke it, each side's payout rides its own ring.
         shots.push({ from, to, color: TRAIL_COLORS[e.player ?? 'A'], ring: healBy === 'both' ? TRAIL_COLORS[e.player ?? 'A'] : TRAIL_COLORS[healBy], label: amount ? `+${amount}` : undefined, kind: 'wave' });
-        lands.push({ at: waveLandAt(from, to), location: e.location!, tone: e.player === me ? 'mine' : 'theirs', amount });
+        lands.push({ at: waveLandAt(from, to), location: e.location!, tone: e.player === me ? 'mine' : 'theirs', amount, owner: e.player });
       }
       if (shots.length) {
         sfx('heal');
@@ -606,6 +610,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           const chime = l.at - lastChime > 140;
           if (chime) lastChime = l.at;
           window.setTimeout(() => {
+            // The wave has arrived: the score it pays may now show the point, and it bumps as it does.
+            setFx((f) => (f?.hold ? { ...f, hold: f.hold.filter((h) => !(h.location === l.location && h.owner === l.owner)) } : f));
             // landFx chimes itself when an amount lands; the chime flag keeps landings a beat apart from doubling it.
             landFx([{ location: l.location, tone: l.tone, amount: chime ? l.amount : undefined }]);
             if (!chime && l.amount) floatNum(l.location, l.amount, l.tone);
@@ -683,9 +689,13 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     const legendEvs = allTrails.filter((e) => (e.data as { trail?: string }).trail === 'legend');
     const clashEvs = evs.filter((e) => e.type === 'clash');
     const showdownEvs = evs.filter((e) => e.type === 'showdown');
+    /** Word spreads not yet landed: the Locations it pays hold their old score until the wave reaches each one. */
+    const spreadHold = legendEvs
+      .filter((e) => e.player && showdownEvs.some((sd) => (sd.data as ShowdownData).threatUid === (e.data as { threatUid?: string }).threatUid))
+      .map((e) => ({ location: e.location!, owner: e.player!, amount: (e.data as { amount?: number }).amount ?? 1 }));
     const arrivalEvs = evs.filter((e) => e.type === 'spawned' && !!e.cardId && !!e.player);
     // What render-time staging shows for this beat; the runner seeds its own effects with the same so nothing blinks.
-    const seed = (): BoardFx => ({ hidden: arrivalEvs.map((e) => e.uid).filter((u): u is string => !!u), alive: showdownEvs.map((e) => (e.data as ShowdownData).threatUid) });
+    const seed = (): BoardFx => ({ hidden: arrivalEvs.map((e) => e.uid).filter((u): u is string => !!u), alive: showdownEvs.map((e) => (e.data as ShowdownData).threatUid), hold: spreadHold });
     const takeOver = () => setStaged(m.replay ? { steps: m.replay.steps, idx: m.replay.idx } : null);
     const finish = () => {
       const peek = evs.find((e) => e.player === me && Array.isArray((e.data as { peekHand?: string[] } | undefined)?.peekHand));

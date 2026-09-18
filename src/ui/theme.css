@@ -1372,7 +1372,7 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 
 /* The verdict, stamped onto the tile once it has landed: red when the blow told, green when it was held off,
    violet for a hex. The Force readout floats up over the victim on impact. */
-.stamp.verdict { z-index: 8; top: 50%; display: grid; justify-items: center; gap: 1px; color: #fff; background: rgba(150, 20, 20, 0.92); border-color: #ffd9d9; box-shadow: 0 0 0 2px rgba(150, 20, 20, 0.6), 0 8px 24px rgba(0, 0, 0, 0.7); animation: stamp-slam 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.4) 0.05s both; }
+.stamp.verdict { z-index: 8; top: 50%; width: max-content; max-width: none; display: grid; justify-items: center; gap: 1px; color: #fff; background: rgba(150, 20, 20, 0.92); border-color: #ffd9d9; box-shadow: 0 0 0 2px rgba(150, 20, 20, 0.6), 0 8px 24px rgba(0, 0, 0, 0.7); animation: stamp-slam 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.4) 0.05s both; }
 .stamp.verdict.miss { background: rgba(20, 110, 55, 0.94); border-color: #d9ffe6; box-shadow: 0 0 0 2px rgba(20, 110, 55, 0.6), 0 8px 24px rgba(0, 0, 0, 0.7); }
 .stamp.verdict.hex { background: rgba(90, 30, 150, 0.94); border-color: #ead9ff; box-shadow: 0 0 0 2px rgba(90, 30, 150, 0.6), 0 8px 24px rgba(0, 0, 0, 0.7); }
 .gate-slot.filled:has(> .stamp.verdict), .slot.filled:has(> .stamp.verdict) { overflow: visible; z-index: 9; }
