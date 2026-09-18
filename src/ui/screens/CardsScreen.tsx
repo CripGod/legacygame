@@ -13,13 +13,13 @@ import { Wordmark } from '../components/Wordmark';
 
 /** The chapters, in reading order. `short` is the label in the sticky nav. */
 const CHAPTERS = [
-  { id: 'reading', title: 'Reading a card', short: 'Reading', lede: 'What a card face says before you read a word: three orbs for its numbers, a frame for its rank, a finish if it wears one.' },
   { id: 'historical', title: 'Historical', short: 'Historical', lede: 'People who lived. Each card prints what it costs to play, the Influence it brings and the Force it can bring to bear against a Threat.' },
   { id: 'artists', title: 'Artists', short: 'Artists', lede: 'Sculptors, painters, a quilter and a potter. The work outlasts its maker: their Reveals leave lasting Influence on the Location itself, which stays when they are gone.' },
   { id: 'mythic', title: 'Mythic', short: 'Mythic', lede: 'Orisha, tricksters and figures of faith and folklore. Every deck carries at least one.' },
   { id: 'arrivals', title: 'Gatherings and arrivals', short: 'Gatherings', lede: 'Never in a deck. The board hands them out when the world earns them: a set completed, a crowd assembled, a ship that lands.' },
   { id: 'events', title: 'Events', short: 'Events', lede: 'Played into the Event slot beneath a Location. They resolve everywhere at once; the Location only decides what is added. Curses act on the opponent.' },
   { id: 'teamups', title: 'Team-ups', short: 'Team-ups', lede: 'Two who belong together, Established at the same Location for the same side. A standing team-up holds while both stay Inside. A once-only team-up fires for whoever assembles it first, and then the window is closed for everyone.' },
+  { id: 'reading', title: 'Reading a card', short: 'Reading', lede: 'What a card face says before you read a word: three orbs for its numbers, a frame for its rank, a finish if it wears one.' },
   { id: 'locations', title: 'Locations', short: 'Locations', lede: 'Three are drawn each match. Every place has a rule of its own; some transform, some fall under curfew at night, some never see a Threat at all.' },
   { id: 'threats', title: 'Threats', short: 'Threats', lede: 'History pushes back. Bring enough Force to bear in a single turn to clear one, or learn to live under it.' },
 ] as const;
@@ -408,7 +408,7 @@ export function CardsScreen({ onBack, initialRefs }: { onBack: () => void; /** D
     else if (CARD_BY_ID[initialRefs]) setOpen(initialRefs); // a card: the card itself opens under its references
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const [active, setActive] = useState<ChapterId>('reading');
+  const [active, setActive] = useState<ChapterId>(CHAPTERS[0].id);
   const [edges, setEdges] = useState({ l: false, r: false });
   const rootRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
@@ -525,8 +525,6 @@ export function CardsScreen({ onBack, initialRefs }: { onBack: () => void; /** D
           </div>
         </nav>
 
-        <ReadingChapter n={chapterNo('reading')} />
-
         <section id="cx-historical" className="cx-chapter">
           <ChapterHead n={chapterNo('historical')} title={chapter('historical').title} lede={chapter('historical').lede} count={historical.length} unit="cards" />
           <Page>
@@ -591,6 +589,8 @@ export function CardsScreen({ onBack, initialRefs }: { onBack: () => void; /** D
             ))}
           </Page>
         </section>
+
+        <ReadingChapter n={chapterNo('reading')} />
 
         <section id="cx-locations" className="cx-chapter">
           <ChapterHead n={chapterNo('locations')} title={chapter('locations').title} lede={chapter('locations').lede} count={locations.length} unit="plates" />
