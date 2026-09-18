@@ -59,7 +59,7 @@ export const HINTS = {
   currentInfluence: 'Influence this Character currently contributes here, including bonuses and penalties.',
   home: 'Home ground: this is where the story happened, so the Character counts +1 Influence here.',
   ready: 'Ready: waited a turn at the Gates. Tap to send it Inside this turn.',
-  fresh: 'Fresh: arrived this turn. It waits one turn at the Gates before it can enter.',
+  waiting: 'Waiting: arrived this turn. It waits one turn at the Gates before it can enter.',
   blocked: 'Blocked: an effect stops this Character from entering this turn.',
   entering: 'Entering: will move Inside when you Lock It In.',
   moving: 'Relocating: will move to another Location\'s Gates when you Lock It In.',

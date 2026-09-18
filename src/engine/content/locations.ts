@@ -88,7 +88,7 @@ export const LOCATIONS: LocationDef[] = [
     id: 'charleston_1822',
     name: 'Charleston, 1822',
     era: 'South Carolina, 1822',
-    rule: 'The plot is betrayed: at the end of each turn, the Fresh Gate Character here with the lowest Influence changes sides (a tie goes against the leader). A turncoat can turn back later. Nothing happens on the turn it reveals.',
+    rule: 'The plot is betrayed: at the end of each turn, the Waiting Gate Character here with the lowest Influence changes sides (a tie goes against the leader). A turncoat can turn back later. Nothing happens on the turn it reveals.',
     blurb: "Denmark Vesey's rising was set for July. Two informants ended it in June, and thirty-five people hanged.",
     effect: { type: 'turncoatAtEnd' },
     weight: 0.35,

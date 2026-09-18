@@ -447,7 +447,7 @@ export function legalOptions(state: GameState, p: PlayerId): LegalOptions {
   }
   const mine = charsOf(state, p);
   const enters = mine.filter((c) => c.zone === 'gate' && c.ready && !state.locations[c.location].lost && insideCapacity(state, c.location) > 0 && !(charDef(c.defId).keywords.includes('INFORMANT') && !c.amnestied)).map((c) => c.uid);
-  // Inside Characters relocate and arrive Fresh; Gate Characters relocate too and stay as Ready as they were.
+  // Inside Characters relocate and arrive Waiting; Gate Characters relocate too and stay as Ready as they were.
   const relocations = mine
     .filter((c) => !state.locations[c.location].lost && !lockReason(state, c))
     .map((c) => ({

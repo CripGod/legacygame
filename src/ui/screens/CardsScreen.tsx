@@ -419,6 +419,8 @@ export function CardsScreen({ onBack, initialRefs }: { onBack: () => void; /** D
   const mythic = shown.filter((c) => c.category === 'mythic' && !c.spawn).sort(byCostThenName);
   const arrivals: CardDef[] = [...shown.filter((c) => c.category === 'gathering' || c.spawn), ...EVENTS.filter((e) => e.spawn)].sort(byCostThenName);
   const events: CardDef[] = EVENTS.filter((e) => !e.spawn).sort(byCostThenName);
+  /** The sheet's arrows walk the book in chapter order. */
+  const bookOrder = [...historical, ...artists, ...mythic, ...arrivals, ...events].map((c) => c.id);
   const costs = [...new Set(historical.map((c) => c.cost))].sort((a, b) => a - b);
   // Locations in the order they transform: a place reached by transformation follows its origin. Each once.
   const seen = new Set<string>();
@@ -618,7 +620,7 @@ export function CardsScreen({ onBack, initialRefs }: { onBack: () => void; /** D
           </button>
         </footer>
 
-        {open && <CodexSheet id={open} label={sheetLabel.get(open) ?? 'Compendium'} onClose={() => setOpen(null)} />}
+        {open && <CodexSheet id={open} label={sheetLabel.get(open) ?? 'Compendium'} onClose={() => setOpen(null)} siblings={bookOrder} onNav={setOpen} />}
         {refs && <RefsModal id={refs} name={LOCATION_BY_ID[refs]?.name ?? THREATS.find((t) => t.id === refs)?.name ?? CARD_BY_ID[refs]?.name ?? refs} onClose={() => setRefs(null)} />}
       </div>
     </div>

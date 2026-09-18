@@ -208,7 +208,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   /** Beats that only re-show one of your own planned moves are skipped. */
   const ownBeat = !!step && !!m.replay && step.player === me && (step.kind === 'play' || step.kind === 'enter' || (step.kind === 'move' && m.replay.plan.relocations.some((r) => step.uids?.includes(r.uid))));
   /** A Gathering's card, flashed over the board as it arrives (no button: it flies to its tile on its own). */
-  const [arrival, setArrival] = useState<{ cardId: string; owner: PlayerId } | null>(null);
+  const [arrival, setArrival] = useState<{ cardId: string; owner: PlayerId; slam?: boolean } | null>(null);
   /** Omar ibn Said's look at the opponent's hand: a strip over the board for a few seconds, then the profile keeps it. */
   const [peekShow, setPeekShow] = useState<{ cards: string[]; by: string } | null>(null);
   const [lastPeek, setLastPeek] = useState<{ turn: number; cards: string[]; by: string } | null>(null);
@@ -240,7 +240,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   /** The choreography's grip on the board: tiles hidden under their flying ghosts, the flash, the stamp. Non-null while a clash plays. */
   const [fx, setFx] = useState<BoardFx | null>(null);
   /** What the banner says while a clash plays: the verdict in the pill, the sentence beside it. */
-  const [clashTell, setClashTell] = useState<{ title: string; text: string; sub?: string; tone: 'hit' | 'miss' | 'hex' | 'arrive' } | null>(null);
+  const [clashTell, setClashTell] = useState<{ title: string; text: string; sub?: string; tone: 'hit' | 'miss' | 'hex' | 'arrive' | 'ruling' } | null>(null);
   /** The board as it stood before this beat: a clash opens on it, so every piece is still where it was struck. */
   const prevView = useMemo(() => (m.replay && m.replay.idx > 0 ? viewFor(m.replay.steps[m.replay.idx - 1].state, me) : null), [m.replay?.idx, m.replay?.steps, me]);
   const [stagePrev, setStagePrev] = useState(false);
@@ -278,14 +278,58 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     document.body.appendChild(el);
     window.setTimeout(() => el.remove(), 1600);
   };
-  /** A +N floats up from a Location's art. */
-  const floatNum = (location: number, amount: number, tone: 'artist' | 'mine' | 'theirs') => {
+  /**
+   * A +N rises from a Location's art, swells, then jumps into that side's Influence circle on the meter and the
+   * circle takes the hit. `big` is the wave landing: the number comes up huge. `label` replaces the bare +N
+   * ("+1 correct guess"). `side` is whose circle it lands in; by default the tone decides.
+   */
+  const floatNum = (location: number, amount: number, tone: 'artist' | 'mine' | 'theirs', opts: { big?: boolean; label?: string; side?: PlayerId } = {}) => {
     const art = document.querySelector(`.column[data-index="${location}"] .art`);
     if (!art) return;
     const r = art.getBoundingClientRect();
-    floatText(r.left + r.width / 2, r.top + r.height / 2, `+${amount}`, tone);
+    const x0 = r.left + r.width / 2;
+    const y0 = r.top + r.height / 2;
+    const side = opts.side ?? (tone === 'theirs' ? other(me) : me);
+    const ring = document.querySelector(`.column[data-index="${location}"] .score.p${side}`) as HTMLElement | null;
+    if (!ring || reduceMotion()) {
+      floatText(x0, y0, opts.label ?? `+${amount}`, `${tone} ${opts.big ? 'big' : ''}`);
+      return;
+    }
+    const el = document.createElement('div');
+    el.className = `float-num ${tone} ${opts.big ? 'big' : ''} jump`;
+    el.textContent = opts.label ?? `+${amount}`;
+    el.style.left = `${x0}px`;
+    el.style.top = `${y0}px`;
+    document.body.appendChild(el);
+    const rr = ring.getBoundingClientRect();
+    const dx = rr.left + rr.width / 2 - x0;
+    const dy = rr.top + rr.height / 2 - y0;
+    const peak = opts.big ? 2.1 : 1.35;
+    const ms = opts.big ? 1500 : 1150;
+    const anim = el.animate(
+      [
+        { transform: 'translate(-50%, -50%) scale(0.4)', opacity: 0, offset: 0, easing: 'cubic-bezier(0.2, 0.9, 0.3, 1.3)' },
+        { transform: `translate(-50%, -50%) translateY(-14px) scale(${peak})`, opacity: 1, offset: 0.2, easing: 'ease-out' },
+        { transform: `translate(-50%, -50%) translateY(-24px) scale(${peak * 0.94})`, opacity: 1, offset: 0.5, easing: 'cubic-bezier(0.55, 0, 0.3, 1)' },
+        { transform: `translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(0.5)`, opacity: 1, offset: 0.9, easing: 'ease-out' },
+        { transform: `translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(0.15)`, opacity: 0, offset: 1 },
+      ],
+      { duration: ms, fill: 'forwards' },
+    );
+    anim.onfinish = () => el.remove();
+    // The circle takes the hit as the number reaches it.
+    window.setTimeout(() => {
+      ring.animate(
+        [
+          { transform: 'scale(1)', boxShadow: '0 0 0 1px #000, 0 0 12px rgba(0,0,0,0.6)' },
+          { transform: `scale(${opts.big ? 1.6 : 1.35})`, boxShadow: `0 0 0 2px #fff, 0 0 26px rgba(${tone === 'theirs' ? '111, 163, 255' : tone === 'artist' ? '79, 209, 138' : '255, 227, 179'}, 1)`, offset: 0.3 },
+          { transform: 'scale(1)', boxShadow: '0 0 0 1px #000, 0 0 12px rgba(0,0,0,0.6)' },
+        ],
+        { duration: 620, easing: 'cubic-bezier(0.2, 0.8, 0.3, 1)' },
+      );
+    }, ms * 0.88);
   };
-  const landFx = (items: { location: number; amount?: number; tone: 'artist' | 'mine' | 'theirs' }[]) => {
+  const landFx = (items: { location: number; amount?: number; tone: 'artist' | 'mine' | 'theirs'; big?: boolean; label?: string; side?: PlayerId }[]) => {
     if (items.some((it) => it.amount)) sfx('influence.up');
     for (const it of items) {
       const loc = document.querySelector(`.column[data-index="${it.location}"] .loc-glow`);
@@ -295,7 +339,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         loc.classList.add('loc-pulse', it.tone);
         window.setTimeout(() => loc.classList.remove('loc-pulse', it.tone), 1100);
       }
-      if (it.amount) floatNum(it.location, it.amount, it.tone);
+      if (it.amount) floatNum(it.location, it.amount, it.tone, { big: it.big, label: it.label, side: it.side });
     }
   };
   /** During a replay your own moves stay where you put them; the board only re-animates what you could not see coming. */
@@ -521,7 +565,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       }
       setFx((f) => patch(f, { ...healPatch(f), alive: (f?.alive ?? []).filter((u) => u !== d.threatUid), stamp: threatEl ? { uid: d.threatUid, title: d.cleared ? 'NEUTRALIZED' : 'HOLDS', sub: d.requiresBoth ? undefined : `${total} of ${d.needed}`, tone } : undefined }));
       // Word spreads without the wave: each paid Location pulses and its +N floats up.
-      if (spread.length) landFx(spread.map((e) => ({ location: e.location!, amount: (e.data as { amount?: number }).amount, tone: e.player === me ? 'mine' : 'theirs' })));
+      if (spread.length) landFx(spread.map((e) => ({ location: e.location!, amount: (e.data as { amount?: number }).amount, tone: e.player === me ? 'mine' : 'theirs', big: true, side: e.player })));
       await wait(1800);
       return;
     }
@@ -588,14 +632,14 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     if (spread.length && loc >= 0) {
       const from = document.querySelector(`.column[data-index="${loc}"] .location`)?.getBoundingClientRect();
       const shots: TrailShot[] = [];
-      const lands: { at: number; location: number; tone: 'mine' | 'theirs'; amount?: number }[] = [];
+      const lands: { at: number; location: number; tone: 'mine' | 'theirs'; amount?: number; side?: PlayerId }[] = [];
       for (const e of spread) {
         const to = document.querySelector(`.column[data-index="${e.location}"] .art`)?.getBoundingClientRect();
         if (!from || !to) continue;
         const amount = (e.data as { amount?: number }).amount;
         // The ring takes the breaker's colour; when both sides broke it, each side's payout rides its own ring.
-        shots.push({ from, to, color: TRAIL_COLORS[e.player ?? 'A'], ring: healBy === 'both' ? TRAIL_COLORS[e.player ?? 'A'] : TRAIL_COLORS[healBy], label: amount ? `+${amount}` : undefined, kind: 'wave' });
-        lands.push({ at: waveLandAt(from, to), location: e.location!, tone: e.player === me ? 'mine' : 'theirs', amount });
+        shots.push({ from, to, color: TRAIL_COLORS[e.player ?? 'A'], ring: healBy === 'both' ? TRAIL_COLORS[e.player ?? 'A'] : TRAIL_COLORS[healBy], kind: 'wave' });
+        lands.push({ at: waveLandAt(from, to), location: e.location!, tone: e.player === me ? 'mine' : 'theirs', amount, side: e.player });
       }
       if (shots.length) {
         sfx('heal');
@@ -607,8 +651,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           if (chime) lastChime = l.at;
           window.setTimeout(() => {
             // landFx chimes itself when an amount lands; the chime flag keeps landings a beat apart from doubling it.
-            landFx([{ location: l.location, tone: l.tone, amount: chime ? l.amount : undefined }]);
-            if (!chime && l.amount) floatNum(l.location, l.amount, l.tone);
+            landFx([{ location: l.location, tone: l.tone, amount: chime ? l.amount : undefined, big: true, side: l.side }]);
+            if (!chime && l.amount) floatNum(l.location, l.amount, l.tone, { big: true, side: l.side });
           }, l.at);
         }
         hold = Math.max(hold, Math.max(...lands.map((l) => l.at)) + 900);
@@ -665,11 +709,76 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     setFx((f) => (f ? { ...f, land: undefined } : f));
   };
 
+  /**
+   * The Dred Scott Decision comes down: Taney's card slams onto the board like a gavel (the board jolts, the laugh),
+   * then everyone at the Location, both sides, is thrown out to the Gates they land at, one after another.
+   */
+  const playRuling = async (ev: GameEvent, evs: GameEvent[], seed: () => BoardFx, takeOver: () => void, alive: () => boolean) => {
+    const loc = ev.location ?? -1;
+    const cast = evs.filter((e) => e.type === 'moved' && !!e.uid && (e.data as { reason?: string } | undefined)?.reason === THREAT_BY_ID.dred_scott?.name);
+    // Stage the board as it stood, with everyone still at the Location, and take a ghost of each one who goes.
+    setFx(seed());
+    setStagePrev(true);
+    await painted();
+    if (!alive()) return;
+    const ghosts = new Map<string, Ghost>();
+    if (!reduceMotion()) for (const e of cast) { const el = tileOf(e.uid!); if (el) ghosts.set(e.uid!, ghostOf(el)); }
+    setStagePrev(false);
+    setFx({ ...seed(), hidden: [...ghosts.keys()] });
+    takeOver();
+    setClashTell({ title: 'THE RULING', text: ev.text, sub: cast.length ? `Taney's opinion stands: nobody here has rights the court will respect. Everyone at the Location, both sides, is turned out to open Gates elsewhere, Waiting. Then the Decision lifts.` : 'Nobody was here to turn out. The Decision lifts.', tone: 'ruling' });
+    // The gavel.
+    setArrival({ cardId: 'roger_taney', owner: 'A', slam: true });
+    sfx('threat.ruling');
+    await painted();
+    await wait(reduceMotion() ? 600 : 400);
+    if (!alive()) return;
+    const board = document.querySelector('.battlefield');
+    if (board && !reduceMotion()) {
+      board.classList.remove('gavel');
+      void (board as HTMLElement).offsetWidth;
+      board.classList.add('gavel');
+      window.setTimeout(() => board.classList.remove('gavel'), 700);
+    }
+    await wait(reduceMotion() ? 900 : 700);
+    if (!alive()) return;
+    // Cast out: each one flies from where it stood to the Gates it lands at, spinning, the highest Influence first.
+    const flights: Promise<void>[] = [];
+    let i = 0;
+    for (const e of cast) {
+      const g = ghosts.get(e.uid!);
+      const dest = tileOf(e.uid!)?.getBoundingClientRect();
+      if (!g) continue;
+      const dir = (e.data as { to?: number }).to !== undefined && (e.data as { to: number }).to < loc ? -1 : 1;
+      const uid = e.uid!;
+      flights.push(
+        (async () => {
+          await wait(i * 160);
+          if (!alive()) return;
+          sfx('clash.banish');
+          if (dest) await fly(g, dest, { ms: 820, easing: 'cubic-bezier(0.3, 0.7, 0.3, 1)', arc: 90, spin: dir * 32, swell: 1.2, remove: true });
+          else await fly(g, g.base, { ms: 600, spin: 20, fade: true, remove: true });
+          if (!alive()) return;
+          setFx((f) => (f ? { ...f, hidden: f.hidden.filter((u) => u !== uid), land: uid } : f));
+        })(),
+      );
+      i++;
+    }
+    await Promise.all(flights);
+    if (!alive()) return;
+    await wait(cast.length ? 700 : 900);
+    if (!alive()) return;
+    setArrival(null);
+    clearGhosts();
+    setFx((f) => (f ? { ...f, land: undefined } : f));
+  };
+
   useEffect(() => {
     if (!step) return;
     const evs = filterEvents(step.events, me);
     let cancelled = false;
     const alive = () => !cancelled;
+    const rulingEv = evs.find((e) => e.type === 'threatActs' && !!(e.data as { banishAll?: boolean } | undefined)?.banishAll);
     const digEv = evs.find((e) => (e.data as { dig?: DigShow } | undefined)?.dig && e.player);
     if (digEv && !reduceMotion()) {
       const d = (digEv.data as { dig: { seen: string[]; keep: string; hidden: boolean } }).dig;
@@ -692,6 +801,14 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       if (peek) showPeek(peek);
     };
     const run = async () => {
+      if (rulingEv) {
+        await playRuling(rulingEv, evs, seed, takeOver, alive);
+        if (!alive()) return;
+        setFx(null);
+        setClashTell(null);
+        finish();
+        return;
+      }
       /** Fly a set of trail events from their source Character tiles to their Locations. */
       const fireTrails = (list: GameEvent[]) => {
         const shots: TrailShot[] = [];
@@ -701,14 +818,15 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           if (!from || !to) continue;
           const amount = (e.data as { amount?: number }).amount;
           const tone = (e.data as { color?: string }).color;
-          shots.push({ from, to, color: tone === 'artist' ? TRAIL_COLORS.artist : TRAIL_COLORS[e.player ?? 'A'], label: amount ? `+${amount}` : undefined });
+          const first = (e.data as { trail?: string }).trail === 'first';
+          shots.push({ from, to, color: tone === 'artist' ? TRAIL_COLORS.artist : TRAIL_COLORS[e.player ?? 'A'], label: amount ? (first ? `+${amount} correct guess` : `+${amount}`) : undefined });
         }
         if (shots.length) sfx('trail');
         setTrail(shots.length ? shots : null);
         // When the trail lands (~1050ms): a pulse on the Location's panel and the chime. The +N rides the embers.
         window.setTimeout(() => {
           if (list.some((e) => (e.data as { amount?: number }).amount)) sfx('influence.up');
-          landFx(list.map((e) => ({ location: e.location!, amount: (e.data as { amount?: number }).amount, tone: (e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs' })));
+          landFx(list.map((e) => ({ location: e.location!, amount: (e.data as { amount?: number }).amount, tone: (e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs', side: e.player, label: (e.data as { trail?: string }).trail === 'first' && (e.data as { amount?: number }).amount ? `+${(e.data as { amount?: number }).amount} correct guess` : undefined })));
         }, 1050);
         return shots.length;
       };
@@ -1380,7 +1498,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           }
           return { text: `Gate Characters enter the Location they are waiting at. Play Harriet Tubman first and she can move one of them to another Gate.`, shake: [tile] };
         }
-        if (!c.ready) return { text: `${nm} is Fresh: it arrived this turn and waits one turn at the Gates before it can enter.`, shake: [tile] };
+        if (!c.ready) return { text: `${nm} is Waiting: it arrived this turn and waits one turn at the Gates before it can enter.`, shake: [tile] };
         const blocked = isBlockedFromEntering(view, c);
         if (blocked?.startsWith('blocked by ') && !blocked.includes('opposing Character')) {
           const door = view.locations[i].threats.find((t) => THREAT_BY_ID[t.defId]?.effect === 'blockEntry' && (!THREAT_BY_ID[t.defId].split || t.target === me));
@@ -1943,7 +2061,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       </div>
 
       {arrival && (
-        <div className={`card-flash p${arrival.owner}`} aria-hidden>
+        <div className={`card-flash p${arrival.owner} ${arrival.slam ? 'slam' : ''}`} aria-hidden>
           <CardFace id={arrival.cardId} big />
         </div>
       )}
@@ -2088,6 +2206,7 @@ function beatSfx(step: TraceStep): void {
     if (evs.some((e) => e.type === 'threatSpawned')) sfx('threat.spawn');
     return;
   }
+  if (evs.some((e) => e.type === 'threatActs' && !!(e.data as { banishAll?: boolean } | undefined)?.banishAll)) return; // the ruling plays its own gavel and laugh
   if (evs.some((e) => e.type === 'lastWord')) return sfx('lastword');
   if (evs.some((e) => e.type === 'locationLost')) return sfx('lost');
   if (evs.some((e) => e.type === 'threatNeutralized')) return sfx('threat.clear');

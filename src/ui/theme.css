@@ -1199,7 +1199,7 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .pic.home .inf { border-color: var(--gold); box-shadow: 0 0 6px rgba(233, 185, 58, 0.5); }
 
 /* Inside tiles: the number sits at the bottom right and the house mark at the bottom left, leaving the face clear.
-   When a status strip (Entering, Planned, Held…) runs along the bottom, both lift to sit just above it. */
+   When a status strip (Entering, Placed, Held…) runs along the bottom, both lift to sit just above it. */
 .slot .pic .inf { top: auto; bottom: 2px; right: 2px; }
 .slot .pic .home-mark { top: auto; bottom: 2px; left: 2px; }
 .slot .pic:has(.strip) .inf, .slot .pic:has(.strip) .home-mark { bottom: 16px; }
@@ -1341,6 +1341,15 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .card-flash { position: fixed; left: 50%; top: 42%; z-index: 58; transform: translate(-50%, -50%); pointer-events: none; animation: card-flash-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.25) both; filter: drop-shadow(0 24px 40px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 30px rgba(233, 185, 58, 0.45)); }
 @keyframes card-flash-in { 0% { opacity: 0; transform: translate(-50%, -40%) scale(0.6) rotate(-6deg); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); } }
 .card-flash.leaving { visibility: hidden; }
+/* The ruling: the card comes down from above like a gavel and lands hard; a ring of the blow spreads from it. */
+.card-flash.slam { animation: gavel-slam 0.4s cubic-bezier(0.55, 0, 1, 1) both; filter: drop-shadow(0 30px 50px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 34px rgba(224, 74, 63, 0.55)); }
+@keyframes gavel-slam { 0% { opacity: 0; transform: translate(-50%, -190%) scale(2.6) rotate(-10deg); } 12% { opacity: 1; } 88% { transform: translate(-50%, -50%) scale(0.96) rotate(0.5deg); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); } }
+.card-flash.slam::after { content: ''; position: absolute; left: 50%; top: 50%; width: 60px; height: 60px; border-radius: 50%; border: 6px solid rgba(255, 210, 190, 0.9); box-shadow: 0 0 30px rgba(224, 74, 63, 0.8); transform: translate(-50%, -50%) scale(0.2); opacity: 0; animation: gavel-ring 0.9s cubic-bezier(0.1, 0.7, 0.2, 1) 0.38s both; pointer-events: none; }
+@keyframes gavel-ring { 0% { opacity: 0.95; transform: translate(-50%, -50%) scale(0.2); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(18); border-width: 1px; } }
+.battlefield.gavel { animation: gavel-shake 0.6s cubic-bezier(0.3, 0.1, 0.3, 1) both; }
+@keyframes gavel-shake { 0% { transform: translate(0, 0); } 10% { transform: translate(-6px, 8px) rotate(-0.4deg); } 22% { transform: translate(6px, -5px) rotate(0.3deg); } 36% { transform: translate(-4px, 3px); } 52% { transform: translate(3px, -2px); } 70% { transform: translate(-1px, 1px); } 100% { transform: translate(0, 0); } }
+.replay-banner.kind-clash.ruling { border-color: #c94a40; box-shadow: 0 0 0 1px #000, 0 0 24px rgba(224, 74, 63, 0.45); }
+@media (prefers-reduced-motion: reduce) { .card-flash.slam { animation: none; } .card-flash.slam::after { display: none; } .battlefield.gavel { animation: none; } }
 .replay-banner.kind-clash.arrive .replay-kind { background: var(--gold); color: #1a1200; }
 @media (prefers-reduced-motion: reduce) { .card-flash { animation: none; } }
 
@@ -1504,6 +1513,8 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
   .location.healing .loc-bg::before { opacity: 0; }
 }
 .float-num { position: fixed; z-index: 46; transform: translate(-50%, -50%); pointer-events: none; font-family: var(--display); font-weight: 800; font-size: 34px; color: #fff; text-shadow: 0 0 14px rgba(var(--pulse, 255, 227, 179), 1), 0 2px 6px rgba(0, 0, 0, 0.8); animation: float-num 1.2s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+.float-num.jump { animation: none; white-space: nowrap; }
+.float-num.big { font-size: 48px; text-shadow: 0 0 22px rgba(var(--pulse, 255, 227, 179), 1), 0 0 6px rgba(var(--pulse, 255, 227, 179), 0.8), 0 3px 8px rgba(0, 0, 0, 0.85); }
 .float-num.artist { --pulse: 79, 209, 138; color: #d8ffe8; }
 .float-num.mine { --pulse: 255, 227, 179; }
 .float-num.theirs { --pulse: 111, 163, 255; color: #e2ecff; }

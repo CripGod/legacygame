@@ -554,7 +554,7 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
   if (actor.kind === 'location') {
     const fresh = charsAt(view, location, me, 'gate').filter((c) => !c.ready && !(CARD_BY_ID[c.defId] as { keywords?: string[] } | undefined)?.keywords?.includes('INFORMANT'));
     if (LOCATION_BY_ID[actor.id]?.effect.type === 'turncoatAtEnd') {
-      return fresh.length ? `At the end of next turn the lowest Fresh Gate Character here changes sides again. ${fresh.map((c) => nm(c.defId)).join(' and ')} ${fresh.length > 1 ? 'are' : 'is'} Fresh at ${locName}: send them Inside or move them, or keep something lower beside them.` : `Anything Fresh at the Gates of ${locName} at the end of a turn is at risk; the lowest Influence goes.`;
+      return fresh.length ? `At the end of next turn the lowest Waiting Gate Character here changes sides again. ${fresh.map((c) => nm(c.defId)).join(' and ')} ${fresh.length > 1 ? 'are' : 'is'} Waiting at ${locName}: send them Inside or move them, or keep something lower beside them.` : `Anything Waiting at the Gates of ${locName} at the end of a turn is at risk; the lowest Influence goes.`;
     }
     return fresh.length ? `${fresh.map((c) => nm(c.defId)).join(' and ')} will be run out too unless they enter or move.` : '';
   }
@@ -577,7 +577,7 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
       return 'The siege does not lift. Only protection stops it.';
     case 'foundOut':
       return (def?.kind === 'character' ? (def.reveal?.effect as { mode?: string } | undefined)?.mode : undefined) === 'amnesty'
-        ? 'No Force check. The Informant stays, Fresh, and is yours from now on: its Influence counts for you and it can go Inside.'
+        ? 'No Force check. The Informant stays, Waiting, and is yours from now on: its Influence counts for you and it can go Inside.'
         : 'No Force check: an Informant at your own Gates has no protection from you.';
     case 'displaceOpposingGate':
       return 'No Force check. Only protection stops her.';
@@ -676,7 +676,7 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
         <div className="showdown-why">
           <b>{ev.text}</b>
           {d.note ? ` ${d.note}` : ''}
-          {d.outcome === 'displaced' && whereText ? ` ${victimName} now waits Fresh at the Gates of ${whereText}.` : ''}
+          {d.outcome === 'displaced' && whereText ? ` ${victimName} now waits Waiting at the Gates of ${whereText}.` : ''}
         </div>
         {adviceFor(view, me, d.actor, d.outcome, d.from, placeholders) && <div className="showdown-rule beat">{adviceFor(view, me, d.actor, d.outcome, d.from, placeholders)}</div>}
         <div className="actions" style={{ justifyContent: 'center' }}>

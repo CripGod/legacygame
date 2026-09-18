@@ -2285,6 +2285,15 @@ describe('word spreads', () => {
     expect(spread.map((e) => e.location).sort()).toEqual([1, 2]);
     expect(spread.every((e) => (e.data as { threatUid?: string }).threatUid === 'hr')).toBe(true);
   });
+  it('Word spreads reaches a hidden Location too', () => {
+    const s = stage();
+    s.locations[2].revealed = false;
+    s.locations[2].revealedTurn = undefined;
+    const og = addChar(s, 'og', 'A', 0, 'gate', true);
+    s.locations[0].threats.push({ uid: 'hr', defId: 'housing_restriction', location: 0, forceRequired: 3, spawnedTurn: 1 });
+    const out = resolveTurn(s, { A: { ...pass(), confronts: [{ uid: og.uid, threatUid: 'hr' }] }, B: pass() });
+    expect(gains(out.state, 'A')).toEqual([0, 1, 1]);
+  });
   it('a shared clear splits the pool by Force, the remainder to the larger share; equal shares split evenly', () => {
     let s = stage();
     const a1 = addChar(s, 'og', 'A', 0, 'gate', true);

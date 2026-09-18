@@ -110,7 +110,7 @@ export function CharSheetWithTray({
   const confronting = plan.confronts.some((x) => x.uid === uid);
   const harrietMove = plan.plays.find((pl) => pl.target?.charUid === uid);
   const informant = !!(CARD_BY_ID[c.defId] as { keywords?: string[] } | undefined)?.keywords?.includes('INFORMANT');
-  const status = harrietMove ? `Moving with Harriet Tubman to Location ${(harrietMove.target!.location ?? 0) + 1} when you Lock It In` : informant ? `At the Gates · ${HINTS.informant}` : c.zone === 'inside' ? 'Established: Inside, Established ability active' : c.blockedEnterTurn === view.turn ? `At the Gates · ${HINTS.blocked}` : c.ready ? `At the Gates · ${HINTS.ready}` : `At the Gates · ${HINTS.fresh}`;
+  const status = harrietMove ? `Moving with Harriet Tubman to Location ${(harrietMove.target!.location ?? 0) + 1} when you Lock It In` : informant ? `At the Gates · ${HINTS.informant}` : c.zone === 'inside' ? 'Established: Inside, Established ability active' : c.blockedEnterTurn === view.turn ? `At the Gates · ${HINTS.blocked}` : c.ready ? `At the Gates · ${HINTS.ready}` : `At the Gates · ${HINTS.waiting}`;
   return (
     <CodexSheet id={c.defId} label={view.players[c.owner].handle} onClose={onClose}>
       <div className="muted center">
@@ -152,7 +152,7 @@ export function CharSheetWithTray({
       )}
       {mine && !view.locations[c.location].lost && !lockReason(view, c) && (
         <div style={{ display: 'grid', gap: 6 }}>
-          <div className="muted">{c.zone === 'gate' ? `Relocate to another Location's Gates (stays ${c.ready ? 'Ready' : 'Fresh'}):` : "Relocate to another Location's Gates (arrives Fresh):"}</div>
+          <div className="muted">{c.zone === 'gate' ? `Relocate to another Location's Gates (stays ${c.ready ? 'Ready' : 'Waiting'}):` : "Relocate to another Location's Gates (arrives Waiting):"}</div>
           <div className="actions">
             {reloc?.destinations.map((d) => (
               <button key={d} className={current?.to === d ? 'primary' : ''} disabled={confronting || (!current && locDef(view, c.location).effect.type !== 'hub' && plan.relocations.length >= opts.relocationsAllowed)} onClick={() => onRelocate(uid, current?.to === d ? null : d)}>

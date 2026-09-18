@@ -70,7 +70,7 @@ export type RevealEffect =
   | { type: 'challengeGate' } // Nzinga
   | { type: 'challengeInside' } // Toussaint
   | { type: 'suppressInside' } // Sojourner Truth
-  | { type: 'readyFriendlyWhereBehind' } // Lincoln: at every Location where the opponent leads, your Fresh Gate Characters become Ready
+  | { type: 'readyFriendlyWhereBehind' } // Lincoln: at every Location where the opponent leads, your Waiting Gate Characters become Ready
   | { type: 'weakenAllThreatsHere'; amount: number } // Thaddeus Stevens: every Threat here needs less Force, for good
   | { type: 'permInfluenceAllOthersHere'; amount: number; max: number } // Charles Sumner: your other Characters here (up to max) gain lasting Influence
   | { type: 'retell' } // Anansi: draw a card; where the opponent leads, retell this Location as a random one not in the match and spin his web over it; otherwise trick their best Ready Gate Character into waiting again
@@ -92,9 +92,9 @@ export type RevealEffect =
   | { type: 'energyNext'; amount: number } // Madam C.J. Walker: Energy next turn
   | { type: 'nextCharacterDiscount'; amount: number } // Daniel Payne: your next Character costs less
   | { type: 'relocationNextTurn'; amount: number } // Victor Hugo Green: extra Relocation next turn
-  | { type: 'foundOut'; mode: 'expose' | 'arrest' | 'amnesty'; fallback: 'draw' | 'hold' | 'confront'; leave?: boolean } // David Ruggles, Lewis Hayden, William Parker, Desmond Tutu: the Informant at your Gates here is found out. expose: back to the planter's hand (their discard if that hand is full); arrest: out of the match, into the planter's discard; amnesty: it testifies and stays, Fresh, as the holder's own Character from now on; leave: this Character then moves on to your Gates elsewhere, Fresh. No Informant here: draw a card, hold (yours here cannot be displaced this turn) or confront a Threat here with +1 Force
+  | { type: 'foundOut'; mode: 'expose' | 'arrest' | 'amnesty'; fallback: 'draw' | 'hold' | 'confront'; leave?: boolean } // David Ruggles, Lewis Hayden, William Parker, Desmond Tutu: the Informant at your Gates here is found out. expose: back to the planter's hand (their discard if that hand is full); arrest: out of the match, into the planter's discard; amnesty: it testifies and stays, Waiting, as the holder's own Character from now on; leave: this Character then moves on to your Gates elsewhere, Waiting. No Informant here: draw a card, hold (yours here cannot be displaced this turn) or confront a Threat here with +1 Force
   | { type: 'siegeInside'; amount: number } // Yaa Asantewaa: every opposing Established Character here loses Influence for good
-  | { type: 'challengeAllInside' } // Menelik II: every opposing Established Character here with lower Force returns to its Gates, Fresh, while their Gates have room
+  | { type: 'challengeAllInside' } // Menelik II: every opposing Established Character here with lower Force returns to its Gates, Waiting, while their Gates have room
   | { type: 'drawPerFriendHere'; max: number } // Denmark Vesey: draw per other friendly Character here: permanent Influence on the Location itself, which stays when the artist leaves
   | { type: 'tearTreaty'; turns: number }; // Taytu Betul: every Event the opponent plays at this Location, this turn and `turns - 1` more, is torn up before it resolves
 
@@ -242,7 +242,7 @@ export type LocationEffect =
   | { type: 'lockInside'; turns: number } // The Justice System
   | { type: 'noDisplace' } // The Tabernacle
   | { type: 'restEnergy'; count: number; amount: number } // Oak Bluffs: players with `count` Inside gain Energy next turn
-  | { type: 'turncoatAtEnd' } // Charleston, 1822: the Fresh Gate Character here with the lowest Influence changes sides at the end of the turn
+  | { type: 'turncoatAtEnd' } // Charleston, 1822: the Waiting Gate Character here with the lowest Influence changes sides at the end of the turn
   | { type: 'nightInside'; amount: number } // The Stroll: after dark (even turns) your Characters Inside here gain Influence
   | { type: 'crossing'; toll: number } // The Middle Passage: no Inside, every Gate Character pays the toll each turn, leavers arrive Ready
   | { type: 'gatesUncounted' } // Jim Crow: Characters at the Gates here count no Influence; only those Inside are counted

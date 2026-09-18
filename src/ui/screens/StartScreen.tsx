@@ -244,6 +244,8 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
   const [deckB, setDeckB] = useState('blackstar');
   /** A deck card tapped on the landing page opens the full Compendium sheet for it. */
   const [open, setOpen] = useState<string | null>(null);
+  /** The deck the open card was tapped in: the sheet's arrows carousel through it. */
+  const [openDeck, setOpenDeck] = useState<string[]>([]);
   /** The Mob on the landing page: 'up' until clicked, 'falling' through the explosion, 'down' with the message, then it re-forms. */
   const [mobState, setMobState] = useState<'hidden' | 'up' | 'falling' | 'down' | 'fading'>('hidden');
   const [burst, setBurst] = useState(0);
@@ -338,7 +340,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
           {d.cards.length > 0 ? (
             <div className="deck-cards">
               {d.cards.map((id) => (
-                <CardFace key={id} id={id} onClick={() => setOpen(id)} />
+                <CardFace key={id} id={id} onClick={() => { setOpenDeck(d.cards); setOpen(id); }} />
               ))}
             </div>
           ) : (
@@ -512,7 +514,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
           </div>
         )}
       </footer>
-      {open && <CodexSheet id={open} label={labelFor(open)} onClose={() => setOpen(null)} />}
+      {open && <CodexSheet id={open} label={labelFor(open)} onClose={() => setOpen(null)} siblings={openDeck} onNav={setOpen} />}
     </div>
   );
 }

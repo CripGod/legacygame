@@ -91,7 +91,7 @@ export function remainingPlan(state: GameState, me: PlayerId, plan: TurnPlan, bl
     // showing it there from the beat that blocks it, so the block is seen to land at the Gates.
     enters: plan.enters.filter((uid) => {
       const c = state.characters[uid];
-      // The engine only lets a Ready Character enter: one tricked Fresh (Anansi, James Lafayette) is not going Inside.
+      // The engine only lets a Ready Character enter: one tricked Waiting (Anansi, James Lafayette) is not going Inside.
       return !!c && c.zone === 'gate' && c.ready && c.blockedEnterTurn !== state.turn && !blockedNow.includes(uid);
     }),
     relocations: plan.relocations.filter((r) => state.characters[r.uid] && state.characters[r.uid].location !== r.to),

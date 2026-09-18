@@ -15,7 +15,17 @@ import '../compendium.css';
  * The same stage serves the match: `children` is an action tray under the card (send it somewhere, enter,
  * relocate, a live readout), so a card reads the same wherever it opens.
  */
-export function CodexSheet({ id, label, onClose, children, flat }: { id: string; label: string; onClose: () => void; children?: ReactNode; /** No backdrop blur: for the match, where the board behind keeps animating and a blurred backdrop would re-render every frame. */ flat?: boolean }) {
+export function CodexSheet({ id, label, onClose, children, flat, siblings, onNav }: { id: string; label: string; onClose: () => void; children?: ReactNode; /** No backdrop blur: for the match, where the board behind keeps animating and a blurred backdrop would re-render every frame. */ flat?: boolean; /** The cards this one sits among (a deck, the Compendium): arrows and the arrow keys carousel through them. Not in the match. */ siblings?: string[]; onNav?: (id: string) => void }) {
+  const ring = siblings && siblings.length > 1 && onNav ? siblings : null;
+  const go = (dir: -1 | 1) => {
+    if (!ring || !onNav) return;
+    const at = ring.indexOf(id);
+    const next = ring[(at < 0 ? 0 : at + dir + ring.length) % ring.length];
+    if (next && next !== id) {
+      sfx('card.pick');
+      onNav(next);
+    }
+  };
   const { placeholders } = useDisplay();
   const [open, setOpen] = useState(false);
   useLedger();
@@ -34,10 +44,13 @@ export function CodexSheet({ id, label, onClose, children, flat }: { id: string;
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
+      else if (e.key === 'ArrowLeft') go(-1);
+      else if (e.key === 'ArrowRight') go(1);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onClose, id, ring, onNav]);
   // 3D tilt: the card leans toward the pointer, gently, and settles back when it leaves. Modal only.
   // Pointer moves are coalesced into one style write per animation frame, so a burst of events never queues up.
   const tiltRef = useRef<HTMLDivElement>(null);
@@ -89,6 +102,16 @@ export function CodexSheet({ id, label, onClose, children, flat }: { id: string;
         <button className="cx-x cx-ctl cx-stage-x" onClick={onClose} aria-label="Close">
           ✕
         </button>
+        {ring && (
+          <>
+            <button className="cx-x cx-ctl cx-arrow prev" onClick={() => go(-1)} aria-label="Previous card">
+              ‹
+            </button>
+            <button className="cx-x cx-ctl cx-arrow next" onClick={() => go(1)} aria-label="Next card">
+              ›
+            </button>
+          </>
+        )}
         <div className="cx-card3d">
           <div className="cx-card3d-inner" ref={tiltRef} onPointerMove={onMove} onPointerLeave={onLeave} onPointerCancel={onLeave}>
             <CardFace id={id} big />

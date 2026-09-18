@@ -158,7 +158,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Organizer (`organizer`)
 - cost 1 · Influence 1 · Force 2 · archetype · era: Timeless
-- reveal: Another friendly Fresh Gate Character (here if possible) becomes Ready.
+- reveal: Another friendly Waiting Gate Character (here if possible) becomes Ready.
 - established: You have +1 Energy each turn.
 - blurb: The person with the clipboard, the church basement and the phone tree.
 - history: An archetype. The organizer is the person who runs the meeting, keeps the list and makes the phone calls: Ella Baker, who built the NAACP's Southern branches and mentored SNCC; Fannie Lou Hamer registering voters in Mississippi; the thousands of unnamed people who made the Montgomery bus boycott run for 381 days. The game's Organizer represents that role rather than one person.
@@ -186,7 +186,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Toussaint Louverture (`toussaint_louverture`)
 - cost 6 · Influence 6 · Force 6 · historical · era: 1743–1803
-- reveal: CHALLENGE the opposing Established Character here with the highest Influence. If Toussaint's Force is higher, it returns to its Gate, Fresh.
+- reveal: CHALLENGE the opposing Established Character here with the highest Influence. If Toussaint's Force is higher, it returns to its Gate, Waiting.
 - established: Your Characters here cannot be displaced.
 - blurb: Leader of the Haitian Revolution, the only slave revolt in history to found an independent state.
 - history: Born enslaved in Saint-Domingue around 1743, Toussaint Louverture rose to lead the revolution that began in 1791. He defeated French, Spanish and British forces in turn, abolished slavery across the colony and wrote its 1801 constitution naming himself governor for life. Napoleon sent an army to restore slavery; Toussaint was captured by treachery in 1802 and died in a French prison in the Jura in 1803. His lieutenants finished the war and declared Haiti independent on 1 January 1804.
@@ -194,7 +194,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 ### Marcus Garvey (`marcus_garvey`)
 - cost 6 · Influence 6 · Force 2 · historical · era: 1887–1940
 - reveal: Each other friendly Character here gains +1 Influence this turn.
-- established: The Black Star Line: any Character you relocate away from this Location arrives at its new Gates Ready, not Fresh. (He does not move anyone himself; you choose the Relocation.)
+- established: The Black Star Line: any Character you relocate away from this Location arrives at its new Gates Ready, not Waiting. (He does not move anyone himself; you choose the Relocation.)
 - blurb: Founded the UNIA and the Black Star Line, building the largest mass movement in Black history.
 - history: Marcus Garvey (1887–1940), born in Jamaica, founded the Universal Negro Improvement Association in 1914 and moved it to Harlem in 1916. At its peak the UNIA claimed millions of members across the Americas and Africa, published the Negro World and ran the Black Star Line, a shipping company financed by Black shareholders. The line failed, Garvey was convicted of mail fraud in 1923 and deported in 1927, but his ideas of Black pride and self-reliance shaped Rastafari, Pan-Africanism and the civil rights generation.
 
@@ -214,7 +214,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Abraham Lincoln (`abraham_lincoln`)
 - cost 7 · Influence 5 · Force 3 · historical · era: 1809–1865
-- reveal: Emancipation Proclamation: at every Location where your opponent leads on Influence, your Fresh Gate Characters become Ready now; they walk through on their own next turn. Where you lead or tie, nothing changes.
+- reveal: Emancipation Proclamation: at every Location where your opponent leads on Influence, your Waiting Gate Characters become Ready now; they walk through on their own next turn. Where you lead or tie, nothing changes.
 - established: The Union holds: your Characters here cannot be displaced.
 - passive: Sundown Town has no hold on him: no curfew, and it never runs him out.
 - blurb: Declared free on New Year's Day 1863 everyone enslaved in the states still in rebellion, the loyal states and a few occupied districts excepted, then spent his last winter whipping the votes for the amendment that freed the rest.
@@ -222,7 +222,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### William Lloyd Garrison (`william_lloyd_garrison`)
 - cost 3 · Influence 3 · Force 1 · historical · era: 1805–1879
-- reveal: Immediatism: another friendly Fresh Gate Character (here if possible) becomes Ready.
+- reveal: Immediatism: another friendly Waiting Gate Character (here if possible) becomes Ready.
 - established: The Liberator: +1 Influence while another of your Characters is at this Location.
 - passive: Sundown Town has no hold on him: no curfew, and it never runs him out.
 - blurb: Printed The Liberator every week for thirty-five years and would not retreat a single inch. 'I will be heard.'
@@ -267,7 +267,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### James Lafayette (`james_lafayette`)
 - cost 4 · Influence 4 · Force 2 · historical · era: c. 1748–1830
-- reveal: False reports: draw a card, and the opposing Ready Gate Character here with the highest Influence is tricked into waiting again (Fresh).
+- reveal: False reports: draw a card, and the opposing Ready Gate Character here with the highest Influence is tricked into waiting again (Waiting).
 - established: In their camp: whenever your opponent plays a Character at this Location, draw a card.
 - blurb: Went into Cornwallis's camp as a runaway and sent out word of every move the army made. Virginia freed him for it, five years after Yorktown.
 - history: James was born enslaved around 1748 in New Kent County, Virginia. In 1781, with his enslaver's consent, he volunteered under the Marquis de Lafayette and, posing as a runaway, got inside the British camp during Cornwallis's march through Virginia, where he waited on the headquarters table and listened. What he reported helped close the trap at Yorktown that October. The act that freed enslaved soldiers after the war did not cover spies; on Lafayette's testimonial the Virginia General Assembly emancipated him by special act in 1787. He took Lafayette's name, farmed in New Kent County, won a state pension in 1819, and was embraced by Lafayette in Richmond during the 1824 tour. He died in 1830.
@@ -309,7 +309,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Menelik II (`menelik_ii`)
 - cost 7 · Influence 6 · Force 6 · historical · era: 1844–1913
-- reveal: Adwa: CHALLENGE every opposing Established Character here. Each with lower Force than Menelik returns to its Gates, Fresh, for as long as their Gates have room. Sent back at Sundown Town, they are not run out that same night.
+- reveal: Adwa: CHALLENGE every opposing Established Character here. Each with lower Force than Menelik returns to its Gates, Waiting, for as long as their Gates have room. Sent back at Sundown Town, they are not run out that same night.
 - established: Adwa holds: your other Characters Inside here gain +2 Influence.
 - blurb: Emperor who repudiated the Italian treaty and broke an Italian army at Adwa in 1896, the victory that kept Ethiopia its own.
 - history: Sahle Maryam was born in 1844, became king of Shewa in 1865 and Emperor Menelik II in 1889. That year he signed the Treaty of Wuchale, whose Italian text made Ethiopia a protectorate and whose Amharic text did not; he repudiated it in 1893. When Italy advanced from Eritrea he called the empire to arms, and on 1 March 1896 at Adwa an army of around 100,000, with Empress Taytu commanding her own contingent, destroyed the Italian force; Ethiopia's independence was recognized that October while the rest of the continent was being partitioned. The same army had doubled the empire southward by conquest, and slavery outlived him. He founded Addis Ababa with Taytu, opened the railway, the telegraph and the first modern school, and died in 1913.
@@ -337,7 +337,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### William Parker (`william_parker`)
 - cost 3 · Influence 3 · Force 3 · historical · era: c. 1821–1891
-- reveal: Found out: an Informant at your Gates at this Location is traced and arrested. It leaves the match, into the discard of the player who planted it. Then Parker cannot stay: he moves on to your Gates at another Location, Fresh (he stays if none has room). With no Informant here, the league confronts one Threat here with +1 Force instead.
+- reveal: Found out: an Informant at your Gates at this Location is traced and arrested. It leaves the match, into the discard of the player who planted it. Then Parker cannot stay: he moves on to your Gates at another Location, Waiting (he stays if none has room). With no Informant here, the league confronts one Threat here with +1 Force instead.
 - established: Mutual protection: your Characters at this Location confront Threats with +1 Force.
 - blurb: Led the Lancaster County league that chased kidnappers and found out the informers among their own, and stood at the door at Christiana in 1851. He could not stay: he finished his life in Canada.
 - history: William Parker was born enslaved in Anne Arundel County, Maryland, about 1821, and ran to Pennsylvania at about seventeen. Near Christiana, in Lancaster County, he and other fugitives formed a league sworn to prevent any of their number being carried back into slavery, and they dealt roughly with informers among their own. On 11 September 1851 a Maryland party led by Edward Gorsuch, brought to his door by a local informer, came for four men sheltered there; Gorsuch was killed in the fight outside Parker's house. Parker fled to Rochester, where Frederick Douglass put him on the night boat to Canada. He settled at Buxton, Ontario, learned to read and write, told the story in the Atlantic Monthly in 1866, and died there in 1891.
@@ -594,7 +594,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### The DeWolf Trade (`dewolf_trade`)
 - family: Complicit Beneficiary
-- text: At the end of each turn, the Fresh Gate Character here with the lowest Influence is shipped away: to The Middle Passage if it is in play, otherwise to a random Location. A Setback for its player. Neutralize with 5 Force in one turn (either player, or both together).
+- text: At the end of each turn, the Waiting Gate Character here with the lowest Influence is shipped away: to The Middle Passage if it is in play, otherwise to a random Location. A Setback for its player. Neutralize with 5 Force in one turn (either player, or both together).
 - blurb: The DeWolfs of Bristol, Rhode Island, ran more slaving voyages than any family in American history: about ninety between 1769 and 1820, some ten thousand people. James DeWolf kept at it after the 1808 ban, sat in the United States Senate, and died one of the richest men in the country.
 
 ### The Color Line (`color_line`)
@@ -656,7 +656,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Charleston, 1822 (`charleston_1822`)
 - era: South Carolina, 1822
-- rule: The plot is betrayed: at the end of each turn, the Fresh Gate Character here with the lowest Influence changes sides (a tie goes against the leader). A turncoat can turn back later. Nothing happens on the turn it reveals.
+- rule: The plot is betrayed: at the end of each turn, the Waiting Gate Character here with the lowest Influence changes sides (a tie goes against the leader). A turncoat can turn back later. Nothing happens on the turn it reveals.
 - blurb: Denmark Vesey's rising was set for July. Two informants ended it in June, and thirty-five people hanged.
 
 ### Lagos (`lagos`)
@@ -725,7 +725,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - `currentInfluence`: Influence this Character currently contributes here, including bonuses and penalties.
 - `home`: Home ground: this is where the story happened, so the Character counts +1 Influence here.
 - `ready`: Ready: waited a turn at the Gates. Tap to send it Inside this turn.
-- `fresh`: Fresh: arrived this turn. It waits one turn at the Gates before it can enter.
+- `waiting`: Waiting: arrived this turn. It waits one turn at the Gates before it can enter.
 - `blocked`: Blocked: an effect stops this Character from entering this turn.
 - `entering`: Entering: will move Inside when you Lock It In.
 - `moving`: Relocating: will move to another Location's Gates when you Lock It In.
@@ -809,7 +809,6 @@ el.style.setProperty('--my', y.toFixed(3));
 window.addEventListener('pointermove', onMove, …);
 Decks
 onChange(o.key)}>
-setOpen(id)} />
 A fresh hand every match: ten Characters drawn from the whole pool, plus both Events.
 Strategy
 builds
@@ -859,7 +858,7 @@ Rules
 ### Playing Characters
 - Every card has an Energy cost. Each turn you get Energy equal to the turn number (Turn 1: 1, Turn 8: 8; The Last Word pays 10); Organizer and Denmark Vesey add +1 while Established, Oak Bluffs pays +1 next turn, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your three Gate slots at a Location. Its Reveal ability triggers there.
 - Discounts. Some cards cost more than you will ever have on your own: Boukman Dutty is 7. Prices come down while a card waits in your hand. Booker T. Washington makes every Character 1 cheaper, Cécile Fatiman takes 2 off your most expensive card and 1 off every Rebellion Character, George Washington Carver knocks 1 off your priciest card at the end of each turn, and Boukman himself costs 1 less for each Rebellion Character you have on the board. A green cost on a card in your hand means it is discounted right now; a card never costs less than 0.
-- Gate Characters count toward Influence but are Fresh for the turn they arrive and the following turn. Then they are Ready and may enter Inside (up to five per player). Inside counts more: every Established Character contributes +1 Influence on top of its card.
+- Gate Characters count toward Influence but are Waiting for the turn they arrive and the following turn. Then they are Ready and may enter Inside (up to five per player). Inside counts more: every Established Character contributes +1 Influence on top of its card.
 - Inside, a Character is Established: its Established ability is live and it is safe from Gate-only effects.
 - Straight Inside and Direct Entry Characters can skip the wait (see Special arrivals below).
 ### Unknown Locations
@@ -872,12 +871,12 @@ Rules
 ### Movement
 - Day and night. Odd turns are day, even turns are night. A curfew is a condition of a Location, not a Threat: at night nobody relocates out of Sundown Town until morning. Held Characters show a red Held strip. Only a curfew Location shows the time of day, since nothing else changes at night.
 - Harriet Tubman is the conductor: her Reveal moves one of your Characters, Gate or Inside, from anywhere straight Inside another Location, or to its Gates Ready if the Inside is full, even out of Sundown Town's curfew or The Justice System's hold. Free, and before anyone enters.
-- Once per turn you may Relocate a Character to another Location's Gates. From Inside it arrives Fresh and waits again, unless an ability says otherwise. From the Gates it keeps its Ready status: a Ready Character waiting at the Gates is a flex piece you can commit late, wherever the fight turns out to be. The Inside is the committed zone; the Gates are the mobile one.
+- Once per turn you may Relocate a Character to another Location's Gates. From Inside it arrives Waiting and waits again, unless an ability says otherwise. From the Gates it keeps its Ready status: a Ready Character waiting at the Gates is a flex piece you can commit late, wherever the fight turns out to be. The Inside is the committed zone; the Gates are the mobile one.
 - Threats and abilities can Displace Characters against their will.
 ### Threats
 - Threats are neutral dangers generated by Locations and by history moving on Turn 3 (and, most matches, again on Turn 5 and Turn 7). A Location that is Lost to a Threat is not gone for good: two turns later the people who stayed rebuild it, and it is back in play with everyone there one Influence stronger. Tap a Threat to commit Characters' Force against it.
 - Some Threats come one per player. Once yours is gone you may Assist against your opponent's, earning Solidarity (cosmetic only).
-- Word spreads. Clearing a Threat is heard at every other open Location: +1 lasting Influence at each of them. Alone, you take all of it; together, it splits by Force contributed (rounded down, the remainder to the larger share; equal shares split evenly). Everyone who helped gains a Legend. At Legend …, your Characters arrive at the Gates Ready, played or relocated: you have people everywhere.
+- Word spreads. Clearing a Threat is heard at every other open Location, hidden ones included: +1 lasting Influence at each of them. Alone, you take all of it; together, it splits by Force contributed (rounded down, the remainder to the larger share; equal shares split evenly). Everyone who helped gains a Legend. At Legend …, your Characters arrive at the Gates Ready, played or relocated: you have people everywhere.
 - A Setback is a loss suffered at the hands of injustice: a Threat or a hostile Location working against you. Your opponent's cards never cause one. Reparations converts Setbacks into lasting Influence on a Location; it counts at the end no matter when you play it.
 - Unresolved crises can make a Location Lost: nobody wins it.
 ### Team-ups
@@ -886,13 +885,13 @@ Rules
 - Once a match team-ups fire for whoever assembles them first, and then the window is closed for both players, whichever side holds the cards: Adwa (Menelik II and Empress Taytu Betul: every Threat at that Location is broken), Free African Society (Richard Allen and Absalom Jones: +3 Energy next turn), Vigilance (David Ruggles and William Still: every Informant planted on you, anywhere, is sent back to the planter's hand), Reconstruction (Thaddeus Stevens and Charles Sumner: +1 lasting Influence for you at every Location), Iron and Thunder (Ogun and Shango: every Threat at that Location needs 3 less Force, for good), Rent Party (Zora Neale Hurston and the Cotton Club Orchestra: your other Characters there gain +1 Influence for good), The Press (Ida B. Wells and John Russwurm: draw 2).
 - The Event Bois Caïman is a different oath: play it on a Location with a Threat, and until that Threat is neutralized every Character there, yours and theirs, confronts it every turn with full Force, and nobody relocates out. Only Harriet Tubman's Reveal moves anyone.
 ### Special arrivals
-- Straight Inside (Sleeping Car Porters) always goes Inside the turn it is played. Direct Entry (Bessie Coleman) may: tap ⇅ on the planned move to choose Gates or Inside.
+- Straight Inside (Sleeping Car Porters) always goes Inside the turn it is played. Direct Entry (Bessie Coleman) may: tap ⇅ on the planned move to choose Gates or Inside. Neither passes a Segregationist Patrol or the Color Line: a blocked arrival waits at the Gates (and the Patrol charges its Setback).
 - The Ancestors are never in a deck. In one match out of four, holding three Characters Inside at Accra, Ghana brings them to your hand. Play them while planning to see your opponent's plan for the turn and every danger the board is about to spring.
 - The Tabernacle protects your Characters from displacement. Establish Richard Allen, Absalom Jones and Daniel Payne there and Black Jesus appears: sanctuary at his Location and +1 Influence to every Character you control.
 - The Justice System holds anyone who goes Inside for two turns: no relocating out.
 - Events are played into the purple Event slot under a Location (one per Location per turn; the Gates can be full). A deck carries at most two, and the empty slot counts yours down. They work everywhere and the Location adds a bonus: Reparations pays +1 more in the Americas, The Ancestors bless a Location in Africa, Word of Mouth draws two where you have a crowd, Community Defense adds Force where it lands. Some cards cost 0 Energy.
-- The Middle Passage has no Inside: everyone at its Gates loses 1 Influence for good each turn, and whoever leaves arrives Ready and carries +1 Influence for good. The DeWolf Trade (a Threat, 5 Force) ships the lowest Fresh Gate Character at its Location there, or to a random Location, with a Setback.
-- Informants (Peter Prioleau, George Wilson, Pharoah and Tom, Ben Woolfolk) are Characters you play onto your opponent's Gates at a Location with one of their slots open. They are theirs: their negative Influence counts against them there, they take one of their Gate slots, and they never become Ready or go Inside. Relocate one away, slide it with Robert Smalls, or let a Threat knock it away; Harriet Tubman will not conduct one. Or drop it at Charleston, 1822, where at the end of every turn the Fresh Gate Character with the lowest Influence changes sides (a tie goes against the leader): an Informant there is found out and goes back to the hand of whoever planted it. Marie Laveau's Reveal hexes the strongest opposing Gate Character at her Location: −2 Influence for the rest of the match. Or find it out yourself: David Ruggles and Lewis Hayden send it back to the planter's hand, William Parker has it arrested into the planter's discard, and William Still, Established there, writes it down so it counts 0.
+- The Middle Passage has no Inside: everyone at its Gates loses 1 Influence for good each turn, and whoever leaves arrives Ready and carries +1 Influence for good. The DeWolf Trade (a Threat, 5 Force) ships the lowest Waiting Gate Character at its Location there, or to a random Location, with a Setback.
+- Informants (Peter Prioleau, George Wilson, Pharoah and Tom, Ben Woolfolk) are Characters you play onto your opponent's Gates at a Location with one of their slots open. They are theirs: their negative Influence counts against them there, they take one of their Gate slots, and they never become Ready or go Inside. Relocate one away, slide it with Robert Smalls, or let a Threat knock it away; Harriet Tubman will not conduct one. Or drop it at Charleston, 1822, where at the end of every turn the Waiting Gate Character with the lowest Influence changes sides (a tie goes against the leader): an Informant there is found out and goes back to the hand of whoever planted it. Marie Laveau's Reveal hexes the strongest opposing Gate Character at her Location: −2 Influence for the rest of the match. Or find it out yourself: David Ruggles and Lewis Hayden send it back to the planter's hand, William Parker has it arrested into the planter's discard, and William Still, Established there, writes it down so it counts 0.
 - Every deck carries at least one Mythic. The full list, with costs, is under Cards on the start screen.
 ### Summon (cooperative)
 - Use quick chat (💬) to call Summon? at a Location with a Threat. If the other side answers Summon!, both of you commit that turn.
@@ -909,7 +908,7 @@ Rules
 - New Characters placed, Events, then Reveal abilities (initiative order, alternating each turn)
 - Gate → Inside
 - Confrontations, then Threat actions
-- Cleanup: Fresh → Ready, Sundown Town, unstable Characters
+- Cleanup: Waiting → Ready, Sundown Town, unstable Characters
 - Influence update
 … … Influence · … Force · …
 … … Influence · … Force · …
@@ -948,7 +947,22 @@ Menu
 - (prefers-reduced-motion: reduce)
 - [data-uid="${uid}"], [data-threat="${uid}"]
 - Last turn unless someone stands
+- s art, swells, then jumps into that side
 - .column[data-index="${location}"] .art
+- .column[data-index="${location}"] .score.p${side}
+- ${tone} ${opts.big ? 'big' : ''}
+- float-num ${tone} ${opts.big ? 'big' : ''} jump
+- translate(-50%, -50%) scale(0.4)
+- cubic-bezier(0.2, 0.9, 0.3, 1.3)
+- translate(-50%, -50%) translateY(-14px) scale(${peak})
+- translate(-50%, -50%) translateY(-24px) scale(${peak * 0.94})
+- cubic-bezier(0.55, 0, 0.3, 1)
+- translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(0.5)
+- translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(0.15)
+- 0 0 0 1px #000, 0 0 12px rgba(0,0,0,0.6)
+- scale(${opts.big ? 1.6 : 1.35})
+- 0 0 0 2px #fff, 0 0 26px rgba(${tone === 'theirs' ? '111, 163, 255' : tone === 'artist' ? '79, 209, 138' : '255, 227, 179'}, 1)
+- cubic-bezier(0.2, 0.8, 0.3, 1)
 - .column[data-index="${it.location}"] .loc-glow
 - s ghost flies: its real tile
 - cubic-bezier(0.3, 0.7, 0.3, 1)
@@ -966,6 +980,9 @@ Menu
 - .column[data-index="${e.location}"] .art
 - s colour; when both sides broke it, each side
 - cubic-bezier(0.2, 0.8, 0.2, 1)
+- Taney's opinion stands: nobody here has rights the court will respect. Everyone at the Location, both sides, is turned out to open Gates elsewhere, Waiting. Then the Decision lifts.
+- Nobody was here to turn out. The Decision lifts.
+- +${(e.data as { amount?: number }).amount} correct guess
 - .column[data-index="${i}"] .art
 - ${adef.name} beats ${vdef.name} (${adef.force} Force against ${vdef.force}) and knocks them away to the Gates of another Location.
 - .column[data-index="${to}"] .gates
@@ -1016,7 +1033,7 @@ Menu
 - Your Gates at ${locNameAt(i)} are full, so ${nm} cannot go there.
 - You have already used your Relocation this turn. Undo it to move ${nm} instead.
 - Gate Characters enter the Location they are waiting at. Play Harriet Tubman first and she can move one of them to another Gate.
-- ${nm} is Fresh: it arrived this turn and waits one turn at the Gates before it can enter.
+- ${nm} is Waiting: it arrived this turn and waits one turn at the Gates before it can enter.
 - ${blocked.slice('blocked by '.length)} blocks your entries at ${locNameAt(i)}. Neutralize it with ${door?.forceRequired ?? 3} Force in one turn.
 - An opposing Reveal (OG) stopped ${nm} from entering this turn. Try again next turn.
 - Housing Restriction caps you at ${cap} Established Characters here. Neutralize it with ${hr?.forceRequired ?? 4} Force.
@@ -1035,6 +1052,8 @@ Menu
 - input, textarea, [contenteditable]
 - SUMMON · You ${mine ? '✓' : '?'} · ${view.players[other(me)].handle} ${theirs ?? (mine ? '?' : '')}
 - ${cardName(pl.cardId, placeholders)}${where}${direct ? (pl.enter ? ' · Inside' : ' · Gates') : ''}
+- ${cardName(pl.cardId, placeholders)} cannot go Inside at L${pl.location + 1}: ${shut}. It waits at the Gates.
+- [data-loc="${pl.location}"] .threat-tile
 - ${cardName(c.defId, placeholders)} enters
 - ${cardName(c.defId, placeholders)} → L${(pl.target!.location ?? pl.location) + 1} (${cardName(pl.cardId, placeholders).split(' ')[0]})
 - ${cardName(c.defId, placeholders)} → L${r.to + 1}
@@ -1068,7 +1087,7 @@ Menu
 - danger sit-btn ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}
 - turn-mini ${finalTurnLabel(view) ? 'final' : ''}
 - T${Math.min(view.turn, view.maxTurns)}/${view.maxTurns}
-- card-flash p${arrival.owner}
+- card-flash p${arrival.owner} ${arrival.slam ? 'slam' : ''}
 - drag-ghost ${drag.payload.kind === 'card' ? 'card-ghost' : ''} ${drag.pointerType !== 'mouse' ? 'touch' : ''} ${drag.returning ? 'returning' : ''} ${drag.snap ? 'snap' : ''}
 - You give up the match, now. ${view.players[other(me)].handle} takes ${opts.stepOffCost} Legacy.${raisedOnMe ? 
 - rep-readout ${n > 0 ? 'live' : ''}
@@ -1379,7 +1398,7 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
       return 'The siege does not lift. Only protection stops it.';
     case 'foundOut':
       return (def?.kind === 'character' ? (def.reveal?.effect as { mode?: string } | undefined)?.mode : undefined) === 'amnesty'
-        ? 'No Force check. The Informant stays, Fresh, and is yours from now on: its Influence counts for you and it can go Inside.'
+        ? 'No Force check. The Informant stays, Waiting, and is yours from now on: its Influence counts for you and it can go Inside.'
         : 'No Force check: an Informant at your own Gates has no protection from you.';
     case 'displaceOpposingGate':
       return 'No Force check. Only protection stops her.';
@@ -1575,7 +1594,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - The opponent played an Event here. It flips when it resolves.
 - gate-slot event-slot ${state} ${def.curse ? 'curse' : ''} ${foreseen ? 'foreseen' : ''}
 - The Ancestors foresee: ${def.name} is played here.
-- ${def.name} is planned here. It resolves when you Lock In and needs this open Gate slot.
+- ${def.name} is placed here. It resolves when you Lock In and needs this open Gate slot.
 - ${def.name} waits to resolve.
 - strip ${def.curse ? 'curse' : 'event'}
 - gates-left ${gOk ? 'drop-ok' : ''} ${gOver ? 'drop-over' : ''}
@@ -1703,14 +1722,14 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${charDef(target.defId).name} cannot enter this turn.
 - no opposing Ready Character to block.
 - ${charDef(target.defId).name} becomes Ready.
-- no Fresh friendly Character to organize.
+- no Waiting friendly Character to organize.
 - ${THREAT_BY_ID[t.defId].name} now needs ${t.forceRequired} Force.
 - no Threat here to expose.
 - no opposing Gate Character to challenge.
 - challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}) and displaces them.
 - challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}): not enough to move them, but they are held at the Gates this turn.
 - no opposing Established Character to challenge.
-- challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}); they return to the Gates, Fresh.
+- challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}); they return to the Gates, Waiting.
 - challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}) and is held off.
 - no opposing Established Character here to besiege.
 - besieges ${targets.map((x) => charDef(x.defId).name).join(', ')}: −${amount} Influence each for the rest of the match.
@@ -1719,8 +1738,8 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - no Informant at these Gates to send packing. The house holds: ${state.players[p].handle}'s ${held.length} Character${held.length === 1 ? '' : 's'} here cannot be displaced or turned this turn.
 - no Informant at these Gates and no Threat here to confront.
 - no Informant at these Gates: the league confronts ${threatName(state, own)} with +1 Force instead.
-- hears ${sdef.name} (−${-was}) out in full and grants amnesty: they stay at ${state.players[p].handle}'s Gates here, Fresh, as ${state.players[p].handle}'s own Character, worth ${now} from now on.
-- cannot stay: he moves on to the Gates of ${locName(state, c.location)}, Fresh.
+- hears ${sdef.name} (−${-was}) out in full and grants amnesty: they stay at ${state.players[p].handle}'s Gates here, Waiting, as ${state.players[p].handle}'s own Character, worth ${now} from now on.
+- cannot stay: he moves on to the Gates of ${locName(state, c.location)}, Waiting.
 - has nowhere to move on to: every other Gate is full or Lost, so he stays.
 - the opposing Characters here cannot be Suppressed.
 - suppresses ${charDef(target.defId).name} until the end of next turn.
@@ -1777,6 +1796,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${charDef(spider.defId).name} spins a story: ${state.players[spider.owner].handle} draws a card.
 - ${ps.handle} plants ${def.name} (${def.influence}/${def.force}) at ${state.players[other(p)].handle}'s Gates of ${locName(state, play.location)}.
 - ${ps.handle} plays ${def.name} (${def.influence}/${def.force}) at the Gates of ${locName(state, play.location)}.
+- ${name(state, c)} cannot enter ${locName(state, play.location)}: ${blocked}. It waits at the Gates.
 - ${name(state, c)} cannot enter: no room Inside.
 - First on the scene: ${name(state, c)} was played at ${locName(state, first)} before it was revealed and gains +1 Influence for the rest of the match.
 - ${state.players[p].handle}'s ${eventDef(play.cardId).name} at ${locName(state, play.location)} is torn up before it resolves: Taytu Betul will have no treaty here.

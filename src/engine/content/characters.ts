@@ -629,13 +629,13 @@ export const CHARACTERS: CharacterDef[] = [
     category: 'archetype',
     name: 'Organizer',
     short: 'Organizer',
-    summary: "Readies a Fresh friend. Established: +1 Energy each turn.",
+    summary: "Readies a Waiting friend. Established: +1 Energy each turn.",
     influence: 1,
     force: 2,
     tags: ['Black', 'Archetype', 'Movement'],
     keywords: [],
     reveal: {
-      text: 'Another friendly Fresh Gate Character (here if possible) becomes Ready.',
+      text: 'Another friendly Waiting Gate Character (here if possible) becomes Ready.',
       effect: { type: 'readyFriendly' },
     },
     established: {
@@ -735,7 +735,7 @@ export const CHARACTERS: CharacterDef[] = [
     tags: ['Black', 'Haiti', 'Rebellion', 'Military', 'Revolution'],
     keywords: [],
     reveal: {
-      text: "CHALLENGE the opposing Established Character here with the highest Influence. If Toussaint's Force is higher, it returns to its Gate, Fresh.",
+      text: "CHALLENGE the opposing Established Character here with the highest Influence. If Toussaint's Force is higher, it returns to its Gate, Waiting.",
       effect: { type: 'challengeInside' },
     },
     established: {
@@ -764,7 +764,7 @@ export const CHARACTERS: CharacterDef[] = [
       effect: { type: 'tempInfluenceAllOthersHere', amount: 1 },
     },
     established: {
-      text: 'The Black Star Line: any Character you relocate away from this Location arrives at its new Gates Ready, not Fresh. (He does not move anyone himself; you choose the Relocation.)',
+      text: 'The Black Star Line: any Character you relocate away from this Location arrives at its new Gates Ready, not Waiting. (He does not move anyone himself; you choose the Relocation.)',
       effect: { type: 'relocatedOutReady' },
     },
     identity: ['mass movement', 'pride', 'enterprise', 'diaspora'],
@@ -825,13 +825,13 @@ export const CHARACTERS: CharacterDef[] = [
     category: 'historical',
     name: 'Abraham Lincoln',
     short: 'Lincoln',
-    summary: 'Where they lead, your Fresh Gate Characters there become Ready.',
+    summary: 'Where they lead, your Waiting Gate Characters there become Ready.',
     influence: 5,
     force: 3,
     tags: ['Ally', 'Emancipation', 'President'],
     keywords: [],
     reveal: {
-      text: 'Emancipation Proclamation: at every Location where your opponent leads on Influence, your Fresh Gate Characters become Ready now; they walk through on their own next turn. Where you lead or tie, nothing changes.',
+      text: 'Emancipation Proclamation: at every Location where your opponent leads on Influence, your Waiting Gate Characters become Ready now; they walk through on their own next turn. Where you lead or tie, nothing changes.',
       effect: { type: 'readyFriendlyWhereBehind' },
     },
     established: {
@@ -854,13 +854,13 @@ export const CHARACTERS: CharacterDef[] = [
     category: 'historical',
     name: 'William Lloyd Garrison',
     short: 'Garrison',
-    summary: 'Readies a Fresh friend. Est.: +1 Influence with company here.',
+    summary: 'Readies a Waiting friend. Est.: +1 Influence with company here.',
     influence: 3,
     force: 1,
     tags: ['Ally', 'Abolition', 'Press', 'Editor'],
     keywords: [],
     reveal: {
-      text: 'Immediatism: another friendly Fresh Gate Character (here if possible) becomes Ready.',
+      text: 'Immediatism: another friendly Waiting Gate Character (here if possible) becomes Ready.',
       effect: { type: 'readyFriendly' },
     },
     established: {
@@ -1023,7 +1023,7 @@ export const CHARACTERS: CharacterDef[] = [
     tags: ['Black', 'Virginia', 'Intelligence', 'Spy'],
     keywords: [],
     reveal: {
-      text: 'False reports: draw a card, and the opposing Ready Gate Character here with the highest Influence is tricked into waiting again (Fresh).',
+      text: 'False reports: draw a card, and the opposing Ready Gate Character here with the highest Influence is tricked into waiting again (Waiting).',
       effect: { type: 'refreshOpposingGate' },
     },
     established: {
@@ -1174,7 +1174,7 @@ export const CHARACTERS: CharacterDef[] = [
     tags: ['Black', 'Ethiopia', 'Military', 'Ruler'],
     keywords: [],
     reveal: {
-      text: 'Adwa: CHALLENGE every opposing Established Character here. Each with lower Force than Menelik returns to its Gates, Fresh, for as long as their Gates have room. Sent back at Sundown Town, they are not run out that same night.',
+      text: 'Adwa: CHALLENGE every opposing Established Character here. Each with lower Force than Menelik returns to its Gates, Waiting, for as long as their Gates have room. Sent back at Sundown Town, they are not run out that same night.',
       effect: { type: 'challengeAllInside' },
     },
     established: {
@@ -1275,7 +1275,7 @@ export const CHARACTERS: CharacterDef[] = [
     tags: ['Black', 'Abolition', 'Rebellion', 'Defense'],
     keywords: [],
     reveal: {
-      text: 'Found out: an Informant at your Gates at this Location is traced and arrested. It leaves the match, into the discard of the player who planted it. Then Parker cannot stay: he moves on to your Gates at another Location, Fresh (he stays if none has room). With no Informant here, the league confronts one Threat here with +1 Force instead.',
+      text: 'Found out: an Informant at your Gates at this Location is traced and arrested. It leaves the match, into the discard of the player who planted it. Then Parker cannot stay: he moves on to your Gates at another Location, Waiting (he stays if none has room). With no Informant here, the league confronts one Threat here with +1 Force instead.',
       effect: { type: 'foundOut', mode: 'arrest', fallback: 'confront', leave: true },
     },
     established: {
@@ -1327,7 +1327,7 @@ export const CHARACTERS: CharacterDef[] = [
     tags: ['Black', 'Faith', 'Reconciliation'],
     keywords: [],
     reveal: {
-      text: 'Truth and Reconciliation: an Informant at your Gates at this Location testifies in full and is granted amnesty. It stays where it is, Fresh, as your own Character from now on: its Influence counts for you and it can go Inside like anyone else. With none here, the cathedral holds: your Characters at this Location cannot be displaced or turned this turn.',
+      text: 'Truth and Reconciliation: an Informant at your Gates at this Location testifies in full and is granted amnesty. It stays where it is, Waiting, as your own Character from now on: its Influence counts for you and it can go Inside like anyone else. With none here, the cathedral holds: your Characters at this Location cannot be displaced or turned this turn.',
       effect: { type: 'foundOut', mode: 'amnesty', fallback: 'hold' },
     },
     established: {

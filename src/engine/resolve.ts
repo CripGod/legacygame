@@ -94,7 +94,7 @@ function riseAgain(state: GameState, c: CharacterInstance, reason: string, event
 type ClashActor = { kind: 'character' | 'threat' | 'location' | 'event'; id: string; owner?: PlayerId; force?: number };
 type ClashOutcome = 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested' | 'amnestied';
 
-/** Anansi's trick: the opposing Ready Gate Character here with the highest Influence waits again (becomes Fresh). */
+/** Anansi's trick: the opposing Ready Gate Character here with the highest Influence waits again (becomes Waiting). */
 function trickGate(state: GameState, events: GameEvent[], p: PlayerId, loc: number, def: { id: string; force: number }): boolean {
   const opp = other(p);
   const targets = charsAt(state, loc, opp, 'gate').filter((x) => !isInformant(x) && x.ready && !shielded(state, x));
@@ -103,7 +103,7 @@ function trickGate(state: GameState, events: GameEvent[], p: PlayerId, loc: numb
   target.ready = false;
   target.arrivedTurn = state.turn;
   events.push({ type: 'reveal', text: `${charDef(def.id).name} tricks ${charDef(target.defId).name} into waiting again.`, player: p, location: loc, uid: target.uid });
-  clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, target, 'tricked', loc, { note: 'They were Ready; now they are Fresh and wait a turn before they can enter.' });
+  clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, target, 'tricked', loc, { note: 'They were Ready; now they are Waiting and wait a turn before they can enter.' });
   return true;
 }
 
@@ -171,14 +171,14 @@ function clash(state: GameState, events: GameEvent[], actor: ClashActor, victim:
     out === 'displaced' ? `beats ${vdef.name}${vs} and knocks them away to the Gates of ${extra.to !== undefined ? locName(state, extra.to) : 'another Location'}`
     : out === 'held' ? `is held off by ${vdef.name}${vs}: nothing moves`
     : out === 'blocked' ? `blocks ${vdef.name}: they cannot go Inside this turn`
-    : out === 'sentBack' ? `beats ${vdef.name}${vs}: they lose their seat Inside and wait at the Gates again, Fresh`
+    : out === 'sentBack' ? `beats ${vdef.name}${vs}: they lose their seat Inside and wait at the Gates again, Waiting`
     : out === 'suppressed' ? `silences ${vdef.name}: no Influence and no abilities until the end of next turn`
     : out === 'tricked' ? `tricks ${vdef.name}: they were Ready to go Inside, now they wait another turn`
     : out === 'hexed' ? `hexes ${vdef.name}: −${extra.theirForce ?? 2} Influence for the rest of the match`
     : out === 'defected' ? `turns ${vdef.name}: they change sides`
     : out === 'exposed' ? `finds ${vdef.name} out: back to the hand of whoever planted them`
     : out === 'arrested' ? `arrests ${vdef.name}: off the board for good`
-    : out === 'amnestied' ? `hears ${vdef.name} out in full and grants amnesty: they stay at these Gates, Fresh, as ${state.players[victim.owner].handle}'s own Character from now on`
+    : out === 'amnestied' ? `hears ${vdef.name} out in full and grants amnesty: they stay at these Gates, Waiting, as ${state.players[victim.owner].handle}'s own Character from now on`
     : `beats ${vdef.name}${vs} and knocks them off the board. ${vdef.name}'s own power: instead of landing at another Location, they go back to ${state.players[victim.owner].handle}'s hand and cost nothing the next time they are played`;
   events.push({
     type: 'clash',
@@ -535,7 +535,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
         say(`${charDef(target.defId).name} becomes Ready.`);
         events.push({ type: 'ready', text: '', uid: target.uid });
       } else {
-        say('no Fresh friendly Character to organize.');
+        say('no Waiting friendly Character to organize.');
       }
       break;
     }
@@ -581,13 +581,13 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       }
       const myForce = def.force;
       const theirForce = charDef(target.defId).force;
-      const intent = `${def.name} arrived to challenge the opposing Established Character here with the most Influence, ${charDef(target.defId).name}: with more Force, ${def.name} sends them back to the Gates, Fresh, and their Influence stops counting Inside.`;
+      const intent = `${def.name} arrived to challenge the opposing Established Character here with the most Influence, ${charDef(target.defId).name}: with more Force, ${def.name} sends them back to the Gates, Waiting, and their Influence stops counting Inside.`;
       if (myForce > theirForce && !isProtected(state, target) && gateOpen(state, loc, opp)) {
         target.zone = 'gate';
         target.ready = false;
         target.arrivedTurn = state.turn;
         target.blessedUid = undefined;
-        say(`challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}); they return to the Gates, Fresh.`);
+        say(`challenges ${charDef(target.defId).name} (${myForce} vs ${theirForce}); they return to the Gates, Waiting.`);
         events.push({ type: 'moved', text: '', uid: target.uid, location: loc, data: { from: loc, to: loc, reason: 'Toussaint' } });
         clash(state, events, { kind: 'character', id: def.id, owner: p, force: myForce }, target, 'sentBack', loc, { theirForce, intent, note: `Force decides: ${myForce} against ${theirForce}. They lose their seat Inside and wait at the Gates again.` });
       } else {
@@ -598,7 +598,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       break;
     }
     case 'challengeAllInside': {
-      // Menelik II: every opposing Established Character here, strongest first; each one with less Force is sent back to its Gates, Fresh.
+      // Menelik II: every opposing Established Character here, strongest first; each one with less Force is sent back to its Gates, Waiting.
       const targets = charsAt(state, loc, opp, 'inside')
         .filter((x) => !shielded(state, x))
         .sort((a, b) => charInfluence(state, b) - charInfluence(state, a));
@@ -610,7 +610,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       let sent = 0;
       for (const target of targets) {
         const theirForce = charDef(target.defId).force;
-        const intent = `${def.name} arrived to challenge every opposing Established Character here: each with less Force than ${myForce} is sent back to the Gates, Fresh, while their Gates have room.`;
+        const intent = `${def.name} arrived to challenge every opposing Established Character here: each with less Force than ${myForce} is sent back to the Gates, Waiting, while their Gates have room.`;
         if (myForce > theirForce && !isProtected(state, target) && gateOpen(state, loc, opp)) {
           target.zone = 'gate';
           target.ready = false;
@@ -625,7 +625,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
           clash(state, events, { kind: 'character', id: def.id, owner: p, force: myForce }, target, 'held', loc, { theirForce, intent, note: why });
         }
       }
-      say(sent ? `challenges everyone Inside here: ${sent} of ${targets.length} return${sent === 1 ? 's' : ''} to the Gates, Fresh.` : `challenges everyone Inside here (${myForce} Force) and is held off by all ${targets.length}.`);
+      say(sent ? `challenges everyone Inside here: ${sent} of ${targets.length} return${sent === 1 ? 's' : ''} to the Gates, Waiting.` : `challenges everyone Inside here (${myForce} Force) and is held off by all ${targets.length}.`);
       break;
     }
     case 'siegeInside': {
@@ -688,7 +688,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
         spy.ready = false;
         spy.arrivedTurn = state.turn;
         const now = charInfluence(state, spy);
-        say(`hears ${sdef.name} (−${-was}) out in full and grants amnesty: they stay at ${state.players[p].handle}'s Gates here, Fresh, as ${state.players[p].handle}'s own Character, worth ${now} from now on.`);
+        say(`hears ${sdef.name} (−${-was}) out in full and grants amnesty: they stay at ${state.players[p].handle}'s Gates here, Waiting, as ${state.players[p].handle}'s own Character, worth ${now} from now on.`);
         clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, spy, 'amnestied', loc, {
           note: `The Commission's terms: tell everything, and the past is not held against you. ${sdef.name} now counts ${now} for ${state.players[p].handle} and can go Inside like anyone else.`,
         });
@@ -715,7 +715,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
             : `The Informant at your Gates here is found out and would go back to ${home.handle}'s hand, but that hand is full (${MAX_HAND}): discarded.`,
       });
       if (eff.leave) {
-        if (displace(state, c, `${def.name} could not stay`, events)) say(`cannot stay: he moves on to the Gates of ${locName(state, c.location)}, Fresh.`);
+        if (displace(state, c, `${def.name} could not stay`, events)) say(`cannot stay: he moves on to the Gates of ${locName(state, c.location)}, Waiting.`);
         else say('has nowhere to move on to: every other Gate is full or Lost, so he stays.');
       }
       break;
@@ -759,7 +759,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
         readyUp(t);
         events.push({ type: 'ready', text: '', uid: t.uid });
       }
-      say(targets.length ? `Proclamation: ${targets.length} Character${targets.length > 1 ? 's' : ''} where they lead become${targets.length > 1 ? '' : 's'} Ready.` : 'Proclamation: nowhere you trail has a Fresh Character waiting.');
+      say(targets.length ? `Proclamation: ${targets.length} Character${targets.length > 1 ? 's' : ''} where they lead become${targets.length > 1 ? '' : 's'} Ready.` : 'Proclamation: nowhere you trail has a Waiting Character waiting.');
       break;
     }
     case 'weakenAllThreatsHere': {
@@ -1506,11 +1506,11 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       }
       const by = PLAYERS.filter((p) => (f![p] ?? 0) > 0);
       events.push({ type: 'threatNeutralized', text: `${threatName(state, t)} at ${locName(state, loc.index)} is neutralized.`, location: loc.index, data: { by, threatUid: t.uid, defId: t.defId, target: t.target } });
-      // Word spreads: clearing a Threat is heard at every other open Location. The pool is +1 lasting Influence per
-      // other revealed Location; alone you take all of it, together it is split by Force contributed (rounded down,
+      // Word spreads: clearing a Threat is heard at every other open Location, hidden ones included (the word is
+      // waiting there when it opens). The pool is +1 lasting Influence per other Location; alone you take all of it, together it is split by Force contributed (rounded down,
       // the remainder to the larger share; equal shares split evenly, the larger share choosing its Locations first).
       // Everyone who helped gains a Legend; at LEGEND_READY their Characters arrive at the Gates Ready.
-      const others = state.locations.filter((l) => l.index !== loc.index && l.revealed && !l.lost);
+      const others = state.locations.filter((l) => l.index !== loc.index && !l.lost);
       if (others.length && by.length) {
         const total = by.reduce((s, p) => s + f![p], 0);
         const shares: Record<PlayerId, number> = { A: 0, B: 0 };
@@ -1623,7 +1623,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
           events.push({ type: 'threatActs', text: `${def.name} takes ${name(state, victim)}.`, location: loc.index, uid: victim.uid });
           if (displace(state, victim, def.name, events, passage?.index)) {
             setback(state, victim.owner, `${def.name} shipped ${charDef(victim.defId).name} away`, events);
-            clash(state, events, { kind: 'threat', id: def.id }, victim, 'displaced', loc.index, { to: victim.location, note: passage && victim.location === passage.index ? `The trade ships the lowest Fresh Gate Character here to The Middle Passage. A Setback for ${state.players[victim.owner].handle}.` : `The trade ships the lowest Fresh Gate Character here to a random Location. A Setback for ${state.players[victim.owner].handle}.` });
+            clash(state, events, { kind: 'threat', id: def.id }, victim, 'displaced', loc.index, { to: victim.location, note: passage && victim.location === passage.index ? `The trade ships the lowest Waiting Gate Character here to The Middle Passage. A Setback for ${state.players[victim.owner].handle}.` : `The trade ships the lowest Waiting Gate Character here to a random Location. A Setback for ${state.players[victim.owner].handle}.` });
           }
         }
       }
@@ -1701,7 +1701,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
   // Gatherings earned this turn arrive before readiness is settled.
   checkGatherings(state, events, 'cleanup');
   trace('spawn', events.slice(mark).find((e) => e.type === 'spawned')?.text ?? 'An arrival', {});
-  // Fresh → Ready.
+  // Waiting → Ready.
   for (const c of Object.values(state.characters)) {
     if (c.zone !== 'gate' || c.ready || isInformant(c)) continue;
     const loc = state.locations[c.location];
@@ -1718,7 +1718,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       events.push({ type: 'ready', text: `${name(state, c)} is Ready to enter ${locName(state, c.location)}.`, uid: c.uid, player: c.owner });
     }
   }
-  trace('ready', 'Fresh Characters are Ready', {});
+  trace('ready', 'Waiting Characters are Ready', {});
   // Carver: the most expensive card in hand ripens.
   for (const p of PLAYERS) {
     const ps = state.players[p];
@@ -1786,7 +1786,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     }
     if (paid.length) events.push({ type: 'info', text: `${ldef.name}: ${paid.join(', ')} lose${paid.length === 1 ? 's' : ''} ${toll} Influence for good.`, location: loc.index });
   }
-  // Sundown Town displaces Fresh Gate Characters.
+  // Sundown Town displaces Waiting Gate Characters.
   for (const loc of state.locations) {
     if (!loc.revealed || LOCATION_BY_ID[loc.defId]?.effect.type !== 'displaceFreshAtEnd') continue;
     if (loc.revealedTurn === state.turn) continue; // nothing happens on the reveal turn
@@ -1806,13 +1806,13 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       const fromHere = loc.index;
       if (displace(state, c, 'Sundown Town', events)) {
         setback(state, c.owner, 'displaced by Sundown Town', events);
-        clash(state, events, { kind: 'location', id: loc.defId }, c, 'displaced', fromHere, { to: c.location, note: 'Anyone still Fresh at these Gates at the end of the turn is run out of town. A Setback.' });
+        clash(state, events, { kind: 'location', id: loc.defId }, c, 'displaced', fromHere, { to: c.location, note: 'Anyone still Waiting at these Gates at the end of the turn is run out of town. A Setback.' });
         trace('sundown', `Sundown Town runs ${charDef(c.defId).name} out`, { uids: [c.uid], location: fromHere, player: c.owner });
       }
     }
   }
 
-  // Charleston, 1822: the Fresh Gate Character here with the lowest Influence changes sides (a tie goes against the leader).
+  // Charleston, 1822: the Waiting Gate Character here with the lowest Influence changes sides (a tie goes against the leader).
   for (const loc of state.locations) {
     if (!loc.revealed || loc.lost || LOCATION_BY_ID[loc.defId]?.effect.type !== 'turncoatAtEnd') continue;
     if (loc.revealedTurn === state.turn) continue; // nothing happens on the reveal turn
@@ -1839,7 +1839,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
         home.hand.push(t.defId);
         events.push({ type: 'info', text: `${locName(state, loc.index)}: ${charDef(t.defId).name} is found out and sent back to ${home.handle}'s hand.`, location: loc.index, player: t.plantedBy, uid: t.uid });
       }
-      clash(state, events, { kind: 'location', id: loc.defId }, t, 'exposed', loc.index, { note: `The Informant was the lowest Fresh Gate Character here (${was}). Found out, they go back to ${home.handle}'s hand and can be planted again.` });
+      clash(state, events, { kind: 'location', id: loc.defId }, t, 'exposed', loc.index, { note: `The Informant was the lowest Waiting Gate Character here (${was}). Found out, they go back to ${home.handle}'s hand and can be planted again.` });
       trace('turncoat', `${locName(state, loc.index)}: ${charDef(t.defId).name} is sent home`, { uids: [t.uid], location: loc.index, player: t.plantedBy });
       continue;
     }
@@ -1848,7 +1848,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     t.ready = false;
     t.blessedUid = undefined;
     events.push({ type: 'moved', text: '', uid: t.uid, location: loc.index, player: t.owner, data: { from: loc.index, to: loc.index, reason: 'Charleston' } });
-    clash(state, events, { kind: 'location', id: loc.defId }, t, 'defected', loc.index, { note: `The Fresh Gate Character here with the lowest Influence changes sides at the end of every turn; ${charDef(t.defId).name} (${was}) was the lowest. They can turn back later.` });
+    clash(state, events, { kind: 'location', id: loc.defId }, t, 'defected', loc.index, { note: `The Waiting Gate Character here with the lowest Influence changes sides at the end of every turn; ${charDef(t.defId).name} (${was}) was the lowest. They can turn back later.` });
     trace('turncoat', `${locName(state, loc.index)}: ${charDef(t.defId).name} changes sides`, { uids: [t.uid], location: loc.index, player: t.owner });
   }
 

@@ -154,7 +154,7 @@ function EventTile({ cardId, state, hidden, foreseen, onClick }: { cardId: strin
     );
   }
   return (
-    <div className={`gate-slot event-slot ${state} ${def.curse ? 'curse' : ''} ${foreseen ? 'foreseen' : ''}`} onClick={onClick} {...tip(foreseen ? `The Ancestors foresee: ${def.name} is played here.` : state === 'planned' ? `${def.name} is planned here. It resolves when you Lock In and needs this open Gate slot.` : state === 'pending' ? `${def.name} waits to resolve.` : `${def.name} resolves.`)}>
+    <div className={`gate-slot event-slot ${state} ${def.curse ? 'curse' : ''} ${foreseen ? 'foreseen' : ''}`} onClick={onClick} {...tip(foreseen ? `The Ancestors foresee: ${def.name} is played here.` : state === 'planned' ? `${def.name} is placed here. It resolves when you Lock In and needs this open Gate slot.` : state === 'pending' ? `${def.name} waits to resolve.` : `${def.name} resolves.`)}>
       {placeholders ? <span className="ini">{initials(cardId, true)}</span> : <Art kind="events" id={cardId} className="pic-img" fallback={<span className="ini">{initials(cardId, false)}</span>} alt={def.name} />}
       <span className={`strip ${def.curse ? 'curse' : 'event'}`}>{state === 'trigger' ? '✦' : def.curse ? 'Curse' : 'Event'}</span>
     </div>
@@ -235,7 +235,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                       {fx.stamp.sub && <i>{fx.stamp.sub}</i>}
                     </div>
                   )}
-                  <Pic state={view} c={s} ready={readyBaseline ? !!readyBaseline.characters[s.uid]?.ready : undefined} badges fx={picFx(fx, s.uid)} focus={focus?.includes(s.uid)} strip={planned ? 'Planned' : moving ? 'Moving' : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockReason(view, s) ? 'Held' : undefined} onClick={() => onChar(s.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(s.uid); }} />
+                  <Pic state={view} c={s} ready={readyBaseline ? !!readyBaseline.characters[s.uid]?.ready : undefined} badges fx={picFx(fx, s.uid)} focus={focus?.includes(s.uid)} strip={planned ? 'Placed' : moving ? 'Moving' : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockReason(view, s) ? 'Held' : undefined} onClick={() => onChar(s.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(s.uid); }} />
                 </div>
               </div>
             );
@@ -312,7 +312,7 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
                   {fx.stamp.sub && <i>{fx.stamp.sub}</i>}
                 </div>
               )}
-              <Pic state={view} c={c} ready={readyBaseline ? !!readyBaseline.characters[c.uid]?.ready : undefined} highlight={confronting} fx={picFx(fx, c.uid)} focus={focus?.includes(c.uid)} strip={entering ? 'Entering' : brought ? 'Moving' : planned ? 'Planned' : confronting ? 'Confront' : lockReason(view, c) ? 'Held' : undefined} onClick={() => onChar(c.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(c.uid); }} />
+              <Pic state={view} c={c} ready={readyBaseline ? !!readyBaseline.characters[c.uid]?.ready : undefined} highlight={confronting} fx={picFx(fx, c.uid)} focus={focus?.includes(c.uid)} strip={entering ? 'Entering' : brought ? 'Moving' : planned ? 'Placed' : confronting ? 'Confront' : lockReason(view, c) ? 'Held' : undefined} onClick={() => onChar(c.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(c.uid); }} />
             </div>
           );
         })}

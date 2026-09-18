@@ -57,7 +57,7 @@ export const THREATS: ThreatDef[] = [
     id: 'dewolf_trade',
     name: 'The DeWolf Trade',
     family: 'Complicit Beneficiary',
-    text: 'At the end of each turn, the Fresh Gate Character here with the lowest Influence is shipped away: to The Middle Passage if it is in play, otherwise to a random Location. A Setback for its player. Neutralize with 5 Force in one turn (either player, or both together).',
+    text: 'At the end of each turn, the Waiting Gate Character here with the lowest Influence is shipped away: to The Middle Passage if it is in play, otherwise to a random Location. A Setback for its player. Neutralize with 5 Force in one turn (either player, or both together).',
     split: false,
     force: 5,
     effect: 'shipsAway',
