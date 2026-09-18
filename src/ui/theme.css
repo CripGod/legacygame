@@ -1853,7 +1853,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 /* The frame is the picture, stretched to the tile's own size: the dull frame on an empty slot, the lit one over a filled
    tile; the tile's picture sits in the frame's window. The other side keeps the drawn plate until it has frames of its own. */
 .gates-strip.mine .gate-slot:not(.event-slot) { border: 0; border-radius: 0; box-shadow: none; background: var(--gate-off) center / 100% 100% no-repeat; color: rgba(255, 224, 150, 0.85); }
-.gates-strip.mine .gate-slot.later { opacity: 0.5; }
+.gates-strip.mine .gate-slot.later { opacity: 1; }
 .gates-strip.mine .gates { --gw: min(var(--mini), calc((100cqw - 24px) / 4)); --gi-x: calc(var(--gw) * 0.134); --gi-t: calc(var(--mini-h) * 0.08); --gi-b: calc(var(--mini-h) * 0.074); }
 .gates-strip.mine .gate-slot.filled:not(.event-slot), .gates-strip.mine .gate-slot.reserved { box-sizing: border-box; width: var(--gw); background: transparent !important; clip-path: none !important; padding: var(--gi-t) var(--gi-x) var(--gi-b) !important; overflow: visible; }
 .gates-strip.mine .gate-slot.reserved .pic-img { inset: var(--gi-t) var(--gi-x) var(--gi-b); width: auto; height: auto; }
