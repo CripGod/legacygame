@@ -276,7 +276,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     el.style.left = `${x}px`;
     el.style.top = `${y}px`;
     document.body.appendChild(el);
-    window.setTimeout(() => el.remove(), 1600);
+    window.setTimeout(() => el.remove(), cls.includes('word') ? 2200 : 1600);
   };
   /**
    * A +N rises from a Location's art, swells, then jumps into that side's Influence circle on the meter and the
@@ -484,6 +484,14 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       if (outcome === 'hexed') {
         floatText(victimRect.left + victimRect.width / 2, victimRect.top + victimRect.height * 0.55, `−${d.theirForce ?? 1}`, 'drop');
         if (d.from !== undefined) setFx((f) => patch(f, { hurt: { location: d.from!, owner: d.victim.owner } }));
+      } else if (!STAYS.has(outcome) && d.from !== undefined && prevView) {
+        // Thrown out (the Mob, the trade, a knock): what the Location loses with the piece sinks from its owner's circle.
+        const lost = influenceAt(prevView, d.from)[d.victim.owner] - influenceAt(view, d.from)[d.victim.owner];
+        if (lost > 0) {
+          const ring = document.querySelector(`.column[data-index="${d.from}"] .score.p${d.victim.owner}`)?.getBoundingClientRect();
+          if (ring) floatText(ring.left + ring.width / 2, ring.top + ring.height / 2, `−${lost}`, 'drop big');
+          setFx((f) => patch(f, { hurt: { location: d.from!, owner: d.victim.owner } }));
+        }
       }
     }
     if (ag) void jolt(ag, 260, 5);
@@ -644,6 +652,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       if (shots.length) {
         sfx('heal');
         setTrail(shots);
+        if (from) floatText(from.left + from.width / 2, from.top + from.height * 0.42, 'WORD SPREADS', 'word'); // what the wave is
         // Landings a beat apart each chime; ones that arrive together share one.
         let lastChime = -1000;
         for (const l of lands.sort((a, b) => a.at - b.at)) {
