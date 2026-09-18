@@ -614,8 +614,6 @@ export const CLASH_TITLES: Record<'displaced' | 'held' | 'blocked' | 'sentBack' 
   arrested: 'ARRESTED',
   amnestied: 'AMNESTIED',
 };
-/** The word stamped on the one it happened to: Yaa Asantewaa's siege reads as a siege, not Laveau's hex. */
-export const clashTitle = (d: { outcome: keyof typeof CLASH_TITLES; actor: { id: string } }): string => (d.outcome === 'hexed' && d.actor.id === 'yaa_asantewaa' ? 'BESIEGED' : CLASH_TITLES[d.outcome] ?? String(d.outcome).toUpperCase());
 
 export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: GameState; me: PlayerId; onClose: () => void }) {
   const { placeholders } = useDisplay();

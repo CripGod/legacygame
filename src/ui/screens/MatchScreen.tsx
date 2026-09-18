@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CARD_BY_ID, viewFor, legalOptions, validatePlan, gateRoom, GATE_CAPACITY, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, filterEvents, LOCATION_BY_ID } from '../../engine';
+import { influenceAt, CARD_BY_ID, viewFor, legalOptions, validatePlan, gateRoom, GATE_CAPACITY, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, filterEvents, LOCATION_BY_ID } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import { artUrl, videoUrl } from '../art';
@@ -19,7 +19,7 @@ import { Fireworks } from '../components/Fireworks';
 import { MatchEnd } from '../components/MatchEnd';
 import { ghostOf, fly, jolt, partWay, clearGhosts, wait, painted, type Ghost } from '../fly';
 import { DigReveal, type DigShow, type DigPhase } from '../components/DigReveal';
-import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, ThreatSheet, ancestorsDangers, CLASH_TITLES, clashTitle, adviceFor, showdownWhy, type ShowdownData } from '../components/Sheets';
+import { CardSheet, CharSheet, ChatSheet, ConfirmSheet, LocationSheet, LogSheet, ProfileSheet, ThreatSheet, ancestorsDangers, CLASH_TITLES, adviceFor, showdownWhy, type ShowdownData } from '../components/Sheets';
 import { markGuideDone, suggest } from '../guide';
 import { lessonsFor, tutorialActive } from '../tutorial';
 import { bank } from '../legacy';
@@ -390,8 +390,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   const playClash = async (ev: GameEvent, ghosts: Map<string, Ghost>, alive: () => boolean, last: boolean, demoDest?: DOMRect) => {
     const d = ev.data as ClashData;
     const outcome = d.outcome;
-    const tone: 'hit' | 'miss' | 'hex' = outcome === 'held' || outcome === 'amnestied' ? 'miss' : outcome === 'hexed' ? 'hex' : 'hit';
-    const title = clashTitle(d);
+    const tone: 'hit' | 'miss' | 'hex' = outcome === 'held' || outcome === 'amnestied' ? 'miss' : 'hit'; // a hex wears the same red as a knock
+    const title = CLASH_TITLES[outcome] ?? String(outcome).toUpperCase();
     const victimUid = d.victim.uid;
     const actorUid = actorUidFor(d, prevView ?? view);
     const toName = d.to !== undefined ? locationName(view.locations[d.to].revealed ? view.locations[d.to].defId : 'unknown', placeholders) : undefined;
@@ -651,6 +651,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           if (chime) lastChime = l.at;
           window.setTimeout(() => {
             // landFx chimes itself when an amount lands; the chime flag keeps landings a beat apart from doubling it.
+            // The wave is here: the meter lets go of the old score as the +N jumps in.
+            setFx((f) => (f?.hold ? { ...f, hold: Object.fromEntries(Object.entries(f.hold).filter(([k]) => Number(k) !== l.location)) } : f));
             landFx([{ location: l.location, tone: l.tone, amount: chime ? l.amount : undefined, big: true, side: l.side }]);
             if (!chime && l.amount) floatNum(l.location, l.amount, l.tone, { big: true, side: l.side });
           }, l.at);
@@ -818,7 +820,14 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     const showdownEvs = evs.filter((e) => e.type === 'showdown');
     const arrivalEvs = evs.filter((e) => e.type === 'spawned' && !!e.cardId && !!e.player);
     // What render-time staging shows for this beat; the runner seeds its own effects with the same so nothing blinks.
-    const seed = (): BoardFx => ({ hidden: arrivalEvs.map((e) => e.uid).filter((u): u is string => !!u), alive: showdownEvs.map((e) => (e.data as ShowdownData).threatUid) });
+    // Word spreads: the paid Locations keep their old score until the wave reaches each one, so the +N is seen to add.
+    const held = (): BoardFx['hold'] => {
+      if (!prevView || reduceMotion() || !legendEvs.length) return undefined;
+      const out: Record<number, { A: number; B: number }> = {};
+      for (const e of legendEvs) if (e.location !== undefined && !(e.location in out)) out[e.location] = influenceAt(prevView, e.location);
+      return out;
+    };
+    const seed = (): BoardFx => ({ hidden: arrivalEvs.map((e) => e.uid).filter((u): u is string => !!u), alive: showdownEvs.map((e) => (e.data as ShowdownData).threatUid), hold: held() });
     const takeOver = () => setStaged(m.replay ? { steps: m.replay.steps, idx: m.replay.idx } : null);
     const finish = () => {
       const peek = evs.find((e) => e.player === me && Array.isArray((e.data as { peekHand?: string[] } | undefined)?.peekHand));

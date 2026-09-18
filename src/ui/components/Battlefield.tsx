@@ -127,6 +127,8 @@ export interface BoardFx {
   heal?: number[];
   /** Who broke the Threat that healed them: the light takes their colour ('both' when the Force was even). */
   healBy?: PlayerId | 'both';
+  /** Locations the wave has not reached yet: their meter shows the score from before the beat until it lands, so the +N is seen to add. */
+  hold?: Record<number, { A: number; B: number }>;
 }
 
 const picFx = (fx: BoardFx | null | undefined, uid: string): 'windup' | 'knocked' | 'held' | 'hexed' | 'land' | undefined => {
@@ -297,7 +299,7 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
               </div>
             );
           }
-          if (!c) return <div key={i} className={`slot ${i >= cap ? 'locked' : ''}`} />;
+          if (!c) return <div key={i} className={`slot ${i >= cap ? 'locked' : ''}`} {...(i >= cap ? tip('Seat closed: a Housing Restriction (or the Land Office) holds it. Clear the Threat and it opens.') : {})} />;
           const entering = plan.enters.includes(c.uid);
           const brought = plan.plays.some((pl) => pl.target?.charUid === c.uid);
           const planned = isPlannedUid(c.uid);
@@ -453,7 +455,7 @@ export function Battlefield(props: BattlefieldProps) {
     <div className="battlefield" ref={rootRef}>
       {view.locations.map((loc) => {
         const def = locDef(view, loc.index);
-        const inf = influenceAt(view, loc.index);
+        const inf = fx?.hold?.[loc.index] ?? influenceAt(view, loc.index);
         const ended = view.phase === 'ended' && view.result;
         const winner = ended ? view.result!.locationWinners[loc.index] : null;
         const lead = inf.A === inf.B ? null : inf.A > inf.B ? 'A' : 'B';
