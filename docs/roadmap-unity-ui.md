@@ -57,11 +57,13 @@ against the real manifest. Nothing is pushed to that repository from here; reque
 
 ## The contract: one look, one manifest, two renderers
 
-1. **The look** is named `stand-on-business`. Its palette, fonts and silhouette are fixed by the game's
-   design language and saved in UI Kit Maker as a look, exported as `settings.json` and committed to the
-   game repo at `kit/settings.json` so it can always be restored exactly.
-2. **The silhouette** is the chamfered octagon: corners cut at 14 px (at 1x), frame 2 px gold on the
-   navy panel fill. Nine-slice insets equal the chamfer plus the frame, so corners stay crisp at any size.
+1. **The look** is named `stand-on-business`. Its palette, fonts and silhouettes are the owner's and UI
+   Kit Maker's to design, anchored to the cards; once blessed it is saved in UI Kit Maker as a look,
+   exported as `settings.json` (with the boards) and committed to the game repo at `kit/settings.json`
+   so it can always be restored exactly.
+2. **The boards are the layout.** Each screen is one board on the 1920×1080 stage; the game reads the
+   items' positions, scale and stretch from `settings.json` for the web layout, and the Unity scene is
+   generated from the same board. A layout change is a board change, never a hand edit on either side.
 3. **Naming**: components are named as the game names them (`plate`, `stand-btn`, `coin`, `legend-pill`,
    `lock-btn`, `sit-down`, `turn-panel`, `location`, `sheet`, `cta`, `small`, `toast`, `settings-row`,
    `switch`). The exported manifest's keys are those names, so the importer needs no mapping table.
