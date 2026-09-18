@@ -17,6 +17,7 @@ import {
 import { initials, locationName, threatLabel, useDisplay } from '../display';
 import { Pic } from './CardFace';
 import { Art } from './Art';
+import { artUrl } from '../art';
 import { charDef, confrontForce, threatForceNeeded, isNight, lockReason, LOCATION_BY_ID, CARD_BY_ID, TEAM_UP_BY_ID } from '../../engine';
 
 /** A Location under curfew right now: a curfew Location at night. */
@@ -163,6 +164,9 @@ function EventTile({ cardId, state, hidden, foreseen, onClick }: { cardId: strin
   );
 }
 
+/** An asset URL made absolute against the page: a url() in a custom property resolves against the stylesheet otherwise. */
+const pageUrl = (u: string): string => (typeof document !== 'undefined' ? new URL(u, document.baseURI).href : u);
+
 /** Where a tile stands in a Gate row: by arrival, then by age (the uid's number), so nothing reorders as plans change. */
 export function tileOrder(c: { arrivedTurn: number; uid: string }): number {
   const n = /^c(\d+)$/.exec(c.uid);
@@ -192,7 +196,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
   const evLeft = view.players[me].hand.filter(isEvent).length + (view.players[me].deckEvents ?? 0);
   const evTotal = evLeft + view.players[me].discard.filter(isEvent).length;
   return (
-    <div className="gates-strip">
+    <div className={`gates-strip ${owner === me ? 'mine' : 'theirs'}`} style={owner === me ? ({ '--gate-off': `url("${pageUrl(artUrl('frames', 'gate-gold-off', 'webp'))}")`, '--gate-on': `url("${pageUrl(artUrl('frames', 'gate-gold-on', 'webp'))}")` } as React.CSSProperties) : undefined}>
       <div className={`gates-left ${gOk ? 'drop-ok' : ''} ${gOver ? 'drop-over' : ''}`} {...(owner === me ? { 'data-drop': 'gates', 'data-index': index } : {})}>
         <div className="lbl">
           {label} ({GATE_CAPACITY})
