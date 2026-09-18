@@ -4,7 +4,7 @@ import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import { artUrl, videoUrl } from '../art';
 import { TutFigure } from '../components/TutFigure';
-import type { DropHighlight, BoardFx } from '../components/Battlefield';
+import { tileOrder, type DropHighlight, type BoardFx } from '../components/Battlefield';
 import { previewPlan, remainingPlan, isPlannedUid, PLANNED_PREFIX, foreseePlan } from '../preview';
 import type { MatchController } from '../useMatch';
 import { Hud } from '../components/Hud';
@@ -1067,14 +1067,14 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   }, []);
   /** Gate slots my departing Characters still hold this turn (the preview shows them elsewhere). */
   const reserved = useMemo(() => {
-    const out: Record<number, { uid: string; defId: string; why: string; zone: 'gate' | 'inside'; dir: 'left' | 'right' | 'up'; through?: boolean }[]> = {};
+    const out: Record<number, { uid: string; defId: string; why: string; zone: 'gate' | 'inside'; dir: 'left' | 'right' | 'up'; through?: boolean; order: number }[]> = {};
     if (view.phase !== 'planning' || locked) return out;
     // A card played straight Inside still passes through the Gates: its slot is drawn as taken, not empty.
     for (const pl of plan.plays) {
       const def = CARD_BY_ID[pl.cardId] as { kind?: string; keywords?: string[] } | undefined;
       if (def?.kind !== 'character') continue;
       const straight = def.keywords?.includes('STRAIGHT_INSIDE') || (def.keywords?.includes('DIRECT_ENTRY') && pl.enter);
-      if (straight && insideOpen(view, pl.location, me) && !isBlockedFromEntering(view, { owner: me, location: pl.location } as (typeof view.characters)[string])) (out[pl.location] ??= []).push({ uid: `${PLANNED_PREFIX}${pl.cardId}`, defId: pl.cardId, why: 'goes straight Inside', zone: 'gate', dir: 'up', through: true });
+      if (straight && insideOpen(view, pl.location, me) && !isBlockedFromEntering(view, { owner: me, location: pl.location } as (typeof view.characters)[string])) (out[pl.location] ??= []).push({ uid: `${PLANNED_PREFIX}${pl.cardId}`, defId: pl.cardId, why: 'goes straight Inside', zone: 'gate', dir: 'up', through: true, order: Number.POSITIVE_INFINITY });
     }
     const add = (uid: string, why: string, to?: number) => {
       const c = view.characters[uid];
@@ -1082,7 +1082,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       // A Gate piece relocating (or conducted) is still on its tile in the preview, marked Moving: no ghost beside it.
       if (c.zone === 'gate' && why !== 'enters') return;
       const dir = to === undefined || to === c.location ? 'up' : to < c.location ? 'left' : 'right';
-      (out[c.location] ??= []).push({ uid, defId: c.defId, why, zone: c.zone, dir });
+      // The ghost keeps the piece's place in the row: the order the tiles stood in, by arrival then by age.
+      (out[c.location] ??= []).push({ uid, defId: c.defId, why, zone: c.zone, dir, order: tileOrder(c) });
     };
     // Gate slots stay taken until the turn resolves; Inside ghosts just show where a piece is going.
     for (const uid of plan.enters) add(uid, 'enters');

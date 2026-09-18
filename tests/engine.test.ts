@@ -2271,13 +2271,13 @@ describe('word spreads', () => {
     return s;
   };
   const gains = (s: GameState, p: PlayerId) => s.locations.map((l) => l.permInfluence?.[p] ?? 0);
-  it('clearing a Threat alone pays +1 lasting Influence at every other open Location and one Legend', () => {
+  it('clearing a Threat alone pays +2 lasting Influence at every other open Location (yours was the larger share) and one Legend', () => {
     const s = stage();
     const og = addChar(s, 'og', 'A', 0, 'gate', true);
     s.locations[0].threats.push({ uid: 'hr', defId: 'housing_restriction', location: 0, forceRequired: 3, spawnedTurn: 1 });
     const out = resolveTurn(s, { A: { ...pass(), confronts: [{ uid: og.uid, threatUid: 'hr' }] }, B: pass() });
     expect(out.state.locations[0].threats).toEqual([]);
-    expect(gains(out.state, 'A')).toEqual([0, 1, 1]);
+    expect(gains(out.state, 'A')).toEqual([0, 2, 2]);
     expect(gains(out.state, 'B')).toEqual([0, 0, 0]);
     expect(out.state.players.A.legend).toBe(1);
     expect(out.state.players.B.legend).toBe(0);
@@ -2292,9 +2292,9 @@ describe('word spreads', () => {
     const og = addChar(s, 'og', 'A', 0, 'gate', true);
     s.locations[0].threats.push({ uid: 'hr', defId: 'housing_restriction', location: 0, forceRequired: 3, spawnedTurn: 1 });
     const out = resolveTurn(s, { A: { ...pass(), confronts: [{ uid: og.uid, threatUid: 'hr' }] }, B: pass() });
-    expect(gains(out.state, 'A')).toEqual([0, 1, 1]);
+    expect(gains(out.state, 'A')).toEqual([0, 2, 2]);
   });
-  it('a shared clear puts three points on the table: the larger share everywhere, the smaller where it trails most; equal shares both everywhere', () => {
+  it('a shared clear pays every helper +1 at each other Location and the larger share +2; equal shares both take +2', () => {
     let s = stage();
     const a1 = addChar(s, 'og', 'A', 0, 'gate', true);
     const a2 = addChar(s, 'og', 'A', 0, 'gate', true);
@@ -2303,20 +2303,19 @@ describe('word spreads', () => {
     s.locations[0].threats.push({ uid: 'hr', defId: 'housing_restriction', location: 0, forceRequired: 6 + fB, spawnedTurn: 1 });
     let out = resolveTurn(s, { A: { ...pass(), confronts: [{ uid: a1.uid, threatUid: 'hr' }, { uid: a2.uid, threatUid: 'hr' }] }, B: { ...pass(), confronts: [{ uid: b.uid, threatUid: 'hr' }] } });
     expect(out.state.locations[0].threats).toEqual([]);
-    // A brought 6 Force, B less: A takes +1 at both other Locations, B +1 at one of them.
-    expect(gains(out.state, 'A')).toEqual([0, 1, 1]);
-    expect(gains(out.state, 'B').reduce((x, y) => x + y, 0)).toBe(1);
-    expect(gains(out.state, 'B')[0]).toBe(0);
+    // A brought 6 Force, B less: A takes +2 at both other Locations, B +1 at both.
+    expect(gains(out.state, 'A')).toEqual([0, 2, 2]);
+    expect(gains(out.state, 'B')).toEqual([0, 1, 1]);
     expect(out.state.players.A.legend).toBe(1);
     expect(out.state.players.B.legend).toBe(1);
-    // Equal Force: both take +1 at every other Location.
+    // Equal Force: both brought the most, both take +2 at every other Location.
     s = stage();
     const a = addChar(s, 'og', 'A', 0, 'gate', true);
     const b2 = addChar(s, 'og', 'B', 0, 'gate', true);
     s.locations[0].threats.push({ uid: 'hr', defId: 'housing_restriction', location: 0, forceRequired: 6, spawnedTurn: 1 });
     out = resolveTurn(s, { A: { ...pass(), confronts: [{ uid: a.uid, threatUid: 'hr' }] }, B: { ...pass(), confronts: [{ uid: b2.uid, threatUid: 'hr' }] } });
-    expect(gains(out.state, 'A')).toEqual([0, 1, 1]);
-    expect(gains(out.state, 'B')).toEqual([0, 1, 1]);
+    expect(gains(out.state, 'A')).toEqual([0, 2, 2]);
+    expect(gains(out.state, 'B')).toEqual([0, 2, 2]);
   });
   it('at Legend 2 your Characters arrive at the Gates Ready, played or relocated', () => {
     const s = stage();

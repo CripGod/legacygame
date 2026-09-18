@@ -62,7 +62,7 @@ export interface BattlefieldProps {
   foreseen?: ReturnType<typeof foreseePlan> | null;
   /** Gate slots still occupied until the turn resolves, keyed by Location: Characters leaving the Gates this turn. */
   /** Pieces leaving a Location in the preview: ghosted at their old place with an arrow toward where they go. */
-  reserved?: Record<number, { uid: string; defId: string; why: string; zone: 'gate' | 'inside'; dir: 'left' | 'right' | 'up'; /** A card played straight Inside: it is placed at these Gates first, so the slot is spoken for. */ through?: boolean }[]>;
+  reserved?: Record<number, { uid: string; defId: string; why: string; zone: 'gate' | 'inside'; dir: 'left' | 'right' | 'up'; /** A card played straight Inside: it is placed at these Gates first, so the slot is spoken for. */ through?: boolean; /** Its place in the row (tileOrder), so a ghost stands where the piece stood. */ order: number }[]>;
 
   /** Replay: the pieces this beat is about. */
   focus?: string[];
@@ -163,14 +163,24 @@ function EventTile({ cardId, state, hidden, foreseen, onClick }: { cardId: strin
   );
 }
 
+/** Where a tile stands in a Gate row: by arrival, then by age (the uid's number), so nothing reorders as plans change. */
+export function tileOrder(c: { arrivedTurn: number; uid: string }): number {
+  const n = /^c(\d+)$/.exec(c.uid);
+  return n ? c.arrivedTurn * 1e6 + Number(n[1]) : Number.POSITIVE_INFINITY;
+}
+
 function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, dragProps, drop, reserved, focus, eventFx, pendingEvents, fx, foreseen, readyBaseline }: Common & { owner: PlayerId; index: number; label: string; right?: React.ReactNode }) {
   const gOk = owner === me && drop?.gates.includes(index);
   const gOver = gOk && drop?.overKey === `gates:${index}`;
-  const chars = charsAt(view, index, owner, 'gate').sort((a, b) => a.arrivedTurn - b.arrivedTurn);
+  const chars = charsAt(view, index, owner, 'gate');
   const held = owner === me ? (reserved?.[index] ?? []).filter((h) => h.zone === 'gate') : [];
   const seen = (foreseen?.ghosts[owner]?.[index] ?? []).filter((f) => f.zone === 'gate').slice(0, Math.max(0, GATE_CAPACITY - chars.length - held.length));
-  const slots: (CharacterInstance | { held: { uid: string; defId: string; why: string; dir: 'left' | 'right' | 'up'; through?: boolean } } | { seen: { uid: string; defId: string; why: string } } | null)[] = [...chars, ...held.map((h) => ({ held: h })), ...seen.map((f) => ({ seen: f }))];
+  // Tiles and the ghosts holding a place keep the order they stood in: a piece planned Inside leaves its ghost where it was.
+  const row = [...chars.map((c) => ({ key: tileOrder(c), item: c as CharacterInstance | { held: (typeof held)[number] } })), ...held.map((h) => ({ key: h.order, item: { held: h } }))].sort((a, b) => a.key - b.key).map((r) => r.item);
+  const slots: (CharacterInstance | { held: { uid: string; defId: string; why: string; dir: 'left' | 'right' | 'up'; through?: boolean } } | { seen: { uid: string; defId: string; why: string } } | null)[] = [...row, ...seen.map((f) => ({ seen: f }))];
   while (slots.length < GATE_CAPACITY) slots.push(null);
+  // Only the next empty slot is open; the ones after it open as it fills.
+  const nextOpen = slots.findIndex((s) => s === null);
   // Event cards at these Gates: planned by me, or (in a replay) waiting to resolve or resolving now.
   const eventTiles: { cardId: string; state: 'planned' | 'pending' | 'trigger'; hidden?: boolean; foreseen?: boolean }[] = [];
   if (owner === me) for (const pl of plan.plays) if (pl.location === index && CARD_BY_ID[pl.cardId]?.kind === 'event') eventTiles.push({ cardId: pl.cardId, state: 'planned' });
@@ -191,8 +201,8 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
           {slots.map((s, i) => {
             if (s === null)
               return (
-                <div key={i} className="gate-slot">
-                  +
+                <div key={i} className={`gate-slot ${i === nextOpen ? 'open' : 'later'}`} {...(i !== nextOpen ? tip('Opens once the slot before it is taken.') : {})}>
+                  {i === nextOpen ? '+' : ''}
                 </div>
               );
             if ('seen' in s) {

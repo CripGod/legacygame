@@ -34,7 +34,7 @@ import {
   validatePlan,
   cardCost,
   lockReason, swornAt, teamUpAssembled, standingAt } from './query';
-import type { CharacterDef, CharacterInstance, GameEvent, GameState, MatchResult, PlayAction, PlayerId, ResolveOptions, ResolveOutput, ThreatInstance, TraceStep, TurnPlan, LocationState } from './types';
+import type { CharacterDef, CharacterInstance, GameEvent, GameState, MatchResult, PlayAction, PlayerId, ResolveOptions, ResolveOutput, ThreatInstance, TraceStep, TurnPlan } from './types';
 import { MAX_STAKES, standMultiplier, PLAYERS, EXTENDED_TURNS, MAX_HAND, other, emptyPlan, LEGEND_READY } from './types';
 import { GATHERING_DEFS } from './content/characters';
 
@@ -1507,28 +1507,19 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
       const by = PLAYERS.filter((p) => (f![p] ?? 0) > 0);
       events.push({ type: 'threatNeutralized', text: `${threatName(state, t)} at ${locName(state, loc.index)} is neutralized.`, location: loc.index, data: { by, threatUid: t.uid, defId: t.defId, target: t.target } });
       // Word spreads: clearing a Threat is heard at every other open Location, hidden ones included (the word is
-      // waiting there when it opens). Alone, you take +1 lasting Influence at every other Location. Together, three
-      // points are on the table: the larger Force share takes +1 at every other Location, the smaller takes +1 at
-      // the one other Location where it trails by the most (the lower index on a tie); equal Force, both take +1
-      // everywhere. Everyone who helped gains a Legend; at LEGEND_READY their Characters arrive at the Gates Ready.
+      // waiting there when it opens). Everyone who brought Force takes +1 lasting Influence at each of them; whoever
+      // brought the most takes +2 (both, on a tie; alone, you brought the most). Everyone who helped gains a Legend;
+      // at LEGEND_READY their Characters arrive at the Gates Ready.
       const others = state.locations.filter((l) => l.index !== loc.index && !l.lost);
       if (others.length && by.length) {
-        const pay = (p: PlayerId, l: LocationState) => {
-          l.permInfluence = l.permInfluence ?? { A: 0, B: 0 };
-          l.permInfluence[p] += 1;
-          events.push({ type: 'info', text: `Word spreads: ${state.players[p].handle} gains +1 lasting Influence at ${locName(state, l.index)} for clearing ${threatName(state, t)}.`, player: p, location: l.index, data: { trail: 'legend', amount: 1, color: p, threatUid: t.uid } });
-        };
-        const ranked = [...by].sort((a, b) => f![b] - f![a]);
-        const top = ranked[0];
+        const top = Math.max(...by.map((p) => f![p]));
         for (const p of by) {
-          if (by.length === 1 || f![p] === f![top]) {
-            for (const l of others) pay(p, l);
-            continue;
+          const amount = f![p] === top ? 2 : 1;
+          for (const l of others) {
+            l.permInfluence = l.permInfluence ?? { A: 0, B: 0 };
+            l.permInfluence[p] += amount;
+            events.push({ type: 'info', text: `Word spreads: ${state.players[p].handle} gains +${amount} lasting Influence at ${locName(state, l.index)} for clearing ${threatName(state, t)}${amount === 2 && by.length > 1 ? ' (the larger share)' : ''}.`, player: p, location: l.index, data: { trail: 'legend', amount, color: p, threatUid: t.uid } });
           }
-          // The smaller share: one Location, where it trails by the most.
-          const deficit = (l: LocationState) => influenceAt(state, l.index)[other(p)] - influenceAt(state, l.index)[p];
-          const where = [...others].sort((x, y) => deficit(y) - deficit(x) || x.index - y.index)[0];
-          pay(p, where);
         }
         for (const p of by) {
           const ps = state.players[p];
