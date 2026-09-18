@@ -283,12 +283,12 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
    * circle takes the hit. `big` is the wave landing: the number comes up huge. `label` replaces the bare +N
    * ("+1 First Location bonus"). `side` is whose circle it lands in; by default the tone decides.
    */
-  const floatNum = (location: number, amount: number, tone: 'artist' | 'mine' | 'theirs', opts: { big?: boolean; label?: string; side?: PlayerId } = {}) => {
+  const floatNum = (location: number, amount: number, tone: 'artist' | 'mine' | 'theirs', opts: { big?: boolean; label?: string; side?: PlayerId; /** Where it rises from: a tile, instead of the Location's art. */ from?: { x: number; y: number } } = {}) => {
     const art = document.querySelector(`.column[data-index="${location}"] .art`);
     if (!art) return;
     const r = art.getBoundingClientRect();
-    const x0 = r.left + r.width / 2;
-    const y0 = r.top + r.height / 2;
+    const x0 = opts.from?.x ?? r.left + r.width / 2;
+    const y0 = opts.from?.y ?? r.top + r.height / 2;
     const side = opts.side ?? (tone === 'theirs' ? other(me) : me);
     const ring = document.querySelector(`.column[data-index="${location}"] .score.p${side}`) as HTMLElement | null;
     if (!ring || reduceMotion()) {
@@ -1343,11 +1343,18 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   /** Crystals to light: while planning, what is left; from Lock In through the replay, what the locked plan left (no refill until the new turn). */
   const energyShown = planning ? energyLeft : locked ? energyLeft : m.replay ? Math.max(0, opts.energy - planCost(m.replay.plan, view, me)) : opts.energy;
 
-  /** What a change to the plan adds to my Influence at a Location, floated up into my circle there as it is planned. */
-  const floatPlanned = (before: TurnPlan, after: TurnPlan, location: number) => {
+  /** What a change to the plan adds to my Influence at a Location, floated from the tile it came with into my circle there. */
+  const floatPlanned = (before: TurnPlan, after: TurnPlan, location: number, uid: string) => {
     const was = influenceAt(previewPlan(view, me, before), location)[me];
     const now = influenceAt(previewPlan(view, me, after), location)[me];
-    if (now > was) requestAnimationFrame(() => floatNum(location, now - was, 'mine'));
+    if (now <= was) return;
+    // Two frames on: the plan has rendered, so the tile is where the number should start.
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        const t = tileOf(uid)?.getBoundingClientRect();
+        floatNum(location, now - was, 'mine', { from: t ? { x: t.left + t.width / 2, y: t.top + t.height / 2 } : undefined });
+      }),
+    );
   };
   /** Add or move a play. Refused when it would overspend this turn's Energy. */
   function addPlay(play: { cardId: string; location: number; target?: { charUid?: string; location?: number }; enter?: boolean }) {
@@ -1366,7 +1373,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       return;
     }
     const next: TurnPlan = { ...planRef.current, plays: [...current, play] };
-    floatPlanned(planRef.current, next, play.location); // what the card adds here, Gates or Inside, as it is planned
+    floatPlanned(planRef.current, next, play.location, `${PLANNED_PREFIX}${play.cardId}`); // what the card adds here, Gates or Inside, from the tile it lands on
     setPlan((p) => ({ ...p, plays: [...p.plays.filter((pl) => pl.cardId !== play.cardId), play] }));
     if (directEntry) feedback(`${cardName(play.cardId, placeholders)} goes Inside right away (Direct Entry). Tap ⇅ on the planned move to wait at the Gates instead.`, [], 'info');
     if (play.cardId === 'the_ancestors') {
@@ -1407,7 +1414,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     const adding = !planRef.current.enters.includes(uid);
     sfx(adding ? 'enter' : 'card.back');
     const c = view.characters[uid];
-    if (adding && c) floatPlanned(planRef.current, { ...planRef.current, enters: [...planRef.current.enters, uid] }, c.location); // the Inside bonus, as it is planned
+    if (adding && c) floatPlanned(planRef.current, { ...planRef.current, enters: [...planRef.current.enters, uid] }, c.location, uid); // the Inside bonus, from the seat it takes
     setPlan((p) => ({ ...p, enters: p.enters.includes(uid) ? p.enters.filter((u) => u !== uid) : [...p.enters, uid] }));
     setSheet(null);
   };
