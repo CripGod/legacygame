@@ -7,12 +7,12 @@ video); read each item against current `main` before acting.
 
 ## From the owner, via UI Kit Maker's reply
 
-1. **Jungle finish frame.** Replace `public/art/frames/character-jungle.webp` and
-   `character-sm-jungle.webp` with the owner's new PNG (`jungle-frame-new.png`, 1047×1411, the owner
-   has it). On the way in: the game's frames are the 1047×1411 export fitted into the 1103×1426 box
-   (`docs/economy.md`), so fit it the same way as the other nine; and the new file's portrait window is
-   filled with a blurred forest photograph where every other frame is transparent, so knock the window
-   out or the portrait will not show. Check the Codex, the hand card and the small tile after.
+1. **Jungle finish frame.** Done by Master Control on 2026-09-18 (the owner handed the PNG to that
+   session): `public/art/frames/character-jungle.webp` and `character-sm-jungle.webp` replaced. The new
+   export's window was already knocked out (the forest photograph sits only in colour data under zero
+   alpha, so the reply's worry did not apply). The frame was fitted onto the shared 1103×1426 geometry
+   by aligning its three medallion centres to the previous frame's, so the printed cost, Influence and
+   Force land where they did; checked on Anansi at hand and Codex size in the running app.
 2. **Landing settings button: a speaker glyph instead of the gear** in
    `src/ui/components/SettingsMenu.tsx`. The menu holds only Music and Sound effects, so the icon should
    say sound. The match HUD copy of the same button follows (one component, one icon) unless the owner
