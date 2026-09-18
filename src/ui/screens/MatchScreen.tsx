@@ -1333,6 +1333,12 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   /** Crystals to light: while planning, what is left; from Lock In through the replay, what the locked plan left (no refill until the new turn). */
   const energyShown = planning ? energyLeft : locked ? energyLeft : m.replay ? Math.max(0, opts.energy - planCost(m.replay.plan, view, me)) : opts.energy;
 
+  /** What a change to the plan adds to my Influence at a Location, floated up into my circle there as it is planned. */
+  const floatPlanned = (before: TurnPlan, after: TurnPlan, location: number) => {
+    const was = influenceAt(previewPlan(view, me, before), location)[me];
+    const now = influenceAt(previewPlan(view, me, after), location)[me];
+    if (now > was) requestAnimationFrame(() => floatNum(location, now - was, 'mine'));
+  };
   /** Add or move a play. Refused when it would overspend this turn's Energy. */
   function addPlay(play: { cardId: string; location: number; target?: { charUid?: string; location?: number }; enter?: boolean }) {
     const pdef = CARD_BY_ID[play.cardId];
@@ -1341,7 +1347,6 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     if (directEntry && play.enter === undefined) play = { ...play, enter: !doorShut };
     if (play.enter && doorShut) play = { ...play, enter: false };
     sfx(play.enter ? 'card.inside' : 'card.drop');
-    if (play.enter) requestAnimationFrame(() => floatNum(play.location, 1, 'mine')); // the Inside bonus, shown as it is planned
     voice(play.cardId);
     const current = planRef.current.plays.filter((pl) => pl.cardId !== play.cardId);
     const spent = current.reduce((s, pl) => s + cardCost(pl.cardId, view, me), 0);
@@ -1350,6 +1355,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       feedback(`Not enough Energy. ${cardName(play.cardId, placeholders)} costs ${cost} and you have ${opts.energy - spent} left of ${opts.energy} this turn (Energy = the turn number). Remove a planned card or wait a turn.`, [`[data-hand-card="${play.cardId}"]`, '.energy-meter']);
       return;
     }
+    const next: TurnPlan = { ...planRef.current, plays: [...current, play] };
+    floatPlanned(planRef.current, next, play.location); // what the card adds here, Gates or Inside, as it is planned
     setPlan((p) => ({ ...p, plays: [...p.plays.filter((pl) => pl.cardId !== play.cardId), play] }));
     if (directEntry) feedback(`${cardName(play.cardId, placeholders)} goes Inside right away (Direct Entry). Tap ⇅ on the planned move to wait at the Gates instead.`, [], 'info');
     if (play.cardId === 'the_ancestors') {
@@ -1387,7 +1394,10 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   // Your own moves are heard when you plan them (the replay skips your own beats): the gate for walking Inside,
   // the whoosh for a relocation, the switch for a confrontation; taking a move back is the card-back swoosh.
   const toggleEnter = (uid: string) => {
-    sfx(plan.enters.includes(uid) ? 'card.back' : 'enter');
+    const adding = !planRef.current.enters.includes(uid);
+    sfx(adding ? 'enter' : 'card.back');
+    const c = view.characters[uid];
+    if (adding && c) floatPlanned(planRef.current, { ...planRef.current, enters: [...planRef.current.enters, uid] }, c.location); // the Inside bonus, as it is planned
     setPlan((p) => ({ ...p, enters: p.enters.includes(uid) ? p.enters.filter((u) => u !== uid) : [...p.enters, uid] }));
     setSheet(null);
   };
