@@ -130,7 +130,7 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'clash.block': [{ files: ['thud-soft'], gain: 0.6 }, { files: ['lock'], gain: 0.35, at: 80 }], // a stand-off: the gate stays shut
   'threat.spawn': [{ files: ['threat-danger'], gain: 0.8 }], // danger: a rising rumble, a muffled boom, the dark pulse, low brass
   'threat.clear': [{ files: ['threat-clear'], gain: 0.6 }],
-  'threat.ruling': [{ files: ['hit-wood'], gain: 1.0, at: 380 }, { files: ['stand-thud'], gain: 0.9, at: 380 }, { files: ['laugh-evil'], gain: 0.85, at: 900 }], // the card lands at ~380ms; the gavel on the landing, the laugh over the cast-out
+  'threat.ruling': [{ files: ['hit-wood'], gain: 1.0, at: 480 }, { files: ['stand-thud'], gain: 0.9, at: 480 }, { files: ['laugh-evil'], gain: 0.85, at: 1000 }], // the Threat tile comes down at ~500ms; the gavel on the landing, the laugh over the cast-out
   cheer: [{ files: ['cheer'], gain: 0.6 }],
   fireworks: [{ files: ['fw-launch'], gain: 0.5 }, { files: ['fw-burst-1'], gain: 0.55, at: 450 }, { files: ['fw-burst-2'], gain: 0.5, at: 850 }, { files: ['fw-crackle'], gain: 0.4, at: 1000 }], // timed to the rockets' climb and bursts
   trail: [{ files: ['trail'], gain: 0.6 }],
@@ -453,8 +453,8 @@ function synth(name: SfxName, t: number): void {
       swoosh(t, 0.5, 200, 90, 0.16, 0.5);
       break;
     case 'threat.ruling':
-      thud(t + 0.38, 0.7, 160, 40, 0.3);
-      blip(t + 0.9, 110, 0.5, 0.2, 'sawtooth', 70);
+      thud(t + 0.48, 0.7, 160, 40, 0.3);
+      blip(t + 1.0, 110, 0.5, 0.2, 'sawtooth', 70);
       blip(t + 1.15, 100, 0.4, 0.2, 'sawtooth', 65);
       blip(t + 1.4, 90, 0.5, 0.2, 'sawtooth', 60);
       break;

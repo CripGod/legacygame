@@ -208,7 +208,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   /** Beats that only re-show one of your own planned moves are skipped. */
   const ownBeat = !!step && !!m.replay && step.player === me && (step.kind === 'play' || step.kind === 'enter' || (step.kind === 'move' && m.replay.plan.relocations.some((r) => step.uids?.includes(r.uid))));
   /** A Gathering's card, flashed over the board as it arrives (no button: it flies to its tile on its own). */
-  const [arrival, setArrival] = useState<{ cardId: string; owner: PlayerId; slam?: boolean } | null>(null);
+  const [arrival, setArrival] = useState<{ cardId: string; owner: PlayerId } | null>(null);
   /** Omar ibn Said's look at the opponent's hand: a strip over the board for a few seconds, then the profile keeps it. */
   const [peekShow, setPeekShow] = useState<{ cards: string[]; by: string } | null>(null);
   const [lastPeek, setLastPeek] = useState<{ turn: number; cards: string[]; by: string } | null>(null);
@@ -710,28 +710,48 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   };
 
   /**
-   * The Dred Scott Decision comes down: Taney's card slams onto the board like a gavel (the board jolts, the laugh),
+   * The Dred Scott Decision comes down: the Threat tile itself is the gavel, rising off the board and striking it (the board jolts, the laugh),
    * then everyone at the Location, both sides, is thrown out to the Gates they land at, one after another.
    */
   const playRuling = async (ev: GameEvent, evs: GameEvent[], seed: () => BoardFx, takeOver: () => void, alive: () => boolean) => {
     const loc = ev.location ?? -1;
     const cast = evs.filter((e) => e.type === 'moved' && !!e.uid && (e.data as { reason?: string } | undefined)?.reason === THREAT_BY_ID.dred_scott?.name);
-    // Stage the board as it stood, with everyone still at the Location, and take a ghost of each one who goes.
-    setFx(seed());
+    const tuid = (evs.find((e) => e.type === 'threatNeutralized' && !!(e.data as { lifted?: boolean } | undefined)?.lifted)?.data as { threatUid?: string } | undefined)?.threatUid;
+    const stage = (): BoardFx => ({ ...seed(), alive: [...(seed().alive ?? []), ...(tuid ? [tuid] : [])] });
+    // Stage the board as it stood, with everyone still at the Location, and take a ghost of each one who goes and
+    // of the Threat tile itself: the Decision is the gavel.
+    setFx(stage());
     setStagePrev(true);
     await painted();
     if (!alive()) return;
     const ghosts = new Map<string, Ghost>();
-    if (!reduceMotion()) for (const e of cast) { const el = tileOf(e.uid!); if (el) ghosts.set(e.uid!, ghostOf(el)); }
+    let gavel: Ghost | null = null;
+    if (!reduceMotion()) {
+      for (const e of cast) { const el = tileOf(e.uid!); if (el) ghosts.set(e.uid!, ghostOf(el)); }
+      const tile = tuid ? tileOf(tuid) : null;
+      if (tile) gavel = ghostOf(tile);
+    }
     setStagePrev(false);
-    setFx({ ...seed(), hidden: [...ghosts.keys()] });
+    setFx({ ...stage(), hidden: [...ghosts.keys(), ...(gavel && tuid ? [tuid] : [])] });
     takeOver();
     setClashTell({ title: 'THE RULING', text: ev.text, sub: cast.length ? `Taney's opinion stands: nobody here has rights the court will respect. Everyone at the Location, both sides, is turned out to open Gates elsewhere, Waiting. Then the Decision lifts.` : 'Nobody was here to turn out. The Decision lifts.', tone: 'ruling' });
-    // The gavel.
-    setArrival({ cardId: 'roger_taney', owner: 'A', slam: true });
-    sfx('threat.ruling');
     await painted();
-    await wait(reduceMotion() ? 600 : 400);
+    if (!alive()) return;
+    // The gavel: the Threat tile rises off the board, then comes down hard; the board jolts under it.
+    if (gavel) {
+      gavel.el.classList.add('gavel-ghost');
+      gavel.el.animate(
+        [
+          { transform: 'translateY(0) scale(1)', offset: 0, easing: 'cubic-bezier(0.2, 0.7, 0.3, 1)' },
+          { transform: 'translateY(-46px) scale(1.9)', offset: 0.62, easing: 'cubic-bezier(0.7, 0, 1, 1)' },
+          { transform: 'translateY(4px) scale(1.12)', offset: 0.9, easing: 'ease-out' },
+          { transform: 'translateY(0) scale(1.15)', offset: 1 },
+        ],
+        { duration: 560, fill: 'forwards' },
+      );
+    }
+    sfx('threat.ruling');
+    await wait(reduceMotion() ? 600 : 500);
     if (!alive()) return;
     const board = document.querySelector('.battlefield');
     if (board && !reduceMotion()) {
@@ -740,6 +760,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       board.classList.add('gavel');
       window.setTimeout(() => board.classList.remove('gavel'), 700);
     }
+    if (gavel) gavel.el.classList.add('struck');
     await wait(reduceMotion() ? 900 : 700);
     if (!alive()) return;
     // Cast out: each one flies from where it stood to the Gates it lands at, spinning, the highest Influence first.
@@ -766,9 +787,12 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     }
     await Promise.all(flights);
     if (!alive()) return;
+    // The Decision lifts: the tile fades off the board.
+    if (gavel) {
+      gavel.el.animate([{ opacity: 1, transform: 'translateY(0) scale(1.15)' }, { opacity: 0, transform: 'translateY(-10px) scale(1.05)' }], { duration: 500, easing: 'ease-out', fill: 'forwards' });
+    }
     await wait(cast.length ? 700 : 900);
     if (!alive()) return;
-    setArrival(null);
     clearGhosts();
     setFx((f) => (f ? { ...f, land: undefined } : f));
   };
@@ -2061,7 +2085,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       </div>
 
       {arrival && (
-        <div className={`card-flash p${arrival.owner} ${arrival.slam ? 'slam' : ''}`} aria-hidden>
+        <div className={`card-flash p${arrival.owner}`} aria-hidden>
           <CardFace id={arrival.cardId} big />
         </div>
       )}
