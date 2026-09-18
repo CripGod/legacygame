@@ -58,7 +58,7 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
         </ul>
         <h2>Special arrivals</h2>
         <ul>
-          <li><b>Straight Inside</b> (Sleeping Car Porters) always goes Inside the turn it is played. <b>Direct Entry</b> (Bessie Coleman) may: tap ⇅ on the planned move to choose Gates or Inside.</li>
+          <li><b>Straight Inside</b> (Sleeping Car Porters) always goes Inside the turn it is played. <b>Direct Entry</b> (Bessie Coleman) may: tap ⇅ on the planned move to choose Gates or Inside. Neither passes a Segregationist Patrol or the Color Line: a blocked arrival waits at the Gates (and the Patrol charges its Setback).</li>
           <li><b>The Ancestors</b> are never in a deck. In one match out of four, holding three Characters Inside at Accra, Ghana brings them to your hand. Play them while planning to see your opponent's plan for the turn and every danger the board is about to spring.</li>
           <li><b>The Tabernacle</b> protects your Characters from displacement. Establish Richard Allen, Absalom Jones and Daniel Payne there and <b>Black Jesus</b> appears: sanctuary at his Location and +1 Influence to every Character you control.</li>
           <li><b>The Justice System</b> holds anyone who goes Inside for two turns: no relocating out.</li>

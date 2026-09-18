@@ -2,7 +2,7 @@
  * Apply the local player's draft plan to a view so the board shows their moves
  * immediately. Preview instances are visual only; the engine never sees them.
  */
-import { cloneState, CARD_BY_ID, insideOpen, other, type GameState, type PlayerId, type TurnPlan, type CharacterInstance } from '../engine';
+import { cloneState, CARD_BY_ID, insideOpen, isBlockedFromEntering, other, type GameState, type PlayerId, type TurnPlan, type CharacterInstance } from '../engine';
 
 export const PLANNED_PREFIX = 'planned:';
 
@@ -68,7 +68,7 @@ export function previewPlan(view: GameState, me: PlayerId, plan: TurnPlan): Game
       permInfluence: 0,
       tempInfluence: 0,
     };
-    if ((def.keywords.includes('STRAIGHT_INSIDE') || (def.keywords.includes('DIRECT_ENTRY') && play.enter)) && insideOpen(v, c.location, me)) c.zone = 'inside';
+    if ((def.keywords.includes('STRAIGHT_INSIDE') || (def.keywords.includes('DIRECT_ENTRY') && play.enter)) && insideOpen(v, c.location, me) && !isBlockedFromEntering(v, c)) c.zone = 'inside';
     v.characters[c.uid] = c;
   });
   return v;
@@ -130,7 +130,7 @@ export function foreseePlan(view: GameState, opp: PlayerId, plan: TurnPlan): { g
     }
     if (def.kind !== 'character') continue;
     const informant = def.keywords.includes('INFORMANT');
-    const inside = (def.keywords.includes('STRAIGHT_INSIDE') || (def.keywords.includes('DIRECT_ENTRY') && play.enter)) && insideOpen(view, play.location, opp);
+    const inside = (def.keywords.includes('STRAIGHT_INSIDE') || (def.keywords.includes('DIRECT_ENTRY') && play.enter)) && insideOpen(view, play.location, opp) && !isBlockedFromEntering(view, { owner: opp, location: play.location } as CharacterInstance);
     add(informant ? me : opp, play.location, { uid: `foreseen:play:${def.id}`, defId: def.id, zone: inside ? 'inside' : 'gate', why: informant ? 'is planted at your Gates' : inside ? 'plays here, straight Inside' : 'plays here' });
   }
   for (const uid of plan.enters) {

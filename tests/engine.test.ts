@@ -543,6 +543,52 @@ describe('special arrivals', () => {
     expect(charsOf(s, 'A').find((c) => c.defId === 'sleeping_car_porters')!.zone).toBe('inside');
     expect(charsOf(s, 'A').find((c) => c.defId === 'bessie_coleman')!.zone).toBe('inside');
   });
+  it('A Patrol turns Straight Inside arrivals around at the door, with a Setback', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['sleeping_car_porters', 'bessie_coleman'] });
+    s.locations[0].threats.push({ uid: 't1', defId: 'segregationist_patrol', location: 0, target: 'A', forceRequired: 3, spawnedTurn: 1 });
+    const out = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'sleeping_car_porters', location: 0 }, { cardId: 'bessie_coleman', location: 0 }] }, B: pass() });
+    s = out.state;
+    expect(charsOf(s, 'A').find((c) => c.defId === 'sleeping_car_porters')!.zone).toBe('gate');
+    expect(charsOf(s, 'A').find((c) => c.defId === 'bessie_coleman')!.zone).toBe('gate');
+    expect(s.players.A.setbacks).toBe(2);
+    expect(out.events.filter((e) => e.type === 'blocked' && e.text.includes('Segregationist Patrol')).length).toBe(2);
+    // B's Patrol does not stop A: the Porters go straight Inside past it.
+    let t = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['sleeping_car_porters'] });
+    t.locations[0].threats.push({ uid: 't2', defId: 'segregationist_patrol', location: 0, target: 'B', forceRequired: 3, spawnedTurn: 1 });
+    t = resolveTurn(t, { A: { ...pass(), plays: [{ cardId: 'sleeping_car_porters', location: 0 }] }, B: pass() }).state;
+    expect(charsOf(t, 'A').find((c) => c.defId === 'sleeping_car_porters')!.zone).toBe('inside');
+    expect(t.players.A.setbacks).toBe(0);
+  });
+  it('The Color Line stops both sides at the door, Straight Inside included', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['cotton_club', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['sleeping_car_porters'], handB: ['bessie_coleman'] });
+    s.locations[0].threats.push({ uid: 't1', defId: 'color_line', location: 0, forceRequired: 3, spawnedTurn: 1 });
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'sleeping_car_porters', location: 0 }] }, B: { ...pass(), plays: [{ cardId: 'bessie_coleman', location: 0 }] } }).state;
+    expect(charsOf(s, 'A').find((c) => c.defId === 'sleeping_car_porters')!.zone).toBe('gate');
+    expect(charsOf(s, 'B').find((c) => c.defId === 'bessie_coleman')!.zone).toBe('gate');
+    // No Setback: only the Patrol charges one.
+    expect(s.players.A.setbacks).toBe(0);
+    expect(s.players.B.setbacks).toBe(0);
+  });
+  it('Crowther brings a friend across to the Gates, not Inside, when a Patrol holds the door', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['samuel_ajayi_crowther'] });
+    const og = addChar(s, 'og', 'A', 1, 'inside');
+    s.locations[0].threats.push({ uid: 't1', defId: 'segregationist_patrol', location: 0, target: 'A', forceRequired: 3, spawnedTurn: 1 });
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'samuel_ajayi_crowther', location: 0, target: { charUid: og.uid } }] }, B: pass() }).state;
+    expect(s.characters[og.uid].location).toBe(0);
+    expect(s.characters[og.uid].zone).toBe('gate');
+  });
+  it('A Gathering arrives at the Gates when a Patrol holds the door', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['the_tabernacle', 'great_migration', 'gary_indiana'], revealAll: true });
+    s.turn = 4;
+    addChar(s, 'absalom_jones', 'A', 0, 'inside');
+    addChar(s, 'daniel_payne', 'A', 0, 'inside');
+    addChar(s, 'richard_allen', 'A', 0, 'inside');
+    s.locations[0].threats.push({ uid: 't1', defId: 'segregationist_patrol', location: 0, target: 'A', forceRequired: 3, spawnedTurn: 1 });
+    s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    const bj = charsOf(s, 'A').find((c) => c.defId === 'black_jesus');
+    expect(bj).toBeTruthy();
+    expect(bj!.zone).toBe('gate');
+  });
   it('Black Jesus appears when the church fills The Tabernacle and blesses every Location', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['the_tabernacle', 'great_migration', 'gary_indiana'], revealAll: true });
     s.turn = 4;

@@ -255,7 +255,7 @@ function spawnGathering(state: GameState, p: PlayerId, def: CharacterDef, locati
   if (ps.spawned.includes(def.id)) return null;
   const loc = state.locations[location];
   if (loc.lost) return null;
-  const canInside = prefer === 'inside' && insideOpen(state, location, p);
+  const canInside = prefer === 'inside' && insideOpen(state, location, p) && !isBlockedFromEntering(state, { owner: p, location } as CharacterInstance);
   const canGate = gateOpen(state, location, p);
   if (!canInside && !canGate) return null;
   const zone: 'inside' | 'gate' = canInside ? 'inside' : 'gate';
@@ -809,7 +809,7 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
         break;
       }
       const from = t.location;
-      const roomInside = insideOpen(state, loc, p);
+      const roomInside = insideOpen(state, loc, p) && !isBlockedFromEntering(state, { ...t, location: loc });
       const roomGate = gateOpen(state, loc, p);
       t.location = loc;
       t.relocatedTurn = state.turn;
@@ -1356,8 +1356,15 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     const kw = def.keywords;
     let straightIn = false;
     if (kw.includes('STRAIGHT_INSIDE') || (kw.includes('DIRECT_ENTRY') && play.enter)) {
-      straightIn = enterInside(state, c, events, kw.includes('STRAIGHT_INSIDE') ? 'goes straight Inside at' : 'enters immediately (Direct Entry) at');
-      if (!straightIn) events.push({ type: 'blocked', text: `${name(state, c)} cannot enter: no room Inside.`, uid: c.uid });
+      // The door is the door: a Patrol or the Color Line turns a Straight Inside arrival around like anyone else.
+      const blocked = isBlockedFromEntering(state, c);
+      if (blocked) {
+        events.push({ type: 'blocked', text: `${name(state, c)} cannot enter ${locName(state, play.location)}: ${blocked}. It waits at the Gates.`, uid: c.uid, player: p, location: play.location });
+        if (blocked.includes('Patrol')) setback(state, p, 'entry blocked by Segregationist Patrol', events);
+      } else {
+        straightIn = enterInside(state, c, events, kw.includes('STRAIGHT_INSIDE') ? 'goes straight Inside at' : 'enters immediately (Direct Entry) at');
+        if (!straightIn) events.push({ type: 'blocked', text: `${name(state, c)} cannot enter: no room Inside.`, uid: c.uid });
+      }
     }
     trace('play', `${ps.handle} plays ${def.name} ${straightIn ? 'straight Inside' : 'at'} ${locName(state, play.location)}`, { uids: [c.uid], location: play.location, player: p, cardId: def.id });
     }

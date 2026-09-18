@@ -923,7 +923,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       const def = CARD_BY_ID[pl.cardId] as { kind?: string; keywords?: string[] } | undefined;
       if (def?.kind !== 'character') continue;
       const straight = def.keywords?.includes('STRAIGHT_INSIDE') || (def.keywords?.includes('DIRECT_ENTRY') && pl.enter);
-      if (straight && insideOpen(view, pl.location, me)) (out[pl.location] ??= []).push({ uid: `${PLANNED_PREFIX}${pl.cardId}`, defId: pl.cardId, why: 'goes straight Inside', zone: 'gate', dir: 'up', through: true });
+      if (straight && insideOpen(view, pl.location, me) && !isBlockedFromEntering(view, { owner: me, location: pl.location } as (typeof view.characters)[string])) (out[pl.location] ??= []).push({ uid: `${PLANNED_PREFIX}${pl.cardId}`, defId: pl.cardId, why: 'goes straight Inside', zone: 'gate', dir: 'up', through: true });
     }
     const add = (uid: string, why: string, to?: number) => {
       const c = view.characters[uid];
@@ -1184,7 +1184,9 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   function addPlay(play: { cardId: string; location: number; target?: { charUid?: string; location?: number }; enter?: boolean }) {
     const pdef = CARD_BY_ID[play.cardId];
     const directEntry = pdef?.kind === 'character' && pdef.keywords.includes('DIRECT_ENTRY');
-    if (directEntry && play.enter === undefined) play = { ...play, enter: true };
+    const doorShut = pdef?.kind === 'character' && isBlockedFromEntering(view, { owner: me, location: play.location } as (typeof view.characters)[string]);
+    if (directEntry && play.enter === undefined) play = { ...play, enter: !doorShut };
+    if (play.enter && doorShut) play = { ...play, enter: false };
     sfx(play.enter ? 'card.inside' : 'card.drop');
     if (play.enter) requestAnimationFrame(() => floatNum(play.location, 1, 'mine')); // the Inside bonus, shown as it is planned
     voice(play.cardId);
@@ -1641,6 +1643,13 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         },
         toggle: direct
           ? () => {
+              if (!pl.enter) {
+                const shut = isBlockedFromEntering(view, { owner: me, location: pl.location } as (typeof view.characters)[string]);
+                if (shut) {
+                  feedback(`${cardName(pl.cardId, placeholders)} cannot go Inside at L${pl.location + 1}: ${shut}. It waits at the Gates.`, [`[data-loc="${pl.location}"] .threat-tile`]);
+                  return;
+                }
+              }
               sfx(pl.enter ? 'card.drop' : 'card.inside');
               if (!pl.enter) requestAnimationFrame(() => floatNum(pl.location, 1, 'mine'));
               setPlan((p) => ({ ...p, plays: p.plays.map((x) => (x.cardId === pl.cardId ? { ...x, enter: !x.enter } : x)) }));
