@@ -1,6 +1,6 @@
 # Roadmap: the UI through UI Kit Maker, on the web first, then Unity
 
-Written 2026-09-15, revised 2026-09-18, by Master Control, the coordinating session that sits between
+Written 2026-09-15, revised 2026-09-18 (second pass), by Master Control, the coordinating session that sits between
 UI Kit Maker (the app that makes the UI) and Stand on Business (the game). The owner relays between the
 three of us. This document is the plan and the contract. The paste-ready requests live in `docs/ui-kit-maker/`.
 
@@ -15,12 +15,19 @@ three of us. This document is the plan and the contract. The paste-ready request
 - **Landscape only.** No portrait boards, no portrait Unity build, for now.
 - **The cards are the game's.** The card face, the ten ranked frames and four finishes in
   `public/art/frames` (colours baked in), the card back and the Codex card stay as crafted. They are the
-  anchor the new chrome sits beside. Their printed text faces (Cinzel, Crimson Pro) can change to match
-  the new chrome if the owner wants, since that text is live.
+  anchor the new chrome sits beside. Their printed text faces (Cinzel, Crimson Pro) stay; the chrome's
+  faces are chosen to sit with them.
 - **Colours are baked, not tinted.** Where a piece exists in two player colours, it is exported twice
   (A, B), never as one neutral frame tinted at runtime. What the web shows is what Unity shows.
 - **Order of delivery.** Boards first, then the assets into the current web build for testing, then the
   Unity port. Three months are set aside for the Unity build (see "The three months" below).
+- **The launch is a Steam page, February 1, 2027.** A Coming Soon page on Steam (and the other
+  storefronts) with a trailer and screenshots filmed from the Unity build, no downloadable build at
+  first. The web version stays playable on GitHub Pages so executives can play it. This changes what
+  the Unity build must be at the end of the three months: **filmable**, every beat looking and
+  sounding finished, rather than shippable to the public.
+- **The owner runs the Unity Editor loop.** Unity is installed and the owner has been testing UI Kit
+  Maker's exports in it with Jimi throughout, so the relay is proven.
 
 ## The short answer
 
@@ -176,39 +183,78 @@ harness carries every change into C#. Keep a short changelog of rule changes so 
 
 The owner has set three months for the Unity build. Thirteen weeks, three lanes, one cut line.
 
-| Week | UI lane (UI Kit Maker, owner, web) | Engine lane (game session, plain C#) | Unity lane (game session writes, owner runs the editor) |
+| Week (Monday) | UI lane (UI Kit Maker, owner, web) | Engine lane (game session, plain C#) | Unity lane (game session writes, owner runs the editor) |
 |---|---|---|---|
-| 1 | Request 01 answered; the look and the match board drafted | Port `types`, `rng`, `setup`; port the first tests | Owner installs Unity 6 LTS; empty project with the target settings |
-| 2 | All eleven boards drafted on a preview | Port `query`, `resolve` | |
-| 3 | Owner tweaks; draft export for the importer | Port `view`, the rest of the tests; parity harness starts | Smoke scene from the draft ZIP |
-| 4 | Boards blessed; final export | Parity green on 1,000 seeded matches | Card prefab from `docs/card-template.md` |
-| 5 | Web: match and landing on the kit | Content tables generated as ScriptableObjects | Import the blessed kit; scenes generated |
-| 6 | Web: sheets, result, compendium, settings | Harborlight ported; parity for AI plans | Match screen: board, tiles, HUD wired to the event stream |
-| 7 | Web: deck builder, store, history; the flag becomes default | Save file (the ledger) | Match screen: the hand machine, plans and Lock In |
-| 8 | Web bless; kit fixes from Unity feed back | | Replay: clash, showdown, arrival beats as world-space clones |
-| 9 | | | Effects: trails, sprays, fireworks, wave as ParticleSystems |
-| 10 | | | Audio: the `SFX_EVENTS` enum, clips, place sounds, music |
-| 11 | | Balance pass in TypeScript carried across by parity | Landing, result, the sheets, settings, tutorial |
-| 12 | | | Deck builder, store, history if on schedule; else cut |
-| 13 | | | Stabilise: a full match on desktop with no console errors; a build |
+| 1 (Sep 21) | Request 01 answered; the look and the match board drafted | Port `types`, `rng`, `setup`; port the first tests | Empty Unity 6 project with the target settings, in the game repo under `unity/` |
+| 2 (Sep 28) | All eleven boards drafted on a preview | Port `query`, `resolve` | |
+| 3 (Oct 5) | Owner tweaks; draft export for the importer | Port `view`, the rest of the tests; parity harness starts | Smoke scene from the draft ZIP |
+| 4 (Oct 12) | Boards blessed; final export | Parity green on 1,000 seeded matches | Card prefab from `docs/card-template.md` |
+| 5 (Oct 19) | Web: match and landing on the kit | Content tables generated as ScriptableObjects | Import the blessed kit; scenes generated |
+| 6 (Oct 26) | Web: sheets, result, compendium, settings | Harborlight ported; parity for AI plans | Match screen: board, tiles, HUD wired to the event stream |
+| 7 (Nov 2) | Web: deck builder, store, history; the flag becomes default | Save file (the ledger) | Match screen: the hand machine, plans and Lock In |
+| 8 (Nov 9) | Web bless; kit fixes from Unity feed back | | Replay: clash, showdown, arrival beats as world-space clones |
+| 9 (Nov 16) | | | Effects: trails, sprays, fireworks, wave as ParticleSystems |
+| 10 (Nov 23) | | | Audio: the `SFX_EVENTS` enum, clips, place sounds, music |
+| 11 (Nov 30) | | Balance pass in TypeScript carried across by parity | Landing, result, the sheets, settings, tutorial |
+| 12 (Dec 7) | | | Deck builder, store, history if on schedule; else cut |
+| 13 (Dec 14) | | | Stabilise: a full match on desktop with no console errors, filmable end to end |
 
-**The cut line at week 13**: a Unity build that plays a full match against Harborlight with the new
-chrome, the game's cards, the replay and effects, sound, landing, result and the sheets, landscape,
-desktop. Deck builder, store, history, tablet touch, PvP and the balance to "done" are after the three
-months unless the lanes run ahead. That is achievable in thirteen weeks on three conditions:
+**The cut line at week 13 (December 18)**: a Unity build that plays a full match against Harborlight
+with the new chrome, the game's cards, the replay and effects, sound, landing, result and the sheets,
+landscape, desktop, good enough to film. Deck builder, store, history, tablet touch, PvP and the balance
+to "done" are after the three months unless the lanes run ahead. That is achievable in thirteen weeks on
+three conditions:
 
 1. The boards are blessed by the end of week 4. Every week of slip there is a week off the Unity end.
 2. The engine port starts in week 1 as plain C# with the tests as the spec, and the parity harness is
    green before any UI is wired. The port is mechanical (about 3,200 lines of TypeScript); the harness
    is what makes it safe to keep balancing in TypeScript meanwhile.
-3. The owner runs the Unity Editor loop from week 3: open the project, press play, send screenshots
-   and the console. The game session cannot run the editor in its container, so every Unity check is a
-   relay, and the match screen (the hand, the flying clones, the staged replay) is the part that needs
-   the most of them. Budget an hour a day for it in weeks 6 to 13.
+3. The owner keeps running the Unity Editor loop, from week 3 on: open the project, press play, send
+   screenshots and the console. The game session cannot run the editor in its container, so every
+   Unity check is a relay, and the match screen (the hand, the flying clones, the staged replay) is the
+   part that needs the most of them. Budget an hour a day for it in weeks 6 to 13.
 
 What would break the schedule: a second design pass after the first Unity import (scenes do not
 regenerate), a mid-port rules change without the harness, or the editor loop running at one relay a
 day instead of several.
+
+## February 1: the Steam page
+
+Six weeks sit between the Unity cut line and the launch, two of them holidays. They are for the film,
+the page and the last polish the film shows up, not for new features.
+
+| Week (Monday) | Work |
+|---|---|
+| 14 (Dec 21) | Shot list agreed (below). The game session adds a capture mode: a fixed seed, a scripted pair of plans per turn so every beat the trailer needs happens on cue, a 60 fps 1920×1080 recording path (Unity Recorder), and a clean HUD toggle for screenshots. |
+| 15 (Dec 28) | Holiday buffer. Capsule art brief to UI Kit Maker or the designer (the store needs the game's key art in fixed sizes; see below). |
+| 16 (Jan 4) | Film every shot from the Unity build; the game session fixes what the footage shows up. Screenshots chosen (Steam wants gameplay, not mock-ups). |
+| 17 (Jan 11) | Trailer cut (60 to 90 seconds, game audio only, the place sounds and the Stand stomp carry it). Steam store text: short description, about, system requirements, the content note on historical material. |
+| 18 (Jan 18) | Steam page submitted for review (Steamworks review takes several business days; submit with margin). The other storefronts' pages built from the same assets. |
+| 19 (Jan 25) | Review notes fixed; page set to Coming Soon; the web build's landing carries a "Wishlist on Steam" link. February 1: live. |
+
+**What Steamworks needs for a Coming Soon page** (check the current Steamworks documentation for the
+exact pixel sizes when the brief goes out; they have changed before): a Steam Direct app fee per
+application; the store capsules (header, small, main, vertical), the library assets (capsule, hero,
+logo) and the community icon, all from one piece of key art; at least five gameplay screenshots at
+1920×1080; a trailer (not required for Coming Soon, but the page is built around it); the descriptions,
+genre tags, supported platforms and languages; and a page review by Valve before it goes public. A
+page must be public for a while before a release date can be set, which is fine for a Coming Soon
+launch.
+
+**The shot list** (the beats the game already stages; each is one engine event, so a fixed seed and a
+scripted plan replay them on cue):
+
+1. A Location reveal with its place sound (Harpers Ferry: the river, the oars, the bell).
+2. A card opening into the Codex card, the history scrolling.
+3. Characters walking Inside through the gate.
+4. A clash: the striker's ghost gathers, charges, the board jolts, the verdict stamps.
+5. A Threat cleared together: the showdown, fireworks, the cheer, the Word-spreads wave.
+6. Stand on Business: the slam, the coin flip, the stakes doubling.
+7. The Reckoning: the stamps landing Location by Location, the verdict, the result screen.
+8. Thirty seconds of an uncut turn, planning to replay, for the "what the game is" shot.
+
+Everything in the trailer comes from the Unity build, not the web, so what people wishlist is what
+ships. The web build stays the executives' playable version and is never filmed for the store.
 
 ## The relay loop (how a week runs)
 
@@ -250,6 +296,6 @@ Rules that keep it clean:
 
 1. Unity 6 LTS, uGUI and TextMeshPro, landscape 1920×1080, as decided above? Say so once and both sides
    build to it.
-2. Whether the cards' printed text faces change to match the new chrome, once the chrome's faces are
-   chosen. The game's side of that is one line per face.
-3. The week-13 cut line above: agree it now so the lanes are planned to it.
+2. The week-13 cut line and the February 1 plan above: agree them now so the lanes are planned to them.
+3. Which storefronts besides Steam. Each has its own asset sizes and review; the key art and the
+   trailer are shared, the pages are not.

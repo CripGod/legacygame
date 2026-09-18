@@ -31,9 +31,9 @@ except the words and the behaviour.
 - Unity 6 LTS (6000.x), uGUI, TextMeshPro. Landscape only: every board is the 1920×1080 stage.
 - Input: mouse and keyboard; touch on landscape tablets; 44 px minimum hit areas at 1x.
 - Fonts: any family on your Google Fonts list, or one you add. They must be SIL Open Font License so
-  they can ship inside the Unity build. Note the cards print their own text in Cinzel and Crimson Pro;
-  if the new chrome face clashes with them, say so, and the game can change the card text faces to
-  match (that text is live, so it is a cheap change on the game's side).
+  they can ship inside the Unity build. **The cards keep their text faces: Cinzel for names, numbers
+  and labels, Crimson Pro for rules and history.** That is fixed. Choose the chrome's faces to sit with
+  those two; the owner will work with you on the pairing. Cinzel is already on your list.
 - States: your four (default, hover, pressed, disabled) on every interactive piece, plus the game's own
   states listed per piece, built however your engine prefers (a toggle, a saved variant).
 - Colours baked into the pixels; a piece that comes in a player colour is exported twice (`-A`, `-B`).
@@ -234,8 +234,8 @@ board, four states, boards riding in `settings.json` with item positions. Correc
    different fills, or something better? Baked colours, no runtime tint.
 4. **Panels with title bars.** A Location panel and a sheet both need a title bar that stretches with
    the body. Is that `panel` + `header` stacked, or does `dialog` carry it as one nine-slice?
-5. **Fonts.** If the owner's chosen faces are not on your list, what does adding one take? (Read from
-   the code: a `GAME_FONTS` entry plus baked static-instance metrics.)
+5. **Fonts.** If the faces chosen to sit with Cinzel and Crimson Pro are not on your list, what does
+   adding one take? (Read from the code: a `GAME_FONTS` entry plus baked static-instance metrics.)
 6. **Board positions.** Confirm the web can rely on `settings.json`'s board items (`x`, `y`, `scale`,
    `rot`, `stretch`) as the layout spec, in 1920×1080 stage pixels.
 7. **Scenes are yours after first import.** Since the importer never rewrites a generated scene, we
