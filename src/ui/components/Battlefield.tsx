@@ -525,7 +525,7 @@ export function Battlefield(props: BattlefieldProps) {
                 : undefined
             }
           >
-            <GateStrip {...common} owner={opp} index={loc.index} label="Opponent Gates" right={title} />
+            <GateStrip {...common} owner={opp} index={loc.index} label="The Gates" right={title} />
             <div className={`loc-glow ${state}${healing ? ` ${healCls}` : ''}`}>
             <div className={cls}>
               {fx?.locStamp?.[loc.index] && <div className={`loc-stamp ${fx.locStamp[loc.index].tone}`}>{fx.locStamp[loc.index].title}</div>}
@@ -615,7 +615,7 @@ export function Battlefield(props: BattlefieldProps) {
               </div>
             </div>
             </div>
-            <GateStrip {...common} owner={me} index={loc.index} label="Your Gates" />
+            <GateStrip {...common} owner={me} index={loc.index} label="The Gates" />
           </div>
         );
       })}

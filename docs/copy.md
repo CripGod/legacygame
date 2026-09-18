@@ -1602,6 +1602,9 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - ${def.name} is placed here. It resolves when you Lock In and needs this open Gate slot.
 - ${def.name} waits to resolve.
 - strip ${def.curse ? 'curse' : 'event'}
+- gates-strip ${owner === me ? 'mine' : 'theirs'}
+- url("${pageUrl(artUrl('frames', 'gate-gold-off', 'webp'))}")
+- url("${pageUrl(artUrl('frames', 'gate-gold-on', 'webp'))}")
 - gates-left ${gOk ? 'drop-ok' : ''} ${gOver ? 'drop-over' : ''}
 - gate-slot ${i === nextOpen ? 'open' : 'later'}
 - Opens once the slot before it is taken.

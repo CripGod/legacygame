@@ -1854,7 +1854,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
    tile; the tile's picture sits in the frame's window. The other side keeps the drawn plate until it has frames of its own. */
 .gates-strip.mine .gate-slot:not(.event-slot) { border: 0; border-radius: 0; box-shadow: none; background: var(--gate-off) center / 100% 100% no-repeat; color: rgba(255, 224, 150, 0.85); }
 .gates-strip.mine .gate-slot.later { opacity: 0.5; }
-.gates-strip.mine .gate-slot.filled:not(.event-slot), .gates-strip.mine .gate-slot.reserved { background: transparent !important; clip-path: none !important; padding: 8% 13.4% 7.4% !important; overflow: visible; }
+.gates-strip.mine .gate-slot.filled:not(.event-slot), .gates-strip.mine .gate-slot.reserved { box-sizing: border-box; background: transparent !important; clip-path: none !important; padding: 8% 13.4% 7.4% !important; overflow: visible; }
 .gates-strip.mine .gate-slot.filled:not(.event-slot)::after, .gates-strip.mine .gate-slot.reserved::after { display: none; }
 .gates-strip.mine .gate-slot.filled:not(.event-slot)::before, .gates-strip.mine .gate-slot.reserved::before { content: ''; position: absolute; inset: 0; background: var(--gate-on) center / 100% 100% no-repeat; pointer-events: none; z-index: 4; }
 .gates-strip.mine .gate-slot.reserved::before { background-image: var(--gate-off); }
