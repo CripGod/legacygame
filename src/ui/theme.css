@@ -1863,3 +1863,8 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .gates-strip.mine .gate-slot.filled .pic { clip-path: none; border-radius: 0; }
 .gates-strip.mine .gate-slot.filled .pic .b, .gates-strip.mine .gate-slot.reserved .ghost-arrow, .gates-strip.mine .gate-slot.filled > .ghost-arrow, .gates-strip.mine .gate-slot.filled .stamp { z-index: 5; }
 .gates-strip.mine .gate-slot.reserved .strip.leaving { left: var(--gi-x); right: var(--gi-x); bottom: var(--gi-b); }
+/* The orbs ride out onto the frame so the picture in the window stays clear. */
+.gates-strip.mine .gate-slot.filled .pic { overflow: visible; }
+.gates-strip.mine .gate-slot.filled .pic .b-cost { top: calc(-0.75 * var(--gi-t)); left: calc(-0.7 * var(--gi-x)); }
+.gates-strip.mine .gate-slot.filled .pic .b-inf { left: calc(-0.7 * var(--gi-x)); }
+.gates-strip.mine .gate-slot.filled .pic .b-force { right: calc(-0.7 * var(--gi-x)); }
