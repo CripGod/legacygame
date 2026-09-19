@@ -1918,3 +1918,6 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .gates-left.drop-ok, .gates-left.drop-over, .column.drop-ok, .column.drop-over { outline: none !important; box-shadow: none !important; background: none; }
 .slots.drop-ok, .location .drop-ok { box-shadow: none !important; }
 .slots.drop-over, .gates-left.drop-over { box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55) !important; background: rgba(255, 255, 255, 0.06); border-radius: 6px; }
+
+/* In the window, the meter stays up top and everything else sinks to the bottom, so the vista shows between them. */
+.location.framed .inside-block { margin-top: auto; z-index: 7; }

@@ -601,8 +601,8 @@ export function Battlefield(props: BattlefieldProps) {
                 return (
                   <div className="inside-block">
                     <div className="inside-rows">
-                      <InsideRow {...common} owner={opp} index={loc.index} label="Opponent Characters" />
-                      <InsideRow {...common} owner={me} index={loc.index} label="Your Characters" />
+                      <InsideRow {...common} owner={opp} index={loc.index} label="Opponent" />
+                      <InsideRow {...common} owner={me} index={loc.index} label="You" />
                     </div>
                     {/* The column is always reserved, so the rows never change shape; empty, it shows the Location's art. */}
                     <div className={`threat-col ${has ? '' : 'empty'}`} aria-hidden={!has}>

@@ -252,7 +252,9 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
   /** Set at the fists' impact: the colour starts back into the page from the VS. */
   const [shattered, setShattered] = useState(false);
   const root = useRef<HTMLDivElement>(null);
-  const MOB_FIRST = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('mob') ? 400 : 30000; // hidden → up, the first time (?mob: at once)
+  /** The Mob on the landing page is off for now (it may come back): only ?mob brings it, at once. */
+  const MOB_ENABLED = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('mob');
+  const MOB_FIRST = MOB_ENABLED ? 400 : 30000; // hidden → up, the first time (?mob: at once)
   const MOB_AGAIN = 90000; // hidden → up, every time after
   const MOB_STANDS = 15000; // up → breaks on its own if nobody clicks
   const MOB_MESSAGE = 10000; // down → the message starts to fade
@@ -287,6 +289,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
       threatMusic(true); // its music opens with the hit: the entrance cue
     };
     const next = mobState === 'hidden' ? rise : mobState === 'up' ? defeatMob : mobState === 'falling' ? () => setMobState('down') : mobState === 'down' ? () => setMobState('fading') : () => setMobState('hidden');
+    if (!MOB_ENABLED && mobState === 'hidden') return; // off: it never rises, and its music never opens
     const id = window.setTimeout(next, wait);
     return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
