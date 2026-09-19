@@ -2048,3 +2048,9 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .gates-strip.theirs .lbl { visibility: hidden; }
 /* Your label rides 10px higher, over the Location's glow, so it reads as the frame's caption rather than the row's. */
 .gates-strip.mine .lbl { position: relative; top: -10px; z-index: 8; }
+
+/* The two name plates sit over everything on the board: tiles, glows, floats, flights and trails pass beneath
+   them (the fly layer and the floats are appended inside .app, whose stacking context is isolated, so a z-index
+   here can rank above them). Only modal sheets and their scrim, the dragged card and the tooltip stay above. */
+.hud { position: relative; z-index: 65; }
+.scrim, .devpanel { z-index: 70; }

@@ -11,7 +11,8 @@ function layerEl(): HTMLElement {
     layer = document.createElement('div');
     layer.className = 'fly-layer';
     layer.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(layer);
+    // Inside the app root (an isolated stacking context), so the name plates (z 65) can sit above the flights.
+    (document.querySelector('.app') ?? document.body).appendChild(layer);
   }
   return layer;
 }

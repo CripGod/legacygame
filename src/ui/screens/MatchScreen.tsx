@@ -295,7 +295,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     el.textContent = text;
     el.style.left = `${x}px`;
     el.style.top = `${y}px`;
-    document.body.appendChild(el);
+    (document.querySelector('.app') ?? document.body).appendChild(el); // inside the app root, under the name plates
     window.setTimeout(() => el.remove(), cls.includes('word') ? 2200 : 1600);
   };
   /**
@@ -326,7 +326,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     el.textContent = opts.label ?? `+${amount}`;
     el.style.left = `${x0}px`;
     el.style.top = `${y0}px`;
-    document.body.appendChild(el);
+    (document.querySelector('.app') ?? document.body).appendChild(el); // inside the app root, under the name plates
     const rr = ring.getBoundingClientRect();
     const dx = rr.left + rr.width / 2 - x0;
     const dy = rr.top + rr.height / 2 - y0;
