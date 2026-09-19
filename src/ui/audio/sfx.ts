@@ -27,6 +27,7 @@ export type SfxName =
   | 'lock'
   | 'turn'
   | 'location.reveal'
+  | 'location.open'
   | 'draw'
   | 'enter'
   | 'move'
@@ -69,7 +70,8 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   'influence.up': 'The meter takes its number: the ding as a +N reaches an Influence circle (numbers landing together ding once).',
   lock: 'Lock It In.',
   turn: 'A new turn begins: three soft bells as the meter refills.',
-  'location.reveal': 'A Location is revealed (or the Black Star arrives). Plays with the place\'s own sound when it has one: see SFX_PLACES.',
+  'location.reveal': 'A Location is revealed with the smashdown (or the Black Star arrives): the thud on the landing. Plays with the place\'s own sound when it has one: see SFX_PLACES.',
+  'location.open': 'A Location revealed without the smashdown (most of them: the first slams only when someone guessed it, later ones only when they arrive with force): the picture develops, the bells, no thud. With the place\'s own sound.',
   draw: 'You draw a card.',
   enter: 'A Character walks Inside: planned by you, or in the replay for the other side.',
   move: 'A relocation (swoosh).',
@@ -121,6 +123,7 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   lock: [{ files: ['lock'], gain: 0.8 }],
   turn: [{ files: ['new-turn'], gain: 0.55 }], // three soft bells: the riffle is gone
   'location.reveal': [{ files: ['stand-thud'], gain: 0.6, at: 1260 }, { files: ['turn'], gain: 0.4, at: 1420 }], // the thud on the smashdown's landing (~1.26s into the beat, after the picture develops and the panel grows)
+  'location.open': [{ files: ['turn'], gain: 0.4, at: 700 }], // the quiet reveal: the bells as the colour comes in
   draw: [{ files: ['draw'], gain: 0.5 }],
   enter: [{ files: ['enter'], gain: 0.45 }, { files: ['turn'], gain: 0.45, at: 380 }],
   move: [{ files: ['move-1', 'move-2'], gain: 0.6 }],
@@ -418,6 +421,9 @@ function synth(name: SfxName, t: number): void {
     case 'location.reveal':
       thud(t + 1.26, 0.45, 160, 50, 0.24);
       chime(t + 1.42, [659, 988], 0.09, 0.3, 0.12);
+      break;
+    case 'location.open':
+      chime(t + 0.7, [659, 988], 0.09, 0.3, 0.12);
       break;
     case 'draw':
       swoosh(t, 0.09, 1600, 3800, 0.18, 1.4);

@@ -2077,6 +2077,8 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .scrim, .devpanel { z-index: 70; }
 
 /* ---------- The smashdown (Marvel Snap): a Location revealed slams onto the board ----------
+   Rare: the first Location slams only when someone guessed it, later ones only when they arrive with force (a
+   Threat spawned as it opens, Anansi's retelling); every other reveal only develops and colours in (loc-develop).
    The reveal beat, in order: the photograph develops in the window in grey (a bright blur sharpening), colour
    floods in, then the panel grows toward the eye and slams down (at ~1.26s). On the landing every card standing in
    that column hops and settles, and the other two Locations tremor a little, as if the whole board were struck

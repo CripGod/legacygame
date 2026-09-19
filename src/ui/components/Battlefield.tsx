@@ -129,6 +129,8 @@ export interface BoardFx {
   arrive?: string;
   /** The Location just revealed slamming onto the board: the panel drops, the cards in its column hop. */
   slam?: number;
+  /** The first Location opening quietly (nobody guessed it): the beat waits for the picture to develop, no slam. */
+  open?: number;
   /** Cards hopping where they stand (the First Location bonus paying them). */
   jolt?: string[];
   /** Threats neutralized this beat that still look alive: the showdown has not reached them yet. */

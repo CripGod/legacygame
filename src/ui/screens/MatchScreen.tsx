@@ -209,6 +209,19 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   const step = m.replay ? m.replay.steps[m.replay.idx] : null;
   /** Beats that only re-show one of your own planned moves are skipped. */
   const ownBeat = !!step && !!m.replay && step.player === me && (step.kind === 'play' || step.kind === 'enter' || (step.kind === 'move' && m.replay.plan.relocations.some((r) => step.uids?.includes(r.uid))));
+  /**
+   * Whether a Reveal beat slams (the smashdown) or opens quietly. The slam is rare: the first Location slams only
+   * when someone guessed it (a First Location bonus is paid later in this replay); after that only a reveal that
+   * arrives with force, one that spawns a Threat as it opens or a Location Anansi retells. Everything else just
+   * develops and colours in.
+   */
+  const revealSlams = (s: TraceStep): boolean => {
+    const evs = s.events;
+    if (evs.some((e) => e.type === 'threatSpawned' || (e.type === 'locationTransformed' && !!e.data?.retold))) return true;
+    const idx = evs.find((e) => e.type === 'locationRevealed')?.location;
+    if (idx === undefined || s.state.turn !== 1 || s.state.revealOrder[0] !== idx) return false;
+    return !!m.replay?.steps.some((x) => x.events.some((e) => e.location === idx && (e.data as { trail?: string } | undefined)?.trail === 'first'));
+  };
   /** A Gathering's card, flashed over the board as it arrives (no button: it flies to its tile on its own). */
   const [arrival, setArrival] = useState<{ cardId: string; owner: PlayerId } | null>(null);
   /** Omar ibn Said's look at the opponent's hand: a strip over the board for a few seconds, then the profile keeps it. */
@@ -1000,12 +1013,18 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       // The smashdown (Marvel Snap): a Location revealed, or retold by Anansi, slams onto the board. The photograph
       // develops in the window in grey and colours in, then the panel grows and slams down (~1.26s); on the landing
       // the cards in that column hop and settle and the other Locations tremor a little (see theme.css, loc-slam).
+      // The slam is rare (see revealSlams); every other reveal opens quietly, the beat waiting for the picture.
       if (!reduceMotion() && step.kind === 'reveal') {
         const slammed = evs.find((e) => e.location !== undefined && (e.type === 'locationRevealed' || (e.type === 'locationTransformed' && !!e.data?.retold)));
         if (slammed?.location !== undefined) {
           const idx = slammed.location;
-          setFx((f) => ({ ...(f ?? { hidden: [] }), slam: idx }));
-          window.setTimeout(() => { if (alive()) setFx((f) => (f?.slam === idx ? null : f)); }, 1550);
+          if (revealSlams(step)) {
+            setFx((f) => ({ ...(f ?? { hidden: [] }), slam: idx }));
+            window.setTimeout(() => { if (alive()) setFx((f) => (f?.slam === idx ? null : f)); }, 1550);
+          } else {
+            setFx((f) => ({ ...(f ?? { hidden: [] }), open: idx }));
+            window.setTimeout(() => { if (alive()) setFx((f) => (f?.open === idx ? null : f)); }, 1150);
+          }
         }
       }
       // A card played from the other side's hand flips face up in its slot as its beat opens; a Character's Reveal
@@ -1103,7 +1122,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   // One sound per replay beat (my own beats were heard when I planned them); strikes, trails and digs have their own cues.
   useEffect(() => {
     if (step && !ownBeat) {
-      beatSfx(step);
+      beatSfx(step, step.kind === 'reveal' && !revealSlams(step));
       // The other side's Stand lands on the board the same way yours does: the burst over the Legacy coin, the flip.
       if (step.kind === 'stand' && step.events.some((e) => e.type === 'stand' && e.player && e.player !== me) && !reduceMotion()) coinFx(document.querySelector('.hud-sub .coin'));
       if (step.kind === 'play' && step.cardId) voice(step.cardId);
@@ -2432,14 +2451,14 @@ function ReparationsReadout({ view, me, placeholders }: { view: GameState; me: P
 }
 
 /** The sound for a replay beat, by what happened in it. */
-function beatSfx(step: TraceStep): void {
+function beatSfx(step: TraceStep, quiet = false): void {
   const evs = step.events;
   // The showdown choreography plays its own strike, verdict and cheer; the crossing's beat plays its own toll.
   if (step.kind === 'showdown' || step.kind === 'crossing') return;
   // A Location revealed sounds like the place, with the Threat it spawns (Harpers Ferry's Paddy Roller) over it.
   if (step.kind === 'reveal') {
     const revealed = evs.find((e) => e.type === 'locationRevealed');
-    sfx('location.reveal', typeof revealed?.data?.defId === 'string' ? revealed.data.defId : undefined);
+    sfx(quiet ? 'location.open' : 'location.reveal', typeof revealed?.data?.defId === 'string' ? revealed.data.defId : undefined);
     if (evs.some((e) => e.type === 'threatSpawned')) sfx('threat.spawn');
     return;
   }
