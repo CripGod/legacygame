@@ -272,7 +272,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
           ))}
           {eventTiles.length === 0 && (
             <div className="gate-slot event-slot empty" {...tip(owner === me ? `Your Event slot here: drop an Event card on this Location. One per Location per turn. A deck carries at most two Events: you have ${evLeft} of ${evTotal} left.` : "Harborlight's Event slot here.")}>
-              <span className="ini">✦</span>
+              <span className="ini">+</span>
               <span className="ev-lbl">Event</span>
               {owner === me && evTotal > 0 && <span className={`ev-count ${evLeft === 0 ? 'spent' : ''}`}>{evLeft} of {evTotal}</span>}
             </div>

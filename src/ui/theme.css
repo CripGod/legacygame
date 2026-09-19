@@ -2020,6 +2020,8 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
   .gates .gate-slot.event-slot::after { content: ''; position: absolute; inset: 0; background: var(--gate-event-on) center / 100% 100% no-repeat; pointer-events: none; z-index: 4; }
   .gates .gate-slot.event-slot.empty { background: var(--gate-event-off) center / 100% 100% no-repeat; background-clip: border-box; border: 0; box-shadow: none; }
   .gates .gate-slot.event-slot.empty::after { display: none; }
+  /* The empty Event slot mirrors an open Gate slot: a plain plus, in purple, over the label. */
+  .gates .gate-slot.event-slot.empty .ini { font-size: inherit; font-weight: inherit; color: rgba(196, 170, 255, 0.9); text-shadow: none; line-height: 1; }
   /* An img with width/height auto keeps its natural size even with four insets: the window's size is spelled out. */
   .gates .gate-slot.event-slot .pic-img { top: var(--gi-t); left: var(--gi-x); width: calc(100% - 2 * var(--gi-x)); height: calc(100% - var(--gi-t) - var(--gi-b)); }
   .gates .gate-slot.event-slot .strip { left: var(--gi-x); right: var(--gi-x); bottom: var(--gi-b); z-index: 5; }
