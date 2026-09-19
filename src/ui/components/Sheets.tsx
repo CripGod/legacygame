@@ -22,6 +22,7 @@ import { CardFace } from './CardFace';
 import { CodexSheet } from './CodexSheet';
 import { liveAbilities } from './Battlefield';
 import { Art } from './Art';
+import { SkyTag } from './Sky';
 
 export function Sheet({ children, onClose, title }: { children: ReactNode; onClose: () => void; title?: string }) {
   useEffect(() => {
@@ -164,7 +165,7 @@ export function LocationSheet({ view, index, onClose }: { view: GameState; index
           <div className="sheet-art-cap">
             <span>{def.era}</span>
             {def.region && <span className="muted">{def.region === 'americas' ? 'The Americas' : def.region === 'africa' ? 'Africa' : 'The Atlantic'}</span>}
-            {def.curfew && <span className={isNight(view) ? 'nighttag' : 'daytag'}>{isNight(view) ? '🌙 Night' : '☀ Day'}</span>}
+            {def.curfew && <SkyTag night={isNight(view)} />}
           </div>
         </div>
       )}

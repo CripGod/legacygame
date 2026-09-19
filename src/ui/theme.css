@@ -1929,9 +1929,29 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .gate-slot.gf.filled .pic.focus { animation: none; }
 .gate-slot.gf.filled:has(.pic.focus) { animation: focus-glow 900ms ease-in-out infinite; }
 @keyframes focus-glow {
-  0%, 100% { filter: drop-shadow(0 0 4px rgba(233, 185, 58, 0.9)) drop-shadow(0 0 12px rgba(233, 185, 58, 0.55)); }
-  50% { filter: drop-shadow(0 0 6px rgba(255, 242, 196, 1)) drop-shadow(0 0 22px rgba(233, 185, 58, 0.95)); }
+  0%, 100% { filter: drop-shadow(0 0 12px rgba(255, 236, 190, 0.7)) drop-shadow(0 0 28px rgba(255, 220, 150, 0.45)); }
+  50% { filter: drop-shadow(0 0 18px rgba(255, 246, 220, 0.95)) drop-shadow(0 0 42px rgba(255, 220, 150, 0.7)); }
 }
 /* A fallen Threat's NEUTRALIZED stamp is wider than its tile: it overhangs rather than being cut. */
 .threat-tile.gone, .threat-tile:has(> .stamp) { overflow: visible; }
 .threat-tile > .stamp { width: max-content; max-width: none; z-index: 9; }
+
+/* Its turn: a soft halo that breathes around the whole piece, never a crisp ring (a tight shadow or a
+   box-shadow ring reads as a box behind the frame). Inside tiles and framed Gate tiles get the same treatment. */
+.tile-glow.focus { transform: scale(1.08); filter: drop-shadow(0 0 14px rgba(255, 236, 190, 0.8)) drop-shadow(0 0 30px rgba(255, 220, 150, 0.5)); }
+.pic.focus { animation: none; box-shadow: none; }
+.slot.filled:has(.pic.focus) { --bc: var(--gold); animation: focus-glow 900ms ease-in-out infinite; }
+.slot.filled.B:has(.pic.focus) { --bc: var(--cB); border-color: var(--cB); }
+
+/* Day and night at a curfew Location: an engraved badge on the title band instead of pills. Night carries
+   the curfew with it (nobody relocates out until morning); day is the all-clear. */
+.sky-tag { display: inline-flex; align-items: center; gap: 5px; margin-left: 8px; padding: 2px 8px 2px 6px; border: 1px solid; border-radius: 3px; font-family: var(--display); font-weight: 700; font-size: clamp(8px, 0.72vw, 10.5px); letter-spacing: 0.14em; text-transform: uppercase; line-height: 1.25; white-space: nowrap; text-shadow: none; }
+.sky-tag .sky-ico { width: 1.15em; height: 1.15em; flex: none; }
+.sky-tag i { font-style: normal; margin-left: 2px; padding-left: 7px; border-left: 1px solid rgba(255, 255, 255, 0.28); }
+.sky-tag.night { color: #e4e9ff; border-color: #6d7fc4; background: linear-gradient(180deg, #223270, #101b4a); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 1px 2px rgba(0, 0, 0, 0.4); }
+.sky-tag.night .sky-ico { color: #f6d77a; }
+.sky-tag.night i { color: #ffb8b2; }
+.sky-tag.day { color: #6a4d10; border-color: #b8901f; background: linear-gradient(180deg, #fbf3dc, #eddcb0); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.65), 0 1px 2px rgba(0, 0, 0, 0.18); }
+.sky-tag.day .sky-ico { color: #d29a1c; }
+.location .art .sky-tag { flex: none; }
+.sheet-art-cap .sky-tag { margin-left: auto; font-size: 10px; }

@@ -1603,19 +1603,19 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - ${def.name} waits to resolve.
 - strip ${def.curse ? 'curse' : 'event'}
 - gates-strip ${owner === me ? 'mine' : 'theirs'}
-- url("${pageUrl(artUrl('frames', 'gate-gold-off', 'webp'))}")
-- url("${pageUrl(artUrl('frames', 'gate-gold-on', 'webp'))}")
+- url("${pageUrl(artUrl('frames', owner === me ? 'gate-gold-off' : 'gate-blue-off', 'webp'))}")
+- url("${pageUrl(artUrl('frames', owner === me ? 'gate-gold-on' : 'gate-blue-on', 'webp'))}")
 - gates-left ${gOk ? 'drop-ok' : ''} ${gOver ? 'drop-over' : ''}
-- gate-slot ${owner === me ? 'gf' : ''} ${i === nextOpen ? 'open' : 'later'}
+- gate-slot gf ${i === nextOpen ? 'open' : 'later'}
 - Opens once the slot before it is taken.
 - The Ancestors foresee: ${fd.name} ${s.seen.why}.
-- gate-slot reserved ${owner === me ? 'gf' : ''} ${s.held.through ? 'through' : ''} ${s.held.arriving ? 'arriving' : ''}
+- gate-slot reserved gf ${s.held.through ? 'through' : ''} ${s.held.arriving ? 'arriving' : ''}
 - ${hd.name} ${s.held.why} when you Lock It In.
 - ${hd.name} ${s.held.why}: every arrival is placed at the Gates before anyone walks Inside, so this slot is taken this turn.
 - ${hd.name} ${s.held.why} when you Lock It In. The slot stays taken until then.
 - strip leaving ${s.held.arriving ? 'arriving' : ''}
 - tile-glow owner-${owner} ${focus?.includes(s.uid) ? 'focus' : ''}
-- gate-slot filled ${owner === me ? 'gf' : ''} owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''}
+- gate-slot filled gf owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''}
 - stamp verdict ${fx.stamp.tone ?? 'hit'}
 - Your Event slot here: drop an Event card on this Location. One per Location per turn. A deck carries at most two Events: you have ${evLeft} of ${evTotal} left.
 - ev-count ${evLeft === 0 ? 'spent' : ''}

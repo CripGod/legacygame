@@ -17,6 +17,7 @@ import {
 import { initials, locationName, threatLabel, useDisplay } from '../display';
 import { Pic } from './CardFace';
 import { Art } from './Art';
+import { SkyTag } from './Sky';
 import { artUrl } from '../art';
 import { assistButtons } from '../assist';
 import { charDef, confrontForce, threatForceNeeded, isNight, lockReason, LOCATION_BY_ID, CARD_BY_ID, TEAM_UP_BY_ID } from '../../engine';
@@ -578,9 +579,7 @@ export function Battlefield(props: BattlefieldProps) {
                 {!loc.lost && loc.treatyTorn && view.turn <= loc.treatyTorn.until && <span className="lost-tag treaty" {...tip(HINTS.treatyTorn)}>NO TREATY</span>}
                 {!loc.lost && loc.teamUps?.map((t) => <span key={`${t.id}-${t.owner}`} className={`lost-tag teamup ${t.owner === me ? 'mine' : 'theirs'}`} {...tip(`Team-up, ${TEAM_UP_BY_ID[t.id].name} (${view.players[t.owner].handle}): ${TEAM_UP_BY_ID[t.id].text} It holds while both remain Inside.`)}>{TEAM_UP_BY_ID[t.id].name.toUpperCase()}</span>)}
                 {!loc.lost && loc.oath && loc.threats.some((t) => t.uid === loc.oath!.threatUid) && <span className="lost-tag oath" {...tip(HINTS.oath)}>OATH</span>}
-                {!loc.lost && loc.revealed && curfewOn(view, loc.index) && <span className="lost-tag curfew" {...tip(HINTS.locked)}>CURFEW</span>}
-                {!loc.lost && hasCurfew && !curfewOn(view, loc.index) && <span className="lost-tag daytag" {...tip(HINTS.dayNight)}>☀ DAY</span>}
-                {!loc.lost && nightHere && <span className="lost-tag nighttag" {...tip(HINTS.dayNight)}>🌙 NIGHT</span>}
+                {!loc.lost && hasCurfew && <SkyTag night={nightHere} />}
                 {loc.sanctified && <span className="lost-tag sanct">OBATALA</span>}
                 {summon && <span className="summon-tag">{summon}</span>}
               </div>

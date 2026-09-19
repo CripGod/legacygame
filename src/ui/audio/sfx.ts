@@ -88,7 +88,7 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   'dig.keep': 'The dearer story is kept: the card lights up and is chosen (the select climb with a shimmer).',
   'dig.bury': 'The other cards go back to the bottom of the deck: a flick and a soft thud.',
   stand: 'Stand on Business: the stakes rise.',
-  'stand.button': 'The Stand on Business button, Marvel Snap style: stomp, stomp, clap, and on the clap the bell, a boom and a roar that carries on for a few seconds.',
+  'stand.button': 'The Stand on Business button, Marvel Snap style: stomp, stomp, clap, and on the clap the bell, a boom and the crowd\'s roar carrying on for a few seconds. No horns.',
   lastword: 'The Last Word begins.',
   lost: 'A Location is Lost, or someone changes sides.',
   win: 'You win the match: drums and the bell.',
@@ -139,7 +139,7 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'dig.keep': [{ files: ['select'], gain: 0.55 }, { files: ['trail'], gain: 0.25, at: 80 }], // "you have been chosen": the select climb, a shimmer under it
   'dig.bury': [{ files: ['card-back'], gain: 0.5 }, { files: ['thud-soft'], gain: 0.4, at: 120 }],
   stand: [{ files: ['stand-thud'], gain: 0.9 }, { files: ['stand-drums'], gain: 0.8 }],
-  'stand.button': [{ files: ['stand-stomp'], gain: 0.9 }, { files: ['stand-bell'], gain: 0.7, at: 800 }, { files: ['stand-burst'], gain: 0.85, at: 800 }], // stomp, stomp, clap ... and on the clap the ring bell, the boom, the brass and the crowd carrying on
+  'stand.button': [{ files: ['stand-stomp'], gain: 0.9 }, { files: ['stand-bell'], gain: 0.7, at: 800 }, { files: ['stand-burst'], gain: 0.85, at: 800 }], // stomp, stomp, clap ... and on the clap the ring bell, the boom and the crowd carrying on (no brass)
   lastword: [{ files: ['lastword'], gain: 0.8 }],
   lost: [{ files: ['lost'], gain: 0.65 }],
   win: [{ files: ['stand-drums'], gain: 0.85 }, { files: ['lastword'], gain: 0.7, at: 220 }], // drums and the bell: gravity, not a fanfare
