@@ -2046,3 +2046,5 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .gates-strip .lbl::after { background: linear-gradient(to left, transparent, var(--rule)) right center / calc(100% - 4px) 1px no-repeat, linear-gradient(45deg, var(--rule), var(--rule)) left center / 5px 5px no-repeat; clip-path: polygon(2.5px 0, 100% 0, 100% 100%, 2.5px 100%, 0 50%); }
 /* The opponent's rows carry no label (the slot tips say what they are); the space stays so nothing shifts. */
 .gates-strip.theirs .lbl { visibility: hidden; }
+/* Your label rides 10px higher, over the Location's glow, so it reads as the frame's caption rather than the row's. */
+.gates-strip.mine .lbl { position: relative; top: -10px; z-index: 8; }
