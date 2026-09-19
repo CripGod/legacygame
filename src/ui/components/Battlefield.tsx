@@ -199,7 +199,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
   const evLeft = view.players[me].hand.filter(isEvent).length + (view.players[me].deckEvents ?? 0);
   const evTotal = evLeft + view.players[me].discard.filter(isEvent).length;
   return (
-    <div className={`gates-strip ${owner === me ? 'mine' : 'theirs'}`} style={{ '--gate-off': `url("${pageUrl(artUrl('frames', 'gate-gold-off', 'webp'))}")`, '--gate-on': `url("${pageUrl(artUrl('frames', owner === me ? 'gate-gold-on' : 'gate-blue-on', 'webp'))}")` } as React.CSSProperties}>
+    <div className={`gates-strip ${owner === me ? 'mine' : 'theirs'}`} style={{ '--gate-off': `url("${pageUrl(artUrl('frames', 'gate-gold-off', 'webp'))}")`, '--gate-on': `url("${pageUrl(artUrl('frames', owner === me ? 'gate-gold-on' : 'gate-blue-on', 'webp'))}")`, '--gate-event-off': `url("${pageUrl(artUrl('frames', 'gate-event-off', 'webp'))}")`, '--gate-event-on': `url("${pageUrl(artUrl('frames', 'gate-event-on', 'webp'))}")` } as React.CSSProperties}>
       <div className={`gates-left ${gOk ? 'drop-ok' : ''} ${gOver ? 'drop-over' : ''}`} {...(owner === me ? { 'data-drop': 'gates', 'data-index': index } : {})}>
         <div className="lbl">
           {label}
