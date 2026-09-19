@@ -1774,7 +1774,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 /* ---------- The end of the match, on the board ---------- */
 /* Hearthstone's banner, Snap's result panel: the word slams in over the stamped Locations with a flash (and, for a
    win, the fireworks), lifts after a beat, and the result panel rises over the hand with the board still in view. */
-.end-banner { position: fixed; inset: 0; z-index: 45; display: grid; place-items: center; pointer-events: none; }
+.end-banner { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; pointer-events: none; }
 .end-flash { position: absolute; left: 50%; top: 42%; width: 40vmax; height: 40vmax; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, rgba(255, 244, 214, 0.9) 0%, rgba(246, 215, 122, 0.45) 28%, rgba(246, 215, 122, 0) 62%); mix-blend-mode: screen; animation: end-flash 0.9s ease-out both; }
 .end-banner.loss .end-flash { background: radial-gradient(circle, rgba(255, 220, 214, 0.8) 0%, rgba(224, 74, 63, 0.4) 28%, rgba(224, 74, 63, 0) 62%); }
 .end-banner.draw .end-flash { background: radial-gradient(circle, rgba(230, 236, 246, 0.7) 0%, rgba(160, 175, 200, 0.35) 28%, rgba(160, 175, 200, 0) 62%); }
@@ -1802,10 +1802,10 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .end-panel.draw .end-title { color: #dfe6f2; text-shadow: none; }
 
 /* The result panel: centred over a near-black scrim; the board is barely there behind it until "Look at the board". */
-.end-scrim { position: fixed; inset: 0; z-index: 43; background: rgba(2, 5, 10, 0.9); animation: end-scrim-in 0.4s ease-out both; }
+.end-scrim { position: fixed; inset: 0; z-index: 76; background: rgba(2, 5, 10, 0.9); animation: end-scrim-in 0.4s ease-out both; }
 @keyframes end-scrim-in { from { opacity: 0; } to { opacity: 1; } }
 .end-panel {
-  position: fixed; left: 50%; top: 50%; z-index: 44; transform: translate(-50%, -50%);
+  position: fixed; left: 50%; top: 50%; z-index: 78; transform: translate(-50%, -50%);
   width: min(96vw, 860px); max-height: min(92vh, 720px); overflow: auto; scrollbar-width: thin;
   padding: 16px 20px 18px; box-sizing: border-box;
   border: 1px solid var(--gold); border-radius: 14px;
@@ -1838,7 +1838,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .end-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 /* Collapsed to look at the board: one slim bar along the bottom. */
 .end-bar {
-  position: fixed; left: 50%; bottom: 10px; z-index: 44; transform: translateX(-50%);
+  position: fixed; left: 50%; bottom: 10px; z-index: 78; transform: translateX(-50%);
   display: flex; align-items: center; gap: 10px; max-width: 94vw; padding: 7px 10px 7px 14px;
   border: 1px solid var(--gold); border-radius: 6px;
   background: linear-gradient(180deg, rgba(20, 34, 56, 0.97), rgba(8, 19, 31, 0.97));
@@ -2069,7 +2069,8 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
    them (the fly layer and the floats are appended inside .app, whose stacking context is isolated, so a z-index
    here can rank above them). Only modal sheets and their scrim, the dragged card and the tooltip stay above. */
 .hud { position: relative; z-index: 65; }
-.scrim, .devpanel { z-index: 70; }
+/* The match's end sits over the board, the name plates and every effect (76-80); a sheet opened from it (a card to promote) over that. */
+.scrim, .devpanel { z-index: 85; }
 
 /* ---------- The smashdown (Marvel Snap): a Location revealed slams onto the board ----------
    Off for now (SLAM_ENABLED in MatchScreen): every reveal opens quietly. When on, it is rare: the first Location slams only when someone guessed it, later ones only when they arrive with force (a
