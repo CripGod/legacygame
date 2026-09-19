@@ -142,7 +142,9 @@ export function partWay(a: DOMRect, b: DOMRect, k: number): DOMRect {
   const cb = centre(b);
   const x = ca.x + (cb.x - ca.x) * k;
   const y = ca.y + (cb.y - ca.y) * k;
-  return new DOMRect(x - b.width / 2, y - b.height / 2, b.width, b.height);
+  // The mover's own size, not the target's: a charge from a seat at a Gate tile (or the other way round) must not
+  // double or halve the striker on the way, since `fly` scales a ghost to the rect it is sent to.
+  return new DOMRect(x - a.width / 2, y - a.height / 2, a.width, a.height);
 }
 
 /** A short shudder in place, on top of wherever the ghost is (the striker holding on impact, the victim taking the hit). */

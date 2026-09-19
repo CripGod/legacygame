@@ -2030,3 +2030,8 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
   .gates .gate-slot.event-slot.planned { border: 0; }
   .gates .gate-slot.event-slot.trigger::before { z-index: 6; }
 }
+
+/* A verdict on an Inside seat: a smaller stamp, so it reads as that seat's and not its neighbours'. */
+.slot.filled > .stamp.verdict { padding: 1px 4px; border-width: 2px; }
+.slot.filled > .stamp.verdict b { font-size: clamp(8px, 0.68vw, 10.5px); letter-spacing: 0.08em; }
+.slot.filled > .stamp.verdict i { font-size: clamp(7px, 0.6vw, 9.5px); }
