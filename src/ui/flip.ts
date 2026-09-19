@@ -44,18 +44,28 @@ export function useFlip(container: React.RefObject<HTMLElement | null>, opts: Fl
         const delay = optsRef.current.delayFor(uid);
         const duration = optsRef.current.durationFor?.(uid) ?? 620;
         if (duration <= 0) return;
-        el.style.transition = 'none';
-        el.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+        // The glow box beside the piece (its sibling in the .tile-glow wrapper, on the plane beneath every tile)
+        // glides with it, so the halo travels and no lit frame waits at the destination.
+        const glow = el.parentElement?.classList.contains('tile-glow') ? el.parentElement.querySelector<HTMLElement>(':scope > i.glow') : null;
+        const both = glow ? [el, glow] : [el];
+        for (const t of both) {
+          t.style.transition = 'none';
+          t.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+        }
         el.style.zIndex = '40';
         el.style.opacity = delay > 0 && !rects.current.has(uid) ? '0' : '1';
+        if (glow) glow.style.opacity = el.style.opacity;
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            el.style.transition = `transform ${duration}ms cubic-bezier(.2,.8,.2,1) ${delay}ms, opacity 120ms linear ${delay}ms`;
-            el.style.transform = '';
-            el.style.opacity = '1';
+            for (const t of both) {
+              t.style.transition = `transform ${duration}ms cubic-bezier(.2,.8,.2,1) ${delay}ms, opacity 120ms linear ${delay}ms`;
+              t.style.transform = '';
+              t.style.opacity = '1';
+            }
             window.setTimeout(() => {
-              el.style.transition = '';
+              for (const t of both) t.style.transition = '';
               el.style.zIndex = '';
+              if (glow) glow.style.opacity = '';
             }, duration + 80 + delay);
           });
         });

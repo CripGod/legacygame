@@ -225,7 +225,7 @@ function Fist({ side }: { side: 'left' | 'right' }) {
   );
 }
 
-export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: (o: StartOptions) => void; onRules: () => void; onCards: () => void; initialDev: boolean }) {
+export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: (o: StartOptions) => void; onRules: () => void; onCards: (chapter?: string) => void; initialDev: boolean }) {
   const [dev, setDev] = useState(initialDev);
   // Dev: ?legacy=N grants N Legacy once per page load, to review ranks without playing.
   useEffect(() => {
@@ -318,26 +318,65 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
   const deckOptions = [...Object.entries(PRESET_DECKS).map(([k, d]) => ({ key: k, name: d.name, style: d.style, cards: d.cards })), RANDOM_DECK];
   const mob = THREAT_BY_ID[SPOTLIGHT_THREAT];
 
-  const DeckPanel = ({ side, label, note, value, onChange }: { side: 'mine' | 'theirs'; label: string; note: string; value: string; onChange: (k: string) => void }) => {
+  /** The first sentence of a deck's style line: the panel's subtitle. */
+  const motto = (style: string) => style.split(/(?<=\.)\s/)[0];
+  const [menuOpen, setMenuOpen] = useState<'mine' | 'theirs' | null>(null);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const off = (e: PointerEvent) => {
+      if (!(e.target as Element | null)?.closest?.('.deck-menu')) setMenuOpen(null);
+    };
+    const key = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(null);
+    };
+    window.addEventListener('pointerdown', off);
+    window.addEventListener('keydown', key);
+    return () => {
+      window.removeEventListener('pointerdown', off);
+      window.removeEventListener('keydown', key);
+    };
+  }, [menuOpen]);
+
+  const DeckPanel = ({ side, label, value, onChange }: { side: 'mine' | 'theirs'; label: string; value: string; onChange: (k: string) => void }) => {
     const d = deckOptions.find((o) => o.key === value)!;
+    const open = menuOpen === side;
     return (
       <section className={`deck-panel ${side}`}>
         <div className="deck-head">
-          <div>
+          <div className="deck-title">
             <div className="lbl">{label}</div>
-            <p className="deck-style" title={d.style}>{TAGLINE[d.key] ?? d.style}</p>
+            <p className="deck-style" title={d.style}>{motto(TAGLINE[d.key] ?? d.style)}</p>
           </div>
-          <span className="deck-note" aria-hidden>
-            <span className="deck-note-text">{note}</span>
-          </span>
-        </div>
-        <div className="deck-tabs-lbl" id={`decks-${side}`}>Decks</div>
-        <div className="deck-tabs" role="group" aria-labelledby={`decks-${side}`}>
-          {deckOptions.map((o) => (
-            <button key={o.key} className={`small ${o.key === value ? 'primary' : ''}`} onClick={() => onChange(o.key)}>
-              {o.name}
+          {/* The deck, chosen from a dropdown: DECK › name. */}
+          <div className={`deck-menu ${open ? 'open' : ''}`}>
+            <button type="button" className="deck-menu-btn" aria-haspopup="listbox" aria-expanded={open} onClick={() => setMenuOpen(open ? null : side)}>
+              <span className="dm-k">Deck</span>
+              <span className="dm-sep" aria-hidden>
+                ›
+              </span>
+              <span className="dm-v">{d.name}</span>
+              <span className="dm-caret" aria-hidden />
             </button>
-          ))}
+            {open && (
+              <ul className="deck-menu-list" role="listbox" aria-label={`${label}: deck`}>
+                {deckOptions.map((o) => (
+                  <li key={o.key} role="option" aria-selected={o.key === value}>
+                    <button
+                      type="button"
+                      className={o.key === value ? 'on' : ''}
+                      onClick={() => {
+                        onChange(o.key);
+                        setMenuOpen(null);
+                      }}
+                    >
+                      <b>{o.name}</b>
+                      <span>{motto(TAGLINE[o.key] ?? o.style)}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
         <div className="deck-row">
           {d.cards.length > 0 ? (
@@ -353,6 +392,8 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
       </section>
     );
   };
+  const [signNote, setSignNote] = useState(false);
+  const scrollTo = (sel: string) => root.current?.querySelector(sel)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   return (
     <div className={`landing ${mobState === 'up' || (mobState === 'falling' && !shattered) ? 'siege' : ''} ${shattered && mobState !== 'hidden' ? 'healing' : ''}`} ref={root}>
@@ -376,19 +417,73 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
         <div className="fg rocks" style={{ backgroundImage: `url(${artUrl('landing', 'rocks', 'webp')})` }} />
       </div>
 
+      {/* The top bar: the Africa mark, the pages, and on the right the studio line and Sign in (the Legacy wallet and
+          the sound switches sit with them). */}
+      <nav className="topbar" aria-label="Site">
+        <button type="button" className="brand" onClick={() => scrollTo('.hero')} aria-label="Stand on Business">
+          <img className="brand-mark" src={artUrl('landing', 'africa', 'webp')} alt="" draggable={false} />
+        </button>
+        <ul className="topnav">
+          <li>
+            <button type="button" className="on" aria-current="page" onClick={() => scrollTo('.hero')}>
+              Play
+            </button>
+          </li>
+          <li>
+            <button type="button" onClick={() => onCards()}>Cards</button>
+          </li>
+          <li>
+            <button type="button" onClick={() => scrollTo('.decks')}>Factions</button>
+          </li>
+          <li>
+            <button type="button" onClick={() => onCards('locations')}>Locations</button>
+          </li>
+          <li>
+            <button type="button" onClick={onRules}>The story</button>
+          </li>
+        </ul>
+        <div className="topbar-right">
+          <Wallet />
+          <SettingsMenu />
+          <div className="byline" aria-label="A game by PatternBreak">
+            <span>A game by</span>
+            <b>PatternBreak</b>
+          </div>
+          <button type="button" className="signin" aria-describedby={signNote ? 'sign-note' : undefined} onClick={() => setSignNote(true)} {...tip('Accounts are coming. Your Legacy is kept on this device for now.')}>
+            Sign in
+          </button>
+          {signNote && (
+            <div id="sign-note" className="sign-note" role="status">
+              Accounts are coming. Your Legacy is kept on this device for now.
+              <button type="button" className="link" onClick={() => setSignNote(false)}>
+                Got it
+              </button>
+            </div>
+          )}
+        </div>
+      </nav>
+
       <div className="corner left">
+        <i className="rule" aria-hidden />
         Strategy
         <br />
         builds
         <br />
-        legacy
+        legacy.
       </div>
       <div className="corner right">
-        Real people.
+        <i className="rule" aria-hidden />
+        Real
         <br />
-        Real Locations.
+        people.
         <br />
-        Real history.
+        Real
+        <br />
+        Locations.
+        <br />
+        Real
+        <br />
+        history.
       </div>
 
       <header className="hero">
@@ -396,10 +491,6 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
         <div className="hero-sub">The Black History Card Battler</div>
         <div className="hero-tag">People. Strategy. A stronger tomorrow.</div>
       </header>
-      <div className="audio-corner">
-        <Wallet />
-        <SettingsMenu />
-      </div>
 
       {small && (
         <div className="desktop-note" role="note">
@@ -409,37 +500,37 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
       )}
       <nav className="hero-actions" aria-label="Start">
         <button className="cta play" onClick={() => onPlay(opts('ai'))} disabled={small} title={small ? 'Desktop only for now' : undefined}>
-          <span className="cta-ico" aria-hidden>
-            ▶
-          </span>
           Play match
-        </button>
-        <button className="cta" onClick={() => onPlay({ ...opts('ai'), seed: TUTORIAL_SEED, deckA: TUTORIAL_DECKS.A, deckB: TUTORIAL_DECKS.B, coach: true, tutorial: true })} disabled={small} title={small ? 'Desktop only for now' : undefined}>
-          <span className="cta-ico" aria-hidden>
-            ✦
+          <span className="cta-arrow" aria-hidden>
+            →
           </span>
-          Tutorial
         </button>
-        <button className="cta" onClick={onCards}>
-          <span className="cta-ico" aria-hidden>
-            ▤
-          </span>
-          Cards
-        </button>
-        <button className="cta" onClick={onRules}>
-          <span className="cta-ico" aria-hidden>
-            ▭
-          </span>
-          Learn the rules
+        <button className="cta ghost" onClick={onRules}>
+          Learn the game
         </button>
       </nav>
+      <div className="hero-more">
+        <button type="button" className="link-cta" onClick={() => onPlay({ ...opts('ai'), seed: TUTORIAL_SEED, deckA: TUTORIAL_DECKS.A, deckB: TUTORIAL_DECKS.B, coach: true, tutorial: true })} disabled={small} title={small ? 'Desktop only for now' : undefined}>
+          New here? Play the tutorial match ✦
+        </button>
+      </div>
 
       <div className="decks">
-        <DeckPanel side="mine" label="Your cards" note="Justice arcs forward." value={deckA} onChange={setDeckA} />
+        <DeckPanel side="mine" label="Your cards" value={deckA} onChange={setDeckA} />
         <div className={`vs-col ${mobState}`}>
           <div className="vs-flourish" aria-hidden />
-          <div className="vs" aria-hidden>
-            VS
+          <img className="vs-mark" src={artUrl('landing', 'africa', 'webp')} alt="" aria-hidden draggable={false} />
+          <div className="vs-stack" aria-hidden>
+            <div className="vs">VS</div>
+            <div className="vs-note">
+              Different
+              <br />
+              paths.
+              <br />
+              Same
+              <br />
+              goals.
+            </div>
           </div>
           {mobState === 'falling' && (
             <div className="fists" aria-hidden>
@@ -473,14 +564,14 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
             </div>
           )}
         </div>
-        <DeckPanel side="theirs" label="Opponent's cards" note="Different paths. Same goals." value={deckB} onChange={setDeckB} />
+        <DeckPanel side="theirs" label="Opponent's cards" value={deckB} onChange={setDeckB} />
       </div>
 
       <footer className="hero-foot">
-        <div className="foot-quote">
-          Who has the better plan for the future?
-          <br />
-          Compete for Influence.
+        <div className="foot-line">
+          <span>More than a game.</span>
+          <i aria-hidden>◆</i>
+          <span>A stronger tomorrow.</span>
         </div>
         <div className="foot-meta">
           <span>Systems prototype · v0.3 · build {typeof __BUILD__ === 'string' ? __BUILD__ : 'dev'}</span>

@@ -9,9 +9,9 @@
   position: relative; min-height: 100dvh; overflow-x: hidden; overflow-y: auto;
   background: radial-gradient(120% 70% at 50% 0%, #10253d 0%, #08131f 55%, #050c15 100%);
   color: var(--text);
-  display: grid; grid-template-rows: auto auto auto 1fr auto; justify-items: center;
-  padding: clamp(14px, 2vw, 28px) clamp(14px, 3vw, 40px) 24px;
-  gap: clamp(10px, 1.6vw, 22px);
+  display: grid; grid-template-rows: auto auto auto auto 1fr auto; justify-items: center;
+  padding: clamp(10px, 1.4vw, 18px) clamp(14px, 3vw, 40px) 24px;
+  gap: clamp(8px, 1.3vw, 18px);
 }
 
 /* ---- plates ---- */
@@ -53,97 +53,148 @@
 
 /* Everything in front of the plates. */
 /* Stacking, back to front: plates (0) · page content (auto, DOM order) · foreground cutouts (2) · Threat card (3) · sheets (4). */
-.landing > .hero, .landing > .hero-actions, .landing > .decks, .landing > .hero-foot { position: relative; }
+.landing > .topbar, .landing > .hero, .landing > .hero-actions, .landing > .hero-more, .landing > .decks, .landing > .hero-foot { position: relative; }
 .fg-layer { position: fixed; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
 .landing > .cx-scrim { z-index: 4; }
 
 /* ---- corners ---- */
+/* Two short lines of small caps, a word to a line with air between them, each under a hairline that drops in from
+   above: 'Strategy builds legacy.' at the left a little below the wordmark's foot, 'Real people. Real Locations.
+   Real history.' at the right beside the wordmark. */
 .landing > .corner {
-  position: absolute; top: clamp(44px, 6vw, 80px); z-index: 1;
-  font-family: var(--display); font-weight: 700; font-size: clamp(9px, 0.85vw, 13px); letter-spacing: 0.28em; text-transform: uppercase; line-height: 1.7;
-  color: var(--gold-2); text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  position: absolute; z-index: 1; width: max-content;
+  font-family: var(--display); font-weight: 700; font-size: clamp(9px, 0.8vw, 12px); letter-spacing: 0.34em; text-transform: uppercase; line-height: 2.05;
+  color: #f1e6cc; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
   animation: rise 0.9s ease-out backwards 0.5s;
 }
-.corner.left { left: clamp(14px, 3vw, 44px); }
-.corner.right { right: clamp(14px, 3vw, 44px); text-align: right; }
-.corner::after { content: ''; display: block; width: 46px; height: 1px; background: var(--gold); margin-top: 8px; opacity: 0.7; }
-.corner.right::after { margin-left: auto; }
+.corner.left { left: clamp(18px, 3vw, 46px); top: clamp(300px, 39vh, 420px); }
+.corner.right { right: clamp(18px, 3vw, 46px); top: clamp(150px, 17vh, 210px); text-align: right; }
+.corner .rule { display: block; width: 1px; height: clamp(40px, 6vh, 70px); background: linear-gradient(to bottom, transparent, var(--gold-2)); margin: 0 0 10px 2px; opacity: 0.85; }
+.corner.right .rule { margin: 0 2px 10px auto; }
+
+/* ---- top bar ---- */
+/* The Africa mark at the left, the pages beside it (the one you are on underlined in gold), and at the right the
+   Legacy wallet, the sound switches, the studio line and Sign in. */
+.topbar { width: 100%; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: clamp(14px, 2.5vw, 40px); animation: rise 0.7s ease-out backwards; }
+.brand { background: none; border: 0; padding: 0; cursor: pointer; display: block; line-height: 0; }
+.brand-mark { width: clamp(34px, 3vw, 46px); height: auto; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.7)); transition: transform 0.2s; }
+.brand:hover .brand-mark { transform: scale(1.06); }
+.topnav { display: flex; align-items: center; gap: clamp(14px, 2.4vw, 40px); margin: 0; padding: 0; list-style: none; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.topnav::-webkit-scrollbar { display: none; }
+.topnav li { margin: 0; flex: none; }
+.topnav button { background: none; border: 0; padding: 8px 2px; font-family: var(--display); font-weight: 700; font-size: clamp(10px, 0.82vw, 12.5px); letter-spacing: 0.3em; text-transform: uppercase; color: #d9cfb6; cursor: pointer; position: relative; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8); transition: color 0.15s; }
+.topnav button::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1.5px; background: var(--gold-2); transform: scaleX(0); transform-origin: left; transition: transform 0.2s; }
+.topnav button:hover { color: #f4e9d0; }
+.topnav button.on { color: #f4e9d0; }
+.topnav button.on::after, .topnav button:hover::after { transform: scaleX(1); }
+.topbar-right { display: flex; align-items: center; gap: clamp(10px, 1.4vw, 22px); position: relative; }
+.byline { display: grid; gap: 1px; text-align: right; font-family: var(--display); letter-spacing: 0.26em; text-transform: uppercase; line-height: 1.2; }
+.byline span { font-size: 8.5px; font-weight: 600; color: #cfc4a8; opacity: 0.85; }
+.byline b { font-size: 10.5px; font-weight: 700; color: #f1e6cc; }
+.signin { background: none; border: 1px solid rgba(233, 185, 58, 0.7); border-radius: 999px; padding: 9px 22px; font-family: var(--display); font-weight: 700; font-size: clamp(9.5px, 0.78vw, 11.5px); letter-spacing: 0.28em; text-transform: uppercase; color: #f4e9d0; cursor: pointer; transition: box-shadow 0.15s, border-color 0.15s; }
+.signin:hover { border-color: var(--gold-2); box-shadow: 0 0 0 1px rgba(233, 185, 58, 0.2), 0 0 18px rgba(233, 185, 58, 0.25); }
+.sign-note { position: absolute; top: calc(100% + 10px); right: 0; z-index: 6; width: 260px; padding: 10px 12px; border: 1px solid rgba(233, 185, 58, 0.5); border-radius: 10px; background: rgba(6, 14, 24, 0.95); color: #e9e2cf; font-size: 12px; line-height: 1.4; box-shadow: 0 14px 30px rgba(0, 0, 0, 0.6); display: grid; gap: 6px; justify-items: end; animation: rise 0.2s ease-out; }
+.sign-note .link { background: none; border: 0; padding: 0; color: var(--gold-2); font: inherit; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; }
+.topbar .wallet { font-size: 12px; }
 
 /* ---- hero ---- */
-.hero { display: grid; justify-items: center; text-align: center; gap: 6px; margin-top: clamp(6px, 1.5vw, 18px); animation: rise 0.9s ease-out backwards; transform: translate(calc(var(--mx) * 6px), calc(var(--my) * 4px)); }
+.hero { display: grid; justify-items: center; text-align: center; gap: 6px; margin-top: clamp(4px, 1vw, 14px); animation: rise 0.9s ease-out backwards; transform: translate(calc(var(--mx) * 6px), calc(var(--my) * 4px)); }
 /* The wordmark is the brush art itself (gold lettering, the crown); only its shadow is ours. */
 .hero .hero-mark {
-  display: block; width: min(52vw, 400px); height: auto;
+  display: block; width: min(34vw, 520px); height: auto;
   filter: drop-shadow(0 2px 0 rgba(90, 60, 8, 0.55)) drop-shadow(0 8px 26px rgba(233, 185, 58, 0.35));
 }
-.hero-sub { font-family: var(--display); font-weight: 700; font-size: clamp(11px, 1.15vw, 16px); letter-spacing: 0.34em; text-transform: uppercase; color: var(--gold-2); margin-top: 8px; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8); }
+.hero-sub { font-family: var(--display); font-weight: 700; font-size: clamp(12px, 1.3vw, 19px); letter-spacing: 0.34em; text-transform: uppercase; color: var(--gold-2); margin-top: 4px; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8); }
 .hero-tag { font-family: var(--display); font-weight: 600; font-size: clamp(9px, 0.8vw, 11.5px); letter-spacing: 0.3em; text-transform: uppercase; color: #cfd6e2; opacity: 0.9; }
-.hero-tag::before, .hero-tag::after { content: '—'; color: var(--gold-dark); margin: 0 10px; }
+.hero-tag::before, .hero-tag::after { content: ''; display: inline-block; width: 22px; height: 1px; background: var(--gold-dark); vertical-align: middle; margin: 0 12px; }
 
 /* ---- actions ---- */
-.hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: clamp(12px, 2.5vh, 28px); animation: rise 0.9s ease-out backwards 0.15s; }
+/* Two plates, chamfered like the frames: Play match in gold with an arrow, Learn the game in dark glass with a gold
+   hairline. The tutorial is a small line beneath. */
+.hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-top: clamp(10px, 2vh, 22px); animation: rise 0.9s ease-out backwards 0.15s; }
 .cta {
-  --chamfer: 10px;
-  font-family: var(--display); font-weight: 700; font-size: clamp(11px, 1vw, 14px); letter-spacing: 0.22em; text-transform: uppercase;
-  padding: 14px 26px; min-width: 200px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; gap: 12px;
-  background: linear-gradient(180deg, rgba(10, 26, 46, 0.85), rgba(6, 15, 28, 0.9)); color: #bfe0ff; border: 1.5px solid rgba(120, 180, 255, 0.55);
-  box-shadow: 0 0 0 1px rgba(47, 123, 255, 0.15), 0 0 24px rgba(47, 123, 255, 0.25), inset 0 0 18px rgba(47, 123, 255, 0.12);
-  transition: transform 0.15s, box-shadow 0.2s, filter 0.2s; cursor: pointer;
+  --ch: 9px;
+  font-family: var(--display); font-weight: 800; font-size: clamp(11px, 1vw, 14px); letter-spacing: 0.24em; text-transform: uppercase;
+  padding: 15px 30px; min-width: 232px; border-radius: 4px; border: 0; display: inline-flex; align-items: center; justify-content: center; gap: 14px;
+  position: relative; background: transparent; color: #f1e6cc; cursor: pointer;
+  clip-path: polygon(var(--ch) 0, 100% 0, 100% calc(100% - var(--ch)), calc(100% - var(--ch)) 100%, 0 100%, 0 var(--ch));
+  transition: transform 0.15s, filter 0.2s;
 }
-.cta:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(120, 180, 255, 0.4), 0 0 32px rgba(47, 123, 255, 0.45), inset 0 0 18px rgba(47, 123, 255, 0.2); }
-.cta.play { color: #1a1200; background: linear-gradient(180deg, #fbe7a3 0%, #f0c95a 45%, #d7a52c 100%); border-color: #fff2c4; box-shadow: 0 0 0 1px rgba(233, 185, 58, 0.3), 0 0 32px rgba(233, 185, 58, 0.45), 0 8px 18px rgba(0, 0, 0, 0.55); min-width: 260px; font-size: clamp(12px, 1.1vw, 16px); }
-.cta.play:hover { box-shadow: 0 0 0 1px rgba(233, 185, 58, 0.5), 0 0 44px rgba(233, 185, 58, 0.65), 0 10px 20px rgba(0, 0, 0, 0.55); }
-.cta .cta-ico { font-size: 0.95em; opacity: 0.9; }
+/* The plate is painted beneath the label: a hairline of gold clipped to the chamfer, the glass inside it. */
+.cta::before { content: ''; position: absolute; inset: 0; z-index: -1; background: rgba(233, 185, 58, 0.75); clip-path: inherit; }
+.cta::after { content: ''; position: absolute; inset: 1px; z-index: -1; background: linear-gradient(180deg, rgba(10, 20, 36, 0.72), rgba(5, 12, 22, 0.86)); clip-path: polygon(var(--ch) 0, 100% 0, 100% calc(100% - var(--ch)), calc(100% - var(--ch)) 100%, 0 100%, 0 var(--ch)); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.cta:hover { transform: translateY(-2px); filter: brightness(1.12); }
+.cta.play { color: #1a1200; min-width: 268px; filter: drop-shadow(0 0 22px rgba(233, 185, 58, 0.35)); }
+.cta.play::before { background: #fff2c4; }
+.cta.play::after { background: linear-gradient(180deg, #fbe7a3 0%, #f0c95a 45%, #d7a52c 100%); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.cta.play:hover { filter: brightness(1.06) drop-shadow(0 0 34px rgba(233, 185, 58, 0.55)); }
+.cta .cta-arrow { font-size: 1.15em; line-height: 1; transition: transform 0.2s; }
+.cta.play:hover .cta-arrow { transform: translateX(4px); }
+.hero-more { animation: rise 0.9s ease-out backwards 0.2s; margin-top: -4px; }
+.link-cta { background: none; border: 0; padding: 4px 8px; font-family: var(--display); font-weight: 600; font-size: clamp(9px, 0.78vw, 11px); letter-spacing: 0.22em; text-transform: uppercase; color: #cfd6e2; opacity: 0.8; cursor: pointer; text-decoration: underline dotted rgba(233, 185, 58, 0.6); text-underline-offset: 5px; }
+.link-cta:hover { opacity: 1; color: var(--gold-2); }
+.link-cta:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* ---- decks ---- */
 .decks { --spot-w: clamp(150px, 12.5vw, 196px); width: min(100%, 1560px); display: grid; grid-template-columns: minmax(0, 1fr) calc(var(--spot-w) + 24px) minmax(0, 1fr); align-items: stretch; gap: 12px; animation: rise 0.9s ease-out backwards 0.3s; }
+/* Glass: a dark frosted plate with a gold hairline and one chamfered corner top-left and bottom-right, drawn on two
+   layers beneath the content (the hairline, then the glass inset by a pixel) so the deck menu can hang past the edge. */
 .deck-panel {
-  --pc: var(--gold); --pc-soft: rgba(233, 185, 58, 0.35);
-  position: relative; padding: 14px 16px 16px; border: 1.5px solid var(--pc); border-radius: 14px;
-  background: linear-gradient(180deg, rgba(8, 19, 31, 0.78), rgba(5, 12, 21, 0.9));
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 0 28px var(--pc-soft), inset 0 0 40px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-  display: grid; gap: 10px; align-content: start; min-width: 0;
+  --pc: rgba(233, 185, 58, 0.62); --pc-soft: rgba(233, 185, 58, 0.18); --ch: 16px;
+  position: relative; isolation: isolate; padding: 16px 18px 14px; border: 0; border-radius: 0; background: none;
+  display: grid; gap: 8px; align-content: start; min-width: 0;
 }
-.deck-panel.theirs { --pc: #5aa2ff; --pc-soft: rgba(47, 123, 255, 0.35); }
-.deck-head { display: grid; grid-template-columns: minmax(0, 1fr); padding-right: 46%; min-height: 44px; }
-.deck-panel .lbl { font-family: var(--display); font-weight: 700; font-size: clamp(11px, 1vw, 14px); letter-spacing: 0.3em; text-transform: uppercase; color: #f4e9d0; white-space: normal; overflow: visible; }
-.deck-style { margin: 4px 0 0; font-size: clamp(11px, 0.85vw, 13px); line-height: 1.35; color: #cfd6e2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-/* The deck's motto on a ribbon: a banner in the deck's colour that runs off the panel's right edge, a swallowtail at
-   its free end and a dark fold where it wraps the edge. Drawn in CSS, so any line fits and Unity can use one sprite. */
-.deck-note { --rb: linear-gradient(180deg, #f6d77a 0%, #e0b23c 45%, #b98a1e 100%); --rb-ink: #2a1c05; --rb-fold: #6e4f0e; position: absolute; top: 16px; right: -12px; height: 26px; padding: 0 22px 0 26px; display: flex; align-items: center; color: var(--rb-ink); font-family: var(--display); font-weight: 700; font-size: clamp(9.5px, 0.8vw, 12px); letter-spacing: 0.16em; text-transform: uppercase; white-space: nowrap; filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.55)); pointer-events: none; z-index: 2; }
-/* The cloth is a layer under the text, notched at its free end; the fold is a separate triangle below the edge, so the
-   notch's clip cannot cut it off: where the ribbon wraps the panel's edge, the underside shows dark. */
-.deck-note::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--rb); clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%); }
-.deck-note::after { content: ''; position: absolute; right: 0; top: 100%; width: 12px; height: 9px; background: var(--rb-fold); clip-path: polygon(0 0, 100% 0, 0 100%); }
-.deck-note-text { text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25); }
-.deck-panel.theirs .deck-note { --rb: linear-gradient(180deg, #cfe4ff 0%, #6fa8ff 45%, #2f6fd6 100%); --rb-ink: #04162e; --rb-fold: #163a78; }
-/* A small label over the deck tabs; the panel's own gap closes up between the two. */
-.deck-tabs-lbl { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; margin-bottom: -4px; font-family: var(--display); font-weight: 700; font-size: 9.5px; letter-spacing: 0.3em; text-indent: 0.3em; text-transform: uppercase; color: var(--gold-2); text-align: center; }
-/* A hairline either side, fading to the panel's edges, with a small diamond at the inner end. */
-.deck-tabs-lbl::before, .deck-tabs-lbl::after { content: ''; height: 5px; background: radial-gradient(circle at right 1px top 50%, var(--gold) 1.6px, transparent 2.2px), linear-gradient(to right, transparent, rgba(233, 185, 58, 0.55) 60%, rgba(233, 185, 58, 0.55)) center / 100% 1px no-repeat; }
-.deck-tabs-lbl::after { background: radial-gradient(circle at left 1px top 50%, var(--gold) 1.6px, transparent 2.2px), linear-gradient(to left, transparent, rgba(233, 185, 58, 0.55) 60%, rgba(233, 185, 58, 0.55)) center / 100% 1px no-repeat; }
-.deck-panel.theirs .deck-tabs-lbl { color: #9fc8ff; }
-.deck-panel.theirs .deck-tabs-lbl::before { background: radial-gradient(circle at right 1px top 50%, #7fb4ff 1.6px, transparent 2.2px), linear-gradient(to right, transparent, rgba(90, 162, 255, 0.55) 60%, rgba(90, 162, 255, 0.55)) center / 100% 1px no-repeat; }
-.deck-panel.theirs .deck-tabs-lbl::after { background: radial-gradient(circle at left 1px top 50%, #7fb4ff 1.6px, transparent 2.2px), linear-gradient(to left, transparent, rgba(90, 162, 255, 0.55) 60%, rgba(90, 162, 255, 0.55)) center / 100% 1px no-repeat; }
-.deck-panel .deck-tabs { display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; scrollbar-width: none; }
-.deck-panel .deck-tabs::-webkit-scrollbar { display: none; }
-.deck-panel .deck-tabs button { flex: none; white-space: nowrap; }
-.deck-panel .deck-tabs button { font-family: var(--display); letter-spacing: 0.08em; font-size: 11px; }
-.deck-panel.theirs .deck-tabs button.primary { background: linear-gradient(180deg, #a9d0ff, #4d8fe6); border-color: #cfe4ff; color: #04162e; }
+.deck-panel::before, .deck-panel::after { content: ''; position: absolute; z-index: -1; clip-path: polygon(var(--ch) 0, 100% 0, 100% calc(100% - var(--ch)), calc(100% - var(--ch)) 100%, 0 100%, 0 var(--ch)); pointer-events: none; }
+.deck-panel::before { inset: 0; background: linear-gradient(160deg, var(--pc), rgba(233, 185, 58, 0.22) 40%, var(--pc)); }
+.deck-panel::after { inset: 1px; background: linear-gradient(180deg, rgba(8, 16, 28, 0.5), rgba(4, 9, 16, 0.66)); backdrop-filter: blur(16px) saturate(1.15); -webkit-backdrop-filter: blur(16px) saturate(1.15); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), inset 0 0 60px rgba(0, 0, 0, 0.28); }
+.deck-panel > * { position: relative; z-index: 1; }
+.deck-panel > .deck-head { z-index: 3; } /* the open deck list hangs over the cards */
+.deck-panel.theirs { --pc: rgba(90, 162, 255, 0.6); --pc-soft: rgba(47, 123, 255, 0.18); }
+.deck-panel.theirs::before { background: linear-gradient(160deg, var(--pc), rgba(90, 162, 255, 0.2) 40%, var(--pc)); }
+.deck-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; min-height: 44px; }
+.deck-title { min-width: 0; }
+.deck-panel .lbl { font-family: var(--display); font-weight: 700; font-size: clamp(11px, 1vw, 14px); letter-spacing: 0.32em; text-transform: uppercase; color: #f4e9d0; white-space: normal; overflow: visible; }
+.deck-style { margin: 5px 0 0; font-family: var(--display); font-weight: 600; font-size: clamp(8.5px, 0.7vw, 10.5px); letter-spacing: 0.3em; text-transform: uppercase; line-height: 1.5; color: var(--gold-2); opacity: 0.9; }
+.deck-panel.theirs .deck-style { color: #9fc8ff; }
+/* The deck menu: DECK › name in a dark pill with a gold hairline; the list hangs beneath it, glass again. */
+.deck-menu { position: relative; flex: none; z-index: 5; }
+.deck-menu-btn { display: inline-flex; align-items: center; gap: 9px; padding: 8px 14px 8px 16px; border-radius: 999px; border: 1px solid rgba(233, 185, 58, 0.55); background: linear-gradient(180deg, rgba(8, 16, 28, 0.85), rgba(4, 9, 16, 0.92)); color: #f1e6cc; font-family: var(--display); font-weight: 700; font-size: clamp(9px, 0.75vw, 11px); letter-spacing: 0.22em; text-transform: uppercase; cursor: pointer; white-space: nowrap; transition: border-color 0.15s, box-shadow 0.15s; }
+.deck-menu-btn:hover, .deck-menu.open .deck-menu-btn { border-color: var(--gold-2); box-shadow: 0 0 0 1px rgba(233, 185, 58, 0.2), 0 0 18px rgba(233, 185, 58, 0.18); }
+.deck-menu-btn .dm-k { color: var(--gold-2); }
+.deck-menu-btn .dm-sep { color: rgba(241, 230, 204, 0.5); font-weight: 400; }
+.deck-menu-btn .dm-caret { width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform 0.2s; margin-left: 2px; opacity: 0.8; }
+.deck-menu.open .dm-caret { transform: translateY(2px) rotate(-135deg); }
+.deck-panel.theirs .deck-menu-btn { border-color: rgba(90, 162, 255, 0.55); }
+.deck-panel.theirs .deck-menu-btn .dm-k, .deck-panel.theirs .deck-menu-btn:hover, .deck-panel.theirs .deck-menu.open .deck-menu-btn { color: #cfe4ff; border-color: #7fb4ff; }
+.deck-panel.theirs .deck-menu-btn:hover, .deck-panel.theirs .deck-menu.open .deck-menu-btn { color: #f1e6cc; box-shadow: 0 0 0 1px rgba(90, 162, 255, 0.2), 0 0 18px rgba(90, 162, 255, 0.2); }
+.deck-menu-list { position: absolute; top: calc(100% + 8px); right: 0; margin: 0; padding: 6px; list-style: none; min-width: 280px; border: 1px solid rgba(233, 185, 58, 0.5); border-radius: 10px; background: linear-gradient(180deg, rgba(8, 16, 28, 0.9), rgba(4, 9, 16, 0.96)); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6); animation: rise 0.2s ease-out; }
+.deck-panel.theirs .deck-menu-list { border-color: rgba(90, 162, 255, 0.5); }
+.deck-menu-list li { margin: 0; }
+.deck-menu-list button { width: 100%; display: grid; gap: 2px; text-align: left; padding: 9px 12px; border: 0; border-radius: 6px; background: none; color: #f1e6cc; font: inherit; cursor: pointer; }
+.deck-menu-list button b { font-family: var(--display); font-weight: 700; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; }
+.deck-menu-list button span { font-size: 11.5px; color: #cfd6e2; opacity: 0.85; }
+.deck-menu-list button:hover, .deck-menu-list button:focus-visible { background: rgba(233, 185, 58, 0.12); outline: none; }
+.deck-menu-list button.on { background: rgba(233, 185, 58, 0.18); }
+.deck-menu-list button.on b { color: var(--gold-2); }
+.deck-panel.theirs .deck-menu-list button:hover, .deck-panel.theirs .deck-menu-list button.on { background: rgba(90, 162, 255, 0.16); }
+.deck-panel.theirs .deck-menu-list button.on b { color: #9fc8ff; }
 .deck-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; align-items: start; }
 .deck-panel .deck-cards { align-items: flex-start; }
-.deck-panel .deck-cards { margin-top: 0; padding: 38px 2px 8px; }
+.deck-panel .deck-cards { --card-w: clamp(124px, 8.7vw, 168px); margin-top: 0; padding: 30px 2px 6px; }
 /* The soft fade at the row's right edge is an overlay, not a mask on the scroller: a masked scroller is rasterized as
    one bitmap and the card type goes soft. */
 /* The row is its own stacking context, so the fade's level counts only against the cards in the row and never against the
    Codex's dimming layer above the page. */
 .deck-row { position: relative; isolation: isolate; }
-.deck-row::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 64px; pointer-events: none; z-index: 6; background: linear-gradient(to right, rgba(6, 14, 24, 0), rgba(6, 14, 24, 0.92)); }
+.deck-row::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 56px; pointer-events: none; z-index: 6; background: linear-gradient(to right, rgba(6, 14, 24, 0), rgba(6, 14, 24, 0.85)); }
 /* Every card in the row is the same size; the first one only carries the deck's glow. */
 .deck-panel .deck-cards .card:first-child { margin: 0; }
 .deck-random { align-self: center; padding: 16px; font-style: italic; color: #cfd6e2; }
-.vs-col { --vs: clamp(36px, 4.4vw, 68px); position: relative; display: grid; place-items: center; min-width: 0; }
+.vs-col { --vs: clamp(40px, 4.8vw, 72px); position: relative; display: grid; place-items: center; min-width: 0; }
+.vs-mark { position: absolute; left: 50%; top: 50%; width: min(100%, 220px); height: auto; transform: translate(-50%, -54%); opacity: 0.16; filter: saturate(0.6); pointer-events: none; z-index: 0; }
+.vs-stack { position: relative; z-index: 1; display: grid; justify-items: center; gap: 22px; }
+.vs-note { font-family: var(--display); font-weight: 700; font-size: clamp(9px, 0.78vw, 11.5px); letter-spacing: 0.32em; text-transform: uppercase; line-height: 2; text-align: center; color: #f1e6cc; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85); transition: opacity 0.4s; }
+.vs-col.up .vs-note, .vs-col.falling .vs-note, .vs-col.down .vs-note, .vs-col.fading .vs-note { opacity: 0; }
 .vs { align-self: center; margin-top: 0; transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.4), opacity 0.4s; font-family: var(--display); font-weight: 800; font-size: var(--vs); color: var(--gold-2); text-shadow: 0 0 24px rgba(233, 185, 58, 0.65), 0 4px 0 rgba(90, 60, 8, 0.7); padding: 0 6px; }
 
 /* Threat spotlight: a tall card at the foot of Harborlight's panel. */
@@ -182,6 +233,7 @@
   100% { transform: translateX(-50%) rotate(-14deg) scale(1.9); filter: brightness(3) blur(6px); opacity: 0; }
 }
 .vs-col.up .vs { opacity: 0.35; transform: scale(0.85); }
+.vs-col.up .vs-mark, .vs-col.falling .vs-mark { opacity: 0.06; }
 .vs-col.down .vs, .vs-col.falling .vs { opacity: 1; transform: scale(1); }
 /* After the Mob breaks: the title sits above the VS, the sentence below it, the VS between them. */
 .mob-msg { position: absolute; inset: 0; pointer-events: none; text-align: center; }
@@ -219,18 +271,21 @@
 
 /* ---- foot ---- */
 .hero-foot { width: min(100%, 1480px); display: grid; justify-items: center; gap: 10px; animation: rise 0.9s ease-out backwards 0.45s; }
-.foot-quote { font-family: var(--script); font-size: clamp(18px, 1.7vw, 26px); text-align: center; color: #e9e2cf; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.85); line-height: 1.3; }
+.foot-line { display: flex; align-items: center; gap: 18px; font-family: var(--display); font-weight: 700; font-size: clamp(9px, 0.8vw, 12px); letter-spacing: 0.34em; text-transform: uppercase; color: #d9cfb6; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85); }
+.foot-line i { font-style: normal; color: var(--gold-2); font-size: 0.9em; text-shadow: 0 0 10px rgba(233, 185, 58, 0.6); }
 .foot-meta { display: flex; gap: 16px; align-items: center; font-family: var(--display); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
 .foot-meta .link { background: none; border: 0; padding: 0; color: var(--gold-dark); font: inherit; letter-spacing: inherit; text-transform: inherit; cursor: pointer; text-decoration: underline dotted; }
 .hero-foot .dev { width: min(100%, 720px); background: rgba(5, 12, 21, 0.8); }
 
 @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .hero, .hero-actions, .decks, .hero-foot, .corner { animation: none; } .bg-plate, .fg { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .topbar, .hero, .hero-actions, .hero-more, .decks, .hero-foot, .corner, .deck-menu-list, .sign-note { animation: none; } .bg-plate, .fg { transition: none; } }
 
 /* Narrow: stack the decks, drop the corners. */
 @media (width <= 1100px) {
   .decks { grid-template-columns: 1fr; }
-  .vs-col { min-height: 360px; }
+  .byline { display: none; }
+  .vs-mark { width: 180px; }
+  .vs-col { min-height: 250px; }
   .vs { justify-self: center; font-size: 40px; padding: 2px 0; }
   .corner { display: none; }
   .bg-plate { width: 60%; opacity: 0.75; }
@@ -241,6 +296,10 @@
   .hero .hero-mark { width: min(78vw, 340px); }
   .cta { min-width: 0; flex: 1 1 45%; padding: 12px 14px; }
   .cta.play { flex-basis: 100%; }
+  .topbar { grid-template-columns: auto 1fr; }
+  .topbar-right { grid-column: 1 / -1; justify-content: flex-end; }
+  .signin { padding: 7px 14px; }
+  .deck-head { flex-wrap: wrap; }
 }
 
 /* ---------- The fist bump ---------- */
@@ -280,9 +339,3 @@
 .desktop-note-title { font-family: var(--display); font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-2); font-size: 12px; margin-bottom: 4px; }
 .cta:disabled { opacity: 0.45; cursor: not-allowed; filter: saturate(0.5); }
 .cta:disabled:hover { transform: none; }
-
-/* Sound switches under the tagline. */
-/* The sound switches sit in the top-right corner, above the tagline there, so the hero spends no height on them. */
-.landing > .audio-corner { position: absolute; top: 12px; right: clamp(14px, 3vw, 44px); z-index: 3; display: flex; align-items: center; gap: 8px; animation: rise 0.9s ease-out backwards 0.1s; }
-.audio-corner .settings-btn { width: 36px; height: 36px; }
-.audio-corner .settings-btn svg { width: 19px; height: 19px; }

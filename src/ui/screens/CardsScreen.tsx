@@ -396,7 +396,7 @@ function ReadingChapter({ n }: { n: number }) {
   );
 }
 
-export function CardsScreen({ onBack, initialRefs }: { onBack: () => void; /** Deep link: open this entry's references on arrival (#refs=<id>). */ initialRefs?: string | null }) {
+export function CardsScreen({ onBack, initialRefs, initialChapter }: { onBack: () => void; /** Deep link: open this entry's references on arrival (#refs=<id>). */ initialRefs?: string | null; /** The landing page's nav: land on this chapter. */ initialChapter?: string | null }) {
   const { placeholders } = useDisplay();
   const [open, setOpen] = useState<string | null>(null);
   const [refs, setRefs] = useState<string | null>(initialRefs ?? null);
@@ -406,6 +406,10 @@ export function CardsScreen({ onBack, initialRefs }: { onBack: () => void; /** D
     const chapter = LOCATION_BY_ID[initialRefs] ? 'locations' : THREATS.some((t) => t.id === initialRefs) ? 'threats' : null;
     if (chapter) document.getElementById(`cx-${chapter}`)?.scrollIntoView({ block: 'start' });
     else if (CARD_BY_ID[initialRefs]) setOpen(initialRefs); // a card: the card itself opens under its references
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (initialChapter) document.getElementById(`cx-${initialChapter}`)?.scrollIntoView({ block: 'start' });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [active, setActive] = useState<ChapterId>('reading');

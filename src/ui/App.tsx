@@ -71,6 +71,8 @@ export function App() {
   // #refs=<id>: a link straight to one entry's references in the Compendium.
   const refsLink = /^#refs=([\w-]+)$/.exec(window.location.hash)?.[1] ?? null;
   const [screen, setScreen] = useState<Screen>(refsLink ? 'cards' : 'start');
+  /** The landing page's nav opens the Compendium at a chapter (Locations). */
+  const [cardsChapter, setCardsChapter] = useState<string | null>(null);
   // Sound: one gesture unlocks it; the landing page and the match play the music, the reading screens fade it out.
   useEffect(() => installAudio(), []);
   useEffect(() => {
@@ -87,9 +89,9 @@ export function App() {
   };
   return (
     <DisplayContext.Provider value={{ placeholders: opts.placeholders }}>
-      {screen === 'start' && <StartScreen onPlay={start} onRules={() => setScreen('rules')} onCards={() => setScreen('cards')} initialDev={opts.dev} />}
+      {screen === 'start' && <StartScreen onPlay={start} onRules={() => setScreen('rules')} onCards={(chapter) => { setCardsChapter(chapter ?? null); setScreen('cards'); }} initialDev={opts.dev} />}
       {screen === 'rules' && <RulesScreen onBack={() => setScreen('start')} />}
-      {screen === 'cards' && <CardsScreen onBack={() => setScreen('start')} initialRefs={refsLink} />}
+      {screen === 'cards' && <CardsScreen onBack={() => setScreen('start')} initialRefs={refsLink} initialChapter={cardsChapter} />}
       {screen === 'match' && (
         <ErrorBoundary onReset={() => setScreen('start')}>
           <MatchHost key={matchKey} seed={seed} mode={opts.mode} dev={opts.dev} coach={opts.coach} decks={{ A: opts.deckA, B: opts.deckB }} tutorial={!!opts.tutorial} onMenu={() => setScreen('start')} />
