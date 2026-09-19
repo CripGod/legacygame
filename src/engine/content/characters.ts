@@ -1860,18 +1860,18 @@ CHARACTERS.push(
     category: 'historical',
     name: 'Marie Laveau',
     short: 'Laveau',
-    summary: 'Their best Gate Character here loses 2 Influence for good.',
+    summary: 'Their best Gate Character here loses 2 Influence for good; the last of yours lost on the crossing comes back to your hand.',
     influence: 3,
     force: 2,
     tags: ['Black', 'Faith', 'Vodou', 'Priestess'],
     keywords: [],
     reveal: {
-      text: 'Gris-gris: the opposing Gate Character here with the highest Influence loses 2 Influence for the rest of the match.',
-      effect: { type: 'hexGate', amount: 2 },
+      text: 'Gris-gris: the opposing Gate Character here with the highest Influence loses 2 Influence for the rest of the match. And the last of your Characters lost on the crossing at The Middle Passage comes back to your hand.',
+      effect: { type: 'hexGate', amount: 2, recall: true },
     },
     blurb: 'Hairdresser, healer and the most consulted woman in New Orleans.',
     history:
-      'Marie Catherine Laveau was born free in New Orleans in 1801, a Creole of African, French and Native descent. A hairdresser to wealthy households, she became the city\'s best-known Vodou practitioner, leading ceremonies at Congo Square and on Lake Pontchartrain, nursing yellow fever patients and visiting prisoners on death row. Clients across every class came to her for charms, advice and intercession. She died in 1881; her tomb in St. Louis Cemetery No. 1 is still visited.',
+      'Marie Catherine Laveau was born free in New Orleans in 1801, a Creole of African, French and Native descent. A hairdresser to wealthy households, she became the city\'s best-known Vodou practitioner, leading ceremonies at Congo Square and on Lake Pontchartrain, nursing yellow fever patients and visiting prisoners on death row. Clients across every class came to her for charms, advice and intercession. She died in 1881; her tomb in St. Louis Cemetery No. 1 is still visited. The card\'s second power is the healer\'s, an invention in her spirit: she calls back the last one the crossing took.',
   },
   {
     kind: 'character',

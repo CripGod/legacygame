@@ -1314,6 +1314,8 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 }
 /* Landing: the tile drops in where the ghost stopped, a little large, and settles. */
 .pic.fx-land { animation: fx-land 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+/* Lost at sea: the card's ghost greys before it sinks. */
+.pic.fx-perish { filter: grayscale(1) brightness(0.55) !important; transition: filter 0.6s ease; }
 /* A card reacting to the ground shaking under it (the First Location bonus): it hops and settles. */
 .pic.fx-jolt { animation: slam-jolt 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
 @keyframes fx-land {
@@ -2075,25 +2077,33 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .scrim, .devpanel { z-index: 70; }
 
 /* ---------- The smashdown (Marvel Snap): a Location revealed slams onto the board ----------
-   The reveal beat: the panel winds up (a lift, growing toward the eye) and drops; on the landing (~250ms) the board
-   jolts, a shockwave and dust run out from the panel's foot, and every card standing in that column hops and
-   settles. Behind the title, the photograph develops in the window: from a bright blur to the picture, with a
-   glint passing over it. The First Location bonus (a later beat) hops the paid card the same way. */
-.column.slam .loc-glow { position: relative; }
-.column.slam .location.framed { animation: loc-slam 0.62s cubic-bezier(0.3, 0, 0.2, 1) both; transform-origin: 50% 60%; z-index: 9; }
+   The reveal beat, in order: the photograph develops in the window in grey (a bright blur sharpening), colour
+   floods in, then the panel grows toward the eye and slams down (at ~1.26s). On the landing every card standing in
+   that column hops and settles, and the other two Locations tremor a little, as if the whole board were struck
+   (nothing like the slammed one, and no shockwave: a quick slam, and the points float up to the bar on their
+   beat). The First Location bonus (a later beat) hops the paid card the same way. */
+.column.slam .location.framed { animation: loc-slam 1.5s cubic-bezier(0.3, 0, 0.2, 1) both; transform-origin: 50% 60%; z-index: 9; }
 @keyframes loc-slam {
-  0% { transform: translateY(-5%) scale(1.05); opacity: 0.85; filter: brightness(1.3); }
-  15% { transform: translateY(-9%) scale(1.08); opacity: 0.95; filter: brightness(1.5); }
-  40% { transform: translateY(1.5%) scale(0.985); opacity: 1; filter: brightness(1.12); }
-  58% { transform: translateY(-1%) scale(1.01); filter: brightness(1.05); }
-  74% { transform: translateY(0.4%) scale(0.998); filter: brightness(1); }
+  0%, 56% { transform: none; filter: none; }
+  70% { transform: translateY(-3.5%) scale(1.085); filter: brightness(1.22); }
+  77% { transform: translateY(-4%) scale(1.1); filter: brightness(1.28); }
+  84% { transform: translateY(1.2%) scale(0.98); filter: brightness(1.1); }
+  91% { transform: translateY(-0.6%) scale(1.008); filter: brightness(1.03); }
   100% { transform: none; filter: none; }
 }
-.column.slam .gate-slot.filled, .column.slam .gate-slot.reserved, .column.slam .slot.filled, .column.slam .threat-tile { animation: slam-jolt 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) 0.25s both; }
-.column.slam .gate-slot:nth-child(2), .column.slam .slot:nth-child(2) { animation-delay: 0.29s; }
-.column.slam .gate-slot:nth-child(3), .column.slam .slot:nth-child(3) { animation-delay: 0.33s; }
-.column.slam .gate-slot:nth-child(4), .column.slam .slot:nth-child(4) { animation-delay: 0.37s; }
-.column.slam .gate-slot:nth-child(5), .column.slam .slot:nth-child(5) { animation-delay: 0.41s; }
+.column.slam .gate-slot.filled, .column.slam .gate-slot.reserved, .column.slam .slot.filled, .column.slam .threat-tile { animation: slam-jolt 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) 1.26s both; }
+.column.slam .gate-slot:nth-child(2), .column.slam .slot:nth-child(2) { animation-delay: 1.3s; }
+.column.slam .gate-slot:nth-child(3), .column.slam .slot:nth-child(3) { animation-delay: 1.34s; }
+.column.slam .gate-slot:nth-child(4), .column.slam .slot:nth-child(4) { animation-delay: 1.38s; }
+.column.slam .gate-slot:nth-child(5), .column.slam .slot:nth-child(5) { animation-delay: 1.42s; }
+.column.slam-near .location.framed { animation: loc-tremor 0.36s ease-out 1.26s both; }
+@keyframes loc-tremor {
+  0%, 100% { transform: none; }
+  20% { transform: translate(-2px, 1px); }
+  40% { transform: translate(2px, -1px); }
+  60% { transform: translate(-1.5px, 1px); }
+  80% { transform: translate(1px, -0.5px); }
+}
 @keyframes slam-jolt {
   0% { transform: translateY(0); }
   30% { transform: translateY(-16%) rotate(-1.5deg); }
@@ -2101,24 +2111,17 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
   75% { transform: translateY(-2%); }
   100% { transform: none; }
 }
-.slam-wave { position: absolute; left: 0; right: 0; bottom: -4px; height: 14%; z-index: 10; pointer-events: none; }
-.slam-wave::before, .slam-wave::after { content: ''; position: absolute; left: 50%; top: 50%; width: 56%; height: 58%; border-radius: 50%; transform: translate(-50%, -50%) scale(0.3, 0.3); opacity: 0; }
-.slam-wave::before { border: 3px solid rgba(255, 238, 200, 0.95); box-shadow: 0 0 18px rgba(255, 220, 140, 0.85), inset 0 0 14px rgba(255, 220, 140, 0.55); animation: slam-ring 0.55s cubic-bezier(0.1, 0.7, 0.3, 1) 0.24s both; }
-.slam-wave::after { background: radial-gradient(ellipse at center, rgba(255, 242, 205, 0.6), rgba(255, 220, 150, 0) 70%); animation: slam-dust 0.7s ease-out 0.24s both; }
-@keyframes slam-ring { 0% { transform: translate(-50%, -50%) scale(0.3, 0.3); opacity: 1; } 55% { opacity: 0.9; } 100% { transform: translate(-50%, -50%) scale(2.4, 1.9); opacity: 0; } }
-@keyframes slam-dust { 0% { transform: translate(-50%, -50%) scale(0.5, 0.4); opacity: 0.9; } 100% { transform: translate(-50%, -50%) scale(2.2, 2.4); opacity: 0; } }
-.slam-wave i { position: absolute; left: 50%; top: 50%; width: 5px; height: 5px; margin: -2px; border-radius: 50%; background: #ffe9a8; box-shadow: 0 0 8px #ffd27a; opacity: 0; animation: slam-spark 0.6s ease-out 0.26s both; }
-@keyframes slam-spark { 0% { transform: translate(0, 0) scale(1.2); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; } }
-/* The photograph develops: nothing, then a bright blur sharpening into the picture, a beat after the panel lands. */
-.location .loc-bg { animation: loc-develop 1.25s cubic-bezier(0.2, 0.6, 0.2, 1) 0.2s both; }
+/* The photograph develops: nothing, then a bright blur sharpening into the picture in grey, then the colour floods in. */
+.location .loc-bg { animation: loc-develop 1.1s cubic-bezier(0.2, 0.6, 0.2, 1) both; }
 @keyframes loc-develop {
-  0% { opacity: 0; transform: scale(1.1); filter: blur(12px) brightness(1.9) saturate(0.3); }
-  50% { opacity: 1; transform: scale(1.05); filter: blur(3px) brightness(1.25) saturate(0.75); }
+  0% { opacity: 0; transform: scale(1.1); filter: blur(12px) brightness(1.8) saturate(0); }
+  45% { opacity: 1; transform: scale(1.03); filter: blur(0) brightness(1.08) saturate(0); }
+  80% { opacity: 1; transform: scale(1.01); filter: blur(0) brightness(1.14) saturate(1.2); }
   100% { opacity: 1; transform: none; filter: none; }
 }
-.location .loc-bg .loc-shine { position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0; mix-blend-mode: screen; background: linear-gradient(105deg, rgba(255, 250, 230, 0) 40%, rgba(255, 250, 230, 0.55) 50%, rgba(255, 250, 230, 0) 60%); background-size: 260% 100%; background-repeat: no-repeat; animation: loc-shine 0.9s ease-out 0.7s both; }
+.location .loc-bg .loc-shine { position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0; mix-blend-mode: screen; background: linear-gradient(105deg, rgba(255, 250, 230, 0) 40%, rgba(255, 250, 230, 0.55) 50%, rgba(255, 250, 230, 0) 60%); background-size: 260% 100%; background-repeat: no-repeat; animation: loc-shine 0.8s ease-out 0.5s both; }
 @keyframes loc-shine { 0% { background-position: 120% 0; opacity: 1; } 85% { opacity: 1; } 100% { background-position: -20% 0; opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
-  .column.slam .location.framed, .column.slam .gate-slot.filled, .column.slam .gate-slot.reserved, .column.slam .slot.filled, .column.slam .threat-tile, .location .loc-bg { animation: none; }
-  .slam-wave, .location .loc-bg .loc-shine { display: none; }
+  .column.slam .location.framed, .column.slam-near .location.framed, .column.slam .gate-slot.filled, .column.slam .gate-slot.reserved, .column.slam .slot.filled, .column.slam .threat-tile, .location .loc-bg { animation: none; }
+  .location .loc-bg .loc-shine { display: none; }
 }

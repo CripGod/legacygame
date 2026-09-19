@@ -83,7 +83,7 @@ export type RevealEffect =
   | { type: 'sanctuaryReveal' } // Black Jesus
   | { type: 'holdSeat' } // Claudette Colvin: cannot be displaced this turn
   | { type: 'massEnter' } // Boukman Dutty: every Ready friendly Gate Character everywhere enters now
-  | { type: 'hexGate'; amount: number } // Marie Laveau: the strongest opposing Gate Character here loses Influence for good
+  | { type: 'hexGate'; amount: number; recall?: boolean } // Marie Laveau: the strongest opposing Gate Character here loses Influence for good; recall: the last of the player's Characters lost on the crossing comes back to their hand
   | { type: 'returnFriendlyToHand' } // Ayuba Suleiman Diallo: bounce an Established Character to hand at cost 0 — needs target
   | { type: 'peekHand' } // Omar ibn Said: see the opponent's hand
   | { type: 'reduceHandCost'; amount: number } // Cécile Fatiman: the most expensive card in hand costs less
@@ -245,7 +245,7 @@ export type LocationEffect =
   | { type: 'restEnergy'; count: number; amount: number } // Oak Bluffs: players with `count` Inside gain Energy next turn
   | { type: 'turncoatAtEnd' } // Charleston, 1822: the Waiting Gate Character here with the lowest Influence changes sides at the end of the turn
   | { type: 'nightInside'; amount: number } // The Stroll: after dark (even turns) your Characters Inside here gain Influence
-  | { type: 'crossing'; toll: number } // The Middle Passage: no Inside, every Gate Character pays the toll each turn, leavers arrive Ready
+  | { type: 'crossing'; toll: number; mortality: number } // The Middle Passage: no Inside, every Gate Character pays the toll each turn and the crossing takes each with this chance (about one in seven), leavers arrive Ready
   | { type: 'gatesUncounted' } // Jim Crow: Characters at the Gates here count no Influence; only those Inside are counted
   | { type: 'showcase'; amount: number; tag: string | string[]; tagBonus: number }; // The Cotton Club, the Harlem Renaissance: your Characters Inside here gain Influence; those with any of `tag` gain `tagBonus` more
 
@@ -399,6 +399,8 @@ export interface PlayerState {
   deckEvents?: number;
   hand: string[]; // 'hidden' entries in redacted views
   discard: string[];
+  /** The ledger of the crossing: the card ids of this player's Characters that did not survive The Middle Passage, in order. Marie Laveau calls the last one back. */
+  lostAtSea?: string[];
   setbacks: number;
   standUsed: boolean;
   /** Gathering cards that already arrived for this player this match. */
@@ -559,7 +561,7 @@ export const emptyPlan = (): TurnPlan => ({ plays: [], enters: [], relocations: 
 
 /** One beat of a turn's resolution, for the UI to replay: the board as it stood right after this beat. */
 export interface TraceStep {
-  kind: 'stand' | 'reveal' | 'play' | 'event' | 'revealFx' | 'enter' | 'move' | 'showdown' | 'summon' | 'threat' | 'spawn' | 'ready' | 'sundown' | 'turncoat' | 'info' | 'tally' | 'stakes';
+  kind: 'stand' | 'reveal' | 'play' | 'event' | 'revealFx' | 'enter' | 'move' | 'showdown' | 'summon' | 'threat' | 'spawn' | 'ready' | 'sundown' | 'crossing' | 'turncoat' | 'info' | 'tally' | 'stakes';
   label: string;
   state: GameState;
   /** Events produced by this beat alone. */

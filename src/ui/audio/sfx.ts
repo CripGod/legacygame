@@ -120,7 +120,7 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'influence.up': [{ files: ['meter-ding'], gain: 0.55 }], // a bright two-note climb on the xylophone
   lock: [{ files: ['lock'], gain: 0.8 }],
   turn: [{ files: ['new-turn'], gain: 0.55 }], // three soft bells: the riffle is gone
-  'location.reveal': [{ files: ['stand-thud'], gain: 0.6, at: 230 }, { files: ['turn'], gain: 0.4, at: 390 }], // the thud on the smashdown's landing (~250ms into the beat)
+  'location.reveal': [{ files: ['stand-thud'], gain: 0.6, at: 1260 }, { files: ['turn'], gain: 0.4, at: 1420 }], // the thud on the smashdown's landing (~1.26s into the beat, after the picture develops and the panel grows)
   draw: [{ files: ['draw'], gain: 0.5 }],
   enter: [{ files: ['enter'], gain: 0.45 }, { files: ['turn'], gain: 0.45, at: 380 }],
   move: [{ files: ['move-1', 'move-2'], gain: 0.6 }],
@@ -416,8 +416,8 @@ function synth(name: SfxName, t: number): void {
       for (let i = 0; i < 5; i++) tick(t + i * 0.055, 0.16);
       break;
     case 'location.reveal':
-      thud(t + 0.23, 0.45, 160, 50, 0.24);
-      chime(t + 0.39, [659, 988], 0.09, 0.3, 0.12);
+      thud(t + 1.26, 0.45, 160, 50, 0.24);
+      chime(t + 1.42, [659, 988], 0.09, 0.3, 0.12);
       break;
     case 'draw':
       swoosh(t, 0.09, 1600, 3800, 0.18, 1.4);

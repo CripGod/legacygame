@@ -92,7 +92,7 @@ function riseAgain(state: GameState, c: CharacterInstance, reason: string, event
 
 /** One Character (or Threat, Location, Event) acting on another: the story beat the UI replays before the tally. */
 type ClashActor = { kind: 'character' | 'threat' | 'location' | 'event'; id: string; owner?: PlayerId; force?: number };
-type ClashOutcome = 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested' | 'amnestied';
+type ClashOutcome = 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested' | 'amnestied' | 'perished';
 
 /** Anansi's trick: the opposing Ready Gate Character here with the highest Influence waits again (becomes Waiting). */
 function trickGate(state: GameState, events: GameEvent[], p: PlayerId, loc: number, def: { id: string; force: number }): boolean {
@@ -178,6 +178,7 @@ function clash(state: GameState, events: GameEvent[], actor: ClashActor, victim:
     : out === 'defected' ? `turns ${vdef.name}: they change sides`
     : out === 'exposed' ? `finds ${vdef.name} out: back to the hand of whoever planted them`
     : out === 'arrested' ? `arrests ${vdef.name}: off the board for good`
+    : out === 'perished' ? `takes ${vdef.name}: they did not survive the crossing and leave the match`
     : out === 'amnestied' ? `hears ${vdef.name} out in full and grants amnesty: they stay at these Gates, Waiting, as ${state.players[victim.owner].handle}'s own Character from now on`
     : `beats ${vdef.name}${vs} and knocks them off the board. ${vdef.name}'s own power: instead of landing at another Location, they go back to ${state.players[victim.owner].handle}'s hand and cost nothing the next time they are played`;
   events.push({
@@ -865,14 +866,27 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       const target = charsAt(state, loc, opp, 'gate')
         .filter((x) => !isInformant(x) && !shielded(state, x) && !isProtected(state, x))
         .sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];
-      if (!target) {
-        say('no opposing Gate Character here to hex.');
-        break;
+      if (!target) say('no opposing Gate Character here to hex.');
+      else {
+        const amount = eff.amount;
+        target.permInfluence -= amount;
+        say(`hexes ${charDef(target.defId).name}: −${amount} Influence for the rest of the match.`);
+        clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, target, 'hexed', loc, { theirForce: amount, intent: `${def.name} arrived to hex the opposing Gate Character here with the most Influence, ${charDef(target.defId).name}.`, note: 'Gris-gris does not wear off. Only protection stops it.' });
       }
-      const amount = def.reveal!.effect.type === 'hexGate' ? def.reveal!.effect.amount : 2;
-      target.permInfluence -= amount;
-      say(`hexes ${charDef(target.defId).name}: −${amount} Influence for the rest of the match.`);
-      clash(state, events, { kind: 'character', id: def.id, owner: p, force: def.force }, target, 'hexed', loc, { theirForce: amount, intent: `${def.name} arrived to hex the opposing Gate Character here with the most Influence, ${charDef(target.defId).name}.`, note: 'Gris-gris does not wear off. Only protection stops it.' });
+      // The healer: the last of the player's Characters the crossing took comes back to the hand.
+      if (eff.recall) {
+        const ps = state.players[p];
+        const back = ps.lostAtSea?.[ps.lostAtSea.length - 1];
+        if (back && ps.hand.length >= MAX_HAND) say(`would call ${charDef(back).name} back from the crossing, but the hand is full (${MAX_HAND}).`);
+        else if (back) {
+          ps.lostAtSea!.pop();
+          const i = ps.discard.lastIndexOf(back);
+          if (i >= 0) ps.discard.splice(i, 1);
+          ps.hand.push(back);
+          say(`calls ${charDef(back).name} back from the crossing: the card returns to ${ps.handle}'s hand.`);
+          events.push({ type: 'spawned', text: `${charDef(back).name} comes back from the crossing to ${ps.handle}'s hand: ${def.name} called them home.`, player: p, cardId: back, location: loc, data: { zone: 'hand', recalled: true } });
+        }
+      }
       break;
     }
     case 'returnFriendlyToHand': {
@@ -1770,10 +1784,23 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     }
   }
   trace('info', 'End of turn', {});
-  // The Middle Passage: everyone at these Gates pays the toll.
+  // The Middle Passage: the crossing takes about one in seven at these Gates (the ships' own ledgers: 12.5 million
+  // boarded, 10.7 million landed), each its own roll, out of the match and into the discard; then everyone still
+  // there pays the toll. Informants are the other side's plants and are left out, as they are of the toll.
   for (const loc of state.locations) {
     const ldef = loc.revealed ? LOCATION_BY_ID[loc.defId] : undefined;
     if (!ldef || ldef.effect.type !== 'crossing' || loc.lost) continue;
+    for (const c of charsAt(state, loc.index, undefined, 'gate')) {
+      if (isInformant(c) || nextFloat(state.rng) >= ldef.effect.mortality) continue;
+      const cdef = charDef(c.defId);
+      const ps = state.players[c.owner];
+      delete state.characters[c.uid];
+      ps.discard.push(cdef.id);
+      (ps.lostAtSea ??= []).push(cdef.id);
+      events.push({ type: 'moved', text: '', uid: c.uid, location: loc.index, player: c.owner, data: { from: loc.index, to: -1, reason: 'perished' } });
+      clash(state, events, { kind: 'location', id: ldef.id }, c, 'perished', loc.index, { note: `The crossing's own odds: about one in seven did not survive it. ${cdef.name} goes to ${ps.handle}'s discard. Marie Laveau calls the last one lost back to the hand.` });
+      trace('crossing', `${ldef.name} takes ${cdef.name}`, { location: loc.index, uids: [c.uid], player: c.owner });
+    }
     const toll = ldef.effect.toll;
     const paid: string[] = [];
     for (const c of charsAt(state, loc.index, undefined, 'gate')) {

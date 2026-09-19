@@ -43,7 +43,7 @@ type SheetState =
 /** How long each replay beat holds on screen before the next. */
 const BEAT_MS: Record<string, number> = {
   stand: 1400,
-  reveal: 1000, // after the smashdown (~950ms)
+  reveal: 600, // after the smashdown (~1.55s)
   play: 950,
   event: 1300,
   revealFx: 1400,
@@ -55,6 +55,7 @@ const BEAT_MS: Record<string, number> = {
   spawn: 600,
   ready: 700,
   sundown: 1200,
+  crossing: 1200,
   turncoat: 1300,
   info: 500,
   tally: 1200,
@@ -73,6 +74,7 @@ const BEAT_KIND: Record<string, string> = {
   summon: 'Summon',
   threat: 'Threat',
   spawn: 'Arrival',
+  crossing: 'The Crossing',
   ready: 'Ready',
   sundown: 'Sundown',
   info: '',
@@ -459,6 +461,36 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       if (tileOf(victimUid)) setFx((f) => patch(f, { stamp: stampOn(victimUid) }));
       await wait(1600);
       if (alive()) setFx((f) => (f ? { ...f, stamp: undefined } : f));
+      return;
+    }
+    // Lost at sea: no striker and no blow. The card greys and sinks out of its slot while the Location's loss
+    // comes down off its owner's circle; the verdict holds on the banner.
+    if (outcome === 'perished') {
+      sfx('lost');
+      if (d.from !== undefined && prevView) {
+        const lost = influenceAt(prevView, d.from)[d.victim.owner] - influenceAt(view, d.from)[d.victim.owner];
+        if (lost > 0) {
+          const ring = document.querySelector(`.column[data-index="${d.from}"] .score.p${d.victim.owner}`)?.getBoundingClientRect();
+          if (ring) floatText(ring.left + ring.width / 2, ring.top + ring.height / 2, `−${lost}`, 'drop big');
+          setFx((f) => patch(f, { hurt: { location: d.from!, owner: d.victim.owner } }));
+          const gen = pendingGen.current;
+          window.setTimeout(() => { if (gen === pendingGen.current) shiftPending(d.from!, d.victim.owner, lost); }, 160);
+        }
+      }
+      if (vg) {
+        vg.el.querySelector('.pic')?.classList.add('fx-perish');
+        await wait(420);
+        if (!alive()) return;
+        await fly(vg, new DOMRect(vg.base.left, vg.base.top + vg.base.height * 0.6, vg.base.width, vg.base.height), { ms: 1100, easing: 'cubic-bezier(0.4, 0, 0.8, 0.6)', fade: true, remove: true });
+        if (!alive()) return;
+        setFx((f) => patch(f, { hidden: (f?.hidden ?? []).filter((u) => u !== victimUid) }));
+      } else {
+        await wait(900);
+        if (!alive()) return;
+      }
+      await wait(last ? 1100 : 700);
+      if (!alive()) return;
+      setFx((f) => (f ? { ...f, stamp: undefined, hurt: undefined } : f));
       return;
     }
     // A stand-off (the OG's block, a curfew, Anansi's trick): nobody is knocked anywhere. The striker steps up once,
@@ -965,16 +997,15 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         }, 1050);
         return shots.length;
       };
-      // The smashdown (Marvel Snap): a Location revealed, or retold by Anansi, slams onto the board. The panel drops,
-      // the board jolts as it lands, a shockwave runs out from its foot and the cards in that column hop and settle
-      // while the photograph develops in the window (see theme.css, loc-slam).
+      // The smashdown (Marvel Snap): a Location revealed, or retold by Anansi, slams onto the board. The photograph
+      // develops in the window in grey and colours in, then the panel grows and slams down (~1.26s); on the landing
+      // the cards in that column hop and settle and the other Locations tremor a little (see theme.css, loc-slam).
       if (!reduceMotion() && step.kind === 'reveal') {
         const slammed = evs.find((e) => e.location !== undefined && (e.type === 'locationRevealed' || (e.type === 'locationTransformed' && !!e.data?.retold)));
         if (slammed?.location !== undefined) {
           const idx = slammed.location;
           setFx((f) => ({ ...(f ?? { hidden: [] }), slam: idx }));
-          window.setTimeout(() => { if (alive()) { setShake(true); window.setTimeout(() => setShake(false), 320); } }, 240);
-          window.setTimeout(() => { if (alive()) setFx((f) => (f?.slam === idx ? null : f)); }, 950);
+          window.setTimeout(() => { if (alive()) setFx((f) => (f?.slam === idx ? null : f)); }, 1550);
         }
       }
       // A card played from the other side's hand flips face up in its slot as its beat opens; a Character's Reveal
@@ -2403,8 +2434,8 @@ function ReparationsReadout({ view, me, placeholders }: { view: GameState; me: P
 /** The sound for a replay beat, by what happened in it. */
 function beatSfx(step: TraceStep): void {
   const evs = step.events;
-  // The showdown choreography plays its own strike, verdict and cheer.
-  if (step.kind === 'showdown') return;
+  // The showdown choreography plays its own strike, verdict and cheer; the crossing's beat plays its own toll.
+  if (step.kind === 'showdown' || step.kind === 'crossing') return;
   // A Location revealed sounds like the place, with the Threat it spawns (Harpers Ferry's Paddy Roller) over it.
   if (step.kind === 'reveal') {
     const revealed = evs.find((e) => e.type === 'locationRevealed');

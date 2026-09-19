@@ -492,9 +492,9 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Marie Laveau (`marie_laveau`)
 - cost 3 · Influence 3 · Force 2 · historical · era: 1801–1881
-- reveal: Gris-gris: the opposing Gate Character here with the highest Influence loses 2 Influence for the rest of the match.
+- reveal: Gris-gris: the opposing Gate Character here with the highest Influence loses 2 Influence for the rest of the match. And the last of your Characters lost on the crossing at The Middle Passage comes back to your hand.
 - blurb: Hairdresser, healer and the most consulted woman in New Orleans.
-- history: Marie Catherine Laveau was born free in New Orleans in 1801, a Creole of African, French and Native descent. A hairdresser to wealthy households, she became the city's best-known Vodou practitioner, leading ceremonies at Congo Square and on Lake Pontchartrain, nursing yellow fever patients and visiting prisoners on death row. Clients across every class came to her for charms, advice and intercession. She died in 1881; her tomb in St. Louis Cemetery No. 1 is still visited.
+- history: Marie Catherine Laveau was born free in New Orleans in 1801, a Creole of African, French and Native descent. A hairdresser to wealthy households, she became the city's best-known Vodou practitioner, leading ceremonies at Congo Square and on Lake Pontchartrain, nursing yellow fever patients and visiting prisoners on death row. Clients across every class came to her for charms, advice and intercession. She died in 1881; her tomb in St. Louis Cemetery No. 1 is still visited. The card's second power is the healer's, an invention in her spirit: she calls back the last one the crossing took.
 
 ### Nanny of the Maroons (`nanny_of_the_maroons`)
 - cost 6 · Influence 6 · Force 4 · historical · era: c. 1686–1755
@@ -651,7 +651,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### The Middle Passage (`middle_passage`)
 - era: Atlantic, 1526–1867
-- rule: The crossing. Nobody goes Inside here. At the end of each turn every Character at these Gates loses 1 Influence for good (never below 0). Whoever leaves here arrives Ready and carries +1 Influence for good: what survived the crossing came with them. The DeWolf Trade ships people here.
+- rule: The crossing. Nobody goes Inside here. At the end of each turn every Character at these Gates loses 1 Influence for good (never below 0), and each has about a 1-in-7 chance of not surviving the crossing (the ships' own odds): out of the match, into its player's discard. Whoever leaves here arrives Ready and carries +1 Influence for good: what survived the crossing came with them. The DeWolf Trade ships people here; Marie Laveau calls the last one lost back.
 - blurb: Twelve and a half million people were carried across the Atlantic in chains, and ten and a half million landed. What they carried, they kept: the languages, the faiths, the stories, the songs.
 
 ### Charleston, 1822 (`charleston_1822`)
@@ -890,7 +890,7 @@ Rules
 - The Tabernacle protects your Characters from displacement. Establish Richard Allen, Absalom Jones and Daniel Payne there and Black Jesus appears: sanctuary at his Location and +1 Influence to every Character you control.
 - The Justice System holds anyone who goes Inside for two turns: no relocating out.
 - Events are played into the purple Event slot under a Location (one per Location per turn; the Gates can be full). A deck carries at most two, and the empty slot counts yours down. They work everywhere and the Location adds a bonus: Reparations pays +1 more in the Americas, The Ancestors bless a Location in Africa, Word of Mouth draws two where you have a crowd, Community Defense adds Force where it lands. Some cards cost 0 Energy.
-- The Middle Passage has no Inside: everyone at its Gates loses 1 Influence for good each turn, and whoever leaves arrives Ready and carries +1 Influence for good. The DeWolf Trade (a Threat, 5 Force) ships the lowest Waiting Gate Character at its Location there, or to a random Location, with a Setback.
+- The Middle Passage has no Inside: everyone at its Gates loses 1 Influence for good each turn and has about a 1-in-7 chance, each turn, of not surviving the crossing (out of the match, into the discard: the ships' own odds), and whoever leaves arrives Ready and carries +1 Influence for good. Marie Laveau's Reveal calls the last one lost back to your hand. The DeWolf Trade (a Threat, 5 Force) ships the lowest Waiting Gate Character at its Location there, or to a random Location, with a Setback.
 - Informants (Peter Prioleau, George Wilson, Pharoah and Tom, Ben Woolfolk) are Characters you play onto your opponent's Gates at a Location with one of their slots open. They are theirs: their negative Influence counts against them there, they take one of their Gate slots, and they never become Ready or go Inside. Relocate one away, slide it with Robert Smalls, or let a Threat knock it away; Harriet Tubman will not conduct one. Or drop it at Charleston, 1822, where at the end of every turn the Waiting Gate Character with the lowest Influence changes sides (a tie goes against the leader): an Informant there is found out and goes back to the hand of whoever planted it. Marie Laveau's Reveal hexes the strongest opposing Gate Character at her Location: −2 Influence for the rest of the match. Or find it out yourself: David Ruggles and Lewis Hayden send it back to the planter's hand, William Parker has it arrested into the planter's discard, and William Still, Established there, writes it down so it counts 0.
 - Every deck carries at least one Mythic. The full list, with costs, is under Cards on the start screen.
 ### Summon (cooperative)
@@ -965,12 +965,13 @@ Menu
 - cubic-bezier(0.2, 0.8, 0.3, 1)
 - .column[data-index="${it.location}"] .loc-glow
 - s ghost flies: its real tile
+- .column[data-index="${d.from}"] .score.p${d.victim.owner}
+- cubic-bezier(0.4, 0, 0.8, 0.6)
 - cubic-bezier(0.3, 0.7, 0.3, 1)
 - cubic-bezier(0.2, 0.9, 0.3, 1.25)
 - cubic-bezier(0.55, 0, 0.85, 0.35)
 - ${d.actor.force} vs ${d.theirForce}
 - clash ${tone === 'miss' ? 'miss' : ''}
-- .column[data-index="${d.from}"] .score.p${d.victim.owner}
 - s ghost flies to where it was sent; the striker
 - cubic-bezier(0.15, 0.7, 0.2, 1)
 - cubic-bezier(0.25, 0.75, 0.3, 1)
@@ -1430,7 +1431,7 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
 
 /** A Character knocks, blocks, holds off or turns another: the beat that explains the tally. */
 /** The verdict of a clash, as stamped on the board and titled on the Clash card. */
-export const CLASH_TITLES: Record<'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested' | 'amnestied', string> = {
+export const CLASH_TITLES: Record<'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested' | 'amnestied' | 'perished', string> = {
   displaced: 'BANISHED',
   held: 'HOLDS',
   blocked: 'BLOCKED',
@@ -1444,6 +1445,7 @@ export const CLASH_TITLES: Record<'displaced' | 'held' | 'blocked' | 'sentBack' 
   exposed: 'FOUND OUT',
   arrested: 'ARRESTED',
   amnestied: 'AMNESTIED',
+  perished: 'LOST AT SEA',
 };
 
 export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: GameState; me: PlayerId; onClose: () => void }) {
@@ -1451,7 +1453,7 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
   const d = ev.data as {
     actor: { kind: 'character' | 'threat' | 'location' | 'event'; id: string; owner?: PlayerId; force?: number };
     victim: { uid: string; defId: string; owner: PlayerId; force: number };
-    outcome: 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested' | 'amnestied';
+    outcome: 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested' | 'amnestied' | 'perished';
     from: number;
     to?: number;
     theirForce?: number;
@@ -1641,7 +1643,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - ${tdef.name}, aimed at ${view.players[other(me)].handle}. ${tdef.text}
 - stamp verdict ${stamp.tone ?? 'hit'}
 - healing${fx?.healBy && fx.healBy !== 'both' ? 
--  : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''} ${fx?.slam === loc.index ? 'slam' : ''}
+-  : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''} ${fx?.slam === undefined ? '' : fx.slam === loc.index ? 'slam' : 'slam-near'}
 - Play here: ${loc.revealed ? locationName(loc.defId, placeholders) : 
 - loc-glow ${state}${healing ? 
 -  : ''} ${canLand === null ? '' : canLand ? 'drop-can' : 'drop-cannot'} ${overHere ? 'drop-here' : ''}
@@ -1780,6 +1782,9 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - nobody here to lure.
 - no opposing Gate Character here to hex.
 - hexes ${charDef(target.defId).name}: −${amount} Influence for the rest of the match.
+- would call ${charDef(back).name} back from the crossing, but the hand is full (${MAX_HAND}).
+- calls ${charDef(back).name} back from the crossing: the card returns to ${ps.handle}'s hand.
+- ${charDef(back).name} comes back from the crossing to ${ps.handle}'s hand: ${def.name} called them home.
 - no Established Character chosen to bring home.
 - writes home for ${tdef.name}, but the hand is full: the card is discarded.
 - brings ${tdef.name} home from ${locName(state, target.location)}: back in hand and free to play again. ${ps.handle} draws a card.

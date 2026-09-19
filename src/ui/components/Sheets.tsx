@@ -627,7 +627,7 @@ export function adviceFor(view: GameState, me: PlayerId, actor: { kind: 'charact
 
 /** A Character knocks, blocks, holds off or turns another: the beat that explains the tally. */
 /** The verdict of a clash, as stamped on the board and titled on the Clash card. */
-export const CLASH_TITLES: Record<'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested' | 'amnestied', string> = {
+export const CLASH_TITLES: Record<'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested' | 'amnestied' | 'perished', string> = {
   displaced: 'BANISHED',
   held: 'HOLDS',
   blocked: 'BLOCKED',
@@ -641,6 +641,7 @@ export const CLASH_TITLES: Record<'displaced' | 'held' | 'blocked' | 'sentBack' 
   exposed: 'FOUND OUT',
   arrested: 'ARRESTED',
   amnestied: 'AMNESTIED',
+  perished: 'LOST AT SEA',
 };
 
 export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: GameState; me: PlayerId; onClose: () => void }) {
@@ -648,7 +649,7 @@ export function ClashSheet({ ev, view, me, onClose }: { ev: GameEvent; view: Gam
   const d = ev.data as {
     actor: { kind: 'character' | 'threat' | 'location' | 'event'; id: string; owner?: PlayerId; force?: number };
     victim: { uid: string; defId: string; owner: PlayerId; force: number };
-    outcome: 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested' | 'amnestied';
+    outcome: 'displaced' | 'held' | 'blocked' | 'sentBack' | 'suppressed' | 'turned' | 'tricked' | 'rose' | 'hexed' | 'defected' | 'exposed' | 'arrested' | 'amnestied' | 'perished';
     from: number;
     to?: number;
     theirForce?: number;

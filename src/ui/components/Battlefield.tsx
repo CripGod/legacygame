@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   charsAt,
   influenceAt,
@@ -142,9 +142,6 @@ export interface BoardFx {
   /** Who broke the Threat that healed them: the light takes their colour ('both' when the Force was even). */
   healBy?: PlayerId | 'both';
 }
-
-/** Where the smashdown's sparks fly from the panel's foot (px). */
-const SLAM_SPARKS: [number, number][] = [[-84, -30], [-56, -52], [-26, -40], [4, -60], [30, -38], [58, -54], [86, -28]];
 
 const picFx = (fx: BoardFx | null | undefined, uid: string): 'windup' | 'knocked' | 'held' | 'hexed' | 'land' | 'arrive' | 'jolt' | undefined => {
   if (!fx) return undefined;
@@ -528,7 +525,7 @@ export function Battlefield(props: BattlefieldProps) {
         return (
           <div
             key={loc.index}
-            className={`column ${isTarget ? `targetable for-${me}` : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''} ${fx?.slam === loc.index ? 'slam' : ''}`}
+            className={`column ${isTarget ? `targetable for-${me}` : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''} ${fx?.slam === undefined ? '' : fx.slam === loc.index ? 'slam' : 'slam-near'}`}
             data-drop="location"
             data-index={loc.index}
             onClick={isTarget ? () => onLocationTap(loc.index) : undefined}
@@ -549,12 +546,6 @@ export function Battlefield(props: BattlefieldProps) {
           >
             <GateStrip {...common} owner={opp} index={loc.index} label="The Gates" right={title} />
             <div className={`loc-glow ${state}${healing ? ` ${healCls}` : ''} ${canLand === null ? '' : canLand ? 'drop-can' : 'drop-cannot'} ${overHere ? 'drop-here' : ''}`}>
-            {/* The smashdown's shockwave at the panel's foot: the ring, the dust and a few sparks, on the ground (not on the panel, which is what moves). */}
-            {fx?.slam === loc.index && (
-              <div className="slam-wave" aria-hidden>
-                {SLAM_SPARKS.map((s, i) => <i key={i} style={{ '--dx': `${s[0]}px`, '--dy': `${s[1]}px` } as CSSProperties} />)}
-              </div>
-            )}
             <div className={`${cls} framed`}>
               {/* The owner's Location frame: gold when I lead, blue when they do, silver when nobody does. The title sits in its band, the body in its window. */}
               <div className="loc-frame" aria-hidden style={{ backgroundImage: `url("${pageUrl(artUrl('frames', `location-${lead === 'A' ? 'gold' : lead === 'B' ? 'blue' : 'unowned'}`, 'webp'))}")` }} />

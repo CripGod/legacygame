@@ -5,11 +5,11 @@ import { useEffect, useRef } from 'react';
  * different things do not look the same (the README's "Effects library" maps each to a Unity ParticleSystem):
  * - `ribbon` (the default): a power reaching across the board. Particles fly from one tile to a Location along a
  *   lit path and land as embers rising off the Location with a +N. Robert Duncanson's landscape was the first.
- * - `spray`: a blow landing. Sparks burst from the struck tile and fall, with a shockwave ring. Short and hard.
+ * - `spray`: a blow landing. Sparks burst from the struck tile and fall. Short and hard (no ring: nothing here emanates a circle).
  * - `wave`: word spreading. A Location just healed of its Threat sends one ring of light out across the board at
  *   `WAVE_SPEED`; every Location the ring reaches blooms, sparkles twinkle over its name and the +N lifts off it.
  *   Nothing streams out of the Threat: the good news is the Location's own health reaching the others.
- * - `burst`: the Stand, Marvel Snap style. A flash and two shockwave rings from the button, sparks flung out and
+ * - `burst`: the Stand, Marvel Snap style. A flash from the button (no rings), sparks flung out and
  *   falling, and slow gold embers that keep rising for two seconds while the roar carries on.
  * Fireworks over a cleared Threat have their own canvas (Fireworks.tsx).
  * Timing: a ribbon launches over the first ~350ms, flies ~700ms and lands over ~800ms; a spray is over in ~520ms;
@@ -274,20 +274,6 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
         grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
         ctx.fillStyle = grad;
         ctx.fillRect(c.x - R, c.y - R, 2 * R, 2 * R);
-        const rings: [number, number, number][] = isReveal(i) ? [[0, 85, 1]] : [[0, 280, 1], [140, 210, 0.6]];
-        for (const [delay, reach, w] of rings) {
-          const t = (el - delay) / (isReveal(i) ? 480 : 700);
-          if (t < 0 || t > 1) continue;
-          const k = (1 - t) * w;
-          ctx.beginPath();
-          ctx.arc(c.x, c.y, 10 * sc + 14 + reach * ease(t), 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(255,255,255,${0.9 * k})`;
-          ctx.lineWidth = 3.5 * (1 - t) + 0.6;
-          ctx.stroke();
-          ctx.strokeStyle = `rgba(${r},${g},${b},${0.7 * k})`;
-          ctx.lineWidth = 9 * (1 - t) + 0.6;
-          ctx.stroke();
-        }
       }
       for (const s of bsparks) {
         if (el > s.life) continue;
@@ -498,15 +484,6 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
           ctx.fillStyle = grad;
           ctx.fillRect(c.x - 60, c.y - 60, 120, 120);
         }
-        const ringT = Math.min(1, el / 380);
-        ctx.beginPath();
-        ctx.arc(c.x, c.y, 12 + 78 * ease(ringT), 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(255,255,255,${0.85 * (1 - ringT)})`;
-        ctx.lineWidth = 3 * (1 - ringT) + 0.5;
-        ctx.stroke();
-        ctx.strokeStyle = `rgba(${r},${g},${b},${0.6 * (1 - ringT)})`;
-        ctx.lineWidth = 6 * (1 - ringT) + 0.5;
-        ctx.stroke();
       }
       for (const s of sparks) {
         if (el > s.life) continue;

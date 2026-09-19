@@ -1776,6 +1776,58 @@ describe('Informant edge cases (from review)', () => {
   });
 });
 
+describe('The crossing takes about one in seven', () => {
+  it('each Character at the Passage Gates has the ledgers\' odds of not surviving a turn: out of the match, into the discard, on the ledger', () => {
+    let deaths = 0;
+    let trials = 0;
+    let seen = false;
+    for (let seed = 1; seed <= 140; seed++) {
+      const s = rig(createMatch({ seed }), { locations: ['greenwood', 'middle_passage', 'gary_indiana'], revealAll: true, handA: [], handB: [] });
+      s.turn = 3;
+      const a = addChar(s, 'og', 'A', 1, 'gate', true);
+      const b = addChar(s, 'john_russwurm', 'B', 1, 'gate', true);
+      const spy = addChar(s, 'peter_prioleau', 'B', 1, 'gate', false); // the other side's plant at A's Gates: left out, as of the toll
+      const out = resolveTurn(s, { A: pass(), B: pass() }, { trace: true });
+      trials += 2;
+      expect(out.state.characters[spy.uid]).toBeDefined();
+      for (const c of [a, b]) {
+        if (out.state.characters[c.uid]) continue;
+        deaths += 1;
+        seen = true;
+        const ps = out.state.players[c.owner];
+        expect(ps.discard).toContain(c.defId);
+        expect(ps.lostAtSea).toContain(c.defId);
+        const ev = out.events.find((e) => e.type === 'clash' && e.uid === c.uid) as GameEvent & { data: { outcome: string; actor: { kind: string; id: string } } };
+        expect(ev.data.outcome).toBe('perished');
+        expect(ev.data.actor).toEqual({ kind: 'location', id: 'middle_passage' });
+        expect(out.trace?.some((t) => t.kind === 'crossing' && t.uids?.includes(c.uid))).toBe(true);
+      }
+    }
+    expect(seen).toBe(true);
+    const rate = deaths / trials;
+    expect(rate).toBeGreaterThan(0.07);
+    expect(rate).toBeLessThan(0.24);
+  });
+
+  it('Marie Laveau calls the last one lost back to the hand; a full hand keeps them on the ledger', () => {
+    let s = rig(createMatch({ seed: 5 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: [], handB: ['marie_laveau'] });
+    s.players.B.discard.push('og', 'harriet_tubman');
+    s.players.B.lostAtSea = ['og', 'harriet_tubman'];
+    const out = resolveTurn(s, { A: pass(), B: { ...pass(), plays: [{ cardId: 'marie_laveau', location: 2 }] } });
+    expect(out.state.players.B.hand).toContain('harriet_tubman');
+    expect(out.state.players.B.discard).toEqual(['og']);
+    expect(out.state.players.B.lostAtSea).toEqual(['og']);
+    expect(out.events.some((e) => e.type === 'spawned' && e.cardId === 'harriet_tubman' && e.player === 'B' && (e.data as { zone?: string }).zone === 'hand')).toBe(true);
+    // A full hand: the card stays on the ledger for another Laveau.
+    let t = rig(createMatch({ seed: 5 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: [], handB: ['marie_laveau', 'og', 'og', 'og', 'og', 'og', 'og', 'og'] });
+    t.players.B.discard.push('harriet_tubman');
+    t.players.B.lostAtSea = ['harriet_tubman'];
+    const to = resolveTurn(t, { A: pass(), B: { ...pass(), plays: [{ cardId: 'marie_laveau', location: 2 }] } });
+    expect(to.state.players.B.hand).not.toContain('harriet_tubman');
+    expect(to.state.players.B.lostAtSea).toEqual(['harriet_tubman']);
+  });
+});
+
 describe('The Middle Passage and the DeWolf Trade', () => {
   it('the trade ships the lowest Fresh Gate Character to the Passage, where the toll is paid and nobody goes Inside', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'middle_passage', 'gary_indiana'], revealAll: true, handA: [], handB: [] });
