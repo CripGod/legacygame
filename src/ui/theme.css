@@ -1870,12 +1870,17 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .gates-strip.mine .gate-slot.filled .pic .b-force { right: calc(-0.7 * var(--gi-x)); }
 
 /* ---------- The Location frames (art) ---------- */
-/* Three hollow frames on one geometry (a title band over a window): the panel's title sits in the band, the meter,
-   the rows and the rule in the window; the drawn chamfer plate steps back behind them. Insets are the frame's,
-   as a share of the panel's width. */
-.location.framed { position: relative; clip-path: none !important; background: transparent !important; padding: 1.9% 5% 7.8%; overflow: visible; }
+/* Three hollow frames on one geometry (a title band over a window). The panel takes the art's own proportions
+   (1072 × 638): the parchment title sits in the band (2.7% down, 12.5% tall), the meter, the rows and the rule in
+   the window (18.2% down to 11.3% from the bottom, 5% in from the sides), and the drawn chamfer plate steps back. */
+.location.framed { position: relative; aspect-ratio: 1072 / 638; flex: 0 0 auto !important; container-type: inline-size; clip-path: none !important; background: transparent !important; padding: 10.8% 5.2% 6.7% 5%; overflow: hidden; --slot: min(12cqw, 86px, max(30px, min(4.7vw, 7vh))); --slot-h: calc(var(--slot) * 0.72); }
 .location.framed::after { inset: 1% 1.6% 1.4%; background: var(--bfill, #0c1a2b); }
 .location.framed > .loc-frame { position: absolute; inset: 0; z-index: 6; background: center / 100% 100% no-repeat; pointer-events: none; }
-/* The photograph fills the window only; the title band keeps its parchment and dark ink. */
 .location.framed > .loc-bg { inset: 18.2% 5.2% 11.3% 5%; }
-.location.framed .art, .location.framed .art.reveal-anim { margin: 0 0 2.6%; border-bottom: 0; min-height: 0; height: 8.6%; }
+.location.framed .art, .location.framed .art.reveal-anim { position: absolute; top: 2.7%; left: 4.7%; right: 4.7%; height: 12.5%; max-height: none; min-height: 0; margin: 0; border-bottom: 0; z-index: 2; }
+/* The meter rides on top of the frame, its circles over the frame's top corners; the window keeps the rows and the rule. */
+.location.framed { margin-top: 30px; overflow: visible; }
+.location.framed .influence { position: absolute; left: 3%; right: 3%; top: -30px; height: 30px; padding: 0; z-index: 7; }
+.location.framed .influence .score { width: clamp(28px, min(3vw, 4.4vh), 40px); height: clamp(28px, min(3vw, 4.4vh), 40px); }
+.location.framed .slots { padding: 2px 10px 3px; }
+.location.framed .loc-rule { margin: 2px 10px 0; font-size: clamp(8px, 0.8vw, 12px); line-height: 1.25; }
