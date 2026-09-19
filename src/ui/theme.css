@@ -1899,13 +1899,14 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
    resolve against the panel's content box, which is the window, so 13.6cqw is 13.6% of the window's width
    (7.33 slots = 99.7% of it). The seats always take the width; on a short viewport, where the panel itself is
    squashed, only their height gives (the vh cap), so the row still fills and the rule stays on the window's foot. */
-.location.framed .threat-col { width: calc(var(--slot) * 1.65); padding: 2px calc(var(--slot) * 0.1) 2px calc(var(--slot) * 0.3); gap: calc(var(--slot) * 0.1); }
-.location.framed .threat-tile { min-height: calc(var(--slot-h) + 6px); }
-.location.framed .threat-col:has(.threat-tile:nth-child(3)) { width: calc(var(--slot) * 1.65); grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); align-content: stretch; gap: 3px; }
-/* Two abreast, the tiles are too narrow for text: the art and the Force orb stay, the border colour says whose it is,
-   and the name and target are in the sheet. */
-.location.framed .threat-col:has(.threat-tile:nth-child(3)) .threat-name { display: none; }
-.location.framed .threat-col:has(.threat-tile:nth-child(3)) .threat-who { display: none; }
+@media (width > 700px) {
+  .location.framed .threat-col { width: calc(var(--slot) * 1.65); padding: 2px calc(var(--slot) * 0.1) 2px calc(var(--slot) * 0.3); gap: calc(var(--slot) * 0.1); }
+  .location.framed .threat-tile { min-height: calc(var(--slot-h) + 6px); }
+  /* Three or more Threats stand two abreast at nearly the two-Threat width (1.2 slots each) and the column widens;
+     the five seats beside them give up the difference (they shrink to fit) rather than the Threat tiles, so the
+     Force, the name and the target stay readable. Below 700px the phone strip under the rows takes over. */
+  .location.framed .threat-col:has(.threat-tile:nth-child(3)) { width: auto; grid-template-columns: repeat(2, calc(var(--slot) * 1.2)); grid-auto-rows: minmax(0, 1fr); align-content: stretch; gap: 3px; }
+}
 .location.framed .row-lbl { padding-left: calc(var(--slot) * 0.2); }
 .location.framed .threat-tile .threat-name { font-size: clamp(6px, 0.48vw, 7.5px); letter-spacing: 0; padding: 8px 2px 1px; overflow-wrap: normal; }
 /* The meter sits right under the name, first thing in the window, so every +N and wave keeps its path. */

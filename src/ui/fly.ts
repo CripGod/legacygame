@@ -44,9 +44,22 @@ export function ghostOf(el: Element): Ghost {
     for (const c of Array.from(pic.classList)) if (c.startsWith('fx-') || c === 'focus') pic.classList.remove(c);
   });
   const cs = getComputedStyle(el);
-  for (const p of ['--bc', '--bfill', '--bw', '--chamfer', '--mini', '--mini-h', '--slot', '--gate-on', '--gate-off']) {
+  for (const p of ['--bc', '--bfill', '--bw', '--chamfer', '--mini', '--mini-h', '--slot', '--slot-h', '--gate-on', '--gate-off']) {
     const v = cs.getPropertyValue(p);
     if (v) g.style.setProperty(p, v);
+  }
+  // The size tokens are written in container and viewport units (cqw, cqh, vh) that resolve differently in the fly
+  // layer, which sits under body outside every container: pin them to the pixels the real tile has, so anything
+  // inside the clone that is sized from them (initials, orbs, strips) keeps the tile's scale.
+  if (g.classList.contains('slot')) {
+    g.style.setProperty('--slot', `${base.width}px`);
+    g.style.setProperty('--slot-h', `${base.height}px`);
+  } else if (g.classList.contains('threat-tile')) {
+    g.style.setProperty('--slot', `${base.width / 1.25}px`);
+    g.style.setProperty('--slot-h', `${(base.width / 1.25) * 0.72}px`);
+  } else if (g.classList.contains('gate-slot')) {
+    g.style.setProperty('--mini', `${base.width}px`);
+    g.style.setProperty('--mini-h', `${base.height}px`);
   }
   // A framed Gate tile (gf) keeps its frame in flight: its window insets, resolved to pixels here, since the fly layer has no container.
   if (g.classList.contains('gf')) {
