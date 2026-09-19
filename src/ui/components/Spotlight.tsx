@@ -67,8 +67,9 @@ export function Spotlight({ active }: { active: boolean }) {
   return (
     <svg className="spotlight" aria-hidden width="100%" height="100%">
       <defs>
-        <filter id="spot-soft" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="3" />
+        {/* The holes' edges feather out over ~20px, so the spotlight reads as light, not as a cut. */}
+        <filter id="spot-soft" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="9" />
         </filter>
         <mask id="spot-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%">
           <rect width="100%" height="100%" fill="#fff" />
@@ -82,9 +83,13 @@ export function Spotlight({ active }: { active: boolean }) {
             )}
           </g>
           <g filter="url(#spot-soft)">
-            {boxes.filter((b) => !b.pts).map((b, i) => (
-              <rect key={`s${i}`} x={b.x - pad} y={b.y - pad} width={b.w + pad * 2} height={b.h + pad * 2} rx={12} fill="#000" />
-            ))}
+            {boxes.map((b, i) =>
+              b.pts ? (
+                <polygon key={`s${i}`} points={b.pts.map(([x, y]) => `${x},${y}`).join(' ')} fill="#000" />
+              ) : (
+                <rect key={`s${i}`} x={b.x - pad} y={b.y - pad} width={b.w + pad * 2} height={b.h + pad * 2} rx={12} fill="#000" />
+              ),
+            )}
           </g>
         </mask>
       </defs>
