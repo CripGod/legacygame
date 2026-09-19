@@ -356,7 +356,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       );
     }, ms * 0.88);
   };
-  const landFx = (items: { location: number; amount?: number; tone: 'artist' | 'mine' | 'theirs'; big?: boolean; label?: string; side?: PlayerId; preheld?: boolean }[]) => {
+  const landFx = (items: { location: number; amount?: number; tone: 'artist' | 'mine' | 'theirs'; big?: boolean; label?: string; side?: PlayerId; preheld?: boolean; /** Where the number rises from (a tile) instead of the Location's name. */ from?: { x: number; y: number } }[]) => {
     if (items.some((it) => it.amount)) sfx('influence.up');
     for (const it of items) {
       const loc = document.querySelector(`.column[data-index="${it.location}"] .loc-glow`);
@@ -366,7 +366,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         loc.classList.add('loc-pulse', it.tone);
         window.setTimeout(() => loc.classList.remove('loc-pulse', it.tone), 1100);
       }
-      if (it.amount) floatNum(it.location, it.amount, it.tone, { big: it.big, label: it.label, side: it.side, preheld: it.preheld });
+      if (it.amount) floatNum(it.location, it.amount, it.tone, { big: it.big, label: it.label, side: it.side, preheld: it.preheld, from: it.from });
     }
   };
   /** During a replay your own moves stay where you put them; the board only re-animates what you could not see coming. */
@@ -907,20 +907,26 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       const fireTrails = (list: GameEvent[]) => {
         const shots: TrailShot[] = [];
         for (const e of list) {
-          const from = document.querySelector(`[data-uid="${e.uid}"]`)?.getBoundingClientRect();
-          const to = document.querySelector(`.column[data-index="${e.location}"] .art`)?.getBoundingClientRect();
-          if (!from || !to) continue;
+          const tile = document.querySelector(`[data-uid="${e.uid}"]`)?.getBoundingClientRect();
+          const art = document.querySelector(`.column[data-index="${e.location}"] .art`)?.getBoundingClientRect();
+          if (!tile || !art) continue;
           const amount = (e.data as { amount?: number }).amount;
           const tone = (e.data as { color?: string }).color;
           const first = (e.data as { trail?: string }).trail === 'first';
-          shots.push({ from, to, color: tone === 'artist' ? TRAIL_COLORS.artist : TRAIL_COLORS[e.player ?? 'A'], label: amount ? (first ? `+${amount} First Location bonus` : `+${amount}`) : undefined });
+          // A power flows from the Character to the Location; the First Location bonus is the Location paying the
+          // Character who guessed it, so that one runs the other way, from the name down to the card.
+          shots.push({ from: first ? art : tile, to: first ? tile : art, color: tone === 'artist' ? TRAIL_COLORS.artist : TRAIL_COLORS[e.player ?? 'A'], label: amount ? (first ? `+${amount} First Location bonus` : `+${amount}`) : undefined });
         }
         if (shots.length) sfx('trail');
         setTrail(shots.length ? shots : null);
         // When the trail lands (~1050ms): a pulse on the Location's panel and the chime. The +N rides the embers.
         window.setTimeout(() => {
           if (list.some((e) => (e.data as { amount?: number }).amount)) sfx('influence.up');
-          landFx(list.map((e) => ({ location: e.location!, amount: (e.data as { amount?: number }).amount, tone: (e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs', side: e.player, label: (e.data as { trail?: string }).trail === 'first' && (e.data as { amount?: number }).amount ? `+${(e.data as { amount?: number }).amount} First Location bonus` : undefined, preheld: true })));
+          landFx(list.map((e) => {
+            const first = (e.data as { trail?: string }).trail === 'first';
+            const tile = first ? document.querySelector(`[data-uid="${e.uid}"]`)?.getBoundingClientRect() : undefined;
+            return { location: e.location!, amount: (e.data as { amount?: number }).amount, tone: (e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs', side: e.player, label: first && (e.data as { amount?: number }).amount ? `+${(e.data as { amount?: number }).amount} First Location bonus` : undefined, preheld: true, from: tile ? { x: tile.left + tile.width / 2, y: tile.top + tile.height / 2 } : undefined };
+          }));
         }, 1050);
         return shots.length;
       };
