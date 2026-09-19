@@ -822,11 +822,11 @@ body:has(.cx-inner) .tip {
 .cx-colophon .cx-star { max-width: 260px; }
 .cx-colophon .cx-btn { margin-top: 4px; }
 
-/* The wordmark, inked in navy on the parchment title page. */
+/* The wordmark, inked in flat navy on the parchment title page (the lettering's alpha, painted one colour). */
 .cx-title .cx-logo {
   display: block;
   width: min(60vw, 300px);
-  background: linear-gradient(170deg, #1e3557 0%, var(--cx-navy) 55%, #0a1626 100%);
+  background: var(--cx-navy);
   -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
   -webkit-mask-size: contain; mask-size: contain;
   -webkit-mask-position: center; mask-position: center;

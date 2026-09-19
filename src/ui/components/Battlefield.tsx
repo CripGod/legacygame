@@ -344,7 +344,7 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
               </div>
             );
           }
-          if (!c) return <div key={i} className={`slot ${i >= cap ? 'locked' : ''}`} {...(i >= cap ? tip('Seat closed: a Housing Restriction (or the Land Office) holds it. Clear the Threat and it opens.') : {})}><i className="glow" aria-hidden /></div>;
+          if (!c) return <div key={i} className="tile-glow seat"><i className="glow" aria-hidden /><div className={`slot ${i >= cap ? 'locked' : ''}`} {...(i >= cap ? tip('Seat closed: a Housing Restriction (or the Land Office) holds it. Clear the Threat and it opens.') : {})} /></div>;
           const entering = plan.enters.includes(c.uid);
           const brought = plan.plays.some((pl) => pl.target?.charUid === c.uid);
           const planned = isPlannedUid(c.uid);
@@ -352,15 +352,17 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
           const draggable =
             mine && dragProps ? dragProps(planned ? { kind: 'card', cardId: c.uid.slice(PLANNED_PREFIX.length) } : { kind: 'char', uid: c.uid }) : {};
           return (
-            <div key={c.uid} data-uid={c.uid} data-place={`${index}:inside`} className={`slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''} ${fx?.hidden.includes(c.uid) ? 'fx-hidden' : ''}`} {...draggable}>
+            <div key={c.uid} className={`tile-glow seat ${c.owner} ${focus?.includes(c.uid) ? 'focus' : ''}`}>
               <i className="glow" aria-hidden />
-              {fx?.stamp?.uid === c.uid && (
-                <div className={`stamp verdict ${fx.stamp.tone ?? 'hit'}`}>
-                  <b>{fx.stamp.title}</b>
-                  {fx.stamp.sub && <i>{fx.stamp.sub}</i>}
-                </div>
-              )}
-              <Pic state={view} c={c} ready={readyBaseline ? !!readyBaseline.characters[c.uid]?.ready : undefined} highlight={confronting} fx={picFx(fx, c.uid)} focus={focus?.includes(c.uid)} strip={entering ? 'Entering' : brought ? 'Moving' : planned ? 'Placed' : confronting ? 'Confront' : lockKind(view, c) ? LOCK_STRIP[lockKind(view, c)!.kind] : undefined} onClick={() => onChar(c.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(c.uid); }} />
+              <div data-uid={c.uid} data-place={`${index}:inside`} className={`slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''} ${fx?.hidden.includes(c.uid) ? 'fx-hidden' : ''}`} {...draggable}>
+                {fx?.stamp?.uid === c.uid && (
+                  <div className={`stamp verdict ${fx.stamp.tone ?? 'hit'}`}>
+                    <b>{fx.stamp.title}</b>
+                    {fx.stamp.sub && <i>{fx.stamp.sub}</i>}
+                  </div>
+                )}
+                <Pic state={view} c={c} ready={readyBaseline ? !!readyBaseline.characters[c.uid]?.ready : undefined} highlight={confronting} fx={picFx(fx, c.uid)} focus={focus?.includes(c.uid)} strip={entering ? 'Entering' : brought ? 'Moving' : planned ? 'Placed' : confronting ? 'Confront' : lockKind(view, c) ? LOCK_STRIP[lockKind(view, c)!.kind] : undefined} onClick={() => onChar(c.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(c.uid); }} />
+              </div>
             </div>
           );
         })}

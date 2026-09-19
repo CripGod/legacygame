@@ -503,7 +503,7 @@ export function CardsScreen({ onBack, initialRefs }: { onBack: () => void; /** D
     <div className="screen">
       <div className="inner cx-inner" ref={rootRef}>
         <header className="cx-title cx-framed">
-          <Wordmark className="cx-logo" />
+          <Wordmark className="cx-logo" ink />
           <div className="cx-kicker">Black History Card Battler</div>
           <h1>Compendium</h1>
           <StarRule className="ink" />

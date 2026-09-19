@@ -776,7 +776,7 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 /* The owner's glow and the depth shadow are the glow box's (see "Glows on one plane" below), not a filter here. */
 .gate-slot { height: var(--mini-h); }
 .gate-slot.filled { --bw: 2.5px; --chamfer: 9px; box-shadow: none; }
-.gate-slot.filled:has(.pic.focus), .slot.filled:has(.pic.focus) { transform: none; }
+.slot.filled:has(.pic.focus) { transform: none; }
 .gate-slot.filled .pic { clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px), 0 7px); }
 .gate-slot.event-slot { height: var(--mini-h); }
 .pic .b { width: 27%; height: auto; aspect-ratio: 1; min-width: 17px; font-size: clamp(10px, 1.05vw, 15px); border-width: 2px; }
@@ -788,7 +788,7 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 
 /* Inside slots: small landscape thumbs with a thin gold frame. */
 .slots { grid-template-columns: repeat(5, var(--slot)); gap: 6px; padding: 2px 10px 4px; }
-.slot { width: var(--slot); height: var(--slot-h); border-radius: 3px; border-width: 1.5px; background: rgba(6, 12, 22, 0.55); box-shadow: none; overflow: visible; }
+.slot { width: var(--slot); height: var(--slot-h); border-radius: 3px; border-width: 1.5px; background: rgba(6, 12, 22, 0.55); box-shadow: none; }
 .slot.filled { border-width: 2px; }
 .slot .pic .inf { top: 2px; right: 2px; font-family: var(--display); font-size: clamp(9px, 0.85vw, 12px); line-height: 1.3; padding: 0 5px; border-radius: 3px; background: #08131f; border: 1px solid var(--gold-dark); color: var(--gold-2); }
 .row-lbl { padding: 3px 10px 0; }
@@ -1069,7 +1069,7 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 .card.informant .ribbon { background: linear-gradient(180deg, #a3261b, #5e120b); }
 .card.informant .hex.i { background: radial-gradient(circle at 40% 35%, #8f8f9c, #4a4a58 55%, #23232c); color: #ffd6d0; }
 .gate-slot .pic .strip.informant { background: rgba(163, 38, 27, 0.92); color: #fff; }
-.tile-glow:has(.strip.informant) > i.glow, .slot:has(.strip.informant) > i.glow { box-shadow: 0 0 7px 2px rgba(163, 38, 27, 0.7), 0 6px 10px rgba(0, 0, 0, 0.7); }
+.tile-glow:has(.strip.informant) > i.glow { box-shadow: 0 0 7px 2px rgba(163, 38, 27, 0.7), 0 6px 10px rgba(0, 0, 0, 0.7); }
 /* Artists: a deep green field and an ochre ribbon. */
 .card.artist { --bc: #d9b56a; --bfill: linear-gradient(180deg, #1f4d3a 0%, #123126 50%, #0b1f18 100%); }
 .card.artist .ribbon { background: linear-gradient(180deg, #b8861a, #7a5210); }
@@ -1091,15 +1091,12 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 }
 
 /* ---------- Landing wordmark ---------- */
-/* The 'Stand on Business' script is an alpha mask; the gold gradient paints it so it sits with the frames. */
+/* The 'Stand on Business' brush art (gold lettering with the crown); only the shadow is ours. */
 h1.logo-title { display: grid; justify-items: center; text-align: center; gap: 0; font-size: 16px; }
 .logo-title .logo {
   display: block;
   width: min(72vw, 420px);
-  background: linear-gradient(170deg, #fbe7a3 0%, var(--gold-2) 35%, var(--gold) 62%, #c8901e 100%);
-  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
-  -webkit-mask-size: contain; mask-size: contain;
-  -webkit-mask-position: center; mask-position: center;
+  height: auto;
   filter: drop-shadow(0 2px 0 rgba(90, 60, 8, 0.55)) drop-shadow(0 6px 18px rgba(233, 185, 58, 0.28));
 }
 .logo-title .logo-sub {
@@ -1936,7 +1933,8 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
   .location.framed .slots { height: 100%; box-sizing: border-box; align-items: stretch; }
   /* The whole Inside block stands above the frame (in place of each row on its own), so its glows share one plane. */
   .location.framed .inside-block { z-index: 7; }
-  .location.framed .inside-block .slot { height: auto; align-self: stretch; }
+  .location.framed .inside-block .tile-glow.seat { align-self: stretch; min-height: 0; }
+  .location.framed .inside-block .slot { height: 100%; }
   .location.framed .threat-col { height: 100%; grid-auto-rows: auto; grid-template-rows: var(--lbl) minmax(var(--seat-min), var(--seat-max)) var(--lbl) minmax(var(--seat-min), var(--seat-max)); row-gap: 0; align-content: end; }
   .location.framed .threat-col .threat-tile:only-child { grid-row: 1 / 5; }
   .location.framed .threat-col .threat-tile:first-child:nth-last-child(2) { grid-row: 1 / 3; margin-bottom: 4px; }
@@ -1991,8 +1989,9 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 
 /* Its turn: a soft halo that breathes behind the whole piece (wide and diffuse, never a crisp ring), the piece
    itself a touch larger. Inside tiles and framed Gate tiles get the same treatment. */
-.tile-glow.focus > .gate-slot, .tile-glow.focus > i.glow { transform: scale(1.08); transition: transform 220ms ease; }
-.tile-glow.focus > i.glow, .slot.filled:has(.pic.focus) > i.glow { animation: focus-glow 900ms ease-in-out infinite; }
+.tile-glow.focus > i.glow { transform: scale(1.08); transition: transform 220ms ease; }
+.tile-glow.seat.focus > i.glow { transform: none; }
+.tile-glow.focus > i.glow { animation: focus-glow 900ms ease-in-out infinite; }
 .pic.focus { animation: none; box-shadow: none; }
 .slot.filled:has(.pic.focus) { --bc: var(--gold); }
 .slot.filled.B:has(.pic.focus) { --bc: var(--cB); border-color: var(--cB); }
@@ -2001,7 +2000,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
   0%, 100% { box-shadow: 0 0 12px 3px rgba(150, 190, 255, 0.7), 0 0 28px 8px rgba(47, 123, 255, 0.5); }
   50% { box-shadow: 0 0 18px 5px rgba(205, 225, 255, 0.95), 0 0 42px 12px rgba(47, 123, 255, 0.75); }
 }
-.tile-glow.owner-B.focus > i.glow, .slot.filled.B:has(.pic.focus) > i.glow { animation-name: focus-glow-blue; }
+.tile-glow.owner-B.focus > i.glow, .tile-glow.seat.B.focus > i.glow { animation-name: focus-glow-blue; }
 
 /* Day and night at a curfew Location: an engraved badge on the title band instead of pills. Night carries
    the curfew with it (nobody relocates out until morning); day is the all-clear. */
@@ -2089,11 +2088,11 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
   91% { transform: translateY(-0.6%) scale(1.008); filter: brightness(1.03); }
   100% { transform: none; filter: none; }
 }
-.column.slam .gate-slot.filled .pic, .column.slam .gate-slot.reserved .pic-img, .column.slam .slot.filled .pic, .column.slam .threat-tile { animation: slam-jolt 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) 1.26s both; }
-.column.slam .gates > :nth-child(2) .pic, .column.slam .slots > :nth-child(2) .pic { animation-delay: 1.3s; }
-.column.slam .gates > :nth-child(3) .pic, .column.slam .slots > :nth-child(3) .pic { animation-delay: 1.34s; }
-.column.slam .gates > :nth-child(4) .pic, .column.slam .slots > :nth-child(4) .pic { animation-delay: 1.38s; }
-.column.slam .gates > :nth-child(5) .pic, .column.slam .slots > :nth-child(5) .pic { animation-delay: 1.42s; }
+.column.slam .gate-slot.filled, .column.slam .gate-slot.reserved, .column.slam .slot.filled, .column.slam .threat-tile { animation: slam-jolt 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) 1.26s both; }
+.column.slam .gates > :nth-child(2) .gate-slot, .column.slam .slots > :nth-child(2) .slot { animation-delay: 1.3s; }
+.column.slam .gates > :nth-child(3) .gate-slot, .column.slam .slots > :nth-child(3) .slot { animation-delay: 1.34s; }
+.column.slam .gates > :nth-child(4) .gate-slot, .column.slam .slots > :nth-child(4) .slot { animation-delay: 1.38s; }
+.column.slam .gates > :nth-child(5) .gate-slot, .column.slam .slots > :nth-child(5) .slot { animation-delay: 1.42s; }
 .column.slam-near .location.framed { animation: loc-tremor 0.36s ease-out 1.26s both; }
 @keyframes loc-tremor {
   0%, 100% { transform: none; }
@@ -2120,23 +2119,29 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .location .loc-bg .loc-shine { position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0; mix-blend-mode: screen; background: linear-gradient(105deg, rgba(255, 250, 230, 0) 40%, rgba(255, 250, 230, 0.55) 50%, rgba(255, 250, 230, 0) 60%); background-size: 260% 100%; background-repeat: no-repeat; animation: loc-shine 0.8s ease-out 0.5s both; }
 @keyframes loc-shine { 0% { background-position: 120% 0; opacity: 1; } 85% { opacity: 1; } 100% { background-position: -20% 0; opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
-  .column.slam .location.framed, .column.slam-near .location.framed, .column.slam .gate-slot.filled .pic, .column.slam .gate-slot.reserved .pic-img, .column.slam .slot.filled .pic, .column.slam .threat-tile, .location .loc-bg { animation: none; }
+  .column.slam .location.framed, .column.slam-near .location.framed, .column.slam .gate-slot.filled, .column.slam .gate-slot.reserved, .column.slam .slot.filled, .column.slam .threat-tile, .location .loc-bg { animation: none; }
   .location .loc-bg .loc-shine { display: none; }
 }
 
 /* ---------- Glows on one plane, under every picture ----------
-   A glow never paints over a neighbour's artwork. Each tile's glow is a box behind it (i.glow, beside the piece in
-   its wrapper or first in its seat) at z-index -1 in a plane its row isolates (.gates for the Gates, .inside-block
-   for the seats and the Threat column), so every glow in the row lies beneath every tile in the row. Nothing between
-   a glow and its plane may form a stacking context: no transform, filter, opacity or z-index on .tile-glow, .slot,
-   .slots or .inside-rows. Effects that move a piece move the slot beside the glow or the picture in it, never the
-   glow's parents. The Location's own glow (.loc-glow) sits under both Gate strips the same way. */
+   A glow never paints over a neighbour's artwork. Each tile's glow is a box beside the piece in its wrapper
+   (.tile-glow > i.glow, for Gate tiles, Event tiles and seats alike) at z-index -1 in a plane its row isolates
+   (.gates for the Gates, .inside-block for the seats and the Threat column), so every glow in the row lies beneath
+   every tile in the row. The piece itself may do what it likes (scale on focus, hop in the slam, take a stamp's
+   z-index, carry will-change): it is the glow's sibling, never its parent. Nothing between a glow and its plane may
+   form a stacking context: no transform, filter, opacity or z-index on .tile-glow, .slots or .inside-rows. The
+   Location's own glow (.loc-glow) sits under both Gate strips the same way. */
 .gates, .inside-block { position: relative; isolation: isolate; }
-.tile-glow > i.glow, .slot > i.glow { position: absolute; inset: 2px; border-radius: 9px; z-index: -1; pointer-events: none; transition: box-shadow 300ms ease; }
-.slot > i.glow { inset: 0; border-radius: 4px; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6); }
+.tile-glow > i.glow { position: absolute; inset: 2px; border-radius: 9px; z-index: -1; pointer-events: none; transition: box-shadow 300ms ease; }
+.tile-glow.seat { min-width: 0; min-height: 0; }
+.tile-glow.seat > .slot { width: 100%; height: 100%; }
+.tile-glow.seat > i.glow { inset: 0; border-radius: 4px; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6); }
 .tile-glow.owner-A > i.glow { box-shadow: 0 0 6px 1px rgba(233, 185, 58, 0.55), 0 6px 10px rgba(0, 0, 0, 0.7); }
 .tile-glow.owner-B > i.glow { box-shadow: 0 0 6px 1px rgba(47, 123, 255, 0.6), 0 6px 10px rgba(0, 0, 0, 0.7); }
-.slot.A > i.glow { box-shadow: 0 0 6px 1px rgba(233, 185, 58, 0.5), 0 3px 8px rgba(0, 0, 0, 0.6); }
-.slot.B > i.glow { box-shadow: 0 0 6px 1px rgba(47, 123, 255, 0.55), 0 3px 8px rgba(0, 0, 0, 0.6); }
+.tile-glow.seat.A > i.glow { box-shadow: 0 0 6px 1px rgba(233, 185, 58, 0.5), 0 3px 8px rgba(0, 0, 0, 0.6); }
+.tile-glow.seat.B > i.glow { box-shadow: 0 0 6px 1px rgba(47, 123, 255, 0.55), 0 3px 8px rgba(0, 0, 0, 0.6); }
+/* A piece whose ghost is flying (fx-hidden) takes its halo with it; a foreseen Event's halo fades with the ghost tile. */
+.tile-glow:has(> .fx-hidden) > i.glow { visibility: hidden; }
+.tile-glow.event:has(> .foreseen) > i.glow { opacity: 0.45; }
 .gates-strip { position: relative; z-index: 2; }
 .loc-glow { position: relative; z-index: 1; }
