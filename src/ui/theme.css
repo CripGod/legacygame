@@ -2132,6 +2132,12 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .tile-glow.owner-B > i.glow { box-shadow: 0 0 6px 1px rgba(47, 123, 255, 0.6), 0 6px 10px rgba(0, 0, 0, 0.7); }
 .tile-glow.seat.A > i.glow { box-shadow: 0 0 6px 1px rgba(233, 185, 58, 0.5), 0 3px 8px rgba(0, 0, 0, 0.6); }
 .tile-glow.seat.B > i.glow { box-shadow: 0 0 6px 1px rgba(47, 123, 255, 0.55), 0 3px 8px rgba(0, 0, 0, 0.6); }
+/* Attention on a piece (a Reveal, a power paid here, an arrival): no particles on the card, its glow swells bigger and
+   brighter for a moment in the colour asked for (--pulse), then settles back into whatever it was doing. */
+.tile-glow > i.glow.pulse, .tile-glow.focus > i.glow.pulse, .tile-glow.owner-B.focus > i.glow.pulse, .tile-glow.seat.B.focus > i.glow.pulse { animation: glow-pulse 0.72s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+@keyframes glow-pulse {
+  30% { transform: scale(1.14); box-shadow: 0 0 0 3px rgba(var(--pulse, 255, 226, 150), 0.95), 0 0 28px 12px rgba(var(--pulse, 255, 226, 150), 0.9), 0 0 64px 26px rgba(var(--pulse, 255, 226, 150), 0.5); }
+}
 /* A piece whose ghost is flying (fx-hidden) takes its halo with it; a foreseen Event's halo fades with the ghost tile. */
 .tile-glow:has(> .fx-hidden) > i.glow { visibility: hidden; }
 .tile-glow.event:has(> .foreseen) > i.glow { opacity: 0.45; }

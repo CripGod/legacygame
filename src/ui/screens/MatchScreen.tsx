@@ -414,10 +414,9 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   const [dig, setDig] = useState<DigShow | null>(null);
   const digKey = useRef(0);
   const [digFreeze, setDigFreeze] = useState<DigPhase | undefined>(undefined);
-  /** The impact: the hit is heard, the board jolts, sparks spray off the victim. */
-  const impactAt = (v: DOMRect) => {
+  /** The impact: the hit is heard and the board jolts (the victim flashes white on its own; no sparks on a card). */
+  const impactAt = (_v: DOMRect) => {
     sfx('clash.hit');
-    setTrail([{ from: v, to: v, color: TRAIL_COLORS.impact, kind: 'spray' }]);
     setShake(true);
     window.setTimeout(() => setShake(false), 320);
   };
@@ -781,7 +780,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       if (!alive()) return;
       sfx('card.drop');
       setFx((f) => patch(f, { hidden: (f?.hidden ?? []).filter((u) => u !== ev.uid), arrive: ev.uid }));
-      revealBurst(ev.uid, ev.player);
+      pulseGlow(ev.uid, ev.player);
       // What the arrival is worth here rises from its tile and is added when it reaches the circle.
       if (ev.location !== undefined && prevView) {
         const gained = influenceAt(view, ev.location)[ev.player] - influenceAt(prevView, ev.location)[ev.player];
@@ -804,11 +803,19 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     await wait(300);
   };
   /** A reveal's burst on a tile: a flash, one ring and a few sparks in the owner's colour, on the card and nowhere else. */
-  const revealBurst = (uid: string, owner: PlayerId) => {
+  /**
+   * Attention on a piece, with no particles on the card: the glow behind it (the box on the plane) swells bigger
+   * and brighter for a moment, in the given colour (the owner's, the artist's green, or a hit's white).
+   */
+  const pulseGlow = (uid: string, tone: PlayerId | 'artist' | 'hit') => {
     if (reduceMotion()) return;
-    const r = tileOf(uid)?.getBoundingClientRect();
-    if (!r) return;
-    setTrail([{ from: r, to: r, color: TRAIL_COLORS[owner], kind: 'reveal' }]);
+    const glow = tileOf(uid)?.closest('.tile-glow')?.querySelector(':scope > i.glow') as HTMLElement | null;
+    if (!glow) return;
+    glow.style.setProperty('--pulse', tone === 'artist' ? '79, 209, 138' : tone === 'hit' ? '255, 240, 220' : tone === 'B' ? '120, 170, 255' : '255, 226, 150');
+    glow.classList.remove('pulse');
+    void glow.offsetWidth;
+    glow.classList.add('pulse');
+    window.setTimeout(() => glow.classList.remove('pulse'), 760);
   };
 
   /**
@@ -963,10 +970,10 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       /** Fly a set of trail events from their source Character tiles to their Locations. */
       const fireTrails = (list: GameEvent[]) => {
         const shots: TrailShot[] = [];
-        // Three shapes. A power paid to the Character's own Location: no ribbon at all, a spark spray on the tile
-        // and the +N rises from it straight into the circle. A power paid to another Location: a ribbon from the
+        // Three shapes. A power paid to the Character's own Location: no ribbon at all, the glow behind the tile
+        // pulses and the +N rises from it straight into the circle. A power paid to another Location: a ribbon from the
         // tile to that Location's Influence circle (not up to its name), where the +N pops in. The First Location
-        // bonus: the ground shakes under the card that guessed the place (it hops and settles, sparks off it) and
+        // bonus: the ground shakes under the card that guessed the place (it hops and settles, its glow pulses) and
         // its +N rises from the card into the circle, the smashdown's last note.
         const here: GameEvent[] = [];
         const away: { e: GameEvent; ring?: DOMRect }[] = [];
@@ -982,7 +989,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           const ring = document.querySelector(`.column[data-index="${e.location}"] .score.p${side}`)?.getBoundingClientRect();
           const sameHere = !first && view.characters[e.uid!]?.location === e.location;
           if (first || sameHere) {
-            shots.push({ from: tile, to: tile, color, kind: 'spray' });
+            if (e.uid) pulseGlow(e.uid, tone === 'artist' ? 'artist' : (e.player ?? 'A'));
             here.push(e);
             if (first && e.uid) jolts.push(e.uid);
             continue;
@@ -994,7 +1001,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         setTrail(shots.length ? shots : null);
         if (jolts.length && !clashEvs.length) {
           setFx((f) => ({ ...(f ?? { hidden: [] }), jolt: jolts }));
-          // The beat waits for the number: the hop, the sparks, then the float into the circle (~1.3s in all).
+          // The beat waits for the number: the hop, the pulse, then the float into the circle (~1.3s in all).
           window.setTimeout(() => { if (alive()) setFx((f) => (f?.jolt === jolts ? null : f)); }, 1300);
         }
         const item = (e: GameEvent, from?: DOMRect) => {
@@ -1002,7 +1009,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           const amount = (e.data as { amount?: number }).amount;
           return { location: e.location!, amount, tone: ((e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs') as 'artist' | 'mine' | 'theirs', side: e.player, label: first && amount ? `+${amount} First Location bonus` : undefined, preheld: true, from: from ? { x: from.left + from.width / 2, y: from.top + from.height / 2 } : undefined };
         };
-        // Paid here: the number leaves the tile a beat after the sparks.
+        // Paid here: the number leaves the tile a beat after the pulse.
         if (here.length) window.setTimeout(() => { landFx(here.map((e) => item(e, document.querySelector(`[data-uid="${e.uid}"]`)?.getBoundingClientRect() ?? undefined))); }, 260);
         // Paid elsewhere, and the First Location bonus: when the ribbon lands (~1050ms).
         if (away.length) window.setTimeout(() => {
@@ -1028,7 +1035,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         }
       }
       // A card played from the other side's hand flips face up in its slot as its beat opens; a Character's Reveal
-      // bursts on its card (when a trail carries the Reveal, the trail's sparks are that burst).
+      // pulses the glow behind its card (when a trail carries the Reveal, the trail's own pulse is that).
       if (!reduceMotion() && step.kind === 'play' && step.player && step.player !== me && step.uids?.length) {
         const uid = step.uids[0];
         await painted();
@@ -1042,7 +1049,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       if (!reduceMotion() && step.kind === 'revealFx' && step.uids?.[0] && step.player && !trailEvs.length && !clashEvs.length) {
         await painted();
         if (!alive()) return;
-        revealBurst(step.uids[0], step.player);
+        pulseGlow(step.uids[0], step.player);
       }
       if (trailEvs.length && !reduceMotion()) {
         // Measure after this beat's board has rendered.
