@@ -2037,3 +2037,10 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .slot.filled > .stamp.verdict { padding: 1px 4px; border-width: 2px; }
 .slot.filled > .stamp.verdict b { font-size: clamp(8px, 0.68vw, 10.5px); letter-spacing: 0.08em; }
 .slot.filled > .stamp.verdict i { font-size: clamp(7px, 0.6vw, 9.5px); }
+
+/* "The Gates", centred over each row between two rules that fade toward the frame's edges and end in a small
+   diamond beside the words, in the parchment of the label. */
+.gates-strip .lbl { display: flex; align-items: center; justify-content: center; gap: 9px; text-align: center; padding: 0 2px 2px; --rule: rgba(207, 195, 166, 0.72); }
+.gates-strip .lbl::before, .gates-strip .lbl::after { content: ''; flex: 1 1 0; min-width: 12px; height: 7px; }
+.gates-strip .lbl::before { background: linear-gradient(to right, transparent, var(--rule)) left center / calc(100% - 4px) 1px no-repeat, linear-gradient(45deg, var(--rule), var(--rule)) right center / 5px 5px no-repeat; clip-path: polygon(0 0, calc(100% - 2.5px) 0, 100% 50%, calc(100% - 2.5px) 100%, 0 100%); }
+.gates-strip .lbl::after { background: linear-gradient(to left, transparent, var(--rule)) right center / calc(100% - 4px) 1px no-repeat, linear-gradient(45deg, var(--rule), var(--rule)) left center / 5px 5px no-repeat; clip-path: polygon(2.5px 0, 100% 0, 100% 100%, 2.5px 100%, 0 50%); }
