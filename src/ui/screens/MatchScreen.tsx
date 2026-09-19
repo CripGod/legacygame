@@ -40,6 +40,9 @@ type SheetState =
   | { kind: 'chat' }
   | null;
 
+/** The smashdown on a Location reveal: off for now, every reveal opens quietly (see revealSlams). */
+const SLAM_ENABLED = false;
+
 /** How long each replay beat holds on screen before the next. */
 const BEAT_MS: Record<string, number> = {
   stand: 1400,
@@ -210,12 +213,13 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   /** Beats that only re-show one of your own planned moves are skipped. */
   const ownBeat = !!step && !!m.replay && step.player === me && (step.kind === 'play' || step.kind === 'enter' || (step.kind === 'move' && m.replay.plan.relocations.some((r) => step.uids?.includes(r.uid))));
   /**
-   * Whether a Reveal beat slams (the smashdown) or opens quietly. The slam is rare: the first Location slams only
-   * when someone guessed it (a First Location bonus is paid later in this replay); after that only a reveal that
-   * arrives with force, one that spawns a Threat as it opens or a Location Anansi retells. Everything else just
-   * develops and colours in.
+   * Whether a Reveal beat slams (the smashdown) or opens quietly. Off for now (SLAM_ENABLED): every reveal develops
+   * and colours in. When it is on, the slam is rare: the first Location slams only when someone guessed it (a First
+   * Location bonus is paid later in this replay); after that only a reveal that arrives with force, one that spawns
+   * a Threat as it opens or a Location Anansi retells.
    */
   const revealSlams = (s: TraceStep): boolean => {
+    if (!SLAM_ENABLED) return false;
     const evs = s.events;
     if (evs.some((e) => e.type === 'threatSpawned' || (e.type === 'locationTransformed' && !!e.data?.retold))) return true;
     const idx = evs.find((e) => e.type === 'locationRevealed')?.location;
