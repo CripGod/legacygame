@@ -738,7 +738,7 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 
 /* ---------- Comp pass: sizing relationships, frames, fanned hand ---------- */
 :root {
-  --card-w: clamp(96px, min(9.6vw, 19vh), 168px);
+  --card-w: clamp(96px, min(8.6vw, 17vh), 168px); /* a shade smaller in the hand: the Locations take the height */
   --mini: clamp(58px, min(7.4vw, 11.5vh), 132px);
   --mini-h: calc(var(--mini) * 0.74);
   --slot: clamp(40px, min(4.7vw, 7vh), 86px);
@@ -837,7 +837,7 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
    fanned; hovered (mouse only, no memory: straighten, lift 22px, grow to 1.32x in 100ms, ease back in 220ms the moment
    the pointer leaves); standing (.selected: up 30px at 1.12x with the gold ring, its Locations lit, a strict toggle);
    held (.lifting: the fan card dims while its ghost rides the pointer); rejected (.reject: one shake). */
-.hand-wrap { padding-top: 14px; }
+.hand-wrap { padding-top: 4px; }
 .hand .card-wrap { transform: rotate(var(--rot, 0deg)) translateY(var(--ty, 0px)); transform-origin: 50% 100%; z-index: var(--z, 0); margin-left: 0; position: relative; transition: transform 0.2s, margin 0.2s, z-index 220ms linear; outline: none; -webkit-touch-callout: none; }
 .hand .card-wrap .card, .pic { -webkit-touch-callout: none; }
 .hand .card-lift { position: relative; transform-origin: 50% 100%; transition: transform 220ms cubic-bezier(0.19, 1, 0.22, 1); will-change: transform; }
@@ -889,7 +889,7 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 /* Both nameplates share one frame, mirrored. */
 .profile.right .plate { clip-path: polygon(var(--chamfer) 0, calc(100% - var(--chamfer)) 0, 100% var(--chamfer), 100% calc(100% - var(--chamfer)), calc(100% - var(--chamfer)) 100%, var(--chamfer) 100%, 0 calc(100% - var(--chamfer)), 0 var(--chamfer)); }
 /* The fan's outer cards sit lower; keep them off the hint and the screen edge. */
-.hand { padding-bottom: 22px; }
+.hand { padding-bottom: 14px; }
 @media (max-width: 700px) { .hand { padding-bottom: 6px; } }
 /* Desktop: room for a full rule line. Phone: the board fills the height and three columns fit the width. */
 .location .loc-rule { -webkit-line-clamp: 3; }
@@ -1873,9 +1873,9 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 
 /* ---------- The Location frames (art) ---------- */
 /* Three hollow frames on one geometry (a title band over a window). The panel is a little taller than the art
-   (1.5 to its 1.68, the frame and its mask stretching with it) to show more of the place: the parchment title sits in the band (2.7% down, 12.5% tall), the meter, the rows and the rule in
+   (1.28 to its 1.68, the frame and its mask stretching with it) to show more of the place: the parchment title sits in the band (2.7% down, 12.5% tall), the meter, the rows and the rule in
    the window (18.2% down to 11.3% from the bottom, 5% in from the sides), and the drawn chamfer plate steps back. */
-.location.framed { position: relative; aspect-ratio: 1.5; flex: 0 0 auto !important; container-type: inline-size; clip-path: none !important; background: transparent !important; padding: 12.1% 5.2% 7.5% 5%; overflow: hidden; --slot: min(10.5cqw, 86px, max(30px, min(4.7vw, 7vh))); --slot-h: calc(var(--slot) * 0.72); }
+.location.framed { position: relative; aspect-ratio: 1.28; max-height: 100%; flex: 0 1 auto !important; container-type: inline-size; clip-path: none !important; background: transparent !important; padding: 14.2% 5.2% 8.8% 5%; overflow: hidden; --slot: min(10.5cqw, 86px, max(30px, min(4.7vw, 7vh))); --slot-h: calc(var(--slot) * 0.72); }
 .location.framed::after { display: none; }
 .location.framed > .loc-frame { position: absolute; inset: 0; z-index: 6; background: center / 100% 100% no-repeat; pointer-events: none; }
 /* The fills, masked to the frame's interior (the mask is cut from the art's alpha): the plate, the photograph from
