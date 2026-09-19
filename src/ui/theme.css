@@ -1642,6 +1642,10 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 @keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '…'; } }
 .turn-flash {
   position: fixed; left: 50%; top: 40%; transform: translate(-50%, -50%); z-index: 46; pointer-events: none;
+  /* A fixed box anchored at 50% only gets the right half of the screen to lay out in, so a long call ("Last turn
+     unless someone stands") wrapped inside a half-width box and sat off centre: size the box to its text, cap it
+     at the screen's width, and centre the lines. */
+  width: max-content; max-width: 92vw; text-align: center; line-height: 1.1;
   font-family: var(--display); font-weight: 800; font-size: clamp(26px, 3.6vw, 52px); letter-spacing: 0.1em; text-transform: uppercase;
   color: var(--parchment); text-shadow: 0 0 26px rgba(233, 185, 58, 0.75), 0 4px 18px rgba(0, 0, 0, 0.85);
   animation: turn-flash 1.15s ease-out forwards;
