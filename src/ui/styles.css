@@ -816,4 +816,4 @@ body.dragging { cursor: grabbing; user-select: none; }
 .location.night { border-color: #3a4a8a; }
 .location.curfew { border-color: var(--danger); box-shadow: 0 0 0 1px var(--danger), inset 0 0 40px #e5534b26; }
 .lost-tag.curfew { color: #ffb3ae; background: #e5534b33; border-radius: 999px; padding: 1px 7px; }
-.pic .strip.held { background: var(--danger); color: #fff; }
+.pic .strip.held, .pic .strip.besieged, .pic .strip.curfew, .pic .strip.oath { background: var(--danger); color: #fff; }

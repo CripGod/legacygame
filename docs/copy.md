@@ -1008,6 +1008,9 @@ Menu
 - Standing on Business on Turn ${view.turn} (×${mult}): when you Lock It In, the match rises from ${opts.pendingStakes} to ${opts.proposedStakes} Legacy after next turn${view.maxTurns < EXTENDED_TURNS ? ' and adds a 9th turn' : ''}. The earlier you stand, the more it moves, both ways. ${view.players[other(me)].handle} gets one turn to Sit Down for ${view.stakes} or Stand back. You cannot Sit Down once you stand, and this is once per match. Tap again to cancel.
 - Not enough Energy. ${cardName(play.cardId, placeholders)} costs ${cost} and you have ${opts.energy - spent} left of ${opts.energy} this turn (Energy = the turn number). Remove a planned card or wait a turn.
 - ${cardName(play.cardId, placeholders)} goes Inside right away (Direct Entry). Tap ⇅ on the planned move to wait at the Gates instead.
+- ${cardName(play.cardId, placeholders)} cannot go straight Inside at ${here.revealed ? locationName(here.defId, placeholders) : 
+- }: ${doorShut}. They wait at the Gates${gatesCountNothing ? ', where the Gates count no Influence,' : ''} until the door opens (neutralize the Threat, or clear it with an ally).
+- [data-loc="${play.location}"] .threat-tile
 - ${view.players[other(me)].handle}'s turn is on the board, faint: ${seen.moves} move${seen.moves === 1 ? '' : 's'}.
 - Only the board speaks in a pass-the-device match.
 - The Ancestors speak. ${opening}${dangers.length ? 
@@ -1605,6 +1608,8 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - gates-strip ${owner === me ? 'mine' : 'theirs'}
 - url("${pageUrl(artUrl('frames', 'gate-gold-off', 'webp'))}")
 - url("${pageUrl(artUrl('frames', owner === me ? 'gate-gold-on' : 'gate-blue-on', 'webp'))}")
+- url("${pageUrl(artUrl('frames', 'gate-event-off', 'webp'))}")
+- url("${pageUrl(artUrl('frames', 'gate-event-on', 'webp'))}")
 - gates-left ${gOk ? 'drop-ok' : ''} ${gOver ? 'drop-over' : ''}
 - gate-slot gf ${i === nextOpen ? 'open' : 'later'}
 - Opens once the slot before it is taken.

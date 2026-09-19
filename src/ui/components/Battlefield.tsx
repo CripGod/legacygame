@@ -21,8 +21,10 @@ import { SkyTag } from './Sky';
 import { artUrl } from '../art';
 import { assistButtons } from '../assist';
 import { influenceLines } from '../influence';
-import { charDef, confrontForce, threatForceNeeded, isNight, lockReason, LOCATION_BY_ID, CARD_BY_ID, TEAM_UP_BY_ID } from '../../engine';
+import { charDef, confrontForce, threatForceNeeded, isNight, lockKind, LOCATION_BY_ID, CARD_BY_ID, TEAM_UP_BY_ID } from '../../engine';
 
+/** The strip on a tile that cannot relocate out, by what holds it: the word says which. */
+const LOCK_STRIP: Record<'curfew' | 'besieged' | 'held' | 'oath', string> = { curfew: 'Curfew', besieged: 'Besieged', held: 'Held', oath: 'Oath' };
 /** A Location under curfew right now: a curfew Location at night. */
 function curfewOn(view: GameState, index: number): boolean {
   const loc = view.locations[index];
@@ -262,7 +264,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                       ›
                     </span>
                   )}
-                  <Pic state={view} c={s} ready={readyBaseline ? !!readyBaseline.characters[s.uid]?.ready : undefined} badges fx={picFx(fx, s.uid)} focus={focus?.includes(s.uid)} strip={planned ? 'Placed' : moving ? 'Moving' : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockReason(view, s) ? 'Held' : undefined} onClick={() => onChar(s.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(s.uid); }} />
+                  <Pic state={view} c={s} ready={readyBaseline ? !!readyBaseline.characters[s.uid]?.ready : undefined} badges fx={picFx(fx, s.uid)} focus={focus?.includes(s.uid)} strip={planned ? 'Placed' : moving ? 'Moving' : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockKind(view, s) ? LOCK_STRIP[lockKind(view, s)!.kind] : undefined} onClick={() => onChar(s.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(s.uid); }} />
                 </div>
               </div>
             );
@@ -340,7 +342,7 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
                   {fx.stamp.sub && <i>{fx.stamp.sub}</i>}
                 </div>
               )}
-              <Pic state={view} c={c} ready={readyBaseline ? !!readyBaseline.characters[c.uid]?.ready : undefined} highlight={confronting} fx={picFx(fx, c.uid)} focus={focus?.includes(c.uid)} strip={entering ? 'Entering' : brought ? 'Moving' : planned ? 'Placed' : confronting ? 'Confront' : lockReason(view, c) ? 'Held' : undefined} onClick={() => onChar(c.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(c.uid); }} />
+              <Pic state={view} c={c} ready={readyBaseline ? !!readyBaseline.characters[c.uid]?.ready : undefined} highlight={confronting} fx={picFx(fx, c.uid)} focus={focus?.includes(c.uid)} strip={entering ? 'Entering' : brought ? 'Moving' : planned ? 'Placed' : confronting ? 'Confront' : lockKind(view, c) ? LOCK_STRIP[lockKind(view, c)!.kind] : undefined} onClick={() => onChar(c.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(c.uid); }} />
             </div>
           );
         })}

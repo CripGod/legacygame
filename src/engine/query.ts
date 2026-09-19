@@ -21,17 +21,23 @@ export function isNight(state: GameState): boolean {
 }
 
 /** Why a Character cannot relocate out right now (a curfew at night, or The Justice System's hold), or null when it is free to go. Harriet ignores both. */
-export function lockReason(state: GameState, c: CharacterInstance): string | null {
+/** What keeps a Character from relocating out, as a kind: a curfew at night, an opposing siege (Yaa Asantewaa,
+ *  Tom Bass), a Location that holds anyone Inside (The Justice System), or the oath at Bois Caïman. */
+export type LockKind = 'curfew' | 'besieged' | 'held' | 'oath';
+export function lockKind(state: GameState, c: CharacterInstance): { kind: LockKind; reason: string } | null {
   if (charDef(c.defId)?.passive?.curfewImmune) return null;
   const loc = state.locations[c.location];
   const def = loc.revealed ? LOCATION_BY_ID[loc.defId] : undefined;
-  if (def?.curfew && isNight(state)) return `${def.name} is under curfew until morning`;
+  if (def?.curfew && isNight(state)) return { kind: 'curfew', reason: `${def.name} is under curfew until morning` };
   const bridle = hasEstablished(state, other(c.owner), c.location, 'bridleHere')[0];
-  if (bridle) return `${charDef(bridle.defId).name} holds this Location: nobody relocates out against ${charDef(bridle.defId).name === 'Tom Bass' ? 'him' : 'her'}`;
-  if (c.zone === 'inside' && isHeldInside(state, c)) return `${def?.name ?? 'this Location'} holds anyone Inside for two turns`;
+  if (bridle) return { kind: 'besieged', reason: `${charDef(bridle.defId).name} holds this Location: nobody relocates out against ${charDef(bridle.defId).name === 'Tom Bass' ? 'him' : 'her'}` };
+  if (c.zone === 'inside' && isHeldInside(state, c)) return { kind: 'held', reason: `${def?.name ?? 'this Location'} holds anyone Inside for two turns` };
   const oath = loc.oath && loc.threats.find((t) => t.uid === loc.oath!.threatUid);
-  if (oath) return `the oath at Bois Caïman holds everyone here until ${THREAT_BY_ID[oath.defId].name} is broken`;
+  if (oath) return { kind: 'oath', reason: `the oath at Bois Caïman holds everyone here until ${THREAT_BY_ID[oath.defId].name} is broken` };
   return null;
+}
+export function lockReason(state: GameState, c: CharacterInstance): string | null {
+  return lockKind(state, c)?.reason ?? null;
 }
 
 export function isHeldInside(state: GameState, c: CharacterInstance): boolean {
