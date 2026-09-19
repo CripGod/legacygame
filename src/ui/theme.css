@@ -1874,17 +1874,18 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 /* ---------- The Location frames (art) ---------- */
 /* Three hollow frames on one geometry (a title band over a window). The panel is a little taller than the art
    (1.28 to its 1.68, the frame and its mask stretching with it) to show more of the place: the parchment title sits in the band (2.7% down, 12.5% tall), the meter, the rows and the rule in
-   the window (18.2% down to 11.3% from the bottom, 5% in from the sides), and the drawn chamfer plate steps back. */
-.location.framed { position: relative; aspect-ratio: 1.28; max-height: 100%; flex: 0 1 auto !important; container-type: inline-size; clip-path: none !important; background: transparent !important; padding: 14.2% 5.2% 8.8% 5%; overflow: hidden; --slot: min(10.5cqw, 86px, max(30px, min(4.7vw, 7vh))); --slot-h: calc(var(--slot) * 0.72); }
+   the window (18.4% down to 5.1% from the bottom, 5% in from the sides), and the drawn chamfer plate steps back.
+   (The padding is in width terms, as percentage padding resolves against the width: 14.4% of the width is 18.4% of the height at 1.28.) */
+.location.framed { position: relative; aspect-ratio: 1.28; max-height: 100%; flex: 0 1 auto !important; container-type: inline-size; clip-path: none !important; background: transparent !important; padding: 14.4% 5% 4% 4.9%; overflow: hidden; --slot: min(10.5cqw, 86px, max(30px, min(4.7vw, 7vh))); --slot-h: calc(var(--slot) * 0.72); }
 .location.framed::after { display: none; }
 .location.framed > .loc-frame { position: absolute; inset: 0; z-index: 6; background: center / 100% 100% no-repeat; pointer-events: none; }
 /* The fills, masked to the frame's interior (the mask is cut from the art's alpha): the plate, the photograph from
    under the band to the bottom, the parchment band on top. */
 .location.framed > .loc-fill { position: absolute; inset: 0; z-index: 0; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; pointer-events: none; }
 .location.framed .loc-fill-body { position: absolute; inset: 0; background: #0c1a2b; }
-.location.framed .loc-fill .loc-bg { position: absolute; inset: 15.2% 0 0; border-radius: 0; }
-.location.framed .loc-fill-band { position: absolute; top: 0; left: 0; right: 0; height: 15.2%; background: linear-gradient(180deg, #f7efdc, #e9dcc0); border-bottom: 2px solid var(--gold-dark); box-sizing: border-box; }
-.location.framed .art, .location.framed .art.reveal-anim { position: absolute; top: 2.7%; left: 4.7%; right: 4.7%; height: 12.5%; max-height: none; min-height: 0; margin: 0; border-bottom: 0; z-index: 2; background: transparent !important; }
+.location.framed .loc-fill .loc-bg { position: absolute; inset: 15.5% 0 0; border-radius: 0; }
+.location.framed .loc-fill-band { position: absolute; top: 0; left: 0; right: 0; height: 15.5%; background: linear-gradient(180deg, #f7efdc, #e9dcc0); border-bottom: 2px solid var(--gold-dark); box-sizing: border-box; }
+.location.framed .art, .location.framed .art.reveal-anim { position: absolute; top: 2.7%; left: 4.7%; right: 4.7%; height: 12.8%; max-height: none; min-height: 0; margin: 0; border-bottom: 0; z-index: 2; background: transparent !important; }
 .location.framed { overflow: visible; margin-bottom: 8px; }
 /* Five seats and the Threat column share the window's width. */
 .location.framed .slots { padding: 1px 6px 2px; gap: 5px; }
@@ -1955,3 +1956,6 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .sky-tag.day .sky-ico { color: #d29a1c; }
 .location .art .sky-tag { flex: none; }
 .sheet-art-cap .sky-tag { margin-left: auto; font-size: 10px; }
+
+/* The other side's Gates: the open slot's plus in a light blue, to match its frames. */
+.gates-strip.theirs .gate-slot.gf:not(.event-slot) { color: rgba(170, 200, 255, 0.9); }
