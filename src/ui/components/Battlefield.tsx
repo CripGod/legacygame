@@ -527,7 +527,9 @@ export function Battlefield(props: BattlefieldProps) {
           >
             <GateStrip {...common} owner={opp} index={loc.index} label="The Gates" right={title} />
             <div className={`loc-glow ${state}${healing ? ` ${healCls}` : ''}`}>
-            <div className={cls}>
+            <div className={`${cls} framed`}>
+              {/* The owner's Location frame: gold when I lead, blue when they do, silver when nobody does. The title sits in its band, the body in its window. */}
+              <div className="loc-frame" aria-hidden style={{ backgroundImage: `url("${pageUrl(artUrl('frames', `location-${lead === 'A' ? 'gold' : lead === 'B' ? 'blue' : 'unowned'}`, 'webp'))}")` }} />
               {fx?.locStamp?.[loc.index] && <div className={`loc-stamp ${fx.locStamp[loc.index].tone}`}>{fx.locStamp[loc.index].title}</div>}
               {loc.revealed && !placeholders && (
                 <div className="loc-bg" aria-hidden>
