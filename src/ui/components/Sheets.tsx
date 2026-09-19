@@ -3,6 +3,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import type { GameEvent } from '../../engine';
 import {
   isNight,
+  influenceRows,
   CARD_BY_ID,
   LOCATION_BY_ID,
   THREAT_BY_ID,
@@ -23,6 +24,7 @@ import { CodexSheet } from './CodexSheet';
 import { liveAbilities } from './Battlefield';
 import { Art } from './Art';
 import { SkyTag } from './Sky';
+import { partsText } from '../influence';
 
 export function Sheet({ children, onClose, title }: { children: ReactNode; onClose: () => void; title?: string }) {
   useEffect(() => {
@@ -178,6 +180,31 @@ export function LocationSheet({ view, index, onClose }: { view: GameState; index
       {loc.lost && <div style={{ color: 'var(--danger)' }}>LOST: {loc.lostReason ?? 'an unresolved crisis.'} Neither player can win this Location; its Influence no longer counts toward the match. The people who stayed rebuild it in {Math.max(1, (loc.lostTurn ?? view.turn) + RECONSTRUCTION_TURNS - view.turn)} turn(s).</div>}
       {loc.webbed && <div className="pA">🕸 Webbed: Anansi retold {loc.retoldFrom ? LOCATION_BY_ID[loc.retoldFrom]?.name ?? 'this place' : 'this place'} into {def.name}. Characters that cost 1 or less gain +2 Influence here; 3 or more lose 1. Both players.</div>}
       {!loc.lost && loc.rebuilt && <div className="pA">🔨 Rebuilt on Turn {loc.rebuiltTurn}: it was Lost, and the people who stayed put it back up. Back in play, everyone who stayed one Influence stronger.</div>}
+      {loc.revealed && !loc.lost && (
+        <div className="fx-list inf-sum">
+          <div className="fx-title">Influence here, line by line</div>
+          {(['A', 'B'] as PlayerId[]).map((p) => {
+            const { rows, total } = influenceRows(view, index, p);
+            return (
+              <div key={p} className="inf-side">
+                <div className={`inf-who p${p}`}>
+                  <b>{p === (view.viewFor ?? 'A') ? 'You' : view.players[p].handle}</b> <span className="inf-total">{total}</span>
+                </div>
+                {!rows.length && <div className="fx-row muted">Nobody here yet.</div>}
+                {rows.map((r, i) => (
+                  <div key={r.uid ?? i} className="fx-row inf-row">
+                    <span className="inf-amt">{r.parts ? r.amount : r.amount < 0 ? `−${-r.amount}` : `+${r.amount}`}</span>
+                    <span>
+                      <b>{r.uid ? cardName(view.characters[r.uid]?.defId ?? '', placeholders) || r.label : r.label}</b>
+                      {r.parts && (r.parts.length > 1 || !r.parts[0]?.why.startsWith('printed')) && <span className="muted"> {partsText(r.parts)}</span>}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            );
+          })}
+        </div>
+      )}
       {(['A', 'B'] as PlayerId[]).map((p) => {
         const items = liveAbilities(view, index, p);
         if (!items.length) return null;

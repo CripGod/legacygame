@@ -129,65 +129,86 @@ function amountOf(c: CharacterInstance): number {
   return eff?.amount ?? 0;
 }
 
-/** Influence contributed by a single Character, including auras. */
-export function charInfluence(state: GameState, c: CharacterInstance): number {
+/** One line of an Influence sum: what it is and how much it adds (or takes). */
+export interface InfluencePart {
+  why: string;
+  amount: number;
+}
+
+/**
+ * Where a Character's Influence comes from, line by line: the printed number, then every bonus and penalty that
+ * applies to it here. `charInfluence` is the sum of these lines, floored at 0 (an Informant is capped at 0).
+ */
+export function charInfluenceParts(state: GameState, c: CharacterInstance): InfluencePart[] {
   const def = charDef(c.defId);
   // An Informant counts against the side that holds it, unless it was amnestied: then it is that side's own, at its plain worth.
   const informant = def.keywords.includes('INFORMANT') && !c.amnestied;
-  let v = (informant ? def.influence : Math.abs(def.influence)) + c.permInfluence + c.tempInfluence;
+  const parts: InfluencePart[] = [{ why: informant ? 'printed (an Informant counts against you)' : 'printed', amount: informant ? def.influence : Math.abs(def.influence) }];
+  if (c.permInfluence) parts.push({ why: 'lasting changes to this Character', amount: c.permInfluence });
+  if (c.tempInfluence) parts.push({ why: 'this turn only', amount: c.tempInfluence });
   const loc = state.locations[c.location];
   const ldef = LOCATION_BY_ID[loc.revealed ? loc.defId : 'unknown'];
-  if (ldef?.effect.type === 'steelAndSoul' && charsAt(state, c.location, c.owner).length >= 5) v += ldef.effect.fiveBonus;
+  if (ldef?.effect.type === 'steelAndSoul' && charsAt(state, c.location, c.owner).length >= 5) parts.push({ why: `${ldef.name}: five Characters here`, amount: ldef.effect.fiveBonus });
   const home = def.passive?.regionBonus;
-  if (home && ldef?.region === home.region) v += home.influence;
+  if (home && ldef?.region === home.region) parts.push({ why: 'home region', amount: home.influence });
   // Home ground: +1 where the story happened. An Informant is worth one more against its holder there.
-  if (def.home && loc.revealed && def.home.locations.includes(loc.defId)) v += informant ? -1 : 1;
+  if (def.home && loc.revealed && def.home.locations.includes(loc.defId)) parts.push({ why: 'home ground', amount: informant ? -1 : 1 });
   const spot = def.passive?.locationBonus;
-  if (spot && loc.revealed && loc.defId === spot.locationId) v += spot.influence;
+  if (spot && loc.revealed && loc.defId === spot.locationId) parts.push({ why: `at ${ldef?.name ?? 'this Location'}`, amount: spot.influence });
   for (const j of hasEstablishedAnywhere(state, c.owner, 'sanctuary')) {
     const b = (charDef(j.defId).established?.effect as { blessing?: number }).blessing;
-    if (b) v += b;
+    if (b) parts.push({ why: `${charDef(j.defId).name}'s blessing`, amount: b });
   }
   // Anansi's web: the small against the large. Cheap Characters grow at a webbed Location, expensive ones shrink.
   if (loc.webbed && !informant) {
-    if (def.cost <= 1) v += WEB_SMALL;
-    else if (def.cost >= 3) v -= WEB_LARGE;
+    if (def.cost <= 1) parts.push({ why: "Anansi's web (costs 1 or less)", amount: WEB_SMALL });
+    else if (def.cost >= 3) parts.push({ why: "Anansi's web (costs 3 or more)", amount: -WEB_LARGE });
   }
   // Bud Billiken's club: while he is Established at the Location he was played into, your other cheap Characters there, Gates or Inside, count more.
   if (!informant) {
     for (const b of hasEstablished(state, c.owner, c.location, 'clubFounded')) {
       const eff = charDef(b.defId).established?.effect as { maxCost: number; amount: number };
-      if (b.uid !== c.uid && b.playedAt === c.location && def.cost <= eff.maxCost) v += eff.amount;
+      if (b.uid !== c.uid && b.playedAt === c.location && def.cost <= eff.maxCost) parts.push({ why: `${charDef(b.defId).name}'s club`, amount: eff.amount });
     }
   }
   if (c.zone === 'inside') {
     // Inside counts more than the Gates.
-    v += INSIDE_INFLUENCE_BONUS;
-    if (ldef?.effect.type === 'insideInfluence') v += ldef.effect.amount;
-    if (ldef?.effect.type === 'nightInside' && isNight(state)) v += ldef.effect.amount;
+    parts.push({ why: 'Inside', amount: INSIDE_INFLUENCE_BONUS });
+    if (ldef?.effect.type === 'insideInfluence') parts.push({ why: `${ldef.name}: Inside`, amount: ldef.effect.amount });
+    if (ldef?.effect.type === 'nightInside' && isNight(state)) parts.push({ why: `${ldef.name}: Inside at night`, amount: ldef.effect.amount });
     if (ldef?.effect.type === 'showcase') {
       const tags = Array.isArray(ldef.effect.tag) ? ldef.effect.tag : [ldef.effect.tag];
-      v += ldef.effect.amount + (def.tags.some((t) => tags.includes(t)) ? ldef.effect.tagBonus : 0);
+      parts.push({ why: `${ldef.name}: Inside`, amount: ldef.effect.amount + (def.tags.some((t) => tags.includes(t)) ? ldef.effect.tagBonus : 0) });
     }
     for (const d of hasEstablished(state, c.owner, c.location, 'auraInfluenceOthersHere')) {
-      if (d.uid !== c.uid) v += amountOf(d);
+      if (d.uid !== c.uid) parts.push({ why: `${charDef(d.defId).name}, Established here`, amount: amountOf(d) });
     }
     for (const m of hasEstablished(state, c.owner, c.location, 'blessNextEstablished')) {
-      if (m.blessedUid === c.uid) v += amountOf(m);
+      if (m.blessedUid === c.uid) parts.push({ why: `${charDef(m.defId).name}'s blessing`, amount: amountOf(m) });
     }
     for (const k of hasEstablished(state, c.owner, c.location, 'cookout')) {
-      if (k.uid !== c.uid) v += amountOf(k);
+      if (k.uid !== c.uid) parts.push({ why: `${charDef(k.defId).name}'s cookout`, amount: amountOf(k) });
     }
     for (const m of hasEstablished(state, c.owner, c.location, 'allyBonus')) {
-      if (m.uid === c.uid && charsAt(state, c.location, c.owner).length >= 2) v += amountOf(m);
+      if (m.uid === c.uid && charsAt(state, c.location, c.owner).length >= 2) parts.push({ why: 'with an ally here', amount: amountOf(m) });
     }
   } else {
-    if (threatActiveFor(state, c.location, 'zeroGateInfluence', c.owner) && !hasEstablished(state, c.owner, c.location, 'sanctuary').length) return 0;
+    if (threatActiveFor(state, c.location, 'zeroGateInfluence', c.owner) && !hasEstablished(state, c.owner, c.location, 'sanctuary').length) {
+      return [{ why: 'Paddy Roller in the area: Gate Characters count 0', amount: 0 }];
+    }
     // William Still's record: an Informant at your Gates here is written down and counts 0 against the side that holds it. It keeps its slot.
-    if (informant && hasEstablished(state, c.owner, c.location, 'recordInformantsHere').length) return 0;
-    for (const z of hasEstablished(state, c.owner, c.location, 'gateInfluenceHere')) v += amountOf(z);
-    for (const o of hasEstablished(state, other(c.owner), c.location, 'opposingGateInfluence')) v -= amountOf(o);
+    if (informant && hasEstablished(state, c.owner, c.location, 'recordInformantsHere').length) return [{ why: "written down in William Still's record: counts 0", amount: 0 }];
+    for (const z of hasEstablished(state, c.owner, c.location, 'gateInfluenceHere')) parts.push({ why: `${charDef(z.defId).name}, Established here (Gates)`, amount: amountOf(z) });
+    for (const o of hasEstablished(state, other(c.owner), c.location, 'opposingGateInfluence')) parts.push({ why: `${state.players[other(c.owner)].handle}'s ${charDef(o.defId).name} (Gates)`, amount: -amountOf(o) });
   }
+  return parts;
+}
+
+/** Influence contributed by a single Character, including auras. */
+export function charInfluence(state: GameState, c: CharacterInstance): number {
+  const def = charDef(c.defId);
+  const informant = def.keywords.includes('INFORMANT') && !c.amnestied;
+  const v = charInfluenceParts(state, c).reduce((s, p) => s + p.amount, 0);
   // Informants count against the side that holds them; everyone else bottoms out at 0.
   return informant ? Math.min(0, v) : Math.max(0, v);
 }
@@ -218,6 +239,52 @@ export function influenceAt(state: GameState, location: number): Record<PlayerId
   const out = { ...raw };
   out[leader] = Math.max(0, out[leader] + mod);
   return out;
+}
+
+/** One row of a Location's Influence sum for one player. */
+export interface InfluenceRow {
+  label: string;
+  amount: number;
+  /** For a Character: its uid, and the lines that make its number. */
+  uid?: string;
+  parts?: InfluencePart[];
+}
+
+/**
+ * A player's Influence at a Location, itemised: every Character with what makes its number, the Location's own
+ * lasting and one-turn Influence for that player, then the leader modifiers. Sums to `influenceAt(state, location)[p]`.
+ */
+export function influenceRows(state: GameState, location: number, p: PlayerId): { rows: InfluenceRow[]; total: number } {
+  const rows: InfluenceRow[] = [];
+  const l = state.locations[location];
+  const uncounted = l.revealed && LOCATION_BY_ID[l.defId]?.effect.type === 'gatesUncounted';
+  for (const c of charsAt(state, location, p)) {
+    const name = charDef(c.defId).name;
+    if (uncounted && c.zone === 'gate') {
+      rows.push({ label: name, amount: 0, uid: c.uid, parts: [{ why: `${LOCATION_BY_ID[l.defId].name}: the Gates are not counted`, amount: 0 }] });
+      continue;
+    }
+    rows.push({ label: name, amount: charInfluence(state, c), uid: c.uid, parts: charInfluenceParts(state, c) });
+  }
+  const perm = l.permInfluence?.[p] ?? 0;
+  if (perm) rows.push({ label: 'Lasting Influence here (First Location bonus, Word spreads, pacts)', amount: perm });
+  const temp = l.tempInfluence[p] ?? 0;
+  if (temp) rows.push({ label: 'This turn only (Reparations and the like)', amount: temp });
+  const raw = rows.reduce((s, r) => s + r.amount, 0);
+  if (raw < 0) rows.push({ label: 'Influence cannot go below 0', amount: -raw });
+  const final = influenceAt(state, location);
+  const mine = Math.max(0, raw);
+  if (final[p] !== mine) {
+    // The leader's modifiers: Karen takes from whoever leads, Comfortable Complicity gives to them.
+    for (const c of charsAt(state, location)) {
+      const pen = charDef(c.defId).passive?.leaderPenalty;
+      if (pen) rows.push({ label: `${charDef(c.defId).name}: the leader loses ${pen}`, amount: -pen });
+    }
+    if (l.threats.some((t) => THREAT_BY_ID[t.defId].effect === 'leaderBonus')) rows.push({ label: 'Comfortable Complicity: the leader gains 1', amount: 1 });
+    const summed = rows.reduce((s, r) => s + r.amount, 0);
+    if (summed !== final[p]) rows.push({ label: 'Influence cannot go below 0', amount: final[p] - summed });
+  }
+  return { rows, total: final[p] };
 }
 
 export function leaderAt(state: GameState, location: number): PlayerId | null {

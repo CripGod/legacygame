@@ -1959,3 +1959,13 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 
 /* The other side's Gates: the open slot's plus in a light blue, to match its frames. */
 .gates-strip.theirs .gate-slot.gf:not(.event-slot) { color: rgba(170, 200, 255, 0.9); }
+
+/* The Influence sum in the Location sheet: each side's total, then every line that makes it. */
+.inf-sum { gap: 6px; }
+.inf-side { display: grid; gap: 2px; }
+.inf-who { display: flex; align-items: baseline; gap: 8px; font-family: var(--display); font-size: 13px; }
+.inf-who.pA { color: var(--gold-2); }
+.inf-who.pB { color: #8fb4ff; }
+.inf-total { font-weight: 800; font-size: 15px; }
+.inf-row { display: grid; grid-template-columns: 2.2em 1fr; gap: 6px; align-items: baseline; }
+.inf-amt { text-align: right; font-family: var(--display); font-weight: 700; color: var(--parchment); }

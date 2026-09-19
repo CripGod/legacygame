@@ -8,6 +8,7 @@ import {
   validatePlan,
   gateRoom,
   influenceAt,
+  influenceRows,
   charsOf,
   charsAt,
   LOCATIONS,
@@ -125,6 +126,62 @@ describe('redacted view', () => {
     s2.revealOrder = [...s2.revealOrder].reverse();
     const d2 = planTurn(viewFor(s2, 'B'), 'B');
     expect(d2.plan).toEqual(d.plan);
+  });
+});
+
+describe('influence math', () => {
+  it('Zora at the first Location, then Inside: 4 printed + 1 First Location bonus + 1 Inside, and the itemised sum matches the meter everywhere', () => {
+    // Plain Locations: nothing here changes a number on its own.
+    let s = rig(createMatch({ seed: 9 }), { handA: ['zora_neale_hurston', 'organizer', 'reparations', 'harriet_tubman', 'og'], handB: ['organizer', 'bud_billiken', 'reparations', 'harriet_tubman', 'og'], locations: ['juneteenth', 'montgomery', 'oak_bluffs'] });
+    const first = s.revealOrder[0];
+    s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'zora_neale_hurston', location: first }] }, B: pass() }).state;
+    const zora = () => charsOf(s, 'A').find((c) => c.defId === 'zora_neale_hurston')!;
+    expect(zora().zone).toBe('gate');
+    // 4 printed at the Gates, +1 the Location's First Location bonus (whatever the Location's own Threat adds on top).
+    let rows = influenceRows(s, first, 'A');
+    expect(rows.rows.slice(0, 2).map((r) => r.amount)).toEqual([4, 1]);
+    expect(rows.rows[1].label).toContain('First Location bonus');
+    expect(rows.total).toBe(influenceAt(s, first).A);
+    // Inside the next turn she is Ready for.
+    while (!zora().ready) s = resolveTurn(s, { A: pass(), B: pass() }).state;
+    expect(validatePlan(s, 'A', { ...pass(), enters: [zora().uid] })).toEqual([]);
+    s = resolveTurn(s, { A: { ...pass(), enters: [zora().uid] }, B: pass() }).state;
+    expect(zora().zone).toBe('inside');
+    // 4 printed, +1 Inside, +1 the bonus: 6 from her and the Location; a Threat's leader bonus is its own line.
+    rows = influenceRows(s, first, 'A');
+    expect(rows.rows[0].amount).toBe(5);
+    expect(rows.rows[0].parts?.map((x) => x.amount)).toEqual([4, 1]);
+    expect(rows.rows[0].parts?.[1].why).toBe('Inside');
+    expect(rows.rows[1].amount).toBe(1);
+    expect(rows.total).toBe(influenceAt(s, first).A);
+    expect(rows.total).toBeGreaterThanOrEqual(6);
+    // The itemised sum is the meter, for every Location and both players.
+    for (const l of s.locations) for (const p of ['A', 'B'] as PlayerId[]) {
+      const r = influenceRows(s, l.index, p);
+      expect(r.rows.reduce((a, x) => a + x.amount, 0)).toBe(influenceAt(s, l.index)[p]);
+      expect(r.total).toBe(influenceAt(s, l.index)[p]);
+    }
+  });
+  it('the itemised sum matches the meter under a Paddy Roller, the web, Karen and Comfortable Complicity', () => {
+    let s = rig(createMatch({ seed: 3 }), { locations: ['harpers_ferry', 'juneteenth', 'montgomery'], revealAll: true });
+    const zora = addChar(s, 'zora_neale_hurston', 'A', 0, 'gate');
+    const bud = addChar(s, 'bud_billiken', 'A', 0, 'inside');
+    addChar(s, 'organizer', 'B', 0, 'inside');
+    s.locations[0].threats.push({ uid: 'roller', defId: 'paddy_roller', location: 0, forceRequired: 2, spawnedTurn: 1 });
+    s.locations[1].webbed = true;
+    addChar(s, 'zora_neale_hurston', 'A', 1, 'inside');
+    addChar(s, 'og', 'B', 1, 'gate');
+    s.locations[1].threats.push({ uid: 'cc', defId: 'comfortable_complicity', location: 1, forceRequired: 3, spawnedTurn: 1 });
+    s.locations[1].permInfluence = { A: 2, B: 0 };
+    s.locations[2].tempInfluence = { A: 0, B: 3 };
+    const r0 = influenceRows(s, 0, 'A');
+    expect(r0.rows.find((r) => r.uid === zora.uid)?.parts?.[0].why).toContain('Paddy Roller');
+    expect(r0.rows.find((r) => r.uid === bud.uid)?.amount).toBe(2); // 1 printed +1 Inside
+    for (const l of s.locations) for (const p of ['A', 'B'] as PlayerId[]) {
+      const r = influenceRows(s, l.index, p);
+      expect(r.rows.reduce((a, x) => a + x.amount, 0)).toBe(influenceAt(s, l.index)[p]);
+      expect(r.total).toBe(influenceAt(s, l.index)[p]);
+    }
   });
 });
 

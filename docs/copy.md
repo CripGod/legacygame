@@ -1603,7 +1603,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - ${def.name} waits to resolve.
 - strip ${def.curse ? 'curse' : 'event'}
 - gates-strip ${owner === me ? 'mine' : 'theirs'}
-- url("${pageUrl(artUrl('frames', owner === me ? 'gate-gold-off' : 'gate-blue-off', 'webp'))}")
+- url("${pageUrl(artUrl('frames', 'gate-gold-off', 'webp'))}")
 - url("${pageUrl(artUrl('frames', owner === me ? 'gate-gold-on' : 'gate-blue-on', 'webp'))}")
 - gates-left ${gOk ? 'drop-ok' : ''} ${gOver ? 'drop-over' : ''}
 - gate-slot gf ${i === nextOpen ? 'open' : 'later'}

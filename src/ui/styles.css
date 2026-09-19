@@ -596,7 +596,7 @@ table.stats td:last-child { text-align: right; font-variant-numeric: tabular-num
 /* ---------- Tooltips & legend ---------- */
 .tip {
   position: fixed; z-index: 100; display: none; pointer-events: none;
-  max-width: 260px; padding: 6px 9px; border-radius: 6px;
+  max-width: 320px; padding: 6px 9px; border-radius: 6px; white-space: pre-line;
   background: #fff; color: #111; font-size: 12px; line-height: 1.3; font-weight: 500;
   box-shadow: 0 6px 18px rgba(0,0,0,0.45);
 }

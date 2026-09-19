@@ -36,6 +36,8 @@ button, once the settings menu grows a Play section. Keep the prop and the tray 
   named in the row label ("Your Characters"), and the heal wave's colour is paired with the +N label.
 - `prefers-reduced-motion` turns off the card tilt, the trails, the fireworks and the Threat shake.
 
+- The Influence circles carry their arithmetic: hovering one lists every Character and what makes its number, the Location's own Influence and the leader modifiers. The Location sheet (tap the name) shows the same lines for both sides, so nothing depends on hover.
+
 ## Not yet
 
 - Screen-reader narration of the resolve (the beats are visual and audio only).

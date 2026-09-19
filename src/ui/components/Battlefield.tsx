@@ -20,6 +20,7 @@ import { Art } from './Art';
 import { SkyTag } from './Sky';
 import { artUrl } from '../art';
 import { assistButtons } from '../assist';
+import { influenceLines } from '../influence';
 import { charDef, confrontForce, threatForceNeeded, isNight, lockReason, LOCATION_BY_ID, CARD_BY_ID, TEAM_UP_BY_ID } from '../../engine';
 
 /** A Location under curfew right now: a curfew Location at night. */
@@ -97,10 +98,10 @@ function useBump(value: number): boolean {
   return bump;
 }
 
-function Score({ p, value, hurt }: { p: PlayerId; value: number; hurt?: boolean }) {
+function Score({ p, value, hurt, detail }: { p: PlayerId; value: number; hurt?: boolean; /** The sum behind the number, one line each (the tooltip). */ detail?: string }) {
   const bump = useBump(value);
   return (
-    <div className={`score p${p} ${bump ? 'bump' : ''} ${hurt ? 'hurt' : ''}`} {...tip(p === 'A' ? HINTS.scoreA : HINTS.scoreB)}>
+    <div className={`score p${p} ${bump ? 'bump' : ''} ${hurt ? 'hurt' : ''}`} {...tip(detail ?? (p === 'A' ? HINTS.scoreA : HINTS.scoreB))}>
       {value}
     </div>
   );
@@ -584,13 +585,13 @@ export function Battlefield(props: BattlefieldProps) {
                 {summon && <span className="summon-tag">{summon}</span>}
               </div>
               <div className="influence">
-                <Score p="A" value={inf.A} hurt={fx?.hurt?.location === loc.index && fx.hurt.owner === 'A'} />
+                <Score p="A" value={inf.A} hurt={fx?.hurt?.location === loc.index && fx.hurt.owner === 'A'} detail={influenceLines(view, loc.index, 'A', me).join('\n')} />
                 <div className={`line ${winner && winner !== 'lost' ? `won-${winner}` : ''}`} {...tip(HINTS.line)}>
                   <div className="fillA" style={{ width: `${fracA * 100}%` }} />
                   <div className="fillB" style={{ width: `${(1 - fracA) * 100}%` }} />
                   <div className="mark" style={{ left: `${fracA * 100}%` }} />
                 </div>
-                <Score p="B" value={inf.B} hurt={fx?.hurt?.location === loc.index && fx.hurt.owner === 'B'} />
+                <Score p="B" value={inf.B} hurt={fx?.hurt?.location === loc.index && fx.hurt.owner === 'B'} detail={influenceLines(view, loc.index, 'B', me).join('\n')} />
               </div>
               {(() => {
                 const rank = (t: ThreatInstance) => (t.target ? (t.target === me ? 2 : 0) : 1);
