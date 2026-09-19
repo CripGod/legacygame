@@ -25,7 +25,7 @@ export function RulesScreen({ onBack }: { onBack: () => void }) {
         </ul>
         <h2>Unknown Locations</h2>
         <ul>
-          <li>All three Locations start hidden. One reveals after each of the first three turns, in a random order. Turn 1 is a blind commitment, with a prize for guessing right: <b>first on the scene</b>, the Characters you play on Turn 1 at the Location that reveals first gain +1 Influence for the rest of the match. Both players can collect it; Informants never do.</li>
+          <li>All three Locations start hidden. One reveals after each of the first three turns, in a random order. Turn 1 is a blind commitment, with a prize for guessing right: <b>first on the scene</b>, each Character you play on Turn 1 at the Location that reveals first pays you +1 Influence there for the rest of the match. It is the Location's Influence, not the piece's: it shows in the circle at once, a Paddy Roller cannot zero it, and it stays if the Character moves on. Both players can collect it; Informants never do.</li>
           <li>A Character committed blind is never rejected retroactively; it lives with whatever the Location turns out to be.</li>
         </ul>
         <h2>Influence and Force</h2>

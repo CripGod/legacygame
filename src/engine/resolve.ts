@@ -1371,14 +1371,18 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     }
   }
   // First Location bonus: Turn 1 is a blind commitment, and whoever guessed the Location that reveals first is paid
-  // for it. Every Character played there this turn (either side; never an Informant) gains +1 Influence for good.
+  // for it. Every Character played there this turn (either side; never an Informant) is worth +1 lasting Influence
+  // to its player at that Location. The prize is the Location's, not the piece's: it shows in the circle at once,
+  // a Paddy Roller at the Gates cannot zero it, and it stays if the Character later leaves.
   // The prize is for the blind guess only: the Location must have opened at this turn's reveal.
   if (state.turn === 1 && state.revealOrder.length && state.locations[state.revealOrder[0]].revealedTurn === 1) {
     const first = state.revealOrder[0];
     const guessed = newChars.filter(({ c }) => c.location === first && !isInformant(c));
     for (const { c } of guessed) {
-      c.permInfluence += 1;
-      events.push({ type: 'info', text: `First Location bonus: ${name(state, c)} was played at ${locName(state, first)} before it was revealed and gains +1 Influence for the rest of the match.`, uid: c.uid, player: c.owner, location: first, data: { trail: 'first', amount: 1, color: c.owner } });
+      const l = state.locations[first];
+      l.permInfluence = l.permInfluence ?? { A: 0, B: 0 };
+      l.permInfluence[c.owner] += 1;
+      events.push({ type: 'info', text: `First Location bonus: ${name(state, c)} was played at ${locName(state, first)} before it was revealed: +1 Influence there for ${state.players[c.owner].handle} for the rest of the match.`, uid: c.uid, player: c.owner, location: first, data: { trail: 'first', amount: 1, color: c.owner } });
     }
     if (guessed.length) trace('info', `First Location bonus at ${locName(state, first)}`, { uids: guessed.map(({ c }) => c.uid), location: first });
   }

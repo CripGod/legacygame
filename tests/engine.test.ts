@@ -129,16 +129,20 @@ describe('redacted view', () => {
 });
 
 describe('turn structure', () => {
-  it('first on the scene: Turn 1 plays at the Location that reveals first gain +1 Influence for good, Informants excepted', () => {
+  it('first on the scene: Turn 1 plays at the Location that reveals first pay +1 lasting Influence there, Informants excepted', () => {
     let s = rig(createMatch({ seed: 9 }), { handA: ['organizer', 'bud_billiken', 'peter_prioleau', 'reparations', 'harriet_tubman'], handB: ['organizer', 'bud_billiken', 'reparations', 'harriet_tubman', 'zora_neale_hurston'] });
     const first = s.revealOrder[0];
     const elsewhere = (first + 1) % 3;
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'organizer', location: first }, { cardId: 'bud_billiken', location: elsewhere }, { cardId: 'peter_prioleau', location: first }] }, B: { ...pass(), plays: [{ cardId: 'organizer', location: first }] } }).state;
     const at = (id: string, p: PlayerId) => charsOf(s, p).find((c) => c.defId === id)!;
-    expect(at('organizer', 'A').permInfluence).toBe(1);
-    expect(at('organizer', 'B').permInfluence).toBe(1);
-    expect(at('bud_billiken', 'A').permInfluence).toBe(0);
-    expect(at('peter_prioleau', 'B').permInfluence).toBe(0); // the Informant planted on B's Gates
+    // The prize is the Location's: one per Character guessed right, the Informant planted on B's Gates excepted.
+    expect(s.locations[first].permInfluence).toEqual({ A: 1, B: 1 });
+    expect(s.locations[elsewhere].permInfluence ?? { A: 0, B: 0 }).toEqual({ A: 0, B: 0 });
+    for (const c of [at('organizer', 'A'), at('organizer', 'B'), at('bud_billiken', 'A'), at('peter_prioleau', 'B')]) expect(c.permInfluence).toBe(0);
+    // It counts even where the pieces cannot: a Paddy Roller zeroes the Gates, the Location's own +1 stands.
+    const roller = structuredClone(s);
+    roller.locations[first].threats.push({ uid: 'roller', defId: 'paddy_roller', location: first, forceRequired: 2, spawnedTurn: 1 });
+    expect(influenceAt(roller, first).A).toBe(1);
     expect(s.lastEvents.filter((e) => (e.data as { trail?: string } | undefined)?.trail === 'first')).toHaveLength(2);
     // Turn 2 at the second reveal pays nothing: the prize is for the blind turn only.
     const second = s.revealOrder[1];

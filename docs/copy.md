@@ -862,7 +862,7 @@ Rules
 - Inside, a Character is Established: its Established ability is live and it is safe from Gate-only effects.
 - Straight Inside and Direct Entry Characters can skip the wait (see Special arrivals below).
 ### Unknown Locations
-- All three Locations start hidden. One reveals after each of the first three turns, in a random order. Turn 1 is a blind commitment, with a prize for guessing right: first on the scene, the Characters you play on Turn 1 at the Location that reveals first gain +1 Influence for the rest of the match. Both players can collect it; Informants never do.
+- All three Locations start hidden. One reveals after each of the first three turns, in a random order. Turn 1 is a blind commitment, with a prize for guessing right: first on the scene, each Character you play on Turn 1 at the Location that reveals first pays you +1 Influence there for the rest of the match. It is the Location's Influence, not the piece's: it shows in the circle at once, a Paddy Roller cannot zero it, and it stays if the Character moves on. Both players can collect it; Informants never do.
 - A Character committed blind is never rejected retroactively; it lives with whatever the Location turns out to be.
 ### Influence and Force
 - Influence decides who controls a Location. Force decides confrontations with Threats and challenges. They are deliberately separate.
@@ -1814,7 +1814,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${ps.handle} plays ${def.name} (${def.influence}/${def.force}) at the Gates of ${locName(state, play.location)}.
 - ${name(state, c)} cannot enter ${locName(state, play.location)}: ${blocked}. It waits at the Gates.
 - ${name(state, c)} cannot enter: no room Inside.
-- First Location bonus: ${name(state, c)} was played at ${locName(state, first)} before it was revealed and gains +1 Influence for the rest of the match.
+- First Location bonus: ${name(state, c)} was played at ${locName(state, first)} before it was revealed: +1 Influence there for ${state.players[c.owner].handle} for the rest of the match.
 - ${state.players[p].handle}'s ${eventDef(play.cardId).name} at ${locName(state, play.location)} is torn up before it resolves: Taytu Betul will have no treaty here.
 - ${name(state, c)} cannot enter ${locName(state, c.location)}: ${blocked}.
 - ${name(state, c)} cannot enter ${locName(state, c.location)}: no room Inside.
