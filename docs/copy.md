@@ -807,25 +807,53 @@ threatMusic(true); // its music opens with the hit: the entrance cue
 el.style.setProperty('--mx', x.toFixed(3));
 el.style.setProperty('--my', y.toFixed(3));
 window.addEventListener('pointermove', onMove, …);
-Decks
-onChange(o.key)}>
+window.addEventListener('pointerdown', off);
+window.addEventListener('keydown', key);
+window.removeEventListener('pointerdown', off);
+window.removeEventListener('keydown', key);
+setMenuOpen(open ? null : side)}>
+Deck
+<button
+onChange(o.key);
+setMenuOpen(null);
 A fresh hand every match: ten Characters drawn from the whole pool, plus both Events.
+the sound switches sit with them). */}
+scrollTo('.hero')} aria-label="Stand on Business">
+scrollTo('.hero')}>
+Play
+onCards()}>Cards
+scrollTo('.decks')}>Factions
+onCards('locations')}>Locations
+The story
+A game by
+PatternBreak
+setSignNote(true)} …>
+Sign in
+Accounts are coming. Your Legacy is kept on this device for now.
+setSignNote(false)}>
+Got it
 Strategy
 builds
-legacy
-Real people.
-Real Locations.
-Real history.
+legacy.
+Real
+people.
+Real
+Locations.
+Real
+history.
 The Black History Card Battler
 People. Strategy. A stronger tomorrow.
 Built for the desk, for now
 The match is desktop-only while it is in development. Open this on a laptop or desktop browser to play. The cards and the rules are open here.
 onPlay(opts('ai'))} disabled=… title=…>
 Play match
+Learn the game
 onPlay(…)} disabled=… title=…>
-Tutorial
-Cards
-Learn the rules
+New here? Play the tutorial match ✦
+Different
+paths.
+Same
+goals.
 ⚠} alt="" />
 The …
 Organized violence aimed at exactly the people who are winning. It needs … Force in one turn to break.
@@ -833,8 +861,8 @@ Work together to overcome.
 Both players may contribute Force.
 Defeated together
 Neither side had … Force alone. Both stood up in the same turn, and the Mob broke.
-Who has the better plan for the future?
-Compete for Influence.
+More than a game.
+A stronger tomorrow.
 Systems prototype · v0.3 · build …
 Seed  setSeed(e.target.value)} placeholder="random" />
 setPlaceholders(e.target.checked)} /> Generic placeholder names (Test A: is it still fun?)
@@ -856,7 +884,7 @@ Rules
 - Both players plan at the same time, then Lock It In. Two minutes per turn.
 - Win Influence at two of the three Locations to win the match.
 ### Playing Characters
-- Every card has an Energy cost. Each turn you get Energy equal to the turn number (Turn 1: 1, Turn 8: 8; The Last Word pays 10); Organizer and Denmark Vesey add +1 while Established, Oak Bluffs pays +1 next turn, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your three Gate slots at a Location. Its Reveal ability triggers there.
+- Every card has an Energy cost. Each turn you get Energy equal to the turn number (Turn 1: 1, Turn 8: 8; The Last Word pays 10); Organizer and Denmark Vesey add +1 while Established, Oak Bluffs pays +1 next turn, a turn never pays more than 12, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your three Gate slots at a Location. Its Reveal ability triggers there.
 - Discounts. Some cards cost more than you will ever have on your own: Boukman Dutty is 7. Prices come down while a card waits in your hand. Booker T. Washington makes every Character 1 cheaper, Cécile Fatiman takes 2 off your most expensive card and 1 off every Rebellion Character, George Washington Carver knocks 1 off your priciest card at the end of each turn, and Boukman himself costs 1 less for each Rebellion Character you have on the board. A green cost on a card in your hand means it is discounted right now; a card never costs less than 0.
 - Gate Characters count toward Influence but are Waiting for the turn they arrive and the following turn. Then they are Ready and may enter Inside (up to five per player). Inside counts more: every Established Character contributes +1 Influence on top of its card.
 - Inside, a Character is Established: its Established ability is live and it is safe from Gate-only effects.
@@ -1603,6 +1631,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - s resolution is animating: the player
 - score p${p} ${bump ? 'bump' : ''} ${hurt ? 'hurt' : ''}
 - The opponent played an Event here. It flips when it resolves.
+- tile-glow event ${state} ${def.curse ? 'curse' : ''}
 - gate-slot event-slot ${state} ${def.curse ? 'curse' : ''} ${foreseen ? 'foreseen' : ''}
 - The Ancestors foresee: ${def.name} is played here.
 - ${def.name} is placed here. It resolves when you Lock In and needs this open Gate slot.
@@ -1632,6 +1661,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - ${gd.name} ${g.why} when you Lock In.
 - slot ${i >= cap ? 'locked' : ''}
 - Seat closed: a Housing Restriction (or the Land Office) holds it. Clear the Threat and it opens.
+- tile-glow seat ${c.owner} ${focus?.includes(c.uid) ? 'focus' : ''}
 - slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''} ${fx?.hidden.includes(c.uid) ? 'fx-hidden' : ''}
 - s blow lands: a red flash when it tells, green when the Threat shrugs it off. */ hit?: 
 - ; shatter?: boolean; stamp?: BoardFx[
@@ -1643,7 +1673,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - ${tdef.name}, aimed at ${view.players[other(me)].handle}. ${tdef.text}
 - stamp verdict ${stamp.tone ?? 'hit'}
 - healing${fx?.healBy && fx.healBy !== 'both' ? 
--  : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''} ${fx?.slam === undefined ? '' : fx.slam === loc.index ? 'slam' : 'slam-near'}
+-  : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''} ${fx?.slam === loc.index ? 'slam' : ''}
 - Play here: ${loc.revealed ? locationName(loc.defId, placeholders) : 
 - loc-glow ${state}${healing ? 
 -  : ''} ${canLand === null ? '' : canLand ? 'drop-can' : 'drop-cannot'} ${overHere ? 'drop-here' : ''}

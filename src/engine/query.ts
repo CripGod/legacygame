@@ -12,7 +12,7 @@ import type {
   EstablishedEffect,
   LocationDef,
 } from './types';
-import { ENERGY_CAP, ENERGY_CURVE, INSIDE_INFLUENCE_BONUS, LAST_WORD_ENERGY, WEB_SMALL, WEB_LARGE, GATE_CAPACITY, INSIDE_CAPACITY, PLAYERS, other, MAX_STAKES, EXTENDED_TURNS, standMultiplier } from './types';
+import { ENERGY_CAP, ENERGY_CURVE, INSIDE_INFLUENCE_BONUS, LAST_WORD_ENERGY, MAX_ENERGY, WEB_SMALL, WEB_LARGE, GATE_CAPACITY, INSIDE_CAPACITY, PLAYERS, other, MAX_STAKES, EXTENDED_TURNS, standMultiplier } from './types';
 
 /** The Justice System: a Character that went Inside recently cannot relocate out yet. */
 /** Even turns are night. Curfews bite at night. */
@@ -336,14 +336,14 @@ export function canConfront(state: GameState, threat: ThreatInstance, p: PlayerI
   return !own;
 }
 
-/** Energy this turn: ENERGY_CURVE by turn (capped), plus Organizer-style bonuses. Unspent Energy does not carry over. */
+/** Energy this turn: ENERGY_CURVE by turn (capped), plus Organizer-style bonuses, never more than MAX_ENERGY. Unspent Energy does not carry over. */
 export function energyFor(state: GameState, p: PlayerId): number {
   const lastWord = state.turn === EXTENDED_TURNS && state.maxTurns === EXTENDED_TURNS;
   const base = ENERGY_CURVE[state.turn - 1] ?? ENERGY_CAP;
   let n = (lastWord ? LAST_WORD_ENERGY : Math.min(base, ENERGY_CAP)) + (state.players[p].energyBonus ?? 0) + (state.players[p].energyNextTurn ?? 0);
   for (const c of hasEstablishedAnywhere(state, p, 'extraEnergy')) n += amountOf(c);
   for (const t of standingAnywhere(state, p, 'extraEnergy')) n += teamUpAmount(t);
-  return n;
+  return Math.min(n, MAX_ENERGY);
 }
 
 /** Energy cost of a card. With a state and player, every discount that applies right now is taken off (never below 0). */

@@ -20,6 +20,8 @@ export const ENERGY_CURVE = [1, 2, 3, 4, 5, 6, 7, 8];
 export const ENERGY_CAP = 8;
 /** The Last Word: the ninth turn, reached only by Standing on Business, lifts the cap and deals one more card to each side. */
 export const LAST_WORD_ENERGY = 10;
+/** The most Energy a turn can pay, bonuses included (The Last Word's 10 with three +1s would otherwise reach 13). */
+export const MAX_ENERGY = 12;
 export const LAST_WORD_DRAW = 1;
 /** Anansi's web: the small against the large. Characters costing 1 or less gain WEB_SMALL Influence at a webbed Location; 3 or more lose WEB_LARGE. */
 export const WEB_SMALL = 2;

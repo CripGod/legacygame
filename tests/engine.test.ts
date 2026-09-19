@@ -37,6 +37,9 @@ import {
   standMultiplier,
   retreat,
   MAX_STAKES,
+  EXTENDED_TURNS,
+  LAST_WORD_ENERGY,
+  MAX_ENERGY,
 } from '../src/engine';
 import { planTurn } from '../src/ai/harborlight';
 
@@ -496,6 +499,17 @@ describe('energy', () => {
     expect(charsAt(s, 1, 'A', 'gate')).toHaveLength(1);
     expect(charsAt(s, 2, 'A', 'gate')).toHaveLength(1);
     expect(s.players.A.hand).not.toContain('marie_laveau');
+  });
+  it('a turn never pays more than 12 Energy: The Last Word with three bonuses stops there', () => {
+    const s = rig(createMatch({ seed: 21 }), { energy: true, locations: ['black_star', 'great_migration', 'greenwood'], revealAll: true, handA: [], handB: [] });
+    s.turn = EXTENDED_TURNS;
+    s.maxTurns = EXTENDED_TURNS;
+    expect(energyFor(s, 'A')).toBe(LAST_WORD_ENERGY);
+    s.players.A.energyBonus = 2;
+    s.players.A.energyNextTurn = 1;
+    expect(energyFor(s, 'A')).toBe(MAX_ENERGY); // 10 + 3 would be 13
+    expect(legalOptions(s, 'A').energy).toBe(12);
+    expect(energyFor(s, 'B')).toBe(LAST_WORD_ENERGY);
   });
   it('every deck card has a cost and presets are 24 cards', () => {
     for (const d of Object.values(PRESET_DECKS)) {
