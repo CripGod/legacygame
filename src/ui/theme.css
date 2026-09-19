@@ -1861,7 +1861,9 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .gate-slot.gf.filled:not(.event-slot)::before, .gate-slot.gf.reserved::before { content: ''; position: absolute; inset: 0; background: var(--gate-on) center / 100% 100% no-repeat; pointer-events: none; z-index: 4; }
 .gate-slot.gf.reserved::before { background-image: var(--gate-off); }
 .gate-slot.gf.filled .pic { clip-path: none; border-radius: 0; }
-.gate-slot.gf.filled .pic .b, .gate-slot.gf.reserved .ghost-arrow, .gate-slot.gf.filled > .ghost-arrow, .gate-slot.gf.filled .stamp { z-index: 5; }
+.gate-slot.gf.filled .pic .b, .gate-slot.gf.reserved .ghost-arrow, .gate-slot.gf.filled > .ghost-arrow { z-index: 5; }
+/* A verdict stamp (SUPPRESSED, HEXED, BANISHED…) reads over the frame and the picture. */
+.gate-slot.gf.filled .stamp, .gate-slot.gf.filled > .stamp.verdict { z-index: 9; }
 .gate-slot.gf.reserved .strip.leaving { left: var(--gi-x); right: var(--gi-x); bottom: var(--gi-b); }
 /* The orbs ride out onto the frame so the picture in the window stays clear. */
 .gate-slot.gf.filled .pic { overflow: visible; position: relative; z-index: 5; }
