@@ -66,7 +66,7 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   'card.hover': 'The pointer arrives on a button, a hand card, a board tile or a Location.',
   'sheet.open': 'A card or Location opens to read.',
   'sheet.close': 'It closes.',
-  'influence.up': 'Influence goes up: a Character walks Inside, or a +N floats over a Location.',
+  'influence.up': 'The meter takes its number: the ding as a +N reaches an Influence circle (numbers landing together ding once).',
   lock: 'Lock It In.',
   turn: 'A new turn begins: three soft bells as the meter refills.',
   'location.reveal': 'A Location is revealed (or the Black Star arrives). Plays with the place\'s own sound when it has one: see SFX_PLACES.',
@@ -117,10 +117,10 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'card.hover': [], // synth: a tiny tick
   'sheet.open': [{ files: ['card-pick-2'], gain: 0.6 }, { files: ['move-2'], gain: 0.35 }],
   'sheet.close': [{ files: ['card-back'], gain: 0.5 }, { files: ['move-1'], gain: 0.3 }],
-  'influence.up': [{ files: ['turn'], gain: 0.5 }],
+  'influence.up': [{ files: ['meter-ding'], gain: 0.55 }], // a bright two-note climb on the xylophone
   lock: [{ files: ['lock'], gain: 0.8 }],
   turn: [{ files: ['new-turn'], gain: 0.55 }], // three soft bells: the riffle is gone
-  'location.reveal': [{ files: ['stand-thud'], gain: 0.55 }, { files: ['turn'], gain: 0.4, at: 160 }],
+  'location.reveal': [{ files: ['stand-thud'], gain: 0.6, at: 230 }, { files: ['turn'], gain: 0.4, at: 390 }], // the thud on the smashdown's landing (~250ms into the beat)
   draw: [{ files: ['draw'], gain: 0.5 }],
   enter: [{ files: ['enter'], gain: 0.45 }, { files: ['turn'], gain: 0.45, at: 380 }],
   move: [{ files: ['move-1', 'move-2'], gain: 0.6 }],
@@ -416,8 +416,8 @@ function synth(name: SfxName, t: number): void {
       for (let i = 0; i < 5; i++) tick(t + i * 0.055, 0.16);
       break;
     case 'location.reveal':
-      thud(t, 0.45, 160, 50, 0.24);
-      chime(t + 0.16, [659, 988], 0.09, 0.3, 0.12);
+      thud(t + 0.23, 0.45, 160, 50, 0.24);
+      chime(t + 0.39, [659, 988], 0.09, 0.3, 0.12);
       break;
     case 'draw':
       swoosh(t, 0.09, 1600, 3800, 0.18, 1.4);

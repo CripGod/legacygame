@@ -980,14 +980,15 @@ Menu
 - .column[data-index="${loc}"] .location
 - .column[data-index="${e.location}"] .art
 - s colour; when both sides broke it, each side
-- cubic-bezier(0.2, 0.8, 0.2, 1)
+- s burst on a tile: a flash, one ring and a few sparks in the owner
 - Taney's opinion stands: nobody here has rights the court will respect. Everyone at the Location, both sides, is turned out to open Gates elsewhere, Waiting. Then the Decision lifts.
 - Nobody was here to turn out. The Decision lifts.
 - cubic-bezier(0.2, 0.7, 0.3, 1)
 - translateY(-46px) scale(1.9)
 - translateY(-10px) scale(1.05)
+- .column[data-index="${e.location}"] .score.p${side}
 - +${amount} First Location bonus
-- +${(e.data as { amount?: number }).amount} First Location bonus
+- s hand flips face up in its slot as its beat opens; a Character
 - .column[data-index="${i}"] .art
 - ${adef.name} beats ${vdef.name} (${adef.force} Force against ${vdef.force}) and knocks them away to the Gates of another Location.
 - .column[data-index="${to}"] .gates
@@ -1640,7 +1641,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - ${tdef.name}, aimed at ${view.players[other(me)].handle}. ${tdef.text}
 - stamp verdict ${stamp.tone ?? 'hit'}
 - healing${fx?.healBy && fx.healBy !== 'both' ? 
--  : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''}
+-  : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''} ${fx?.slam === loc.index ? 'slam' : ''}
 - Play here: ${loc.revealed ? locationName(loc.defId, placeholders) : 
 - loc-glow ${state}${healing ? 
 -  : ''} ${canLand === null ? '' : canLand ? 'drop-can' : 'drop-cannot'} ${overHere ? 'drop-here' : ''}

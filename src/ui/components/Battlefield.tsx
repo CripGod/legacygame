@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import {
   charsAt,
   influenceAt,
@@ -127,6 +127,10 @@ export interface BoardFx {
   land?: string;
   /** A card landing in its slot: the tile flips face up where it stands (a play, an arrival). */
   arrive?: string;
+  /** The Location just revealed slamming onto the board: the panel drops, the cards in its column hop. */
+  slam?: number;
+  /** Cards hopping where they stand (the First Location bonus paying them). */
+  jolt?: string[];
   /** Threats neutralized this beat that still look alive: the showdown has not reached them yet. */
   alive?: string[];
   /** The Threat breaking apart under the showdown. */
@@ -139,9 +143,13 @@ export interface BoardFx {
   healBy?: PlayerId | 'both';
 }
 
-const picFx = (fx: BoardFx | null | undefined, uid: string): 'windup' | 'knocked' | 'held' | 'hexed' | 'land' | 'arrive' | undefined => {
+/** Where the smashdown's sparks fly from the panel's foot (px). */
+const SLAM_SPARKS: [number, number][] = [[-84, -30], [-56, -52], [-26, -40], [4, -60], [30, -38], [58, -54], [86, -28]];
+
+const picFx = (fx: BoardFx | null | undefined, uid: string): 'windup' | 'knocked' | 'held' | 'hexed' | 'land' | 'arrive' | 'jolt' | undefined => {
   if (!fx) return undefined;
   if (fx.arrive === uid) return 'arrive';
+  if (fx.jolt?.includes(uid)) return 'jolt';
   if (fx.windup === uid) return 'windup';
   if (fx.flash?.uid === uid) return fx.flash.kind === 'hit' ? 'knocked' : fx.flash.kind;
   if (fx.land === uid) return 'land';
@@ -520,7 +528,7 @@ export function Battlefield(props: BattlefieldProps) {
         return (
           <div
             key={loc.index}
-            className={`column ${isTarget ? `targetable for-${me}` : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''}`}
+            className={`column ${isTarget ? `targetable for-${me}` : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''} ${fx?.slam === loc.index ? 'slam' : ''}`}
             data-drop="location"
             data-index={loc.index}
             onClick={isTarget ? () => onLocationTap(loc.index) : undefined}
@@ -541,6 +549,12 @@ export function Battlefield(props: BattlefieldProps) {
           >
             <GateStrip {...common} owner={opp} index={loc.index} label="The Gates" right={title} />
             <div className={`loc-glow ${state}${healing ? ` ${healCls}` : ''} ${canLand === null ? '' : canLand ? 'drop-can' : 'drop-cannot'} ${overHere ? 'drop-here' : ''}`}>
+            {/* The smashdown's shockwave at the panel's foot: the ring, the dust and a few sparks, on the ground (not on the panel, which is what moves). */}
+            {fx?.slam === loc.index && (
+              <div className="slam-wave" aria-hidden>
+                {SLAM_SPARKS.map((s, i) => <i key={i} style={{ '--dx': `${s[0]}px`, '--dy': `${s[1]}px` } as CSSProperties} />)}
+              </div>
+            )}
             <div className={`${cls} framed`}>
               {/* The owner's Location frame: gold when I lead, blue when they do, silver when nobody does. The title sits in its band, the body in its window. */}
               <div className="loc-frame" aria-hidden style={{ backgroundImage: `url("${pageUrl(artUrl('frames', `location-${lead === 'A' ? 'gold' : lead === 'B' ? 'blue' : 'unowned'}`, 'webp'))}")` }} />
@@ -549,7 +563,9 @@ export function Battlefield(props: BattlefieldProps) {
               <div className="loc-fill" aria-hidden style={{ WebkitMaskImage: `url("${pageUrl(artUrl('frames', 'location-mask', 'webp'))}")`, maskImage: `url("${pageUrl(artUrl('frames', 'location-mask', 'webp'))}")` }}>
                 <div className="loc-fill-body" />
                 {loc.revealed && !placeholders && (
-                  <div className="loc-bg">
+                  /* Keyed by the place, so a retold Location (Anansi) develops in the window like a fresh reveal. */
+                  <div className="loc-bg" key={loc.defId}>
+                    <div className="loc-shine" aria-hidden />
                     {nightHere ? (
                       <Art kind="locations" id={`${loc.defId}_night`} className="loc-bg-img" fallback={<Art kind="locations" id={loc.defId} className="loc-bg-img" fallback={null} alt="" />} alt="" />
                     ) : (
