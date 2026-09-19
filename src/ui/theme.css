@@ -1876,7 +1876,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
    (1.28 to its 1.68, the frame and its mask stretching with it) to show more of the place: the parchment title sits in the band (2.7% down, 12.5% tall), the meter, the rows and the rule in
    the window (18.4% down to 5.1% from the bottom, 5% in from the sides), and the drawn chamfer plate steps back.
    (The padding is in width terms, as percentage padding resolves against the width: 14.4% of the width is 18.4% of the height at 1.28.) */
-.location.framed { position: relative; aspect-ratio: 1.28; max-height: 100%; flex: 0 1 auto !important; container-type: inline-size; clip-path: none !important; background: transparent !important; padding: 14.4% 5% 4% 4.9%; overflow: hidden; --slot: min(10.5cqw, 86px, max(30px, min(4.7vw, 7vh))); --slot-h: calc(var(--slot) * 0.72); }
+.location.framed { position: relative; aspect-ratio: 1.28; max-height: 100%; flex: 0 1 auto !important; container-type: inline-size; clip-path: none !important; background: transparent !important; padding: 14.4% 5% 4% 4.9%; overflow: hidden; --slot: min(13.6cqw, 96px); --slot-h: min(calc(var(--slot) * 0.72), max(22px, 4.4vh)); }
 .location.framed::after { display: none; }
 .location.framed > .loc-frame { position: absolute; inset: 0; z-index: 6; background: center / 100% 100% no-repeat; pointer-events: none; }
 /* The fills, masked to the frame's interior (the mask is cut from the art's alpha): the plate, the photograph from
@@ -1892,12 +1892,26 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .location.framed .row-lbl { line-height: 1.1; padding-top: 0; }
 .location.framed .inside-rows { row-gap: 0; }
 .location.framed .loc-rule { margin: 1px 8px 0; padding: 2px 8px; font-size: clamp(8px, 0.74vw, 11px); }
-.location.framed .threat-col { width: calc(var(--slot) * 1.2 + 8px); padding: 4px 8px 4px 0; }
+/* The thumbnails as big as the window allows, to see the art: five seats, their gaps and the Threat column are all
+   fractions of one slot (0.2 + 5 + 4 x 0.12 + 1.65 = 7.33 slots) and the slot is 12.25% of the panel, so the row runs
+   from the window's left edge to its right with the Threat tile flush at the end. The Threat tile stretches to the
+   two rows' height (two Threats share it; three or more stand two abreast in the same column). Container units
+   resolve against the panel's content box, which is the window, so 13.6cqw is 13.6% of the window's width
+   (7.33 slots = 99.7% of it). The seats always take the width; on a short viewport, where the panel itself is
+   squashed, only their height gives (the vh cap), so the row still fills and the rule stays on the window's foot. */
+.location.framed .threat-col { width: calc(var(--slot) * 1.65); padding: 2px calc(var(--slot) * 0.1) 2px calc(var(--slot) * 0.3); gap: calc(var(--slot) * 0.1); }
+.location.framed .threat-tile { min-height: calc(var(--slot-h) + 6px); }
+.location.framed .threat-col:has(.threat-tile:nth-child(3)) { width: calc(var(--slot) * 1.65); grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); align-content: stretch; gap: 3px; }
+/* Two abreast, the tiles are too narrow for text: the art and the Force orb stay, the border colour says whose it is,
+   and the name and target are in the sheet. */
+.location.framed .threat-col:has(.threat-tile:nth-child(3)) .threat-name { display: none; }
+.location.framed .threat-col:has(.threat-tile:nth-child(3)) .threat-who { display: none; }
+.location.framed .row-lbl { padding-left: calc(var(--slot) * 0.2); }
 .location.framed .threat-tile .threat-name { font-size: clamp(6px, 0.48vw, 7.5px); letter-spacing: 0; padding: 8px 2px 1px; overflow-wrap: normal; }
 /* The meter sits right under the name, first thing in the window, so every +N and wave keeps its path. */
 .location.framed .influence { padding: 3px 8px 1px; gap: 8px; }
 .location.framed .influence .score { width: clamp(24px, min(2.7vw, 4vh), 34px); height: clamp(24px, min(2.7vw, 4vh), 34px); font-size: clamp(12px, min(1.4vw, 2vh), 17px); }
-.location.framed .slots { padding: 2px 10px 3px; }
+.location.framed .slots { padding: 1px 0 2px calc(var(--slot) * 0.2); gap: calc(var(--slot) * 0.12); }
 .location.framed .loc-rule { margin: 2px 10px 0; font-size: clamp(8px, 0.8vw, 12px); line-height: 1.25; }
 
 /* Where a piece is going: its ghost at the Gates it arrives at, dashed, with the lit frame faint, and an Arriving strip. */
