@@ -1439,6 +1439,12 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     floatPlanned(planRef.current, next, play.location, `${PLANNED_PREFIX}${play.cardId}`); // what the card adds here, Gates or Inside, from the tile it lands on
     setPlan((p) => ({ ...p, plays: [...p.plays.filter((pl) => pl.cardId !== play.cardId), play] }));
     if (directEntry) feedback(`${cardName(play.cardId, placeholders)} goes Inside right away (Direct Entry). Tap ⇅ on the planned move to wait at the Gates instead.`, [], 'info');
+    // A card that would walk straight Inside meets a shut door: say so, and what the Gates are worth here meanwhile.
+    if (pdef?.kind === 'character' && pdef.keywords.includes('STRAIGHT_INSIDE') && doorShut) {
+      const here = view.locations[play.location];
+      const gatesCountNothing = here.revealed && LOCATION_BY_ID[here.defId]?.effect.type === 'gatesUncounted';
+      feedback(`${cardName(play.cardId, placeholders)} cannot go straight Inside at ${here.revealed ? locationName(here.defId, placeholders) : `Location ${play.location + 1}`}: ${doorShut}. They wait at the Gates${gatesCountNothing ? ', where the Gates count no Influence,' : ''} until the door opens (neutralize the Threat, or clear it with an ally).`, [`[data-loc="${play.location}"] .threat-tile`], 'warn', 5200);
+    }
     if (play.cardId === 'the_ancestors') {
       // The Ancestors speak on the board: the opponent's plan as faint ghosts beside the real tiles, and the dangers in a line.
       const theirs = m.peekAiPlan();
