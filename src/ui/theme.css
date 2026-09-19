@@ -1305,6 +1305,13 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
   100% { transform: none; filter: none; }
 }
 
+/* Arrival: the card flips face up in its slot, bright on the turn, and settles (Snap reveals its cards in place). */
+.pic.fx-arrive { animation: fx-arrive 0.52s cubic-bezier(0.2, 0.8, 0.3, 1) both; backface-visibility: hidden; transform-style: preserve-3d; }
+@keyframes fx-arrive {
+  0% { transform: perspective(600px) rotateY(88deg) scale(0.92); filter: brightness(2.2); }
+  55% { transform: perspective(600px) rotateY(-10deg) scale(1.07); filter: brightness(1.5); }
+  100% { transform: none; filter: none; }
+}
 /* Landing: the tile drops in where the ghost stopped, a little large, and settles. */
 .pic.fx-land { animation: fx-land 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
 @keyframes fx-land {
@@ -1313,7 +1320,7 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
   100% { transform: none; filter: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pic.fx-windup, .pic.fx-knocked, .pic.fx-held, .pic.fx-hexed, .pic.fx-land { animation: none; }
+  .pic.fx-windup, .pic.fx-knocked, .pic.fx-held, .pic.fx-hexed, .pic.fx-land, .pic.fx-arrive { animation: none; }
   .pic.fx-knocked::after, .pic.fx-held::after, .pic.fx-hexed::after { animation: none; opacity: 0; }
 }
 

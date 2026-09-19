@@ -125,6 +125,8 @@ export interface BoardFx {
   hurt?: { location: number; owner: PlayerId };
   stamp?: { uid: string; title: string; sub?: string; tone?: 'hit' | 'miss' | 'hex' };
   land?: string;
+  /** A card landing in its slot: the tile flips face up where it stands (a play, an arrival). */
+  arrive?: string;
   /** Threats neutralized this beat that still look alive: the showdown has not reached them yet. */
   alive?: string[];
   /** The Threat breaking apart under the showdown. */
@@ -137,8 +139,9 @@ export interface BoardFx {
   healBy?: PlayerId | 'both';
 }
 
-const picFx = (fx: BoardFx | null | undefined, uid: string): 'windup' | 'knocked' | 'held' | 'hexed' | 'land' | undefined => {
+const picFx = (fx: BoardFx | null | undefined, uid: string): 'windup' | 'knocked' | 'held' | 'hexed' | 'land' | 'arrive' | undefined => {
   if (!fx) return undefined;
+  if (fx.arrive === uid) return 'arrive';
   if (fx.windup === uid) return 'windup';
   if (fx.flash?.uid === uid) return fx.flash.kind === 'hit' ? 'knocked' : fx.flash.kind;
   if (fx.land === uid) return 'land';

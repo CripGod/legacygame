@@ -715,43 +715,43 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     const patch = (f: BoardFx | null, p: Partial<BoardFx>): BoardFx => ({ ...(f ?? { hidden: [] }), ...p });
     const rule = def.spawn ? spawnText(def.spawn).replace('Not in any deck. ', '') : '';
     setClashTell({ title: 'ARRIVAL', text: ev.text, sub: `${mine ? 'Yours now. ' : `${view.players[ev.player].handle}'s. `}${zone === 'hand' ? 'It is in the hand now and costs nothing.' : rule}`.trim(), tone: 'arrive' });
-    if (ev.uid) setFx((f) => patch(f, { hidden: [...(f?.hidden ?? []), ev.uid!] }));
-    setArrival({ cardId: ev.cardId, owner: ev.player });
-    await painted();
-    if (!alive()) return;
-    await wait(reduceMotion() ? 1800 : 1500);
-    if (!alive()) return;
-    const el = document.querySelector('.card-flash .card');
-    const dest = ev.uid ? tileOf(ev.uid)?.getBoundingClientRect() : (() => {
-      const h = mine ? document.querySelector('.hand') : document.querySelector(`.profile.p${ev.player}`);
-      if (!h) return undefined;
-      const r = h.getBoundingClientRect();
-      return new DOMRect(r.left + r.width / 2 - 30, r.top + r.height / 2 - 30, 60, 60);
-    })();
-    if (el && dest && !reduceMotion()) {
-      const g = ghostOf(el);
-      setArrival(null);
-      await painted();
-      await fly(g, dest, { ms: 650, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)', arc: 30, fade: !ev.uid, remove: true });
-    } else {
-      setArrival(null);
-    }
-    if (!alive()) return;
     if (ev.uid && tileOf(ev.uid)) {
+      // On the board: the tile flips face up where it stands, with a burst on it (Snap reveals a card in its slot).
+      setFx((f) => patch(f, { hidden: [...(f?.hidden ?? []), ev.uid!] }));
+      await painted();
+      if (!alive()) return;
+      await wait(reduceMotion() ? 600 : 320);
+      if (!alive()) return;
       sfx('card.drop');
-      setFx((f) => patch(f, { hidden: (f?.hidden ?? []).filter((u) => u !== ev.uid), land: ev.uid }));
+      setFx((f) => patch(f, { hidden: (f?.hidden ?? []).filter((u) => u !== ev.uid), arrive: ev.uid }));
+      revealBurst(ev.uid, ev.player);
       // What the arrival is worth here rises from its tile and is added when it reaches the circle.
       if (ev.location !== undefined && prevView) {
         const gained = influenceAt(view, ev.location)[ev.player] - influenceAt(prevView, ev.location)[ev.player];
         const t = tileOf(ev.uid)?.getBoundingClientRect();
-        if (gained > 0) window.setTimeout(() => floatNum(ev.location!, gained, mine ? 'mine' : 'theirs', { side: ev.player, preheld: true, from: t ? { x: t.left + t.width / 2, y: t.top + t.height / 2 } : undefined }), 120);
+        if (gained > 0) window.setTimeout(() => floatNum(ev.location!, gained, mine ? 'mine' : 'theirs', { side: ev.player, preheld: true, from: t ? { x: t.left + t.width / 2, y: t.top + t.height / 2 } : undefined }), 260);
       }
-    } else {
-      setFx((f) => patch(f, { hidden: (f?.hidden ?? []).filter((u) => u !== ev.uid) }));
+      await wait(900);
+      if (!alive()) return;
+      setFx((f) => (f ? { ...f, arrive: undefined } : f));
+      return;
     }
-    await wait(900);
+    // To a hand or a profile: the card shows for a moment, then is simply there.
+    setArrival({ cardId: ev.cardId, owner: ev.player });
+    await painted();
     if (!alive()) return;
-    setFx((f) => (f ? { ...f, land: undefined } : f));
+    await wait(reduceMotion() ? 1400 : 1100);
+    if (!alive()) return;
+    setArrival(null);
+    sfx('card.drop');
+    await wait(300);
+  };
+  /** A reveal's burst on a tile: a flash, one ring and a few sparks in the owner's colour, on the card and nowhere else. */
+  const revealBurst = (uid: string, owner: PlayerId) => {
+    if (reduceMotion()) return;
+    const r = tileOf(uid)?.getBoundingClientRect();
+    if (!r) return;
+    setTrail([{ from: r, to: r, color: TRAIL_COLORS[owner], kind: 'reveal' }]);
   };
 
   /**
@@ -944,6 +944,23 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         }, 1050);
         return shots.length;
       };
+      // A card played from the other side's hand flips face up in its slot as its beat opens; a Character's Reveal
+      // bursts on its card (when a trail carries the Reveal, the trail's sparks are that burst).
+      if (!reduceMotion() && step.kind === 'play' && step.player && step.player !== me && step.uids?.length) {
+        const uid = step.uids[0];
+        await painted();
+        if (!alive()) return;
+        if (tileOf(uid)) {
+          setFx((f) => ({ ...(f ?? { hidden: [] }), arrive: uid }));
+          // The flip done, the beat's effects are over (the replay only moves on once fx is null).
+          window.setTimeout(() => { if (alive()) setFx((f) => (f?.arrive === uid ? null : f)); }, 700);
+        }
+      }
+      if (!reduceMotion() && step.kind === 'revealFx' && step.uids?.[0] && step.player && !trailEvs.length && !clashEvs.length) {
+        await painted();
+        if (!alive()) return;
+        revealBurst(step.uids[0], step.player);
+      }
       if (trailEvs.length && !reduceMotion()) {
         // Measure after this beat's board has rendered.
         await painted();

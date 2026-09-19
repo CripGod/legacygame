@@ -22,7 +22,7 @@ export interface TrailShot {
   color: string;
   /** Text lifted with the embers on landing ("+1"). */
   label?: string;
-  kind?: 'ribbon' | 'spray' | 'wave' | 'burst';
+  kind?: 'ribbon' | 'spray' | 'wave' | 'burst' | 'reveal';
   /** Wave shots: the colour of the ring and its motes (the one who broke the Threat); `color` stays the landing's. */
   ring?: string;
 }
@@ -45,6 +45,10 @@ const SPARKLES = 14;
 const BURST_MS = 2300;
 const BURST_SPARKS = 110;
 const BURST_EMBERS = 36;
+/* A reveal: the Stand's burst at half size and a third of the length, on the card, with a few embers. */
+const REVEAL_MS = 720;
+const REVEAL_SPARKS = 18;
+const REVEAL_EMBERS = 6;
 
 /** When a wave from `from` reaches `to`, in ms after the wave starts. */
 export function waveLandAt(from: DOMRect, to: DOMRect): number {
@@ -172,16 +176,21 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
     })();
     const isSpray = (i: number) => shots[i].kind === 'spray';
     const isWave = (i: number) => shots[i].kind === 'wave';
-    const isBurst = (i: number) => shots[i].kind === 'burst';
-    const totalMs = Math.max(...shots.map((s) => (s.kind === 'spray' ? SPRAY_MS : s.kind === 'burst' ? BURST_MS : s.kind === 'wave' ? waveLandAt(s.from, s.to) + LAND_MS + 100 : RIBBON_TOTAL_MS)));
-    // Bursts: the Stand's sparks and its slow embers.
+    const isReveal = (i: number) => shots[i].kind === 'reveal';
+    const isBurst = (i: number) => shots[i].kind === 'burst' || isReveal(i);
+    /** How big and how long a burst is: the Stand's at 1, a reveal's smaller and quicker. */
+    const burstScale = (i: number) => (isReveal(i) ? 0.45 : 1);
+    const burstMs = (i: number) => (isReveal(i) ? REVEAL_MS : BURST_MS);
+    const totalMs = Math.max(...shots.map((s) => (s.kind === 'spray' ? SPRAY_MS : s.kind === 'burst' ? BURST_MS : s.kind === 'reveal' ? REVEAL_MS : s.kind === 'wave' ? waveLandAt(s.from, s.to) + LAND_MS + 100 : RIBBON_TOTAL_MS)));
+    // Bursts: the Stand's sparks and its slow embers; a reveal's are fewer, slower and shorter-lived.
     const bsparks: Spark[] = [];
     const bembers: Ember[] = [];
     for (let i = 0; i < shots.length; i++) {
       if (!isBurst(i)) continue;
-      for (let k = 0; k < BURST_SPARKS; k++) bsparks.push({ shot: i, angle: rng() * Math.PI * 2, speed: 0.3 + rng() * 0.6, size: 1.6 + rng() * 2.6, life: 520 + rng() * 620 });
+      const rv = isReveal(i);
+      for (let k = 0; k < (rv ? REVEAL_SPARKS : BURST_SPARKS); k++) bsparks.push({ shot: i, angle: rng() * Math.PI * 2, speed: rv ? 0.16 + rng() * 0.3 : 0.3 + rng() * 0.6, size: rv ? 1.3 + rng() * 1.8 : 1.6 + rng() * 2.6, life: rv ? 300 + rng() * 300 : 520 + rng() * 620 });
       const c = centre(shots[i].from);
-      for (let k = 0; k < BURST_EMBERS; k++) bembers.push({ shot: i, x0: c.x + (rng() - 0.5) * shots[i].from.width * 1.2, y0: c.y + (rng() - 0.4) * shots[i].from.height, rise: 60 + rng() * 140, sway: 6 + rng() * 14, phase: rng() * Math.PI * 2, size: 2 + rng() * 3, start: 200 + rng() * 1100, life: 700 + rng() * 700 });
+      for (let k = 0; k < (rv ? REVEAL_EMBERS : BURST_EMBERS); k++) bembers.push({ shot: i, x0: c.x + (rng() - 0.5) * shots[i].from.width * 1.2, y0: c.y + (rng() - 0.4) * shots[i].from.height, rise: 60 + rng() * 140, sway: 6 + rng() * 14, phase: rng() * Math.PI * 2, size: 2 + rng() * 3, start: 200 + rng() * 1100, life: 700 + rng() * 700 });
     }
     // Ribbons: the swarm, the path, and the landing.
     const particles: Particle[] = [];
@@ -252,23 +261,26 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
       ctx.globalCompositeOperation = 'lighter';
       // The burst: a flash, two shockwave rings, a glow that lingers, sparks out and down, embers rising slowly.
       for (let i = 0; i < shots.length; i++) {
-        if (!isBurst(i) || el > BURST_MS) continue;
+        if (!isBurst(i) || el > burstMs(i)) continue;
+        const sc = burstScale(i);
         const c = centre(shots[i].from);
         const [r, g, b] = hexToRgb(shots[i].color);
-        const flash = Math.max(0, 1 - el / 200);
-        const linger = Math.max(0, 1 - el / BURST_MS);
-        const grad = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, 150);
+        const flash = Math.max(0, 1 - el / (isReveal(i) ? 160 : 200));
+        const linger = Math.max(0, 1 - el / burstMs(i));
+        const R = 150 * sc;
+        const grad = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, R);
         grad.addColorStop(0, `rgba(255,255,255,${0.95 * flash + 0.25 * linger})`);
         grad.addColorStop(0.35, `rgba(${r},${g},${b},${0.6 * flash + 0.18 * linger})`);
         grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
         ctx.fillStyle = grad;
-        ctx.fillRect(c.x - 150, c.y - 150, 300, 300);
-        for (const [delay, reach, w] of [[0, 280, 1], [140, 210, 0.6]] as [number, number, number][]) {
-          const t = (el - delay) / 700;
+        ctx.fillRect(c.x - R, c.y - R, 2 * R, 2 * R);
+        const rings: [number, number, number][] = isReveal(i) ? [[0, 85, 1]] : [[0, 280, 1], [140, 210, 0.6]];
+        for (const [delay, reach, w] of rings) {
+          const t = (el - delay) / (isReveal(i) ? 480 : 700);
           if (t < 0 || t > 1) continue;
           const k = (1 - t) * w;
           ctx.beginPath();
-          ctx.arc(c.x, c.y, 14 + reach * ease(t), 0, Math.PI * 2);
+          ctx.arc(c.x, c.y, 10 * sc + 14 + reach * ease(t), 0, Math.PI * 2);
           ctx.strokeStyle = `rgba(255,255,255,${0.9 * k})`;
           ctx.lineWidth = 3.5 * (1 - t) + 0.6;
           ctx.stroke();

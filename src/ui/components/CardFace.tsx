@@ -316,7 +316,7 @@ export function Pic({
   onContextMenu?: (e: React.MouseEvent) => void;
   highlight?: boolean;
   /** Board animation for a clash beat: the striker gathers itself, the victim takes the hit (or holds, or is hexed), a tile lands. */
-  fx?: 'windup' | 'knocked' | 'held' | 'hexed' | 'land';
+  fx?: 'windup' | 'knocked' | 'held' | 'hexed' | 'land' | 'arrive';
   /** Gate tiles: show cost, Influence and Force like a small card. */
   badges?: boolean;
   /** Replay: this piece is the one acting in the current beat. */
