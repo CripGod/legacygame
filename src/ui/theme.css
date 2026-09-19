@@ -1900,12 +1900,16 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
    (7.33 slots = 99.7% of it). The seats always take the width; on a short viewport, where the panel itself is
    squashed, only their height gives (the vh cap), so the row still fills and the rule stays on the window's foot. */
 @media (width > 700px) {
-  .location.framed .threat-col { width: calc(var(--slot) * 1.65); padding: 2px calc(var(--slot) * 0.1) 2px calc(var(--slot) * 0.3); gap: calc(var(--slot) * 0.1); }
-  .location.framed .threat-tile { min-height: calc(var(--slot-h) + 6px); }
+  /* Size containment: the column's height is the two seat rows' height and never the other way round, so a
+     Threat's text can never stretch the rows and push the rule off the window's foot; the tiles share that height
+     and clip their own text instead. */
+  .location.framed .threat-col { width: calc(var(--slot) * 1.65); padding: 2px calc(var(--slot) * 0.1) 2px calc(var(--slot) * 0.3); gap: calc(var(--slot) * 0.1); contain: size; }
+  .location.framed .threat-tile { min-height: 0; }
+  .location.framed .threat-tile .threat-name { overflow-wrap: anywhere; }
   /* Three or more Threats stand two abreast at nearly the two-Threat width (1.2 slots each) and the column widens;
      the five seats beside them give up the difference (they shrink to fit) rather than the Threat tiles, so the
      Force, the name and the target stay readable. Below 700px the phone strip under the rows takes over. */
-  .location.framed .threat-col:has(.threat-tile:nth-child(3)) { width: auto; grid-template-columns: repeat(2, calc(var(--slot) * 1.2)); grid-auto-rows: minmax(0, 1fr); align-content: stretch; gap: 3px; }
+  .location.framed .threat-col:has(.threat-tile:nth-child(3)) { width: calc(var(--slot) * 2.8 + 3px); grid-template-columns: repeat(2, calc(var(--slot) * 1.2)); grid-auto-rows: minmax(0, 1fr); align-content: stretch; gap: 3px; }
 }
 .location.framed .row-lbl { padding-left: calc(var(--slot) * 0.2); }
 .location.framed .threat-tile .threat-name { font-size: clamp(6px, 0.48vw, 7.5px); letter-spacing: 0; padding: 8px 2px 1px; overflow-wrap: normal; }
