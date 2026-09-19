@@ -1445,7 +1445,7 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 /* Four boxes (three Gates and the Event slot) never outgrow their column: on wide screens the tiles cap at a quarter of it,
    so the Location panel and the Gate row share one width. */
 .column { container-type: inline-size; }
-.gates .gate-slot { width: min(var(--mini), calc((100cqw - 15px) / 4)); }
+.gates .gate-slot { width: min(var(--mini), calc((100cqw - 15px) / 4)); } /* three 5px gaps: with no strip padding the row ends where the frame ends */
 /* Anansi retold this Location and spun his web over it. */
 .location .art .lost-tag.webbed { color: #fff; background: #5b3f8a; }
 
@@ -1921,3 +1921,10 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 
 /* In the window, the meter stays up top and everything else sinks to the bottom, so the vista shows between them. */
 .location.framed .inside-block { margin-top: auto; z-index: 7; }
+
+/* The Gate rows start and end exactly where the Location frame does. */
+.gates-strip { padding: 0; }
+
+/* The actor's highlight takes in the whole framed tile: the ring pulses around the frame, not the picture in its window. */
+.gate-slot.gf.filled .pic.focus { animation: none; }
+.gate-slot.gf.filled:has(.pic.focus) { animation: focus-ring 900ms ease-in-out infinite; border-radius: 4px; }
