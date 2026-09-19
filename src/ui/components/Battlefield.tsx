@@ -18,6 +18,7 @@ import { initials, locationName, threatLabel, useDisplay } from '../display';
 import { Pic } from './CardFace';
 import { Art } from './Art';
 import { artUrl } from '../art';
+import { assistButtons } from '../assist';
 import { charDef, confrontForce, threatForceNeeded, isNight, lockReason, LOCATION_BY_ID, CARD_BY_ID, TEAM_UP_BY_ID } from '../../engine';
 
 /** A Location under curfew right now: a curfew Location at night. */
@@ -199,7 +200,8 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
     <div className={`gates-strip ${owner === me ? 'mine' : 'theirs'}`} style={owner === me ? ({ '--gate-off': `url("${pageUrl(artUrl('frames', 'gate-gold-off', 'webp'))}")`, '--gate-on': `url("${pageUrl(artUrl('frames', 'gate-gold-on', 'webp'))}")` } as React.CSSProperties) : undefined}>
       <div className={`gates-left ${gOk ? 'drop-ok' : ''} ${gOver ? 'drop-over' : ''}`} {...(owner === me ? { 'data-drop': 'gates', 'data-index': index } : {})}>
         <div className="lbl">
-          {label} ({GATE_CAPACITY})
+          {label}
+          {assistButtons() ? ` (${GATE_CAPACITY})` : ''}
         </div>
         <div className="gates">
           {slots.map((s, i) => {
@@ -291,7 +293,8 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
   return (
     <div className="inside-row">
       <div className="row-lbl">
-        {label} ({cap === 0 ? 'no Inside here' : `${chars.length}–${cap}`})
+        {label}
+        {cap === 0 ? ' (no Inside here)' : assistButtons() ? ` (${chars.length}–${cap})` : ''}
       </div>
       <div
         className={`slots ${cap < INSIDE_CAPACITY ? 'restricted' : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''}`}

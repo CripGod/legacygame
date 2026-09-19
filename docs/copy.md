@@ -1609,9 +1609,11 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - gate-slot ${i === nextOpen ? 'open' : 'later'}
 - Opens once the slot before it is taken.
 - The Ancestors foresee: ${fd.name} ${s.seen.why}.
-- gate-slot reserved ${s.held.through ? 'through' : ''}
+- gate-slot reserved ${s.held.through ? 'through' : ''} ${s.held.arriving ? 'arriving' : ''}
+- ${hd.name} ${s.held.why} when you Lock It In.
 - ${hd.name} ${s.held.why}: every arrival is placed at the Gates before anyone walks Inside, so this slot is taken this turn.
 - ${hd.name} ${s.held.why} when you Lock It In. The slot stays taken until then.
+- strip leaving ${s.held.arriving ? 'arriving' : ''}
 - tile-glow owner-${owner} ${focus?.includes(s.uid) ? 'focus' : ''}
 - gate-slot filled owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''}
 - stamp verdict ${fx.stamp.tone ?? 'hit'}
@@ -1636,7 +1638,9 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 -  : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''}
 - Play here: ${loc.revealed ? locationName(loc.defId, placeholders) : 
 - loc-glow ${state}${healing ? 
+- url("${pageUrl(artUrl('frames', 
 - loc-stamp ${fx.locStamp[loc.index].tone}
+- url("${pageUrl(artUrl('frames', 'location-mask', 'webp'))}")
 - art ${loc.revealed ? 'reveal-anim' : 'hidden-art'}
 - linear-gradient(135deg, hsl(${(loc.defId.length * 47) % 360} 30% 24%), hsl(${(loc.defId.length * 47 + 60) % 360} 30% 14%))
 - ${def.name} arrives in ${Math.max(0, loc.revealedTurn + def.transformsInto.afterTurns - view.turn)} turn(s): everyone aboard gains +1 Influence and Gate Characters walk straight in.

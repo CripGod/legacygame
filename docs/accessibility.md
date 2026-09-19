@@ -41,3 +41,8 @@ button, once the settings menu grows a Play section. Keep the prop and the tray 
 - Screen-reader narration of the resolve (the beats are visual and audio only).
 - A high-contrast theme.
 - Remapping the 1-3 keys.
+
+
+## Row counts
+
+With the assist flag on, the board's row labels carry their counts again: "The Gates (3)" and "Your Characters (2–5)". Without it the labels are the words alone; the slots themselves show what is open.
