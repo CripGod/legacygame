@@ -288,7 +288,7 @@ body { font-family: var(--font); font-size: 16px; }
 .pic .b-force { bottom: 2px; right: 2px; background: radial-gradient(circle at 35% 35%, #ff7a6e, #9e2117); }
 .gate-slot .pic .strip { bottom: 0; left: 0; right: 0; padding: 2px 0; font-family: var(--display); font-size: clamp(7px, 0.62vw, 9px); letter-spacing: 0.1em; background: rgba(8, 19, 31, 0.82); z-index: 1; }
 .gate-slot .pic .strip.ready { background: rgba(79, 196, 111, 0.92); color: #052e14; }
-.gate-slot .pic .strip.held, .gate-slot .pic .strip.besieged, .gate-slot .pic .strip.curfew, .gate-slot .pic .strip.oath { background: rgba(224, 74, 63, 0.92); }
+.gate-slot .pic .strip.held, .gate-slot .pic .strip.besieged, .gate-slot .pic .strip.curfew, .gate-slot .pic .strip.oath, .gate-slot .pic .strip.confront { background: rgba(224, 74, 63, 0.92); color: #fff; }
 .gate-slot.filled .pic .b-inf, .gate-slot.filled .pic .b-force { bottom: clamp(12px, 1.1vw, 16px); }
 
 .column.targetable { box-shadow: none; background: transparent; }
