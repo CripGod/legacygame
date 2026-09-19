@@ -1994,6 +1994,13 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .pic.focus { animation: none; box-shadow: none; }
 .slot.filled:has(.pic.focus) { --bc: var(--gold); animation: focus-glow 900ms ease-in-out infinite; }
 .slot.filled.B:has(.pic.focus) { --bc: var(--cB); border-color: var(--cB); }
+/* Harborlight's turn glows in Harborlight's blue; the warm halo is yours. */
+@keyframes focus-glow-blue {
+  0%, 100% { filter: drop-shadow(0 0 12px rgba(150, 190, 255, 0.7)) drop-shadow(0 0 28px rgba(47, 123, 255, 0.5)); }
+  50% { filter: drop-shadow(0 0 18px rgba(205, 225, 255, 0.95)) drop-shadow(0 0 42px rgba(47, 123, 255, 0.75)); }
+}
+.gate-slot.gf.filled.owner-B:has(.pic.focus), .slot.filled.B:has(.pic.focus) { animation-name: focus-glow-blue; }
+.tile-glow.owner-B.focus { filter: drop-shadow(0 0 14px rgba(170, 205, 255, 0.85)) drop-shadow(0 0 30px rgba(47, 123, 255, 0.55)); }
 
 /* Day and night at a curfew Location: an engraved badge on the title band instead of pills. Night carries
    the curfew with it (nobody relocates out until morning); day is the all-clear. */
