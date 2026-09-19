@@ -29,6 +29,17 @@ export interface Ghost {
 
 const transformOf = (p: { x: number; y: number; r: number; s: number }) => `translate(${p.x}px, ${p.y}px) rotate(${p.r}deg) scale(${p.s})`;
 
+/** What a length custom property resolves to on this element, in px: measured through a hidden probe child. */
+function resolvePx(el: Element, prop: string): number | undefined {
+  if (!getComputedStyle(el).getPropertyValue(prop)) return undefined;
+  const probe = document.createElement('div');
+  probe.style.cssText = `position:absolute;visibility:hidden;pointer-events:none;height:0;width:var(${prop})`;
+  el.appendChild(probe);
+  const w = probe.offsetWidth;
+  probe.remove();
+  return w > 0 ? w : undefined;
+}
+
 /** A fixed-position clone of a board tile at the tile's current place, carrying the tile's look (border colour, chamfer). */
 export function ghostOf(el: Element): Ghost {
   const base = el.getBoundingClientRect();
@@ -49,17 +60,12 @@ export function ghostOf(el: Element): Ghost {
     if (v) g.style.setProperty(p, v);
   }
   // The size tokens are written in container and viewport units (cqw, cqh, vh) that resolve differently in the fly
-  // layer, which sits under body outside every container: pin them to the pixels the real tile has, so anything
-  // inside the clone that is sized from them (initials, orbs, strips) keeps the tile's scale.
-  if (g.classList.contains('slot')) {
-    g.style.setProperty('--slot', `${base.width}px`);
-    g.style.setProperty('--slot-h', `${base.height}px`);
-  } else if (g.classList.contains('threat-tile')) {
-    g.style.setProperty('--slot', `${base.width / 1.25}px`);
-    g.style.setProperty('--slot-h', `${(base.width / 1.25) * 0.72}px`);
-  } else if (g.classList.contains('gate-slot')) {
-    g.style.setProperty('--mini', `${base.width}px`);
-    g.style.setProperty('--mini-h', `${base.height}px`);
+  // layer, which sits under body outside every container: pin them to the pixels they resolve to on the real tile
+  // (a seat beside three Threats is narrower than its --slot, so the tile's own value, not its box, is the truth),
+  // so anything inside the clone sized from them (initials, orbs, strips) keeps the tile's scale.
+  for (const p of ['--slot', '--slot-h', '--mini', '--mini-h']) {
+    const px = resolvePx(el, p);
+    if (px !== undefined) g.style.setProperty(p, `${px}px`);
   }
   // A framed Gate tile (gf) keeps its frame in flight: its window insets, resolved to pixels here, since the fly layer has no container.
   if (g.classList.contains('gf')) {
@@ -75,6 +81,10 @@ export function ghostOf(el: Element): Ghost {
     width: `${base.width}px`,
     height: `${base.height}px`,
     margin: '0',
+    minWidth: '0',
+    minHeight: '0',
+    maxWidth: 'none',
+    maxHeight: 'none',
     transform: 'none',
     transition: 'none',
     opacity: '1',
