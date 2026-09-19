@@ -63,7 +63,7 @@ export interface BattlefieldProps {
   foreseen?: ReturnType<typeof foreseePlan> | null;
   /** Gate slots still occupied until the turn resolves, keyed by Location: Characters leaving the Gates this turn. */
   /** Pieces leaving a Location in the preview: ghosted at their old place with an arrow toward where they go. */
-  reserved?: Record<number, { uid: string; defId: string; why: string; zone: 'gate' | 'inside'; dir: 'left' | 'right' | 'up'; /** A card played straight Inside: it is placed at these Gates first, so the slot is spoken for. */ through?: boolean; /** Its place in the row (tileOrder), so a ghost stands where the piece stood. */ order: number }[]>;
+  reserved?: Record<number, { uid: string; defId: string; why: string; zone: 'gate' | 'inside'; dir: 'left' | 'right' | 'up'; /** A card played straight Inside: it is placed at these Gates first, so the slot is spoken for. */ through?: boolean; /** Its place in the row (tileOrder), so a ghost stands where the piece stood. */ order: number; /** A ghost at the Gates a piece is moving to. */ arriving?: boolean }[]>;
 
   /** Replay: the pieces this beat is about. */
   focus?: string[];
@@ -181,7 +181,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
   const seen = (foreseen?.ghosts[owner]?.[index] ?? []).filter((f) => f.zone === 'gate').slice(0, Math.max(0, GATE_CAPACITY - chars.length - held.length));
   // Tiles and the ghosts holding a place keep the order they stood in: a piece planned Inside leaves its ghost where it was.
   const row = [...chars.map((c) => ({ key: tileOrder(c), item: c as CharacterInstance | { held: (typeof held)[number] } })), ...held.map((h) => ({ key: h.order, item: { held: h } }))].sort((a, b) => a.key - b.key).map((r) => r.item);
-  const slots: (CharacterInstance | { held: { uid: string; defId: string; why: string; dir: 'left' | 'right' | 'up'; through?: boolean } } | { seen: { uid: string; defId: string; why: string } } | null)[] = [...row, ...seen.map((f) => ({ seen: f }))];
+  const slots: (CharacterInstance | { held: { uid: string; defId: string; why: string; dir: 'left' | 'right' | 'up'; through?: boolean; arriving?: boolean } } | { seen: { uid: string; defId: string; why: string } } | null)[] = [...row, ...seen.map((f) => ({ seen: f }))];
   while (slots.length < GATE_CAPACITY) slots.push(null);
   // Only the next empty slot is open; the ones after it open as it fills.
   const nextOpen = slots.findIndex((s) => s === null);
@@ -223,12 +223,12 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
               // Reserved: the Character has left in the preview but still holds this slot until the turn resolves.
               const hd = charDef(s.held.defId);
               return (
-                <div key={`held:${s.held.uid}`} className={`gate-slot reserved ${s.held.through ? 'through' : ''}`} data-reserved={s.held.uid} onClick={() => onChar(s.held.uid)} {...tip(s.held.through ? `${hd.name} ${s.held.why}: every arrival is placed at the Gates before anyone walks Inside, so this slot is taken this turn.` : `${hd.name} ${s.held.why} when you Lock It In. The slot stays taken until then.`)}>
+                <div key={`held:${s.held.uid}`} className={`gate-slot reserved ${s.held.through ? 'through' : ''} ${s.held.arriving ? 'arriving' : ''}`} data-reserved={s.held.uid} onClick={() => onChar(s.held.arriving ? s.held.uid.slice('arrive:'.length) : s.held.uid)} {...tip(s.held.arriving ? `${hd.name} ${s.held.why} when you Lock It In.` : s.held.through ? `${hd.name} ${s.held.why}: every arrival is placed at the Gates before anyone walks Inside, so this slot is taken this turn.` : `${hd.name} ${s.held.why} when you Lock It In. The slot stays taken until then.`)}>
                   <Art kind="characters" id={s.held.defId} className="pic-img" fallback={<span className="ini">{hd.name.slice(0, 2)}</span>} alt="" />
                   <span className={`ghost-arrow ${s.held.dir}`} aria-hidden>
                     ›
                   </span>
-                  <span className="strip leaving">{s.held.through ? 'Through' : 'Leaving'}</span>
+                  <span className={`strip leaving ${s.held.arriving ? 'arriving' : ''}`}>{s.held.arriving ? 'Arriving' : s.held.through ? 'Through' : 'Leaving'}</span>
                 </div>
               );
             }

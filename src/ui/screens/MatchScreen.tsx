@@ -1076,7 +1076,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   }, []);
   /** Gate slots my departing Characters still hold this turn (the preview shows them elsewhere). */
   const reserved = useMemo(() => {
-    const out: Record<number, { uid: string; defId: string; why: string; zone: 'gate' | 'inside'; dir: 'left' | 'right' | 'up'; through?: boolean; order: number }[]> = {};
+    const out: Record<number, { uid: string; defId: string; why: string; zone: 'gate' | 'inside'; dir: 'left' | 'right' | 'up'; through?: boolean; order: number; arriving?: boolean }[]> = {};
     if (view.phase !== 'planning' || locked) return out;
     // A card played straight Inside still passes through the Gates: its slot is drawn as taken, not empty.
     for (const pl of plan.plays) {
@@ -1098,6 +1098,14 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     for (const uid of plan.enters) add(uid, 'enters');
     for (const pl of plan.plays) if (pl.target?.charUid && pl.target.location !== undefined) add(pl.target.charUid, `moves with ${cardName(pl.cardId, placeholders)}`, pl.target.location);
     for (const r of plan.relocations) add(r.uid, `relocates to ${view.locations[r.to].revealed ? locationName(view.locations[r.to].defId, placeholders) : `Location ${r.to + 1}`}`, r.to);
+    // Where a Gate piece is going: a ghost of it at the Gates it will arrive at (an Inside piece is already shown there by the preview).
+    const arrive = (uid: string, to: number) => {
+      const c = view.characters[uid];
+      if (!c || c.owner !== me || c.zone !== 'gate' || to === c.location) return;
+      (out[to] ??= []).push({ uid: `arrive:${uid}`, defId: c.defId, why: 'arrives here', zone: 'gate', dir: to < c.location ? 'right' : 'left', order: Number.POSITIVE_INFINITY, arriving: true });
+    };
+    for (const r of plan.relocations) arrive(r.uid, r.to);
+    for (const pl of plan.plays) if (pl.target?.charUid && pl.target.location !== undefined) arrive(pl.target.charUid, pl.target.location);
     return out;
   }, [view, me, plan, locked, placeholders]);
   /** Threats that fell on this beat: the board keeps their tile up, stamped, until the beat ends. */
