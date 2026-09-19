@@ -165,16 +165,22 @@ function EventTile({ cardId, state, hidden, foreseen, onClick }: { cardId: strin
   if (hidden) {
     // The opponent's Event waits face-down until its beat, Snap-style.
     return (
-      <div className="gate-slot event-slot pending facedown" {...tip('The opponent played an Event here. It flips when it resolves.')}>
-        <span className="ini">?</span>
-        <span className="strip event">Event</span>
+      <div className="tile-glow event pending">
+        <i className="glow" aria-hidden />
+        <div className="gate-slot event-slot pending facedown" {...tip('The opponent played an Event here. It flips when it resolves.')}>
+          <span className="ini">?</span>
+          <span className="strip event">Event</span>
+        </div>
       </div>
     );
   }
   return (
-    <div className={`gate-slot event-slot ${state} ${def.curse ? 'curse' : ''} ${foreseen ? 'foreseen' : ''}`} onClick={onClick} {...tip(foreseen ? `The Ancestors foresee: ${def.name} is played here.` : state === 'planned' ? `${def.name} is placed here. It resolves when you Lock In and needs this open Gate slot.` : state === 'pending' ? `${def.name} waits to resolve.` : `${def.name} resolves.`)}>
-      {placeholders ? <span className="ini">{initials(cardId, true)}</span> : <Art kind="events" id={cardId} className="pic-img" fallback={<span className="ini">{initials(cardId, false)}</span>} alt={def.name} />}
-      <span className={`strip ${def.curse ? 'curse' : 'event'}`}>{state === 'trigger' ? '✦' : def.curse ? 'Curse' : 'Event'}</span>
+    <div className={`tile-glow event ${state} ${def.curse ? 'curse' : ''}`}>
+      <i className="glow" aria-hidden />
+      <div className={`gate-slot event-slot ${state} ${def.curse ? 'curse' : ''} ${foreseen ? 'foreseen' : ''}`} onClick={onClick} {...tip(foreseen ? `The Ancestors foresee: ${def.name} is played here.` : state === 'planned' ? `${def.name} is placed here. It resolves when you Lock In and needs this open Gate slot.` : state === 'pending' ? `${def.name} waits to resolve.` : `${def.name} resolves.`)}>
+        {placeholders ? <span className="ini">{initials(cardId, true)}</span> : <Art kind="events" id={cardId} className="pic-img" fallback={<span className="ini">{initials(cardId, false)}</span>} alt={def.name} />}
+        <span className={`strip ${def.curse ? 'curse' : 'event'}`}>{state === 'trigger' ? '✦' : def.curse ? 'Curse' : 'Event'}</span>
+      </div>
     </div>
   );
 }
@@ -257,6 +263,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
               owner === me && dragProps ? dragProps(planned ? { kind: 'card', cardId: s.uid.slice(PLANNED_PREFIX.length) } : { kind: 'char', uid: s.uid }) : {};
             return (
               <div key={s.uid} className={`tile-glow owner-${owner} ${focus?.includes(s.uid) ? 'focus' : ''}`}>
+                <i className="glow" aria-hidden />
                 <div
                   data-uid={s.uid}
                   data-place={`${index}:gate`}
@@ -337,7 +344,7 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
               </div>
             );
           }
-          if (!c) return <div key={i} className={`slot ${i >= cap ? 'locked' : ''}`} {...(i >= cap ? tip('Seat closed: a Housing Restriction (or the Land Office) holds it. Clear the Threat and it opens.') : {})} />;
+          if (!c) return <div key={i} className={`slot ${i >= cap ? 'locked' : ''}`} {...(i >= cap ? tip('Seat closed: a Housing Restriction (or the Land Office) holds it. Clear the Threat and it opens.') : {})}><i className="glow" aria-hidden /></div>;
           const entering = plan.enters.includes(c.uid);
           const brought = plan.plays.some((pl) => pl.target?.charUid === c.uid);
           const planned = isPlannedUid(c.uid);
@@ -346,6 +353,7 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
             mine && dragProps ? dragProps(planned ? { kind: 'card', cardId: c.uid.slice(PLANNED_PREFIX.length) } : { kind: 'char', uid: c.uid }) : {};
           return (
             <div key={c.uid} data-uid={c.uid} data-place={`${index}:inside`} className={`slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''} ${fx?.hidden.includes(c.uid) ? 'fx-hidden' : ''}`} {...draggable}>
+              <i className="glow" aria-hidden />
               {fx?.stamp?.uid === c.uid && (
                 <div className={`stamp verdict ${fx.stamp.tone ?? 'hit'}`}>
                   <b>{fx.stamp.title}</b>

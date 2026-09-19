@@ -805,7 +805,7 @@ body.dragging { cursor: grabbing; user-select: none; }
 }
 .hand .card-wrap.dealt .card { animation: deal-glow 0.9s ease-out both; }
 @keyframes deal-glow {
-  0% { box-shadow: 0 0 0 3px #fff, 0 0 28px 8px #ffffff99; }
+  0% { box-shadow: 0 0 0 3px #fff, 0 8px 20px #00000073; }
   100% { box-shadow: 0 8px 20px #00000073; }
 }
 @media (prefers-reduced-motion: reduce) { .hand .card-wrap.dealt, .hand .card-wrap.dealt .card { animation: none; } }

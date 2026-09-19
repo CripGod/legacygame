@@ -686,27 +686,23 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 .gate-slot.event-slot.curse .ini { color: #ffb3ab; }
 .gate-slot.event-slot.planned { opacity: 0.85; border-style: dashed; cursor: pointer; }
 .gate-slot.event-slot.pending { opacity: 1; }
-.gate-slot.event-slot.trigger { overflow: visible; animation: event-flare 1200ms ease-out forwards; z-index: 4; }
-.gate-slot.event-slot.trigger::before {
-  content: '';
-  position: absolute;
-  inset: -6px;
-  border-radius: 6px;
-  border: 2px solid var(--gold);
-  box-shadow: 0 0 24px 8px rgba(233, 185, 58, 0.7);
-  animation: event-ring 1200ms ease-out forwards;
-  pointer-events: none;
-}
-.gate-slot.event-slot.curse.trigger::before { border-color: var(--danger); box-shadow: 0 0 24px 8px rgba(224, 74, 63, 0.75); }
+.gate-slot.event-slot.trigger { overflow: visible; animation: event-flare 1200ms ease-out forwards; }
+/* The flare's halo is the glow box's (under the neighbours), and it fades rather than rings out. */
+.tile-glow.event.trigger > i.glow { animation: event-glow 1200ms ease-out forwards; }
+.tile-glow.event.curse.trigger > i.glow { animation-name: event-glow-curse; }
 @keyframes event-flare {
   0% { transform: scale(1); filter: brightness(1); }
   25% { transform: scale(1.35); filter: brightness(2); }
   70% { transform: scale(1.15); filter: brightness(1.4); opacity: 1; }
   100% { transform: scale(0.6); opacity: 0; }
 }
-@keyframes event-ring {
-  0% { transform: scale(0.8); opacity: 1; }
-  100% { transform: scale(2.2); opacity: 0; }
+@keyframes event-glow {
+  0% { box-shadow: 0 0 0 2px var(--gold), 0 0 24px 8px rgba(233, 185, 58, 0.7); }
+  100% { box-shadow: 0 0 0 0 rgba(233, 185, 58, 0), 0 0 0 0 rgba(233, 185, 58, 0); }
+}
+@keyframes event-glow-curse {
+  0% { box-shadow: 0 0 0 2px var(--danger), 0 0 24px 8px rgba(224, 74, 63, 0.75); }
+  100% { box-shadow: 0 0 0 0 rgba(224, 74, 63, 0), 0 0 0 0 rgba(224, 74, 63, 0); }
 }
 @media (max-width: 720px) {
   .replay-banner { top: 4px; gap: 6px; padding: 5px 8px; font-size: 11px; max-width: 96vw; }
@@ -776,10 +772,8 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 .column { gap: 6px; }
 
 /* Gate tiles: landscape portraits in a thick frame that glows in the owner's colour. */
-.tile-glow { display: block; flex: none; transition: transform 220ms ease, filter 300ms ease; }
-.tile-glow.owner-A { filter: drop-shadow(0 0 5px rgba(233, 185, 58, 0.55)) drop-shadow(0 6px 10px rgba(0, 0, 0, 0.7)); }
-.tile-glow.owner-B { filter: drop-shadow(0 0 5px rgba(47, 123, 255, 0.6)) drop-shadow(0 6px 10px rgba(0, 0, 0, 0.7)); }
-.tile-glow.focus { transform: scale(1.1); filter: drop-shadow(0 0 10px rgba(255, 242, 196, 0.95)) drop-shadow(0 0 22px rgba(233, 185, 58, 0.8)); }
+.tile-glow { display: block; flex: none; position: relative; }
+/* The owner's glow and the depth shadow are the glow box's (see "Glows on one plane" below), not a filter here. */
 .gate-slot { height: var(--mini-h); }
 .gate-slot.filled { --bw: 2.5px; --chamfer: 9px; box-shadow: none; }
 .gate-slot.filled:has(.pic.focus), .slot.filled:has(.pic.focus) { transform: none; }
@@ -794,7 +788,7 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 
 /* Inside slots: small landscape thumbs with a thin gold frame. */
 .slots { grid-template-columns: repeat(5, var(--slot)); gap: 6px; padding: 2px 10px 4px; }
-.slot { width: var(--slot); height: var(--slot-h); border-radius: 3px; border-width: 1.5px; background: rgba(6, 12, 22, 0.55); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6); }
+.slot { width: var(--slot); height: var(--slot-h); border-radius: 3px; border-width: 1.5px; background: rgba(6, 12, 22, 0.55); box-shadow: none; overflow: visible; }
 .slot.filled { border-width: 2px; }
 .slot .pic .inf { top: 2px; right: 2px; font-family: var(--display); font-size: clamp(9px, 0.85vw, 12px); line-height: 1.3; padding: 0 5px; border-radius: 3px; background: #08131f; border: 1px solid var(--gold-dark); color: var(--gold-2); }
 .row-lbl { padding: 3px 10px 0; }
@@ -844,7 +838,7 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 .hand .card-wrap .card { box-shadow: 0 14px 30px rgba(0, 0, 0, 0.75); transition: box-shadow 220ms; }
 .hand .card-wrap.selected { z-index: 20; transition-delay: 0s; }
 .hand .card-wrap.selected .card-lift { transform: rotate(calc(-1 * var(--rot, 0deg))) translateY(-30px) scale(1.12); transition-duration: 180ms; transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); }
-.hand .card-wrap.selected .card, .hand .card-wrap:focus-visible .card { box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--gold-2), 0 0 24px rgba(233, 185, 58, 0.45); }
+.hand .card-wrap.selected .card, .hand .card-wrap:focus-visible .card { box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8), 0 0 0 1.5px var(--gold-2); }
 @media (hover: hover) and (pointer: fine) {
   body:not(.dragging):not(.touching) .hand-wrap:not(.rest):not(.settle) .hand .card-wrap:not(.lifting):not(.dealt):not(.planned):hover { z-index: 30; transition-delay: 0s; }
   body:not(.dragging):not(.touching) .hand-wrap:not(.rest):not(.settle) .hand .card-wrap:not(.lifting):not(.dealt):not(.planned):hover .card-lift { transform: rotate(calc(-1 * var(--rot, 0deg))) translateY(-22px) scale(var(--hover-scale, 1.32)); transition-duration: 100ms; transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); }
@@ -1050,7 +1044,8 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 /* Event slot: a purple dotted container beside the Gates, filled when an Event is played there. */
 .gate-slot.event-slot.empty { border: 1.5px dotted rgba(167, 139, 232, 0.75); background: rgba(58, 31, 110, 0.18); color: rgba(183, 153, 232, 0.7); display: grid; place-items: center; box-shadow: none; }
 .gate-slot.event-slot.empty .ini { font-size: calc(var(--mini) * 0.28); color: rgba(183, 153, 232, 0.8); text-shadow: 0 0 8px rgba(122, 76, 207, 0.6); }
-.gate-slot.event-slot { border: 2px solid #a184d8; box-shadow: 0 0 8px rgba(122, 76, 207, 0.55), 0 4px 12px rgba(0, 0, 0, 0.6); }
+.gate-slot.event-slot { border: 2px solid #a184d8; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6); }
+.tile-glow.event > i.glow { box-shadow: 0 0 8px 1px rgba(122, 76, 207, 0.55); }
 /* Event cards: purple field and frame; Curses darker still. */
 .card.event { --bc: #b799e8; --bfill: linear-gradient(180deg, #4a2c8a 0%, #2c1a5e 45%, #1c1040 100%); }
 .card.event::before { border-color: rgba(203, 184, 255, 0.55); }
@@ -1074,7 +1069,7 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 .card.informant .ribbon { background: linear-gradient(180deg, #a3261b, #5e120b); }
 .card.informant .hex.i { background: radial-gradient(circle at 40% 35%, #8f8f9c, #4a4a58 55%, #23232c); color: #ffd6d0; }
 .gate-slot .pic .strip.informant { background: rgba(163, 38, 27, 0.92); color: #fff; }
-.tile-glow:has(.strip.informant) { filter: drop-shadow(0 0 6px rgba(163, 38, 27, 0.7)) drop-shadow(0 6px 10px rgba(0, 0, 0, 0.7)); }
+.tile-glow:has(.strip.informant) > i.glow, .slot:has(.strip.informant) > i.glow { box-shadow: 0 0 7px 2px rgba(163, 38, 27, 0.7), 0 6px 10px rgba(0, 0, 0, 0.7); }
 /* Artists: a deep green field and an ochre ribbon. */
 .card.artist { --bc: #d9b56a; --bfill: linear-gradient(180deg, #1f4d3a 0%, #123126 50%, #0b1f18 100%); }
 .card.artist .ribbon { background: linear-gradient(180deg, #b8861a, #7a5210); }
@@ -1935,10 +1930,12 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
      first while the seats keep their width. The Threat column mirrors the same four tracks so one Threat spans the
      block, two share it row for row, and three or more stand two abreast on the same footing. */
   .location.framed .inside-block { flex: 1 1 0; min-height: 0; margin-top: 0; --lbl: calc(clamp(8px, 0.72vw, 11px) * 1.1); --seat-max: calc(var(--slot) * 1.25); --seat-min: calc(var(--slot) * 0.5); }
-  .location.framed .inside-rows { height: 100%; display: grid; grid-template-rows: var(--lbl) minmax(var(--seat-min), var(--seat-max)) var(--lbl) minmax(var(--seat-min), var(--seat-max)); align-content: end; row-gap: 0; z-index: auto; }
+  .location.framed .inside-rows { height: 100%; display: grid; grid-template-rows: var(--lbl) minmax(var(--seat-min), var(--seat-max)) var(--lbl) minmax(var(--seat-min), var(--seat-max)); align-content: end; row-gap: 0; }
   .location.framed .inside-row { display: contents; }
-  .location.framed .row-lbl { height: var(--lbl); line-height: 1.1; padding-top: 0; overflow: hidden; z-index: 7; }
-  .location.framed .slots { height: 100%; box-sizing: border-box; align-items: stretch; z-index: 7; }
+  .location.framed .row-lbl { height: var(--lbl); line-height: 1.1; padding-top: 0; overflow: hidden; }
+  .location.framed .slots { height: 100%; box-sizing: border-box; align-items: stretch; }
+  /* The whole Inside block stands above the frame (in place of each row on its own), so its glows share one plane. */
+  .location.framed .inside-block { z-index: 7; }
   .location.framed .inside-block .slot { height: auto; align-self: stretch; }
   .location.framed .threat-col { height: 100%; grid-auto-rows: auto; grid-template-rows: var(--lbl) minmax(var(--seat-min), var(--seat-max)) var(--lbl) minmax(var(--seat-min), var(--seat-max)); row-gap: 0; align-content: end; }
   .location.framed .threat-col .threat-tile:only-child { grid-row: 1 / 5; }
@@ -1964,7 +1961,8 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .location.framed .loc-bg::after { background: linear-gradient(to bottom, rgba(8, 19, 31, 0.04) 0%, rgba(8, 19, 31, 0.16) 30%, rgba(8, 19, 31, 0.42) 60%, rgba(8, 19, 31, 0.62) 100%); }
 .location.framed.night .loc-bg::after { background: linear-gradient(to bottom, rgba(6, 10, 34, 0.3) 0%, rgba(6, 10, 34, 0.38) 30%, rgba(8, 19, 31, 0.58) 60%, rgba(8, 19, 31, 0.75) 100%); }
 /* Stamps and orbs that overhang a tile read over the frame: the rows and the Threat column sit above the frame layer. */
-.location.framed .inside-rows, .location.framed .threat-col, .location.framed .influence { z-index: 7; }
+/* The Inside block (rows and Threat column together) stands above the frame as one plane; the meter on its own. */
+.location.framed .inside-block, .location.framed .influence { z-index: 7; }
 
 /* Dragging: the Location glows green where the drag can land and red where it cannot; the one under the pointer
    glows brightest. The rows' dashed lines are gone. */
@@ -1981,30 +1979,29 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 /* The Gate rows start and end exactly where the Location frame does. */
 .gates-strip { padding: 0; }
 
-/* The actor's highlight takes in the whole framed tile: the ring pulses around the frame, not the picture in its window. */
+/* The actor's highlight takes in the whole framed tile: the halo breathes behind the frame (the glow box), not the picture in its window. */
 .gate-slot.gf.filled .pic.focus { animation: none; }
-.gate-slot.gf.filled:has(.pic.focus) { animation: focus-glow 900ms ease-in-out infinite; }
 @keyframes focus-glow {
-  0%, 100% { filter: drop-shadow(0 0 12px rgba(255, 236, 190, 0.7)) drop-shadow(0 0 28px rgba(255, 220, 150, 0.45)); }
-  50% { filter: drop-shadow(0 0 18px rgba(255, 246, 220, 0.95)) drop-shadow(0 0 42px rgba(255, 220, 150, 0.7)); }
+  0%, 100% { box-shadow: 0 0 12px 3px rgba(255, 236, 190, 0.7), 0 0 28px 8px rgba(255, 220, 150, 0.45); }
+  50% { box-shadow: 0 0 18px 5px rgba(255, 246, 220, 0.95), 0 0 42px 12px rgba(255, 220, 150, 0.7); }
 }
 /* A fallen Threat's NEUTRALIZED stamp is wider than its tile: it overhangs rather than being cut. */
 .threat-tile.gone, .threat-tile:has(> .stamp) { overflow: visible; }
 .threat-tile > .stamp { width: max-content; max-width: none; z-index: 9; }
 
-/* Its turn: a soft halo that breathes around the whole piece, never a crisp ring (a tight shadow or a
-   box-shadow ring reads as a box behind the frame). Inside tiles and framed Gate tiles get the same treatment. */
-.tile-glow.focus { transform: scale(1.08); filter: drop-shadow(0 0 14px rgba(255, 236, 190, 0.8)) drop-shadow(0 0 30px rgba(255, 220, 150, 0.5)); }
+/* Its turn: a soft halo that breathes behind the whole piece (wide and diffuse, never a crisp ring), the piece
+   itself a touch larger. Inside tiles and framed Gate tiles get the same treatment. */
+.tile-glow.focus > .gate-slot, .tile-glow.focus > i.glow { transform: scale(1.08); transition: transform 220ms ease; }
+.tile-glow.focus > i.glow, .slot.filled:has(.pic.focus) > i.glow { animation: focus-glow 900ms ease-in-out infinite; }
 .pic.focus { animation: none; box-shadow: none; }
-.slot.filled:has(.pic.focus) { --bc: var(--gold); animation: focus-glow 900ms ease-in-out infinite; }
+.slot.filled:has(.pic.focus) { --bc: var(--gold); }
 .slot.filled.B:has(.pic.focus) { --bc: var(--cB); border-color: var(--cB); }
 /* Harborlight's turn glows in Harborlight's blue; the warm halo is yours. */
 @keyframes focus-glow-blue {
-  0%, 100% { filter: drop-shadow(0 0 12px rgba(150, 190, 255, 0.7)) drop-shadow(0 0 28px rgba(47, 123, 255, 0.5)); }
-  50% { filter: drop-shadow(0 0 18px rgba(205, 225, 255, 0.95)) drop-shadow(0 0 42px rgba(47, 123, 255, 0.75)); }
+  0%, 100% { box-shadow: 0 0 12px 3px rgba(150, 190, 255, 0.7), 0 0 28px 8px rgba(47, 123, 255, 0.5); }
+  50% { box-shadow: 0 0 18px 5px rgba(205, 225, 255, 0.95), 0 0 42px 12px rgba(47, 123, 255, 0.75); }
 }
-.gate-slot.gf.filled.owner-B:has(.pic.focus), .slot.filled.B:has(.pic.focus) { animation-name: focus-glow-blue; }
-.tile-glow.owner-B.focus { filter: drop-shadow(0 0 14px rgba(170, 205, 255, 0.85)) drop-shadow(0 0 30px rgba(47, 123, 255, 0.55)); }
+.tile-glow.owner-B.focus > i.glow, .slot.filled.B:has(.pic.focus) > i.glow { animation-name: focus-glow-blue; }
 
 /* Day and night at a curfew Location: an engraved badge on the title band instead of pills. Night carries
    the curfew with it (nobody relocates out until morning); day is the all-clear. */
@@ -2051,7 +2048,6 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
   .gates .gate-slot.event-slot.curse::after { filter: hue-rotate(-60deg) saturate(1.4); }
   .gates .gate-slot.event-slot.facedown { background-clip: content-box; }
   .gates .gate-slot.event-slot.planned { border: 0; }
-  .gates .gate-slot.event-slot.trigger::before { z-index: 6; }
 }
 
 /* A verdict on an Inside seat: a smaller stamp, so it reads as that seat's and not its neighbours'. */
@@ -2084,7 +2080,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
    that column hops and settles, and the other two Locations tremor a little, as if the whole board were struck
    (nothing like the slammed one, and no shockwave: a quick slam, and the points float up to the bar on their
    beat). The First Location bonus (a later beat) hops the paid card the same way. */
-.column.slam .location.framed { animation: loc-slam 1.5s cubic-bezier(0.3, 0, 0.2, 1) both; transform-origin: 50% 60%; z-index: 9; }
+.column.slam .location.framed { animation: loc-slam 1.5s cubic-bezier(0.3, 0, 0.2, 1) both; transform-origin: 50% 60%; }
 @keyframes loc-slam {
   0%, 56% { transform: none; filter: none; }
   70% { transform: translateY(-3.5%) scale(1.085); filter: brightness(1.22); }
@@ -2093,11 +2089,11 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
   91% { transform: translateY(-0.6%) scale(1.008); filter: brightness(1.03); }
   100% { transform: none; filter: none; }
 }
-.column.slam .gate-slot.filled, .column.slam .gate-slot.reserved, .column.slam .slot.filled, .column.slam .threat-tile { animation: slam-jolt 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) 1.26s both; }
-.column.slam .gate-slot:nth-child(2), .column.slam .slot:nth-child(2) { animation-delay: 1.3s; }
-.column.slam .gate-slot:nth-child(3), .column.slam .slot:nth-child(3) { animation-delay: 1.34s; }
-.column.slam .gate-slot:nth-child(4), .column.slam .slot:nth-child(4) { animation-delay: 1.38s; }
-.column.slam .gate-slot:nth-child(5), .column.slam .slot:nth-child(5) { animation-delay: 1.42s; }
+.column.slam .gate-slot.filled .pic, .column.slam .gate-slot.reserved .pic-img, .column.slam .slot.filled .pic, .column.slam .threat-tile { animation: slam-jolt 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) 1.26s both; }
+.column.slam .gates > :nth-child(2) .pic, .column.slam .slots > :nth-child(2) .pic { animation-delay: 1.3s; }
+.column.slam .gates > :nth-child(3) .pic, .column.slam .slots > :nth-child(3) .pic { animation-delay: 1.34s; }
+.column.slam .gates > :nth-child(4) .pic, .column.slam .slots > :nth-child(4) .pic { animation-delay: 1.38s; }
+.column.slam .gates > :nth-child(5) .pic, .column.slam .slots > :nth-child(5) .pic { animation-delay: 1.42s; }
 .column.slam-near .location.framed { animation: loc-tremor 0.36s ease-out 1.26s both; }
 @keyframes loc-tremor {
   0%, 100% { transform: none; }
@@ -2124,6 +2120,23 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .location .loc-bg .loc-shine { position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0; mix-blend-mode: screen; background: linear-gradient(105deg, rgba(255, 250, 230, 0) 40%, rgba(255, 250, 230, 0.55) 50%, rgba(255, 250, 230, 0) 60%); background-size: 260% 100%; background-repeat: no-repeat; animation: loc-shine 0.8s ease-out 0.5s both; }
 @keyframes loc-shine { 0% { background-position: 120% 0; opacity: 1; } 85% { opacity: 1; } 100% { background-position: -20% 0; opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
-  .column.slam .location.framed, .column.slam-near .location.framed, .column.slam .gate-slot.filled, .column.slam .gate-slot.reserved, .column.slam .slot.filled, .column.slam .threat-tile, .location .loc-bg { animation: none; }
+  .column.slam .location.framed, .column.slam-near .location.framed, .column.slam .gate-slot.filled .pic, .column.slam .gate-slot.reserved .pic-img, .column.slam .slot.filled .pic, .column.slam .threat-tile, .location .loc-bg { animation: none; }
   .location .loc-bg .loc-shine { display: none; }
 }
+
+/* ---------- Glows on one plane, under every picture ----------
+   A glow never paints over a neighbour's artwork. Each tile's glow is a box behind it (i.glow, beside the piece in
+   its wrapper or first in its seat) at z-index -1 in a plane its row isolates (.gates for the Gates, .inside-block
+   for the seats and the Threat column), so every glow in the row lies beneath every tile in the row. Nothing between
+   a glow and its plane may form a stacking context: no transform, filter, opacity or z-index on .tile-glow, .slot,
+   .slots or .inside-rows. Effects that move a piece move the slot beside the glow or the picture in it, never the
+   glow's parents. The Location's own glow (.loc-glow) sits under both Gate strips the same way. */
+.gates, .inside-block { position: relative; isolation: isolate; }
+.tile-glow > i.glow, .slot > i.glow { position: absolute; inset: 2px; border-radius: 9px; z-index: -1; pointer-events: none; transition: box-shadow 300ms ease; }
+.slot > i.glow { inset: 0; border-radius: 4px; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6); }
+.tile-glow.owner-A > i.glow { box-shadow: 0 0 6px 1px rgba(233, 185, 58, 0.55), 0 6px 10px rgba(0, 0, 0, 0.7); }
+.tile-glow.owner-B > i.glow { box-shadow: 0 0 6px 1px rgba(47, 123, 255, 0.6), 0 6px 10px rgba(0, 0, 0, 0.7); }
+.slot.A > i.glow { box-shadow: 0 0 6px 1px rgba(233, 185, 58, 0.5), 0 3px 8px rgba(0, 0, 0, 0.6); }
+.slot.B > i.glow { box-shadow: 0 0 6px 1px rgba(47, 123, 255, 0.55), 0 3px 8px rgba(0, 0, 0, 0.6); }
+.gates-strip { position: relative; z-index: 2; }
+.loc-glow { position: relative; z-index: 1; }
