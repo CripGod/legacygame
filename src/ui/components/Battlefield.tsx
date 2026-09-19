@@ -537,7 +537,7 @@ export function Battlefield(props: BattlefieldProps) {
         return (
           <div
             key={loc.index}
-            className={`column ${isTarget ? `targetable for-${me}` : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''} ${fx?.slam === undefined ? '' : fx.slam === loc.index ? 'slam' : 'slam-near'}`}
+            className={`column ${isTarget ? `targetable for-${me}` : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''} ${fx?.slam === loc.index ? 'slam' : ''}`}
             data-drop="location"
             data-index={loc.index}
             onClick={isTarget ? () => onLocationTap(loc.index) : undefined}

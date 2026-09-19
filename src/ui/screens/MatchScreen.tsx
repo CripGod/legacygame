@@ -1012,7 +1012,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       };
       // The smashdown (Marvel Snap): a Location revealed, or retold by Anansi, slams onto the board. The photograph
       // develops in the window in grey and colours in, then the panel grows and slams down (~1.26s); on the landing
-      // the cards in that column hop and settle and the other Locations tremor a little (see theme.css, loc-slam).
+      // the cards in that column hop and settle (see theme.css, loc-slam).
       // The slam is rare (see revealSlams); every other reveal opens quietly, the beat waiting for the picture.
       if (!reduceMotion() && step.kind === 'reveal') {
         const slammed = evs.find((e) => e.location !== undefined && (e.type === 'locationRevealed' || (e.type === 'locationTransformed' && !!e.data?.retold)));

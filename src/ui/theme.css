@@ -2076,8 +2076,8 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
    Threat spawned as it opens, Anansi's retelling); every other reveal only develops and colours in (loc-develop).
    The reveal beat, in order: the photograph develops in the window in grey (a bright blur sharpening), colour
    floods in, then the panel grows toward the eye and slams down (at ~1.26s). On the landing every card standing in
-   that column hops and settles, and the other two Locations tremor a little, as if the whole board were struck
-   (nothing like the slammed one, and no shockwave: a quick slam, and the points float up to the bar on their
+   that column hops and settles; the other Locations stay put (no shockwave, no tremor: a quick slam, and the points
+   float up to the bar on their
    beat). The First Location bonus (a later beat) hops the paid card the same way. */
 .column.slam .location.framed { animation: loc-slam 1.5s cubic-bezier(0.3, 0, 0.2, 1) both; transform-origin: 50% 60%; }
 @keyframes loc-slam {
@@ -2093,14 +2093,6 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .column.slam .gates > :nth-child(3) .gate-slot, .column.slam .slots > :nth-child(3) .slot { animation-delay: 1.34s; }
 .column.slam .gates > :nth-child(4) .gate-slot, .column.slam .slots > :nth-child(4) .slot { animation-delay: 1.38s; }
 .column.slam .gates > :nth-child(5) .gate-slot, .column.slam .slots > :nth-child(5) .slot { animation-delay: 1.42s; }
-.column.slam-near .location.framed { animation: loc-tremor 0.36s ease-out 1.26s both; }
-@keyframes loc-tremor {
-  0%, 100% { transform: none; }
-  20% { transform: translate(-2px, 1px); }
-  40% { transform: translate(2px, -1px); }
-  60% { transform: translate(-1.5px, 1px); }
-  80% { transform: translate(1px, -0.5px); }
-}
 @keyframes slam-jolt {
   0% { transform: translateY(0); }
   30% { transform: translateY(-16%) rotate(-1.5deg); }
@@ -2119,7 +2111,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .location .loc-bg .loc-shine { position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0; mix-blend-mode: screen; background: linear-gradient(105deg, rgba(255, 250, 230, 0) 40%, rgba(255, 250, 230, 0.55) 50%, rgba(255, 250, 230, 0) 60%); background-size: 260% 100%; background-repeat: no-repeat; animation: loc-shine 0.8s ease-out 0.5s both; }
 @keyframes loc-shine { 0% { background-position: 120% 0; opacity: 1; } 85% { opacity: 1; } 100% { background-position: -20% 0; opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
-  .column.slam .location.framed, .column.slam-near .location.framed, .column.slam .gate-slot.filled, .column.slam .gate-slot.reserved, .column.slam .slot.filled, .column.slam .threat-tile, .location .loc-bg { animation: none; }
+  .column.slam .location.framed, .column.slam .gate-slot.filled, .column.slam .gate-slot.reserved, .column.slam .slot.filled, .column.slam .threat-tile, .location .loc-bg { animation: none; }
   .location .loc-bg .loc-shine { display: none; }
 }
 
