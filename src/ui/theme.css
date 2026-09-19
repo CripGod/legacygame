@@ -1858,7 +1858,10 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
    tile; the tile's picture sits in the frame's window. Gold on my side, blue on Harborlight's, one geometry. */
 .gate-slot.gf:not(.event-slot) { border: 0; border-radius: 0; box-shadow: none; background: var(--gate-off) center / 100% 100% no-repeat; color: rgba(255, 224, 150, 0.85); }
 .gate-slot.gf.later { opacity: 1; }
-.gates-strip .gates { --gw: min(var(--mini), calc((100cqw - 15px) / 4)); --gi-x: calc(var(--gw) * 0.134); --gi-t: calc(var(--mini-h) * 0.08); --gi-b: calc(var(--mini-h) * 0.074); }
+/* Every Gate tile is 5% smaller than the row would allow; the four spread across the row (space-between) so the
+   outer edges still meet the Location frame's. */
+.gates-strip .gates { --gw: calc(min(var(--mini), (100cqw - 15px) / 4) * 0.95); --gh: calc(var(--mini-h) * 0.95); --gi-x: calc(var(--gw) * 0.134); --gi-t: calc(var(--gh) * 0.08); --gi-b: calc(var(--gh) * 0.074); justify-content: space-between; }
+.gates-strip .gates .gate-slot { width: var(--gw); height: var(--gh); }
 .gate-slot.gf.filled:not(.event-slot), .gate-slot.gf.reserved { box-sizing: border-box; width: var(--gw); background: transparent !important; clip-path: none !important; padding: var(--gi-t) var(--gi-x) var(--gi-b) !important; overflow: visible; }
 .gate-slot.gf.reserved .pic-img { top: var(--gi-t); left: var(--gi-x); width: calc(100% - 2 * var(--gi-x)); height: calc(100% - var(--gi-t) - var(--gi-b)); }
 .gate-slot.gf.filled:not(.event-slot)::after, .gate-slot.gf.reserved::after { display: none; }
@@ -2016,7 +2019,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
    same window as the Gate frames (13.4% in from the sides, 8% down, 7.4% up), with the card's art, the strip and
    the face-down stripes inside the window. A Curse tints the lit frame red; the trigger ring keeps ::before. */
 @media (width > 700px) {
-  .gates .gate-slot.event-slot { box-sizing: border-box; width: var(--gw); height: var(--mini-h); padding: var(--gi-t) var(--gi-x) var(--gi-b); border: 0; border-radius: 0; box-shadow: none; overflow: visible; background: #12101f; background-clip: content-box; }
+  .gates .gate-slot.event-slot { box-sizing: border-box; width: var(--gw); height: var(--gh); padding: var(--gi-t) var(--gi-x) var(--gi-b); border: 0; border-radius: 0; box-shadow: none; overflow: visible; background: #12101f; background-clip: content-box; }
   .gates .gate-slot.event-slot::after { content: ''; position: absolute; inset: 0; background: var(--gate-event-on) center / 100% 100% no-repeat; pointer-events: none; z-index: 4; }
   .gates .gate-slot.event-slot.empty { background: var(--gate-event-off) center / 100% 100% no-repeat; background-clip: border-box; border: 0; box-shadow: none; }
   .gates .gate-slot.event-slot.empty::after { display: none; }

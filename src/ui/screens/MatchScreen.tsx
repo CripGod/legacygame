@@ -906,27 +906,41 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       /** Fly a set of trail events from their source Character tiles to their Locations. */
       const fireTrails = (list: GameEvent[]) => {
         const shots: TrailShot[] = [];
+        // Three shapes. A power paid to the Character's own Location: no ribbon at all, a spark spray on the tile
+        // and the +N rises from it straight into the circle. A power paid to another Location: a ribbon from the
+        // tile to that Location's Influence circle (not up to its name), where the +N pops in. The First Location
+        // bonus: the Location paying the Character who guessed it, a ribbon from the name down to the card.
+        const here: GameEvent[] = [];
+        const away: { e: GameEvent; ring?: DOMRect }[] = [];
         for (const e of list) {
           const tile = document.querySelector(`[data-uid="${e.uid}"]`)?.getBoundingClientRect();
           const art = document.querySelector(`.column[data-index="${e.location}"] .art`)?.getBoundingClientRect();
           if (!tile || !art) continue;
           const amount = (e.data as { amount?: number }).amount;
           const tone = (e.data as { color?: string }).color;
+          const color = tone === 'artist' ? TRAIL_COLORS.artist : TRAIL_COLORS[e.player ?? 'A'];
           const first = (e.data as { trail?: string }).trail === 'first';
-          // A power flows from the Character to the Location; the First Location bonus is the Location paying the
-          // Character who guessed it, so that one runs the other way, from the name down to the card.
-          shots.push({ from: first ? art : tile, to: first ? tile : art, color: tone === 'artist' ? TRAIL_COLORS.artist : TRAIL_COLORS[e.player ?? 'A'], label: amount ? (first ? `+${amount} First Location bonus` : `+${amount}`) : undefined });
+          const side = e.player ?? me;
+          const ring = document.querySelector(`.column[data-index="${e.location}"] .score.p${side}`)?.getBoundingClientRect();
+          const sameHere = !first && view.characters[e.uid!]?.location === e.location;
+          if (first) shots.push({ from: art, to: tile, color, label: amount ? `+${amount} First Location bonus` : undefined });
+          else if (sameHere) { shots.push({ from: tile, to: tile, color, kind: 'spray' }); here.push(e); continue; }
+          else shots.push({ from: tile, to: ring ?? art, color });
+          away.push({ e, ring });
         }
         if (shots.length) sfx('trail');
         setTrail(shots.length ? shots : null);
-        // When the trail lands (~1050ms): a pulse on the Location's panel and the chime. The +N rides the embers.
-        window.setTimeout(() => {
-          if (list.some((e) => (e.data as { amount?: number }).amount)) sfx('influence.up');
-          landFx(list.map((e) => {
-            const first = (e.data as { trail?: string }).trail === 'first';
-            const tile = first ? document.querySelector(`[data-uid="${e.uid}"]`)?.getBoundingClientRect() : undefined;
-            return { location: e.location!, amount: (e.data as { amount?: number }).amount, tone: (e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs', side: e.player, label: first && (e.data as { amount?: number }).amount ? `+${(e.data as { amount?: number }).amount} First Location bonus` : undefined, preheld: true, from: tile ? { x: tile.left + tile.width / 2, y: tile.top + tile.height / 2 } : undefined };
-          }));
+        const item = (e: GameEvent, from?: DOMRect) => {
+          const first = (e.data as { trail?: string }).trail === 'first';
+          const amount = (e.data as { amount?: number }).amount;
+          return { location: e.location!, amount, tone: ((e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs') as 'artist' | 'mine' | 'theirs', side: e.player, label: first && amount ? `+${amount} First Location bonus` : undefined, preheld: true, from: from ? { x: from.left + from.width / 2, y: from.top + from.height / 2 } : undefined };
+        };
+        // Paid here: the number leaves the tile a beat after the sparks.
+        if (here.length) window.setTimeout(() => { if (here.some((e) => (e.data as { amount?: number }).amount)) sfx('influence.up'); landFx(here.map((e) => item(e, document.querySelector(`[data-uid="${e.uid}"]`)?.getBoundingClientRect() ?? undefined))); }, 260);
+        // Paid elsewhere, and the First Location bonus: when the ribbon lands (~1050ms).
+        if (away.length) window.setTimeout(() => {
+          if (away.some(({ e }) => (e.data as { amount?: number }).amount)) sfx('influence.up');
+          landFx(away.map(({ e, ring }) => { const first = (e.data as { trail?: string }).trail === 'first'; return item(e, first ? document.querySelector(`[data-uid="${e.uid}"]`)?.getBoundingClientRect() ?? undefined : ring); }));
         }, 1050);
         return shots.length;
       };
