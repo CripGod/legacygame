@@ -488,6 +488,9 @@ export function Battlefield(props: BattlefieldProps) {
         const isTarget = targetable.includes(loc.index);
         const dropOk = drop?.locations.includes(loc.index);
         const dropOver = dropOk && drop?.overKey === `location:${loc.index}`;
+        // While something is dragged, the Location itself says whether it can land here: a green glow, or red.
+        const canLand = drop ? dropOk || drop.gates.includes(loc.index) || drop.inside.includes(loc.index) || loc.threats.some((t) => drop.threats.includes(t.uid)) : null;
+        const overHere = !!drop && (drop.overKey.endsWith(`:${loc.index}`) || loc.threats.some((t) => drop.overKey === `threat:${t.uid}`));
         const hasCurfew = loc.revealed && !!LOCATION_BY_ID[loc.defId]?.curfew;
         const nightHere = hasCurfew && isNight(view);
         const state = [loc.lost ? 'lost' : '', loc.sanctified ? 'sanctified' : '', lead ? `lead-${lead}` : '', winner && winner !== 'lost' ? `won-${winner}` : '', nightHere ? 'night' : '', !loc.lost && curfewOn(view, loc.index) ? 'curfew' : ''].join(' ');
@@ -529,7 +532,7 @@ export function Battlefield(props: BattlefieldProps) {
             }
           >
             <GateStrip {...common} owner={opp} index={loc.index} label="The Gates" right={title} />
-            <div className={`loc-glow ${state}${healing ? ` ${healCls}` : ''}`}>
+            <div className={`loc-glow ${state}${healing ? ` ${healCls}` : ''} ${canLand === null ? '' : canLand ? 'drop-can' : 'drop-cannot'} ${overHere ? 'drop-here' : ''}`}>
             <div className={`${cls} framed`}>
               {/* The owner's Location frame: gold when I lead, blue when they do, silver when nobody does. The title sits in its band, the body in its window. */}
               <div className="loc-frame" aria-hidden style={{ backgroundImage: `url("${pageUrl(artUrl('frames', `location-${lead === 'A' ? 'gold' : lead === 'B' ? 'blue' : 'unowned'}`, 'webp'))}")` }} />

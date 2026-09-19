@@ -1907,3 +1907,14 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 /* In the frame the photograph shows more: a lighter wash, the rows still readable against it. */
 .location.framed .loc-bg::after { background: linear-gradient(to bottom, rgba(8, 19, 31, 0.04) 0%, rgba(8, 19, 31, 0.16) 30%, rgba(8, 19, 31, 0.42) 60%, rgba(8, 19, 31, 0.62) 100%); }
 .location.framed.night .loc-bg::after { background: linear-gradient(to bottom, rgba(6, 10, 34, 0.3) 0%, rgba(6, 10, 34, 0.38) 30%, rgba(8, 19, 31, 0.58) 60%, rgba(8, 19, 31, 0.75) 100%); }
+/* Stamps and orbs that overhang a tile read over the frame: the rows and the Threat column sit above the frame layer. */
+.location.framed .inside-rows, .location.framed .threat-col, .location.framed .influence { z-index: 7; }
+
+/* Dragging: the Location glows green where the drag can land and red where it cannot; the one under the pointer
+   glows brightest. The rows' dashed lines are gone. */
+.loc-glow.drop-can { filter: drop-shadow(0 0 10px rgba(79, 209, 138, 0.8)) drop-shadow(0 0 26px rgba(79, 209, 138, 0.4)) !important; }
+.loc-glow.drop-can.drop-here { filter: drop-shadow(0 0 14px rgba(120, 240, 170, 1)) drop-shadow(0 0 36px rgba(79, 209, 138, 0.7)) !important; }
+.loc-glow.drop-cannot { filter: drop-shadow(0 0 10px rgba(224, 74, 63, 0.7)) drop-shadow(0 0 24px rgba(224, 74, 63, 0.3)) grayscale(0.15) !important; }
+.gates-left.drop-ok, .gates-left.drop-over, .column.drop-ok, .column.drop-over { outline: none !important; box-shadow: none !important; background: none; }
+.slots.drop-ok, .location .drop-ok { box-shadow: none !important; }
+.slots.drop-over, .gates-left.drop-over { box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55) !important; background: rgba(255, 255, 255, 0.06); border-radius: 6px; }
