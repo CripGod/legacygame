@@ -269,6 +269,26 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   }, [staging, step]);
   const [shake, setShake] = useState(false);
   /** Text floats up from a point on the screen: a +N over a Location, the Force readout over a clash. */
+  /**
+   * What the meters are still waiting to show: per Location and side, the Influence that is in the air (a +N on
+   * its way to the circle, a -N about to sink from it). The circle shows the live score less this, so a number
+   * is added or taken only when its float arrives. Replay beats register their amounts as they begin (holdBeat);
+   * planning floats register themselves on take-off.
+   */
+  const [pendingInf, setPendingInf] = useState<Record<number, Partial<Record<PlayerId, number>>>>({});
+  const shiftPending = (location: number, side: PlayerId, delta: number) => {
+    if (!delta) return;
+    setPendingInf((p) => {
+      const row: Partial<Record<PlayerId, number>> = { ...(p[location] ?? {}) };
+      const v = (row[side] ?? 0) + delta;
+      if (Math.abs(v) < 1e-9) delete row[side];
+      else row[side] = v;
+      const out = { ...p };
+      if (Object.keys(row).length) out[location] = row;
+      else delete out[location];
+      return out;
+    });
+  };
   const floatText = (x: number, y: number, text: string, cls: string) => {
     const el = document.createElement('div');
     el.className = `float-num ${cls}`;
@@ -283,18 +303,24 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
    * circle takes the hit. `big` is the wave landing: the number comes up huge. `label` replaces the bare +N
    * ("+1 First Location bonus"). `side` is whose circle it lands in; by default the tone decides.
    */
-  const floatNum = (location: number, amount: number, tone: 'artist' | 'mine' | 'theirs', opts: { big?: boolean; label?: string; side?: PlayerId; /** Where it rises from: a tile, instead of the Location's art. */ from?: { x: number; y: number } } = {}) => {
+  const floatNum = (location: number, amount: number, tone: 'artist' | 'mine' | 'theirs', opts: { big?: boolean; label?: string; side?: PlayerId; /** Where it rises from: a tile, instead of the Location's art. */ from?: { x: number; y: number }; /** The amount was already taken off the meter when the beat began (see holdBeat); only the landing lets it go. */ preheld?: boolean } = {}) => {
+    const side = opts.side ?? (tone === 'theirs' ? other(me) : me);
     const art = document.querySelector(`.column[data-index="${location}"] .art`);
-    if (!art) return;
+    if (!art) {
+      if (opts.preheld) shiftPending(location, side, -amount);
+      return;
+    }
     const r = art.getBoundingClientRect();
     const x0 = opts.from?.x ?? r.left + r.width / 2;
     const y0 = opts.from?.y ?? r.top + r.height / 2;
-    const side = opts.side ?? (tone === 'theirs' ? other(me) : me);
     const ring = document.querySelector(`.column[data-index="${location}"] .score.p${side}`) as HTMLElement | null;
     if (!ring || reduceMotion()) {
       floatText(x0, y0, opts.label ?? `+${amount}`, `${tone} ${opts.big ? 'big' : ''}`);
+      if (opts.preheld) shiftPending(location, side, -amount);
       return;
     }
+    // The meter does not add the number until it arrives: the circle keeps its old figure while the +N is in the air.
+    if (!opts.preheld) shiftPending(location, side, amount);
     const el = document.createElement('div');
     el.className = `float-num ${tone} ${opts.big ? 'big' : ''} jump`;
     el.textContent = opts.label ?? `+${amount}`;
@@ -317,8 +343,9 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       { duration: ms, fill: 'forwards' },
     );
     anim.onfinish = () => el.remove();
-    // The circle takes the hit as the number reaches it.
+    // The circle takes the hit as the number reaches it, and the figure changes with it.
     window.setTimeout(() => {
+      shiftPending(location, side, -amount);
       ring.animate(
         [
           { transform: 'scale(1)', boxShadow: '0 0 0 1px #000, 0 0 12px rgba(0,0,0,0.6)' },
@@ -329,7 +356,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       );
     }, ms * 0.88);
   };
-  const landFx = (items: { location: number; amount?: number; tone: 'artist' | 'mine' | 'theirs'; big?: boolean; label?: string; side?: PlayerId }[]) => {
+  const landFx = (items: { location: number; amount?: number; tone: 'artist' | 'mine' | 'theirs'; big?: boolean; label?: string; side?: PlayerId; preheld?: boolean }[]) => {
     if (items.some((it) => it.amount)) sfx('influence.up');
     for (const it of items) {
       const loc = document.querySelector(`.column[data-index="${it.location}"] .loc-glow`);
@@ -339,7 +366,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         loc.classList.add('loc-pulse', it.tone);
         window.setTimeout(() => loc.classList.remove('loc-pulse', it.tone), 1100);
       }
-      if (it.amount) floatNum(it.location, it.amount, it.tone, { big: it.big, label: it.label, side: it.side });
+      if (it.amount) floatNum(it.location, it.amount, it.tone, { big: it.big, label: it.label, side: it.side, preheld: it.preheld });
     }
   };
   /** During a replay your own moves stay where you put them; the board only re-animates what you could not see coming. */
@@ -491,6 +518,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           const ring = document.querySelector(`.column[data-index="${d.from}"] .score.p${d.victim.owner}`)?.getBoundingClientRect();
           if (ring) floatText(ring.left + ring.width / 2, ring.top + ring.height / 2, `−${lost}`, 'drop big');
           setFx((f) => patch(f, { hurt: { location: d.from!, owner: d.victim.owner } }));
+          // The figure comes down as the -N leaves the circle.
+          window.setTimeout(() => shiftPending(d.from!, d.victim.owner, lost), 160);
         }
       }
     }
@@ -573,7 +602,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       }
       setFx((f) => patch(f, { ...healPatch(f), alive: (f?.alive ?? []).filter((u) => u !== d.threatUid), stamp: threatEl ? { uid: d.threatUid, title: d.cleared ? 'NEUTRALIZED' : 'HOLDS', sub: d.requiresBoth ? undefined : `${total} of ${d.needed}`, tone } : undefined }));
       // Word spreads without the wave: each paid Location pulses and its +N floats up.
-      if (spread.length) landFx(spread.map((e) => ({ location: e.location!, amount: (e.data as { amount?: number }).amount, tone: e.player === me ? 'mine' : 'theirs', big: true, side: e.player })));
+      if (spread.length) landFx(spread.map((e) => ({ location: e.location!, amount: (e.data as { amount?: number }).amount, tone: e.player === me ? 'mine' : 'theirs', big: true, side: e.player, preheld: true })));
       await wait(1800);
       return;
     }
@@ -660,10 +689,9 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           if (chime) lastChime = l.at;
           window.setTimeout(() => {
             // landFx chimes itself when an amount lands; the chime flag keeps landings a beat apart from doubling it.
-            // The wave is here: the meter lets go of the old score as the +N jumps in.
-            setFx((f) => (f?.hold ? { ...f, hold: Object.fromEntries(Object.entries(f.hold).filter(([k]) => Number(k) !== l.location)) } : f));
-            landFx([{ location: l.location, tone: l.tone, amount: chime ? l.amount : undefined, big: true, side: l.side }]);
-            if (!chime && l.amount) floatNum(l.location, l.amount, l.tone, { big: true, side: l.side });
+            // The wave is here: the +N comes up huge and the meter adds it when it reaches the circle.
+            landFx([{ location: l.location, tone: l.tone, amount: chime ? l.amount : undefined, big: true, side: l.side, preheld: true }]);
+            if (!chime && l.amount) floatNum(l.location, l.amount, l.tone, { big: true, side: l.side, preheld: true });
           }, l.at);
         }
         hold = Math.max(hold, Math.max(...lands.map((l) => l.at)) + 900);
@@ -712,6 +740,12 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     if (ev.uid && tileOf(ev.uid)) {
       sfx('card.drop');
       setFx((f) => patch(f, { hidden: (f?.hidden ?? []).filter((u) => u !== ev.uid), land: ev.uid }));
+      // What the arrival is worth here rises from its tile and is added when it reaches the circle.
+      if (ev.location !== undefined && prevView) {
+        const gained = influenceAt(view, ev.location)[ev.player] - influenceAt(prevView, ev.location)[ev.player];
+        const t = tileOf(ev.uid)?.getBoundingClientRect();
+        if (gained > 0) window.setTimeout(() => floatNum(ev.location!, gained, mine ? 'mine' : 'theirs', { side: ev.player, preheld: true, from: t ? { x: t.left + t.width / 2, y: t.top + t.height / 2 } : undefined }), 120);
+      }
     } else {
       setFx((f) => patch(f, { hidden: (f?.hidden ?? []).filter((u) => u !== ev.uid) }));
     }
@@ -829,14 +863,32 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     const showdownEvs = evs.filter((e) => e.type === 'showdown');
     const arrivalEvs = evs.filter((e) => e.type === 'spawned' && !!e.cardId && !!e.player);
     // What render-time staging shows for this beat; the runner seeds its own effects with the same so nothing blinks.
-    // Word spreads: the paid Locations keep their old score until the wave reaches each one, so the +N is seen to add.
-    const held = (): BoardFx['hold'] => {
-      if (!prevView || reduceMotion() || !legendEvs.length) return undefined;
-      const out: Record<number, { A: number; B: number }> = {};
-      for (const e of legendEvs) if (e.location !== undefined && !(e.location in out)) out[e.location] = influenceAt(prevView, e.location);
-      return out;
+    const seed = (): BoardFx => ({ hidden: arrivalEvs.map((e) => e.uid).filter((u): u is string => !!u), alive: showdownEvs.map((e) => (e.data as ShowdownData).threatUid) });
+    // The meters wait for their numbers: everything this beat will float into a circle (a trail's +N, Word
+    // spreads, an arrival's worth, what a knocked-out piece takes with it) is taken off the meter now and given
+    // back as each float lands, so the figure changes when the number reaches the circle and not before.
+    const holdBeat = () => {
+      if (reduceMotion()) return;
+      const sideOf = (e: GameEvent) => e.player ?? ((e.data as { color?: string } | undefined)?.color === 'theirs' ? other(me) : me);
+      for (const e of [...trailEvs, ...legendEvs]) {
+        const amount = (e.data as { amount?: number } | undefined)?.amount;
+        if (amount && e.location !== undefined) shiftPending(e.location, sideOf(e), amount);
+      }
+      if (prevView) {
+        for (const e of clashEvs) {
+          const d = e.data as ClashData;
+          if (STAYS.has(d.outcome) || d.from === undefined) continue;
+          const lost = influenceAt(prevView, d.from)[d.victim.owner] - influenceAt(view, d.from)[d.victim.owner];
+          if (lost > 0) shiftPending(d.from, d.victim.owner, -lost);
+        }
+        for (const e of arrivalEvs) {
+          if (e.location === undefined || !e.uid || !e.player) continue;
+          const gained = influenceAt(view, e.location)[e.player] - influenceAt(prevView, e.location)[e.player];
+          if (gained > 0) shiftPending(e.location, e.player, gained);
+        }
+      }
     };
-    const seed = (): BoardFx => ({ hidden: arrivalEvs.map((e) => e.uid).filter((u): u is string => !!u), alive: showdownEvs.map((e) => (e.data as ShowdownData).threatUid), hold: held() });
+    holdBeat();
     const takeOver = () => setStaged(m.replay ? { steps: m.replay.steps, idx: m.replay.idx } : null);
     const finish = () => {
       const peek = evs.find((e) => e.player === me && Array.isArray((e.data as { peekHand?: string[] } | undefined)?.peekHand));
@@ -868,7 +920,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         // When the trail lands (~1050ms): a pulse on the Location's panel and the chime. The +N rides the embers.
         window.setTimeout(() => {
           if (list.some((e) => (e.data as { amount?: number }).amount)) sfx('influence.up');
-          landFx(list.map((e) => ({ location: e.location!, amount: (e.data as { amount?: number }).amount, tone: (e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs', side: e.player, label: (e.data as { trail?: string }).trail === 'first' && (e.data as { amount?: number }).amount ? `+${(e.data as { amount?: number }).amount} First Location bonus` : undefined })));
+          landFx(list.map((e) => ({ location: e.location!, amount: (e.data as { amount?: number }).amount, tone: (e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs', side: e.player, label: (e.data as { trail?: string }).trail === 'first' && (e.data as { amount?: number }).amount ? `+${(e.data as { amount?: number }).amount} First Location bonus` : undefined, preheld: true })));
         }, 1050);
         return shots.length;
       };
@@ -938,6 +990,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       clearGhosts();
       setStagePrev(false);
       setFx(null);
+      setPendingInf({});
       setClashTell(null);
       setArrival(null);
       setFireworks(null);
@@ -1356,11 +1409,13 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     const was = influenceAt(previewPlan(view, me, before), location)[me];
     const now = influenceAt(previewPlan(view, me, after), location)[me];
     if (now <= was) return;
+    // Taken off the meter now, in the same render as the plan, so the circle never shows the sum before the number flies.
+    shiftPending(location, me, now - was);
     // Two frames on: the plan has rendered, so the tile is where the number should start.
     requestAnimationFrame(() =>
       requestAnimationFrame(() => {
         const t = tileOf(uid)?.getBoundingClientRect();
-        floatNum(location, now - was, 'mine', { from: t ? { x: t.left + t.width / 2, y: t.top + t.height / 2 } : undefined });
+        floatNum(location, now - was, 'mine', { preheld: true, from: t ? { x: t.left + t.width / 2, y: t.top + t.height / 2 } : undefined });
       }),
     );
   };
@@ -1839,7 +1894,10 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
                 }
               }
               sfx(pl.enter ? 'card.drop' : 'card.inside');
-              if (!pl.enter) requestAnimationFrame(() => floatNum(pl.location, 1, 'mine'));
+              if (!pl.enter) {
+                shiftPending(pl.location, me, 1);
+                requestAnimationFrame(() => floatNum(pl.location, 1, 'mine', { preheld: true }));
+              }
               setPlan((p) => ({ ...p, plays: p.plays.map((x) => (x.cardId === pl.cardId ? { ...x, enter: !x.enter } : x)) }));
             }
           : undefined,
@@ -1926,6 +1984,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, flash: flash === 'stakes' || flash === 'final', onToggle: toggleStand, proposed: opts.proposedStakes, slam: standSlam, flip: coinFlip }} />
       <div className="main-wrap">
         <Battlefield
+          pending={pendingInf}
           view={boardView}
           readyBaseline={m.replay ? viewFor(m.replay.before, me) : null}
           me={me}

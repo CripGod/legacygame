@@ -60,6 +60,8 @@ export interface BattlefieldProps {
   delays?: Record<string, number>;
   /** A clash playing out on the board: tiles hidden while their ghosts fly, the hit, the stamp that says what happened. */
   fx?: BoardFx | null;
+  /** Influence still in the air per Location and side: the meter shows the live score less this until the number lands. */
+  pending?: Record<number, Partial<Record<PlayerId, number>>>;
   /** During the replay: the state the turn started from; a tile only says Ready if it was Ready then. */
   readyBaseline?: GameState | null;
   /** The Ancestors' vision: the opponent's coming moves as faint ghosts beside the real tiles. */
@@ -131,8 +133,6 @@ export interface BoardFx {
   heal?: number[];
   /** Who broke the Threat that healed them: the light takes their colour ('both' when the Force was even). */
   healBy?: PlayerId | 'both';
-  /** Locations the wave has not reached yet: their meter shows the score from before the beat until it lands, so the +N is seen to add. */
-  hold?: Record<number, { A: number; B: number }>;
 }
 
 const picFx = (fx: BoardFx | null | undefined, uid: string): 'windup' | 'knocked' | 'held' | 'hexed' | 'land' | undefined => {
@@ -465,7 +465,7 @@ function shortEffect(type: string): string {
 }
 
 export function Battlefield(props: BattlefieldProps) {
-  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onThreat, flash, dragProps, drop, delays, resolving, glowLocation, summonLabel, reserved, focus, eventFx, pendingEvents, neutralized, fx, foreseen, readyBaseline } = props;
+  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onThreat, flash, dragProps, drop, delays, resolving, glowLocation, summonLabel, reserved, focus, eventFx, pendingEvents, neutralized, fx, foreseen, readyBaseline, pending } = props;
   const { placeholders } = useDisplay();
   const opp = other(me);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -481,7 +481,8 @@ export function Battlefield(props: BattlefieldProps) {
     <div className="battlefield" ref={rootRef}>
       {view.locations.map((loc) => {
         const def = locDef(view, loc.index);
-        const inf = fx?.hold?.[loc.index] ?? influenceAt(view, loc.index);
+        const live = influenceAt(view, loc.index);
+        const inf = { A: Math.max(0, live.A - (pending?.[loc.index]?.A ?? 0)), B: Math.max(0, live.B - (pending?.[loc.index]?.B ?? 0)) };
         const ended = view.phase === 'ended' && view.result;
         const winner = ended ? view.result!.locationWinners[loc.index] : null;
         const lead = inf.A === inf.B ? null : inf.A > inf.B ? 'A' : 'B';

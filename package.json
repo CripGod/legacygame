@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "tsx scripts/art-manifest.ts",
     "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "art:manifest": "tsx scripts/art-manifest.ts",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
