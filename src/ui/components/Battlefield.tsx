@@ -207,7 +207,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
           {slots.map((s, i) => {
             if (s === null)
               return (
-                <div key={i} className={`gate-slot ${i === nextOpen ? 'open' : 'later'}`} {...(i !== nextOpen ? tip('Opens once the slot before it is taken.') : {})}>
+                <div key={i} className={`gate-slot ${owner === me ? 'gf' : ''} ${i === nextOpen ? 'open' : 'later'}`} {...(i !== nextOpen ? tip('Opens once the slot before it is taken.') : {})}>
                   {i === nextOpen ? '+' : ''}
                 </div>
               );
@@ -225,7 +225,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
               // Reserved: the Character has left in the preview but still holds this slot until the turn resolves.
               const hd = charDef(s.held.defId);
               return (
-                <div key={`held:${s.held.uid}`} className={`gate-slot reserved ${s.held.through ? 'through' : ''} ${s.held.arriving ? 'arriving' : ''}`} data-reserved={s.held.uid} onClick={() => onChar(s.held.arriving ? s.held.uid.slice('arrive:'.length) : s.held.uid)} {...tip(s.held.arriving ? `${hd.name} ${s.held.why} when you Lock It In.` : s.held.through ? `${hd.name} ${s.held.why}: every arrival is placed at the Gates before anyone walks Inside, so this slot is taken this turn.` : `${hd.name} ${s.held.why} when you Lock It In. The slot stays taken until then.`)}>
+                <div key={`held:${s.held.uid}`} className={`gate-slot reserved ${owner === me ? 'gf' : ''} ${s.held.through ? 'through' : ''} ${s.held.arriving ? 'arriving' : ''}`} data-reserved={s.held.uid} onClick={() => onChar(s.held.arriving ? s.held.uid.slice('arrive:'.length) : s.held.uid)} {...tip(s.held.arriving ? `${hd.name} ${s.held.why} when you Lock It In.` : s.held.through ? `${hd.name} ${s.held.why}: every arrival is placed at the Gates before anyone walks Inside, so this slot is taken this turn.` : `${hd.name} ${s.held.why} when you Lock It In. The slot stays taken until then.`)}>
                   <Art kind="characters" id={s.held.defId} className="pic-img" fallback={<span className="ini">{hd.name.slice(0, 2)}</span>} alt="" />
                   <span className={`ghost-arrow ${s.held.dir}`} aria-hidden>
                     ›
@@ -246,7 +246,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                 <div
                   data-uid={s.uid}
                   data-place={`${index}:gate`}
-                  className={`gate-slot filled owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''}`}
+                  className={`gate-slot filled ${owner === me ? 'gf' : ''} owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''}`}
                   {...draggable}
                 >
                   {fx?.stamp?.uid === s.uid && (

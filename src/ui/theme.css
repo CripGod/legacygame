@@ -1852,22 +1852,22 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 /* ---------- The owner's Gate frames (art) ---------- */
 /* The frame is the picture, stretched to the tile's own size: the dull frame on an empty slot, the lit one over a filled
    tile; the tile's picture sits in the frame's window. The other side keeps the drawn plate until it has frames of its own. */
-.gates-strip.mine .gate-slot:not(.event-slot) { border: 0; border-radius: 0; box-shadow: none; background: var(--gate-off) center / 100% 100% no-repeat; color: rgba(255, 224, 150, 0.85); }
-.gates-strip.mine .gate-slot.later { opacity: 1; }
+.gate-slot.gf:not(.event-slot) { border: 0; border-radius: 0; box-shadow: none; background: var(--gate-off) center / 100% 100% no-repeat; color: rgba(255, 224, 150, 0.85); }
+.gate-slot.gf.later { opacity: 1; }
 .gates-strip.mine .gates { --gw: min(var(--mini), calc((100cqw - 15px) / 4)); --gi-x: calc(var(--gw) * 0.134); --gi-t: calc(var(--mini-h) * 0.08); --gi-b: calc(var(--mini-h) * 0.074); }
-.gates-strip.mine .gate-slot.filled:not(.event-slot), .gates-strip.mine .gate-slot.reserved { box-sizing: border-box; width: var(--gw); background: transparent !important; clip-path: none !important; padding: var(--gi-t) var(--gi-x) var(--gi-b) !important; overflow: visible; }
-.gates-strip.mine .gate-slot.reserved .pic-img { top: var(--gi-t); left: var(--gi-x); width: calc(100% - 2 * var(--gi-x)); height: calc(100% - var(--gi-t) - var(--gi-b)); }
-.gates-strip.mine .gate-slot.filled:not(.event-slot)::after, .gates-strip.mine .gate-slot.reserved::after { display: none; }
-.gates-strip.mine .gate-slot.filled:not(.event-slot)::before, .gates-strip.mine .gate-slot.reserved::before { content: ''; position: absolute; inset: 0; background: var(--gate-on) center / 100% 100% no-repeat; pointer-events: none; z-index: 4; }
-.gates-strip.mine .gate-slot.reserved::before { background-image: var(--gate-off); }
-.gates-strip.mine .gate-slot.filled .pic { clip-path: none; border-radius: 0; }
-.gates-strip.mine .gate-slot.filled .pic .b, .gates-strip.mine .gate-slot.reserved .ghost-arrow, .gates-strip.mine .gate-slot.filled > .ghost-arrow, .gates-strip.mine .gate-slot.filled .stamp { z-index: 5; }
-.gates-strip.mine .gate-slot.reserved .strip.leaving { left: var(--gi-x); right: var(--gi-x); bottom: var(--gi-b); }
+.gate-slot.gf.filled:not(.event-slot), .gate-slot.gf.reserved { box-sizing: border-box; width: var(--gw); background: transparent !important; clip-path: none !important; padding: var(--gi-t) var(--gi-x) var(--gi-b) !important; overflow: visible; }
+.gate-slot.gf.reserved .pic-img { top: var(--gi-t); left: var(--gi-x); width: calc(100% - 2 * var(--gi-x)); height: calc(100% - var(--gi-t) - var(--gi-b)); }
+.gate-slot.gf.filled:not(.event-slot)::after, .gate-slot.gf.reserved::after { display: none; }
+.gate-slot.gf.filled:not(.event-slot)::before, .gate-slot.gf.reserved::before { content: ''; position: absolute; inset: 0; background: var(--gate-on) center / 100% 100% no-repeat; pointer-events: none; z-index: 4; }
+.gate-slot.gf.reserved::before { background-image: var(--gate-off); }
+.gate-slot.gf.filled .pic { clip-path: none; border-radius: 0; }
+.gate-slot.gf.filled .pic .b, .gate-slot.gf.reserved .ghost-arrow, .gate-slot.gf.filled > .ghost-arrow, .gate-slot.gf.filled .stamp { z-index: 5; }
+.gate-slot.gf.reserved .strip.leaving { left: var(--gi-x); right: var(--gi-x); bottom: var(--gi-b); }
 /* The orbs ride out onto the frame so the picture in the window stays clear. */
-.gates-strip.mine .gate-slot.filled .pic { overflow: visible; position: relative; z-index: 5; }
-.gates-strip.mine .gate-slot.filled .pic .b-cost { top: calc(-0.75 * var(--gi-t)); left: calc(-0.7 * var(--gi-x)); }
-.gates-strip.mine .gate-slot.filled .pic .b-inf { left: calc(-0.7 * var(--gi-x)); }
-.gates-strip.mine .gate-slot.filled .pic .b-force { right: calc(-0.7 * var(--gi-x)); }
+.gate-slot.gf.filled .pic { overflow: visible; position: relative; z-index: 5; }
+.gate-slot.gf.filled .pic .b-cost { top: calc(-0.75 * var(--gi-t)); left: calc(-0.7 * var(--gi-x)); }
+.gate-slot.gf.filled .pic .b-inf { left: calc(-0.7 * var(--gi-x)); }
+.gate-slot.gf.filled .pic .b-force { right: calc(-0.7 * var(--gi-x)); }
 
 /* ---------- The Location frames (art) ---------- */
 /* Three hollow frames on one geometry (a title band over a window). The panel is a little taller than the art
@@ -1901,4 +1901,4 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .gate-slot.reserved.arriving { --bfill: rgba(79, 209, 138, 0.1); border-style: dashed; }
 .gate-slot.reserved.arriving .pic-img { opacity: 0.45; }
 .gate-slot.reserved .strip.leaving.arriving { background: rgba(20, 110, 55, 0.9); color: #eaffef; }
-.gates-strip.mine .gate-slot.reserved.arriving::before { background-image: var(--gate-on); opacity: 0.55; }
+.gate-slot.gf.reserved.arriving::before { background-image: var(--gate-on); opacity: 0.55; }

@@ -44,9 +44,16 @@ export function ghostOf(el: Element): Ghost {
     for (const c of Array.from(pic.classList)) if (c.startsWith('fx-') || c === 'focus') pic.classList.remove(c);
   });
   const cs = getComputedStyle(el);
-  for (const p of ['--bc', '--bfill', '--bw', '--chamfer', '--mini', '--mini-h', '--slot']) {
+  for (const p of ['--bc', '--bfill', '--bw', '--chamfer', '--mini', '--mini-h', '--slot', '--gate-on', '--gate-off']) {
     const v = cs.getPropertyValue(p);
     if (v) g.style.setProperty(p, v);
+  }
+  // A framed Gate tile (gf) keeps its frame in flight: its window insets, resolved to pixels here, since the fly layer has no container.
+  if (g.classList.contains('gf')) {
+    g.style.setProperty('--gw', `${base.width}px`);
+    g.style.setProperty('--gi-t', cs.paddingTop);
+    g.style.setProperty('--gi-x', cs.paddingLeft);
+    g.style.setProperty('--gi-b', cs.paddingBottom);
   }
   Object.assign(g.style, {
     position: 'fixed',
