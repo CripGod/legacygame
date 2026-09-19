@@ -531,15 +531,20 @@ export function Battlefield(props: BattlefieldProps) {
               {/* The owner's Location frame: gold when I lead, blue when they do, silver when nobody does. The title sits in its band, the body in its window. */}
               <div className="loc-frame" aria-hidden style={{ backgroundImage: `url("${pageUrl(artUrl('frames', `location-${lead === 'A' ? 'gold' : lead === 'B' ? 'blue' : 'unowned'}`, 'webp'))}")` }} />
               {fx?.locStamp?.[loc.index] && <div className={`loc-stamp ${fx.locStamp[loc.index].tone}`}>{fx.locStamp[loc.index].title}</div>}
-              {loc.revealed && !placeholders && (
-                <div className="loc-bg" aria-hidden>
-                  {nightHere ? (
-                    <Art kind="locations" id={`${loc.defId}_night`} className="loc-bg-img" fallback={<Art kind="locations" id={loc.defId} className="loc-bg-img" fallback={null} alt="" />} alt="" />
-                  ) : (
-                    <Art kind="locations" id={loc.defId} className="loc-bg-img" fallback={null} alt="" />
-                  )}
-                </div>
-              )}
+              {/* Every fill (the plate, the photograph, the parchment band) lives in one layer masked to the frame's interior, so no edge ever shows past the frame. */}
+              <div className="loc-fill" aria-hidden style={{ WebkitMaskImage: `url("${pageUrl(artUrl('frames', 'location-mask', 'webp'))}")`, maskImage: `url("${pageUrl(artUrl('frames', 'location-mask', 'webp'))}")` }}>
+                <div className="loc-fill-body" />
+                {loc.revealed && !placeholders && (
+                  <div className="loc-bg">
+                    {nightHere ? (
+                      <Art kind="locations" id={`${loc.defId}_night`} className="loc-bg-img" fallback={<Art kind="locations" id={loc.defId} className="loc-bg-img" fallback={null} alt="" />} alt="" />
+                    ) : (
+                      <Art kind="locations" id={loc.defId} className="loc-bg-img" fallback={null} alt="" />
+                    )}
+                  </div>
+                )}
+                <div className="loc-fill-band" />
+              </div>
               <div
                 key={loc.revealed ? 'r' : 'h'}
                 className={`art ${loc.revealed ? 'reveal-anim' : 'hidden-art'}`}

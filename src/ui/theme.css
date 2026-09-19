@@ -243,7 +243,7 @@ body { font-family: var(--font); font-size: 16px; }
 .in-effect .fx-chip { border-color: rgba(233, 185, 58, 0.35); background: rgba(6, 12, 22, 0.7); }
 
 /* ---------- Gate tiles ---------- */
-.gates { gap: 8px; }
+.gates { gap: 5px; }
 .gate-slot {
   width: var(--mini);
   height: var(--mini);
@@ -753,7 +753,7 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
    board (a hovered card may overlap the Gates for a moment) rather than holding a band of air above itself. */
 @media (min-width: 701px) {
   .main-wrap { container-type: size; }
-  .main-wrap { --mini: clamp(46px, min(7.4vw, 17cqh, 11.5vh), 132px); --mini-h: calc(var(--mini) * 0.74); --slot: clamp(30px, min(4.7vw, 9.5cqh, 7vh), 86px); --slot-h: calc(var(--slot) * 0.72); }
+  .main-wrap { --mini: clamp(46px, min(7.4vw, 20cqh, 12.5vh), 132px); --mini-h: calc(var(--mini) * 0.74); --slot: clamp(30px, min(4.7vw, 9.5cqh, 7vh), 86px); --slot-h: calc(var(--slot) * 0.72); }
   .main-wrap .location .art, .main-wrap .location .art.reveal-anim { max-height: clamp(24px, 8cqh, 96px) !important; }
   .main-wrap .threat-tile { min-height: calc(var(--slot-h) + 10px); }
   /* Three or more Threats at one Location stand two abreast rather than stacking past the Inside rows. */
@@ -772,7 +772,7 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
   .influence { padding-top: 4px; padding-bottom: 1px; }
 }
 /* The board sits in the middle of the screen with air on both sides. */
-.battlefield { width: 100%; max-width: 1760px; margin: 0 auto; column-gap: clamp(14px, 2.6vw, 56px); padding: var(--gap) clamp(10px, 4vw, 80px); align-content: center; }
+.battlefield { width: 100%; max-width: 1760px; margin: 0 auto; column-gap: clamp(10px, 1.4vw, 28px); padding: var(--gap) clamp(12px, 3vw, 56px); align-content: center; }
 .column { gap: 6px; }
 
 /* Gate tiles: landscape portraits in a thick frame that glows in the owner's colour. */
@@ -1445,7 +1445,7 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 /* Four boxes (three Gates and the Event slot) never outgrow their column: on wide screens the tiles cap at a quarter of it,
    so the Location panel and the Gate row share one width. */
 .column { container-type: inline-size; }
-.gates .gate-slot { width: min(var(--mini), calc((100cqw - 24px) / 4)); }
+.gates .gate-slot { width: min(var(--mini), calc((100cqw - 15px) / 4)); }
 /* Anansi retold this Location and spun his web over it. */
 .location .art .lost-tag.webbed { color: #fff; background: #5b3f8a; }
 
@@ -1854,9 +1854,9 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
    tile; the tile's picture sits in the frame's window. The other side keeps the drawn plate until it has frames of its own. */
 .gates-strip.mine .gate-slot:not(.event-slot) { border: 0; border-radius: 0; box-shadow: none; background: var(--gate-off) center / 100% 100% no-repeat; color: rgba(255, 224, 150, 0.85); }
 .gates-strip.mine .gate-slot.later { opacity: 1; }
-.gates-strip.mine .gates { --gw: min(var(--mini), calc((100cqw - 24px) / 4)); --gi-x: calc(var(--gw) * 0.134); --gi-t: calc(var(--mini-h) * 0.08); --gi-b: calc(var(--mini-h) * 0.074); }
+.gates-strip.mine .gates { --gw: min(var(--mini), calc((100cqw - 15px) / 4)); --gi-x: calc(var(--gw) * 0.134); --gi-t: calc(var(--mini-h) * 0.08); --gi-b: calc(var(--mini-h) * 0.074); }
 .gates-strip.mine .gate-slot.filled:not(.event-slot), .gates-strip.mine .gate-slot.reserved { box-sizing: border-box; width: var(--gw); background: transparent !important; clip-path: none !important; padding: var(--gi-t) var(--gi-x) var(--gi-b) !important; overflow: visible; }
-.gates-strip.mine .gate-slot.reserved .pic-img { inset: var(--gi-t) var(--gi-x) var(--gi-b); width: auto; height: auto; }
+.gates-strip.mine .gate-slot.reserved .pic-img { top: var(--gi-t); left: var(--gi-x); width: calc(100% - 2 * var(--gi-x)); height: calc(100% - var(--gi-t) - var(--gi-b)); }
 .gates-strip.mine .gate-slot.filled:not(.event-slot)::after, .gates-strip.mine .gate-slot.reserved::after { display: none; }
 .gates-strip.mine .gate-slot.filled:not(.event-slot)::before, .gates-strip.mine .gate-slot.reserved::before { content: ''; position: absolute; inset: 0; background: var(--gate-on) center / 100% 100% no-repeat; pointer-events: none; z-index: 4; }
 .gates-strip.mine .gate-slot.reserved::before { background-image: var(--gate-off); }
@@ -1873,20 +1873,26 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 /* Three hollow frames on one geometry (a title band over a window). The panel takes the art's own proportions
    (1072 × 638): the parchment title sits in the band (2.7% down, 12.5% tall), the meter, the rows and the rule in
    the window (18.2% down to 11.3% from the bottom, 5% in from the sides), and the drawn chamfer plate steps back. */
-.location.framed { position: relative; aspect-ratio: 1072 / 638; flex: 0 0 auto !important; container-type: inline-size; clip-path: none !important; background: transparent !important; padding: 10.8% 5.2% 6.7% 5%; overflow: hidden; --slot: min(11.5cqw, 86px, max(30px, min(4.7vw, 7vh))); --slot-h: calc(var(--slot) * 0.72); }
-.location.framed::after { inset: 1% 1.6% 1.4%; background: var(--bfill, #0c1a2b); }
+.location.framed { position: relative; aspect-ratio: 1072 / 638; flex: 0 0 auto !important; container-type: inline-size; clip-path: none !important; background: transparent !important; padding: 10.8% 5.2% 6.7% 5%; overflow: hidden; --slot: min(10.5cqw, 86px, max(30px, min(4.7vw, 7vh))); --slot-h: calc(var(--slot) * 0.72); }
+.location.framed::after { display: none; }
 .location.framed > .loc-frame { position: absolute; inset: 0; z-index: 6; background: center / 100% 100% no-repeat; pointer-events: none; }
-.location.framed > .loc-bg { inset: 18.2% 5.2% 11.3% 5%; }
-.location.framed .art, .location.framed .art.reveal-anim { position: absolute; top: 2.7%; left: 4.7%; right: 4.7%; height: 12.5%; max-height: none; min-height: 0; margin: 0; border-bottom: 0; z-index: 2; }
-/* The meter lies over the frame's bottom band (z-order above it): the circles on the corner ornaments, the bar along
-   the band. The window is the rows' and the rule's. */
+/* The fills, masked to the frame's interior (the mask is cut from the art's alpha): the plate, the photograph from
+   under the band to the bottom, the parchment band on top. */
+.location.framed > .loc-fill { position: absolute; inset: 0; z-index: 0; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; pointer-events: none; }
+.location.framed .loc-fill-body { position: absolute; inset: 0; background: #0c1a2b; }
+.location.framed .loc-fill .loc-bg { position: absolute; inset: 15.2% 0 0; border-radius: 0; }
+.location.framed .loc-fill-band { position: absolute; top: 0; left: 0; right: 0; height: 15.2%; background: linear-gradient(180deg, #f7efdc, #e9dcc0); border-bottom: 2px solid var(--gold-dark); box-sizing: border-box; }
+.location.framed .art, .location.framed .art.reveal-anim { position: absolute; top: 2.7%; left: 4.7%; right: 4.7%; height: 12.5%; max-height: none; min-height: 0; margin: 0; border-bottom: 0; z-index: 2; background: transparent !important; }
 .location.framed { overflow: visible; margin-bottom: 8px; }
 /* Five seats and the Threat column share the window's width. */
-.location.framed .slots { padding: 2px 6px 3px; }
+.location.framed .slots { padding: 1px 6px 2px; gap: 5px; }
+.location.framed .row-lbl { line-height: 1.1; padding-top: 0; }
+.location.framed .inside-rows { row-gap: 0; }
+.location.framed .loc-rule { margin: 1px 8px 0; padding: 2px 8px; font-size: clamp(8px, 0.74vw, 11px); }
 .location.framed .threat-col { width: calc(var(--slot) * 1.2 + 8px); padding: 4px 8px 4px 0; }
-.location.framed .threat-tile .threat-name { font-size: clamp(6px, 0.5vw, 8px); letter-spacing: 0.02em; padding: 8px 2px 1px; overflow-wrap: anywhere; }
-.location.framed .influence { position: absolute; left: 2.6%; right: 2.6%; bottom: 1.2%; height: 10.4%; padding: 0; z-index: 7; align-items: center; }
-.location.framed .influence .score { width: clamp(26px, min(2.9vw, 4.2vh), 38px); height: clamp(26px, min(2.9vw, 4.2vh), 38px); }
-.location.framed .influence .line { box-shadow: inset 0 0 0 1px #000, 0 0 0 1px rgba(0, 0, 0, 0.6); }
+.location.framed .threat-tile .threat-name { font-size: clamp(6px, 0.48vw, 7.5px); letter-spacing: 0; padding: 8px 2px 1px; overflow-wrap: normal; }
+/* The meter sits right under the name, first thing in the window, so every +N and wave keeps its path. */
+.location.framed .influence { padding: 3px 8px 1px; gap: 8px; }
+.location.framed .influence .score { width: clamp(24px, min(2.7vw, 4vh), 34px); height: clamp(24px, min(2.7vw, 4vh), 34px); font-size: clamp(12px, min(1.4vw, 2vh), 17px); }
 .location.framed .slots { padding: 2px 10px 3px; }
 .location.framed .loc-rule { margin: 2px 10px 0; font-size: clamp(8px, 0.8vw, 12px); line-height: 1.25; }
