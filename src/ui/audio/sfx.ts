@@ -35,6 +35,8 @@ export type SfxName =
   | 'clash.banish'
   | 'clash.arrest'
   | 'clash.block'
+  | 'event'
+  | 'event.curse'
   | 'threat.spawn'
   | 'threat.clear'
   | 'threat.ruling'
@@ -79,6 +81,8 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   'clash.banish': 'A Character is knocked off the board (BANISHED). Fires as the throw begins; the bang lands ~240ms in.',
   'clash.arrest': 'An Informant is found out or arrested.',
   'clash.block': 'A stand-off: an entry blocked, a Character suppressed or tricked. Nobody moves.',
+  event: 'An Event announces itself: its card flashes over the board on a bright sting, then lands in its purple slot on the thud.',
+  'event.curse': 'A Curse announces itself: the same, on a dark pulse.',
   'threat.spawn': 'A Threat arrives.',
   'threat.clear': 'A Threat is neutralized.',
   'threat.ruling': 'The Dred Scott Decision comes down: the gavel, then the laugh as everyone is thrown out.',
@@ -131,6 +135,8 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'clash.banish': [{ files: ['banish'], gain: 0.9 }, { files: ['banish-stone'], gain: 0.7, at: 240 }],
   'clash.arrest': [{ files: ['arrest'], gain: 0.8 }],
   'clash.block': [{ files: ['thud-soft'], gain: 0.6 }, { files: ['lock'], gain: 0.35, at: 80 }], // a stand-off: the gate stays shut
+  event: [{ files: ['event-bright'], gain: 0.7 }, { files: ['card-drop-2'], gain: 0.6, at: 1100 }, { files: ['thud-soft'], gain: 0.4, at: 1100 }],
+  'event.curse': [{ files: ['event-dark'], gain: 0.8 }, { files: ['card-drop-2'], gain: 0.6, at: 1100 }, { files: ['thud-soft'], gain: 0.4, at: 1100 }],
   'threat.spawn': [{ files: ['threat-danger'], gain: 0.8 }], // danger: a rising rumble, a muffled boom, the dark pulse, low brass
   'threat.clear': [{ files: ['threat-clear'], gain: 0.6 }],
   'threat.ruling': [{ files: ['hit-wood'], gain: 1.0, at: 480 }, { files: ['stand-thud'], gain: 0.9, at: 480 }, { files: ['laugh-evil'], gain: 0.85, at: 1000 }], // the Threat tile comes down at ~500ms; the gavel on the landing, the laugh over the cast-out

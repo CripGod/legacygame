@@ -1407,6 +1407,8 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .replay-banner.kind-clash .replay-kind { background: var(--danger); color: #fff; }
 .replay-banner.kind-clash.miss .replay-kind { background: var(--ok); color: #fff; }
 .replay-banner.kind-clash.hex .replay-kind { background: #7a4ccf; color: #fff; }
+.replay-banner.kind-clash.event .replay-kind { background: #a78bfa; color: #1a0f3a; }
+.replay-banner.kind-clash.event { border-color: #a78bfa; box-shadow: 0 0 0 1px #000, 0 0 24px rgba(167, 139, 250, 0.4); }
 .replay-banner .replay-sub { display: block; margin-top: 2px; font-size: 11px; color: var(--muted); }
 
 /* ---------- Reparations ---------- */

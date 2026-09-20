@@ -259,7 +259,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   /** The choreography's grip on the board: tiles hidden under their flying ghosts, the flash, the stamp. Non-null while a clash plays. */
   const [fx, setFx] = useState<BoardFx | null>(null);
   /** What the banner says while a clash plays: the verdict in the pill, the sentence beside it. */
-  const [clashTell, setClashTell] = useState<{ title: string; text: string; sub?: string; tone: 'hit' | 'miss' | 'hex' | 'arrive' | 'ruling' } | null>(null);
+  const [clashTell, setClashTell] = useState<{ title: string; text: string; sub?: string; tone: 'hit' | 'miss' | 'hex' | 'arrive' | 'ruling' | 'event' } | null>(null);
   /** The board as it stood before this beat: a clash opens on it, so every piece is still where it was struck. */
   const prevView = useMemo(() => (m.replay && m.replay.idx > 0 ? viewFor(m.replay.steps[m.replay.idx - 1].state, me) : null), [m.replay?.idx, m.replay?.steps, me]);
   const [stagePrev, setStagePrev] = useState(false);
@@ -1037,6 +1037,23 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           } else {
             setFx((f) => ({ ...(f ?? { hidden: [] }), open: idx }));
             window.setTimeout(() => { if (alive()) setFx((f) => (f?.open === idx ? null : f)); }, 1150);
+          }
+        }
+      }
+      // An Event announces itself (Snap-style, as a Gathering's arrival does): its card flashes big over the board with
+      // the banner telling its name and what it does, then it flips into its purple slot and the flare plays.
+      if (step.kind === 'event' && step.cardId && step.player) {
+        const def = CARD_BY_ID[step.cardId] as { name?: string; summary?: string; text?: string; curse?: boolean } | undefined;
+        if (def) {
+          const who = step.player === me ? 'You play' : `${view.players[step.player].handle} plays`;
+          setClashTell({ title: def.curse ? 'CURSE' : 'EVENT', text: `${who} ${def.name}${step.location !== undefined ? ` at ${view.locations[step.location].revealed ? locationName(view.locations[step.location].defId, placeholders) : `Location ${step.location + 1}`}` : ''}.`, sub: def.summary ?? def.text, tone: def.curse ? 'hex' : 'event' });
+          if (!reduceMotion()) {
+            setArrival({ cardId: step.cardId, owner: step.player });
+            await painted();
+            if (!alive()) return;
+            await wait(1100);
+            if (!alive()) return;
+            setArrival(null);
           }
         }
       }
@@ -2148,7 +2165,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           foreseen={planning ? foreseen : null}
           resolving={busy}
           focus={step?.uids}
-          eventFx={step?.kind === 'event' && step.cardId && step.player ? { cardId: step.cardId, owner: step.player, location: step.location ?? 0 } : undefined}
+          eventFx={step?.kind === 'event' && !arrival && step.cardId && step.player ? { cardId: step.cardId, owner: step.player, location: step.location ?? 0 } : undefined}
           pendingEvents={step?.pendingEvents}
           neutralized={neutralized}
           glowLocation={guideLocation}
@@ -2489,8 +2506,9 @@ function beatSfx(step: TraceStep, quiet = false): void {
   if (retold && typeof retold.data?.to === 'string') return sfx('location.reveal', retold.data.to);
   switch (step.kind) {
     case 'play':
-    case 'event':
       return sfx('card.drop');
+    case 'event':
+      return sfx((CARD_BY_ID[step.cardId ?? ''] as { curse?: boolean } | undefined)?.curse ? 'event.curse' : 'event');
     case 'enter':
       return sfx('enter');
     case 'move':
