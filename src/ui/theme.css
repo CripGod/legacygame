@@ -2233,3 +2233,9 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .card.tpl .tpl-wait { position: absolute; left: 50%; top: 50%; width: 9cqw; height: 9cqw; margin: -4.5cqw; border-radius: 50%; border: 0.7cqw solid rgba(233, 185, 58, 0.18); border-top-color: var(--gold-2); animation: tpl-wait 0.9s linear infinite; }
 @keyframes tpl-wait { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .card.tpl.ready > * { animation: none; } .card.tpl .tpl-wait { animation: none; } }
+
+/* The off frames (an empty Gate, a reserved Gate's ghost, the empty Event slot) sit on a tiny shadow so they read
+   as objects on the board; the lit frames carry their glow instead and take none. */
+.gate-slot.gf:not(.event-slot):not(.filled):not(.reserved) { filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55)); }
+.gate-slot.gf.reserved::before { filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55)); }
+.gates .gate-slot.event-slot.empty { filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55)); }
