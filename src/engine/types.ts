@@ -302,6 +302,8 @@ export interface ThreatDef {
   effect: ThreatEffect;
   /** If unresolved for this many full turns, the Location becomes LOST. */
   lostAfterTurns?: number;
+  /** Comes up once per match at most: once it has appeared, History moves pick another. */
+  once?: boolean;
   /** Dred Scott: at the end of this many turns standing, everyone at the Location, both sides, is displaced as far as open Gates allow, and the Threat lifts. */
   firesAfterTurns?: number;
   /** The Land Office: turns the office stays open. The Inside shrinks by one seat per player each turn it stands; at the close, two Established prove up and lift it, otherwise nobody else enters until Force clears it. */
@@ -521,6 +523,8 @@ export interface GameState {
   pendingRaises: { by: PlayerId; declaredTurn: number }[];
   /** Once-per-match dice for arrivals that only happen some matches (card id -> rolled true). Hidden from views. */
   spawnRolls: Record<string, boolean>;
+  /** Every Threat that has appeared this match, in order (ids; repeats allowed). Optional for older saves. */
+  threatsSeen?: string[];
   result?: MatchResult;
   leadHistory: LeadRecord[];
   /** Counter for generating uids. */

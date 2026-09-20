@@ -76,6 +76,7 @@ export function createMatch(opts: MatchOptions): GameState {
     initiative: nextInt(rng, 2) === 0 ? 'A' : 'B',
     stakes: 1,
     pendingRaises: [],
+    threatsSeen: [],
     spawnRolls: Object.fromEntries([...CHARACTERS, ...EVENTS].filter((d) => d.spawn?.chance !== undefined).map((d) => [d.id, nextFloat(makeRng(hashSeed(`${opts.seed}:arrival:${d.id}`))) < (d.spawn!.chance as number)])),
     maxTurns: TURNS,
     leadHistory: [],
@@ -168,6 +169,7 @@ export function spawnThreat(state: GameState, location: number, threatId: string
     if (loc.threats.some((t) => t.defId === threatId)) return;
     loc.threats.push(make());
   }
+  (state.threatsSeen ??= []).push(threatId);
   events.push({
     type: 'threatSpawned',
     text: `${def.name} appears at ${locName(state, location)}.`,
@@ -313,7 +315,10 @@ export function startTurn(state: GameState, events: GameEvent[]): void {
     const candidates = state.locations.filter((l) => l.revealed && !l.lost && l.threats.length === 0);
     if (candidates.length) {
       const loc = pick(state.rng, candidates);
-      const threatId = pick(state.rng, RANDOM_THREAT_POOL);
+      // A once-per-match Threat (the Dred Scott Decision) that has already come up is out of the pool; the others may repeat.
+      const seen = state.threatsSeen ?? [];
+      const pool = RANDOM_THREAT_POOL.filter((id) => !(THREAT_BY_ID[id]?.once && seen.includes(id)));
+      const threatId = pick(state.rng, pool.length ? pool : RANDOM_THREAT_POOL);
       spawnThreat(state, loc.index, threatId, events);
     }
   }

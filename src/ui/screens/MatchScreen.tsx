@@ -2154,7 +2154,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
               // The muted property must be set before play() for autoplay to be allowed; React sets it, this makes sure.
               if (!el) return;
               el.muted = true;
-              el.play?.().catch(() => undefined);
+              if (el.paused) el.play?.().catch(() => undefined);
             }}
           >
             <source src={videoUrl('board.webm')} type="video/webm" />

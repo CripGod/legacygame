@@ -93,6 +93,7 @@ export const THREATS: ThreatDef[] = [
     force: 4,
     effect: 'banishAll',
     firesAfterTurns: 2,
+    once: true,
     standing: 'Taney presiding',
     blurb: "Chief Justice Roger Taney, March 1857: Black people had \"no rights which the white man was bound to respect\", and could not be citizens. The Fourteenth Amendment made the ruling a dead letter eleven years later.",
   },

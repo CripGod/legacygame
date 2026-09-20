@@ -520,6 +520,32 @@ describe('energy', () => {
   });
 });
 
+describe('History moves', () => {
+  it('the Dred Scott Decision comes up once per match at most; other Threats may repeat', () => {
+    let twice = 0;
+    let dredMatches = 0;
+    let repeats = 0;
+    for (let seed = 1; seed <= 300; seed++) {
+      let s = createMatch({ seed });
+      const spawned: string[] = [];
+      for (let t = 0; t < 9 && s.phase !== 'ended'; t++) {
+        const out = resolveTurn(s, { A: pass(), B: pass() });
+        s = out.state;
+        for (const e of out.events) if (e.type === 'threatSpawned') spawned.push((e.data as { threatId: string }).threatId);
+      }
+      const dred = spawned.filter((id) => id === 'dred_scott').length;
+      if (dred > 1) twice++;
+      if (dred === 1) dredMatches++;
+      const others = spawned.filter((id) => id !== 'dred_scott' && id !== 'mob');
+      if (new Set(others).size < others.length) repeats++;
+      expect(s.threatsSeen).toEqual(spawned);
+    }
+    expect(twice).toBe(0);
+    expect(dredMatches).toBeGreaterThan(0);
+    expect(repeats).toBeGreaterThan(0);
+  });
+});
+
 describe('clean sweep', () => {
   it('all three Locations pay the stakes plus half again, rounded up; two of three pay the stakes', () => {
     const sweep = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'black_star'], revealAll: true });
