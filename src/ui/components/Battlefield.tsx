@@ -203,6 +203,8 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
   // Tiles and the ghosts holding a place keep the order they stood in: a piece planned Inside leaves its ghost where it was.
   const row = [...chars.map((c) => ({ key: tileOrder(c), item: c as CharacterInstance | { held: (typeof held)[number] } })), ...held.map((h) => ({ key: h.order, item: { held: h } }))].sort((a, b) => a.key - b.key).map((r) => r.item);
   const slots: (CharacterInstance | { held: { uid: string; defId: string; why: string; dir: 'left' | 'right' | 'up'; through?: boolean; arriving?: boolean } } | { seen: { uid: string; defId: string; why: string } } | null)[] = [...row, ...seen.map((f) => ({ seen: f }))];
+  // Never more tiles than the Gates hold: whatever the plan says, the row is GATE_CAPACITY wide.
+  slots.splice(GATE_CAPACITY);
   while (slots.length < GATE_CAPACITY) slots.push(null);
   // Only the next empty slot is open; the ones after it open as it fills.
   const nextOpen = slots.findIndex((s) => s === null);
@@ -281,7 +283,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                       ›
                     </span>
                   )}
-                  <Pic state={view} c={s} ready={readyBaseline ? !!readyBaseline.characters[s.uid]?.ready : undefined} badges fx={picFx(fx, s.uid)} focus={focus?.includes(s.uid)} strip={planned ? 'Placed' : moving ? 'Moving' : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockKind(view, s) ? LOCK_STRIP[lockKind(view, s)!.kind] : undefined} onClick={() => onChar(s.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(s.uid); }} />
+                  <Pic state={view} c={s} ready={readyBaseline ? !!readyBaseline.characters[s.uid]?.ready : undefined} badges fx={picFx(fx, s.uid)} focus={focus?.includes(s.uid)} strip={planned ? 'Placed' : moving ? (movingTo === index ? 'Arriving' : 'Moving') : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockKind(view, s) ? LOCK_STRIP[lockKind(view, s)!.kind] : undefined} onClick={() => onChar(s.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(s.uid); }} />
                 </div>
               </div>
             );
@@ -361,7 +363,7 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
                     {fx.stamp.sub && <i>{fx.stamp.sub}</i>}
                   </div>
                 )}
-                <Pic state={view} c={c} ready={readyBaseline ? !!readyBaseline.characters[c.uid]?.ready : undefined} highlight={confronting} fx={picFx(fx, c.uid)} focus={focus?.includes(c.uid)} strip={entering ? 'Entering' : brought ? 'Moving' : planned ? 'Placed' : confronting ? 'Confront' : lockKind(view, c) ? LOCK_STRIP[lockKind(view, c)!.kind] : undefined} onClick={() => onChar(c.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(c.uid); }} />
+                <Pic state={view} c={c} ready={readyBaseline ? !!readyBaseline.characters[c.uid]?.ready : undefined} highlight={confronting} fx={picFx(fx, c.uid)} focus={focus?.includes(c.uid)} strip={entering ? 'Entering' : brought ? 'Arriving' : planned ? 'Placed' : confronting ? 'Confront' : lockKind(view, c) ? LOCK_STRIP[lockKind(view, c)!.kind] : undefined} onClick={() => onChar(c.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(c.uid); }} />
               </div>
             </div>
           );

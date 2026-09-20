@@ -573,6 +573,12 @@ export function validatePlan(state: GameState, p: PlayerId, plan: TurnPlan): str
   const gateUse: Record<number, number> = {};
   const eventUse: Record<number, number> = {};
   const oppGateUse: Record<number, number> = {};
+  // Gate slots the plan's own Character cards take, per Location, counted up front for the room checks below.
+  const plannedGates: Record<number, number> = {};
+  for (const play of plan.plays) {
+    const d = CARD_BY_ID[play.cardId];
+    if (d?.kind === 'character' && !d.keywords.includes('INFORMANT')) plannedGates[play.location] = (plannedGates[play.location] ?? 0) + 1;
+  }
   for (const play of plan.plays) {
     if (play.enter) {
       const d = CARD_BY_ID[play.cardId];
@@ -602,6 +608,14 @@ export function validatePlan(state: GameState, p: PlayerId, plan: TurnPlan): str
       else if (charDef(c.defId).keywords.includes('INFORMANT') && (cardDef(play.cardId) as CharacterDef).reveal?.effect.type === 'conductor') errors.push('Harriet will not conduct an Informant.');
       if (play.target.location !== undefined && state.locations[play.target.location].lost) errors.push('That Location is Lost.');
       if (play.target.location === undefined || play.target.location === c?.location) errors.push('Choose a different destination.');
+      else if (c && !state.locations[play.target.location].lost) {
+        // Room where it is going, after the cards played there this turn: the Gates, or Inside for Harriet's passenger.
+        const dest = play.target.location;
+        const rev = (cardDef(play.cardId) as CharacterDef).reveal?.effect.type;
+        const gatesLeft = gateRoom(state, dest, p, plannedGates[dest] ?? 0) > 0;
+        const insideOk = rev === 'conductor' && insideOpen(state, dest, p) && !isBlockedFromEntering(state, { ...c, location: dest });
+        if (!gatesLeft && !insideOk) errors.push(`No room at that Location for ${charDef(c.defId).name}.`);
+      }
     }
     if (opt.needsTarget === 'friendlyInsideChar' && play.target?.charUid) {
       const c = state.characters[play.target.charUid];

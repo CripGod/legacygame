@@ -2,7 +2,7 @@
  * Apply the local player's draft plan to a view so the board shows their moves
  * immediately. Preview instances are visual only; the engine never sees them.
  */
-import { cloneState, CARD_BY_ID, insideOpen, isBlockedFromEntering, other, type GameState, type PlayerId, type TurnPlan, type CharacterInstance } from '../engine';
+import { cloneState, CARD_BY_ID, gateOpen, insideOpen, isBlockedFromEntering, other, type GameState, type PlayerId, type TurnPlan, type CharacterInstance } from '../engine';
 
 export const PLANNED_PREFIX = 'planned:';
 
@@ -29,6 +29,22 @@ export function previewPlan(view: GameState, me: PlayerId, plan: TurnPlan): Game
   plan.plays.forEach((play, i) => {
     const def = CARD_BY_ID[play.cardId];
     if (def?.kind !== 'character') return;
+    const informant = def.keywords.includes('INFORMANT');
+    const c: CharacterInstance = {
+      uid: `${PLANNED_PREFIX}${def.id}`,
+      defId: def.id,
+      owner: informant ? other(me) : me,
+      plantedBy: informant ? me : undefined,
+      location: play.location,
+      zone: 'gate',
+      ready: false,
+      arrivedTurn: v.turn + 2 + i,
+      permInfluence: 0,
+      tempInfluence: 0,
+    };
+    if ((def.keywords.includes('STRAIGHT_INSIDE') || (def.keywords.includes('DIRECT_ENTRY') && play.enter)) && insideOpen(v, c.location, me) && !isBlockedFromEntering(v, c)) c.zone = 'inside';
+    v.characters[c.uid] = c;
+    // The card holds its Gate slot before its Reveal moves anyone, so a move only shows where there will be room.
     // Yemoja's Reveal: show the chosen Established Character brought across.
     if (def.reveal?.effect.type === 'moveFriendlyInsideHere' && play.target?.charUid) {
       const t = v.characters[play.target.charUid];
@@ -45,31 +61,20 @@ export function previewPlan(view: GameState, me: PlayerId, plan: TurnPlan): Game
     if ((def.reveal?.effect.type === 'conductor' || def.reveal?.effect.type === 'moveFriendlyGate') && play.target?.charUid && play.target.location !== undefined) {
       const t = v.characters[play.target.charUid];
       if (t && t.owner === me && (def.reveal.effect.type === 'conductor' || t.zone === 'gate')) {
+        const from = t.location;
         t.location = play.target.location;
         if (def.reveal.effect.type === 'conductor') {
-          // Harriet takes them straight Inside when there is room.
-          const room = insideOpen(v, play.target.location, me);
-          t.zone = room ? 'inside' : 'gate';
-          if (!room) t.ready = true;
-        }
+          // Harriet takes them straight Inside when there is room, to the Gates when those are open, and nowhere otherwise.
+          const room = insideOpen(v, play.target.location, me) && !isBlockedFromEntering(v, { ...t, location: play.target.location });
+          if (room) t.zone = 'inside';
+          else if (gateOpen(v, play.target.location, me)) {
+            t.zone = 'gate';
+            t.ready = true;
+          } else t.location = from;
+        } else if (!gateOpen(v, play.target.location, me)) t.location = from;
         t.relocatedTurn = v.turn;
       }
     }
-    const informant = def.keywords.includes('INFORMANT');
-    const c: CharacterInstance = {
-      uid: `${PLANNED_PREFIX}${def.id}`,
-      defId: def.id,
-      owner: informant ? other(me) : me,
-      plantedBy: informant ? me : undefined,
-      location: play.location,
-      zone: 'gate',
-      ready: false,
-      arrivedTurn: v.turn + 2 + i,
-      permInfluence: 0,
-      tempInfluence: 0,
-    };
-    if ((def.keywords.includes('STRAIGHT_INSIDE') || (def.keywords.includes('DIRECT_ENTRY') && play.enter)) && insideOpen(v, c.location, me) && !isBlockedFromEntering(v, c)) c.zone = 'inside';
-    v.characters[c.uid] = c;
   });
   return v;
 }

@@ -1276,8 +1276,11 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     const add = (uid: string, why: string, to?: number) => {
       const c = view.characters[uid];
       if (!c || c.owner !== me) return;
-      // A Gate piece relocating (or conducted) is still on its tile in the preview, marked Moving: no ghost beside it.
-      if (c.zone === 'gate' && why !== 'enters') return;
+      // A ghost holds the origin only when the preview has moved the piece away (a relocation from Inside, a conducted
+      // piece). A Gate piece relocating stays on its tile in the preview, marked Moving: no ghost beside it.
+      const pv = boardView.characters[uid];
+      const moved = !pv || pv.location !== c.location || pv.zone !== c.zone;
+      if (why !== 'enters' && !moved) return;
       const dir = to === undefined || to === c.location ? 'up' : to < c.location ? 'left' : 'right';
       // The ghost keeps the piece's place in the row: the order the tiles stood in, by arrival then by age.
       (out[c.location] ??= []).push({ uid, defId: c.defId, why, zone: c.zone, dir, order: tileOrder(c) });
@@ -1293,9 +1296,9 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       (out[to] ??= []).push({ uid: `arrive:${uid}`, defId: c.defId, why: 'arrives here', zone: 'gate', dir: to < c.location ? 'right' : 'left', order: Number.POSITIVE_INFINITY, arriving: true });
     };
     for (const r of plan.relocations) arrive(r.uid, r.to);
-    for (const pl of plan.plays) if (pl.target?.charUid && pl.target.location !== undefined) arrive(pl.target.charUid, pl.target.location);
+    // A conducted piece is not ghosted at its destination: the preview already draws it there (Arriving).
     return out;
-  }, [view, me, plan, locked, placeholders]);
+  }, [view, boardView, me, plan, locked, placeholders]);
   /** Threats that fell on this beat: the board keeps their tile up, stamped, until the beat ends. */
   const neutralized = useMemo(
     () =>

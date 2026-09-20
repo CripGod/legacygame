@@ -113,6 +113,8 @@ export function useMatch(initialSeed: number, mode: Mode, deckKeys?: Record<Play
       setPlanState(emptyPlan());
       setTrueState(st);
     };
+    /** Dev (?dev=1): set the whole plan at once (window.__sobPlan(plan)), to stage previews the drag path makes slow to reach. */
+    (window as unknown as { __sobPlan?: (plan: TurnPlan) => void }).__sobPlan = (plan) => setPlanState(plan);
   }, []);
 
   const setPlan = useCallback((fn: (p: TurnPlan) => TurnPlan) => setPlanState((p) => fn(p)), []);
