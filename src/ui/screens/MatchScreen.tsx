@@ -978,7 +978,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         // pulses and the +N rises from it straight into the circle. A power paid to another Location: a ribbon from the
         // tile to that Location's Influence circle (not up to its name), where the +N pops in. The First Location
         // bonus: the ground shakes under the card that guessed the place (it hops and settles, its glow pulses) and
-        // its +N rises from the card into the circle, the smashdown's last note.
+        // its "+1 First Location bonus" rises from the middle of the Location panel into the circle, the smashdown's last note.
         const here: GameEvent[] = [];
         const away: { e: GameEvent; ring?: DOMRect }[] = [];
         const jolts: string[] = [];
@@ -1011,6 +1011,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         const item = (e: GameEvent, from?: DOMRect) => {
           const first = (e.data as { trail?: string }).trail === 'first';
           const amount = (e.data as { amount?: number }).amount;
+          // The First Location bonus reads from the middle of the Location panel, not over the card that guessed it.
+          if (first) from = document.querySelector(`.column[data-index="${e.location}"] .location`)?.getBoundingClientRect() ?? from;
           return { location: e.location!, amount, tone: ((e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs') as 'artist' | 'mine' | 'theirs', side: e.player, label: first && amount ? `+${amount} First Location bonus` : undefined, preheld: true, from: from ? { x: from.left + from.width / 2, y: from.top + from.height / 2 } : undefined };
         };
         // Paid here: the number leaves the tile a beat after the pulse.
