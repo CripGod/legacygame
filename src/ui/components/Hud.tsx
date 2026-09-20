@@ -45,7 +45,7 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
       {profile('A', false)}
       <div className="hud-center">
         {stand && (
-          <button className={`stand-btn ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''} ${stand.slam ? 'slam' : ''}`} disabled={stand.disabled} onClick={stand.onToggle} {...tip(view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes)}>
+          <button className={`stand-btn ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''} ${stand.slam ? 'slam' : ''}`} disabled={stand.disabled} onClick={stand.onToggle} aria-label={view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes}>
             {stand.on ? 'Standing ✓' : 'Stand on Business'}
           </button>
         )}
