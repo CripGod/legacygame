@@ -18,14 +18,14 @@ const INKS = ['#DFD6C4', '#FFE9AE', '#FFFFFF'];
 
 /**
  * The match-end banner from the Brightside kit: the wordless ribbon with the live word (Fredoka 700 at the kit's seat),
- * and the three stars popping up over it one after another. A win lights all three with the burst and the flare; a
- * draw lights the middle one; a loss pops them in dim. The word and the arc scale with the ribbon's width (--k).
+ * and the three stars popping up over it one after another, left to right: the ones earned light with the kit's burst
+ * (all three, the clean sweep, with the flare too), the rest come up grey. The word and the arc scale with the ribbon's width (--k).
  */
-function EndRibbon({ title, tone, stage }: { title: string; tone: 'win' | 'loss' | 'draw'; stage: 1 | 2 }) {
+function EndRibbon({ title, tone, stage, stars }: { title: string; tone: 'win' | 'loss' | 'draw'; stage: 1 | 2; /** Stars earned, 0 to 3, lit left to right. */ stars: number }) {
   const box = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState(0);
   const [flare, setFlare] = useState(false);
-  const lit = tone === 'win' ? 3 : tone === 'draw' ? 1 : 0;
+  const lit = stars;
   useEffect(() => {
     if (stage !== 1) return;
     const quick = reduceMotion();
@@ -34,14 +34,14 @@ function EndRibbon({ title, tone, stage }: { title: string; tone: 'win' | 'loss'
       timers.push(
         window.setTimeout(() => {
           setShown(i + 1);
-          const isLit = tone === 'win' || (tone === 'draw' && st.slot === 'middle');
+          const isLit = i < stars;
           if (isLit && !quick) burst(box.current, st.slot);
-          if (tone === 'win' && i === STARS.length - 1) timers.push(window.setTimeout(() => setFlare(true), 200));
+          if (stars === STARS.length && i === STARS.length - 1) timers.push(window.setTimeout(() => setFlare(true), 200));
         }, quick ? 0 : 620 + i * 380),
       );
     });
     return () => timers.forEach((t) => window.clearTimeout(t));
-  }, [stage, tone]);
+  }, [stage, tone, stars]);
   return (
     <div className="end-ribbon" ref={box} aria-hidden>
       <i className="ribbon-glow" />
@@ -52,7 +52,7 @@ function EndRibbon({ title, tone, stage }: { title: string; tone: 'win' | 'loss'
         {STARS.map((st, i) => (
           <i
             key={st.slot}
-            className={`star ${st.slot} ${shown > i ? 'in' : ''} ${shown > i && (tone === 'win' || (tone === 'draw' && st.slot === 'middle')) ? 'lit' : ''} ${lit === 0 ? 'dim' : ''}`}
+            className={`star ${st.slot} ${shown > i ? 'in' : ''} ${shown > i && i < lit ? 'lit' : 'dim'}`}
             style={{ '--sx': st.cx, '--sy': st.cy, '--srot': `${st.rot}deg`, '--sc': st.sc } as React.CSSProperties}
           >
             <img src={artUrl('kit', 'star-glyph', 'webp')} alt="" />
@@ -148,6 +148,9 @@ export function MatchEnd({
   if (!r) return null;
   const handle = (p: PlayerId) => view.players[p].handle;
   const title = tone === 'win' ? 'VICTORY' : tone === 'loss' ? 'DEFEAT' : 'DRAW';
+  // Three stars: the Locations you took. Two of three is the usual win; all three is the clean sweep; a win on the
+  // tiebreak or by the other side sitting down is one.
+  const stars = !mineWon ? 0 : r.reason === 'locations' ? Math.max(1, r.locationWinners.filter((w) => w === me).length) : 1;
   const line = winner ? `${handle(winner)} wins ${r.payout} Legacy${r.sweep ? ` (clean sweep, +${r.bonus})` : ''}` : 'Nobody wins the Legacy';
   const reason =
     r.reason === 'locations' ? (r.sweep ? 'All three Locations: a clean sweep.' : 'Two of three Locations.') : r.reason === 'tiebreak-influence' ? 'One Location each: total Influence decides.' : r.reason === 'tiebreak-force' ? 'Tied on Influence: total Force decides.' : r.reason === 'stepOff' ? (mineWon ? `${handle(other(me))} sat down.` : 'You sat down.') : 'Nothing separates them.';
@@ -164,8 +167,9 @@ export function MatchEnd({
   return (
     <>
       <div className={`end-banner ${tone} ${stage >= 2 ? 'lift' : ''}`} aria-live="assertive">
+        <div className="end-veil" aria-hidden />
         <div className="end-flash" aria-hidden />
-        <EndRibbon title={title} tone={tone} stage={stage} />
+        <EndRibbon title={title} tone={tone} stage={stage} stars={stars} />
       </div>
       {stage >= 2 && collapsed && (
         <div className={`end-bar ${tone}`} role="status">

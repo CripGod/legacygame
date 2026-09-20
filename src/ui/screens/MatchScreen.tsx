@@ -2254,7 +2254,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         )}
         {turnFlash !== null && (
           <div className="turn-flash" key={turnFlash} aria-hidden>
-            {finalTurnLabel(view) ?? `Turn ${turnFlash}`}
+            <img className="ribbon-base" src={artUrl('kit', 'ribbon', 'webp')} alt="" />
+            <span className="ribbon-word">{finalTurnLabel(view, false, true) ?? `Turn ${turnFlash}`}</span>
           </div>
         )}
         <Coach view={view} me={me} plan={plan} enabled={coach && tutorial && planning && m.mode === 'ai' && !guide && !lesson} onActive={setFlash} override={doing ? null : guideText} />
@@ -2343,9 +2344,9 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
               </i>
             </button>
           )}
-          <div className={`turn-panel ribboned ${finalTurnLabel(view) ? 'final' : ''}`} {...tip(finalTurnLabel(view) ? (view.maxTurns === EXTENDED_TURNS ? HINTS.lastWord : HINTS.finalTurn) : HINTS.energy)}>
+          <div className={`turn-panel ${finalTurnLabel(view) ? 'final' : ''}`} {...tip(finalTurnLabel(view) ? (view.maxTurns === EXTENDED_TURNS ? HINTS.lastWord : HINTS.finalTurn) : HINTS.energy)}>
             <div className="turn-text">
-              {finalTurnLabel(view, false, true) ?? `Turn ${Math.min(view.turn, view.maxTurns)} / ${view.maxTurns}`}
+              {finalTurnLabel(view) ?? `Turn ${Math.min(view.turn, view.maxTurns)} / ${view.maxTurns}`}
             </div>
             <div className="crystals" aria-label={`Energy ${energyShown} of ${opts.energy}`}>
               {Array.from({ length: Math.max(ENERGY_CAP, opts.energy) }, (_, i) => (
