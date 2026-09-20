@@ -1309,9 +1309,14 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 }
 
 /* Arrival: the card flips face up in its slot, bright on the turn, and settles (Snap reveals its cards in place). */
-/* The turn takes its time (1.8s): a moment on the back, it swells, turns at the top of the swell, holds the face, then settles. */
+/* The turn takes its time (1.8s): a moment on the back, it swells, turns at the top of the swell, holds the face, then settles.
+   On a framed Gate tile the whole tile turns, frame and all (.fx-flip on the slot, the back in its window); .pic.fx-arrive
+   is the same turn for a picture without a frame of its own (an Inside seat). */
 .pic.fx-arrive { position: relative; overflow: visible; animation: fx-arrive 1.8s linear both; }
-.tile-glow:has(.pic.fx-arrive), .tile-glow.event.trigger { z-index: 30; }
+.gate-slot.gf.filled.fx-flip { animation: fx-arrive 1.8s linear both; }
+.gate-slot.gf.filled.fx-flip > .back { position: absolute; top: var(--gi-t); left: var(--gi-x); width: calc(100% - 2 * var(--gi-x)); height: calc(100% - var(--gi-t) - var(--gi-b)); z-index: 6; background: var(--card-back) center / cover no-repeat; transform: scaleX(-1); opacity: var(--back, 0); pointer-events: none; }
+.gate-slot.gf.filled.fx-flip .b, .gate-slot.gf.filled.fx-flip .strip { opacity: calc(1 - var(--back, 0)); }
+.tile-glow:has(.pic.fx-arrive), .tile-glow:has(.fx-flip), .tile-glow.event.trigger { z-index: 30; }
 /* A flat flip, one animation: the tile turns from 180 degrees, and --back (switched in the same keyframes, at the
    edge-on moment) shows the back for the first half and the face for the second. The back is mirrored so it reads
    right while the tile is turned round; the orbs and the strip belong to the face and come with it. Real 3D
@@ -1342,7 +1347,8 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 }
 @media (prefers-reduced-motion: reduce) {
   .pic.fx-windup, .pic.fx-knocked, .pic.fx-held, .pic.fx-hexed, .pic.fx-land, .pic.fx-arrive, .pic.fx-jolt { animation: none; }
-  .pic.fx-arrive::after, .gate-slot.event-slot .back { display: none; }
+  .pic.fx-arrive::after, .gate-slot.event-slot .back, .gate-slot.fx-flip > .back { display: none; }
+  .gate-slot.gf.filled.fx-flip { animation: none; }
   .pic.fx-knocked::after, .pic.fx-held::after, .pic.fx-hexed::after { animation: none; opacity: 0; }
 }
 

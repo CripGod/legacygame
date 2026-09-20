@@ -270,9 +270,11 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                 <div
                   data-uid={s.uid}
                   data-place={`${index}:gate`}
-                  className={`gate-slot filled gf owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''}`}
+                  className={`gate-slot filled gf owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''} ${fx?.arrive === s.uid ? 'fx-flip' : ''}`}
                   {...draggable}
                 >
+                  {/* An arrival turns the whole framed tile over, frame and all; the back sits in the frame's window. */}
+                  {fx?.arrive === s.uid && <i className="back" aria-hidden />}
                   {fx?.stamp?.uid === s.uid && (
                     <div className={`stamp verdict ${fx.stamp.tone ?? 'hit'}`}>
                       <b>{fx.stamp.title}</b>
@@ -284,7 +286,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                       ›
                     </span>
                   )}
-                  <Pic state={view} c={s} ready={readyBaseline ? !!readyBaseline.characters[s.uid]?.ready : undefined} badges fx={picFx(fx, s.uid)} focus={focus?.includes(s.uid)} strip={planned ? 'Placed' : moving ? (movingTo === index ? 'Arriving' : 'Moving') : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockKind(view, s) ? LOCK_STRIP[lockKind(view, s)!.kind] : undefined} onClick={() => onChar(s.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(s.uid); }} />
+                  <Pic state={view} c={s} ready={readyBaseline ? !!readyBaseline.characters[s.uid]?.ready : undefined} badges fx={picFx(fx, s.uid) === 'arrive' ? undefined : picFx(fx, s.uid)} focus={focus?.includes(s.uid)} strip={planned ? 'Placed' : moving ? (movingTo === index ? 'Arriving' : 'Moving') : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockKind(view, s) ? LOCK_STRIP[lockKind(view, s)!.kind] : undefined} onClick={() => onChar(s.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(s.uid); }} />
                 </div>
               </div>
             );
