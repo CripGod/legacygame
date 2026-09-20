@@ -1684,7 +1684,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 /* The call between turns, 1.9s in all: the board darkens (0 to 250ms), the banner lands on it (150 to 500ms, the ring
    bell on the landing), holds, fades and drifts up (1250 to 1600ms), and the board comes back up (1300 to 1800ms). One
    timeline drives both layers, so the steps always line up. */
-.turn-veil { position: absolute; inset: 0; background: rgba(2, 5, 10, 0.74); animation: turn-veil 1.9s linear both; }
+.turn-veil { position: absolute; inset: 0; background: rgba(2, 5, 10, 0.62); animation: turn-veil 1.9s linear both; }
 @keyframes turn-veil {
   0% { opacity: 0; animation-timing-function: ease-out; }
   13% { opacity: 1; }
@@ -1701,7 +1701,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
   animation: turn-flash 1.9s linear both;
 }
 .turn-flash .ribbon-base { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.turn-flash .ribbon-word { position: absolute; left: 50%; top: 35.3%; transform: translate(-50%, -50%); font-family: 'Fredoka', var(--display), sans-serif; font-weight: 700; font-size: calc(var(--k) * 64.4); line-height: 1; letter-spacing: 0.01em; color: #22304a; text-shadow: 0 calc(var(--k) * 3.2) calc(var(--k) * 4) rgba(138, 126, 100, 0.26); white-space: nowrap; }
+.turn-flash .ribbon-word { position: absolute; left: 50%; top: 35.3%; transform: translate(-50%, -50%); font-family: var(--display); font-weight: 700; font-size: calc(var(--k) * 58); line-height: 1; letter-spacing: 0.08em; text-transform: uppercase; color: #22304a; text-shadow: 0 calc(var(--k) * 3.2) calc(var(--k) * 4) rgba(138, 126, 100, 0.26); white-space: nowrap; }
 @keyframes turn-flash {
   0% { opacity: 0; transform: translate(-50%, -50%) scale(0.72); }
   8% { opacity: 0; transform: translate(-50%, -50%) scale(0.72); animation-timing-function: cubic-bezier(0.2, 0.9, 0.3, 1.3); }
@@ -2319,8 +2319,8 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .gates .gate-slot.event-slot.empty { filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55)); }
 
 /* ---------- The Brightside match-end: the ribbon, the live word, the three stars ----------
-   The wordless ribbon (public/art/kit/ribbon.webp, 807 by 231 at 1x) with the word in the kit's face (Fredoka 700,
-   64.4 px at 1x, #22304A, at the seat 78.65 px below the shell's top), the three glyph stars in the kit's own arc
+   The wordless ribbon (public/art/kit/ribbon.webp, 807 by 231 at 1x) with the word in the game's headline face (Cinzel
+   700, the kit's Fredoka set aside so the banner matches the rest of the game; 58 px at 1x, #22304A, at the kit's seat), the three glyph stars in the kit's own arc
    (docs/ui-kit-cut/brightside/manifest.json, composition.threeStars: outer stars tilted 15 degrees and smaller, the
    middle bigger and higher), scaled down a little for a landscape screen (--sk), and the burst dots on each lit star.
    Everything scales with the ribbon's width through --k, a length (the ribbon's px per 1x unit): sizes are --k times a
@@ -2328,7 +2328,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .end-ribbon { position: absolute; left: 50%; top: 58%; --rb-w: min(62vw, 720px); --k: calc(var(--rb-w) / 807); --sk: 0.42; --sp: 0.66; width: var(--rb-w); aspect-ratio: 807 / 231; transform: translate(-50%, -50%); animation: end-slam 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.25) both; }
 .end-ribbon .ribbon-base { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .end-ribbon .ribbon-glow { position: absolute; left: 50%; top: 50%; width: calc(var(--k) * 987); height: calc(var(--k) * 411); transform: translate(-50%, -50%); background: #ffe9ae; -webkit-mask: var(--kit-ribbon-glow) center / 100% 100% no-repeat; mask: var(--kit-ribbon-glow) center / 100% 100% no-repeat; opacity: 0.85; z-index: -1; }
-.end-ribbon .ribbon-word { position: absolute; left: 50%; top: 35.3%; transform: translate(-50%, -50%); font-family: 'Fredoka', var(--display), sans-serif; font-weight: 700; font-size: calc(var(--k) * 64.4); line-height: 1; letter-spacing: 0.01em; color: #22304a; text-shadow: 0 calc(var(--k) * 3.2) calc(var(--k) * 4) rgba(138, 126, 100, 0.26); white-space: nowrap; }
+.end-ribbon .ribbon-word { position: absolute; left: 50%; top: 35.3%; transform: translate(-50%, -50%); font-family: var(--display); font-weight: 700; font-size: calc(var(--k) * 58); line-height: 1; letter-spacing: 0.08em; text-transform: uppercase; color: #22304a; text-shadow: 0 calc(var(--k) * 3.2) calc(var(--k) * 4) rgba(138, 126, 100, 0.26); white-space: nowrap; }
 .end-ribbon .ribbon-stars { position: absolute; inset: 0; pointer-events: none; }
 .end-ribbon .star { position: absolute; left: calc(50% + var(--sx) * var(--k) * var(--sp)); top: calc(47.7% + var(--sy) * var(--k) * var(--sp)); width: calc(214.7 * var(--sc) * var(--k) * var(--sk)); transform: translate(-50%, -50%) rotate(var(--srot)) scale(0); }
 .end-ribbon .star img { display: block; width: 100%; height: auto; }

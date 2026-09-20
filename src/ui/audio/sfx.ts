@@ -125,7 +125,7 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'sheet.close': [{ files: ['card-back'], gain: 0.5 }, { files: ['move-1'], gain: 0.3 }],
   'influence.up': [{ files: ['meter-ding'], gain: 0.55 }], // a bright two-note climb on the xylophone
   lock: [{ files: ['lock'], gain: 0.8 }],
-  turn: [{ files: ['stand-bell'], gain: 0.75, at: 320 }], // the ring bell on the banner's landing (~350ms into the call); the soft bells are gone
+  turn: [{ files: ['stand-bell'], gain: 0.75, at: 520 }], // the ring bell on the banner's landing (the overshoot peak, ~500ms into the call); the soft bells are gone
   'location.reveal': [{ files: ['stand-thud'], gain: 0.6, at: 1260 }, { files: ['turn'], gain: 0.4, at: 1420 }], // the thud on the smashdown's landing (~1.26s into the beat, after the picture develops and the panel grows)
   'location.open': [{ files: ['turn'], gain: 0.4, at: 700 }], // the quiet reveal: the bells as the colour comes in
   draw: [{ files: ['draw'], gain: 0.5 }],
