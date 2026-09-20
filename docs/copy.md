@@ -929,6 +929,7 @@ Rules
 ### Legacy
 - Matches start at 1 Legacy. Either player may Stand on Business once to multiply it, and the earlier the bolder: ×4 on turns 1–2, ×3 on turns 3–5, ×2 from turn 6 (up to 16). It cuts both ways: an early Stand wins more and loses more. Standing adds a 9th turn, The Last Word: both sides get 10 Energy and an extra card on it, and whoever stood can no longer Sit Down.
 - A Stand is part of your hidden plan and lands one turn later. The other player is never forced to answer: they get a full turn to Sit Down for the old Legacy, keep playing at the new Legacy, or Stand back and multiply it again.
+- A clean sweep, all three Locations, pays half the Legacy again, rounded up: 1 pays 2, 4 pays 6, 16 pays 24.
 - Sit Down is a retreat: the match ends at once and the other side takes the current Legacy. Sitting down during the grace turn is the cheap exit.
 ### Resolution order
 - Location reveal
@@ -948,7 +949,7 @@ An Event is dropped on a Location the same way a Character is: it goes into the 
 
 ## End of the match
 
-r.reason === 'locations' ? 'Two of three Locations.' : r.reason === 'tiebreak-influence' ? 'One Location each: total Influence decides.' : r.reason === 'tiebreak-force' ? 'Tied on Influence: total Force decides.' : r.reason === 'stepOff' ? (mineWon ? `$… sat down.` : 'You sat down.') : 'Nothing separates them.';
+r.reason === 'locations' ? (r.sweep ? 'All three Locations: a clean sweep.' : 'Two of three Locations.') : r.reason === 'tiebreak-influence' ? 'One Location each: total Influence decides.' : r.reason === 'tiebreak-force' ? 'Tied on Influence: total Force decides.' : r.reason === 'stepOff' ? (mineWon ? `$… sat down.` : 'You sat down.') : 'Nothing separates them.';
 = 2 ? 'lift' : ''} aria-live="assertive">
 onCollapse(false)}>
 Show result
@@ -1025,11 +1026,12 @@ Menu
 - ${(CARD_BY_ID[cardId] as { name?: string } | undefined)?.name ?? cardId} arrives.
 - moves with ${cardName(pl.cardId, placeholders)}
 - relocates to ${view.locations[r.to].revealed ? locationName(view.locations[r.to].defId, placeholders) : 
+- All three Locations: a clean sweep.
 - One Location each: total Influence decides.
 - Tied on Influence: total Force decides.
 - ${handle(other(me))} sat down.
-- ${handle(winner)} wins ${r.stakes} Legacy
-- Won ${r.stakes} vs ${handle(other(me))}
+- ${handle(winner)} wins ${r.payout} Legacy${r.sweep ? 
+- Won ${r.payout} vs ${handle(other(me))}${r.sweep ? ' (clean sweep)' : ''}
 - That is the move. Press Lock It In.
 - That works too. Or ${guide.text.charAt(0).toLowerCase()}${guide.text.slice(1)}
 - ${nm} cannot be played right now.
@@ -1117,7 +1119,7 @@ Menu
 - ${view.players[other(me)].handle} holds nothing
 - What happened last turn, step by step.
 - danger ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}
-- primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${doing?.lock ? 'ftue-flash' : ''}
+- primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${locked ? 'locked' : ''} ${doing?.lock ? 'ftue-flash' : ''}
 - ${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 0}%
 - turn-panel ${finalTurnLabel(view) ? 'final' : ''}
 - Turn ${Math.min(view.turn, view.maxTurns)} / ${view.maxTurns}
@@ -1687,6 +1689,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - Team-up, ${TEAM_UP_BY_ID[t.id].name} (${view.players[t.owner].handle}): ${TEAM_UP_BY_ID[t.id].text} It holds while both remain Inside.
 - line ${winner && winner !== 'lost' ? 
 - threat-col ${has ? '' : 'empty'}
+- loc-rule ${loc.revealed && !loc.lost && def.rule.length > 115 ? 'long' : ''}
 - LOST: ${loc.lostReason ?? 'an unresolved crisis'} Neither player can win here.
 - Hidden until revealed. Commit blind.
 
@@ -1906,7 +1909,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${def.name} appears at ${locName(state, location)}.
 - Anansi retells ${from?.name ?? 'the Location'}: it is now ${into.name}, with his web over it. The small grow here and the large shrink.
 - ${from?.name ?? 'The Location'} arrives: it is now ${into.name}.
-- ${THREAT_BY_ID[t.defId]?.name ?? 'The Threat'} at ${into.name} is left behind.
+- ${THREAT_BY_ID[t.defId]?.name ?? 'The Threat'} at ${into.name} is left behind on the dock: nobody broke it, and nobody is paid for it.
 - Everyone aboard gains +1 Influence (${aboard.length} Character${aboard.length > 1 ? 's' : ''}).
 - ${CHARACTER_BY_ID[c.defId]?.name ?? c.defId} (${state.players[p].handle}) walks straight into ${into.name}.
 - Turn ${state.turn} begins.

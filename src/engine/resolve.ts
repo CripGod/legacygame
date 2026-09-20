@@ -35,7 +35,7 @@ import {
   cardCost,
   lockReason, swornAt, teamUpAssembled, standingAt } from './query';
 import type { CharacterDef, CharacterInstance, GameEvent, GameState, MatchResult, PlayAction, PlayerId, ResolveOptions, ResolveOutput, ThreatInstance, TraceStep, TurnPlan } from './types';
-import { MAX_STAKES, standMultiplier, PLAYERS, EXTENDED_TURNS, MAX_HAND, other, emptyPlan, LEGEND_READY } from './types';
+import { MAX_STAKES, standMultiplier, PLAYERS, EXTENDED_TURNS, MAX_HAND, other, emptyPlan, LEGEND_READY, sweepBonus } from './types';
 import { GATHERING_DEFS } from './content/characters';
 
 export function cloneState(s: GameState): GameState {
@@ -1119,11 +1119,13 @@ function finalize(state: GameState, events: GameEvent[]): void {
       }
     }
   }
-  state.result = { winner, reason, locationWinners, influence, stakes: state.stakes, turn: state.turn };
+  const sweep = winner !== null && won[winner] === 3;
+  const bonus = sweep ? sweepBonus(state.stakes) : 0;
+  state.result = { winner, reason, locationWinners, influence, stakes: state.stakes, sweep, bonus, payout: state.stakes + bonus, turn: state.turn };
   state.phase = 'ended';
   events.push({
     type: 'ended',
-    text: winner ? `${state.players[winner].handle} wins the match (${won[winner]} Locations).` : 'The match is a draw.',
+    text: winner ? `${state.players[winner].handle} wins the match (${won[winner]} Locations).${sweep ? ` A clean sweep: +${bonus} Legacy.` : ''}` : 'The match is a draw.',
     data: { result: state.result },
   });
 }
@@ -1134,7 +1136,7 @@ function endByStepOff(state: GameState, p: PlayerId, events: GameEvent[]): void 
     A: state.locations.map((l) => influenceAt(state, l.index).A),
     B: state.locations.map((l) => influenceAt(state, l.index).B),
   };
-  state.result = { winner: other(p), reason: 'stepOff', locationWinners, influence, stakes: state.stakes, turn: state.turn };
+  state.result = { winner: other(p), reason: 'stepOff', locationWinners, influence, stakes: state.stakes, sweep: false, bonus: 0, payout: state.stakes, turn: state.turn };
   state.phase = 'ended';
   state.stats.stepOffTurn = { player: p, turn: state.turn };
   for (const r of state.pendingRaises) {

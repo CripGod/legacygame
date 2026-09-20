@@ -40,6 +40,10 @@ export const LEGEND_READY = 2;
 export const MAX_EVENTS = 2;
 export const PLANNING_SECONDS = 120;
 export const MAX_STAKES = 16;
+/** A clean sweep, all three Locations, pays half the Legacy again on top of the stakes, rounded up: 1 pays 2, 4 pays 6, 16 pays 24. */
+export function sweepBonus(stakes: number): number {
+  return Math.ceil(stakes / 2);
+}
 /**
  * Stand on Business multiplies the Legacy by how early it is called (index = turn − 1): the earlier the Stand, the
  * bolder, and it cuts both ways. ×4 on turns 1–2, ×3 on turns 3–5, ×2 from turn 6. Two early Stands reach the cap.
@@ -443,6 +447,12 @@ export interface MatchResult {
   locationWinners: (PlayerId | null | 'lost')[];
   influence: Record<PlayerId, number[]>;
   stakes: number;
+  /** All three Locations to the winner. */
+  sweep: boolean;
+  /** The clean-sweep bonus on top of the stakes (0 without one). */
+  bonus: number;
+  /** What the winner takes: stakes plus bonus. */
+  payout: number;
   turn: number;
 }
 

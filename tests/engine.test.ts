@@ -40,6 +40,7 @@ import {
   EXTENDED_TURNS,
   LAST_WORD_ENERGY,
   MAX_ENERGY,
+  sweepBonus,
 } from '../src/engine';
 import { planTurn } from '../src/ai/harborlight';
 
@@ -516,6 +517,32 @@ describe('energy', () => {
       expect(validateDeck(d.cards)).toEqual([]);
       for (const id of d.cards) expect(CARD_BY_ID[id]?.cost ?? 0).toBeGreaterThanOrEqual(0);
     }
+  });
+});
+
+describe('clean sweep', () => {
+  it('all three Locations pay the stakes plus half again, rounded up; two of three pay the stakes', () => {
+    const sweep = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'black_star'], revealAll: true });
+    sweep.turn = 8;
+    for (const loc of [0, 1, 2]) addChar(sweep, 'og', 'A', loc, 'inside');
+    const a = resolveTurn(sweep, { A: pass(), B: pass() }).state;
+    expect(a.phase).toBe('ended');
+    expect(a.result?.winner).toBe('A');
+    expect(a.result?.sweep).toBe(true);
+    expect(a.result?.bonus).toBe(sweepBonus(a.result!.stakes));
+    expect(a.result?.payout).toBe(a.result!.stakes + a.result!.bonus);
+    expect(sweepBonus(1)).toBe(1);
+    expect(sweepBonus(4)).toBe(2);
+    expect(sweepBonus(16)).toBe(8);
+    const two = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'black_star'], revealAll: true });
+    two.turn = 8;
+    for (const loc of [0, 1]) addChar(two, 'og', 'A', loc, 'inside');
+    addChar(two, 'og', 'B', 2, 'inside');
+    const b = resolveTurn(two, { A: pass(), B: pass() }).state;
+    expect(b.result?.winner).toBe('A');
+    expect(b.result?.sweep).toBe(false);
+    expect(b.result?.bonus).toBe(0);
+    expect(b.result?.payout).toBe(b.result!.stakes);
   });
 });
 

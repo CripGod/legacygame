@@ -1355,11 +1355,11 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       }
       if (cancelled) return;
       const mineWon = winner === me;
-      const reason = r.reason === 'locations' ? 'Two of three Locations.' : r.reason === 'tiebreak-influence' ? 'One Location each: total Influence decides.' : r.reason === 'tiebreak-force' ? 'Tied on Influence: total Force decides.' : r.reason === 'stepOff' ? (mineWon ? `${handle(other(me))} sat down.` : 'You sat down.') : 'Nothing separates them.';
-      setVerdict({ title: winner ? (mineWon ? 'Victory' : 'Defeat') : 'Draw', line: winner ? `${handle(winner)} wins ${r.stakes} Legacy` : 'Nobody wins the Legacy', reason, tone: winner ? (mineWon ? 'win' : 'loss') : 'draw' });
+      const reason = r.reason === 'locations' ? (r.sweep ? 'All three Locations: a clean sweep.' : 'Two of three Locations.') : r.reason === 'tiebreak-influence' ? 'One Location each: total Influence decides.' : r.reason === 'tiebreak-force' ? 'Tied on Influence: total Force decides.' : r.reason === 'stepOff' ? (mineWon ? `${handle(other(me))} sat down.` : 'You sat down.') : 'Nothing separates them.';
+      setVerdict({ title: winner ? (mineWon ? 'Victory' : 'Defeat') : 'Draw', line: winner ? `${handle(winner)} wins ${r.payout} Legacy${r.sweep ? ` (clean sweep, +${r.bonus})` : ''}` : 'Nobody wins the Legacy', reason, tone: winner ? (mineWon ? 'win' : 'loss') : 'draw' });
       sfx(winner ? (mineWon ? 'win' : 'lose') : 'draw.game');
       // The winner banks the match's Legacy (not in the tutorial).
-      if (mineWon && !tutorial && r.stakes > 0) bank(r.stakes, `Won ${r.stakes} vs ${handle(other(me))}`);
+      if (mineWon && !tutorial && r.payout > 0) bank(r.payout, `Won ${r.payout} vs ${handle(other(me))}${r.sweep ? ' (clean sweep)' : ''}`);
       // The banner slams in over the board; a win gets its burst. Then it lifts and the result panel rises.
       setEndStage(1);
       if (mineWon && !reduceMotion()) {

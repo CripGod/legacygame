@@ -777,7 +777,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
           })}
         </div>
         <div className={`verdict ${stage >= 5 ? 'show' : ''}`}>
-          {winner ? `${handle(winner)} wins ${r.stakes} Legacy` : 'Nobody wins the Legacy'}
+          {winner ? `${handle(winner)} wins ${r.payout} Legacy${r.sweep ? ` (clean sweep, +${r.bonus})` : ''}` : 'Nobody wins the Legacy'}
         </div>
         {stage >= 5 && (
           <div className="actions" style={{ justifyContent: 'center' }}>

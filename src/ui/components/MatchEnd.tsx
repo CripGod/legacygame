@@ -37,7 +37,7 @@ export function MatchEnd({
   const tone: 'win' | 'loss' | 'draw' = winner ? (mineWon ? 'win' : 'loss') : 'draw';
   // The wallet counts up from what it held before this match's Legacy was banked.
   const after = balance();
-  const gain = mineWon && r ? r.stakes : 0;
+  const gain = mineWon && r ? r.payout : 0;
   const [wallet, setWallet] = useState(after - gain);
   useEffect(() => {
     if (stage < 2 || gain <= 0) return;
@@ -54,9 +54,9 @@ export function MatchEnd({
   if (!r) return null;
   const handle = (p: PlayerId) => view.players[p].handle;
   const title = tone === 'win' ? 'VICTORY' : tone === 'loss' ? 'DEFEAT' : 'DRAW';
-  const line = winner ? `${handle(winner)} wins ${r.stakes} Legacy` : 'Nobody wins the Legacy';
+  const line = winner ? `${handle(winner)} wins ${r.payout} Legacy${r.sweep ? ` (clean sweep, +${r.bonus})` : ''}` : 'Nobody wins the Legacy';
   const reason =
-    r.reason === 'locations' ? 'Two of three Locations.' : r.reason === 'tiebreak-influence' ? 'One Location each: total Influence decides.' : r.reason === 'tiebreak-force' ? 'Tied on Influence: total Force decides.' : r.reason === 'stepOff' ? (mineWon ? `${handle(other(me))} sat down.` : 'You sat down.') : 'Nothing separates them.';
+    r.reason === 'locations' ? (r.sweep ? 'All three Locations: a clean sweep.' : 'Two of three Locations.') : r.reason === 'tiebreak-influence' ? 'One Location each: total Influence decides.' : r.reason === 'tiebreak-force' ? 'Tied on Influence: total Force decides.' : r.reason === 'stepOff' ? (mineWon ? `${handle(other(me))} sat down.` : 'You sat down.') : 'Nothing separates them.';
   const profile = (p: PlayerId) => {
     const ps = view.players[p];
     return (
