@@ -55,7 +55,7 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
             {(view.pendingRaises.length > 0 || stand?.on) && <em>→{stand?.on && stand.proposed ? stand.proposed : effectiveStakes(view)}</em>}
             <small>legacy</small>
           </span>
-          <SettingsMenu className="hud-settings" />
+          <SettingsMenu className="hud-settings" icon="gear" />
         </div>
       </div>
       {profile('B', true)}

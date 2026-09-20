@@ -643,7 +643,7 @@ export function Battlefield(props: BattlefieldProps) {
               })()}
               <InEffect view={view} index={loc.index} me={me} onOpen={() => onLocationInfo(loc.index)} />
               <div
-                className="loc-rule"
+                className={`loc-rule ${loc.revealed && !loc.lost && def.rule.length > 115 ? 'long' : ''}`}
                 onClick={(e) => {
                   e.stopPropagation();
                   onLocationInfo(loc.index);

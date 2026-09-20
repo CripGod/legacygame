@@ -96,6 +96,9 @@ body { font-family: var(--font); font-size: 16px; }
   box-shadow: 0 0 0 2px #2a1e06, 0 0 22px 6px rgba(246, 215, 122, 0.85), 0 0 60px 14px rgba(233, 185, 58, 0.45);
 }
 .profile.first .plate { --bc: var(--gold-2); }
+/* Whose turn it is to go first: the glow takes their colour, gold for you and blue for Harborlight. */
+.profile.first.pB .avatar { box-shadow: 0 0 0 2px #061a33, 0 0 22px 6px rgba(120, 178, 255, 0.85), 0 0 60px 14px rgba(70, 130, 220, 0.45); }
+.profile.first.pB .plate { --bc: #7fb2ff; }
 .plate {
   --bfill: linear-gradient(180deg, #0f2036, #0a1626);
   --bw: 1.5px;
@@ -1950,6 +1953,13 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .location.framed .influence .score { width: clamp(24px, min(2.7vw, 4vh), 34px); height: clamp(24px, min(2.7vw, 4vh), 34px); font-size: clamp(12px, min(1.4vw, 2vh), 17px); }
 .location.framed .slots { padding: 1px 0 2px calc(var(--slot) * 0.2); gap: calc(var(--slot) * 0.12); }
 .location.framed .loc-rule { margin: 2px 10px 0; font-size: clamp(8px, 0.8vw, 12px); line-height: 1.25; }
+/* The rule box is one constant height (two lines) whatever the Location says, so the Inside seats never move when a
+   Location reveals or changes and the three columns share one layout. Long rules take a smaller face; the sheet has
+   the whole text either way (tap the box). */
+.location.framed { --rule-h: calc(2.5 * clamp(8px, 0.8vw, 12px) + 6px); }
+.location.framed .loc-rule { -webkit-line-clamp: 2; height: var(--rule-h); min-height: var(--rule-h); box-sizing: border-box; }
+.location.framed .loc-rule.long { font-size: clamp(8px, 0.7vw, 10.5px); line-height: 1.2; padding-top: 4px; }
+@media (max-width: 700px) { .location.framed .loc-rule.long { font-size: 8.5px; } }
 
 /* Where a piece is going: its ghost at the Gates it arrives at, dashed, with the lit frame faint, and an Arriving strip. */
 .gate-slot.reserved.arriving { --bfill: rgba(79, 209, 138, 0.1); border-style: dashed; }

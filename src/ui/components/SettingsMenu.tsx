@@ -4,10 +4,10 @@ import { hideTip, tip } from '../tip';
 import { setHints, useHints } from '../hints';
 
 /**
- * A speaker that opens a small menu of switches: music, sound effects and hints. Lives in the landing page's corner and under
+ * A speaker (landing page) or a gear (in the match) that opens a small menu of switches: music, sound effects and hints. Lives in the landing page's corner and under
  * the Stand button in the match, so the switches themselves stay out of the way.
  */
-export function SettingsMenu({ className }: { className?: string }) {
+export function SettingsMenu({ className, icon = 'sound' }: { className?: string; icon?: 'sound' | 'gear' }) {
   const [open, setOpen] = useState(false);
   const s = useAudioSettings();
   const hints = useHints();
@@ -31,7 +31,11 @@ export function SettingsMenu({ className }: { className?: string }) {
     <div className={`settings ${open ? 'open' : ''} ${className ?? ''}`} ref={root}>
       <button className="settings-btn" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen((o) => !o)} {...tip('Settings: sound and hints.')}>
         <svg viewBox="0 0 24 24" aria-hidden>
-          <path d="M3 9.5v5h3.6L12 19V5L6.6 9.5H3zm11.5-1.2v7.4a3.9 3.9 0 0 0 0-7.4zm0-3.6v2.1a5.6 5.6 0 0 1 0 10.4v2.1a7.6 7.6 0 0 0 0-14.6z" />
+          {icon === 'gear' ? (
+            <path d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.7 7.7 0 0 0-1.7-1L15 3.3H9l-.4 2.6a7.7 7.7 0 0 0-1.7 1l-2.5-1-2 3.5L4.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.7 7.7 0 0 0 1.7 1l.4 2.6h6l.4-2.6a7.7 7.7 0 0 0 1.7-1l2.5 1 2-3.5L19.4 13zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" />
+          ) : (
+            <path d="M3 9.5v5h3.6L12 19V5L6.6 9.5H3zm11.5-1.2v7.4a3.9 3.9 0 0 0 0-7.4zm0-3.6v2.1a5.6 5.6 0 0 1 0 10.4v2.1a7.6 7.6 0 0 0 0-14.6z" />
+          )}
         </svg>
       </button>
       {open && (
