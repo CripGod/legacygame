@@ -1197,9 +1197,10 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   useEffect(() => {
     if (m.replay || turnHeard.current === view.turn) return;
     turnHeard.current = view.turn;
-    sfx('turn');
+    // The ring bell is the turn call's, and the call only comes from turn 2 (a rematch resets the turn to 1 here).
+    if (view.turn > 1) sfx('turn');
     // The Black Star arrives as the turn starts, outside the replay (Anansi's retelling is a Reveal beat and sounds
-    // there): the place sounds after the bells.
+    // there): the place sounds after the bell.
     const arrivals = view.lastEvents.filter((e) => e.type === 'locationTransformed' && !e.data?.retold);
     arrivals.forEach((e, i) => {
       const to = e.data?.to;
@@ -1368,11 +1369,15 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   useEffect(() => {
     const back = planning && !wasPlanning.current && view.turn > 1;
     wasPlanning.current = planning;
-    if (!back) return;
-    setTurnFlash(view.turn);
-    const id = window.setTimeout(() => setTurnFlash(null), 1900); // the call's whole run: veil in, banner in, hold, banner out, veil out
-    return () => window.clearTimeout(id);
+    if (back) setTurnFlash(view.turn);
   }, [planning, view.turn]);
+  // The call runs its course (1.9s: veil in, banner in, hold, banner out, veil out) whatever the player does meanwhile:
+  // its removal is keyed on the call itself, so a Lock In during the call cannot strand the layer.
+  useEffect(() => {
+    if (turnFlash === null) return;
+    const id = window.setTimeout(() => setTurnFlash(null), 1900);
+    return () => window.clearTimeout(id);
+  }, [turnFlash]);
   /**
    * The Reckoning, on the board: once the last replay has played, each Location takes its winner's stamp, the
    * loser's Locations first and the decisive one last, then the verdict lands over the board and the corner banner
@@ -2252,15 +2257,6 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
             <div className="peek-hint">Kept in {view.players[other(me)].handle}'s profile · tap to dismiss</div>
           </div>
         )}
-        {turnFlash !== null && (
-          <div className="turn-call" key={turnFlash} aria-hidden>
-            <div className="turn-veil" />
-            <div className="turn-flash">
-              <img className="ribbon-base" src={artUrl('kit', 'ribbon', 'webp')} alt="" />
-              <span className="ribbon-word">{finalTurnLabel(view, false, true) ?? `Turn ${turnFlash}`}</span>
-            </div>
-          </div>
-        )}
         <Coach view={view} me={me} plan={plan} enabled={coach && tutorial && planning && m.mode === 'ai' && !guide && !lesson} onActive={setFlash} override={doing ? null : guideText} />
         <Spotlight active={planning && !drag && (flash !== null || guide !== null || !!doing)} />
         {doing && (
@@ -2386,6 +2382,16 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           </div>
         </div>
       </div>
+      {/* The turn call sits under the app root (a fixed box inside .main-wrap, a size container, is board-sized in some engines). */}
+      {turnFlash !== null && (
+        <div className="turn-call" key={turnFlash} aria-hidden>
+          <div className="turn-veil" />
+          <div className="turn-flash">
+            <img className="ribbon-base" src={artUrl('kit', 'ribbon', 'webp')} alt="" />
+            <span className="ribbon-word">{finalTurnLabel(view, false, true) ?? `Turn ${turnFlash}`}</span>
+          </div>
+        </div>
+      )}
 
       {arrival && (
         <div className={`card-flash p${arrival.owner} ${arrival.leaving ? 'leaving' : ''}`} aria-hidden>

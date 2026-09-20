@@ -1680,7 +1680,11 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .replay-banner.kind-wait .replay-kind { background: #3a4a63; color: #fff; }
 .replay-banner .dots::after { content: '…'; display: inline-block; width: 1.2em; text-align: left; animation: dots 1.2s steps(1, end) infinite; }
 @keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '…'; } }
+/* The veil darkens the board and the buttons; the HUD (z 65) and the hand (lifted to z 47 for the call's 1.9s only, so it
+   never rides over the tutorial's spotlight at other times) stay lit over it, the player's own things, and the new turn's
+   cards deal into a lit hand. Sheets, the fly layer and the match end sit above all of it. */
 .turn-call { position: fixed; inset: 0; z-index: 46; pointer-events: none; }
+.app:has(> .turn-call) .hand-wrap { position: relative; z-index: 47; }
 /* The call between turns, 1.9s in all: the board darkens (0 to 250ms), the banner lands on it (150 to 500ms, the ring
    bell on the landing), holds, fades and drifts up (1250 to 1600ms), and the board comes back up (1300 to 1800ms). One
    timeline drives both layers, so the steps always line up. */

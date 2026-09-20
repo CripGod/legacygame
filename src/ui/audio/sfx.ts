@@ -148,7 +148,7 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'dig.keep': [{ files: ['select'], gain: 0.55 }, { files: ['trail'], gain: 0.25, at: 80 }], // "you have been chosen": the select climb, a shimmer under it
   'dig.bury': [{ files: ['card-back'], gain: 0.5 }, { files: ['thud-soft'], gain: 0.4, at: 120 }],
   stand: [{ files: ['stand-thud'], gain: 0.9 }, { files: ['stand-drums'], gain: 0.8 }],
-  'stand.button': [{ files: ['stand-stomp'], gain: 0.9 }, { files: ['stand-burst'], gain: 0.85, at: 800 }], // stomp, stomp, clap ... and on the clap the ring bell, the boom and the crowd carrying on (no brass)
+  'stand.button': [{ files: ['stand-stomp'], gain: 0.9 }, { files: ['stand-burst'], gain: 0.85, at: 800 }], // stomp, stomp, clap ... and on the clap the boom and the crowd carrying on (no brass; the ring bell is the turn call's)
   lastword: [{ files: ['lastword'], gain: 0.8 }],
   lost: [{ files: ['lost'], gain: 0.65 }],
   win: [{ files: ['stand-drums'], gain: 0.85 }, { files: ['lastword'], gain: 0.7, at: 220 }], // drums and the bell: gravity, not a fanfare
@@ -422,7 +422,8 @@ function synth(name: SfxName, t: number): void {
       thud(t + 0.1, 0.3, 140, 60, 0.2);
       break;
     case 'turn':
-      for (let i = 0; i < 5; i++) tick(t + i * 0.055, 0.16);
+      // The ring bell on the banner's landing, as the clip: three struck partials ringing out.
+      chime(t + 0.52, [1046, 1568, 2093], 0, 1.4, 0.14, 'sine');
       break;
     case 'location.reveal':
       thud(t + 1.26, 0.45, 160, 50, 0.24);
