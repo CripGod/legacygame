@@ -1315,6 +1315,9 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
   100% { transform: none; filter: none; }
 }
 @keyframes fx-arrive-back { 0%, 39% { opacity: 1; } 41%, 100% { opacity: 0; } }
+/* The orbs and the strip belong to the face: they stay out until the card has turned. */
+.pic.fx-arrive .b, .pic.fx-arrive .strip { animation: fx-arrive-face 0.64s linear both; }
+@keyframes fx-arrive-face { 0%, 39% { visibility: hidden; } 41%, 100% { visibility: visible; } }
 /* Landing: the tile drops in where the ghost stopped, a little large, and settles. */
 .pic.fx-land { animation: fx-land 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
 /* Lost at sea: the card's ghost greys before it sinks. */
@@ -1329,6 +1332,7 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 @media (prefers-reduced-motion: reduce) {
   .pic.fx-windup, .pic.fx-knocked, .pic.fx-held, .pic.fx-hexed, .pic.fx-land, .pic.fx-arrive, .pic.fx-jolt { animation: none; }
   .pic.fx-arrive::after, .gate-slot.event-slot .back { display: none; }
+  .pic.fx-arrive .b, .pic.fx-arrive .strip { animation: none; }
   .pic.fx-knocked::after, .pic.fx-held::after, .pic.fx-hexed::after { animation: none; opacity: 0; }
 }
 
