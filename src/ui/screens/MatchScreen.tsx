@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { influenceAt, CARD_BY_ID, viewFor, legalOptions, validatePlan, gateRoom, GATE_CAPACITY, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, filterEvents, LOCATION_BY_ID } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
-import { artUrl, videoUrl, kitVars } from '../art';
+import { artUrl, videoUrl, kitVars, warmKit } from '../art';
 import { TutFigure } from '../components/TutFigure';
 import { tileOrder, type DropHighlight, type BoardFx } from '../components/Battlefield';
 import { previewPlan, remainingPlan, isPlannedUid, PLANNED_PREFIX, foreseePlan } from '../preview';
@@ -1140,6 +1140,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [m.replay?.idx, m.replay?.steps]);
+  useEffect(() => warmKit(), []);
   const turnHeard = useRef(view.turn);
   useEffect(() => {
     if (m.replay || turnHeard.current === view.turn) return;

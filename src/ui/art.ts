@@ -10,6 +10,21 @@ export const KIT_PIECES = ['primary', 'stand-btn-on', 'secondary', 'lock-locked'
 export const KIT_STATES = ['default', 'hover', 'pressed', 'disabled'] as const;
 /** An art address a CSS url() can use from anywhere: absolute against the page (the inlined page hands back data URLs unchanged). */
 export const pageUrl = (u: string): string => (typeof document !== 'undefined' ? new URL(u, document.baseURI).href : u);
+/** Every kit sprite fetched up front, so a hover or a press never swaps to a frame the browser has not loaded yet
+ *  (the first rollover went blank while the hover sprite came in). Once per page. */
+let kitWarmed = false;
+export function warmKit(): void {
+  if (kitWarmed || typeof Image === 'undefined') return;
+  kitWarmed = true;
+  const urls: string[] = [];
+  for (const p of KIT_PIECES) for (const s of KIT_STATES) urls.push(artUrl('kit', `${p}-${s}`, 'webp'));
+  urls.push(artUrl('kit', 'timer-track', 'webp'), artUrl('kit', 'timer-fill', 'webp'));
+  for (const u of urls) {
+    const img = new Image();
+    img.decoding = 'async';
+    img.src = u;
+  }
+}
 export function kitVars(): Record<string, string> {
   const out: Record<string, string> = {};
   for (const p of KIT_PIECES) for (const s of KIT_STATES) out[`--kit-${p}-${s}`] = `url("${pageUrl(artUrl('kit', `${p}-${s}`, 'webp'))}")`;
