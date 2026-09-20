@@ -691,7 +691,7 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 .gate-slot.event-slot.pending { opacity: 1; }
 .gate-slot.event-slot.trigger { overflow: visible; animation: event-flare 1200ms ease-out forwards; }
 /* The flare's halo is the glow box's (under the neighbours), and it fades rather than rings out. */
-.tile-glow.event.trigger > i.glow { animation: event-glow 1200ms ease-out forwards; }
+.tile-glow.event.trigger > i.glow { animation: event-glow 2000ms ease-out forwards; }
 .tile-glow.event.curse.trigger > i.glow { animation-name: event-glow-curse; }
 @keyframes event-flare {
   0% { transform: scale(1); filter: brightness(1); }
@@ -728,15 +728,18 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 .gate-slot.event-slot.facedown { background: var(--card-back) center / cover no-repeat #1a1430; border-color: rgba(203, 184, 255, 0.5); }
 .gate-slot.event-slot.facedown .ini { display: none; }
 .gate-slot.event-slot.facedown .ini { color: #cbb8ff; font-size: calc(var(--mini) * 0.42); }
-.gate-slot.event-slot.trigger { animation: event-flip 1200ms ease-out forwards; }
+.gate-slot.event-slot.trigger { animation: event-flip 2000ms linear forwards; }
 /* The same flat flip: --back switches at the edge-on moment inside the one animation. */
 @keyframes event-flip {
-  0% { transform: perspective(700px) rotateY(180deg) scale(1); --back: 1; filter: brightness(1); }
-  24% { --back: 1; }
-  25% { transform: perspective(700px) rotateY(90deg) scale(1.05); --back: 0; filter: brightness(1.7); }
-  40% { transform: perspective(700px) rotateY(0) scale(1.3); filter: brightness(1.8); }
-  70% { transform: perspective(700px) rotateY(0) scale(1.15); filter: brightness(1.3); opacity: 1; }
-  100% { transform: perspective(700px) rotateY(0) scale(0.6); --back: 0; opacity: 0; filter: none; }
+  0% { transform: perspective(700px) rotateY(180deg) scale(1); --back: 1; filter: brightness(1); opacity: 1; }
+  20% { transform: perspective(700px) rotateY(180deg) scale(1); --back: 1; animation-timing-function: ease-out; }
+  33% { transform: perspective(700px) rotateY(180deg) scale(1.32); --back: 1; animation-timing-function: ease-in; }
+  44% { --back: 1; }
+  45% { transform: perspective(700px) rotateY(90deg) scale(1.34); --back: 0; filter: brightness(1.6); animation-timing-function: ease-out; }
+  57% { transform: perspective(700px) rotateY(0) scale(1.32); --back: 0; filter: brightness(1.15); }
+  75% { transform: perspective(700px) rotateY(0) scale(1.32); animation-timing-function: ease-in-out; }
+  88% { transform: perspective(700px) rotateY(0) scale(1); filter: none; opacity: 1; }
+  100% { transform: perspective(700px) rotateY(0) scale(1); --back: 0; opacity: 0; filter: none; }
 }
 .gate-slot.event-slot .back { position: absolute; inset: 0; z-index: 6; background: var(--card-back) center / cover no-repeat; transform: scaleX(-1); opacity: var(--back, 0); pointer-events: none; }
 
@@ -1306,7 +1309,9 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 }
 
 /* Arrival: the card flips face up in its slot, bright on the turn, and settles (Snap reveals its cards in place). */
-.pic.fx-arrive { position: relative; overflow: visible; animation: fx-arrive 0.7s cubic-bezier(0.3, 0.7, 0.3, 1) both; }
+/* The turn takes its time (1.8s): a moment on the back, it swells, turns at the top of the swell, holds the face, then settles. */
+.pic.fx-arrive { position: relative; overflow: visible; animation: fx-arrive 1.8s linear both; }
+.tile-glow:has(.pic.fx-arrive), .tile-glow.event.trigger { z-index: 30; }
 /* A flat flip, one animation: the tile turns from 180 degrees, and --back (switched in the same keyframes, at the
    edge-on moment) shows the back for the first half and the face for the second. The back is mirrored so it reads
    right while the tile is turned round; the orbs and the strip belong to the face and come with it. Real 3D
@@ -1314,10 +1319,14 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .pic.fx-arrive::after { content: ''; position: absolute; inset: 0; z-index: 6; border-radius: inherit; background: var(--card-back) center / cover no-repeat; transform: scaleX(-1); opacity: var(--back, 0); pointer-events: none; }
 .pic.fx-arrive .b, .pic.fx-arrive .strip { opacity: calc(1 - var(--back, 0)); }
 @keyframes fx-arrive {
-  0% { transform: perspective(700px) rotateY(180deg); --back: 1; filter: brightness(1); }
-  49% { --back: 1; }
-  50% { transform: perspective(700px) rotateY(90deg); --back: 0; filter: brightness(1.7); }
-  75% { transform: perspective(700px) rotateY(-8deg) scale(1.06); filter: brightness(1.4); }
+  0% { transform: perspective(700px) rotateY(180deg) scale(1); --back: 1; filter: brightness(1); }
+  20% { transform: perspective(700px) rotateY(180deg) scale(1); --back: 1; animation-timing-function: ease-out; }
+  33% { transform: perspective(700px) rotateY(180deg) scale(1.32); --back: 1; animation-timing-function: ease-in; }
+  44% { --back: 1; }
+  45% { transform: perspective(700px) rotateY(90deg) scale(1.34); --back: 0; filter: brightness(1.6); animation-timing-function: ease-out; }
+  57% { transform: perspective(700px) rotateY(0) scale(1.32); --back: 0; filter: brightness(1.15); }
+  75% { transform: perspective(700px) rotateY(0) scale(1.32); animation-timing-function: ease-in-out; }
+  92% { transform: perspective(700px) rotateY(0) scale(0.97); filter: none; }
   100% { transform: none; --back: 0; filter: none; }
 }
 /* Landing: the tile drops in where the ghost stopped, a little large, and settles. */

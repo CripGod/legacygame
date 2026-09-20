@@ -75,7 +75,7 @@ export interface BattlefieldProps {
   /** Replay: the pieces this beat is about. */
   focus?: string[];
   /** Replay: an Event card resolving right now, flaring at its Gates. */
-  eventFx?: { cardId: string; owner: PlayerId; location: number };
+  eventFx?: { cardId: string; owner: PlayerId; location: number; /** The card is flashing over the board: the tile stays as it was, face-down for the opponent's, until the flip. */ waiting?: boolean };
   /** Replay: Event cards played this turn that have not resolved yet; they wait at the Gates. */
   pendingEvents?: { cardId: string; player: PlayerId; location: number }[];
   /** Threats neutralized on this replay beat: they linger with a stamp before they go. */
@@ -214,7 +214,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
   if (owner === me) for (const pl of plan.plays) if (pl.location === index && CARD_BY_ID[pl.cardId]?.kind === 'event') eventTiles.push({ cardId: pl.cardId, state: 'planned' });
   for (const e of foreseen?.events ?? []) if (e.owner === owner && e.location === index) eventTiles.push({ cardId: e.cardId, state: 'planned', foreseen: true });
   for (const pe of pendingEvents ?? []) if (pe.player === owner && pe.location === index) eventTiles.push({ cardId: pe.cardId, state: 'pending', hidden: owner !== me });
-  if (eventFx && eventFx.owner === owner && eventFx.location === index) eventTiles.push({ cardId: eventFx.cardId, state: 'trigger' });
+  if (eventFx && eventFx.owner === owner && eventFx.location === index) eventTiles.push(eventFx.waiting ? { cardId: eventFx.cardId, state: 'pending', hidden: owner !== me } : { cardId: eventFx.cardId, state: 'trigger' });
   // Events are scarce (a deck carries at most two): the empty slot says how many you have left, hand and deck together.
   const isEvent = (id: string) => CARD_BY_ID[id]?.kind === 'event';
   const evLeft = view.players[me].hand.filter(isEvent).length + (view.players[me].deckEvents ?? 0);

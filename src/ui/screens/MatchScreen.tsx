@@ -48,7 +48,7 @@ const BEAT_MS: Record<string, number> = {
   stand: 1400,
   reveal: 600, // after the smashdown (~1.55s)
   play: 950,
-  event: 1300,
+  event: 2100, // the flash (1.1s) comes first; then the tile's own turn (2s)
   revealFx: 1400,
   enter: 800,
   move: 900,
@@ -228,6 +228,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   };
   /** A Gathering's card, flashed over the board as it arrives (no button: it flies to its tile on its own). */
   const [arrival, setArrival] = useState<{ cardId: string; owner: PlayerId } | null>(null);
+  /** The replay step whose Event card has flashed: its tile may turn over. Until then (the frame before the flash, the flash itself) the tile stays as it was. */
+  const [eventFlashed, setEventFlashed] = useState<number>(-1);
   /** Omar ibn Said's look at the opponent's hand: a strip over the board for a few seconds, then the profile keeps it. */
   const [peekShow, setPeekShow] = useState<{ cards: string[]; by: string } | null>(null);
   const [lastPeek, setLastPeek] = useState<{ turn: number; cards: string[]; by: string } | null>(null);
@@ -791,7 +793,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         const t = tileOf(ev.uid)?.getBoundingClientRect();
         if (gained > 0) window.setTimeout(() => floatNum(ev.location!, gained, mine ? 'mine' : 'theirs', { side: ev.player, preheld: true, from: t ? { x: t.left + t.width / 2, y: t.top + t.height / 2 } : undefined }), 260);
       }
-      await wait(900);
+      await wait(1900);
       if (!alive()) return;
       setFx((f) => (f ? { ...f, arrive: undefined } : f));
       return;
@@ -1055,6 +1057,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
             if (!alive()) return;
             setArrival(null);
           }
+          setEventFlashed(m.replay?.idx ?? -1);
         }
       }
       // A card played from the other side's hand flips face up in its slot as its beat opens; a Character's Reveal
@@ -1065,8 +1068,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         if (!alive()) return;
         if (tileOf(uid)) {
           setFx((f) => ({ ...(f ?? { hidden: [] }), arrive: uid }));
-          // The flip done, the beat's effects are over (the replay only moves on once fx is null).
-          window.setTimeout(() => { if (alive()) setFx((f) => (f?.arrive === uid ? null : f)); }, 700);
+          // The turn done (1.8s), the beat's effects are over (the replay only moves on once fx is null).
+          window.setTimeout(() => { if (alive()) setFx((f) => (f?.arrive === uid ? null : f)); }, 1900);
         }
       }
       if (!reduceMotion() && step.kind === 'revealFx' && step.uids?.[0] && step.player && !trailEvs.length && !clashEvs.length) {
@@ -2165,7 +2168,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           foreseen={planning ? foreseen : null}
           resolving={busy}
           focus={step?.uids}
-          eventFx={step?.kind === 'event' && !arrival && step.cardId && step.player ? { cardId: step.cardId, owner: step.player, location: step.location ?? 0 } : undefined}
+          eventFx={step?.kind === 'event' && step.cardId && step.player ? { cardId: step.cardId, owner: step.player, location: step.location ?? 0, waiting: !!arrival || eventFlashed !== (m.replay?.idx ?? -1) } : undefined}
           pendingEvents={step?.pendingEvents}
           neutralized={neutralized}
           glowLocation={guideLocation}
