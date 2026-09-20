@@ -334,7 +334,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
    * circle takes the hit. `big` is the wave landing: the number comes up huge. `label` replaces the bare +N
    * ("+1 First Location bonus"). `side` is whose circle it lands in; by default the tone decides.
    */
-  const floatNum = (location: number, amount: number, tone: 'artist' | 'mine' | 'theirs', opts: { big?: boolean; label?: string; side?: PlayerId; /** Where it rises from: a tile, instead of the Location's art. */ from?: { x: number; y: number }; /** The amount was already taken off the meter when the beat began (see holdBeat); only the landing lets it go. */ preheld?: boolean } = {}) => {
+  const floatNum = (location: number, amount: number, tone: 'artist' | 'mine' | 'theirs', opts: { big?: boolean; label?: string; side?: PlayerId; /** Where it rises from: a tile, instead of the Location's art. */ from?: { x: number; y: number }; /** A stop on the way: the label rises from `from`, swells to `via` (the middle of the Location), holds, then jumps to the circle. */ via?: { x: number; y: number }; /** The amount was already taken off the meter when the beat began (see holdBeat); only the landing lets it go. */ preheld?: boolean } = {}) => {
     const side = opts.side ?? (tone === 'theirs' ? other(me) : me);
     const art = document.querySelector(`.column[data-index="${location}"] .art`);
     if (!art) {
@@ -363,18 +363,28 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     const rr = ring.getBoundingClientRect();
     const dx = rr.left + rr.width / 2 - x0;
     const dy = rr.top + rr.height / 2 - y0;
-    const peak = opts.big ? 2.1 : 1.35;
-    const ms = opts.big ? 1500 : 1150;
-    const anim = el.animate(
-      [
-        { transform: 'translate(-50%, -50%) scale(0.4)', opacity: 0, offset: 0, easing: 'cubic-bezier(0.2, 0.9, 0.3, 1.3)' },
-        { transform: `translate(-50%, -50%) translateY(-14px) scale(${peak})`, opacity: 1, offset: 0.2, easing: 'ease-out' },
-        { transform: `translate(-50%, -50%) translateY(-24px) scale(${peak * 0.94})`, opacity: 1, offset: 0.5, easing: 'cubic-bezier(0.55, 0, 0.3, 1)' },
-        { transform: `translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(0.5)`, opacity: 1, offset: 0.9, easing: 'ease-out' },
-        { transform: `translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(0.15)`, opacity: 0, offset: 1 },
-      ],
-      { duration: ms, fill: 'forwards' },
-    );
+    const peak = opts.big ? 2.1 : opts.via ? 1.6 : 1.35;
+    const ms = opts.big ? 1500 : opts.via ? 1700 : 1150;
+    // With a stop on the way (the First Location bonus): out of the card, swelling to the middle of the Location, a hold, then the jump.
+    const vx = opts.via ? opts.via.x - x0 : 0;
+    const vy = opts.via ? opts.via.y - y0 : 0;
+    const frames = opts.via
+      ? [
+          { transform: 'translate(-50%, -50%) scale(0.5)', opacity: 0, offset: 0, easing: 'ease-out' },
+          { transform: 'translate(-50%, -50%) scale(0.9)', opacity: 1, offset: 0.12, easing: 'cubic-bezier(0.2, 0.8, 0.3, 1)' },
+          { transform: `translate(-50%, -50%) translate(${vx}px, ${vy}px) scale(${peak})`, opacity: 1, offset: 0.45, easing: 'ease-in-out' },
+          { transform: `translate(-50%, -50%) translate(${vx}px, ${vy}px) scale(${peak * 0.96})`, opacity: 1, offset: 0.68, easing: 'cubic-bezier(0.55, 0, 0.3, 1)' },
+          { transform: `translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(0.5)`, opacity: 1, offset: 0.92, easing: 'ease-out' },
+          { transform: `translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(0.15)`, opacity: 0, offset: 1 },
+        ]
+      : [
+          { transform: 'translate(-50%, -50%) scale(0.4)', opacity: 0, offset: 0, easing: 'cubic-bezier(0.2, 0.9, 0.3, 1.3)' },
+          { transform: `translate(-50%, -50%) translateY(-14px) scale(${peak})`, opacity: 1, offset: 0.2, easing: 'ease-out' },
+          { transform: `translate(-50%, -50%) translateY(-24px) scale(${peak * 0.94})`, opacity: 1, offset: 0.5, easing: 'cubic-bezier(0.55, 0, 0.3, 1)' },
+          { transform: `translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(0.5)`, opacity: 1, offset: 0.9, easing: 'ease-out' },
+          { transform: `translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(0.15)`, opacity: 0, offset: 1 },
+        ];
+    const anim = el.animate(frames, { duration: ms, fill: 'forwards' });
     anim.onfinish = () => el.remove();
     // The circle takes the hit as the number reaches it, and the figure changes with it.
     window.setTimeout(() => {
@@ -388,9 +398,9 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         ],
         { duration: 620, easing: 'cubic-bezier(0.2, 0.8, 0.3, 1)' },
       );
-    }, ms * 0.88);
+    }, ms * (opts.via ? 0.9 : 0.88));
   };
-  const landFx = (items: { location: number; amount?: number; tone: 'artist' | 'mine' | 'theirs'; big?: boolean; label?: string; side?: PlayerId; preheld?: boolean; /** Where the number rises from (a tile) instead of the Location's name. */ from?: { x: number; y: number } }[]) => {
+  const landFx = (items: { location: number; amount?: number; tone: 'artist' | 'mine' | 'theirs'; big?: boolean; label?: string; side?: PlayerId; preheld?: boolean; via?: { x: number; y: number }; /** Where the number rises from (a tile) instead of the Location's name. */ from?: { x: number; y: number } }[]) => {
     for (const it of items) {
       const loc = document.querySelector(`.column[data-index="${it.location}"] .loc-glow`);
       if (loc) {
@@ -399,7 +409,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         loc.classList.add('loc-pulse', it.tone);
         window.setTimeout(() => loc.classList.remove('loc-pulse', it.tone), 1100);
       }
-      if (it.amount) floatNum(it.location, it.amount, it.tone, { big: it.big, label: it.label, side: it.side, preheld: it.preheld, from: it.from });
+      if (it.amount) floatNum(it.location, it.amount, it.tone, { big: it.big, label: it.label, side: it.side, preheld: it.preheld, from: it.from, via: it.via });
     }
   };
   /** During a replay your own moves stay where you put them; the board only re-animates what you could not see coming. */
@@ -1013,15 +1023,16 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         setTrail(shots.length ? shots : null);
         if (jolts.length && !clashEvs.length) {
           setFx((f) => ({ ...(f ?? { hidden: [] }), jolt: jolts }));
-          // The beat waits for the number: the hop, the pulse, then the float into the circle (~1.3s in all).
-          window.setTimeout(() => { if (alive()) setFx((f) => (f?.jolt === jolts ? null : f)); }, 1300);
+          // The beat waits for the number: the hop, the pulse, then the label out of the card, to the middle and into the circle (~2s in all).
+          window.setTimeout(() => { if (alive()) setFx((f) => (f?.jolt === jolts ? null : f)); }, 2100);
         }
         const item = (e: GameEvent, from?: DOMRect) => {
           const first = (e.data as { trail?: string }).trail === 'first';
           const amount = (e.data as { amount?: number }).amount;
-          // The First Location bonus reads from the middle of the Location panel, not over the card that guessed it.
-          if (first) from = document.querySelector(`.column[data-index="${e.location}"] .location`)?.getBoundingClientRect() ?? from;
-          return { location: e.location!, amount, tone: ((e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs') as 'artist' | 'mine' | 'theirs', side: e.player, label: first && amount ? `+${amount} First Location bonus` : undefined, preheld: true, from: from ? { x: from.left + from.width / 2, y: from.top + from.height / 2 } : undefined };
+          // The First Location bonus comes out of the card that guessed the place, swells to the middle of the Location, then jumps to the circle.
+          const mid = first ? document.querySelector(`.column[data-index="${e.location}"] .location`)?.getBoundingClientRect() : undefined;
+          const via = mid ? { x: mid.left + mid.width / 2, y: mid.top + mid.height / 2 } : undefined;
+          return { location: e.location!, amount, tone: ((e.data as { color?: string }).color === 'artist' ? 'artist' : e.player === me ? 'mine' : 'theirs') as 'artist' | 'mine' | 'theirs', side: e.player, label: first && amount ? `+${amount} First Location bonus` : undefined, preheld: true, via, from: from ? { x: from.left + from.width / 2, y: from.top + from.height / 2 } : undefined };
         };
         // Paid here: the number leaves the tile a beat after the pulse.
         if (here.length) window.setTimeout(() => { landFx(here.map((e) => item(e, document.querySelector(`[data-uid="${e.uid}"]`)?.getBoundingClientRect() ?? undefined))); }, 260);
