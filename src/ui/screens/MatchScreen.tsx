@@ -114,11 +114,13 @@ const sourceRect = (d: ClashData): DOMRect | undefined => {
 };
 
 /** The last scheduled turn can still grow by one if someone Stands on Business. */
-function finalTurnLabel(view: GameState, short = false): string | null {
+function finalTurnLabel(view: GameState, short = false, plate = false): string | null {
   if (view.phase === 'ended' || view.turn < view.maxTurns) return null;
   const lastWord = view.maxTurns === EXTENDED_TURNS;
   const extendable = !lastWord && (!view.players.A.standUsed || !view.players.B.standUsed);
   if (short) return lastWord ? 'LAST WORD' : extendable ? 'LAST?' : 'FINAL';
+  // The ribbon's plate holds one short line; the tip carries the whole sentence.
+  if (plate) return lastWord ? 'The Last Word' : extendable ? 'Last turn?' : 'Final turn';
   return lastWord ? 'THE LAST WORD' : extendable ? 'Last turn unless someone stands' : 'Final turn';
 }
 
@@ -1422,7 +1424,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           setFireworks(new DOMRect(bf.x + bf.width / 2 - 120, bf.y + bf.height * 0.42, 240, 40));
         }
       }
-      await wait(1900);
+      await wait(3200); // the ribbon slams (0.6s), the three stars pop (to ~2s), the flare; then it lifts
       if (cancelled) return;
       setEndStage(2);
     })();
@@ -2341,9 +2343,9 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
               </i>
             </button>
           )}
-          <div className={`turn-panel ${finalTurnLabel(view) ? 'final' : ''}`} {...tip(finalTurnLabel(view) ? (view.maxTurns === EXTENDED_TURNS ? HINTS.lastWord : HINTS.finalTurn) : HINTS.energy)}>
+          <div className={`turn-panel ribboned ${finalTurnLabel(view) ? 'final' : ''}`} {...tip(finalTurnLabel(view) ? (view.maxTurns === EXTENDED_TURNS ? HINTS.lastWord : HINTS.finalTurn) : HINTS.energy)}>
             <div className="turn-text">
-              {finalTurnLabel(view) ?? `Turn ${Math.min(view.turn, view.maxTurns)} / ${view.maxTurns}`}
+              {finalTurnLabel(view, false, true) ?? `Turn ${Math.min(view.turn, view.maxTurns)} / ${view.maxTurns}`}
             </div>
             <div className="crystals" aria-label={`Energy ${energyShown} of ${opts.energy}`}>
               {Array.from({ length: Math.max(ENERGY_CAP, opts.energy) }, (_, i) => (

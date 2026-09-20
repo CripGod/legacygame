@@ -2302,3 +2302,39 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .gate-slot.gf:not(.event-slot):not(.filled):not(.reserved) { filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55)); }
 .gate-slot.gf.reserved::before { filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55)); }
 .gates .gate-slot.event-slot.empty { filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55)); }
+
+/* ---------- The Brightside match-end: the ribbon, the live word, the three stars ----------
+   The wordless ribbon (public/art/kit/ribbon.webp, 807 by 231 at 1x) with the word in the kit's face (Fredoka 700,
+   64.4 px at 1x, #22304A, at the seat 78.65 px below the shell's top), the three glyph stars in the kit's own arc
+   (docs/ui-kit-cut/brightside/manifest.json, composition.threeStars: outer stars tilted 15 degrees and smaller, the
+   middle bigger and higher), scaled down a little for a landscape screen (--sk), and the burst dots on each lit star.
+   Everything scales with the ribbon's width through --k, a length (the ribbon's px per 1x unit): sizes are --k times a
+   plain number, never px times px (that is invalid and falls back). */
+.end-ribbon { position: absolute; left: 50%; top: 58%; --rb-w: min(62vw, 720px); --k: calc(var(--rb-w) / 807); --sk: 0.62; --sp: 0.8; width: var(--rb-w); aspect-ratio: 807 / 231; transform: translate(-50%, -50%); animation: end-slam 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.25) both; }
+.end-ribbon .ribbon-base { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.end-ribbon .ribbon-glow { position: absolute; left: 50%; top: 50%; width: calc(var(--k) * 987); height: calc(var(--k) * 411); transform: translate(-50%, -50%); background: #ffe9ae; -webkit-mask: var(--kit-ribbon-glow) center / 100% 100% no-repeat; mask: var(--kit-ribbon-glow) center / 100% 100% no-repeat; opacity: 0.85; z-index: -1; }
+.end-ribbon .ribbon-word { position: absolute; left: 50%; top: 35.3%; transform: translate(-50%, -50%); font-family: 'Fredoka', var(--display), sans-serif; font-weight: 700; font-size: calc(var(--k) * 64.4); line-height: 1; letter-spacing: 0.01em; color: #22304a; text-shadow: 0 calc(var(--k) * 3.2) calc(var(--k) * 4) rgba(138, 126, 100, 0.26); white-space: nowrap; }
+.end-ribbon .ribbon-stars { position: absolute; inset: 0; pointer-events: none; }
+.end-ribbon .star { position: absolute; left: calc(50% + var(--sx) * var(--k) * var(--sp)); top: calc(47.7% + var(--sy) * var(--k) * var(--sp)); width: calc(214.7 * var(--sc) * var(--k) * var(--sk)); transform: translate(-50%, -50%) rotate(var(--srot)) scale(0); }
+.end-ribbon .star img { display: block; width: 100%; height: auto; }
+.end-ribbon .star.in { animation: star-pop 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.45) both; }
+@keyframes star-pop { 0% { transform: translate(-50%, -50%) rotate(var(--srot)) scale(0); } 60% { transform: translate(-50%, -50%) rotate(var(--srot)) scale(1.22); } 100% { transform: translate(-50%, -50%) rotate(var(--srot)) scale(1); } }
+/* A lit star flashes white-hot as its burst starts (0.42s); a dim star (a loss) is grey. */
+.end-ribbon .star.lit img { animation: star-hot 0.42s ease-out both; }
+@keyframes star-hot { 0% { filter: brightness(2.6) saturate(0.4); } 100% { filter: none; } }
+.end-ribbon .star.dim img { filter: grayscale(1) brightness(0.55); }
+.end-banner.draw .end-ribbon .star:not(.middle) img { filter: grayscale(1) brightness(0.55); }
+.end-ribbon .star-flare { position: absolute; left: 50%; top: calc(47.7% - 330 * var(--k) * var(--sp)); width: calc(274 * var(--k) * var(--sk) * 2.2); height: auto; transform: translate(-50%, -50%); opacity: 0; }
+.end-ribbon .star-flare.on { animation: flare-in 0.7s ease-out both; }
+@keyframes flare-in { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+.end-ribbon .burst-dot { position: absolute; border-radius: 50%; pointer-events: none; will-change: transform, opacity; }
+.end-banner.lift .end-ribbon { animation: end-fade 0.45s ease-out both; }
+@media (prefers-reduced-motion: reduce) { .end-ribbon { animation: none; } .end-banner.lift .end-ribbon { animation: none; opacity: 0; } .end-ribbon .star { transform: translate(-50%, -50%) rotate(var(--srot)) scale(1); animation: none; } .end-ribbon .star.lit img { animation: none; } .end-ribbon .star-flare.on { animation: none; opacity: 1; } }
+@media (max-width: 700px) { .end-ribbon { --rb-w: 92vw; --sk: 0.55; --sp: 0.7; top: 50%; } }
+
+/* The turn count on the same ribbon: the word in the kit's face on the plate, the crystals under it. */
+.turn-panel.ribboned { --tw: clamp(180px, 18vw, 300px); border: 0 !important; box-shadow: none !important; clip-path: none !important; background: var(--kit-ribbon) center / 100% 100% no-repeat !important; width: 100%; aspect-ratio: 807 / 231; padding: 0; display: block; position: relative; }
+.turn-panel.ribboned::before, .turn-panel.ribboned::after { display: none; }
+.turn-panel.ribboned .turn-text { position: absolute; left: 50%; top: 31%; transform: translate(-50%, -50%); font-family: 'Fredoka', var(--display), sans-serif; font-weight: 700; font-size: calc(var(--tw) * 0.072); letter-spacing: 0.02em; text-transform: uppercase; color: #22304a; text-shadow: 0 1px 1.5px rgba(138, 126, 100, 0.26); white-space: nowrap; }
+.turn-panel.ribboned .crystals { position: absolute; left: 50%; top: 56%; transform: translate(-50%, -50%); }
+.turn-panel.ribboned.final .turn-text { color: #b3261e; }

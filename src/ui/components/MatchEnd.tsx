@@ -1,8 +1,102 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CARD_BY_ID, other, type GameState, type PlayerId } from '../../engine';
 import { initials, locationName, useDisplay } from '../display';
 import { Art } from './Art';
 import { balance } from '../legacy';
+import { artUrl } from '../art';
+import { reduceMotion } from '../motion';
+
+/** The kit's three glyph stars over the banner (Brightside's Victory board): centres relative to the banner's shell
+ *  centre in the banner's 1x px, rotation, and scale against the banner (docs/ui-kit-cut/brightside/manifest.json). */
+const STARS = [
+  { slot: 'left', cx: -237.41, cy: -218.88, rot: -15, sc: 0.973 },
+  { slot: 'middle', cx: 5.79, cy: -330.06, rot: 0, sc: 1.465 },
+  { slot: 'right', cx: 242.04, cy: -218.88, rot: 15, sc: 0.973 },
+] as const;
+/** The kit's burst: 26 dots in three inks, 5 to 12 px, thrown 58 to 150 px, 0.95 s, fading over the back half. */
+const INKS = ['#DFD6C4', '#FFE9AE', '#FFFFFF'];
+
+/**
+ * The match-end banner from the Brightside kit: the wordless ribbon with the live word (Fredoka 700 at the kit's seat),
+ * and the three stars popping up over it one after another. A win lights all three with the burst and the flare; a
+ * draw lights the middle one; a loss pops them in dim. The word and the arc scale with the ribbon's width (--k).
+ */
+function EndRibbon({ title, tone, stage }: { title: string; tone: 'win' | 'loss' | 'draw'; stage: 1 | 2 }) {
+  const box = useRef<HTMLDivElement>(null);
+  const [shown, setShown] = useState(0);
+  const [flare, setFlare] = useState(false);
+  const lit = tone === 'win' ? 3 : tone === 'draw' ? 1 : 0;
+  useEffect(() => {
+    if (stage !== 1) return;
+    const quick = reduceMotion();
+    const timers: number[] = [];
+    STARS.forEach((st, i) => {
+      timers.push(
+        window.setTimeout(() => {
+          setShown(i + 1);
+          const isLit = tone === 'win' || (tone === 'draw' && st.slot === 'middle');
+          if (isLit && !quick) burst(box.current, st.slot);
+          if (tone === 'win' && i === STARS.length - 1) timers.push(window.setTimeout(() => setFlare(true), 200));
+        }, quick ? 0 : 620 + i * 380),
+      );
+    });
+    return () => timers.forEach((t) => window.clearTimeout(t));
+  }, [stage, tone]);
+  return (
+    <div className="end-ribbon" ref={box} aria-hidden>
+      <i className="ribbon-glow" />
+      <img className="ribbon-base" src={artUrl('kit', 'ribbon', 'webp')} alt="" />
+      <span className="ribbon-word">{title}</span>
+      <div className="ribbon-stars">
+        <img className={`star-flare ${flare ? 'on' : ''}`} src={artUrl('kit', 'star-flare', 'webp')} alt="" />
+        {STARS.map((st, i) => (
+          <i
+            key={st.slot}
+            className={`star ${st.slot} ${shown > i ? 'in' : ''} ${shown > i && (tone === 'win' || (tone === 'draw' && st.slot === 'middle')) ? 'lit' : ''} ${lit === 0 ? 'dim' : ''}`}
+            style={{ '--sx': st.cx, '--sy': st.cy, '--srot': `${st.rot}deg`, '--sc': st.sc } as React.CSSProperties}
+          >
+            <img src={artUrl('kit', 'star-glyph', 'webp')} alt="" />
+          </i>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** The kit's burst out of a star: dots in the three inks thrown in an even fan with a small stagger. */
+function burst(box: HTMLDivElement | null, slot: string): void {
+  if (!box) return;
+  const star = box.querySelector(`.star.${slot}`);
+  if (!star) return;
+  const br = box.getBoundingClientRect();
+  const sr = star.getBoundingClientRect();
+  const k = br.width / 807;
+  const cx = sr.left + sr.width / 2 - br.left;
+  const cy = sr.top + sr.height / 2 - br.top;
+  const n = 26;
+  for (let i = 0; i < n; i++) {
+    const dot = document.createElement('i');
+    dot.className = 'burst-dot';
+    const size = (5 + Math.random() * 7) * k * 1.8;
+    dot.style.width = `${size}px`;
+    dot.style.height = `${size}px`;
+    dot.style.left = `${cx}px`;
+    dot.style.top = `${cy}px`;
+    dot.style.background = INKS[i % INKS.length];
+    box.appendChild(dot);
+    const a = ((i + Math.random() * 0.6) / n) * Math.PI * 2;
+    const d = (58 + Math.random() * 92) * k * 1.4;
+    const anim = dot.animate(
+      [
+        { transform: 'translate(-50%, -50%) scale(0.6)', opacity: 1, offset: 0 },
+        { transform: `translate(calc(-50% + ${Math.cos(a) * d * 0.7}px), calc(-50% + ${Math.sin(a) * d * 0.7}px)) scale(1)`, opacity: 1, offset: 0.5 },
+        { transform: `translate(calc(-50% + ${Math.cos(a) * d}px), calc(-50% + ${Math.sin(a) * d}px)) scale(0.8)`, opacity: 0, offset: 1 },
+      ],
+      { duration: 950, delay: (i % 5) * 18, easing: 'cubic-bezier(0.2, 0.8, 0.3, 1)', fill: 'forwards' },
+    );
+    anim.onfinish = () => dot.remove();
+  }
+}
 
 /**
  * The end of a match, on the board (Hearthstone's banner, Snap's result panel): the word slams in over the
@@ -71,7 +165,7 @@ export function MatchEnd({
     <>
       <div className={`end-banner ${tone} ${stage >= 2 ? 'lift' : ''}`} aria-live="assertive">
         <div className="end-flash" aria-hidden />
-        <div className="end-word">{title}</div>
+        <EndRibbon title={title} tone={tone} stage={stage} />
       </div>
       {stage >= 2 && collapsed && (
         <div className={`end-bar ${tone}`} role="status">

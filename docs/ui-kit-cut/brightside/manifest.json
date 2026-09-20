@@ -1,0 +1,266 @@
+{
+ "kit": "Brightside",
+ "cut": "match-end: the ribbon banner, the star, the burst particle",
+ "generated": "2026-09-20T16:59:23.047Z",
+ "pngScale": 2,
+ "units": "Every number under `at1x` is in design pixels at 1x. Sprite pixel sizes are 2x. Divide sprite px by 2 to get 1x.",
+ "face": {
+  "family": "Fredoka",
+  "file": "fonts/Fredoka-SemiBold.ttf",
+  "shippedWeight": 600,
+  "source": "https://fonts.google.com/specimen/Fredoka",
+  "notice": "fonts/fredoka-OFL.txt",
+  "note": "The ribbon's word is drawn at weight 700 in the app. The shipped static cut is the kit's label weight (600, Fredoka-SemiBold). For the banner word load Fredoka 700 from Google Fonts, or use the shipped 600 and accept the lighter stroke."
+ },
+ "pieces": [
+  {
+   "id": "ribbon-banner",
+   "appPiece": "ribbonbanner",
+   "engineFamily": "ribbonbanner",
+   "wordIsLiveText": true,
+   "files": {
+    "default": "pieces/ribbon-banner/default.png",
+    "loss": null,
+    "draw": null,
+    "glow": "pieces/ribbon-banner/glow.png"
+   },
+   "spritePx": {
+    "w": 1614,
+    "h": 462
+   },
+   "at1x": {
+    "size": {
+     "w": 807.0,
+     "h": 231.0
+    },
+    "shell": {
+     "x": 4.0,
+     "y": 3.0,
+     "w": 799.0,
+     "h": 214.5
+    },
+    "plate": {
+     "x": 111.37,
+     "y": 3.0,
+     "w": 584.07,
+     "h": 154.58,
+     "note": "the front panel, relative to the sprite's top-left; the tails and folds run outside it to the shell's full width"
+    },
+    "nineSlice": null
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "label": {
+    "text": "VICTORY!",
+    "fill": "#22304A",
+    "fontFamily": "Fredoka",
+    "fontWeight": 700,
+    "fontSize": 64.4,
+    "letterSpacing": "0.010em",
+    "case": "as typed (the kit's label case is title; the Victory board types VICTORY! in capitals)",
+    "seat": {
+     "dx": 0,
+     "dy": -28.7,
+     "anchor": "middle",
+     "baseline": "central",
+     "fromShellTop": 78.65,
+     "fromPlateTop": 78.65
+    },
+    "fit": {
+     "readingWidth": 543.66,
+     "rule": "the word is drawn at fontSize unless it would run wider than readingWidth, then it shrinks to fit. VICTORY, DEFEAT and DRAW all fit at fontSize."
+    },
+    "dropShadow": [
+     {
+      "dx": 0.0,
+      "dy": 3.2,
+      "blurStdDev": 2.0,
+      "color": "#8A7E64",
+      "opacity": 0.26
+     }
+    ],
+    "embossLights": [],
+    "cssTextShadow": "0.0px 3.2px 4.0px rgba(138,126,100,0.26)",
+    "lossFill": null
+   },
+   "hoverGlow": {
+    "file": "pieces/ribbon-banner/glow.png",
+    "spritePx": {
+     "w": 1974,
+     "h": 822
+    },
+    "tint": "#FFE9AE",
+    "note": "the piece's own aura from the export, centred behind the banner; optional"
+   },
+   "notes": "No loss or draw pose exists in the kit: the ribbon has one design, used for all three words. The banner does not stretch (nineSlice null): its tails and folds are drawn geometry, so a longer word shrinks inside the plate's reading width instead."
+  },
+  {
+   "id": "star",
+   "files": {
+    "lit": "pieces/star/lit.png",
+    "unlit": "pieces/star/unlit.png",
+    "glyphLit": "pieces/star/glyph-lit.png",
+    "flare": "pieces/star/flare.png"
+   },
+   "notes": "lit and unlit are the Star rating piece's earned and unearned star, one crop, so a swap never moves the art. The Victory board draws the glyph-fleet Star (glyph-lit), not the rating star; both are the kit's, take either. ",
+   "appPiece": "starrating",
+   "engineFamily": "starrating",
+   "spritePx": {
+    "w": 298,
+    "h": 298
+   },
+   "at1x": {
+    "size": {
+     "w": 149.0,
+     "h": 149.0
+    },
+    "nineSlice": null
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "glyphStar": {
+    "appPiece": "glyphstar",
+    "spritePx": {
+     "w": 404,
+     "h": 472
+    },
+    "at1x": {
+     "size": {
+      "w": 202.0,
+      "h": 236.0
+     },
+     "shell": {
+      "x": -6.5,
+      "y": -8.0,
+      "w": 214.5,
+      "h": 214.5
+     }
+    },
+    "pivot": {
+     "x": 0.5,
+     "y": 0.5
+    },
+    "note": "the glyph-fleet Star, which is what the kit's own Victory board arranges above its banner. The export ships it in its resting look only; for an empty state use the rating star's unlit."
+   },
+   "flare": {
+    "spritePx": {
+     "w": 548,
+     "h": 154
+    },
+    "at1x": {
+     "size": {
+      "w": 274.0,
+      "h": 77.0
+     }
+    },
+    "seatInRating": {
+     "name": "flare",
+     "file": "assets/starrating/starrating-icon-flare.png",
+     "dx": -62.8,
+     "dy": -94.1,
+     "w": 274,
+     "h": 76.5,
+     "iw": 210.5,
+     "ih": 18,
+     "nick": "Celebration flare"
+    },
+    "note": "the Star rating's celebration flare, shown behind the stars at full marks; seatInRating is its seat relative to the rating piece's centre at 1x (dx, dy, w, h)"
+   }
+  },
+  {
+   "id": "star-burst",
+   "files": {
+    "burst": "pieces/star-burst/burst.png"
+   },
+   "spritePx": {
+    "w": 512,
+    "h": 512
+   },
+   "at1x": {
+    "size": {
+     "w": 256.0,
+     "h": 256.0
+    }
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "recipe": {
+    "particles": 26,
+    "inks": [
+     "#DFD6C4",
+     "#FFE9AE",
+     "#FFFFFF"
+    ],
+    "sizePx1x": "5 to 12",
+    "throwPx1x": "58 to 150 from the piece's centre, even fan with a small stagger",
+    "life": "0.95 s, ease out, fade over the back half",
+    "flash": "the piece brightens white-hot for 0.42 s as the throw starts"
+   },
+   "notes": "The kit has no confetti or sparkle shape. Its celebration throws soft round dots in the kit's Bevel, Glow and Highlight inks; this white radial blob is the dot sprite (tint it). The recipe is the app's own claim burst."
+  }
+ ],
+ "composition": {
+  "source": "the kit's own Victory board (mobile, 390 by 844): three glyph-fleet Stars in an arc over the ribbon banner",
+  "threeStars": [
+   {
+    "stagePx": {
+     "cx": 92.0,
+     "cy": 155.0
+    },
+    "cx": -237.41,
+    "cy": -218.88,
+    "rotation": -15,
+    "scale": 0.973,
+    "drawnWidthAt1x": 208.86,
+    "slot": "left"
+   },
+   {
+    "stagePx": {
+     "cx": 197.0,
+     "cy": 107.0
+    },
+    "cx": 5.79,
+    "cy": -330.06,
+    "rotation": 0,
+    "scale": 1.465,
+    "drawnWidthAt1x": 314.59,
+    "slot": "middle"
+   },
+   {
+    "stagePx": {
+     "cx": 299.0,
+     "cy": 155.0
+    },
+    "cx": 242.04,
+    "cy": -218.88,
+    "rotation": 15,
+    "scale": 0.973,
+    "drawnWidthAt1x": 208.86,
+    "slot": "right"
+   }
+  ],
+  "threeStarsNote": "cx, cy are the star centres relative to the banner's shell centre, in the banner's 1x px (positive y is down); rotation in degrees; scale is the star's scale relative to the banner's, so drawnWidthAt1x is the glyph star's width in the banner's 1x space (its own 1x is 214.7). Outer stars are tilted 15 degrees out and smaller, the middle star bigger and higher.",
+  "bannerOnBoard": {
+   "scale": 0.4317,
+   "shellStagePx": {
+    "x": 22,
+    "y": 203,
+    "w": 345,
+    "h": 93
+   },
+   "centreYFraction": 0.296
+  }
+ },
+ "notNeeded": [
+  "every other Brightside component, board or screen",
+  "idle motion",
+  "sounds",
+  "a Unity package"
+ ]
+}
