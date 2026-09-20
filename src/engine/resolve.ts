@@ -1065,10 +1065,11 @@ function playEvent(state: GameState, p: PlayerId, play: PlayAction, events: Game
       break;
     }
     case 'draw': {
-      const crowd = charsAt(state, at, p).length >= def.effect.bonus.crowd;
+      const here = charsAt(state, at, p).length;
+      const crowd = here >= def.effect.bonus.crowd;
       const n = def.effect.count + (crowd ? def.effect.bonus.extra : 0);
       for (let i = 0; i < n; i++) drawCard(state, p, events);
-      events.push({ type: 'info', text: `${def.name}: ${ps.handle} draws ${n} card${n > 1 ? 's' : ''}${crowd ? ` (${def.effect.bonus.crowd}+ Characters at ${locName(state, at)})` : ''}.`, player: p, location: at });
+      events.push({ type: 'info', text: `${def.name}: ${ps.handle} draws ${n} card${n > 1 ? 's' : ''} (${here} of ${ps.handle}'s Characters at ${locName(state, at)}${crowd ? '' : `; ${def.effect.bonus.crowd} would draw ${def.effect.count + def.effect.bonus.extra}`}).`, player: p, location: at });
       break;
     }
     case 'oath': {

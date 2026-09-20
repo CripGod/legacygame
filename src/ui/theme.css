@@ -1376,7 +1376,8 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 /* ---------- Arrival: a Gathering's card flashes over the board, then flies to its tile ---------- */
 .card-flash { position: fixed; left: 50%; top: 42%; z-index: 58; transform: translate(-50%, -50%); pointer-events: none; animation: card-flash-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.25) both; filter: drop-shadow(0 24px 40px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 30px rgba(233, 185, 58, 0.45)); }
 @keyframes card-flash-in { 0% { opacity: 0; transform: translate(-50%, -40%) scale(0.6) rotate(-6deg); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); } }
-.card-flash.leaving { visibility: hidden; }
+.card-flash.leaving { animation: card-flash-out 0.3s ease-in both; }
+@keyframes card-flash-out { 0% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -54%) scale(0.92); } }
 /* The ruling: the Threat tile itself is the gavel. Its ghost rises off the board and comes down hard; a ring of the
    blow spreads from it on the strike. */
 .ghost-fly.gavel-ghost { z-index: 61; transform-origin: 50% 50%; filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 22px rgba(224, 74, 63, 0.55)); }
@@ -1990,7 +1991,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
    the whole text either way (tap the box). */
 .location.framed { --rule-h: calc(2.5 * clamp(8px, 0.8vw, 12px) + 6px); }
 .location.framed .loc-rule { -webkit-line-clamp: 2; height: var(--rule-h); min-height: var(--rule-h); box-sizing: border-box; }
-.location.framed .loc-rule.long { font-size: clamp(8px, 0.7vw, 10.5px); line-height: 1.2; padding-top: 4px; }
+.location.framed .loc-rule.long { font-size: clamp(8px, 0.7vw, 10.5px); line-height: calc((var(--rule-h) - 6px) / 2); padding-top: 3px; }
 @media (max-width: 700px) { .location.framed .loc-rule.long { font-size: 8.5px; } }
 
 /* Where a piece is going: its ghost at the Gates it arrives at, dashed, with the lit frame faint, and an Arriving strip. */

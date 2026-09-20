@@ -75,6 +75,7 @@ export const LOCATIONS: LocationDef[] = [
     id: 'middle_passage',
     name: 'The Middle Passage',
     era: 'Atlantic, 1526–1867',
+    short: 'No Inside. Each turn every Character at these Gates loses 1 Influence for good, and about 1 in 7 is lost. Whoever leaves arrives Ready, +1 Influence.',
     rule: 'The crossing. Nobody goes Inside here. At the end of each turn every Character at these Gates loses 1 Influence for good (never below 0), and each has about a 1-in-7 chance of not surviving the crossing (the ships\' own odds): out of the match, into its player\'s discard. Whoever leaves here arrives Ready and carries +1 Influence for good: what survived the crossing came with them. The DeWolf Trade ships people here; Marie Laveau calls the last one lost back.',
     blurb: 'Twelve and a half million people were carried across the Atlantic in chains, and ten and a half million landed. What they carried, they kept: the languages, the faiths, the stories, the songs.',
     history:

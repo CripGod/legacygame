@@ -648,13 +648,13 @@ export function Battlefield(props: BattlefieldProps) {
               })()}
               <InEffect view={view} index={loc.index} me={me} onOpen={() => onLocationInfo(loc.index)} />
               <div
-                className={`loc-rule ${loc.revealed && !loc.lost && def.rule.length > 115 ? 'long' : ''}`}
+                className={`loc-rule ${loc.revealed && !loc.lost && (def.short ?? def.rule).length > 115 ? 'long' : ''}`}
                 onClick={(e) => {
                   e.stopPropagation();
                   onLocationInfo(loc.index);
                 }}
               >
-                {loc.lost ? `LOST: ${loc.lostReason ?? 'an unresolved crisis'} Neither player can win here.` : loc.revealed ? def.rule : 'Hidden until revealed. Commit blind.'}
+                {loc.lost ? `LOST: ${loc.lostReason ?? 'an unresolved crisis'} Neither player can win here.` : loc.revealed ? (def.short ?? def.rule) : 'Hidden until revealed. Commit blind.'}
               </div>
             </div>
             </div>

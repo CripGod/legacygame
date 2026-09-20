@@ -227,7 +227,13 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     return !!m.replay?.steps.some((x) => x.events.some((e) => e.location === idx && (e.data as { trail?: string } | undefined)?.trail === 'first'));
   };
   /** A Gathering's card, flashed over the board as it arrives (no button: it flies to its tile on its own). */
-  const [arrival, setArrival] = useState<{ cardId: string; owner: PlayerId } | null>(null);
+  const [arrival, setArrival] = useState<{ cardId: string; owner: PlayerId; leaving?: boolean } | null>(null);
+  /** The flash fades out (0.3s) before it goes. */
+  const dismissArrival = async () => {
+    setArrival((a) => (a ? { ...a, leaving: true } : a));
+    await wait(reduceMotion() ? 0 : 300);
+    setArrival(null);
+  };
   /** The replay step whose Event card has flashed: its tile may turn over. Until then (the frame before the flash, the flash itself) the tile stays as it was. */
   const [eventFlashed, setEventFlashed] = useState<number>(-1);
   /** Omar ibn Said's look at the opponent's hand: a strip over the board for a few seconds, then the profile keeps it. */
@@ -419,6 +425,9 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     if (step?.kind === 'play' && step.player && step.player !== me && step.uids?.[0] && !fx?.arrive && !reduceMotion()) return { ...(fx ?? { hidden: [] }), arrive: step.uids[0] };
     return fx;
   }, [fx, step, me]);
+  /** The hand during an Event's flash: as it stood before the beat, so the cards the Event draws deal in once the flash is
+   *  gone and read as its doing (Word of Mouth, Zora). */
+  const handView = step?.kind === 'event' && arrival && prevView ? prevView : view;
   const boardView = useMemo(() => {
     if ((stagePrev || stagedClash) && prevView && m.replay) return previewPlan(prevView, me, remainingPlan(prevView, me, m.replay.plan, stagedBlocked));
     if (m.replay && step) return previewPlan(view, me, remainingPlan(step.state, me, m.replay.plan));
@@ -820,7 +829,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     if (!alive()) return;
     await wait(reduceMotion() ? 1400 : 1100);
     if (!alive()) return;
-    setArrival(null);
+    await dismissArrival();
+    if (!alive()) return;
     sfx('card.drop');
     await wait(300);
   };
@@ -1072,7 +1082,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
             if (!alive()) return;
             await wait(1100);
             if (!alive()) return;
-            setArrival(null);
+            await dismissArrival();
+            if (!alive()) return;
           }
           setEventFlashed(m.replay?.idx ?? -1);
         }
@@ -2282,7 +2293,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         )}
       </div>
       <div className="bottom">
-        <Hand view={view} me={me} plan={m.replay ? m.replay.plan : plan} selected={selected} rest={!planning} nudge={handNudge} onTap={tapCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} dragProps={dragProps} glow={guideCard} energyLeft={planning ? energyLeft : undefined} dropState={drop?.hand ? (drop.overKey === 'hand' ? 'over' : 'ok') : null} held={drag?.payload.kind === 'card' ? drag.payload.cardId : null} settle={settle} canPlay={selectable} />
+        <Hand view={handView} me={me} plan={m.replay ? m.replay.plan : plan} selected={selected} rest={!planning} nudge={handNudge} onTap={tapCard} onInspect={(id) => setSheet({ kind: 'card', id })} compact={compact} dragProps={dragProps} glow={guideCard} energyLeft={planning ? energyLeft : undefined} dropState={drop?.hand ? (drop.overKey === 'hand' ? 'over' : 'ok') : null} held={drag?.payload.kind === 'card' ? drag.payload.cardId : null} settle={settle} canPlay={selectable} />
         <div className="hint" aria-live="polite">
           {planItems.map((it) => (
             <span key={it.key} className="plan-chip">
@@ -2371,7 +2382,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       </div>
 
       {arrival && (
-        <div className={`card-flash p${arrival.owner}`} aria-hidden>
+        <div className={`card-flash p${arrival.owner} ${arrival.leaving ? 'leaving' : ''}`} aria-hidden>
           <CardFace id={arrival.cardId} big />
         </div>
       )}

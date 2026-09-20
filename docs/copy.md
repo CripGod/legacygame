@@ -981,17 +981,21 @@ Menu
 - .column[data-index="${location}"] .score.p${side}
 - ${tone} ${opts.big ? 'big' : ''}
 - float-num ${tone} ${opts.big ? 'big' : ''} jump
+- translate(-50%, -50%) scale(0.5)
+- translate(-50%, -50%) scale(0.9)
+- cubic-bezier(0.2, 0.8, 0.3, 1)
+- translate(-50%, -50%) translate(${vx}px, ${vy}px) scale(${peak})
+- translate(-50%, -50%) translate(${vx}px, ${vy}px) scale(${peak * 0.96})
+- cubic-bezier(0.55, 0, 0.3, 1)
+- translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(0.5)
+- translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(0.15)
 - translate(-50%, -50%) scale(0.4)
 - cubic-bezier(0.2, 0.9, 0.3, 1.3)
 - translate(-50%, -50%) translateY(-14px) scale(${peak})
 - translate(-50%, -50%) translateY(-24px) scale(${peak * 0.94})
-- cubic-bezier(0.55, 0, 0.3, 1)
-- translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(0.5)
-- translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(0.15)
 - 0 0 0 1px #000, 0 0 12px rgba(0,0,0,0.6)
 - scale(${opts.big ? 1.6 : 1.35})
 - 0 0 0 2px #fff, 0 0 26px rgba(${tone === 'theirs' ? '111, 163, 255' : tone === 'artist' ? '79, 209, 138' : '255, 227, 179'}, 1)
-- cubic-bezier(0.2, 0.8, 0.3, 1)
 - .column[data-index="${it.location}"] .loc-glow
 - s ghost flies: its real tile
 - .column[data-index="${d.from}"] .score.p${d.victim.owner}
@@ -1017,7 +1021,11 @@ Menu
 - translateY(-46px) scale(1.9)
 - translateY(-10px) scale(1.05)
 - .column[data-index="${e.location}"] .score.p${side}
+- .column[data-index="${e.location}"] .location
 - +${amount} First Location bonus
+- ${view.players[step.player].handle} plays
+- ${who} ${def.name}${step.location !== undefined ? 
+- Location ${step.location + 1}
 - s hand flips face up in its slot as its beat opens; a Character
 - .column[data-index="${i}"] .art
 - ${adef.name} beats ${vdef.name} (${adef.force} Force against ${vdef.force}) and knocks them away to the Gates of another Location.
@@ -1127,7 +1135,7 @@ Menu
 - danger sit-btn ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}
 - turn-mini ${finalTurnLabel(view) ? 'final' : ''}
 - T${Math.min(view.turn, view.maxTurns)}/${view.maxTurns}
-- card-flash p${arrival.owner}
+- card-flash p${arrival.owner} ${arrival.leaving ? 'leaving' : ''}
 - drag-ghost ${drag.payload.kind === 'card' ? 'card-ghost' : ''} ${drag.pointerType !== 'mouse' ? 'touch' : ''} ${drag.returning ? 'returning' : ''} ${drag.snap ? 'snap' : ''}
 - You give up the match, now. ${view.players[other(me)].handle} takes ${opts.stepOffCost} Legacy.${raisedOnMe ? 
 - rep-readout ${n > 0 ? 'live' : ''}
@@ -1654,7 +1662,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - ${hd.name} ${s.held.why} when you Lock It In. The slot stays taken until then.
 - strip leaving ${s.held.arriving ? 'arriving' : ''}
 - tile-glow owner-${owner} ${focus?.includes(s.uid) ? 'focus' : ''}
-- gate-slot filled gf owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''}
+- gate-slot filled gf owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''} ${fx?.arrive === s.uid ? 'fx-flip' : ''}
 - stamp verdict ${fx.stamp.tone ?? 'hit'}
 - Your Event slot here: drop an Event card on this Location. One per Location per turn. A deck carries at most two Events: you have ${evLeft} of ${evTotal} left.
 - ev-count ${evLeft === 0 ? 'spent' : ''}
@@ -1689,7 +1697,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - Team-up, ${TEAM_UP_BY_ID[t.id].name} (${view.players[t.owner].handle}): ${TEAM_UP_BY_ID[t.id].text} It holds while both remain Inside.
 - line ${winner && winner !== 'lost' ? 
 - threat-col ${has ? '' : 'empty'}
-- loc-rule ${loc.revealed && !loc.lost && def.rule.length > 115 ? 'long' : ''}
+- loc-rule ${loc.revealed && !loc.lost && (def.short ?? def.rule).length > 115 ? 'long' : ''}
 - LOST: ${loc.lostReason ?? 'an unresolved crisis'} Neither player can win here.
 - Hidden until revealed. Commit blind.
 
@@ -1840,7 +1848,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - ${def.name}: no Setbacks this match, and ${locName(state, at)} is not in the Americas.
 - ${def.name}: +${base + home} lasting Influence at ${locName(state, at)} (${ps.setbacks} Setback${ps.setbacks === 1 ? '' : 's'}${home ? 
 - ${def.name}: ${ps.handle} has been warned.${home ? 
-- ${def.name}: ${ps.handle} draws ${n} card${n > 1 ? 's' : ''}${crowd ? 
+- ${def.name}: ${ps.handle} draws ${n} card${n > 1 ? 's' : ''} (${here} of ${ps.handle}'s Characters at ${locName(state, at)}${crowd ? '' : 
 - ${def.name}: no Threat at ${locName(state, at)} to swear against. Nothing happens.
 - ${def.name}: the oath is sworn at ${locName(state, at)}. Until ${threatName(state, t)} is broken, everyone here, both sides, confronts it every turn, and nobody leaves.
 - ${def.name}: none of ${ps.handle}'s Characters can be blocked or displaced this turn, and those at ${locName(state, play.location)} confront with +${def.effect.force} Force.
@@ -1931,6 +1939,7 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - Harriet will not conduct an Informant.
 - That Location is Lost.
 - Choose a different destination.
+- No room at that Location for ${charDef(c.defId).name}.
 - A Character selected to enter is not Ready.
 - Only ${opts.relocationsAllowed} Relocation(s) allowed this turn (Lagos departures are free).
 - Invalid Relocation.

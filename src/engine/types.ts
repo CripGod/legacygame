@@ -260,6 +260,8 @@ export interface LocationDef {
   name: string;
   era: string;
   rule: string;
+  /** A shorter rule for the board's two-line box, when the full rule will not fit; the sheet shows the full one. */
+  short?: string;
   blurb: string;
   effect: LocationEffect;
   spawnOnReveal?: string;
