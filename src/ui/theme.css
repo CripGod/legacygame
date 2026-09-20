@@ -2199,6 +2199,9 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .lock-btn:disabled { border-image-source: var(--kit-secondary-disabled) !important; color: #2e3135; text-shadow: none; opacity: 0.9; }
 .lock-btn.locked, .lock-btn.locked:disabled { border-image-source: var(--kit-lock-locked-default) !important; color: #373d4a; text-shadow: 0 1px 1.5px rgba(255, 255, 255, 0.09), 0 -1px 1.5px rgba(74, 42, 5, 0.07); opacity: 1; }
 .lock-btn.low, .lock-btn.crit { --bc: transparent; }
+/* The warning flash covers the whole parchment face: out under the nine-slice caps to the gold rim (the rim is about
+   0.085 of the height in from the sprite's edge), cut to the frame's chamfer, under the word and the bar. */
+.lock-btn::before { --rim: calc(var(--kh) * 0.085); --chm: calc(var(--kh) * 0.14); inset: calc(var(--rim) - var(--cap)) calc(var(--rim) - var(--cap)) calc(var(--rim) - var(--capb)) calc(var(--rim) - var(--cap)); clip-path: polygon(var(--chm) 0, calc(100% - var(--chm)) 0, 100% var(--chm), 100% calc(100% - var(--chm)), calc(100% - var(--chm)) 100%, var(--chm) 100%, 0 calc(100% - var(--chm)), 0 var(--chm)); }
 .lock-btn .timer-bar { --th: calc(var(--kh) * 0.16); position: relative; height: var(--th); border-radius: 0; overflow: visible; background: var(--kit-timer-track) center / 100% 100% no-repeat; }
 .lock-btn .timer-bar b {
   position: absolute; left: 0; top: -5%; height: 110%; box-sizing: border-box; min-width: calc(var(--th) * 1.1);
@@ -2220,3 +2223,13 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .actions-left .danger:not(:disabled):active { border-image-source: var(--kit-small-pressed) !important; color: #e9d6bd; }
 .actions-left .danger:disabled { border-image-source: var(--kit-small-disabled) !important; color: #ece9e5; opacity: 0.75; text-shadow: 0 2.5px 2.4px rgba(11, 18, 40, 0.75); }
 @media (prefers-reduced-motion: reduce) { .lock-btn .timer-bar b { transition: none; } }
+
+/* ---------- A card arrives whole ----------
+   Until its frame and its portrait are both in, the card's parts stay invisible (the box keeps its size) and the big
+   card shows a thin gold ring turning at its centre; then everything fades up together. */
+.card.tpl.loading > *:not(.tpl-wait) { visibility: hidden; }
+.card.tpl.ready > * { animation: tpl-in 0.18s ease-out both; }
+@keyframes tpl-in { from { opacity: 0; } to { opacity: 1; } }
+.card.tpl .tpl-wait { position: absolute; left: 50%; top: 50%; width: 9cqw; height: 9cqw; margin: -4.5cqw; border-radius: 50%; border: 0.7cqw solid rgba(233, 185, 58, 0.18); border-top-color: var(--gold-2); animation: tpl-wait 0.9s linear infinite; }
+@keyframes tpl-wait { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .card.tpl.ready > * { animation: none; } .card.tpl .tpl-wait { animation: none; } }

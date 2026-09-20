@@ -1,6 +1,6 @@
 import { CARD_BY_ID, type CharacterInstance, type GameState, charInfluence, isSuppressed } from '../../engine';
 import { abilityLines, cardName, cardShort, hueFor, initials, useDisplay } from '../display';
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState, useEffect } from 'react';
 import { frameOf, useLedger, type FrameId } from '../legacy';
 import { Art } from './Art';
 import { artMissing, artUrl, markArtMissing } from '../art';
@@ -137,7 +137,7 @@ const KIND_ICONS: Record<CardKind, React.ReactNode> = {
  */
 /* The frame a card wears: one of the seventeen frame exports, seven ranks and ten finishes (public/art/frames/character-<frame>.webp, fitted into the
    card's box by a scratch script). Events keep their own frame and are exempt from ranks for now. */
-function Frame({ kind, big, rank }: { kind: 'character' | 'event'; big: boolean; rank: FrameId }) {
+function Frame({ kind, big, rank, onSettled }: { kind: 'character' | 'event'; big: boolean; rank: FrameId; onSettled?: () => void }) {
   const size = big ? '' : '-sm';
   const want = kind === 'event' ? `event${size}` : `character${size}-${rank}`;
   const back = `character${size}-wood`;
@@ -148,7 +148,7 @@ function Frame({ kind, big, rank }: { kind: 'character' | 'event'; big: boolean;
   const src = artUrl('frames', id, 'webp');
   return (
     <>
-      <img className="tpl-frame" src={src} alt="" draggable={false} onError={() => { markArtMissing('frames', id); if (id !== back) setId(back); }} />
+      <img className="tpl-frame" src={src} alt="" draggable={false} onLoad={() => onSettled?.()} onError={() => { markArtMissing('frames', id); if (id !== back) setId(back); else onSettled?.(); }} />
       {/* Diamond: a glare sweeps the frame every few seconds, masked to the frame's own pixels so it never crosses the art. */}
       {rank === 'diamond' && <span className="tpl-glare" aria-hidden style={{ WebkitMaskImage: `url("${src}")`, maskImage: `url("${src}")` }} />}
     </>
@@ -175,6 +175,18 @@ export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id
   // The name fits its banner at every card size: it steps down to a legible floor, then compresses the rest, the way
   // a printed card squeezes a long name rather than letting it run into the corners. Re-measured when the card resizes.
   const nameRef = useRef<HTMLDivElement>(null);
+  // The whole card arrives at once: it stays hidden (a wait ring on the big card) until the frame and the portrait are
+  // both in, so the words never show alone for a frame before the art. A picture that never answers stops the wait at
+  // two seconds so nothing hangs.
+  const [got, setGot] = useState({ frame: false, art: placeholders });
+  const settled = got.frame && got.art;
+  const [gaveUp, setGaveUp] = useState(false);
+  useEffect(() => {
+    if (settled) return;
+    const t = window.setTimeout(() => setGaveUp(true), 2000);
+    return () => window.clearTimeout(t);
+  }, [settled]);
+  const ready = settled || gaveUp;
   useLayoutEffect(() => {
     const el = nameRef.current;
     if (!el) return;
@@ -239,12 +251,13 @@ export function CardFace({ id, big = false, onClick, cost, costWhy, note }: { id
   }, [id, big]);
   const band = isChar ? bandFor(def) : null;
   return (
-    <div className={`card tpl ${big ? 'big' : ''} ${isChar ? '' : 'event'} ${curse ? 'curse' : ''} ${kind === 'informant' ? 'informant' : ''} ${kind === 'artist' ? 'artist' : ''} k-${kind} rank-${rank}`} onClick={onClick} role={onClick ? 'button' : undefined}>
+    <div className={`card tpl ${big ? 'big' : ''} ${isChar ? '' : 'event'} ${curse ? 'curse' : ''} ${kind === 'informant' ? 'informant' : ''} ${kind === 'artist' ? 'artist' : ''} k-${kind} rank-${rank} ${ready ? 'ready' : 'loading'}`} onClick={onClick} role={onClick ? 'button' : undefined}>
       <div className="tpl-art" style={{ background: hueFor(id) }}>
-        {placeholders ? <span className="ini">{initials(id, true)}</span> : <Art kind={isChar ? 'characters' : 'events'} id={id} className="tpl-art-img" fallback={<span className="ini">{initials(id, false)}</span>} alt={def.name} />}
+        {placeholders ? <span className="ini">{initials(id, true)}</span> : <Art kind={isChar ? 'characters' : 'events'} id={id} className="tpl-art-img" onSettled={() => setGot((g) => (g.art ? g : { ...g, art: true }))} fallback={<span className="ini">{initials(id, false)}</span>} alt={def.name} />}
       </div>
       {note && <span className="card-note tpl-note">{note}</span>}
-      <Frame kind={isChar ? 'character' : 'event'} big={big} rank={rank} />
+      <Frame kind={isChar ? 'character' : 'event'} big={big} rank={rank} onSettled={() => setGot((g) => (g.frame ? g : { ...g, frame: true }))} />
+      {!ready && big && <span className="tpl-wait" aria-hidden />}
       <div className={`tpl-num tpl-cost ${cost !== undefined && cost < def.cost ? 'discounted' : ''}`} {...tip(cost !== undefined && cost < def.cost ? `Costs ${cost} right now instead of ${def.cost}${costWhy?.length ? ': ' + costWhy.join(', ') : ''}.` : HINTS.cost)}>
         {cost ?? def.cost}
       </div>
