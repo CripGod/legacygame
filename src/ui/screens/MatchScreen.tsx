@@ -1370,7 +1370,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     wasPlanning.current = planning;
     if (!back) return;
     setTurnFlash(view.turn);
-    const id = window.setTimeout(() => setTurnFlash(null), 1150);
+    const id = window.setTimeout(() => setTurnFlash(null), 1900); // the call's whole run: veil in, banner in, hold, banner out, veil out
     return () => window.clearTimeout(id);
   }, [planning, view.turn]);
   /**
@@ -2253,9 +2253,12 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           </div>
         )}
         {turnFlash !== null && (
-          <div className="turn-flash" key={turnFlash} aria-hidden>
-            <img className="ribbon-base" src={artUrl('kit', 'ribbon', 'webp')} alt="" />
-            <span className="ribbon-word">{finalTurnLabel(view, false, true) ?? `Turn ${turnFlash}`}</span>
+          <div className="turn-call" key={turnFlash} aria-hidden>
+            <div className="turn-veil" />
+            <div className="turn-flash">
+              <img className="ribbon-base" src={artUrl('kit', 'ribbon', 'webp')} alt="" />
+              <span className="ribbon-word">{finalTurnLabel(view, false, true) ?? `Turn ${turnFlash}`}</span>
+            </div>
           </div>
         )}
         <Coach view={view} me={me} plan={plan} enabled={coach && tutorial && planning && m.mode === 'ai' && !guide && !lesson} onActive={setFlash} override={doing ? null : guideText} />

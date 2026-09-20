@@ -71,7 +71,7 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   'sheet.close': 'It closes.',
   'influence.up': 'The meter takes its number: the ding as a +N reaches an Influence circle (numbers landing together ding once).',
   lock: 'Lock It In.',
-  turn: 'A new turn begins: three soft bells as the meter refills.',
+  turn: 'A new turn begins: the ring bell (a fight\'s round bell) as the turn\'s banner lands over the darkened board.',
   'location.reveal': 'A Location is revealed with the smashdown (or the Black Star arrives): the thud on the landing. Plays with the place\'s own sound when it has one: see SFX_PLACES.',
   'location.open': 'A Location revealed without the smashdown (most of them: the first slams only when someone guessed it, later ones only when they arrive with force): the picture develops, the bells, no thud. With the place\'s own sound.',
   draw: 'You draw a card.',
@@ -94,7 +94,7 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   'dig.keep': 'The dearer story is kept: the card lights up and is chosen (the select climb with a shimmer).',
   'dig.bury': 'The other cards go back to the bottom of the deck: a flick and a soft thud.',
   stand: 'Stand on Business: the stakes rise.',
-  'stand.button': 'The Stand on Business button, Marvel Snap style: stomp, stomp, clap, and on the clap the bell, a boom and the crowd\'s roar carrying on for a few seconds. No horns.',
+  'stand.button': 'The Stand on Business button, Marvel Snap style: stomp, stomp, clap, and on the clap a boom and the crowd\'s roar carrying on for a few seconds. No horns; the ring bell is the turn call\'s.',
   lastword: 'The Last Word begins.',
   lost: 'A Location is Lost, or someone changes sides.',
   win: 'You win the match: drums and the bell.',
@@ -125,7 +125,7 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'sheet.close': [{ files: ['card-back'], gain: 0.5 }, { files: ['move-1'], gain: 0.3 }],
   'influence.up': [{ files: ['meter-ding'], gain: 0.55 }], // a bright two-note climb on the xylophone
   lock: [{ files: ['lock'], gain: 0.8 }],
-  turn: [{ files: ['new-turn'], gain: 0.55 }], // three soft bells: the riffle is gone
+  turn: [{ files: ['stand-bell'], gain: 0.75, at: 320 }], // the ring bell on the banner's landing (~350ms into the call); the soft bells are gone
   'location.reveal': [{ files: ['stand-thud'], gain: 0.6, at: 1260 }, { files: ['turn'], gain: 0.4, at: 1420 }], // the thud on the smashdown's landing (~1.26s into the beat, after the picture develops and the panel grows)
   'location.open': [{ files: ['turn'], gain: 0.4, at: 700 }], // the quiet reveal: the bells as the colour comes in
   draw: [{ files: ['draw'], gain: 0.5 }],
@@ -148,7 +148,7 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'dig.keep': [{ files: ['select'], gain: 0.55 }, { files: ['trail'], gain: 0.25, at: 80 }], // "you have been chosen": the select climb, a shimmer under it
   'dig.bury': [{ files: ['card-back'], gain: 0.5 }, { files: ['thud-soft'], gain: 0.4, at: 120 }],
   stand: [{ files: ['stand-thud'], gain: 0.9 }, { files: ['stand-drums'], gain: 0.8 }],
-  'stand.button': [{ files: ['stand-stomp'], gain: 0.9 }, { files: ['stand-bell'], gain: 0.7, at: 800 }, { files: ['stand-burst'], gain: 0.85, at: 800 }], // stomp, stomp, clap ... and on the clap the ring bell, the boom and the crowd carrying on (no brass)
+  'stand.button': [{ files: ['stand-stomp'], gain: 0.9 }, { files: ['stand-burst'], gain: 0.85, at: 800 }], // stomp, stomp, clap ... and on the clap the ring bell, the boom and the crowd carrying on (no brass)
   lastword: [{ files: ['lastword'], gain: 0.8 }],
   lost: [{ files: ['lost'], gain: 0.65 }],
   win: [{ files: ['stand-drums'], gain: 0.85 }, { files: ['lastword'], gain: 0.7, at: 220 }], // drums and the bell: gravity, not a fanfare
