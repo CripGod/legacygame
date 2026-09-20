@@ -79,7 +79,7 @@ export interface BattlefieldProps {
   /** Replay: Event cards played this turn that have not resolved yet; they wait at the Gates. */
   pendingEvents?: { cardId: string; player: PlayerId; location: number }[];
   /** Threats neutralized on this replay beat: they linger with a stamp before they go. */
-  neutralized?: { uid: string; defId: string; location: number; target?: PlayerId }[];
+  neutralized?: { uid: string; defId: string; location: number; target?: PlayerId; /** How it went: broken by Force (the default), lifted on its own (the Decision has run its course), or left behind (the Black Star arrived). */ why?: 'lifted' | 'leftBehind' }[];
   /** True while the opponent's resolution is animating: the player's own tiles snap. */
   resolving?: boolean;
   /** First-turn guide: Location to glow. */
@@ -372,7 +372,7 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
 }
 
 /** A Threat as a portrait tile beside the Inside rows: art, the Force it needs, its name, and who it is aimed at. */
-function ThreatTile({ t, view, me, plan, drop, flash, onThreat, gone, hidden, hit, shatter, stamp, foreseen }: { /** The Ancestors foresee the opponent confronting it. */ foreseen?: boolean; t: ThreatInstance; view: GameState; me: PlayerId; plan: TurnPlan; drop?: BattlefieldProps['drop']; flash?: BattlefieldProps['flash']; onThreat: (uid: string) => void; gone?: boolean; hidden?: boolean; /** The showdown's blow lands: a red flash when it tells, green when the Threat shrugs it off. */ hit?: 'hit' | 'held' | 'hexed'; shatter?: boolean; stamp?: BoardFx['stamp'] }) {
+function ThreatTile({ t, view, me, plan, drop, flash, onThreat, gone, goneWhy, hidden, hit, shatter, stamp, foreseen }: { /** Why a gone Threat went (its stamp). */ goneWhy?: 'lifted' | 'leftBehind'; /** The Ancestors foresee the opponent confronting it. */ foreseen?: boolean; t: ThreatInstance; view: GameState; me: PlayerId; plan: TurnPlan; drop?: BattlefieldProps['drop']; flash?: BattlefieldProps['flash']; onThreat: (uid: string) => void; gone?: boolean; hidden?: boolean; /** The showdown's blow lands: a red flash when it tells, green when the Threat shrugs it off. */ hit?: 'hit' | 'held' | 'hexed'; shatter?: boolean; stamp?: BoardFx['stamp'] }) {
   const { placeholders } = useDisplay();
   const tdef = THREAT_BY_ID[t.defId];
   const confronting = !gone && plan.confronts.some((c) => c.threatUid === t.uid);
@@ -410,7 +410,7 @@ function ThreatTile({ t, view, me, plan, drop, flash, onThreat, gone, hidden, hi
           {stamp.sub && <i>{stamp.sub}</i>}
         </div>
       ) : (
-        gone && <div className="stamp">Neutralized</div>
+        gone && <div className="stamp">{goneWhy === 'leftBehind' ? 'Left behind' : goneWhy === 'lifted' ? 'Lifted' : 'Neutralized'}</div>
       )}
     </div>
   );
@@ -635,7 +635,7 @@ export function Battlefield(props: BattlefieldProps) {
                         <ThreatTile key={t.uid} t={t} view={view} me={me} plan={plan} drop={drop} foreseen={!!foreseen?.threats.includes(t.uid)} flash={flash === 'threat' && glowLocation !== null && glowLocation !== undefined && glowLocation !== loc.index ? null : flash} onThreat={onThreat} hidden={fx?.hidden.includes(t.uid)} hit={fx?.flash?.uid === t.uid ? fx.flash.kind : undefined} stamp={fx?.stamp?.uid === t.uid ? fx.stamp : undefined} />
                       ))}
                       {ghosts.map((t) => (
-                        <ThreatTile key={`gone:${t.uid}`} t={t} view={view} me={me} plan={plan} onThreat={onThreat} gone={!fx?.alive?.includes(t.uid)} hidden={fx?.hidden.includes(t.uid)} hit={fx?.flash?.uid === t.uid ? fx.flash.kind : undefined} shatter={fx?.shatter === t.uid} stamp={fx?.stamp?.uid === t.uid ? fx.stamp : undefined} />
+                        <ThreatTile key={`gone:${t.uid}`} t={t} view={view} me={me} plan={plan} onThreat={onThreat} gone={!fx?.alive?.includes(t.uid)} goneWhy={fallen.find((g) => g.uid === t.uid)?.why} hidden={fx?.hidden.includes(t.uid)} hit={fx?.flash?.uid === t.uid ? fx.flash.kind : undefined} shatter={fx?.shatter === t.uid} stamp={fx?.stamp?.uid === t.uid ? fx.stamp : undefined} />
                       ))}
                     </div>
                   </div>

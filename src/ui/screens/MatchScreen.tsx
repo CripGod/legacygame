@@ -1300,8 +1300,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       (step?.events ?? [])
         .filter((e) => e.type === 'threatNeutralized' && e.location !== undefined && !!(e.data as { threatUid?: string } | undefined)?.threatUid)
         .map((e) => {
-          const d = e.data as { threatUid: string; defId: string; target?: PlayerId };
-          return { uid: d.threatUid, defId: d.defId, location: e.location!, target: d.target };
+          const d = e.data as { threatUid: string; defId: string; target?: PlayerId; lifted?: boolean; leftBehind?: boolean };
+          return { uid: d.threatUid, defId: d.defId, location: e.location!, target: d.target, why: d.leftBehind ? ('leftBehind' as const) : d.lifted ? ('lifted' as const) : undefined };
         }),
     [step],
   );

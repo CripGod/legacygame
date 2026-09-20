@@ -227,7 +227,7 @@ export function transformLocation(state: GameState, index: number, intoId: strin
   loc.defId = intoId;
   loc.revealedTurn = state.turn;
   events.push({ type: 'locationTransformed', text: `${from?.name ?? 'The Location'} arrives: it is now ${into.name}.`, location: index, data: { from: from?.id, to: intoId } });
-  for (const t of loc.threats) events.push({ type: 'threatNeutralized', text: `${THREAT_BY_ID[t.defId]?.name ?? 'The Threat'} at ${into.name} is left behind.`, location: index });
+  for (const t of loc.threats) events.push({ type: 'threatNeutralized', text: `${THREAT_BY_ID[t.defId]?.name ?? 'The Threat'} at ${into.name} is left behind on the dock: nobody broke it, and nobody is paid for it.`, location: index, data: { threatUid: t.uid, defId: t.defId, target: t.target, leftBehind: true } });
   loc.threats = [];
   const aboard = Object.values(state.characters).filter((c) => c.location === index);
   for (const c of aboard) c.permInfluence += 1;
