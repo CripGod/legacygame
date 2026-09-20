@@ -403,6 +403,12 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     }
   };
   /** During a replay your own moves stay where you put them; the board only re-animates what you could not see coming. */
+  /** What the board draws: the beat's fx, plus an opponent's Character played from hand turning over from its very first
+   *  frame (the runner sets fx.arrive a frame later, for the beat's timing; the class must be there before that frame). */
+  const fxShown = useMemo(() => {
+    if (step?.kind === 'play' && step.player && step.player !== me && step.uids?.[0] && !fx?.arrive && !reduceMotion()) return { ...(fx ?? { hidden: [] }), arrive: step.uids[0] };
+    return fx;
+  }, [fx, step, me]);
   const boardView = useMemo(() => {
     if ((stagePrev || stagedClash) && prevView && m.replay) return previewPlan(prevView, me, remainingPlan(prevView, me, m.replay.plan, stagedBlocked));
     if (m.replay && step) return previewPlan(view, me, remainingPlan(step.state, me, m.replay.plan));
@@ -2164,7 +2170,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           drop={drop}
           reserved={reserved}
           delays={m.delays}
-          fx={stagedFx ?? fx}
+          fx={stagedFx ?? fxShown}
           foreseen={planning ? foreseen : null}
           resolving={busy}
           focus={step?.uids}

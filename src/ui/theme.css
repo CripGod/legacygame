@@ -2212,7 +2212,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .stand-btn, .lock-btn, .actions-left .danger {
   --kh: clamp(38px, 4.4vw, 56px);
   --cap: calc(var(--kh) * 0.205); --capb: calc(var(--kh) * 0.216);
-  clip-path: none !important; background: transparent !important; isolation: auto;
+  clip-path: none !important; background: transparent !important;
   border-style: solid !important; border-color: transparent !important; border-width: var(--cap) var(--cap) var(--capb) var(--cap) !important;
   border-image-source: var(--kit-primary-default) !important; border-image-slice: 75 75 79 75 fill !important; border-image-repeat: stretch !important;
   box-sizing: border-box; min-height: var(--kh); padding: 0 calc(var(--kh) * 0.1);
@@ -2220,15 +2220,28 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
   color: #f6e4cc; text-shadow: 0 1px 1.5px rgba(255, 246, 224, 0.04), 0 -1px 1.5px rgba(5, 9, 26, 0.06), 0 3px 3px rgba(11, 18, 40, 0.75);
   transition: filter 0.15s;
 }
-.stand-btn::after, .lock-btn::after, .actions-left .danger::after { display: none; }
+/* Hover never swaps the sprite (a swap decodes the new sprite on the spot: a blink). The hover sprite is a second layer
+   over the same nine-slice, always painted at opacity 0, and simply fades up. */
+.stand-btn, .lock-btn, .actions-left .danger { position: relative; isolation: isolate; }
+.stand-btn::after, .lock-btn::after, .actions-left .danger::after {
+  content: ''; display: block; position: absolute; z-index: -1; pointer-events: none;
+  inset: calc(-1 * var(--cap)) calc(-1 * var(--cap)) calc(-1 * var(--capb)) calc(-1 * var(--cap));
+  border-style: solid; border-color: transparent; border-width: var(--cap) var(--cap) var(--capb) var(--cap);
+  border-image-source: var(--kit-primary-hover); border-image-slice: 75 75 79 75 fill; border-image-repeat: stretch;
+  background: none; box-shadow: none; clip-path: none; transform: none; border-radius: 0;
+  opacity: 0; transition: opacity 0.12s;
+}
+.stand-btn:not(:disabled):hover::after, .lock-btn:not(:disabled):hover::after, .actions-left .danger:not(:disabled):hover::after { opacity: 1; }
+.stand-btn:disabled::after, .lock-btn:disabled::after, .actions-left .danger:disabled::after, .lock-btn.locked::after { display: none; }
 .stand-btn:not(:disabled):hover, .lock-btn:not(:disabled):hover, .actions-left .danger:not(:disabled):hover { --bc: transparent; filter: drop-shadow(0 0 10px rgba(252, 180, 36, 0.45)); }
 /* Stand on Business: the primary, and its lit variant once you stand. */
 .stand-btn { min-width: clamp(180px, 26vw, 420px); }
-.stand-btn:not(:disabled):hover { border-image-source: var(--kit-primary-hover) !important; color: #f9e6cd; }
+.stand-btn:not(:disabled):hover { color: #f9e6cd; }
 .stand-btn:not(:disabled):active { border-image-source: var(--kit-primary-pressed) !important; color: #e9d6bd; }
 .stand-btn:disabled { border-image-source: var(--kit-primary-disabled) !important; color: #ece9e5; opacity: 0.9; text-shadow: 0 3px 3px rgba(11, 18, 40, 0.75); }
 .stand-btn.on { border-image-source: var(--kit-stand-btn-on-default) !important; color: #fff4d5; text-shadow: 0 1px 1.5px rgba(255, 246, 224, 0.04), 0 -1px 1.5px rgba(5, 9, 26, 0.06), 0 3px 3px rgba(11, 18, 40, 0.75), 0 0 4px rgba(252, 180, 36, 0.45), 0 0 10px rgba(252, 180, 36, 0.27); filter: drop-shadow(0 0 12px rgba(255, 210, 74, 0.5)); }
-.stand-btn.on:not(:disabled):hover { border-image-source: var(--kit-stand-btn-on-hover) !important; color: #fff5d7; }
+.stand-btn.on::after { border-image-source: var(--kit-stand-btn-on-hover); }
+.stand-btn.on:not(:disabled):hover { color: #fff5d7; }
 .stand-btn.on:not(:disabled):active { border-image-source: var(--kit-stand-btn-on-pressed) !important; color: #f5eaca; }
 .stand-btn.on:disabled { border-image-source: var(--kit-stand-btn-on-disabled) !important; color: #f7f5f1; }
 /* Lock In: the parchment secondary with the navy word, two rows (the word, the plan timer); Locked is the dim variant. */
@@ -2241,7 +2254,8 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
   font-size: calc(var(--kh) * 0.3); letter-spacing: 0.03em;
   color: #0c1c36; text-shadow: 0 1px 1.5px rgba(255, 255, 255, 0.1), 0 -1px 1.5px rgba(74, 42, 5, 0.07);
 }
-.lock-btn:not(:disabled):hover { border-image-source: var(--kit-secondary-hover) !important; color: #1f2e49; }
+.lock-btn::after { border-image-source: var(--kit-secondary-hover); }
+.lock-btn:not(:disabled):hover { color: #1f2e49; }
 .lock-btn:not(:disabled):active { border-image-source: var(--kit-secondary-pressed) !important; color: #0a1a36; }
 .lock-btn:disabled { border-image-source: var(--kit-secondary-disabled) !important; color: #2e3135; text-shadow: none; opacity: 0.9; }
 .lock-btn.locked, .lock-btn.locked:disabled { border-image-source: var(--kit-lock-locked-default) !important; color: #373d4a; text-shadow: 0 1px 1.5px rgba(255, 255, 255, 0.09), 0 -1px 1.5px rgba(74, 42, 5, 0.07); opacity: 1; }
@@ -2266,7 +2280,8 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
   min-width: clamp(160px, 16vw, 280px); font-size: calc(var(--kh) * 0.35);
   text-shadow: 0 1px 1.4px rgba(255, 246, 224, 0.04), 0 -1px 1.4px rgba(5, 9, 26, 0.06), 0 2.5px 2.4px rgba(11, 18, 40, 0.75);
 }
-.actions-left .danger:not(:disabled):hover { border-image-source: var(--kit-small-hover) !important; color: #f9e6cd; }
+.actions-left .danger::after { border-image-source: var(--kit-small-hover); border-image-slice: 61 62 66 62 fill; }
+.actions-left .danger:not(:disabled):hover { color: #f9e6cd; }
 .actions-left .danger:not(:disabled):active { border-image-source: var(--kit-small-pressed) !important; color: #e9d6bd; }
 .actions-left .danger:disabled { border-image-source: var(--kit-small-disabled) !important; color: #ece9e5; opacity: 0.75; text-shadow: 0 2.5px 2.4px rgba(11, 18, 40, 0.75); }
 @media (prefers-reduced-motion: reduce) { .lock-btn .timer-bar b { transition: none; } }
