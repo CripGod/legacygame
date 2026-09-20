@@ -1,6 +1,9 @@
+import { hintsOn } from './hints';
+
 /**
  * Lightweight hover/focus tooltip. One fixed-position element for the whole app.
- * Hints are never hover-only: the same text is available by tap in the sheets.
+ * Hints are never hover-only: the same text is available by tap in the sheets. The hover bubble itself only shows
+ * while the Hints switch is on (off by default); the aria-label stays either way.
  */
 let el: HTMLDivElement | null = null;
 
@@ -35,9 +38,13 @@ export function hideTip(): void {
 /** Spread onto any element: `<span {...tip('Influence …')}>`. */
 export function tip(text: string) {
   return {
-    onMouseEnter: (e: React.MouseEvent) => showTip(e.currentTarget, text),
+    onMouseEnter: (e: React.MouseEvent) => {
+      if (hintsOn()) showTip(e.currentTarget, text);
+    },
     onMouseLeave: hideTip,
-    onFocus: (e: React.FocusEvent) => showTip(e.currentTarget, text),
+    onFocus: (e: React.FocusEvent) => {
+      if (hintsOn()) showTip(e.currentTarget, text);
+    },
     onBlur: hideTip,
     'aria-label': text,
   };
