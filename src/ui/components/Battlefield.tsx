@@ -179,6 +179,7 @@ function EventTile({ cardId, state, hidden, foreseen, onClick }: { cardId: strin
       <i className="glow" aria-hidden />
       <div className={`gate-slot event-slot ${state} ${def.curse ? 'curse' : ''} ${foreseen ? 'foreseen' : ''}`} onClick={onClick} {...tip(foreseen ? `The Ancestors foresee: ${def.name} is played here.` : state === 'planned' ? `${def.name} is placed here. It resolves when you Lock In and needs this open Gate slot.` : state === 'pending' ? `${def.name} waits to resolve.` : `${def.name} resolves.`)}>
         {placeholders ? <span className="ini">{initials(cardId, true)}</span> : <Art kind="events" id={cardId} className="pic-img" fallback={<span className="ini">{initials(cardId, false)}</span>} alt={def.name} />}
+        {state === 'trigger' && <i className="back" aria-hidden />}
         <span className={`strip ${def.curse ? 'curse' : 'event'}`}>{state === 'trigger' ? '✦' : def.curse ? 'Curse' : 'Event'}</span>
       </div>
     </div>
