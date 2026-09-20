@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { influenceAt, CARD_BY_ID, viewFor, legalOptions, validatePlan, gateRoom, GATE_CAPACITY, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, filterEvents, LOCATION_BY_ID } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
-import { artUrl, videoUrl } from '../art';
+import { artUrl, videoUrl, kitVars } from '../art';
 import { TutFigure } from '../components/TutFigure';
 import { tileOrder, type DropHighlight, type BoardFx } from '../components/Battlefield';
 import { previewPlan, remainingPlan, isPlannedUid, PLANNED_PREFIX, foreseePlan } from '../preview';
@@ -2094,7 +2094,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   const stepOffTip = opts.canStepOff ? tip(`Sit Down: give up the match now. ${view.players[other(me)].handle} takes ${opts.stepOffCost} Legacy.`) : tip(HINTS.noStepOff);
 
   return (
-    <div className={`app ${resolving ? 'resolving' : ''}`}>
+    <div className={`app ${resolving ? 'resolving' : ''}`} style={kitVars() as React.CSSProperties}>
       {/* The board's backdrop: the lakeside plaza under the mountain, a 20s loop over its still (the still is the poster, the
           reduced-motion fallback and what shows if autoplay is refused); the dark wash (.app-bg::after) sits over both. */}
       <div className="app-bg" style={{ backgroundImage: `url(${artUrl('landing', 'board')})` }} aria-hidden>
@@ -2280,7 +2280,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
               </button>
             ) : null
           ) : (
-            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning} onClick={lockNow} title={HINTS.timer}>
+            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${locked ? 'locked' : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning} onClick={lockNow} title={HINTS.timer}>
               <span>{planning ? 'LOCK IN' : locked ? 'LOCKED ✓' : 'RESOLVING…'}</span>
               <i className="timer-bar" aria-hidden>
                 <b style={{ width: `${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 0}%` }} />
@@ -2309,7 +2309,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
               </button>
             ) : null
           ) : (
-            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning} onClick={lockNow} title={HINTS.timer}>
+            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${locked ? 'locked' : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning} onClick={lockNow} title={HINTS.timer}>
               <span>{planning ? 'LOCK IN' : locked ? 'LOCKED ✓' : 'RESOLVING…'}</span>
               <i className="timer-bar" aria-hidden>
                 <b style={{ width: `${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 0}%` }} />

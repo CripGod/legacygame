@@ -1,0 +1,2182 @@
+{
+ "kit": "Stand on Business",
+ "cut": "web prototype: six buttons and the plan timer bar, from the kit's engine export",
+ "generated": "2026-09-20T01:06:53.686Z",
+ "pngScale": 2,
+ "units": "Every number under `at1x` is in design pixels at 1x (the scale the boards use on the 1920 by 1080 stage). Sprite pixel sizes are 2x. Divide sprite px by 2 to get 1x.",
+ "face": {
+  "family": "Cinzel",
+  "file": "fonts/Cinzel-Bold.ttf",
+  "source": "https://fonts.google.com/specimen/Cinzel",
+  "weight": 700,
+  "case": "upper",
+  "letterSpacing": "0.03em",
+  "note": "One face for every button. Size, fill and shadow are per piece and state under pieces[].states[].label."
+ },
+ "pieces": [
+  {
+   "id": "primary",
+   "appPiece": "primary",
+   "engineFamily": "button-primary",
+   "word": "Stand on Business",
+   "wordIsLiveText": true,
+   "at1x": {
+    "prefW": 880.5,
+    "prefH": 165.9,
+    "labelDx": 0.1,
+    "labelDy": 1,
+    "labelFontSize": 63.1
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "pressLift1x": 2.0,
+   "hoverGlow": {
+    "file": "pieces/primary/glow.png",
+    "spritePx": {
+     "w": 2134,
+     "h": 726
+    },
+    "tint": "#FCB424",
+    "opacityByState": {
+     "default": 0.0,
+     "hover": 0.45,
+     "pressed": 0.6,
+     "disabled": 0.0
+    },
+    "note": "A white blurred silhouette of the piece, centred behind it. The app draws it under the piece tinted with the kit's Glow colour at the opacity per state (hover, pressed). Optional."
+   },
+   "states": {
+    "default": {
+     "file": "pieces/primary/default.png",
+     "spritePx": {
+      "w": 1774,
+      "h": 366
+     },
+     "at1x": {
+      "size": {
+       "w": 887.0,
+       "h": 183.0
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 3.0,
+       "w": 880.5,
+       "h": 166.0
+      },
+      "nineSlice": {
+       "left": 37.5,
+       "right": 37.5,
+       "top": 37.5,
+       "bottom": 39.5
+      }
+     },
+     "nineSlicePx": {
+      "left": 75,
+      "right": 75,
+      "top": 75,
+      "bottom": 79
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#f6e4cc",
+      "fontSize": 63.1,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "STAND ON BUSINESS",
+      "seat": {
+       "dx": 0.05,
+       "dy": 1.05,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [
+       {
+        "dx": 0.0,
+        "dy": 4.7,
+        "blurStdDev": 1.6,
+        "color": "#0B1228",
+        "opacity": 0.75
+       }
+      ],
+      "embossLights": [
+       {
+        "dx": -0.0,
+        "dy": 1.1,
+        "blurStdDev": 0.8,
+        "color": "#FFF6E0",
+        "opacity": 0.04
+       },
+       {
+        "dx": 0.0,
+        "dy": -1.1,
+        "blurStdDev": 0.8,
+        "color": "#05091A",
+        "opacity": 0.06
+       }
+      ],
+      "cssTextShadow": "-0.0px 1.1px 1.6px rgba(255,246,224,0.04), 0.0px -1.1px 1.6px rgba(5,9,26,0.06), 0.0px 4.7px 3.2px rgba(11,18,40,0.75)"
+     },
+     "sha256": "f62d3886dd4ebdb6e8d145373a495600f9ee26b10976a487c8c66a6ff30aabf1"
+    },
+    "hover": {
+     "file": "pieces/primary/hover.png",
+     "spritePx": {
+      "w": 1774,
+      "h": 366
+     },
+     "at1x": {
+      "size": {
+       "w": 887.0,
+       "h": 183.0
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 3.0,
+       "w": 880.5,
+       "h": 166.0
+      },
+      "nineSlice": {
+       "left": 37.5,
+       "right": 37.5,
+       "top": 37.5,
+       "bottom": 39.5
+      }
+     },
+     "nineSlicePx": {
+      "left": 75,
+      "right": 75,
+      "top": 75,
+      "bottom": 79
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#f9e6cd",
+      "fontSize": 63.1,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "STAND ON BUSINESS",
+      "seat": {
+       "dx": 0.05,
+       "dy": 1.05,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [
+       {
+        "dx": 0.0,
+        "dy": 4.7,
+        "blurStdDev": 1.6,
+        "color": "#0B1228",
+        "opacity": 0.75
+       }
+      ],
+      "embossLights": [
+       {
+        "dx": -0.0,
+        "dy": 1.1,
+        "blurStdDev": 0.8,
+        "color": "#FFF6E0",
+        "opacity": 0.04
+       },
+       {
+        "dx": 0.0,
+        "dy": -1.1,
+        "blurStdDev": 0.8,
+        "color": "#05091A",
+        "opacity": 0.06
+       }
+      ],
+      "cssTextShadow": "-0.0px 1.1px 1.6px rgba(255,246,224,0.04), 0.0px -1.1px 1.6px rgba(5,9,26,0.06), 0.0px 4.7px 3.2px rgba(11,18,40,0.75)"
+     },
+     "sha256": "c41a5104a44ea74db25d6be0ef69587bb16ba67163ac80d3de6adc216b803f01"
+    },
+    "pressed": {
+     "file": "pieces/primary/pressed.png",
+     "spritePx": {
+      "w": 1774,
+      "h": 366
+     },
+     "at1x": {
+      "size": {
+       "w": 887.0,
+       "h": 183.0
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 5.0,
+       "w": 880.5,
+       "h": 166.0
+      },
+      "nineSlice": {
+       "left": 37.5,
+       "right": 37.5,
+       "top": 37.5,
+       "bottom": 39.5
+      }
+     },
+     "nineSlicePx": {
+      "left": 75,
+      "right": 75,
+      "top": 75,
+      "bottom": 79
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#e9d6bd",
+      "fontSize": 63.1,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "STAND ON BUSINESS",
+      "seat": {
+       "dx": 0.05,
+       "dy": 1.05,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [
+       {
+        "dx": 0.0,
+        "dy": 4.7,
+        "blurStdDev": 1.6,
+        "color": "#0B1228",
+        "opacity": 0.75
+       }
+      ],
+      "embossLights": [
+       {
+        "dx": -0.0,
+        "dy": 1.1,
+        "blurStdDev": 0.8,
+        "color": "#FFF6E0",
+        "opacity": 0.04
+       },
+       {
+        "dx": 0.0,
+        "dy": -1.1,
+        "blurStdDev": 0.8,
+        "color": "#05091A",
+        "opacity": 0.06
+       }
+      ],
+      "cssTextShadow": "-0.0px 1.1px 1.6px rgba(255,246,224,0.04), 0.0px -1.1px 1.6px rgba(5,9,26,0.06), 0.0px 4.7px 3.2px rgba(11,18,40,0.75)"
+     },
+     "sha256": "e102e5b289f34aeca3fc64b7bf2ddd5a8c1edf93bdf0201dfadceb051eab82a3"
+    },
+    "disabled": {
+     "file": "pieces/primary/disabled.png",
+     "spritePx": {
+      "w": 1774,
+      "h": 366
+     },
+     "at1x": {
+      "size": {
+       "w": 887.0,
+       "h": 183.0
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 3.0,
+       "w": 880.5,
+       "h": 166.0
+      },
+      "nineSlice": {
+       "left": 37.5,
+       "right": 37.5,
+       "top": 37.5,
+       "bottom": 39.5
+      }
+     },
+     "nineSlicePx": {
+      "left": 75,
+      "right": 75,
+      "top": 75,
+      "bottom": 79
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#ece9e5",
+      "fontSize": 63.1,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "STAND ON BUSINESS",
+      "seat": {
+       "dx": 0.05,
+       "dy": 1.05,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [
+       {
+        "dx": 0.0,
+        "dy": 4.7,
+        "blurStdDev": 1.6,
+        "color": "#0B1228",
+        "opacity": 0.75
+       }
+      ],
+      "embossLights": [],
+      "cssTextShadow": "0.0px 4.7px 3.2px rgba(11,18,40,0.75)"
+     },
+     "sha256": "b80f43c79520843863159605b25bfeefdd1c2775bb735e18533947f10ba2a123"
+    }
+   }
+  },
+  {
+   "id": "stand-btn-on",
+   "appPiece": "copy-sbon-primary",
+   "engineFamily": "button-primary",
+   "word": "Standing ✓",
+   "wordIsLiveText": true,
+   "at1x": {
+    "prefW": 608.5,
+    "prefH": 165.9,
+    "labelDx": 0.1,
+    "labelDy": 1,
+    "labelFontSize": 63.1
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "pressLift1x": 2.0,
+   "hoverGlow": {
+    "file": "pieces/stand-btn-on/glow.png",
+    "spritePx": {
+     "w": 1590,
+     "h": 726
+    },
+    "tint": "#FFD24A",
+    "opacityByState": {
+     "default": 0.55,
+     "hover": 0.75,
+     "pressed": 0.85,
+     "disabled": 0.0
+    },
+    "note": "A white blurred silhouette of the piece, centred behind it. The app draws it under the piece tinted with the kit's Glow colour at the opacity per state (hover, pressed). Optional."
+   },
+   "states": {
+    "default": {
+     "file": "pieces/stand-btn-on/default.png",
+     "spritePx": {
+      "w": 1230,
+      "h": 366
+     },
+     "at1x": {
+      "size": {
+       "w": 615.0,
+       "h": 183.0
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 3.0,
+       "w": 608.5,
+       "h": 166.0
+      },
+      "nineSlice": {
+       "left": 37.5,
+       "right": 37.5,
+       "top": 37.5,
+       "bottom": 39.5
+      }
+     },
+     "nineSlicePx": {
+      "left": 75,
+      "right": 75,
+      "top": 75,
+      "bottom": 79
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#fff4d5",
+      "fontSize": 63.1,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "STANDING ✓",
+      "seat": {
+       "dx": 0.05,
+       "dy": 1.05,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [
+       {
+        "dx": 0.0,
+        "dy": 4.7,
+        "blurStdDev": 1.6,
+        "color": "#0B1228",
+        "opacity": 0.75
+       }
+      ],
+      "embossLights": [
+       {
+        "dx": -0.0,
+        "dy": 1.1,
+        "blurStdDev": 0.8,
+        "color": "#FFF6E0",
+        "opacity": 0.04
+       },
+       {
+        "dx": 0.0,
+        "dy": -1.1,
+        "blurStdDev": 0.8,
+        "color": "#05091A",
+        "opacity": 0.06
+       },
+       {
+        "dx": 0.0,
+        "dy": 0.0,
+        "blurStdDev": 1.8,
+        "color": "#FCB424",
+        "opacity": 0.45
+       },
+       {
+        "dx": 0.0,
+        "dy": 0.0,
+        "blurStdDev": 4.8,
+        "color": "#FCB424",
+        "opacity": 0.27
+       }
+      ],
+      "cssTextShadow": "-0.0px 1.1px 1.6px rgba(255,246,224,0.04), 0.0px -1.1px 1.6px rgba(5,9,26,0.06), 0.0px 4.7px 3.2px rgba(11,18,40,0.75), 0.0px 0.0px 3.6px rgba(252,180,36,0.45), 0.0px 0.0px 9.6px rgba(252,180,36,0.27)"
+     },
+     "sha256": "c7c05ee3f4fe9c2faa0e340623e36d7b92b62ebf784c05199f71074c62c278e6"
+    },
+    "hover": {
+     "file": "pieces/stand-btn-on/hover.png",
+     "spritePx": {
+      "w": 1230,
+      "h": 366
+     },
+     "at1x": {
+      "size": {
+       "w": 615.0,
+       "h": 183.0
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 3.0,
+       "w": 608.5,
+       "h": 166.0
+      },
+      "nineSlice": {
+       "left": 37.5,
+       "right": 37.5,
+       "top": 37.5,
+       "bottom": 39.5
+      }
+     },
+     "nineSlicePx": {
+      "left": 75,
+      "right": 75,
+      "top": 75,
+      "bottom": 79
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#fff5d7",
+      "fontSize": 63.1,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "STANDING ✓",
+      "seat": {
+       "dx": 0.05,
+       "dy": 1.05,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [
+       {
+        "dx": 0.0,
+        "dy": 4.7,
+        "blurStdDev": 1.6,
+        "color": "#0B1228",
+        "opacity": 0.75
+       }
+      ],
+      "embossLights": [
+       {
+        "dx": -0.0,
+        "dy": 1.1,
+        "blurStdDev": 0.8,
+        "color": "#FFF6E0",
+        "opacity": 0.04
+       },
+       {
+        "dx": 0.0,
+        "dy": -1.1,
+        "blurStdDev": 0.8,
+        "color": "#05091A",
+        "opacity": 0.06
+       },
+       {
+        "dx": 0.0,
+        "dy": 0.0,
+        "blurStdDev": 1.8,
+        "color": "#FCB424",
+        "opacity": 0.45
+       },
+       {
+        "dx": 0.0,
+        "dy": 0.0,
+        "blurStdDev": 4.8,
+        "color": "#FCB424",
+        "opacity": 0.27
+       }
+      ],
+      "cssTextShadow": "-0.0px 1.1px 1.6px rgba(255,246,224,0.04), 0.0px -1.1px 1.6px rgba(5,9,26,0.06), 0.0px 4.7px 3.2px rgba(11,18,40,0.75), 0.0px 0.0px 3.6px rgba(252,180,36,0.45), 0.0px 0.0px 9.6px rgba(252,180,36,0.27)"
+     },
+     "sha256": "93842e69bbbab750e788fb7fab774ba34d7ba1ddffa29b077cee5673e0a4c6e9"
+    },
+    "pressed": {
+     "file": "pieces/stand-btn-on/pressed.png",
+     "spritePx": {
+      "w": 1230,
+      "h": 366
+     },
+     "at1x": {
+      "size": {
+       "w": 615.0,
+       "h": 183.0
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 5.0,
+       "w": 608.5,
+       "h": 166.0
+      },
+      "nineSlice": {
+       "left": 37.5,
+       "right": 37.5,
+       "top": 37.5,
+       "bottom": 39.5
+      }
+     },
+     "nineSlicePx": {
+      "left": 75,
+      "right": 75,
+      "top": 75,
+      "bottom": 79
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#f5eaca",
+      "fontSize": 63.1,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "STANDING ✓",
+      "seat": {
+       "dx": 0.05,
+       "dy": 1.05,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [
+       {
+        "dx": 0.0,
+        "dy": 4.7,
+        "blurStdDev": 1.6,
+        "color": "#0B1228",
+        "opacity": 0.75
+       }
+      ],
+      "embossLights": [
+       {
+        "dx": -0.0,
+        "dy": 1.1,
+        "blurStdDev": 0.8,
+        "color": "#FFF6E0",
+        "opacity": 0.04
+       },
+       {
+        "dx": 0.0,
+        "dy": -1.1,
+        "blurStdDev": 0.8,
+        "color": "#05091A",
+        "opacity": 0.06
+       },
+       {
+        "dx": 0.0,
+        "dy": 0.0,
+        "blurStdDev": 1.8,
+        "color": "#FCB424",
+        "opacity": 0.45
+       },
+       {
+        "dx": 0.0,
+        "dy": 0.0,
+        "blurStdDev": 4.8,
+        "color": "#FCB424",
+        "opacity": 0.27
+       }
+      ],
+      "cssTextShadow": "-0.0px 1.1px 1.6px rgba(255,246,224,0.04), 0.0px -1.1px 1.6px rgba(5,9,26,0.06), 0.0px 4.7px 3.2px rgba(11,18,40,0.75), 0.0px 0.0px 3.6px rgba(252,180,36,0.45), 0.0px 0.0px 9.6px rgba(252,180,36,0.27)"
+     },
+     "sha256": "45ad1429d0229d9fd1c0f40bd851dc5f911a979fb49eb1b0b68726648ee54f76"
+    },
+    "disabled": {
+     "file": "pieces/stand-btn-on/disabled.png",
+     "spritePx": {
+      "w": 1230,
+      "h": 366
+     },
+     "at1x": {
+      "size": {
+       "w": 615.0,
+       "h": 183.0
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 3.0,
+       "w": 608.5,
+       "h": 166.0
+      },
+      "nineSlice": {
+       "left": 37.5,
+       "right": 37.5,
+       "top": 37.5,
+       "bottom": 39.5
+      }
+     },
+     "nineSlicePx": {
+      "left": 75,
+      "right": 75,
+      "top": 75,
+      "bottom": 79
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#f7f5f1",
+      "fontSize": 63.1,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "STANDING ✓",
+      "seat": {
+       "dx": 0.05,
+       "dy": 1.05,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [
+       {
+        "dx": 0.0,
+        "dy": 4.7,
+        "blurStdDev": 1.6,
+        "color": "#0B1228",
+        "opacity": 0.75
+       }
+      ],
+      "embossLights": [],
+      "cssTextShadow": "0.0px 4.7px 3.2px rgba(11,18,40,0.75)"
+     },
+     "sha256": "64a47a6a0a429969769f58d84a86bbb738f53d4936a1d2aea3150b23260e8096"
+    }
+   }
+  },
+  {
+   "id": "secondary",
+   "appPiece": "secondary",
+   "engineFamily": "button-secondary",
+   "word": "Lock In",
+   "wordIsLiveText": true,
+   "at1x": {
+    "prefW": 444.6,
+    "prefH": 165.9,
+    "labelDx": 0,
+    "labelDy": 1,
+    "labelFontSize": 63.1
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "pressLift1x": 2.0,
+   "hoverGlow": {
+    "file": "pieces/secondary/glow.png",
+    "spritePx": {
+     "w": 1262,
+     "h": 716
+    },
+    "tint": "#FCB424",
+    "opacityByState": {
+     "default": 0.0,
+     "hover": 0.45,
+     "pressed": 0.6,
+     "disabled": 0.0
+    },
+    "note": "A white blurred silhouette of the piece, centred behind it. The app draws it under the piece tinted with the kit's Glow colour at the opacity per state (hover, pressed). Optional."
+   },
+   "states": {
+    "default": {
+     "file": "pieces/secondary/default.png",
+     "spritePx": {
+      "w": 902,
+      "h": 356
+     },
+     "at1x": {
+      "size": {
+       "w": 451.0,
+       "h": 178.0
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 3.0,
+       "w": 444.5,
+       "h": 166.0
+      },
+      "nineSlice": {
+       "left": 37.5,
+       "right": 37.5,
+       "top": 37.5,
+       "bottom": 39.5
+      }
+     },
+     "nineSlicePx": {
+      "left": 75,
+      "right": 75,
+      "top": 75,
+      "bottom": 79
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#0c1c36",
+      "fontSize": 63.1,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "LOCK IN",
+      "seat": {
+       "dx": 0.0,
+       "dy": 1.05,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [],
+      "embossLights": [
+       {
+        "dx": -0.0,
+        "dy": 1.2,
+        "blurStdDev": 0.8,
+        "color": "#FFFFFF",
+        "opacity": 0.1
+       },
+       {
+        "dx": 0.0,
+        "dy": -1.2,
+        "blurStdDev": 0.8,
+        "color": "#4A2A05",
+        "opacity": 0.07
+       }
+      ],
+      "cssTextShadow": "-0.0px 1.2px 1.6px rgba(255,255,255,0.1), 0.0px -1.2px 1.6px rgba(74,42,5,0.07)"
+     },
+     "sha256": "9e33a4f131895ed28e44a1ff68c04fe2bfa928d7724895835209223493296c96"
+    },
+    "hover": {
+     "file": "pieces/secondary/hover.png",
+     "spritePx": {
+      "w": 902,
+      "h": 356
+     },
+     "at1x": {
+      "size": {
+       "w": 451.0,
+       "h": 178.0
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 3.0,
+       "w": 444.5,
+       "h": 166.0
+      },
+      "nineSlice": {
+       "left": 37.5,
+       "right": 37.5,
+       "top": 37.5,
+       "bottom": 39.5
+      }
+     },
+     "nineSlicePx": {
+      "left": 75,
+      "right": 75,
+      "top": 75,
+      "bottom": 79
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#1f2e49",
+      "fontSize": 63.1,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "LOCK IN",
+      "seat": {
+       "dx": 0.0,
+       "dy": 1.05,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [],
+      "embossLights": [
+       {
+        "dx": -0.0,
+        "dy": 1.2,
+        "blurStdDev": 0.8,
+        "color": "#FFFFFF",
+        "opacity": 0.1
+       },
+       {
+        "dx": 0.0,
+        "dy": -1.2,
+        "blurStdDev": 0.8,
+        "color": "#4A2A05",
+        "opacity": 0.07
+       }
+      ],
+      "cssTextShadow": "-0.0px 1.2px 1.6px rgba(255,255,255,0.1), 0.0px -1.2px 1.6px rgba(74,42,5,0.07)"
+     },
+     "sha256": "42de6b3db841d4f5429218578d0e649a0a373a6abac22a57829f04f3f340fa7d"
+    },
+    "pressed": {
+     "file": "pieces/secondary/pressed.png",
+     "spritePx": {
+      "w": 902,
+      "h": 356
+     },
+     "at1x": {
+      "size": {
+       "w": 451.0,
+       "h": 178.0
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 5.0,
+       "w": 444.5,
+       "h": 166.0
+      },
+      "nineSlice": {
+       "left": 37.5,
+       "right": 37.5,
+       "top": 37.5,
+       "bottom": 39.5
+      }
+     },
+     "nineSlicePx": {
+      "left": 75,
+      "right": 75,
+      "top": 75,
+      "bottom": 79
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#0a1a36",
+      "fontSize": 63.1,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "LOCK IN",
+      "seat": {
+       "dx": 0.0,
+       "dy": 1.05,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [],
+      "embossLights": [
+       {
+        "dx": -0.0,
+        "dy": 1.2,
+        "blurStdDev": 0.8,
+        "color": "#FFFFFF",
+        "opacity": 0.1
+       },
+       {
+        "dx": 0.0,
+        "dy": -1.2,
+        "blurStdDev": 0.8,
+        "color": "#4A2A05",
+        "opacity": 0.07
+       }
+      ],
+      "cssTextShadow": "-0.0px 1.2px 1.6px rgba(255,255,255,0.1), 0.0px -1.2px 1.6px rgba(74,42,5,0.07)"
+     },
+     "sha256": "e883f23fe3be8daf2e3c7061967c75c2308fb68b8bc00c3bc996b263baf3062f"
+    },
+    "disabled": {
+     "file": "pieces/secondary/disabled.png",
+     "spritePx": {
+      "w": 902,
+      "h": 356
+     },
+     "at1x": {
+      "size": {
+       "w": 451.0,
+       "h": 178.0
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 3.0,
+       "w": 444.5,
+       "h": 166.0
+      },
+      "nineSlice": {
+       "left": 37.5,
+       "right": 37.5,
+       "top": 37.5,
+       "bottom": 39.5
+      }
+     },
+     "nineSlicePx": {
+      "left": 75,
+      "right": 75,
+      "top": 75,
+      "bottom": 79
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#2e3135",
+      "fontSize": 63.1,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "LOCK IN",
+      "seat": {
+       "dx": 0.0,
+       "dy": 1.05,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [],
+      "embossLights": [],
+      "cssTextShadow": "none"
+     },
+     "sha256": "656fdf86b2d0c555c21fd428e62f581b191534151a3c3bd0d49f1dd7c62c11b7"
+    }
+   }
+  },
+  {
+   "id": "lock-locked",
+   "appPiece": "copy-lkon-secondary",
+   "engineFamily": "button-secondary",
+   "word": "Locked",
+   "wordIsLiveText": true,
+   "at1x": {
+    "prefW": 440,
+    "prefH": 165.9,
+    "labelDx": 0,
+    "labelDy": 1,
+    "labelFontSize": 63.1
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "pressLift1x": 2.0,
+   "hoverGlow": {
+    "file": "pieces/lock-locked/glow.png",
+    "spritePx": {
+     "w": 1252,
+     "h": 716
+    },
+    "tint": "#FCB424",
+    "opacityByState": {
+     "default": 0.0,
+     "hover": 0.2,
+     "pressed": 0.3,
+     "disabled": 0.0
+    },
+    "note": "A white blurred silhouette of the piece, centred behind it. The app draws it under the piece tinted with the kit's Glow colour at the opacity per state (hover, pressed). Optional."
+   },
+   "states": {
+    "default": {
+     "file": "pieces/lock-locked/default.png",
+     "spritePx": {
+      "w": 892,
+      "h": 356
+     },
+     "at1x": {
+      "size": {
+       "w": 446.0,
+       "h": 178.0
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 3.0,
+       "w": 440.0,
+       "h": 166.0
+      },
+      "nineSlice": {
+       "left": 37.5,
+       "right": 37.5,
+       "top": 37.5,
+       "bottom": 39.5
+      }
+     },
+     "nineSlicePx": {
+      "left": 75,
+      "right": 75,
+      "top": 75,
+      "bottom": 79
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#373d4a",
+      "fontSize": 63.1,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "LOCKED",
+      "seat": {
+       "dx": 0.0,
+       "dy": 1.05,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [],
+      "embossLights": [
+       {
+        "dx": -0.0,
+        "dy": 1.2,
+        "blurStdDev": 0.8,
+        "color": "#FFFFFF",
+        "opacity": 0.09
+       },
+       {
+        "dx": 0.0,
+        "dy": -1.2,
+        "blurStdDev": 0.8,
+        "color": "#4A2A05",
+        "opacity": 0.07
+       }
+      ],
+      "cssTextShadow": "-0.0px 1.2px 1.6px rgba(255,255,255,0.09), 0.0px -1.2px 1.6px rgba(74,42,5,0.07)"
+     },
+     "sha256": "d1957a54d41536ce70011a43f95166beeffa16380557ea4c0fa38404277dc662"
+    },
+    "hover": {
+     "file": "pieces/lock-locked/hover.png",
+     "spritePx": {
+      "w": 892,
+      "h": 356
+     },
+     "at1x": {
+      "size": {
+       "w": 446.0,
+       "h": 178.0
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 3.0,
+       "w": 440.0,
+       "h": 166.0
+      },
+      "nineSlice": {
+       "left": 37.5,
+       "right": 37.5,
+       "top": 37.5,
+       "bottom": 39.5
+      }
+     },
+     "nineSlicePx": {
+      "left": 75,
+      "right": 75,
+      "top": 75,
+      "bottom": 79
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#3a3f4f",
+      "fontSize": 63.1,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "LOCKED",
+      "seat": {
+       "dx": 0.0,
+       "dy": 1.05,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [],
+      "embossLights": [
+       {
+        "dx": -0.0,
+        "dy": 1.2,
+        "blurStdDev": 0.8,
+        "color": "#FFFFFF",
+        "opacity": 0.09
+       },
+       {
+        "dx": 0.0,
+        "dy": -1.2,
+        "blurStdDev": 0.8,
+        "color": "#4A2A05",
+        "opacity": 0.07
+       }
+      ],
+      "cssTextShadow": "-0.0px 1.2px 1.6px rgba(255,255,255,0.09), 0.0px -1.2px 1.6px rgba(74,42,5,0.07)"
+     },
+     "sha256": "0ec9d888ee5e6f8724f779b9cc27abbdfafacc430a95f92e240d4be1ae3ee03f"
+    },
+    "pressed": {
+     "file": "pieces/lock-locked/pressed.png",
+     "spritePx": {
+      "w": 892,
+      "h": 356
+     },
+     "at1x": {
+      "size": {
+       "w": 446.0,
+       "h": 178.0
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 5.0,
+       "w": 440.0,
+       "h": 166.0
+      },
+      "nineSlice": {
+       "left": 37.5,
+       "right": 37.5,
+       "top": 37.5,
+       "bottom": 39.5
+      }
+     },
+     "nineSlicePx": {
+      "left": 75,
+      "right": 75,
+      "top": 75,
+      "bottom": 79
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#353a48",
+      "fontSize": 63.1,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "LOCKED",
+      "seat": {
+       "dx": 0.0,
+       "dy": 1.05,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [],
+      "embossLights": [
+       {
+        "dx": -0.0,
+        "dy": 1.2,
+        "blurStdDev": 0.8,
+        "color": "#FFFFFF",
+        "opacity": 0.09
+       },
+       {
+        "dx": 0.0,
+        "dy": -1.2,
+        "blurStdDev": 0.8,
+        "color": "#4A2A05",
+        "opacity": 0.07
+       }
+      ],
+      "cssTextShadow": "-0.0px 1.2px 1.6px rgba(255,255,255,0.09), 0.0px -1.2px 1.6px rgba(74,42,5,0.07)"
+     },
+     "sha256": "d0ad682cef85aa69723fbd4ce1df655736455582c6a8187262a84c62e098b443"
+    },
+    "disabled": {
+     "file": "pieces/lock-locked/disabled.png",
+     "spritePx": {
+      "w": 892,
+      "h": 356
+     },
+     "at1x": {
+      "size": {
+       "w": 446.0,
+       "h": 178.0
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 3.0,
+       "w": 440.0,
+       "h": 166.0
+      },
+      "nineSlice": {
+       "left": 37.5,
+       "right": 37.5,
+       "top": 37.5,
+       "bottom": 39.5
+      }
+     },
+     "nineSlicePx": {
+      "left": 75,
+      "right": 75,
+      "top": 75,
+      "bottom": 79
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#545559",
+      "fontSize": 63.1,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "LOCKED",
+      "seat": {
+       "dx": 0.0,
+       "dy": 1.05,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [],
+      "embossLights": [],
+      "cssTextShadow": "none"
+     },
+     "sha256": "673c99bee2a0772f2e33617267aa84191ccfdca74a00651d119d93f9439a94be"
+    }
+   }
+  },
+  {
+   "id": "small",
+   "appPiece": "small",
+   "engineFamily": "button-small",
+   "word": "Sit Down",
+   "wordIsLiveText": true,
+   "at1x": {
+    "prefW": 380.1,
+    "prefH": 122,
+    "labelDx": 0,
+    "labelDy": 1,
+    "labelFontSize": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "pressLift1x": 2.0,
+   "hoverGlow": {
+    "file": "pieces/small/glow.png",
+    "spritePx": {
+     "w": 1132,
+     "h": 633
+    },
+    "tint": "#FCB424",
+    "opacityByState": {
+     "default": 0.0,
+     "hover": 0.45,
+     "pressed": 0.6,
+     "disabled": 0.0
+    },
+    "note": "A white blurred silhouette of the piece, centred behind it. The app draws it under the piece tinted with the kit's Glow colour at the opacity per state (hover, pressed). Optional."
+   },
+   "states": {
+    "default": {
+     "file": "pieces/small/default.png",
+     "spritePx": {
+      "w": 772,
+      "h": 273
+     },
+     "at1x": {
+      "size": {
+       "w": 386.0,
+       "h": 136.5
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 3.0,
+       "w": 380.0,
+       "h": 122.0
+      },
+      "nineSlice": {
+       "left": 31.0,
+       "right": 31.0,
+       "top": 30.5,
+       "bottom": 33.0
+      }
+     },
+     "nineSlicePx": {
+      "left": 62,
+      "right": 62,
+      "top": 61,
+      "bottom": 66
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#f6e4cc",
+      "fontSize": 48.0,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "SIT DOWN",
+      "seat": {
+       "dx": 0.05,
+       "dy": 1.0,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [
+       {
+        "dx": 0.0,
+        "dy": 3.6,
+        "blurStdDev": 1.2,
+        "color": "#0B1228",
+        "opacity": 0.75
+       }
+      ],
+      "embossLights": [
+       {
+        "dx": -0.0,
+        "dy": 0.9,
+        "blurStdDev": 0.7,
+        "color": "#FFF6E0",
+        "opacity": 0.04
+       },
+       {
+        "dx": 0.0,
+        "dy": -0.9,
+        "blurStdDev": 0.7,
+        "color": "#05091A",
+        "opacity": 0.06
+       }
+      ],
+      "cssTextShadow": "-0.0px 0.9px 1.4px rgba(255,246,224,0.04), 0.0px -0.9px 1.4px rgba(5,9,26,0.06), 0.0px 3.6px 2.4px rgba(11,18,40,0.75)"
+     },
+     "sha256": "db51b3910efb2dd58fd2a2b707d1064a827c146ba6f5b2d168a95425582ebde4"
+    },
+    "hover": {
+     "file": "pieces/small/hover.png",
+     "spritePx": {
+      "w": 772,
+      "h": 273
+     },
+     "at1x": {
+      "size": {
+       "w": 386.0,
+       "h": 136.5
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 3.0,
+       "w": 380.0,
+       "h": 122.0
+      },
+      "nineSlice": {
+       "left": 31.0,
+       "right": 31.0,
+       "top": 30.5,
+       "bottom": 33.0
+      }
+     },
+     "nineSlicePx": {
+      "left": 62,
+      "right": 62,
+      "top": 61,
+      "bottom": 66
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#f9e6cd",
+      "fontSize": 48.0,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "SIT DOWN",
+      "seat": {
+       "dx": 0.05,
+       "dy": 1.0,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [
+       {
+        "dx": 0.0,
+        "dy": 3.6,
+        "blurStdDev": 1.2,
+        "color": "#0B1228",
+        "opacity": 0.75
+       }
+      ],
+      "embossLights": [
+       {
+        "dx": -0.0,
+        "dy": 0.9,
+        "blurStdDev": 0.7,
+        "color": "#FFF6E0",
+        "opacity": 0.04
+       },
+       {
+        "dx": 0.0,
+        "dy": -0.9,
+        "blurStdDev": 0.7,
+        "color": "#05091A",
+        "opacity": 0.06
+       }
+      ],
+      "cssTextShadow": "-0.0px 0.9px 1.4px rgba(255,246,224,0.04), 0.0px -0.9px 1.4px rgba(5,9,26,0.06), 0.0px 3.6px 2.4px rgba(11,18,40,0.75)"
+     },
+     "sha256": "876f6da76a8ce3a4fff1b3cdcb2dac9ae8cab12568dc4ca6d4e22ffbc2826f16"
+    },
+    "pressed": {
+     "file": "pieces/small/pressed.png",
+     "spritePx": {
+      "w": 772,
+      "h": 273
+     },
+     "at1x": {
+      "size": {
+       "w": 386.0,
+       "h": 136.5
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 5.0,
+       "w": 380.0,
+       "h": 122.0
+      },
+      "nineSlice": {
+       "left": 31.0,
+       "right": 31.0,
+       "top": 30.5,
+       "bottom": 33.0
+      }
+     },
+     "nineSlicePx": {
+      "left": 62,
+      "right": 62,
+      "top": 61,
+      "bottom": 66
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#e9d6bd",
+      "fontSize": 48.0,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "SIT DOWN",
+      "seat": {
+       "dx": 0.05,
+       "dy": 1.0,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [
+       {
+        "dx": 0.0,
+        "dy": 3.6,
+        "blurStdDev": 1.2,
+        "color": "#0B1228",
+        "opacity": 0.75
+       }
+      ],
+      "embossLights": [
+       {
+        "dx": -0.0,
+        "dy": 0.9,
+        "blurStdDev": 0.7,
+        "color": "#FFF6E0",
+        "opacity": 0.04
+       },
+       {
+        "dx": 0.0,
+        "dy": -0.9,
+        "blurStdDev": 0.7,
+        "color": "#05091A",
+        "opacity": 0.06
+       }
+      ],
+      "cssTextShadow": "-0.0px 0.9px 1.4px rgba(255,246,224,0.04), 0.0px -0.9px 1.4px rgba(5,9,26,0.06), 0.0px 3.6px 2.4px rgba(11,18,40,0.75)"
+     },
+     "sha256": "a44dc8b473cff9c8582b183f2a40603badb46225c50fdd8a04640127f28929ff"
+    },
+    "disabled": {
+     "file": "pieces/small/disabled.png",
+     "spritePx": {
+      "w": 772,
+      "h": 273
+     },
+     "at1x": {
+      "size": {
+       "w": 386.0,
+       "h": 136.5
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 3.0,
+       "w": 380.0,
+       "h": 122.0
+      },
+      "nineSlice": {
+       "left": 31.0,
+       "right": 31.0,
+       "top": 30.5,
+       "bottom": 33.0
+      }
+     },
+     "nineSlicePx": {
+      "left": 62,
+      "right": 62,
+      "top": 61,
+      "bottom": 66
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#ece9e5",
+      "fontSize": 48.0,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "SIT DOWN",
+      "seat": {
+       "dx": 0.05,
+       "dy": 1.0,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [
+       {
+        "dx": 0.0,
+        "dy": 3.6,
+        "blurStdDev": 1.2,
+        "color": "#0B1228",
+        "opacity": 0.75
+       }
+      ],
+      "embossLights": [],
+      "cssTextShadow": "0.0px 3.6px 2.4px rgba(11,18,40,0.75)"
+     },
+     "sha256": "b069308b249f4445022fadfc0f4d93074aa68d49159740b872f1acb3857cdac4"
+    }
+   }
+  },
+  {
+   "id": "sit-down",
+   "appPiece": "copy-sitd-small",
+   "engineFamily": "button-small",
+   "word": "Sit Down",
+   "wordIsLiveText": true,
+   "at1x": {
+    "prefW": 380.1,
+    "prefH": 122,
+    "labelDx": 0,
+    "labelDy": 1,
+    "labelFontSize": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "pressLift1x": 2.0,
+   "hoverGlow": {
+    "file": "pieces/sit-down/glow.png",
+    "spritePx": {
+     "w": 1132,
+     "h": 633
+    },
+    "tint": "#FCB424",
+    "opacityByState": {
+     "default": 0.0,
+     "hover": 0.45,
+     "pressed": 0.6,
+     "disabled": 0.0
+    },
+    "note": "A white blurred silhouette of the piece, centred behind it. The app draws it under the piece tinted with the kit's Glow colour at the opacity per state (hover, pressed). Optional."
+   },
+   "states": {
+    "default": {
+     "file": "pieces/sit-down/default.png",
+     "spritePx": {
+      "w": 772,
+      "h": 273
+     },
+     "at1x": {
+      "size": {
+       "w": 386.0,
+       "h": 136.5
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 3.0,
+       "w": 380.0,
+       "h": 122.0
+      },
+      "nineSlice": {
+       "left": 31.0,
+       "right": 31.0,
+       "top": 30.5,
+       "bottom": 33.0
+      }
+     },
+     "nineSlicePx": {
+      "left": 62,
+      "right": 62,
+      "top": 61,
+      "bottom": 66
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#f6e4cc",
+      "fontSize": 48.0,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "SIT DOWN",
+      "seat": {
+       "dx": 0.05,
+       "dy": 1.0,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [
+       {
+        "dx": 0.0,
+        "dy": 3.6,
+        "blurStdDev": 1.2,
+        "color": "#0B1228",
+        "opacity": 0.75
+       }
+      ],
+      "embossLights": [
+       {
+        "dx": -0.0,
+        "dy": 0.9,
+        "blurStdDev": 0.7,
+        "color": "#FFF6E0",
+        "opacity": 0.04
+       },
+       {
+        "dx": 0.0,
+        "dy": -0.9,
+        "blurStdDev": 0.7,
+        "color": "#05091A",
+        "opacity": 0.06
+       }
+      ],
+      "cssTextShadow": "-0.0px 0.9px 1.4px rgba(255,246,224,0.04), 0.0px -0.9px 1.4px rgba(5,9,26,0.06), 0.0px 3.6px 2.4px rgba(11,18,40,0.75)"
+     },
+     "sha256": "db51b3910efb2dd58fd2a2b707d1064a827c146ba6f5b2d168a95425582ebde4"
+    },
+    "hover": {
+     "file": "pieces/sit-down/hover.png",
+     "spritePx": {
+      "w": 772,
+      "h": 273
+     },
+     "at1x": {
+      "size": {
+       "w": 386.0,
+       "h": 136.5
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 3.0,
+       "w": 380.0,
+       "h": 122.0
+      },
+      "nineSlice": {
+       "left": 31.0,
+       "right": 31.0,
+       "top": 30.5,
+       "bottom": 33.0
+      }
+     },
+     "nineSlicePx": {
+      "left": 62,
+      "right": 62,
+      "top": 61,
+      "bottom": 66
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#f9e6cd",
+      "fontSize": 48.0,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "SIT DOWN",
+      "seat": {
+       "dx": 0.05,
+       "dy": 1.0,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [
+       {
+        "dx": 0.0,
+        "dy": 3.6,
+        "blurStdDev": 1.2,
+        "color": "#0B1228",
+        "opacity": 0.75
+       }
+      ],
+      "embossLights": [
+       {
+        "dx": -0.0,
+        "dy": 0.9,
+        "blurStdDev": 0.7,
+        "color": "#FFF6E0",
+        "opacity": 0.04
+       },
+       {
+        "dx": 0.0,
+        "dy": -0.9,
+        "blurStdDev": 0.7,
+        "color": "#05091A",
+        "opacity": 0.06
+       }
+      ],
+      "cssTextShadow": "-0.0px 0.9px 1.4px rgba(255,246,224,0.04), 0.0px -0.9px 1.4px rgba(5,9,26,0.06), 0.0px 3.6px 2.4px rgba(11,18,40,0.75)"
+     },
+     "sha256": "876f6da76a8ce3a4fff1b3cdcb2dac9ae8cab12568dc4ca6d4e22ffbc2826f16"
+    },
+    "pressed": {
+     "file": "pieces/sit-down/pressed.png",
+     "spritePx": {
+      "w": 772,
+      "h": 273
+     },
+     "at1x": {
+      "size": {
+       "w": 386.0,
+       "h": 136.5
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 5.0,
+       "w": 380.0,
+       "h": 122.0
+      },
+      "nineSlice": {
+       "left": 31.0,
+       "right": 31.0,
+       "top": 30.5,
+       "bottom": 33.0
+      }
+     },
+     "nineSlicePx": {
+      "left": 62,
+      "right": 62,
+      "top": 61,
+      "bottom": 66
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#e9d6bd",
+      "fontSize": 48.0,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "SIT DOWN",
+      "seat": {
+       "dx": 0.05,
+       "dy": 1.0,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [
+       {
+        "dx": 0.0,
+        "dy": 3.6,
+        "blurStdDev": 1.2,
+        "color": "#0B1228",
+        "opacity": 0.75
+       }
+      ],
+      "embossLights": [
+       {
+        "dx": -0.0,
+        "dy": 0.9,
+        "blurStdDev": 0.7,
+        "color": "#FFF6E0",
+        "opacity": 0.04
+       },
+       {
+        "dx": 0.0,
+        "dy": -0.9,
+        "blurStdDev": 0.7,
+        "color": "#05091A",
+        "opacity": 0.06
+       }
+      ],
+      "cssTextShadow": "-0.0px 0.9px 1.4px rgba(255,246,224,0.04), 0.0px -0.9px 1.4px rgba(5,9,26,0.06), 0.0px 3.6px 2.4px rgba(11,18,40,0.75)"
+     },
+     "sha256": "a44dc8b473cff9c8582b183f2a40603badb46225c50fdd8a04640127f28929ff"
+    },
+    "disabled": {
+     "file": "pieces/sit-down/disabled.png",
+     "spritePx": {
+      "w": 772,
+      "h": 273
+     },
+     "at1x": {
+      "size": {
+       "w": 386.0,
+       "h": 136.5
+      },
+      "shell": {
+       "x": 3.0,
+       "y": 3.0,
+       "w": 380.0,
+       "h": 122.0
+      },
+      "nineSlice": {
+       "left": 31.0,
+       "right": 31.0,
+       "top": 30.5,
+       "bottom": 33.0
+      }
+     },
+     "nineSlicePx": {
+      "left": 62,
+      "right": 62,
+      "top": 61,
+      "bottom": 66
+     },
+     "pivot": {
+      "x": 0.5,
+      "y": 0.5
+     },
+     "label": {
+      "fill": "#ece9e5",
+      "fontSize": 48.0,
+      "fontWeight": 700,
+      "letterSpacing": "0.030em",
+      "text": "SIT DOWN",
+      "seat": {
+       "dx": 0.05,
+       "dy": 1.0,
+       "anchor": "middle",
+       "baseline": "central"
+      },
+      "dropShadow": [
+       {
+        "dx": 0.0,
+        "dy": 3.6,
+        "blurStdDev": 1.2,
+        "color": "#0B1228",
+        "opacity": 0.75
+       }
+      ],
+      "embossLights": [],
+      "cssTextShadow": "0.0px 3.6px 2.4px rgba(11,18,40,0.75)"
+     },
+     "sha256": "b069308b249f4445022fadfc0f4d93074aa68d49159740b872f1acb3857cdac4"
+    }
+   },
+   "note": "The kit's sit-down clone has the same design and word as small, so its sprites are the same files under their own folder."
+  }
+ ],
+ "bar": {
+  "id": "timer",
+  "appPiece": "timerbar",
+  "engineFamily": "timerbar",
+  "note": "The plan timer: a thin bar, no knob, no cap. Track and fill are separate sprites. The fill is a bordered stadium: its nine-slice caps round the ends, so the game sets the fill rect's WIDTH to value times the track's inner width and the rounded end arrives with the sprite. Height is the design, not a stretch axis.",
+  "track": {
+   "file": "bar/timer-track.png",
+   "spritePx": {
+    "w": 1815,
+    "h": 86
+   },
+   "at1x": {
+    "size": {
+     "w": 907.5,
+     "h": 43.0
+    },
+    "shell": {
+     "x": 3.5,
+     "y": 3.5,
+     "w": 900.5,
+     "h": 36.0
+    },
+    "innerWell": {
+     "x": 8.4,
+     "y": 8.4,
+     "w": 890.6,
+     "h": 26.2
+    }
+   },
+   "nineSlice": null,
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "wellColor": "#050d19"
+  },
+  "fill": {
+   "file": "bar/timer-fill.png",
+   "spritePx": {
+    "w": 1821,
+    "h": 94
+   },
+   "at1x": {
+    "size": {
+     "w": 910.5,
+     "h": 47.0
+    },
+    "body": {
+     "x": 9.9,
+     "y": 10.4,
+     "w": 890.6,
+     "h": 26.2
+    },
+    "nineSlice": {
+     "left": 23.0,
+     "right": 23.0,
+     "top": 17.0,
+     "bottom": 17.0
+    }
+   },
+   "nineSlicePx": {
+    "left": 46,
+    "right": 46,
+    "top": 34,
+    "bottom": 34
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "valueAtExport": 0.62,
+   "colors": {
+    "default": {
+     "gradient": [
+      "#E49C0C",
+      "#FCB424"
+     ],
+     "note": "gold, bottom to top as drawn"
+    },
+    "warn": {
+     "gradient": [
+      "#920c21",
+      "#b94a5c"
+     ],
+     "note": "the kit's warn pose, red. No amber variant exists in this kit; tint the gold fill for amber."
+    }
+   },
+   "gloss": {
+    "at1x": {
+     "x": 8.5,
+     "y": 7.3,
+     "h": 8.4,
+     "rx": 4.2
+    },
+    "color": "#FFFFFF",
+    "note": "a soft white highlight band along the top of the fill, drawn in the fill sprite already"
+   }
+  },
+  "geometryAt1x": {
+   "trackShell": {
+    "x": 0,
+    "y": 0,
+    "w": 900.4,
+    "h": 36
+   },
+   "fillRectAtValue": {
+    "x": 4.9,
+    "y": 4.9,
+    "w": 552.2,
+    "h": 26.2,
+    "rx": 13.1,
+    "value": 0.62
+   },
+   "fillInset": 4.9,
+   "fillFullWidth": 890.6,
+   "note": "fill rect = (inset, inset, value * fillFullWidth, track height - 2 * inset), corners rx = half the fill height."
+  }
+ },
+ "composition": {
+  "stage": {
+   "w": 1920,
+   "h": 1080,
+   "note": "the match board, 1920 by 1080; stage px are 1x px times the copy's scale"
+  },
+  "placements": {
+   "primary (Stand on Business)": {
+    "scale": 0.54,
+    "shellStagePx": {
+     "x": 723,
+     "y": 18,
+     "w": 475,
+     "h": 90
+    },
+    "labelInkBoxStagePx": {
+     "x": 767,
+     "y": 61,
+     "w": 388,
+     "h": 46
+    }
+   },
+   "stand-btn-on (Standing ✓)": {
+    "scale": 0.34,
+    "shellStagePx": {
+     "x": 1158,
+     "y": 148,
+     "w": 207,
+     "h": 56
+    },
+    "labelInkBoxStagePx": {
+     "x": 1187,
+     "y": 175,
+     "w": 150,
+     "h": 29
+    }
+   },
+   "secondary (Lock In)": {
+    "scale": 0.5,
+    "shellStagePx": {
+     "x": 1657,
+     "y": 975,
+     "w": 222,
+     "h": 83
+    },
+    "labelInkBoxStagePx": {
+     "x": 1693,
+     "y": 1006,
+     "w": 150,
+     "h": 43
+    }
+   },
+   "lock-locked (Locked)": {
+    "scale": 0.44,
+    "shellStagePx": {
+     "x": 1440,
+     "y": 985,
+     "w": 194,
+     "h": 73
+    },
+    "labelInkBoxStagePx": {
+     "x": 1472,
+     "y": 1013,
+     "w": 130,
+     "h": 37
+    }
+   },
+   "sit-down (Sit Down)": {
+    "scale": 0.42,
+    "shellStagePx": {
+     "x": 40,
+     "y": 1013,
+     "w": 160,
+     "h": 51
+    },
+    "labelInkBoxStagePx": {
+     "x": 63,
+     "y": 1037,
+     "w": 114,
+     "h": 27
+    }
+   },
+   "timer": {
+    "scale": 0.6,
+    "shellStagePx": {
+     "x": 40,
+     "y": 246,
+     "w": 1840,
+     "h": 22
+    },
+    "labelInkBoxStagePx": null,
+    "stretch": 3.4056,
+    "value": 0.62
+   }
+  },
+  "lockInAndBar": {
+   "onTheBoard": "The match board does NOT seat the bar inside Lock In. The plan timer runs the full width of the stage at the top (shell 40,246 to 1880,268 in stage px, scale 0.6, stretched 3.4 times), and Lock In sits alone at the bottom-right corner (shell 1657,975, 222 by 83). The rect below is therefore not a board measurement.",
+   "lockInFrameAt1x": {
+    "shell": {
+     "x": 0,
+     "y": 0,
+     "w": 444.5,
+     "h": 166.0
+    },
+    "nineSliceSafeInner": {
+     "x": 37.5,
+     "y": 37.5,
+     "w": 369.5,
+     "h": 89.0
+    },
+    "note": "relative to the Lock In shell's top-left corner at 1x; the safe inner rect is the nine-slice centre cell, the part of the frame that never distorts when the button stretches"
+   },
+   "timerRelativeToLockIn": {
+    "stagePx": {
+     "x": -1617,
+     "y": -729,
+     "w": 1840,
+     "h": 22
+    },
+    "note": "where the plan timer's shell sits relative to Lock In's shell on the match board, in stage px (for the record; it is far away, at the top of the stage)"
+   },
+   "suggestedSeatAt1x": {
+    "x": 37.5,
+    "y": 114.5,
+    "w": 369.5,
+    "h": 12,
+    "note": "a suggestion only, from the frame's safe inner rect: a 12 px bar along the bottom of the nine-slice centre cell, relative to the Lock In shell's top-left at 1x. The timer sprite is 36 px tall at 1x; at 12 px it is drawn at a third, or use its 1x height and widen the seat."
+   }
+  }
+ },
+ "skipped": [
+  "idle motion (wipe and edge shine)",
+  "celebration words and the claim burst",
+  "every other component",
+  "every other board"
+ ],
+ "engineExportBuild": "local · 2026-09-20",
+ "notices": [
+  "cinzel-OFL.txt",
+  "LICENCE.txt"
+ ]
+}
