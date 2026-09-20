@@ -30,9 +30,8 @@ export function kitVars(): Record<string, string> {
   for (const p of KIT_PIECES) for (const s of KIT_STATES) out[`--kit-${p}-${s}`] = `url("${pageUrl(artUrl('kit', `${p}-${s}`, 'webp'))}")`;
   out['--kit-timer-track'] = `url("${pageUrl(artUrl('kit', 'timer-track', 'webp'))}")`;
   out['--kit-timer-fill'] = `url("${pageUrl(artUrl('kit', 'timer-fill', 'webp'))}")`;
-  // The card back (public/art/frames/card-back*.webp): every face-down card on the board wears it.
+  // The card back (public/art/frames/card-back.webp, 600 by 364, the Gate window's shape): every face-down card wears it.
   out['--card-back'] = `url("${pageUrl(artUrl('frames', 'card-back', 'webp'))}")`;
-  out['--card-back-sm'] = `url("${pageUrl(artUrl('frames', 'card-back-sm', 'webp'))}")`;
   return out;
 }
 

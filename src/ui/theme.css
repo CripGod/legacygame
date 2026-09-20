@@ -725,20 +725,20 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
   .peek-strip .peek-cards { flex-wrap: wrap; --card-w: clamp(56px, 4.6vw, 76px); }
   @keyframes peek-in-corner { 0% { opacity: 0; transform: translateY(6px); } 100% { opacity: 1; transform: none; } }
 }
-.gate-slot.event-slot.facedown { background: var(--card-back-sm) center / cover no-repeat #1a1430; border-color: rgba(203, 184, 255, 0.5); }
+.gate-slot.event-slot.facedown { background: var(--card-back) center / cover no-repeat #1a1430; border-color: rgba(203, 184, 255, 0.5); }
 .gate-slot.event-slot.facedown .ini { display: none; }
 .gate-slot.event-slot.facedown .ini { color: #cbb8ff; font-size: calc(var(--mini) * 0.42); }
 .gate-slot.event-slot.trigger { animation: event-flip 1200ms ease-out forwards; }
+/* The same flat flip: --back switches at the edge-on moment inside the one animation. */
 @keyframes event-flip {
-  0% { transform: perspective(300px) rotateY(180deg) scale(1); filter: brightness(1); }
-  15% { transform: perspective(300px) rotateY(90deg) scale(1.1); filter: brightness(1.6); }
-  30% { transform: perspective(300px) rotateY(0) scale(1.35); filter: brightness(1.8); }
-  70% { transform: perspective(300px) rotateY(0) scale(1.15); filter: brightness(1.3); opacity: 1; }
-  100% { transform: perspective(300px) rotateY(0) scale(0.6); opacity: 0; }
+  0% { transform: perspective(700px) rotateY(180deg) scale(1); --back: 1; filter: brightness(1); }
+  24% { --back: 1; }
+  25% { transform: perspective(700px) rotateY(90deg) scale(1.05); --back: 0; filter: brightness(1.7); }
+  40% { transform: perspective(700px) rotateY(0) scale(1.3); filter: brightness(1.8); }
+  70% { transform: perspective(700px) rotateY(0) scale(1.15); filter: brightness(1.3); opacity: 1; }
+  100% { transform: perspective(700px) rotateY(0) scale(0.6); --back: 0; opacity: 0; filter: none; }
 }
-/* The back of the card, shown while the tile is turned away (mirrored back so the art reads right), gone at the turn. */
-.gate-slot.event-slot .back { position: absolute; inset: 0; z-index: 6; background: var(--card-back-sm) center / cover no-repeat; transform: scaleX(-1); pointer-events: none; animation: flip-back 1200ms linear both; }
-@keyframes flip-back { 0%, 14% { opacity: 1; } 16%, 100% { opacity: 0; } }
+.gate-slot.event-slot .back { position: absolute; inset: 0; z-index: 6; background: var(--card-back) center / cover no-repeat; transform: scaleX(-1); opacity: var(--back, 0); pointer-events: none; }
 
 /* ---------- Comp pass: sizing relationships, frames, fanned hand ---------- */
 :root {
@@ -1306,18 +1306,20 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 }
 
 /* Arrival: the card flips face up in its slot, bright on the turn, and settles (Snap reveals its cards in place). */
-.pic.fx-arrive { position: relative; animation: fx-arrive 0.64s cubic-bezier(0.2, 0.8, 0.3, 1) both; transform-style: flat; }
-.pic.fx-arrive::after { content: ''; position: absolute; inset: 0; z-index: 6; border-radius: inherit; background: var(--card-back-sm) center / cover no-repeat; transform: scaleX(-1); pointer-events: none; animation: fx-arrive-back 0.64s linear both; }
+.pic.fx-arrive { position: relative; overflow: visible; animation: fx-arrive 0.7s cubic-bezier(0.3, 0.7, 0.3, 1) both; }
+/* A flat flip, one animation: the tile turns from 180 degrees, and --back (switched in the same keyframes, at the
+   edge-on moment) shows the back for the first half and the face for the second. The back is mirrored so it reads
+   right while the tile is turned round; the orbs and the strip belong to the face and come with it. Real 3D
+   (preserve-3d and backface-visibility) is not used: a clip path or filter on the tile flattens it silently. */
+.pic.fx-arrive::after { content: ''; position: absolute; inset: 0; z-index: 6; border-radius: inherit; background: var(--card-back) center / cover no-repeat; transform: scaleX(-1); opacity: var(--back, 0); pointer-events: none; }
+.pic.fx-arrive .b, .pic.fx-arrive .strip { opacity: calc(1 - var(--back, 0)); }
 @keyframes fx-arrive {
-  0% { transform: perspective(600px) rotateY(180deg) scale(0.92); filter: brightness(1); }
-  40% { transform: perspective(600px) rotateY(90deg) scale(0.96); filter: brightness(2.2); }
-  70% { transform: perspective(600px) rotateY(-10deg) scale(1.07); filter: brightness(1.5); }
-  100% { transform: none; filter: none; }
+  0% { transform: perspective(700px) rotateY(180deg); --back: 1; filter: brightness(1); }
+  49% { --back: 1; }
+  50% { transform: perspective(700px) rotateY(90deg); --back: 0; filter: brightness(1.7); }
+  75% { transform: perspective(700px) rotateY(-8deg) scale(1.06); filter: brightness(1.4); }
+  100% { transform: none; --back: 0; filter: none; }
 }
-@keyframes fx-arrive-back { 0%, 39% { opacity: 1; } 41%, 100% { opacity: 0; } }
-/* The orbs and the strip belong to the face: they stay out until the card has turned. */
-.pic.fx-arrive .b, .pic.fx-arrive .strip { animation: fx-arrive-face 0.64s linear both; }
-@keyframes fx-arrive-face { 0%, 39% { visibility: hidden; } 41%, 100% { visibility: visible; } }
 /* Landing: the tile drops in where the ghost stopped, a little large, and settles. */
 .pic.fx-land { animation: fx-land 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
 /* Lost at sea: the card's ghost greys before it sinks. */
@@ -1332,7 +1334,6 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 @media (prefers-reduced-motion: reduce) {
   .pic.fx-windup, .pic.fx-knocked, .pic.fx-held, .pic.fx-hexed, .pic.fx-land, .pic.fx-arrive, .pic.fx-jolt { animation: none; }
   .pic.fx-arrive::after, .gate-slot.event-slot .back { display: none; }
-  .pic.fx-arrive .b, .pic.fx-arrive .strip { animation: none; }
   .pic.fx-knocked::after, .pic.fx-held::after, .pic.fx-hexed::after { animation: none; opacity: 0; }
 }
 
@@ -2005,7 +2006,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .gates-strip { padding: 0; }
 
 /* The actor's highlight takes in the whole framed tile: the halo breathes behind the frame (the glow box), not the picture in its window. */
-.gate-slot.gf.filled .pic.focus { animation: none; }
+.gate-slot.gf.filled .pic.focus:not(.fx-arrive) { animation: none; }
 @keyframes focus-glow {
   0%, 100% { box-shadow: 0 0 12px 3px rgba(255, 236, 190, 0.7), 0 0 28px 8px rgba(255, 220, 150, 0.45); }
   50% { box-shadow: 0 0 18px 5px rgba(255, 246, 220, 0.95), 0 0 42px 12px rgba(255, 220, 150, 0.7); }
@@ -2019,7 +2020,9 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .tile-glow.focus > i.glow { transform: scale(1.08); transition: transform 220ms ease; }
 .tile-glow.seat.focus > i.glow { transform: none; }
 .tile-glow.focus > i.glow { animation: focus-glow 900ms ease-in-out infinite; }
-.pic.focus { animation: none; box-shadow: none; }
+/* The flip keeps its animation: the focus halo is on the glow box, not the picture. */
+.pic.focus:not(.fx-arrive) { animation: none; box-shadow: none; }
+.pic.focus.fx-arrive { box-shadow: none; }
 .slot.filled:has(.pic.focus) { --bc: var(--gold); }
 .slot.filled.B:has(.pic.focus) { --bc: var(--cB); border-color: var(--cB); }
 /* Harborlight's turn glows in Harborlight's blue; the warm halo is yours. */
@@ -2072,7 +2075,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
   .gates .gate-slot.event-slot .ini { position: relative; z-index: 5; }
   .gates .gate-slot.event-slot.curse { background: #1f0f12; background-clip: content-box; }
   .gates .gate-slot.event-slot.curse::after { filter: hue-rotate(-60deg) saturate(1.4); }
-  .gates .gate-slot.event-slot.facedown { background: var(--card-back-sm) center / cover no-repeat #1a1430; background-clip: content-box; background-origin: content-box; }
+  .gates .gate-slot.event-slot.facedown { background: var(--card-back) center / cover no-repeat #1a1430; background-clip: content-box; background-origin: content-box; }
   .gates .gate-slot.event-slot.trigger .back { top: var(--gi-t); left: var(--gi-x); width: calc(100% - 2 * var(--gi-x)); height: calc(100% - var(--gi-t) - var(--gi-b)); }
   .gates .gate-slot.event-slot.planned { border: 0; }
 }
