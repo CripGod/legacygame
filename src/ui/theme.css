@@ -2209,8 +2209,8 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
   border-image-source: var(--kit-timer-fill) !important; border-image-slice: 0 46 fill !important; border-image-repeat: stretch !important;
   transition: width 0.9s linear, filter 0.4s;
 }
-.lock-btn.warn .timer-bar b { filter: hue-rotate(-18deg) saturate(1.25); }
-.lock-btn.low .timer-bar b, .lock-btn.crit .timer-bar b { filter: hue-rotate(-52deg) saturate(1.5) brightness(0.92); }
+/* The bar keeps its gold over the warning: the red is the button's, the time left reads plain on top of it. */
+.lock-btn .timer-bar { z-index: 2; }
 /* Sit Down: the small red piece. */
 .actions-left .danger {
   --kh: clamp(40px, 4.4vw, 56px);
