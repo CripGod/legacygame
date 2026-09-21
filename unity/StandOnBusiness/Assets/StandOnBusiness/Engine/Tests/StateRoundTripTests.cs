@@ -83,7 +83,8 @@ namespace StandOnBusiness.Engine.Tests
             Assert.AreEqual("planning", trace.Initial.Phase);
             Assert.AreEqual(3, trace.Initial.Locations.Count);
             Assert.AreEqual(2, trace.Initial.Players.Count);
-            Assert.AreEqual(Rules.StartingHand, trace.Initial.Players["A"].Hand.Count);
+            // The opening hand plus the first turn's draw: setup deals STARTING_HAND, then turn 1 begins.
+            Assert.AreEqual(Rules.StartingHand + 1, trace.Initial.Players["A"].Hand.Count);
             Assert.AreEqual("ended", trace.Turns[trace.Turns.Count - 1].State.Phase);
             var clone = trace.Initial.Clone();
             Assert.AreNotSame(trace.Initial, clone);
