@@ -17,6 +17,7 @@ namespace StandOnBusiness.Game
         [Tooltip("0 picks a random seed each match.")] public long Seed;
         public string DeckA = "railroad";
         public string DeckB = "blackstar";
+        [Tooltip("Your name in the log: the engine writes \"<handle> plays ...\".")] public string Handle = "Silverlake Slayer";
 
         const string Me = Rules.PlayerA;
         const string Ai = Rules.PlayerB;
@@ -59,7 +60,7 @@ namespace StandOnBusiness.Game
             {
                 Seed = seed,
                 DeckKeys = new Dictionary<string, string> { [Me] = DeckA, [Ai] = DeckB },
-                Handles = new Dictionary<string, string> { [Me] = "You", [Ai] = "Harborlight" },
+                Handles = new Dictionary<string, string> { [Me] = string.IsNullOrWhiteSpace(Handle) ? "Silverlake Slayer" : Handle.Trim(), [Ai] = "Harborlight" },
             });
             history.Clear();
             log = View.FilterEvents(state.LastEvents, Me);
