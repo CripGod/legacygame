@@ -912,10 +912,10 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 @media (prefers-reduced-motion: reduce) { .stand-btn.ftue-flash { animation: none; filter: brightness(1.3); } }
 /* ---------- Tutorial ---------- */
 .tut-scrim { z-index: 40; background: rgba(4, 8, 14, 0.72); }
-.tut-sheet { max-width: 520px; text-align: center; border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 20px 60px rgba(0, 0, 0, 0.8); animation: fanfare 0.35s ease-out; }
-.tut-sheet h3 { font-family: var(--display); letter-spacing: 0.06em; color: var(--gold-2); font-size: 22px; margin: 0; }
-.tut-sheet p { font-family: var(--font); font-size: 17px; line-height: 1.45; margin: 0; color: var(--parchment); }
-.tut-kicker { font-family: var(--display); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+.tut-sheet { max-width: 600px; text-align: center; border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 20px 60px rgba(0, 0, 0, 0.8); animation: fanfare 0.35s ease-out; }
+.tut-sheet h3 { font-family: var(--display); letter-spacing: 0.06em; color: var(--gold-2); font-size: 26px; margin: 0; }
+.tut-sheet p { font-family: var(--font); font-size: 19px; line-height: 1.45; margin: 0; color: var(--parchment); }
+.tut-kicker { font-family: var(--display); font-size: 11.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
 .lock-btn.ftue-flash { animation: stand-pulse 1.1s ease-in-out infinite; box-shadow: none; }
 
 /* ---------- Card design v2: gold ornate frame on a blue field, parchment panel, orbs ---------- */
@@ -1248,11 +1248,11 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 /* Tutorial 'do' steps use the same gold box as the points, pinned top-centre and out of the way of the board. */
 /* The tutorial's step sheet sits just under the name plates, at the top of the board (absolute in .main-wrap, which
    starts where the HUD ends), so the Stand on Business button never covers it. */
-.tut-do { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 41; width: min(520px, 92vw); pointer-events: auto; }
-.tut-do h3 { font-size: 16px; }
-.tut-do p { font-size: 15px; }
+.tut-do { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 41; width: min(640px, 92vw); pointer-events: auto; }
+.tut-do h3 { font-size: 21px; }
+.tut-do p { font-size: 18px; }
 .tut-do .actions { margin-top: 2px; }
-@media (width <= 700px) { .tut-do { top: 60px; width: 94vw; } .tut-do p { font-size: 13px; } }
+@media (width <= 700px) { .tut-do { top: 60px; width: 94vw; } .tut-do p { font-size: 15px; } }
 
 /* Tutorial: a lit hand card brightens instead of throwing a ring, so the glow never bleeds onto the fanned neighbours. */
 .hand .card-wrap.ftue-flash { animation: ftue-bright 0.9s ease-in-out infinite; box-shadow: none; }

@@ -45,7 +45,7 @@ export function Sheet({ children, onClose, title }: { children: ReactNode; onClo
   );
 }
 
-/** Inspect a hand card: the card alone, with its History. Playing it is a drag (or tap, then tap a Location). */
+/** Inspect a hand card: the card alone, with its History. Playing it is a drag (tap, then tap a Location, stays as the accessibility path). */
 export function CardSheet({
   id,
   onClose,
