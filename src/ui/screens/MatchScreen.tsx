@@ -12,7 +12,7 @@ import { Battlefield } from '../components/Battlefield';
 import { Hand } from '../components/Hand';
 import { Coach } from '../components/Coach';
 import { Spotlight } from '../components/Spotlight';
-import { sfx, voice } from '../audio';
+import { sfx, voice, EVENT_CARD_SFX } from '../audio';
 import type { TraceStep } from '../../engine';
 import { Trails, TRAIL_COLORS, waveLandAt, type TrailShot } from '../components/Trails';
 import { Fireworks } from '../components/Fireworks';
@@ -2551,7 +2551,7 @@ function beatSfx(step: TraceStep, quiet = false): void {
     case 'play':
       return sfx('card.drop');
     case 'event':
-      return sfx((CARD_BY_ID[step.cardId ?? ''] as { curse?: boolean } | undefined)?.curse ? 'event.curse' : 'event');
+      return sfx(EVENT_CARD_SFX[step.cardId ?? ''] ?? ((CARD_BY_ID[step.cardId ?? ''] as { curse?: boolean } | undefined)?.curse ? 'event.curse' : 'event'));
     case 'enter':
       return sfx('enter');
     case 'move':

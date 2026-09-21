@@ -37,6 +37,7 @@ export type SfxName =
   | 'clash.block'
   | 'event'
   | 'event.curse'
+  | 'event.defense'
   | 'threat.spawn'
   | 'threat.clear'
   | 'threat.ruling'
@@ -83,6 +84,7 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   'clash.block': 'A stand-off: an entry blocked, a Character suppressed or tricked. Nobody moves.',
   event: 'An Event announces itself: its card flashes over the board on a bright sting, then lands in its purple slot on the thud.',
   'event.curse': 'A Curse announces itself: the same, on a dark pulse.',
+  'event.defense': 'Community Defense announces itself: neighbours\' footsteps arriving on the porch and the bolt sliding home, then the card lands on the thud.',
   'threat.spawn': 'A Threat arrives.',
   'threat.clear': 'A Threat is neutralized.',
   'threat.ruling': 'The Dred Scott Decision comes down: the gavel, then the laugh as everyone is thrown out.',
@@ -110,6 +112,9 @@ interface Layer {
 }
 
 /** The recorded clips per cue. Clip ids are file names under public/audio/sfx (without .mp3). */
+/** Events with a sound of their own; the rest take the bright sting (or the dark one for a Curse). */
+export const EVENT_CARD_SFX: Partial<Record<string, SfxName>> = { community_defense: 'event.defense' };
+
 export const SFX_FILES: Record<SfxName, Layer[]> = {
   tap: [], // no clip yet: the synthesized arcade press below, until the heavy buttons arrive
   toggle: [{ files: ['toggle-on'], gain: 0.5 }],
@@ -137,6 +142,7 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'clash.block': [{ files: ['thud-soft'], gain: 0.6 }, { files: ['lock'], gain: 0.35, at: 80 }], // a stand-off: the gate stays shut
   event: [{ files: ['event-bright'], gain: 0.7 }, { files: ['card-drop-2'], gain: 0.6, at: 1100 }, { files: ['thud-soft'], gain: 0.4, at: 1100 }],
   'event.curse': [{ files: ['event-dark'], gain: 0.8 }, { files: ['card-drop-2'], gain: 0.6, at: 1100 }, { files: ['thud-soft'], gain: 0.4, at: 1100 }],
+  'event.defense': [{ files: ['event-defense'], gain: 0.85 }, { files: ['stand-thud'], gain: 0.45, at: 1080 }, { files: ['card-drop-2'], gain: 0.6, at: 1100 }],
   'threat.spawn': [{ files: ['threat-danger'], gain: 0.8 }], // danger: a rising rumble, a muffled boom, the dark pulse, low brass
   'threat.clear': [{ files: ['threat-clear'], gain: 0.6 }],
   'threat.ruling': [{ files: ['hit-wood'], gain: 1.0, at: 480 }, { files: ['stand-thud'], gain: 0.9, at: 480 }, { files: ['laugh-evil'], gain: 0.85, at: 1000 }], // the Threat tile comes down at ~500ms; the gavel on the landing, the laugh over the cast-out
@@ -460,6 +466,12 @@ function synth(name: SfxName, t: number): void {
       thud(t, 0.35, 220, 90, 0.12);
       blip(t + 0.08, 1200, 0.05, 0.1, 'square');
       blip(t + 0.16, 900, 0.08, 0.1, 'square');
+      break;
+    case 'event.defense':
+      // Four neighbours' steps on the porch, the bolt, then the card lands on the thud.
+      for (let i = 0; i < 4; i++) thud(t + i * 0.19, 0.18, 120, 70, 0.08);
+      tick(t + 0.78, 0.22);
+      thud(t + 1.08, 0.4, 150, 45, 0.22);
       break;
     case 'threat.spawn':
       blip(t, 110, 0.6, 0.18, 'sawtooth', 70);
