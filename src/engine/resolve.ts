@@ -505,6 +505,25 @@ function resolveReveal(state: GameState, c: CharacterInstance, revealTarget: Pla
       say(`${state.players[p].handle} draws a card.`);
       break;
     }
+    case 'tutor': {
+      // The named cards come from the deck to the hand, in the order named; a full hand stops the call.
+      const ps = state.players[p];
+      const got: string[] = [];
+      for (const id of eff.cardIds) {
+        const at = ps.deck.indexOf(id);
+        if (at < 0) continue;
+        if (ps.hand.length >= MAX_HAND) break;
+        ps.deck.splice(at, 1);
+        ps.deckCount = ps.deck.length;
+        ps.hand.push(id);
+        got.push(id);
+        events.push({ type: 'draw', text: `${ps.handle} draws ${cardDef(id).name}.`, player: p, cardId: id, privateTo: p });
+      }
+      const missing = eff.cardIds.filter((id) => !got.includes(id));
+      if (!got.length) say(ps.hand.length >= MAX_HAND ? `calls the congregation, but ${ps.handle}'s hand is full.` : 'calls the congregation, but nobody named is left in the deck.');
+      else say(`calls the congregation: ${got.map((id) => cardDef(id).name).join(' and ')} ${got.length > 1 ? 'come' : 'comes'} to ${ps.handle}'s hand${missing.length && ps.hand.length >= MAX_HAND ? ' (the hand is full)' : ''}.`);
+      break;
+    }
     case 'blockOneOpposingGate': {
       const targets = charsAt(state, loc, opp, 'gate').filter((x) => !isInformant(x) && x.ready && !shielded(state, x));
       const target = targets.sort((a, b) => charInfluence(state, b) - charInfluence(state, a))[0];

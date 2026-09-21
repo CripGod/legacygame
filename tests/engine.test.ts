@@ -734,6 +734,26 @@ describe('special arrivals', () => {
     expect(charInfluence(s, s.characters[other2.uid])).toBe(alone);
     expect(charInfluence(s, s.characters[kid.uid])).toBe(before);
   });
+  it('Richard Allen calls Absalom Jones and Daniel Payne from the deck to the hand', () => {
+    let s = rig(createMatch({ seed: 2 }), { locations: ['the_tabernacle', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['richard_allen'] });
+    s.turn = 4;
+    s.players.A.deck = ['og', 'daniel_payne', 'harriet_tubman', 'absalom_jones'];
+    s.players.A.deckCount = 4;
+    const out = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'richard_allen', location: 0 }] }, B: pass() });
+    s = out.state;
+    expect(s.players.A.hand).toContain('absalom_jones');
+    expect(s.players.A.hand).toContain('daniel_payne');
+    expect(s.players.A.deck).not.toContain('absalom_jones');
+    expect(s.players.A.deck).not.toContain('daniel_payne');
+    expect(out.events.some((e) => e.type === 'draw' && e.cardId === 'absalom_jones' && e.privateTo === 'A')).toBe(true);
+    // Neither in the deck: nothing comes, nothing breaks.
+    let t = rig(createMatch({ seed: 2 }), { locations: ['the_tabernacle', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['richard_allen'] });
+    t.turn = 4;
+    t.players.A.deck = ['og'];
+    t.players.A.deckCount = 1;
+    t = resolveTurn(t, { A: { ...pass(), plays: [{ cardId: 'richard_allen', location: 0 }] }, B: pass() }).state;
+    expect(t.players.A.hand).not.toContain('absalom_jones');
+  });
   it('Black Jesus appears when the church fills The Tabernacle and blesses every Location', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['the_tabernacle', 'great_migration', 'gary_indiana'], revealAll: true });
     s.turn = 4;

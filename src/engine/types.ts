@@ -69,6 +69,7 @@ export type RevealEffect =
   | { type: 'clubHere'; maxCost: number; amount: number } // Bud Billiken: your other cheap Characters here grow
   | { type: 'hiddenBonus'; amount: number } // Mansa Musa
   | { type: 'draw'; count: number } // Zora
+  | { type: 'tutor'; cardIds: string[] } // Richard Allen: pull the named cards from your deck into your hand
   | { type: 'blockOneOpposingGate' } // Karen
   | { type: 'blockOpposingGatesHere' } // OG
   | { type: 'readyFriendly' } // Organizer

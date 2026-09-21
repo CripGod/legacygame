@@ -241,11 +241,15 @@ export const CHARACTERS: CharacterDef[] = [
     category: 'historical',
     name: 'Richard Allen',
     short: 'Allen',
-    summary: 'Whenever one of yours goes Inside here, draw a card.',
+    summary: 'Calls Absalom Jones and Daniel Payne to your hand. Whenever one of yours goes Inside here, draw a card.',
     influence: 4,
     force: 1,
     tags: ['Black', 'Faith', 'Founder'],
     keywords: [],
+    reveal: {
+      text: 'The congregation: Absalom Jones and Daniel Payne come from your deck to your hand.',
+      effect: { type: 'tutor', cardIds: ['absalom_jones', 'daniel_payne'] },
+    },
     established: {
       text: 'Mother Bethel: whenever another of your Characters goes Inside here, draw a card.',
       effect: { type: 'drawOnEnterHere' },

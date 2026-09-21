@@ -68,6 +68,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 
 ### Richard Allen (`richard_allen`)
 - cost 4 · Influence 4 · Force 1 · historical · era: 1760–1831
+- reveal: The congregation: Absalom Jones and Daniel Payne come from your deck to your hand.
 - established: Mother Bethel: whenever another of your Characters goes Inside here, draw a card.
 - blurb: Bought his own freedom, walked out of a segregated church and built his own denomination.
 - history: Richard Allen was born enslaved in Philadelphia in 1760, bought his freedom in his twenties and became a Methodist preacher. In 1787, after Black worshippers were pulled from their knees at St. George's Church, he and Absalom Jones founded the Free African Society, and in 1794 Allen opened Mother Bethel. In 1816 he brought several Black congregations together as the African Methodist Episcopal Church, the first independent Black denomination in the United States, and became its first bishop. Mother Bethel still stands on the oldest parcel of land continuously owned by Black Americans.
@@ -1816,6 +1817,8 @@ Template fields in `${...}` are filled in by the game. Keep them.
 - will gain +${eff.amount} Influence when this Location reveals.
 - keeps her seat: she cannot be displaced this turn.
 - ${state.players[p].handle} draws a card.
+- ${ps.handle} draws ${cardDef(id).name}.
+- calls the congregation: ${got.map((id) => cardDef(id).name).join(' and ')} ${got.length > 1 ? 'come' : 'comes'} to ${ps.handle}'s hand${missing.length && ps.hand.length >= MAX_HAND ? ' (the hand is full)' : ''}.
 - ${charDef(target.defId).name} cannot enter this turn.
 - no opposing Ready Character to block.
 - ${charDef(target.defId).name} becomes Ready.
