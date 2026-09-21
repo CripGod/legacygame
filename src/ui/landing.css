@@ -152,37 +152,6 @@
 .cta.kit:not(:disabled):active { border-image-source: var(--kit-secondary-pressed); color: #0a1a36; }
 .cta.kit:disabled { border-image-source: var(--kit-secondary-disabled); color: #2e3135; text-shadow: none; opacity: 0.9; filter: none; }
 .cta.play.kit { min-width: 300px; font-size: calc(var(--kh) * 0.36); letter-spacing: 0.1em; }
-/* Play match's idle motion, the kit's wipe shine and edge shine (skipped in the cut, drawn here): every six seconds a
-   soft diagonal highlight wipes across the plate left to right, and three seconds later a glint runs once around the
-   gold frame. Both ride the button's border box, clipped to the sprite's silhouette (the chamfer is a fifth of the
-   height, the transparent margin a hundredth, the frame six hundredths, measured off the 2x sprite), and screen over
-   the word like light would. */
-.cta.play.kit .kit-wipe, .cta.play.kit .kit-edge {
-  --chm: calc(var(--kh) * 0.2); --o: calc(var(--kh) * 0.011); --fw: calc(var(--kh) * 0.06); --i: calc(var(--o) + var(--fw)); --ci: calc(var(--chm) - var(--fw) * 0.4);
-  position: absolute; z-index: 1; pointer-events: none; mix-blend-mode: screen;
-  inset: calc(-1 * var(--cap)) calc(-1 * var(--cap)) calc(-1 * var(--capb)) calc(-1 * var(--cap));
-}
-.cta.play.kit .kit-wipe {
-  clip-path: polygon(var(--chm) var(--o), calc(100% - var(--chm)) var(--o), calc(100% - var(--o)) var(--chm), calc(100% - var(--o)) calc(100% - var(--chm)), calc(100% - var(--chm)) calc(100% - var(--o)), var(--chm) calc(100% - var(--o)), var(--o) calc(100% - var(--chm)), var(--o) var(--chm));
-  background: linear-gradient(105deg, rgba(255, 250, 235, 0) 43%, rgba(255, 250, 235, 0.85) 50%, rgba(255, 250, 235, 0) 57%);
-  background-size: 260% 100%; background-repeat: no-repeat; background-position: -20% 0;
-  animation: kit-wipe 6s ease-in-out 0.8s infinite;
-}
-@keyframes kit-wipe { 0% { background-position: -20% 0; } 18% { background-position: 120% 0; } 100% { background-position: 120% 0; } }
-.cta.play.kit .kit-edge {
-  overflow: hidden;
-  clip-path: polygon(evenodd,
-    var(--chm) var(--o), calc(100% - var(--chm)) var(--o), calc(100% - var(--o)) var(--chm), calc(100% - var(--o)) calc(100% - var(--chm)), calc(100% - var(--chm)) calc(100% - var(--o)), var(--chm) calc(100% - var(--o)), var(--o) calc(100% - var(--chm)), var(--o) var(--chm),
-    var(--ci) var(--i), calc(100% - var(--ci)) var(--i), calc(100% - var(--i)) var(--ci), calc(100% - var(--i)) calc(100% - var(--ci)), calc(100% - var(--ci)) calc(100% - var(--i)), var(--ci) calc(100% - var(--i)), var(--i) calc(100% - var(--ci)), var(--i) var(--ci));
-}
-.cta.play.kit .kit-edge > i {
-  position: absolute; left: 50%; top: 50%; width: 220%; aspect-ratio: 1; opacity: 0;
-  background: conic-gradient(from 0deg, rgba(255, 246, 214, 0) 0 76%, rgba(255, 246, 214, 0.95) 84%, rgba(255, 246, 214, 0) 92%);
-  transform: translate(-50%, -50%) rotate(0deg);
-  animation: kit-edge 6s linear 3.6s infinite;
-}
-@keyframes kit-edge { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg); } 4% { opacity: 1; } 30% { opacity: 1; } 34% { opacity: 0; transform: translate(-50%, -50%) rotate(360deg); } 100% { opacity: 0; transform: translate(-50%, -50%) rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .cta.play.kit .kit-wipe, .cta.play.kit .kit-edge { display: none; } }
 /* Learn the game is the kit's primary, the Stand on Business plate: navy with the gold frame, the cream word. */
 .cta.ghost.kit { min-width: 256px; border-image-source: var(--kit-primary-default); color: #f6e4cc; text-shadow: 0 1px 1.5px rgba(255, 246, 224, 0.04), 0 -1px 1.5px rgba(5, 9, 26, 0.06), 0 3px 3px rgba(11, 18, 40, 0.75); }
 .cta.ghost.kit::after { border-image-source: var(--kit-primary-hover); }

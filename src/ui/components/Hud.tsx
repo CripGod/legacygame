@@ -47,6 +47,9 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
         {stand && (
           <button className={`stand-btn ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''} ${stand.slam ? 'slam' : ''}`} disabled={stand.disabled} onClick={stand.onToggle} aria-label={view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes}>
             {stand.on ? 'Standing ✓' : 'Stand on Business'}
+            <i className="kit-edge" aria-hidden>
+              <i />
+            </i>
           </button>
         )}
         <div className="hud-sub">
