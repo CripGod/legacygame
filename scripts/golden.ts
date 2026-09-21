@@ -16,6 +16,7 @@ import {
   effectiveStakes, isNight, playerOrder, validatePlan, charsAt, landOfficeAt, gateOpen, insideOpen,
 } from '../src/engine/query';
 import { PLAYERS } from '../src/engine/types';
+import { makeRng, nextFloat, nextInt, hashSeed, shuffle } from '../src/engine/rng';
 
 /**
  * What the query module says about a state, recorded so the port can be checked value for value: Influence per
@@ -74,7 +75,8 @@ try {
   /* no git */
 }
 
-// The rng seed state is part of GameState and must round-trip exactly, so the trace keeps every field as is.
+// The rng seed state is part of GameState and must round-trip exactly, so the trace keeps every field as is. The
+// source commit is recorded in the manifest only, so a regeneration that changes nothing rewrites nothing.
 const deckKeys = Object.keys(PRESET_DECKS);
 fs.rmSync(dir, { recursive: true, force: true });
 fs.mkdirSync(dir, { recursive: true });
@@ -99,10 +101,25 @@ for (let i = 0; i < matches; i++) {
     turns.push({ turn, plans, planErrors, state: structuredClone(state), events: out.events, queries: snapshotQueries(state) });
   }
   const file = `seed-${String(seed).padStart(4, '0')}.json`;
-  fs.writeFileSync(path.join(dir, file), JSON.stringify({ format: 2, source: { commit }, options, initial, initialQueries, turns, result: state.result ?? null }, null, 0));
+  fs.writeFileSync(path.join(dir, file), JSON.stringify({ format: 2, options, initial, initialQueries, turns, result: state.result ?? null }, null, 0));
   files.push({ file, seed, decks: options.deckKeys, turns: turns.length, winner: state.result?.winner ?? null });
   process.stdout.write(`${file} ${turns.length} turns ${state.result?.winner ?? 'draw'}\n`);
 }
+// The RNG fixture: for known seeds, the state after makeRng, sixteen floats, sixteen ints in [0, 6), a shuffle of eight
+// and the state after the floats; plus string hashes. RngTests holds the port to these bit for bit.
+const rngFixture: { format: number; seeds: unknown[]; hashes: unknown[] } = { format: 1, seeds: [], hashes: [] };
+for (const seed of [0, 1, 2, 7, 42, 1234567, 4294967295, -1, 2147483648]) {
+  const r = makeRng(seed);
+  const floats: number[] = [];
+  for (let i = 0; i < 16; i++) floats.push(nextFloat(r));
+  const r2 = makeRng(seed);
+  const ints: number[] = [];
+  for (let i = 0; i < 16; i++) ints.push(nextInt(r2, 6));
+  const order = shuffle(makeRng(seed), ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']);
+  rngFixture.seeds.push({ seed, initial: makeRng(seed).s, afterSixteen: r.s, floats, intsOfSix: ints, shuffleOfEight: order });
+}
+for (const str of ['', 'a', '7:arrival:the_ancestors', '1:arrival:chairteenth', 'Stand on Business', 'Bois Caïman', '🙂']) rngFixture.hashes.push({ input: str, hash: hashSeed(str) });
+fs.writeFileSync(path.join(dir, 'rng.json'), JSON.stringify(rngFixture, null, 1));
 fs.writeFileSync(path.join(dir, 'manifest.json'), JSON.stringify({ format: 2, source: { commit, generator: 'scripts/golden.ts' }, matches: files }, null, 1));
 const bytes = fs.readdirSync(dir).reduce((s, f) => s + fs.statSync(path.join(dir, f)).size, 0);
 console.log(`${files.length} traces, ${(bytes / 1024 / 1024).toFixed(1)}MB, ${((Date.now() - t0) / 1000).toFixed(0)}s → ${path.relative(root, dir)}`);

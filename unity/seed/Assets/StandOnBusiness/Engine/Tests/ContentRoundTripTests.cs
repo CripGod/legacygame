@@ -33,7 +33,9 @@ namespace StandOnBusiness.Engine.Tests
         {
             var c = ContentTable.Parse(Text());
             Assert.AreEqual(c.Characters.Count, c.CharacterById.Count);
-            Assert.AreEqual(c.Locations.Count, c.LocationById.Count);
+            // The index also holds the unknown placeholder, looked up by id like the web engine's LOCATION_BY_ID.
+            Assert.AreEqual(c.Locations.Count + 1, c.LocationById.Count);
+            Assert.AreSame(c.UnknownLocation, c.LocationById["unknown"]);
             var allen = c.CharacterById["richard_allen"];
             Assert.AreEqual("tutor", allen.Reveal.Effect.Type);
             Assert.AreEqual(2, allen.Reveal.Effect.Args["cardIds"].Count());

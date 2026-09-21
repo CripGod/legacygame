@@ -20,7 +20,6 @@ namespace StandOnBusiness.Engine
     public sealed class GoldenTrace
     {
         public int Format;
-        public ContentSource Source;
         public MatchOptions Options;
         public GameState Initial;
         public JToken InitialQueries;
