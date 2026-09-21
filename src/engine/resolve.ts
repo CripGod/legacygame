@@ -1651,7 +1651,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
         const leader = leaderAt(state, loc.index);
         const fresh = charsAt(state, loc.index, undefined, 'gate')
           .filter((c) => !c.ready && !isProtected(state, c) && !isInformant(c))
-          .sort((a, b) => charInfluence(state, a) - charInfluence(state, b) || (a.owner === leader ? -1 : b.owner === leader ? 1 : 0) || a.uid.localeCompare(b.uid));
+          .sort((a, b) => charInfluence(state, a) - charInfluence(state, b) || (a.owner === leader ? 0 : 1) - (b.owner === leader ? 0 : 1) || a.uid.localeCompare(b.uid));
         const victim = fresh[0];
         if (victim) {
           const passage = state.locations.find((l) => l.revealed && !l.lost && l.index !== loc.index && LOCATION_BY_ID[l.defId]?.effect.type === 'crossing' && gateOpen(state, l.index, victim.owner));
@@ -1868,7 +1868,7 @@ export function resolveTurn(input: GameState, plansIn: Record<PlayerId, TurnPlan
     const leader: PlayerId | null = inf.A === inf.B ? null : inf.A > inf.B ? 'A' : 'B';
     const fresh = charsAt(state, loc.index, undefined, 'gate').filter((c) => !c.ready && !isProtected(state, c));
     if (!fresh.length) continue;
-    fresh.sort((a, b) => charInfluence(state, a) - charInfluence(state, b) || (a.owner === leader ? -1 : b.owner === leader ? 1 : 0) || a.uid.localeCompare(b.uid));
+    fresh.sort((a, b) => charInfluence(state, a) - charInfluence(state, b) || (a.owner === leader ? 0 : 1) - (b.owner === leader ? 0 : 1) || a.uid.localeCompare(b.uid));
     // An Informant sent back to whoever planted it goes home to their hand; anyone else needs a Gate slot on the receiving side.
     const t = fresh.find((c) => (c.plantedBy !== undefined && c.plantedBy === other(c.owner)) || gateOpen(state, loc.index, other(c.owner)));
     if (!t) {

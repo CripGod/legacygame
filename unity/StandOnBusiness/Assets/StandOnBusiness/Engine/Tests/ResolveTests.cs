@@ -98,7 +98,7 @@ namespace StandOnBusiness.Engine.Tests
             CollectionAssert.AreEqual(state.Players["A"].Hand, v.Players["A"].Hand);
             Assert.IsNotNull(v.Players["A"].DeckEvents);
             Assert.IsNull(v.Players["B"].DeckEvents);
-            foreach (var loc in v.Locations) if (!loc.Revealed) Assert.AreEqual("unknown", loc.DefId);
+            foreach (var loc in v.Locations) if (!loc.Revealed && state.Players["A"].KnownNextReveal != loc.Index) Assert.AreEqual("unknown", loc.DefId);
             foreach (var e in v.LastEvents) Assert.IsTrue(e.PrivateTo == null || e.PrivateTo == "A");
             // The true state is untouched.
             Assert.Greater(state.Players["B"].Deck.Count, 0);
