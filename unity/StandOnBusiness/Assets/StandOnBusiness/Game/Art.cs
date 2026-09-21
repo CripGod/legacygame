@@ -89,8 +89,8 @@ namespace StandOnBusiness.Game
         public static Label Text(string s)
         {
             var l = new Label(s);
-            l.style.marginLeft = l.style.marginRight = l.style.marginTop = l.style.marginBottom = 0;
-            l.style.paddingLeft = l.style.paddingRight = l.style.paddingTop = l.style.paddingBottom = 0;
+            l.style.marginLeft = l.style.marginRight = l.style.marginTop = l.style.marginBottom = 0f;
+            l.style.paddingLeft = l.style.paddingRight = l.style.paddingTop = l.style.paddingBottom = 0f;
             l.style.whiteSpace = WhiteSpace.Normal;
             return l;
         }
@@ -129,7 +129,7 @@ namespace StandOnBusiness.Game
         public static void Fill(VisualElement ve)
         {
             ve.style.position = Position.Absolute;
-            ve.style.left = ve.style.top = ve.style.right = ve.style.bottom = 0;
+            ve.style.left = ve.style.top = ve.style.right = ve.style.bottom = 0f;
         }
 
         /// <summary>A picture stretched to the element (the web's `center / 100% 100%`): frames, plates, kit sprites.</summary>
@@ -174,8 +174,8 @@ namespace StandOnBusiness.Game
         {
             var b = new Button(onClick) { text = text };
             b.style.backgroundColor = Color.clear;
-            b.style.borderLeftWidth = b.style.borderRightWidth = b.style.borderTopWidth = b.style.borderBottomWidth = 0;
-            b.style.marginLeft = b.style.marginRight = b.style.marginTop = b.style.marginBottom = 0;
+            b.style.borderLeftWidth = b.style.borderRightWidth = b.style.borderTopWidth = b.style.borderBottomWidth = 0f;
+            b.style.marginLeft = b.style.marginRight = b.style.marginTop = b.style.marginBottom = 0f;
             b.style.height = kh;
             b.style.minHeight = kh;
             float cap = kh * 0.205f;
