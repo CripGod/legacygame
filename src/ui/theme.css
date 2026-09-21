@@ -2392,7 +2392,9 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
    wordless plate 514 by 130.5 at 1x; --u is its 1x pixel at the size it is drawn (the board draws it at 0.9006, 463
    wide on a 1920 stage). The avatar ring (251 by 269 at 1x, drawn at 0.5959 of the strip) hangs off the strip's end
    with its centre at (0.55, 30.89) from the shell for you and (466.79, 38.52) for the opponent; the portrait is
-   clipped to the ring's well and drawn over it, then the level chip, then the Legend count riding the chip. */
+   clipped to the ring's well and drawn over it, then the level chip, then the Legend count riding the chip. The
+   opponent's ring is the player's ring recoloured to the kit's blue (the cut's blue ring carries a deeper extrusion),
+   so both sides share one geometry. */
 .hud { --np: clamp(240px, 24.1vw, 463px); --u: calc(var(--np) / 514); --np-h: calc(var(--u) * 130.5); }
 .np { position: relative; display: block; width: var(--np); height: var(--np-h); flex: none; cursor: pointer; margin-left: calc(var(--u) * 68); justify-self: start; }
 .np.right { margin-left: 0; margin-right: calc(var(--u) * 68); justify-self: end; }
@@ -2406,16 +2408,15 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .np .handle { font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 21); letter-spacing: 0.02em; color: var(--parchment); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7); }
 .np .sub { font-family: var(--font); font-size: calc(var(--u) * 13); color: #d9cfb4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .np-avatar { position: absolute; width: calc(var(--u) * 149.6); height: calc(var(--u) * 160.3); left: calc(var(--u) * -56.1); top: calc(var(--u) * -33.2); z-index: 2; transition: filter 0.4s; }
-.np.right .np-avatar { left: calc(var(--u) * 410.1); top: calc(var(--u) * -18); }
+.np.right .np-avatar { left: calc(var(--u) * 410.1); top: calc(var(--u) * -25.6); }
 .np-ring, .np-chip { position: absolute; inset: 0; background: var(--kit-np-you-ring) center / 100% 100% no-repeat; pointer-events: none; }
 .np-chip { background-image: var(--kit-np-you-chip); }
 .np.pB .np-ring { background-image: var(--kit-np-opp-ring); }
 .np.pB .np-chip { background-image: var(--kit-np-opp-chip); }
 .np-portrait { position: absolute; left: 13.15%; top: 11.45%; width: 73.55%; height: 68.62%; border-radius: 50%; overflow: hidden; background: #0a1626; display: grid; place-items: center; font-family: var(--display); font-weight: 800; color: rgba(255, 255, 255, 0.8); }
-.np.pB .np-portrait { top: 6.73%; }
 .np-portrait .avatar-img { width: 100%; height: 100%; object-fit: cover; object-position: center 18%; }
 .np-level { position: absolute; left: 49.9%; top: 82.5%; transform: translate(-50%, -50%); font-family: system-ui, 'Segoe UI', Roboto, sans-serif; font-weight: 900; font-size: calc(var(--u) * 14.5); line-height: 1; color: #674605; cursor: help; }
-.np.pB .np-level { top: 77.8%; color: #051167; }
+.np.pB .np-level { color: #051167; }
 .np-level.spread { text-shadow: 0 0 6px rgba(255, 246, 214, 0.9); }
 /* Whose turn it is to go first: the ring glows in their colour. */
 .np.first .np-avatar { filter: drop-shadow(0 0 6px rgba(246, 215, 122, 0.9)) drop-shadow(0 0 16px rgba(233, 185, 58, 0.55)); }
