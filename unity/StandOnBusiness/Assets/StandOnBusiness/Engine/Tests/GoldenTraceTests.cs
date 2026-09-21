@@ -27,7 +27,7 @@ namespace StandOnBusiness.Engine.Tests
         public void ManifestListsTraces()
         {
             var m = Manifest();
-            Assert.AreEqual(1, (int)m["format"]);
+            Assert.AreEqual(2, (int)m["format"]);
             Assert.Greater(((JArray)m["matches"]).Count, 0);
         }
 

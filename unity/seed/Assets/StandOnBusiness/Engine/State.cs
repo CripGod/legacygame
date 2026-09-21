@@ -30,6 +30,9 @@ namespace StandOnBusiness.Engine
         public int? PlayedAt;
         public int? PendingRevealBonus;
         public int? ProtectedTurn;
+
+        /// <summary>A field-for-field copy (the web engine's { ...c }), for asking a question about a Character as if it stood elsewhere.</summary>
+        public CharacterInstance ShallowCopy() => (CharacterInstance)MemberwiseClone();
     }
 
     public sealed class ThreatInstance

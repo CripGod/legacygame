@@ -10,6 +10,58 @@ import { execSync } from 'node:child_process';
 import { createMatch, resolveTurn, viewFor, type GameState, type TurnPlan, type PlayerId } from '../src/engine';
 import { PRESET_DECKS } from '../src/engine/content';
 import { planTurn } from '../src/ai/harborlight';
+import {
+  charInfluence, charInfluenceParts, influenceAt, influenceRows, leaderAt, locationWinner, insideCapacity, lockKind, isBlockedFromEntering, isHeldInside,
+  isSuppressed, energyFor, legalOptions, relocationsAllowed, totalForce, cardCost, costBreakdown, threatForceNeeded, canConfront, isAssist, confrontForce,
+  effectiveStakes, isNight, playerOrder, validatePlan, charsAt, landOfficeAt, gateOpen, insideOpen,
+} from '../src/engine/query';
+import { PLAYERS } from '../src/engine/types';
+
+/**
+ * What the query module says about a state, recorded so the port can be checked value for value: Influence per
+ * Location and per Character (with its parts), the itemised rows, capacities, locks, energy, costs, legal options,
+ * Threat arithmetic. Nulls are written as nulls; the C# test builds the same document and compares.
+ */
+function snapshotQueries(state: GameState) {
+  const chars = Object.values(state.characters);
+  return {
+    isNight: isNight(state),
+    effectiveStakes: effectiveStakes(state),
+    playerOrder: playerOrder(state),
+    locations: state.locations.map((l) => ({
+      influence: influenceAt(state, l.index),
+      leader: leaderAt(state, l.index),
+      winner: locationWinner(state, l.index),
+      insideCapacity: insideCapacity(state, l.index),
+      landOffice: landOfficeAt(state, l.index),
+      gateOpen: { A: gateOpen(state, l.index, 'A'), B: gateOpen(state, l.index, 'B') },
+      insideOpen: { A: insideOpen(state, l.index, 'A'), B: insideOpen(state, l.index, 'B') },
+      rows: { A: influenceRows(state, l.index, 'A'), B: influenceRows(state, l.index, 'B') },
+      threats: l.threats.map((t) => ({
+        uid: t.uid,
+        needed: threatForceNeeded(state, t),
+        canConfront: { A: canConfront(state, t, 'A'), B: canConfront(state, t, 'B') },
+        assist: { A: isAssist(t, 'A'), B: isAssist(t, 'B') },
+        confront: Object.fromEntries(charsAt(state, l.index).map((c) => [c.uid, confrontForce(state, c, t)])),
+      })),
+    })),
+    chars: Object.fromEntries(chars.map((c) => [c.uid, {
+      influence: charInfluence(state, c),
+      parts: charInfluenceParts(state, c),
+      lock: lockKind(state, c),
+      blocked: isBlockedFromEntering(state, c),
+      held: isHeldInside(state, c),
+      suppressed: isSuppressed(state, c),
+    }])),
+    players: Object.fromEntries(PLAYERS.map((p) => [p, {
+      energy: energyFor(state, p),
+      relocationsAllowed: relocationsAllowed(state, p),
+      totalForce: totalForce(state, p),
+      costs: Object.fromEntries([...new Set(state.players[p].hand.filter((id) => id !== 'hidden'))].map((id) => [id, { cost: cardCost(id, state, p), breakdown: costBreakdown(state, p, id) }])),
+      legal: legalOptions(state, p),
+    }])),
+  };
+}
 
 const root = process.cwd();
 const dir = path.join(root, 'unity/StandOnBusiness/Assets/StandOnBusiness/Engine/Tests/Golden');
@@ -34,20 +86,23 @@ for (let i = 0; i < matches; i++) {
   const options = { seed, deckKeys: { A: deckKeys[i % deckKeys.length], B: deckKeys[(i * 3 + 1) % deckKeys.length] } as Record<PlayerId, string> };
   let state: GameState = createMatch(options);
   const initial = structuredClone(state);
-  const turns: { turn: number; plans: Record<PlayerId, TurnPlan>; state: GameState; events: unknown[] }[] = [];
+  const initialQueries = snapshotQueries(state);
+  const turns: { turn: number; plans: Record<PlayerId, TurnPlan>; planErrors: Record<PlayerId, string[]>; state: GameState; events: unknown[]; queries: unknown }[] = [];
   let guard = 0;
   while (state.phase !== 'ended' && guard++ < 12) {
     const plans = { A: planTurn(viewFor(state, 'A'), 'A').plan, B: planTurn(viewFor(state, 'B'), 'B').plan };
+    // The plans are validated against the state they were made on (the full state: the AI's view hides nothing that matters to legality).
+    const planErrors = { A: validatePlan(state, 'A', plans.A), B: validatePlan(state, 'B', plans.B) };
     const turn = state.turn;
     const out = resolveTurn(state, plans);
     state = out.state;
-    turns.push({ turn, plans, state: structuredClone(state), events: out.events });
+    turns.push({ turn, plans, planErrors, state: structuredClone(state), events: out.events, queries: snapshotQueries(state) });
   }
   const file = `seed-${String(seed).padStart(4, '0')}.json`;
-  fs.writeFileSync(path.join(dir, file), JSON.stringify({ format: 1, source: { commit }, options, initial, turns, result: state.result ?? null }, null, 0));
+  fs.writeFileSync(path.join(dir, file), JSON.stringify({ format: 2, source: { commit }, options, initial, initialQueries, turns, result: state.result ?? null }, null, 0));
   files.push({ file, seed, decks: options.deckKeys, turns: turns.length, winner: state.result?.winner ?? null });
   process.stdout.write(`${file} ${turns.length} turns ${state.result?.winner ?? 'draw'}\n`);
 }
-fs.writeFileSync(path.join(dir, 'manifest.json'), JSON.stringify({ format: 1, source: { commit, generator: 'scripts/golden.ts' }, matches: files }, null, 1));
+fs.writeFileSync(path.join(dir, 'manifest.json'), JSON.stringify({ format: 2, source: { commit, generator: 'scripts/golden.ts' }, matches: files }, null, 1));
 const bytes = fs.readdirSync(dir).reduce((s, f) => s + fs.statSync(path.join(dir, f)).size, 0);
 console.log(`${files.length} traces, ${(bytes / 1024 / 1024).toFixed(1)}MB, ${((Date.now() - t0) / 1000).toFixed(0)}s → ${path.relative(root, dir)}`);

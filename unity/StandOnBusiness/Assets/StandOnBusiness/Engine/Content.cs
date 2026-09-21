@@ -254,6 +254,8 @@ namespace StandOnBusiness.Engine
             foreach (var d in Threats) ThreatById[d.Id] = d;
             LocationById = new Dictionary<string, LocationDef>();
             foreach (var d in Locations) LocationById[d.Id] = d;
+            // The redacted placeholder is looked up by id too (LOCATION_BY_ID holds it in the web engine).
+            if (UnknownLocation != null) LocationById[UnknownLocation.Id] = UnknownLocation;
         }
     }
 }

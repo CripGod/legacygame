@@ -29,7 +29,8 @@ Tweening: DOTween (Asset Store, free) or PrimeTween (OpenUPM). Add it when the b
 
 - **Done:** `Rng` (mulberry32 and the string hash, bit for bit: `RngTests` against `Golden/rng.json`), `Rules` (the constants, the sweep bonus, the stand multiplier), the state, plan, event, content and trace types (`State.cs`, `Plans.cs`, `Content.cs`, `Trace.cs`; `StateRoundTripTests` reads every recorded state, plan and event of every golden trace into the types and writes it back unchanged, `ContentRoundTripTests` does the same for content.json). `Json.cs` holds the one serializer setting: camelCase members, dictionary keys untouched, nulls absent, `MatchResult.Winner`'s null kept.
 - **Done:** `Setup` (all of setup.ts: `CreateMatch`, drawing, the Location draw, spawning Threats, retelling and transforming Locations, `StartTurn`); `SetupTests` creates every golden trace's match from its options and requires the web engine's initial state, key for key.
-- **Next:** `Query` (influence, legality, costs), then `Resolve.ResolveTurn` against every turn's `state`.
+- **Done:** `Query` (all of query.ts: Influence and its parts and rows, capacities, locks, Force, energy, costs, team-ups, legal options, plan validation). The traces (format 2) record the web engine's answers for every state (`initialQueries`, `turns[].queries`) and the validation of every plan (`turns[].planErrors`); `QueryTests` rebuilds the same document from the C# answers and compares it key for key.
+- **Next:** `Resolve.ResolveTurn` against every turn's `state` and `events`.
 
 ## Porting order
 

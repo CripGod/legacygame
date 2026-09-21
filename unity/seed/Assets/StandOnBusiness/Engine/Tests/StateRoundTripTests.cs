@@ -52,7 +52,7 @@ namespace StandOnBusiness.Engine.Tests
             var manifest = JObject.Parse(File.ReadAllText(Path.Combine(GoldenTraceTests.Dir, "manifest.json")));
             var first = (string)manifest["matches"][0]["file"];
             var trace = GoldenTrace.Parse(File.ReadAllText(Path.Combine(GoldenTraceTests.Dir, first)));
-            Assert.AreEqual(1, trace.Format);
+            Assert.AreEqual(2, trace.Format);
             Assert.AreEqual("planning", trace.Initial.Phase);
             Assert.AreEqual(3, trace.Initial.Locations.Count);
             Assert.AreEqual(2, trace.Initial.Players.Count);
