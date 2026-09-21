@@ -25,6 +25,11 @@ Tweening: DOTween (Asset Store, free) or PrimeTween (OpenUPM). Add it when the b
 - `npm run golden -- 40 1` writes `Assets/StandOnBusiness/Engine/Tests/Golden/`: forty seeded matches, Harborlight planning both seats, every preset deck in both seats. Each file holds the match options, the state after setup, and for every turn both plans, the state after the turn and the events. `manifest.json` indexes them. These are the C# engine's acceptance tests: same options and same plans must give the same states, key for key. Rerun after any engine change and commit the result with the change.
 - `ContentTests` and `GoldenTraceTests` (EditMode) prove both are present and well formed today. As the port lands, each stage of the engine adds its own comparison against the same files: `createMatch` against `initial`, then `resolveTurn` against every turn's `state`.
 
+## Where the port stands
+
+- **Done:** `Rng` (mulberry32 and the string hash, bit for bit: `RngTests` against `Golden/rng.json`), `Rules` (the constants, the sweep bonus, the stand multiplier), the state, plan, event, content and trace types (`State.cs`, `Plans.cs`, `Content.cs`, `Trace.cs`; `StateRoundTripTests` reads every recorded state, plan and event of every golden trace into the types and writes it back unchanged, `ContentRoundTripTests` does the same for content.json). `Json.cs` holds the one serializer setting: camelCase members, dictionary keys untouched, nulls absent, `MatchResult.Winner`'s null kept.
+- **Next:** `Setup.CreateMatch` against every trace's `initial`, then `Query`, then `Resolve.ResolveTurn` against every turn's `state`.
+
 ## Porting order
 
 `types` (the shapes, as C# records), `rng` (the seeded generator: its numbers must match the web engine's exactly, the traces will tell), `setup` (`createMatch`), `query` (influence, legality), `resolve` (`resolveTurn`), `view` (`viewFor`). The web tests in `tests/engine.test.ts` port alongside as NUnit. The AI comes last; the web Harborlight is its spec.
