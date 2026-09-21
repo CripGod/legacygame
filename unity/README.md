@@ -31,7 +31,8 @@ Tweening: DOTween (Asset Store, free) or PrimeTween (OpenUPM). Add it when the b
 - **Done:** `Setup` (all of setup.ts: `CreateMatch`, drawing, the Location draw, spawning Threats, retelling and transforming Locations, `StartTurn`); `SetupTests` creates every golden trace's match from its options and requires the web engine's initial state, key for key.
 - **Done:** `Query` (all of query.ts: Influence and its parts and rows, capacities, locks, Force, energy, costs, team-ups, legal options, plan validation). The traces (format 2) record the web engine's answers for every state (`initialQueries`, `turns[].queries`) and the validation of every plan (`turns[].planErrors`); `QueryTests` rebuilds the same document from the C# answers and compares it key for key.
 - **Done:** `Resolve` (all of resolve.ts across `Resolve.cs` and `ResolveTurn.cs`: stepping off and standing, relocations, placement, Events, Reveals, entering, team-ups, confrontations, summoning, Threat actions, cleanup, the end of the match, `Retreat`); `ResolveTests` replays every recorded turn of every trace from the web engine's own prior state and requires the recorded state and events, key for key. `View` (view.ts: `ViewFor`, `FilterEvents`).
-- **Next:** the AI (Harborlight), then the board.
+- **Done:** `Harborlight` (all of src/ai/harborlight.ts: the board evaluation, confrontation heuristics, play variants, the two-stage plan search, controlled imperfection, Standing and Sitting Down, the Summon calls). `Ieee754.Exp` is the web runtime's own exponential (V8's fdlibm port), so the win estimate, and therefore every plan, is the same bit for bit on every platform. `HarborlightTests` gives the C# Harborlight the same redacted view the web one had for every turn of every trace, both seats, and requires the recorded plan; it takes a minute or two.
+- **Next:** the board (Unity UI).
 
 ## Porting order
 
