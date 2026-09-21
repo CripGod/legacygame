@@ -1,0 +1,19 @@
+# Unity: text serialization merges; binaries go through LFS. Only paths under unity/ are affected.
+unity/**/*.unity merge=unityyamlmerge eol=lf
+unity/**/*.prefab merge=unityyamlmerge eol=lf
+unity/**/*.asset merge=unityyamlmerge eol=lf
+unity/**/*.meta merge=unityyamlmerge eol=lf
+unity/**/*.mat merge=unityyamlmerge eol=lf
+unity/**/*.anim merge=unityyamlmerge eol=lf
+unity/**/*.controller merge=unityyamlmerge eol=lf
+unity/**/*.png filter=lfs diff=lfs merge=lfs -text
+unity/**/*.jpg filter=lfs diff=lfs merge=lfs -text
+unity/**/*.webp filter=lfs diff=lfs merge=lfs -text
+unity/**/*.psd filter=lfs diff=lfs merge=lfs -text
+unity/**/*.wav filter=lfs diff=lfs merge=lfs -text
+unity/**/*.mp3 filter=lfs diff=lfs merge=lfs -text
+unity/**/*.ogg filter=lfs diff=lfs merge=lfs -text
+unity/**/*.mp4 filter=lfs diff=lfs merge=lfs -text
+unity/**/*.ttf filter=lfs diff=lfs merge=lfs -text
+unity/**/*.otf filter=lfs diff=lfs merge=lfs -text
+unity/**/*.fbx filter=lfs diff=lfs merge=lfs -text
