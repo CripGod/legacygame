@@ -153,7 +153,12 @@
 .cta.kit:not(:disabled):active { border-image-source: var(--kit-secondary-pressed); color: #0a1a36; }
 .cta.kit:disabled { border-image-source: var(--kit-secondary-disabled); color: #2e3135; text-shadow: none; opacity: 0.9; filter: none; }
 .cta.play.kit { min-width: 300px; }
-.cta.ghost.kit { min-width: 256px; }
+/* Learn the game is the kit's primary, the Stand on Business plate: navy with the gold frame, the cream word. */
+.cta.ghost.kit { min-width: 256px; border-image-source: var(--kit-primary-default); color: #f6e4cc; text-shadow: 0 1px 1.5px rgba(255, 246, 224, 0.04), 0 -1px 1.5px rgba(5, 9, 26, 0.06), 0 3px 3px rgba(11, 18, 40, 0.75); }
+.cta.ghost.kit::after { border-image-source: var(--kit-primary-hover); }
+.cta.ghost.kit:not(:disabled):hover { color: #f9e6cd; }
+.cta.ghost.kit:not(:disabled):active { border-image-source: var(--kit-primary-pressed); color: #e9d6bd; }
+.cta.ghost.kit:disabled { border-image-source: var(--kit-primary-disabled); color: #ece9e5; text-shadow: 0 3px 3px rgba(11, 18, 40, 0.75); }
 .cta.play:hover .cta-arrow { transform: translateX(4px); }
 .hero-more { animation: rise 0.9s ease-out backwards 0.2s; margin-top: -4px; }
 .link-cta { background: none; border: 0; padding: 4px 8px; font-family: var(--display); font-weight: 600; font-size: clamp(9px, 0.78vw, 11px); letter-spacing: 0.22em; text-transform: uppercase; color: #cfd6e2; opacity: 0.8; cursor: pointer; text-decoration: underline dotted rgba(233, 185, 58, 0.6); text-underline-offset: 5px; }
