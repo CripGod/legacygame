@@ -1,0 +1,84 @@
+/* The first board: dark table, gold for you, blue for Harborlight. Loaded by MatchScreen from Resources. */
+
+.screen { flex-grow: 1; background-color: rgb(24, 20, 18); color: rgb(236, 226, 208); padding: 12px; font-size: 15px; }
+
+.hud { flex-direction: row; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.hud-left { flex-grow: 1; }
+.hud-right { flex-direction: row; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.hud-turn { font-size: 24px; -unity-font-style: bold; color: rgb(246, 214, 140); }
+.hud-line { font-size: 15px; color: rgb(214, 202, 180); }
+.status { margin-top: 4px; font-size: 16px; color: rgb(255, 240, 200); white-space: normal; }
+
+.btn { margin-left: 8px; padding: 8px 16px; font-size: 15px; border-radius: 6px; border-width: 1px; border-color: rgb(120, 100, 70); background-color: rgb(58, 48, 40); color: rgb(240, 230, 210); }
+.btn:hover { background-color: rgb(80, 66, 52); }
+.btn-primary { background-color: rgb(196, 148, 42); color: rgb(28, 22, 14); border-color: rgb(240, 200, 100); -unity-font-style: bold; }
+.btn-primary:hover { background-color: rgb(226, 176, 62); }
+.btn-stand { border-color: rgb(210, 90, 60); }
+.btn-on { background-color: rgb(120, 92, 30); border-color: rgb(250, 210, 110); color: rgb(255, 248, 230); }
+.btn-small { margin: 2px 4px 2px 0; padding: 3px 8px; font-size: 12px; border-radius: 4px; border-width: 1px; border-color: rgb(110, 92, 66); background-color: rgb(52, 44, 38); color: rgb(236, 226, 208); }
+.btn-small:hover { background-color: rgb(76, 64, 52); }
+
+.middle { flex-direction: row; flex-grow: 1; min-height: 0; }
+.board { flex-direction: row; flex-grow: 1; min-height: 0; }
+.location { flex-grow: 1; flex-basis: 0; margin: 0 6px; padding: 8px; border-radius: 10px; border-width: 2px; border-color: rgb(70, 58, 48); background-color: rgb(36, 30, 26); }
+.location-droppable { border-color: rgb(246, 214, 140); background-color: rgb(48, 40, 28); }
+.location-droppable:hover { background-color: rgb(60, 50, 32); }
+.location-lost { opacity: 0.55; }
+.location-head { margin-bottom: 6px; }
+.location-name { font-size: 19px; -unity-font-style: bold; color: rgb(246, 214, 140); white-space: normal; }
+.location-rule { font-size: 12px; color: rgb(190, 178, 156); white-space: normal; margin-top: 2px; }
+.location-lost-text { font-size: 12px; color: rgb(230, 120, 100); white-space: normal; }
+.location-influence { margin-top: 4px; font-size: 15px; -unity-font-style: bold; }
+.lead-me { color: rgb(250, 208, 96); }
+.lead-ai { color: rgb(120, 170, 240); }
+
+.threat { margin: 4px 0; padding: 6px 8px; border-radius: 6px; border-width: 1px; border-color: rgb(150, 60, 50); background-color: rgb(58, 30, 28); }
+.threat-name { -unity-font-style: bold; color: rgb(250, 150, 130); white-space: normal; }
+.threat-text { font-size: 12px; color: rgb(220, 190, 180); white-space: normal; }
+.confront-row { flex-direction: row; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+.confront-label { font-size: 12px; margin-right: 6px; color: rgb(240, 200, 190); }
+
+.zone { margin-top: 6px; padding: 6px; border-radius: 8px; background-color: rgb(30, 26, 22); border-width: 1px; border-color: rgb(56, 48, 40); flex-grow: 1; }
+.zone-inside { background-color: rgb(34, 32, 26); }
+.zone-title { font-size: 12px; color: rgb(170, 158, 136); margin-bottom: 4px; }
+.zone-row { flex-direction: row; flex-wrap: wrap; }
+
+.char { width: 150px; margin: 3px; padding: 6px; border-radius: 6px; border-width: 2px; background-color: rgb(44, 38, 32); }
+.char-me { border-color: rgb(196, 148, 42); }
+.char-ai { border-color: rgb(60, 110, 190); background-color: rgb(30, 36, 50); }
+.char-entering { background-color: rgb(70, 60, 30); }
+.char-moving { background-color: rgb(60, 52, 34); border-color: rgb(250, 210, 110); }
+.char-targetable { border-color: rgb(255, 255, 255); }
+.char-targetable:hover { background-color: rgb(80, 70, 50); }
+.char-ghost { opacity: 0.75; border-color: rgb(246, 214, 140); background-color: rgb(52, 46, 30); }
+.char-name { -unity-font-style: bold; font-size: 13px; white-space: normal; }
+.char-stats { font-size: 12px; color: rgb(220, 210, 190); }
+.char-tags { font-size: 11px; color: rgb(180, 170, 150); white-space: normal; }
+.char-actions { flex-direction: row; flex-wrap: wrap; margin-top: 4px; }
+
+.log { width: 320px; margin-left: 6px; padding: 8px; border-radius: 10px; background-color: rgb(30, 26, 22); border-width: 1px; border-color: rgb(56, 48, 40); }
+.log-title { font-size: 15px; -unity-font-style: bold; color: rgb(246, 214, 140); margin-bottom: 6px; }
+.log-scroll { flex-grow: 1; }
+.log-line { font-size: 13px; white-space: normal; margin-bottom: 4px; color: rgb(214, 204, 186); }
+.log-me { color: rgb(250, 226, 170); }
+.log-ai { color: rgb(160, 196, 250); }
+.log-turnStart { -unity-font-style: bold; color: rgb(246, 214, 140); margin-top: 6px; }
+.log-influence { color: rgb(190, 180, 160); }
+.log-clash { color: rgb(250, 160, 140); }
+.log-setback { color: rgb(250, 120, 100); }
+
+.hand { margin-top: 8px; padding: 8px; border-radius: 10px; background-color: rgb(30, 26, 22); border-width: 1px; border-color: rgb(56, 48, 40); }
+.hand-title { font-size: 13px; color: rgb(170, 158, 136); margin-bottom: 4px; }
+.hand-row { height: 150px; }
+.card { width: 220px; height: 130px; margin-right: 8px; padding: 8px; border-radius: 8px; border-width: 2px; border-color: rgb(196, 148, 42); background-color: rgb(50, 42, 30); }
+.card:hover { background-color: rgb(66, 56, 38); }
+.card-selected { border-color: rgb(255, 255, 255); background-color: rgb(80, 66, 40); }
+.card-planned { opacity: 0.5; }
+.card-unplayable { opacity: 0.45; border-color: rgb(90, 80, 66); }
+.card-name { -unity-font-style: bold; font-size: 14px; white-space: normal; }
+.card-line { font-size: 12px; color: rgb(220, 210, 190); }
+.card-summary { font-size: 11px; color: rgb(190, 180, 160); white-space: normal; margin-top: 4px; }
+
+.result { position: absolute; left: 25%; right: 25%; top: 30%; padding: 24px; border-radius: 12px; border-width: 2px; border-color: rgb(246, 214, 140); background-color: rgb(40, 34, 28); align-items: center; }
+.result-headline { font-size: 34px; -unity-font-style: bold; color: rgb(246, 214, 140); margin-bottom: 8px; }
+.result-detail { font-size: 15px; color: rgb(220, 210, 190); white-space: normal; margin-bottom: 8px; }

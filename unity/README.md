@@ -32,7 +32,19 @@ Tweening: DOTween (Asset Store, free) or PrimeTween (OpenUPM). Add it when the b
 - **Done:** `Query` (all of query.ts: Influence and its parts and rows, capacities, locks, Force, energy, costs, team-ups, legal options, plan validation). The traces (format 2) record the web engine's answers for every state (`initialQueries`, `turns[].queries`) and the validation of every plan (`turns[].planErrors`); `QueryTests` rebuilds the same document from the C# answers and compares it key for key.
 - **Done:** `Resolve` (all of resolve.ts across `Resolve.cs` and `ResolveTurn.cs`: stepping off and standing, relocations, placement, Events, Reveals, entering, team-ups, confrontations, summoning, Threat actions, cleanup, the end of the match, `Retreat`); `ResolveTests` replays every recorded turn of every trace from the web engine's own prior state and requires the recorded state and events, key for key. `View` (view.ts: `ViewFor`, `FilterEvents`).
 - **Done:** `Harborlight` (all of src/ai/harborlight.ts: the board evaluation, confrontation heuristics, play variants, the two-stage plan search, controlled imperfection, Standing and Sitting Down, the Summon calls). `Ieee754.Exp` is the web runtime's own exponential (V8's fdlibm port), so the win estimate, and therefore every plan, is the same bit for bit on every platform. `HarborlightTests` gives the C# Harborlight the same redacted view the web one had for every turn of every trace, both seats, and requires the recorded plan; it takes a minute or two.
-- **Next:** the board (Unity UI).
+- **Started:** the board. `Game/MatchScreen.cs` draws a match against Harborlight with UI Toolkit, entirely from the engine's state and legal options (`Resources/board.uss` styles it). Plays, Direct Entry, targets, entering, relocations, confrontations, Standing and Sitting Down are all there; every edit to the plan is validated by the engine before it stays, so the board cannot lock in an illegal turn. No art yet: names, numbers and buttons.
+- **Next:** the board's look (the card art, the kit, the location plates), then the turn replay (the trace steps as beats).
+
+## Running the board
+
+Once, in the Unity project:
+
+1. In the Project window, right-click `Assets/StandOnBusiness`, then Create > UI Toolkit > Panel Settings Asset. Name it `PanelSettings`. In its Inspector set Scale Mode to Scale With Screen Size and the Reference Resolution to 1920 x 1080.
+2. Open `Assets/Scenes/SampleScene`. In the menu, GameObject > UI Toolkit > UI Document. In the new object's Inspector, set Panel Settings to the asset from step 1.
+3. With that object still selected, Add Component > Match Screen. Seed 0 means a random match; the deck fields take `railroad`, `blackstar`, `caiman`, `pantheon`, `mirror` or `random`.
+4. Press Play.
+
+If the buttons do not react to the mouse, add an Event System (GameObject > UI > Event System) to the scene; Unity will offer to switch it to the Input System module, say yes.
 
 ## Porting order
 
