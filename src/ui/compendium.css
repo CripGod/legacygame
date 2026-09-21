@@ -964,3 +964,38 @@ a.cx-refs-link { display: inline-block; width: auto; justify-self: start; align-
 .cx-frame-fig span { font-size: 12px; color: var(--cx-ink-2); }
 .cx-frame-fig small { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cx-ink-3); }
 @media (width <= 700px) { .cx-frames-row { grid-template-columns: repeat(3, 1fr); } .cx-frames-row.finishes { grid-template-columns: repeat(2, 1fr); } }
+
+/* ---------- Plates: a Threat or a Location on the stage ----------
+   The same stage as the expanded card: a plate the width of the big card, the picture up top in a gold-edged window
+   (square for a Threat, wide for a Location), the name in the headline face, and the rule on the parchment body the
+   card faces use. It tilts, and its History or References open beside it. */
+.cx-plate { --bw: var(--big-w); width: var(--bw); box-sizing: border-box; display: flex; flex-direction: column; border: 3px solid #d9a93a; border-radius: 12px; background: linear-gradient(180deg, #1c4a9e 0%, #0e2a63 45%, #0a1f4a 100%); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(246, 215, 122, 0.35), 0 12px 26px rgba(0, 0, 0, 0.8); padding: calc(var(--bw) * 0.024); gap: calc(var(--bw) * 0.02); text-align: left; }
+.cx-plate.threat { background: linear-gradient(180deg, #4a1c1c 0%, #2a0e14 45%, #1a0a10 100%); border-color: #c94a40; }
+.cx-plate.threat.systemic { background: linear-gradient(180deg, #1c3a6e 0%, #0e2250 45%, #0a1838 100%); border-color: #4a7fd6; }
+.cx-plate.threat.complicit { background: linear-gradient(180deg, #3d2a6e 0%, #241650 45%, #170e38 100%); border-color: #8a5fd6; }
+.cx-plate.threat.crisis { background: linear-gradient(180deg, #3a3a3a 0%, #1c1c1c 45%, #0e0e0e 100%); border-color: #8a8a8a; }
+.cx-plate.location.lost { border-color: var(--danger); }
+.cx-plate-art { position: relative; width: 100%; overflow: hidden; border: 1.5px solid var(--gold-2); border-radius: 6px; background: #0a1626; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.6); display: grid; place-items: center; }
+.cx-plate-art.square { aspect-ratio: 4 / 3; }
+.cx-plate-art.wide { aspect-ratio: 16 / 9; }
+/* A plate yields a little more height than a card does, so its tray (the confront list, the Influence sum) stays on screen. */
+.cx-stage.has-tray:has(.cx-plate) { --big-reserve: 400px; }
+.cx-plate-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 40%; }
+.cx-plate-ini { font-family: var(--display); font-weight: 800; font-size: calc(var(--bw) * 0.09); letter-spacing: 0.08em; color: rgba(246, 215, 122, 0.7); text-align: center; padding: 12px; }
+.cx-plate-orb { position: absolute; right: calc(var(--bw) * 0.025); bottom: calc(var(--bw) * 0.025); width: calc(var(--bw) * 0.12); height: calc(var(--bw) * 0.12); border-radius: 50%; display: grid; place-items: center; font-family: var(--display); font-weight: 800; font-size: calc(var(--bw) * 0.06); color: #fff; background: radial-gradient(circle at 40% 35%, #ff9c96, #e04a3f 55%, #7a1a12); border: 2px solid #fff; box-shadow: 0 0 0 1px #000, 0 4px 10px rgba(0, 0, 0, 0.7); }
+.cx-plate-sky { position: absolute; left: 8px; bottom: 8px; }
+.cx-plate-body { display: grid; gap: calc(var(--bw) * 0.014); padding: calc(var(--bw) * 0.03) calc(var(--bw) * 0.035) calc(var(--bw) * 0.035); border: 1.5px solid var(--gold-2); border-radius: 6px; background: linear-gradient(180deg, #f8f0dc 0%, #efe3c6 100%); color: var(--ink); box-shadow: inset 0 0 0 1px rgba(138, 106, 20, 0.35), inset 0 12px 18px -14px rgba(0, 0, 0, 0.35); }
+.cx-plate-name { font-family: var(--display); font-weight: 800; font-size: calc(var(--bw) * 0.052); letter-spacing: 0.03em; line-height: 1.1; color: #1a1200; }
+.cx-plate-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-family: var(--font); font-size: calc(var(--bw) * 0.03); color: #5a4a2a; }
+.cx-plate-where { color: #6b4e0c; }
+.cx-plate-text { font-family: var(--font); font-size: calc(var(--bw) * 0.034); line-height: 1.35; color: var(--ink); }
+.cx-plate-blurb { font-family: var(--font); font-style: italic; font-size: calc(var(--bw) * 0.03); line-height: 1.35; color: #5a4a2a; }
+.cx-plate .cx-stats { font-family: var(--font); font-size: calc(var(--bw) * 0.03); }
+.cx-plate .cx-stat b { color: #8f1d15; }
+.cx-plate .cx-chip { font-size: calc(var(--bw) * 0.027); }
+/* The tray under a plate: the Threat's confront list and the Location's Influence sum, light on the dark. */
+.cx-tray .option { border-color: rgba(233, 185, 58, 0.35); background: rgba(6, 12, 22, 0.6); }
+.cx-tray .option.on { border-color: var(--gold-2); }
+.cx-tray .fx-list { background: rgba(6, 12, 22, 0.6); border: 1px solid rgba(233, 185, 58, 0.25); }
+.cx-tray .center { text-align: center; }
+.cx-stage.has-tray .cx-plate { --bw: var(--stage-w); }

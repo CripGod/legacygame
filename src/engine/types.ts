@@ -313,6 +313,8 @@ export interface ThreatDef {
   /** The tile's status line for a shared Threat, in place of "In the area" ("Taney presiding"). */
   standing?: string;
   blurb: string;
+  /** The longer story, for the sheet's History panel. */
+  history?: string;
 }
 
 // ---------- Instances / state ----------
