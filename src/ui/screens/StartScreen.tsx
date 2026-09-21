@@ -11,7 +11,7 @@ import { Wordmark } from '../components/Wordmark';
 import { CardFace } from '../components/CardFace';
 import { CodexSheet } from '../components/CodexSheet';
 import { Art } from '../components/Art';
-import { artUrl } from '../art';
+import { artUrl, kitVars } from '../art';
 import '../compendium.css';
 import '../landing.css';
 
@@ -498,14 +498,15 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
           <div>The match is desktop-only while it is in development. Open this on a laptop or desktop browser to play. The cards and the rules are open here.</div>
         </div>
       )}
-      <nav className="hero-actions" aria-label="Start">
-        <button className="cta play" onClick={() => onPlay(opts('ai'))} disabled={small} title={small ? 'Desktop only for now' : undefined}>
+      {/* The two buttons are the kit's Lock In button (the parchment secondary, navy word); its sprites ride this row. */}
+      <nav className="hero-actions" aria-label="Start" style={kitVars() as React.CSSProperties}>
+        <button className="cta play kit" onClick={() => onPlay(opts('ai'))} disabled={small} title={small ? 'Desktop only for now' : undefined}>
           Play match
           <span className="cta-arrow" aria-hidden>
             →
           </span>
         </button>
-        <button className="cta ghost" onClick={onRules}>
+        <button className="cta ghost kit" onClick={onRules}>
           Learn the game
         </button>
       </nav>
