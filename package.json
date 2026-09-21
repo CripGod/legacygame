@@ -13,6 +13,8 @@
     "test": "vitest run",
     "sim": "tsx scripts/sim.ts",
     "docs": "tsx scripts/docs.ts",
+    "export": "tsx scripts/export.ts",
+    "golden": "tsx scripts/golden.ts",
     "refs:check": "tsx scripts/refs-check.ts"
   },
   "dependencies": {

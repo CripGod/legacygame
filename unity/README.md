@@ -19,7 +19,12 @@ The Unity port lives here, beside the web prototype, so the rules and the port m
 
 Tweening: DOTween (Asset Store, free) or PrimeTween (OpenUPM). Add it when the board starts, not before.
 
-## What comes next (in the repo, no Unity needed)
+## The content and the traces (generated in the repo root, no Unity needed)
 
-- `npm run export` writes the content tables (Characters, Events, Threats, Locations, decks, homes, references) as JSON for the port to load.
-- `npm run golden` records seeded AI-vs-AI matches (plans, state and events per turn) as the C# engine's acceptance tests.
+- `npm run export` writes `Assets/StandOnBusiness/Resources/content.json`: every Character, Event, Threat and Location, the preset decks, team-ups, the summon, the references and the rule constants, straight from `src/engine/content`. The port loads it at startup (`Resources.Load<TextAsset>("content")`). Rerun it whenever the content changes; the file carries the commit it came from.
+- `npm run golden -- 40 1` writes `Assets/StandOnBusiness/Engine/Tests/Golden/`: forty seeded matches, Harborlight planning both seats, every preset deck in both seats. Each file holds the match options, the state after setup, and for every turn both plans, the state after the turn and the events. `manifest.json` indexes them. These are the C# engine's acceptance tests: same options and same plans must give the same states, key for key. Rerun after any engine change and commit the result with the change.
+- `ContentTests` and `GoldenTraceTests` (EditMode) prove both are present and well formed today. As the port lands, each stage of the engine adds its own comparison against the same files: `createMatch` against `initial`, then `resolveTurn` against every turn's `state`.
+
+## Porting order
+
+`types` (the shapes, as C# records), `rng` (the seeded generator: its numbers must match the web engine's exactly, the traces will tell), `setup` (`createMatch`), `query` (influence, legality), `resolve` (`resolveTurn`), `view` (`viewFor`). The web tests in `tests/engine.test.ts` port alongside as NUnit. The AI comes last; the web Harborlight is its spec.

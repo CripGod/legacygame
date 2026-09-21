@@ -1,0 +1,409 @@
+{
+ "format": 1,
+ "source": {
+  "commit": "752604e",
+  "generator": "scripts/golden.ts"
+ },
+ "matches": [
+  {
+   "file": "seed-0001.json",
+   "seed": 1,
+   "decks": {
+    "A": "railroad",
+    "B": "blackstar"
+   },
+   "turns": 8,
+   "winner": "A"
+  },
+  {
+   "file": "seed-0002.json",
+   "seed": 2,
+   "decks": {
+    "A": "blackstar",
+    "B": "mirror"
+   },
+   "turns": 8,
+   "winner": "B"
+  },
+  {
+   "file": "seed-0003.json",
+   "seed": 3,
+   "decks": {
+    "A": "caiman",
+    "B": "caiman"
+   },
+   "turns": 8,
+   "winner": "A"
+  },
+  {
+   "file": "seed-0004.json",
+   "seed": 4,
+   "decks": {
+    "A": "pantheon",
+    "B": "railroad"
+   },
+   "turns": 8,
+   "winner": "B"
+  },
+  {
+   "file": "seed-0005.json",
+   "seed": 5,
+   "decks": {
+    "A": "mirror",
+    "B": "pantheon"
+   },
+   "turns": 8,
+   "winner": "A"
+  },
+  {
+   "file": "seed-0006.json",
+   "seed": 6,
+   "decks": {
+    "A": "railroad",
+    "B": "blackstar"
+   },
+   "turns": 6,
+   "winner": "A"
+  },
+  {
+   "file": "seed-0007.json",
+   "seed": 7,
+   "decks": {
+    "A": "blackstar",
+    "B": "mirror"
+   },
+   "turns": 8,
+   "winner": "A"
+  },
+  {
+   "file": "seed-0008.json",
+   "seed": 8,
+   "decks": {
+    "A": "caiman",
+    "B": "caiman"
+   },
+   "turns": 8,
+   "winner": "B"
+  },
+  {
+   "file": "seed-0009.json",
+   "seed": 9,
+   "decks": {
+    "A": "pantheon",
+    "B": "railroad"
+   },
+   "turns": 8,
+   "winner": "A"
+  },
+  {
+   "file": "seed-0010.json",
+   "seed": 10,
+   "decks": {
+    "A": "mirror",
+    "B": "pantheon"
+   },
+   "turns": 8,
+   "winner": "B"
+  },
+  {
+   "file": "seed-0011.json",
+   "seed": 11,
+   "decks": {
+    "A": "railroad",
+    "B": "blackstar"
+   },
+   "turns": 9,
+   "winner": "B"
+  },
+  {
+   "file": "seed-0012.json",
+   "seed": 12,
+   "decks": {
+    "A": "blackstar",
+    "B": "mirror"
+   },
+   "turns": 7,
+   "winner": "A"
+  },
+  {
+   "file": "seed-0013.json",
+   "seed": 13,
+   "decks": {
+    "A": "caiman",
+    "B": "caiman"
+   },
+   "turns": 8,
+   "winner": "A"
+  },
+  {
+   "file": "seed-0014.json",
+   "seed": 14,
+   "decks": {
+    "A": "pantheon",
+    "B": "railroad"
+   },
+   "turns": 9,
+   "winner": "A"
+  },
+  {
+   "file": "seed-0015.json",
+   "seed": 15,
+   "decks": {
+    "A": "mirror",
+    "B": "pantheon"
+   },
+   "turns": 9,
+   "winner": "A"
+  },
+  {
+   "file": "seed-0016.json",
+   "seed": 16,
+   "decks": {
+    "A": "railroad",
+    "B": "blackstar"
+   },
+   "turns": 9,
+   "winner": "A"
+  },
+  {
+   "file": "seed-0017.json",
+   "seed": 17,
+   "decks": {
+    "A": "blackstar",
+    "B": "mirror"
+   },
+   "turns": 7,
+   "winner": "B"
+  },
+  {
+   "file": "seed-0018.json",
+   "seed": 18,
+   "decks": {
+    "A": "caiman",
+    "B": "caiman"
+   },
+   "turns": 8,
+   "winner": "B"
+  },
+  {
+   "file": "seed-0019.json",
+   "seed": 19,
+   "decks": {
+    "A": "pantheon",
+    "B": "railroad"
+   },
+   "turns": 9,
+   "winner": "A"
+  },
+  {
+   "file": "seed-0020.json",
+   "seed": 20,
+   "decks": {
+    "A": "mirror",
+    "B": "pantheon"
+   },
+   "turns": 8,
+   "winner": "B"
+  },
+  {
+   "file": "seed-0021.json",
+   "seed": 21,
+   "decks": {
+    "A": "railroad",
+    "B": "blackstar"
+   },
+   "turns": 9,
+   "winner": "A"
+  },
+  {
+   "file": "seed-0022.json",
+   "seed": 22,
+   "decks": {
+    "A": "blackstar",
+    "B": "mirror"
+   },
+   "turns": 8,
+   "winner": "A"
+  },
+  {
+   "file": "seed-0023.json",
+   "seed": 23,
+   "decks": {
+    "A": "caiman",
+    "B": "caiman"
+   },
+   "turns": 8,
+   "winner": "B"
+  },
+  {
+   "file": "seed-0024.json",
+   "seed": 24,
+   "decks": {
+    "A": "pantheon",
+    "B": "railroad"
+   },
+   "turns": 9,
+   "winner": "B"
+  },
+  {
+   "file": "seed-0025.json",
+   "seed": 25,
+   "decks": {
+    "A": "mirror",
+    "B": "pantheon"
+   },
+   "turns": 9,
+   "winner": "A"
+  },
+  {
+   "file": "seed-0026.json",
+   "seed": 26,
+   "decks": {
+    "A": "railroad",
+    "B": "blackstar"
+   },
+   "turns": 8,
+   "winner": "A"
+  },
+  {
+   "file": "seed-0027.json",
+   "seed": 27,
+   "decks": {
+    "A": "blackstar",
+    "B": "mirror"
+   },
+   "turns": 6,
+   "winner": "B"
+  },
+  {
+   "file": "seed-0028.json",
+   "seed": 28,
+   "decks": {
+    "A": "caiman",
+    "B": "caiman"
+   },
+   "turns": 9,
+   "winner": "A"
+  },
+  {
+   "file": "seed-0029.json",
+   "seed": 29,
+   "decks": {
+    "A": "pantheon",
+    "B": "railroad"
+   },
+   "turns": 9,
+   "winner": "B"
+  },
+  {
+   "file": "seed-0030.json",
+   "seed": 30,
+   "decks": {
+    "A": "mirror",
+    "B": "pantheon"
+   },
+   "turns": 7,
+   "winner": "B"
+  },
+  {
+   "file": "seed-0031.json",
+   "seed": 31,
+   "decks": {
+    "A": "railroad",
+    "B": "blackstar"
+   },
+   "turns": 9,
+   "winner": "A"
+  },
+  {
+   "file": "seed-0032.json",
+   "seed": 32,
+   "decks": {
+    "A": "blackstar",
+    "B": "mirror"
+   },
+   "turns": 8,
+   "winner": "B"
+  },
+  {
+   "file": "seed-0033.json",
+   "seed": 33,
+   "decks": {
+    "A": "caiman",
+    "B": "caiman"
+   },
+   "turns": 8,
+   "winner": "B"
+  },
+  {
+   "file": "seed-0034.json",
+   "seed": 34,
+   "decks": {
+    "A": "pantheon",
+    "B": "railroad"
+   },
+   "turns": 8,
+   "winner": "A"
+  },
+  {
+   "file": "seed-0035.json",
+   "seed": 35,
+   "decks": {
+    "A": "mirror",
+    "B": "pantheon"
+   },
+   "turns": 7,
+   "winner": "B"
+  },
+  {
+   "file": "seed-0036.json",
+   "seed": 36,
+   "decks": {
+    "A": "railroad",
+    "B": "blackstar"
+   },
+   "turns": 8,
+   "winner": "B"
+  },
+  {
+   "file": "seed-0037.json",
+   "seed": 37,
+   "decks": {
+    "A": "blackstar",
+    "B": "mirror"
+   },
+   "turns": 8,
+   "winner": "B"
+  },
+  {
+   "file": "seed-0038.json",
+   "seed": 38,
+   "decks": {
+    "A": "caiman",
+    "B": "caiman"
+   },
+   "turns": 8,
+   "winner": "B"
+  },
+  {
+   "file": "seed-0039.json",
+   "seed": 39,
+   "decks": {
+    "A": "pantheon",
+    "B": "railroad"
+   },
+   "turns": 6,
+   "winner": "B"
+  },
+  {
+   "file": "seed-0040.json",
+   "seed": 40,
+   "decks": {
+    "A": "mirror",
+    "B": "pantheon"
+   },
+   "turns": 7,
+   "winner": "A"
+  }
+ ]
+}

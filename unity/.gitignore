@@ -39,3 +39,4 @@ sysinfo.txt
 *.unitypackage
 *.app
 **/crashlytics-build.properties
+.DS_Store
