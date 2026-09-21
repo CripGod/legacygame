@@ -175,3 +175,7 @@ Characters carry a category: historical, archetype or mythic. Mythic cards (Anan
 ## Not built (by design)
 
 Backend, accounts, matchmaking, collection, shop, progression, chat, production VFX. See the brief's §112. The Legacy economy (Legacy spent on cosmetics, card variants and special animations) is designed but not built: `docs/economy.md`.
+
+## Hosting
+
+The game is a static Vite build (`npm run build` → `dist/`), served at standonbusiness.game from Vercel. `vercel.json` sets the cache headers (hashed assets and the versioned art are immutable; audio a day) and `.vercelignore` keeps the Unity project and docs out of the upload. The `release` branch is the production branch: `main` moves with every commit, `release` moves when a version is ready for the domain (`git checkout release && git merge --ff-only main && git push`). Every other branch and pull request gets a preview URL.

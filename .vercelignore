@@ -1,0 +1,5 @@
+# The web build needs src, public, index.html, scripts (art manifest) and the package files. Nothing under here.
+unity/
+docs/
+tests/
+dist/
