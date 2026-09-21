@@ -1970,7 +1970,9 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .location.framed .loc-fill-body { position: absolute; inset: 0; background: #0c1a2b; }
 .location.framed .loc-fill .loc-bg { position: absolute; inset: 15.5% 0 0; border-radius: 0; }
 .location.framed .loc-fill-band { position: absolute; top: 0; left: 0; right: 0; height: 15.5%; background: linear-gradient(180deg, #f7efdc, #e9dcc0); border-bottom: 2px solid var(--gold-dark); box-sizing: border-box; }
-.location.framed .art, .location.framed .art.reveal-anim { position: absolute; top: 2.7%; left: 4.7%; right: 4.7%; height: 12.8%; max-height: none; min-height: 0; margin: 0; border-bottom: 0; z-index: 2; background: transparent !important; }
+/* The name starts past the frame's kink (the chamfer at each end of the plate, which ends about 7% of the width in):
+   the strip's padding is a share of the width, not pixels, so the text clears the kink at every size. */
+.location.framed .art, .location.framed .art.reveal-anim { position: absolute; top: 2.7%; left: 4.7%; right: 4.7%; height: 12.8%; max-height: none; min-height: 0; margin: 0; padding: 0 4.5%; border-bottom: 0; z-index: 2; background: transparent !important; }
 .location.framed { overflow: visible; margin-bottom: 8px; }
 /* Five seats and the Threat column share the window's width. */
 .location.framed .slots { padding: 1px 6px 2px; gap: 5px; }
