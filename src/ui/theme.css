@@ -2351,7 +2351,14 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .end-ribbon .star-flare.on { animation: flare-in 0.7s ease-out both; }
 @keyframes flare-in { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
 .end-ribbon .burst-dot { position: absolute; border-radius: 50%; pointer-events: none; will-change: transform, opacity; }
+/* Lifted (Look at the board): the ribbon fades. Docked (the result panel up): the ribbon glides to the panel's top edge
+   and stays, the stars over it, the panel wearing it as its title; the veil goes, the panel's own scrim takes over. */
 .end-banner.lift .end-ribbon { animation: end-fade 0.45s ease-out both; }
+.end-banner.docked .end-ribbon { --rb-w: min(52vw, 560px); top: calc(var(--dock, 20vh) + 26px); transition: top 0.55s cubic-bezier(0.2, 0.8, 0.2, 1), width 0.55s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.end-banner.docked .end-veil, .end-banner.lift .end-veil { animation: end-veil-out 0.4s ease-out both; }
+@keyframes end-veil-out { from { opacity: 1; } to { opacity: 0; } }
+/* The panel leaves room for the ribbon's lower half over its top edge, in place of the old title. */
+.end-panel.docked { padding-top: calc(min(52vw, 560px) * 0.16 + 30px); }
 @media (prefers-reduced-motion: reduce) { .end-ribbon { animation: none; } .end-banner.lift .end-ribbon { animation: none; opacity: 0; } .end-ribbon .star { transform: translate(-50%, -50%) rotate(var(--srot)) scale(1); animation: none; } .end-ribbon .star.lit img { animation: none; } .end-ribbon .star-flare.on { animation: none; opacity: 1; } }
 @media (max-width: 700px) { .end-ribbon { --rb-w: 92vw; --sk: 0.4; --sp: 0.6; top: 50%; } }
 /* While the banner stands, the board goes dark under it; the result panel's own scrim takes over when the banner lifts. */

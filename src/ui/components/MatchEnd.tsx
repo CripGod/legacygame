@@ -145,6 +145,23 @@ export function MatchEnd({
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [stage, after, gain]);
+  // Once the panel is up, the ribbon docks on its top edge: the panel is centred, so its top is half the room above it.
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [dock, setDock] = useState(0);
+  useEffect(() => {
+    if (stage < 2 || collapsed) return;
+    const measure = () => {
+      const el = panelRef.current;
+      if (el) setDock(Math.round((window.innerHeight - el.getBoundingClientRect().height) / 2));
+    };
+    measure();
+    const id = window.setTimeout(measure, 550); // after the panel's rise
+    window.addEventListener('resize', measure);
+    return () => {
+      window.clearTimeout(id);
+      window.removeEventListener('resize', measure);
+    };
+  }, [stage, collapsed, stats]);
   if (!r) return null;
   const handle = (p: PlayerId) => view.players[p].handle;
   const title = tone === 'win' ? 'VICTORY' : tone === 'loss' ? 'DEFEAT' : 'DRAW';
@@ -166,7 +183,7 @@ export function MatchEnd({
   const st = view.stats;
   return (
     <>
-      <div className={`end-banner ${tone} ${stage >= 2 ? 'lift' : ''}`} aria-live="assertive">
+      <div className={`end-banner ${tone} ${stage >= 2 ? (collapsed ? 'lift' : 'docked') : ''}`} style={{ '--dock': `${dock}px` } as React.CSSProperties} aria-live="assertive">
         <div className="end-veil" aria-hidden />
         <div className="end-flash" aria-hidden />
         <EndRibbon title={title} tone={tone} stage={stage} stars={stars} />
@@ -186,8 +203,7 @@ export function MatchEnd({
       )}
       {stage >= 2 && !collapsed && <div className="end-scrim" aria-hidden />}
       {stage >= 2 && !collapsed && (
-        <div className={`end-panel ${tone}`} role="dialog" aria-label="Match result">
-          <div className="end-title">{title}</div>
+        <div className={`end-panel docked ${tone}`} role="dialog" aria-label="Match result" ref={panelRef}>
           <div className="end-head">
             {profile(other(me))}
             <div className="end-vs">
