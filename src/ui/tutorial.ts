@@ -158,10 +158,10 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
     const ready = mine.find((c) => c.zone === 'gate' && c.ready && legal.includes(c.uid));
     if (!ready) return { act: null };
     const def = CARD_BY_ID[ready.defId];
-    const standingText = ` Inside, a Character counts +1 Influence${def?.kind === 'character' && def.established ? `, becomes Established, and its standing ability turns on: ${def.established.text}` : ', and is safe from what happens at the Gates.'}`;
+    const ability = def?.kind === 'character' && def.established ? ' Its standing ability turns on in there too.' : '';
     return {
-      point: read('Ready', `${nm(ready.defId)}'s tile at your Gates read FRESH when it arrived and reads READY now, so it can go Inside: the rows of slots up in the Location panel.${standingText}`),
-      act: { kind: 'do', text: `Drag ${nm(ready.defId)}'s card from the Gates into ${ln(ready.location)}. Entering is free and does not use your card play for the turn.`, flash: 'enter', location: ready.location, done: (_v, plan) => plan.enters.includes(ready.uid) },
+      point: read('Ready', `${nm(ready.defId)} has waited a turn at your Gates, so the tile now reads READY: it can go Inside, the rows of slots up in the Location panel. Inside, a Character counts +1 Influence and is safe from most of what strikes the Gates: the Threats and Events that block, silence or send Characters away.${ability}`),
+      act: { kind: 'do', text: `Drag ${nm(ready.defId)} from the Gates up into ${ln(ready.location)}. Entering is free: it does not use up your card play.`, flash: 'enter', location: ready.location, done: (_v, plan) => plan.enters.includes(ready.uid) },
     };
   };
   if (turn === 3) {
