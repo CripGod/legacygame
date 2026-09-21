@@ -1702,13 +1702,12 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
      thing scaled through --k, the ribbon's px per 1x unit. */
   --rb-w: min(48vw, 560px); --k: calc(var(--rb-w) / 807); width: var(--rb-w); aspect-ratio: 807 / 231;
   filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.6));
+  animation: turn-flash 1.9s linear both;
 }
 /* A long call (THE LAST WORD) rides a wider ribbon and a smaller word, so it keeps clear of the plate's edges (the kit's
    reading width is about two thirds of the ribbon). */
 .turn-flash.wide { --rb-w: min(62vw, 740px); }
-.turn-flash.wide .ribbon-word { font-size: calc(var(--k) * 44); letter-spacing: 0.1em;
-  animation: turn-flash 1.9s linear both;
-}
+.turn-flash.wide .ribbon-word { font-size: calc(var(--k) * 44); letter-spacing: 0.1em; }
 .turn-flash .ribbon-base { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .turn-flash .ribbon-word { position: absolute; left: 50%; top: 35.3%; transform: translate(-50%, -50%); font-family: var(--display); font-weight: 700; font-size: calc(var(--k) * 58); line-height: 1; letter-spacing: 0.08em; text-transform: uppercase; color: #22304a; text-shadow: 0 calc(var(--k) * 3.2) calc(var(--k) * 4) rgba(138, 126, 100, 0.26); white-space: nowrap; }
 /* In: fades up from nothing while it grows 0 to 115%, drops under to 96%, comes back to 102% and settles at 100% (the bell
