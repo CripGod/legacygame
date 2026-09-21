@@ -122,11 +122,11 @@
 }
 /* The plate is painted beneath the label: a hairline of gold clipped to the chamfer, the glass inside it. */
 .cta::before { content: ''; position: absolute; inset: 0; z-index: -1; background: rgba(233, 185, 58, 0.75); clip-path: inherit; }
-.cta::after { content: ''; position: absolute; inset: 1px; z-index: -1; background: linear-gradient(180deg, rgba(10, 20, 36, 0.72), rgba(5, 12, 22, 0.86)); clip-path: polygon(var(--ch) 0, 100% 0, 100% calc(100% - var(--ch)), calc(100% - var(--ch)) 100%, 0 100%, 0 var(--ch)); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.cta::after { content: ''; position: absolute; inset: 1px; z-index: -1; background: linear-gradient(180deg, rgba(10, 20, 36, 0.72), rgba(5, 12, 22, 0.86)); clip-path: polygon(var(--ch) 0, 100% 0, 100% calc(100% - var(--ch)), calc(100% - var(--ch)) 100%, 0 100%, 0 var(--ch)); backdrop-filter: blur(10px); }
 .cta:hover { transform: translateY(-2px); filter: brightness(1.12); }
 .cta.play { color: #1a1200; min-width: 268px; filter: drop-shadow(0 0 22px rgba(233, 185, 58, 0.35)); }
 .cta.play::before { background: #fff2c4; }
-.cta.play::after { background: linear-gradient(180deg, #fbe7a3 0%, #f0c95a 45%, #d7a52c 100%); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.cta.play::after { background: linear-gradient(180deg, #fbe7a3 0%, #f0c95a 45%, #d7a52c 100%); backdrop-filter: none; }
 .cta.play:hover { filter: brightness(1.06) drop-shadow(0 0 34px rgba(233, 185, 58, 0.55)); }
 .cta .cta-arrow { font-size: 1.15em; line-height: 1; transition: transform 0.2s; }
 .cta.play:hover .cta-arrow { transform: translateX(4px); }
@@ -146,7 +146,7 @@
 }
 .deck-panel::before, .deck-panel::after { content: ''; position: absolute; z-index: -1; clip-path: polygon(var(--ch) 0, 100% 0, 100% calc(100% - var(--ch)), calc(100% - var(--ch)) 100%, 0 100%, 0 var(--ch)); pointer-events: none; }
 .deck-panel::before { inset: 0; background: linear-gradient(160deg, var(--pc), rgba(233, 185, 58, 0.22) 40%, var(--pc)); }
-.deck-panel::after { inset: 1px; background: linear-gradient(180deg, rgba(8, 16, 28, 0.5), rgba(4, 9, 16, 0.66)); backdrop-filter: blur(16px) saturate(1.15); -webkit-backdrop-filter: blur(16px) saturate(1.15); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), inset 0 0 60px rgba(0, 0, 0, 0.28); }
+.deck-panel::after { inset: 1px; background: linear-gradient(180deg, rgba(8, 16, 28, 0.5), rgba(4, 9, 16, 0.66)); backdrop-filter: blur(16px) saturate(1.15); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), inset 0 0 60px rgba(0, 0, 0, 0.28); }
 .deck-panel > * { position: relative; z-index: 1; }
 .deck-panel > .deck-head { z-index: 3; } /* the open deck list hangs over the cards */
 .deck-panel.theirs { --pc: rgba(90, 162, 255, 0.6); --pc-soft: rgba(47, 123, 255, 0.18); }
@@ -167,7 +167,7 @@
 .deck-panel.theirs .deck-menu-btn { border-color: rgba(90, 162, 255, 0.55); }
 .deck-panel.theirs .deck-menu-btn .dm-k, .deck-panel.theirs .deck-menu-btn:hover, .deck-panel.theirs .deck-menu.open .deck-menu-btn { color: #cfe4ff; border-color: #7fb4ff; }
 .deck-panel.theirs .deck-menu-btn:hover, .deck-panel.theirs .deck-menu.open .deck-menu-btn { color: #f1e6cc; box-shadow: 0 0 0 1px rgba(90, 162, 255, 0.2), 0 0 18px rgba(90, 162, 255, 0.2); }
-.deck-menu-list { position: absolute; top: calc(100% + 8px); right: 0; margin: 0; padding: 6px; list-style: none; min-width: 280px; border: 1px solid rgba(233, 185, 58, 0.5); border-radius: 10px; background: linear-gradient(180deg, rgba(8, 16, 28, 0.9), rgba(4, 9, 16, 0.96)); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6); animation: rise 0.2s ease-out; }
+.deck-menu-list { position: absolute; top: calc(100% + 8px); right: 0; margin: 0; padding: 6px; list-style: none; min-width: 280px; border: 1px solid rgba(233, 185, 58, 0.5); border-radius: 10px; background: linear-gradient(180deg, rgba(8, 16, 28, 0.9), rgba(4, 9, 16, 0.96)); backdrop-filter: blur(16px); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6); animation: rise 0.2s ease-out; }
 .deck-panel.theirs .deck-menu-list { border-color: rgba(90, 162, 255, 0.5); }
 .deck-menu-list li { margin: 0; }
 .deck-menu-list button { width: 100%; display: grid; gap: 2px; text-align: left; padding: 9px 12px; border: 0; border-radius: 6px; background: none; color: #f1e6cc; font: inherit; cursor: pointer; }

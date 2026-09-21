@@ -18,6 +18,10 @@ function buildStamp(): string {
 export default defineConfig({
   plugins: [react()],
   base: './',
+  /* CSS is minified by lightningcss. Without a target it keeps a hand-written -webkit-backdrop-filter and drops the
+     standard one, which Chromium does not read; with a target it writes the Safari prefix itself from the standard
+     property, so the sources carry backdrop-filter alone. */
+  build: { cssTarget: ['chrome100', 'safari15', 'firefox103'] },
   define: { __BUILD__: JSON.stringify(buildStamp()) },
   test: {
     include: ['tests/**/*.test.ts'],
