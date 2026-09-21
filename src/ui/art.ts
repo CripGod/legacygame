@@ -6,7 +6,9 @@ export type ArtKind = 'characters' | 'locations' | 'threats' | 'events' | 'landi
 
 /** The UI Kit Maker cut (public/art/kit): six buttons in four states and the plan timer's track and fill, as CSS
  *  variables the match root carries, so the stylesheet can draw nine-sliced frames from them (theme.css, "The kit"). */
-export const KIT_PIECES = ['primary', 'stand-btn-on', 'secondary', 'lock-locked', 'small'] as const;
+export const KIT_PIECES = ['primary', 'secondary', 'lock-locked', 'small'] as const;
+/** The top-bar cut (public/art/kit, np-* and sob-*): the two nameplate strips with their avatar rings and level chips, and the round Stand on Business button in four states with its glow and wordmark. */
+export const TOP_BAR_PIECES = ['np-you-strip', 'np-you-ring', 'np-you-chip', 'np-opp-strip', 'np-opp-ring', 'np-opp-chip', 'sob-default', 'sob-hover', 'sob-pressed', 'sob-disabled', 'sob-glow', 'sob-wordmark'] as const;
 export const KIT_STATES = ['default', 'hover', 'pressed', 'disabled'] as const;
 /** An art address a CSS url() can use from anywhere: absolute against the page (the inlined page hands back data URLs unchanged). */
 export const pageUrl = (u: string): string => (typeof document !== 'undefined' ? new URL(u, document.baseURI).href : u);
@@ -19,6 +21,7 @@ export function warmKit(): void {
   const urls: string[] = [];
   for (const p of KIT_PIECES) for (const s of KIT_STATES) urls.push(artUrl('kit', `${p}-${s}`, 'webp'));
   urls.push(artUrl('kit', 'timer-track', 'webp'), artUrl('kit', 'timer-fill', 'webp'));
+  for (const p of TOP_BAR_PIECES) urls.push(artUrl('kit', p, 'webp'));
   for (const u of urls) {
     const img = new Image();
     img.decoding = 'async';
@@ -28,6 +31,7 @@ export function warmKit(): void {
 export function kitVars(): Record<string, string> {
   const out: Record<string, string> = {};
   for (const p of KIT_PIECES) for (const s of KIT_STATES) out[`--kit-${p}-${s}`] = `url("${pageUrl(artUrl('kit', `${p}-${s}`, 'webp'))}")`;
+  for (const p of TOP_BAR_PIECES) out[`--kit-${p}`] = `url("${pageUrl(artUrl('kit', p, 'webp'))}")`;
   out['--kit-timer-track'] = `url("${pageUrl(artUrl('kit', 'timer-track', 'webp'))}")`;
   out['--kit-timer-fill'] = `url("${pageUrl(artUrl('kit', 'timer-fill', 'webp'))}")`;
   // The Brightside ribbon (public/art/kit/ribbon.webp): the turn count's plate; the match-end banner draws it as an img.

@@ -37,14 +37,14 @@ export function DigReveal({ dig, me, onDone, freeze }: { dig: DigShow; me: Playe
   const mine = dig.owner === me;
   /** Where the kept card goes: the visible hand (clamped to the viewport) for me, the owner's plate for the opponent. */
   const handAnchor = () => {
-    const el = mine ? document.querySelector('.hand') : document.querySelector(`.profile.p${dig.owner} .plate`);
+    const el = mine ? document.querySelector('.hand') : document.querySelector(`.profile.p${dig.owner} .np-strip`);
     if (!el) return undefined;
     const r = el.getBoundingClientRect();
     const bottom = Math.min(r.bottom, window.innerHeight - 40);
     const top = Math.min(r.top, bottom - 40);
     return new DOMRect(r.left, top, r.width, bottom - top);
   };
-  const deckAnchor = () => document.querySelector(`.profile.p${dig.owner} .plate`)?.getBoundingClientRect();
+  const deckAnchor = () => document.querySelector(`.profile.p${dig.owner} .np-strip`)?.getBoundingClientRect();
   const keepIndex = dig.hidden ? 0 : Math.max(0, dig.seen.indexOf(dig.keep));
 
   useEffect(() => {

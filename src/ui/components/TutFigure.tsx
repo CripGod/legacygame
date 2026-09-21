@@ -32,10 +32,13 @@ export function TutFigure({ kind, cardId }: { kind: TutFigureKind; cardId?: stri
   return (
     <div className="tut-fig" aria-hidden>
       <div className="tut-fig-stand">
-        <span className="stand-btn">Stand on Business</span>
+        <span className="sob sob-static" aria-hidden>
+          <i className="sob-l sob-l-default" />
+          <i className="sob-word" />
+        </span>
         <i className="tut-ring wide" />
       </div>
-      <div className="tut-fig-cap">The blue banner at the top centre of the screen</div>
+      <div className="tut-fig-cap">The round button at the top centre of the screen</div>
     </div>
   );
 }

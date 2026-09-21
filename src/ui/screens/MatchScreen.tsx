@@ -1226,7 +1226,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     if (!window.location.search.includes('dev=1')) return;
     (window as unknown as { __sobTrail?: (uid: string, locs: number[], side?: 'A' | 'B' | 'artist' | 'spray' | 'burst', freezeAt?: number) => void }).__sobTrail = (uid, locs, side = 'A', freezeAt) => {
       setTrailFreeze(freezeAt);
-      const from = (document.querySelector(`[data-uid="${uid}"]`) ?? (side === 'burst' ? document.querySelector('.stand-btn') : null))?.getBoundingClientRect();
+      const from = (document.querySelector(`[data-uid="${uid}"]`) ?? (side === 'burst' ? document.querySelector('.sob') : null))?.getBoundingClientRect();
       if (!from) return;
       if (side === 'burst') {
         setTrail([{ from, to: from, color: TRAIL_COLORS.stand, kind: 'burst' }]);
@@ -1572,7 +1572,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     standArmed.current = true;
     window.setTimeout(() => {
       if (!standArmed.current) return;
-      coinFx(document.querySelector('.stand-btn'));
+      coinFx(document.querySelector('.sob'));
       setShake(true);
       window.setTimeout(() => setShake(false), 320);
     }, 800);
