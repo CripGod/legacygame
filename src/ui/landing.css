@@ -124,7 +124,6 @@
 .cta::before { content: ''; position: absolute; inset: 0; z-index: -1; background: rgba(233, 185, 58, 0.75); clip-path: inherit; }
 .cta::after { content: ''; position: absolute; inset: 1px; z-index: -1; background: linear-gradient(180deg, rgba(10, 20, 36, 0.72), rgba(5, 12, 22, 0.86)); clip-path: polygon(var(--ch) 0, 100% 0, 100% calc(100% - var(--ch)), calc(100% - var(--ch)) 100%, 0 100%, 0 var(--ch)); backdrop-filter: blur(10px); }
 .cta:hover { transform: translateY(-2px); filter: brightness(1.12); }
-.cta .cta-arrow { font-size: 1.15em; line-height: 1; transition: transform 0.2s; }
 /* Play match and Learn the game are the kit's Lock In button (the UI Kit Maker cut, public/art/kit): the parchment
    secondary, nine-sliced from the 2x sprite with the caps scaled to the button's height, the navy word live, the hover
    sprite on a layer that fades up (never a swap). The sprites' addresses ride .hero-actions as CSS variables. */
@@ -152,14 +151,13 @@
 .cta.kit:not(:disabled):hover { transform: translateY(-2px); filter: drop-shadow(0 0 12px rgba(252, 180, 36, 0.4)); color: #1f2e49; }
 .cta.kit:not(:disabled):active { border-image-source: var(--kit-secondary-pressed); color: #0a1a36; }
 .cta.kit:disabled { border-image-source: var(--kit-secondary-disabled); color: #2e3135; text-shadow: none; opacity: 0.9; filter: none; }
-.cta.play.kit { min-width: 300px; }
+.cta.play.kit { min-width: 300px; font-size: calc(var(--kh) * 0.36); letter-spacing: 0.1em; }
 /* Learn the game is the kit's primary, the Stand on Business plate: navy with the gold frame, the cream word. */
 .cta.ghost.kit { min-width: 256px; border-image-source: var(--kit-primary-default); color: #f6e4cc; text-shadow: 0 1px 1.5px rgba(255, 246, 224, 0.04), 0 -1px 1.5px rgba(5, 9, 26, 0.06), 0 3px 3px rgba(11, 18, 40, 0.75); }
 .cta.ghost.kit::after { border-image-source: var(--kit-primary-hover); }
 .cta.ghost.kit:not(:disabled):hover { color: #f9e6cd; }
 .cta.ghost.kit:not(:disabled):active { border-image-source: var(--kit-primary-pressed); color: #e9d6bd; }
 .cta.ghost.kit:disabled { border-image-source: var(--kit-primary-disabled); color: #ece9e5; text-shadow: 0 3px 3px rgba(11, 18, 40, 0.75); }
-.cta.play:hover .cta-arrow { transform: translateX(4px); }
 .hero-more { animation: rise 0.9s ease-out backwards 0.2s; margin-top: -4px; }
 .link-cta { background: none; border: 0; padding: 4px 8px; font-family: var(--display); font-weight: 600; font-size: clamp(9px, 0.78vw, 11px); letter-spacing: 0.22em; text-transform: uppercase; color: #cfd6e2; opacity: 0.8; cursor: pointer; text-decoration: underline dotted rgba(233, 185, 58, 0.6); text-underline-offset: 5px; }
 .link-cta:hover { opacity: 1; color: var(--gold-2); }
