@@ -105,7 +105,7 @@ namespace StandOnBusiness.Engine
             return true;
         }
 
-        internal static bool IsInformant(ContentTable content, CharacterInstance c) => CharDef(content, c.DefId).Keywords.Contains("INFORMANT") && c.Amnestied != true;
+        public static bool IsInformant(ContentTable content, CharacterInstance c) => CharDef(content, c.DefId).Keywords.Contains("INFORMANT") && c.Amnestied != true;
 
         /// <summary>Mark a Gate Character Ready, unless it is an Informant (they wait forever).</summary>
         static void ReadyUp(ContentTable content, CharacterInstance c)
