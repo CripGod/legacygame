@@ -337,14 +337,6 @@ namespace StandOnBusiness.Game
             var stand = Art.Kit(on ? "stand-btn-on" : "primary", on ? $"STANDING \u00d7{opts.ProposedStakes}" : "STAND ON BUSINESS", 56, ToggleStand, canStand);
             stand.style.width = 440;
             centre.Add(stand);
-            var stakes = Art.Text($"Stakes \u00d7{Query.EffectiveStakes(state)}" + (state.PendingRaises.Count > 0 ? $" \u00b7 raise to \u00d7{opts.PendingStakes} pending" : "") + (Query.IsNight(state) ? " \u00b7 night" : " \u00b7 day"));
-            Art.Display(stakes, 700, 11, Art.Gold2);
-            stakes.style.letterSpacing = 2;
-            stakes.style.marginTop = 4;
-            Art.Border(stakes, 1, Art.GoldDark, 999);
-            Art.Pad(stakes, 2, 12, 2, 12);
-            stakes.style.backgroundColor = Art.Hex("#0a1626");
-            centre.Add(stakes);
             bar.Add(Profile(them.Handle, $"{them.Hand.Count} of {Rules.MaxHand} in hand \u00b7 {them.DeckCount} in deck", them.AvatarDefId, Art.Blue, true));
             return bar;
         }
@@ -449,6 +441,11 @@ namespace StandOnBusiness.Game
                 d.style.backgroundColor = done ? (i % 2 == 0 ? Art.Blue : Art.Gold) : Art.Rgba(6, 12, 22, 0.6f);
                 dots.Add(d);
             }
+            var stakes = Art.Text($"STAKES \u00d7{Query.EffectiveStakes(state)}" + (state.PendingRaises.Count > 0 ? $" \u00b7 RAISE TO \u00d7{opts.PendingStakes} PENDING" : "") + (Query.IsNight(state) ? " \u00b7 NIGHT" : " \u00b7 DAY"));
+            Art.Display(stakes, 600, 9, Art.Hex("#cfc3a6"));
+            stakes.style.letterSpacing = 2;
+            stakes.style.marginTop = 5;
+            plate.Add(stakes);
             return plate;
         }
 
@@ -517,14 +514,15 @@ namespace StandOnBusiness.Game
 
             // The fills: the plate body, the photograph from under the band, the parchment band on top. The frame covers the edges.
             var body = Drop(new VisualElement());
-            Art.Abs(body, left: W * 0.02f, top: H * 0.028f, right: W * 0.02f, bottom: H * 0.05f);
+            Art.Abs(body, left: W * 0.03f, top: H * 0.048f, right: W * 0.03f, bottom: H * 0.068f);
             body.style.backgroundColor = Art.Hex("#0c1a2b");
             body.style.overflow = Overflow.Hidden;
+            Art.Border(body, 0, Color.clear, 12);
             plate.Add(body);
             if (loc.Revealed)
             {
                 var photo = Drop(new VisualElement());
-                Art.Abs(photo, left: 0, top: H * 0.155f, right: 0, bottom: 0);
+                Art.Abs(photo, left: 0, top: H * 0.107f, right: 0, bottom: 0);
                 var night = Query.IsNight(state) ? Art.Tex($"locations/{loc.DefId}_night") : null;
                 Art.Cover(photo, night ?? Art.Tex($"locations/{loc.DefId}"), 35);
                 body.Add(photo);
@@ -534,7 +532,7 @@ namespace StandOnBusiness.Game
                 body.Add(grad);
             }
             var band = Drop(new VisualElement());
-            Art.Abs(band, left: 0, top: 0, right: 0, height: H * 0.155f);
+            Art.Abs(band, left: 0, top: 0, right: 0, height: H * 0.107f);
             band.style.backgroundColor = Art.Hex("#efe2c6");
             band.style.borderBottomWidth = 2;
             band.style.borderBottomColor = Art.GoldDark;
@@ -792,7 +790,7 @@ namespace StandOnBusiness.Game
                     Art.Fill(ring);
                     Art.Border(ring, 2, pendingTarget != null ? Color.white : Art.Rgba(246, 215, 122, 0.8f), 0);
                     ring.pickingMode = PickingMode.Ignore;
-                    pic.Add(ring);
+                    pic.Insert(0, ring);
                 }
             }
             else if (state.Phase == Rules.PhasePlanning && pendingTarget != null)
@@ -841,11 +839,18 @@ namespace StandOnBusiness.Game
             return row;
         }
 
-        VisualElement SlotBox()
+        VisualElement SlotBox(bool eventSlot = false)
         {
             var slot = Drop(new VisualElement());
             slot.style.width = GateW;
             slot.style.height = GateH;
+            // The web's drop shadow, baked from the frame's silhouette (Resources/art/frames/gate-shadow.png, 40px of padding on the 600px sprite).
+            var shadow = new VisualElement();
+            float px = GateW * 40f / 600f, py = GateH * 40f / (eventSlot ? 444f : 364f);
+            Art.Abs(shadow, left: -px, right: -px, top: -py, bottom: -py);
+            Art.Stretch(shadow, Art.Tex(eventSlot ? "frames/gate-event-shadow" : "frames/gate-shadow"));
+            shadow.pickingMode = PickingMode.Ignore;
+            slot.Add(shadow);
             return slot;
         }
 
@@ -920,7 +925,7 @@ namespace StandOnBusiness.Game
 
         VisualElement EventSlot(int index, string owner)
         {
-            var slot = SlotBox();
+            var slot = SlotBox(true);
             var pl = owner == Me ? plan.Plays.FirstOrDefault(x => x.Location == index && content.EventById.ContainsKey(x.CardId)) : null;
             if (pl == null)
             {
