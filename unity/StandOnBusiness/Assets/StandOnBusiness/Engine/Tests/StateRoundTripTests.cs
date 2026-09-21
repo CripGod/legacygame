@@ -12,38 +12,11 @@ namespace StandOnBusiness.Engine.Tests
     /// </summary>
     public class StateRoundTripTests
     {
-        static string Diff(JToken a, JToken b, string path)
-        {
-            if (JToken.DeepEquals(a, b)) return null;
-            if (a is JObject oa && b is JObject ob)
-            {
-                foreach (var p in oa.Properties())
-                {
-                    if (ob[p.Name] == null) return $"{path}.{p.Name}: missing after round trip";
-                    var d = Diff(p.Value, ob[p.Name], $"{path}.{p.Name}");
-                    if (d != null) return d;
-                }
-                foreach (var p in ob.Properties()) if (oa[p.Name] == null) return $"{path}.{p.Name}: added by round trip";
-                return $"{path}: objects differ";
-            }
-            if (a is JArray aa && b is JArray ab)
-            {
-                if (aa.Count != ab.Count) return $"{path}: {aa.Count} items became {ab.Count}";
-                for (int i = 0; i < aa.Count; i++)
-                {
-                    var d = Diff(aa[i], ab[i], $"{path}[{i}]");
-                    if (d != null) return d;
-                }
-                return $"{path}: arrays differ";
-            }
-            return $"{path}: {a.ToString(Newtonsoft.Json.Formatting.None)} became {b.ToString(Newtonsoft.Json.Formatting.None)}";
-        }
-
         static void RoundTrip<T>(JToken original, string what)
         {
             var typed = original.ToObject<T>(Newtonsoft.Json.JsonSerializer.Create(Json.Settings));
             var back = JToken.Parse(Json.Write(typed));
-            var d = Diff(original, back, what);
+            var d = JsonDiff.First(original, back, what);
             Assert.IsNull(d, d);
         }
 
