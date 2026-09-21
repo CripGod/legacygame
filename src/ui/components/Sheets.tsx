@@ -3,7 +3,6 @@ import { useEffect, useState, type ReactNode } from 'react';
 import type { GameEvent } from '../../engine';
 import {
   isNight,
-  influenceRows,
   CARD_BY_ID,
   LOCATION_BY_ID,
   THREAT_BY_ID,
@@ -18,15 +17,13 @@ import {
   type TurnPlan,
 } from '../../engine';
 import { cardName, initials, locationName, threatLabel, useDisplay, spawnText } from '../display';
-import { RECONSTRUCTION_TURNS, GATE_CAPACITY, INSIDE_CAPACITY } from '../../engine/types';
+import { RECONSTRUCTION_TURNS } from '../../engine/types';
 import { CardFace } from './CardFace';
 import { CodexSheet } from './CodexSheet';
 import { Stage } from './Stage';
 import { tip } from '../tip';
-import { liveAbilities } from './Battlefield';
 import { Art } from './Art';
 import { SkyTag } from './Sky';
-import { partsText } from '../influence';
 
 export function Sheet({ children, onClose, title }: { children: ReactNode; onClose: () => void; title?: string }) {
   useEffect(() => {
@@ -113,31 +110,32 @@ export function ThreatSheet({
   const family = def.family === 'Systemic Pressure' ? 'systemic' : def.family === 'Complicit Beneficiary' || def.family === 'Collaborator' ? 'complicit' : def.family === 'Crisis' ? 'crisis' : '';
   const standing = t.spawnedTurn !== undefined ? view.turn - t.spawnedTurn : 0;
   const panel = (
-    <div className={`cx-plate threat ${family}`}>
+    <div className={`cx-plate is-threat ${family}`}>
       <div className="cx-plate-art square">
         {placeholders ? <span className="cx-plate-ini">{initials(t.defId, true)}</span> : <Art kind="threats" id={t.defId} className="cx-plate-img" fallback={<span className="cx-plate-ini">{initials(t.defId, false)}</span>} alt={name} />}
         <span className="cx-plate-orb" {...tip('Force it takes to neutralize, in one turn.')}>{threatForceNeeded(view, t)}</span>
       </div>
-      <div className="cx-plate-body">
-        <div className="cx-plate-name">{name}</div>
-        <div className="cx-plate-meta">
-          {!placeholders && <span className={`cx-family ${family}`}>{def.family}</span>}
-          <span className="cx-plate-where">at {where}{t.target ? ` · hunting ${view.players[t.target].handle}` : ''}</span>
-        </div>
-        <div className="cx-plate-text">{def.text}</div>
-        <div className="cx-stats">
-          <span className="cx-stat">Needs <b>{def.requiresBoth ? 'at least 1 Force from each player in the same turn' : `${threatForceNeeded(view, t)} Force in one turn`}</b></span>
-          {def.lostAfterTurns && <span className="cx-chip warn">{Math.max(0, def.lostAfterTurns - standing)} turn{def.lostAfterTurns - standing === 1 ? '' : 's'} until the Location is Lost</span>}
-          {def.firesAfterTurns && <span className="cx-chip warn">Comes down in {Math.max(0, def.firesAfterTurns - standing)} turn{def.firesAfterTurns - standing === 1 ? '' : 's'}</span>}
-          {def.window && <span className="cx-chip warn">Office open {Math.max(0, def.window - standing)} more turn{def.window - standing === 1 ? '' : 's'}</span>}
-          {def.split && <span className="cx-chip">One per player</span>}
-        </div>
-        {!placeholders && <div className="cx-plate-blurb">{def.blurb}</div>}
+    </div>
+  );
+  const info = (
+    <div className="cx-info">
+      <div className="cx-plate-meta">
+        {!placeholders && <span className={`cx-family ${family}`}>{def.family}</span>}
+        <span className="cx-plate-where">at {where}{t.target ? ` · hunting ${view.players[t.target].handle}` : ''}</span>
       </div>
+      <p>{def.text}</p>
+      <div className="cx-stats">
+        <span className="cx-stat">Needs <b>{def.requiresBoth ? 'at least 1 Force from each player in the same turn' : `${threatForceNeeded(view, t)} Force in one turn`}</b></span>
+        {def.lostAfterTurns && <span className="cx-chip warn">{Math.max(0, def.lostAfterTurns - standing)} turn{def.lostAfterTurns - standing === 1 ? '' : 's'} until the Location is Lost</span>}
+        {def.firesAfterTurns && <span className="cx-chip warn">Comes down in {Math.max(0, def.firesAfterTurns - standing)} turn{def.firesAfterTurns - standing === 1 ? '' : 's'}</span>}
+        {def.window && <span className="cx-chip warn">Office open {Math.max(0, def.window - standing)} more turn{def.window - standing === 1 ? '' : 's'}</span>}
+        {def.split && <span className="cx-chip">One per player</span>}
+      </div>
+      {!placeholders && <p className="cx-info-blurb">{def.blurb}</p>}
     </div>
   );
   return (
-    <Stage name={name} label={`Threat · ${where}`} onClose={onClose} flat panel={panel} history={placeholders ? undefined : def.history} refsId={placeholders ? undefined : t.defId}>
+    <Stage name={name} label={`Threat · ${where}`} onClose={onClose} flat panel={panel} info={info} history={placeholders ? undefined : def.history} refsId={placeholders ? undefined : t.defId}>
       {opt && !locked && view.phase === 'planning' ? (
         <>
           <div className="cx-tray-lbl">{opt.assist ? 'Assist? This Threat hunts your opponent' : 'Confront with'}</div>
@@ -182,7 +180,7 @@ export function LocationSheet({ view, index, onClose }: { view: GameState; index
   const night = !!def.curfew && isNight(view);
   const region = def.region === 'americas' ? 'The Americas' : def.region === 'africa' ? 'Africa' : def.region ? 'The Atlantic' : '';
   const panel = (
-    <div className={`cx-plate location ${loc.lost ? 'lost' : ''}`}>
+    <div className={`cx-plate is-location ${loc.lost ? 'lost' : ''}`}>
       <div className="cx-plate-art wide">
         {shown && !placeholders ? (
           night ? (
@@ -195,69 +193,29 @@ export function LocationSheet({ view, index, onClose }: { view: GameState; index
         )}
         {def.curfew && shown && <span className="cx-plate-sky"><SkyTag night={night} /></span>}
       </div>
-      <div className="cx-plate-body">
-        <div className="cx-plate-name">{name}</div>
-        {shown && !placeholders && (def.era || region) && (
-          <div className="cx-plate-meta">
-            {def.era && <span>{def.era}</span>}
-            {region && <span className="cx-plate-where">{region}</span>}
-          </div>
-        )}
-        <div className="cx-plate-text">{def.rule}</div>
-        {shown && !placeholders && <div className="cx-plate-blurb">{def.blurb}</div>}
-        <div className="cx-stats">
-          {!loc.revealed && known === index && <span className="cx-chip">✦ Dunbar: {foretold ? 'opens here' : 'this Location opens'} at the end of next turn. Only you know.</span>}
-          {loc.revealed && def.transformsInto && loc.revealedTurn !== undefined && <span className="cx-chip">⛵ Arrives in {Math.max(0, loc.revealedTurn + def.transformsInto.afterTurns - view.turn)} turn(s) as {LOCATION_BY_ID[def.transformsInto.id]?.name}</span>}
-          {loc.lost && <span className="cx-chip warn">LOST: {loc.lostReason ?? 'an unresolved crisis.'} Nobody can win here; its Influence no longer counts. The people who stayed rebuild it in {RECONSTRUCTION_TURNS} turns.</span>}
-          {loc.webbed && <span className="cx-chip">🕸 Webbed: Anansi retold {loc.retoldFrom ? LOCATION_BY_ID[loc.retoldFrom]?.name ?? 'this place' : 'this place'} into {def.name}. Cost 1 or less: +2 Influence; 3 or more: −1.</span>}
-          {!loc.lost && loc.rebuilt && <span className="cx-chip good">🔨 Rebuilt on Turn {loc.rebuiltTurn}: back in play, everyone who stayed +1 Influence</span>}
+    </div>
+  );
+  const info = (
+    <div className="cx-info">
+      {shown && !placeholders && (def.era || region) && (
+        <div className="cx-plate-meta">
+          {def.era && <span>{def.era}</span>}
+          {region && <span className="cx-plate-where">{region}</span>}
         </div>
+      )}
+      <p>{def.rule}</p>
+      {shown && !placeholders && <p className="cx-info-blurb">{def.blurb}</p>}
+      <div className="cx-stats">
+        {!loc.revealed && known === index && <span className="cx-chip">✦ Dunbar: {foretold ? 'opens here' : 'this Location opens'} at the end of next turn. Only you know.</span>}
+        {loc.revealed && def.transformsInto && loc.revealedTurn !== undefined && <span className="cx-chip">⛵ Arrives in {Math.max(0, loc.revealedTurn + def.transformsInto.afterTurns - view.turn)} turn(s) as {LOCATION_BY_ID[def.transformsInto.id]?.name}</span>}
+        {loc.lost && <span className="cx-chip warn">LOST: {loc.lostReason ?? 'an unresolved crisis.'} Nobody can win here; its Influence no longer counts. The people who stayed rebuild it in {RECONSTRUCTION_TURNS} turns.</span>}
+        {loc.webbed && <span className="cx-chip">🕸 Webbed: Anansi retold {loc.retoldFrom ? LOCATION_BY_ID[loc.retoldFrom]?.name ?? 'this place' : 'this place'} into {def.name}. Cost 1 or less: +2 Influence; 3 or more: −1.</span>}
+        {!loc.lost && loc.rebuilt && <span className="cx-chip good">🔨 Rebuilt on Turn {loc.rebuiltTurn}: back in play, everyone who stayed +1 Influence</span>}
       </div>
     </div>
   );
   return (
-    <Stage name={name} label="Location" onClose={onClose} flat panel={panel} history={shown && !placeholders ? def.history : undefined} refsId={shown && !placeholders && def.id !== 'unknown' ? def.id : undefined}>
-      {loc.revealed && !loc.lost && (
-        <div className="fx-list inf-sum">
-          <div className="fx-title">Influence here, line by line</div>
-          {(['A', 'B'] as PlayerId[]).map((p) => {
-            const { rows, total } = influenceRows(view, index, p);
-            return (
-              <div key={p} className="inf-side">
-                <div className={`inf-who p${p}`}>
-                  <b>{p === me ? 'You' : view.players[p].handle}</b> <span className="inf-total">{total}</span>
-                </div>
-                {!rows.length && <div className="fx-row muted">Nobody here yet.</div>}
-                {rows.map((r, i) => (
-                  <div key={r.uid ?? i} className="fx-row inf-row">
-                    <span className="inf-amt">{r.parts ? r.amount : r.amount < 0 ? `−${-r.amount}` : `+${r.amount}`}</span>
-                    <span>
-                      <b>{r.uid ? cardName(view.characters[r.uid]?.defId ?? '', placeholders) || r.label : r.label}</b>
-                      {r.parts && (r.parts.length > 1 || !r.parts[0]?.why.startsWith('printed')) && <span className="muted"> {partsText(r.parts)}</span>}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            );
-          })}
-        </div>
-      )}
-      {(['A', 'B'] as PlayerId[]).map((p) => {
-        const items = liveAbilities(view, index, p);
-        if (!items.length) return null;
-        return (
-          <div key={p} className="fx-list">
-            <div className={`fx-title p${p}`}>✦ In effect · {p === me ? 'You' : view.players[p].handle}</div>
-            {items.map((it) => (
-              <div key={it.uid} className="fx-row">
-                <b>{cardName(it.defId, placeholders)}</b> <span className="muted">{it.text}</span>
-              </div>
-            ))}
-          </div>
-        );
-      })}
-      <div className="muted center">Gates: {GATE_CAPACITY} per player · Inside: {INSIDE_CAPACITY} per player · Characters at both count toward Influence.</div>
-    </Stage>
+    <Stage name={name} label="Location" onClose={onClose} flat panel={panel} info={info} history={shown && !placeholders ? def.history : undefined} refsId={shown && !placeholders && def.id !== 'unknown' ? def.id : undefined} />
   );
 }
 

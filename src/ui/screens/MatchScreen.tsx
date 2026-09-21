@@ -2386,7 +2386,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       {turnFlash !== null && (
         <div className="turn-call" key={turnFlash} aria-hidden>
           <div className="turn-veil" />
-          <div className="turn-flash">
+          <div className={`turn-flash ${(finalTurnLabel(view, false, true) ?? '').length > 8 ? 'wide' : ''}`}>
             <img className="ribbon-base" src={artUrl('kit', 'ribbon', 'webp')} alt="" />
             <span className="ribbon-word">{finalTurnLabel(view, false, true) ?? `Turn ${turnFlash}`}</span>
           </div>

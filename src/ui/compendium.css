@@ -970,14 +970,14 @@ a.cx-refs-link { display: inline-block; width: auto; justify-self: start; align-
    (square for a Threat, wide for a Location), the name in the headline face, and the rule on the parchment body the
    card faces use. It tilts, and its History or References open beside it. */
 .cx-plate { --bw: var(--big-w); width: var(--bw); box-sizing: border-box; display: flex; flex-direction: column; border: 3px solid #d9a93a; border-radius: 12px; background: linear-gradient(180deg, #1c4a9e 0%, #0e2a63 45%, #0a1f4a 100%); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(246, 215, 122, 0.35), 0 12px 26px rgba(0, 0, 0, 0.8); padding: calc(var(--bw) * 0.024); gap: calc(var(--bw) * 0.02); text-align: left; }
-.cx-plate.threat { background: linear-gradient(180deg, #4a1c1c 0%, #2a0e14 45%, #1a0a10 100%); border-color: #c94a40; }
-.cx-plate.threat.systemic { background: linear-gradient(180deg, #1c3a6e 0%, #0e2250 45%, #0a1838 100%); border-color: #4a7fd6; }
-.cx-plate.threat.complicit { background: linear-gradient(180deg, #3d2a6e 0%, #241650 45%, #170e38 100%); border-color: #8a5fd6; }
-.cx-plate.threat.crisis { background: linear-gradient(180deg, #3a3a3a 0%, #1c1c1c 45%, #0e0e0e 100%); border-color: #8a8a8a; }
-.cx-plate.location.lost { border-color: var(--danger); }
+.cx-plate.is-threat { background: linear-gradient(180deg, #4a1c1c 0%, #2a0e14 45%, #1a0a10 100%); border-color: #c94a40; }
+.cx-plate.is-threat.systemic { background: linear-gradient(180deg, #1c3a6e 0%, #0e2250 45%, #0a1838 100%); border-color: #4a7fd6; }
+.cx-plate.is-threat.complicit { background: linear-gradient(180deg, #3d2a6e 0%, #241650 45%, #170e38 100%); border-color: #8a5fd6; }
+.cx-plate.is-threat.crisis { background: linear-gradient(180deg, #3a3a3a 0%, #1c1c1c 45%, #0e0e0e 100%); border-color: #8a8a8a; }
+.cx-plate.is-location.lost { border-color: var(--danger); }
 .cx-plate-art { position: relative; width: 100%; overflow: hidden; border: 1.5px solid var(--gold-2); border-radius: 6px; background: #0a1626; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.6); display: grid; place-items: center; }
-.cx-plate-art.square { aspect-ratio: 4 / 3; }
-.cx-plate-art.wide { aspect-ratio: 16 / 9; }
+.cx-plate-art.square { aspect-ratio: 1; }
+.cx-plate-art.wide { aspect-ratio: 16 / 10; }
 /* A plate yields a little more height than a card does, so its tray (the confront list, the Influence sum) stays on screen. */
 .cx-stage.has-tray:has(.cx-plate) { --big-reserve: 400px; }
 .cx-plate-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 40%; }
@@ -999,3 +999,19 @@ a.cx-refs-link { display: inline-block; width: auto; justify-self: start; align-
 .cx-tray .fx-list { background: rgba(6, 12, 22, 0.6); border: 1px solid rgba(233, 185, 58, 0.25); }
 .cx-tray .center { text-align: center; }
 .cx-stage.has-tray .cx-plate { --bw: var(--stage-w); }
+
+/* The plate is the picture alone; the text stands beside it in the side panel, open on arrival. (Its modifier classes are
+   is-threat and is-location: the board's .location and .card rules set their own --bw, which would collapse the plate.) */
+.cx-plate { padding: calc(var(--bw) * 0.018); gap: 0; }
+.cx-info { display: grid; gap: 12px; }
+.cx-info p { font-family: var(--font); font-size: 17px; line-height: 1.5; color: #e9e2cf; margin: 0; }
+.cx-info .cx-info-blurb { font-style: italic; font-size: 15px; color: #cfd6e2; }
+.cx-info .cx-plate-meta { font-size: 13px; color: #cfd6e2; }
+.cx-info .cx-plate-where { color: var(--gold-2); }
+.cx-info .cx-stats { font-family: var(--font); font-size: 14px; color: #e9e2cf; }
+.cx-info .cx-stat b { color: #ff9c96; }
+.cx-info .cx-chip { font-size: 12px; background: rgba(255, 255, 255, 0.06); border-color: rgba(233, 185, 58, 0.35); color: #e9e2cf; }
+.cx-info .cx-chip.warn { border-color: rgba(224, 74, 63, 0.6); color: #ffb3ae; background: rgba(224, 74, 63, 0.12); }
+.cx-info .cx-chip.good { border-color: rgba(79, 196, 111, 0.5); color: #bff0cb; background: rgba(79, 196, 111, 0.1); }
+/* A plate's picture can be tall (a square Threat): the side panel is as tall as it, and scrolls. */
+.cx-stage:has(.cx-plate) .cx-history, .cx-stage:has(.cx-plate) .cx-history-scroll { max-height: calc(var(--big-w) + 80px); }

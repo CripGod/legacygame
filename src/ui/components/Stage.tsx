@@ -23,6 +23,7 @@ export function Stage({
   siblings,
   onNav,
   navLabel = 'card',
+  info,
 }: {
   /** Accessible name and the History panel's title. */
   name: string;
@@ -35,6 +36,8 @@ export function Stage({
   below?: ReactNode;
   /** The action tray. */
   children?: ReactNode;
+  /** For a plate that is not a card: the text beside the picture from the start (the side panel is open on arrival), and the History button swaps it for the story and the References. */
+  info?: ReactNode;
   /** The story beside it; with none, the side panel still offers the References when refsId is set. */
   history?: string;
   historyLabel?: string;
@@ -57,7 +60,8 @@ export function Stage({
       onNav(next);
     }
   };
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(!!info);
+  const [story, setStory] = useState(false);
   const [refs, setRefs] = useState(false);
   const mountedAt = useRef(performance.now());
   useEffect(() => {
@@ -105,7 +109,10 @@ export function Stage({
     el.style.setProperty('--rx', '0deg');
     el.classList.remove('tilting');
   };
-  const aside = !!history || !!refsId;
+  const aside = !!history || !!refsId || !!info;
+  const canStory = !!history || !!refsId;
+  // With info, the panel stays open and the button swaps its contents; without, the button opens and closes the panel.
+  const showingStory = info ? story : true;
   return (
     <div
       className={`scrim cx-scrim ${flat ? 'flat' : ''}`}
@@ -136,9 +143,9 @@ export function Stage({
           <div className="cx-card3d-inner" ref={tiltRef} onPointerMove={onMove} onPointerLeave={onLeave} onPointerCancel={onLeave}>
             {panel}
           </div>
-          {aside && (
-            <button className={`cx-btn cx-ctl cx-history-btn ${open ? 'on' : ''}`} onClick={() => setOpen((o) => !o)} aria-expanded={open}>
-              {open ? 'Close' : history ? historyLabel : 'References'}
+          {aside && canStory && (
+            <button className={`cx-btn cx-ctl cx-history-btn ${(info ? story : open) ? 'on' : ''}`} onClick={() => (info ? setStory((o) => !o) : setOpen((o) => !o))} aria-expanded={info ? story : open}>
+              {info ? (story ? 'Back' : history ? historyLabel : 'References') : open ? 'Close' : history ? historyLabel : 'References'}
             </button>
           )}
           {below}
@@ -148,12 +155,13 @@ export function Stage({
           <aside className="cx-history" aria-hidden={!open}>
             <div className="cx-history-scroll">
               <div className="cx-kicker">
-                {label} · {history ? historyLabel : 'References'}
+                {label}{showingStory ? ` · ${history ? historyLabel : 'References'}` : ''}
               </div>
               <h3>{name}</h3>
-              {historyTag && <div className="cx-history-tag">{historyTag}</div>}
-              {history && <p>{history}</p>}
-              {refsId && (
+              {!showingStory && info}
+              {showingStory && historyTag && <div className="cx-history-tag">{historyTag}</div>}
+              {showingStory && history && <p>{history}</p>}
+              {showingStory && refsId && (
                 <a
                   className="cx-refs-link"
                   href={`#refs=${refsId}`}
