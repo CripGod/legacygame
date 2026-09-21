@@ -502,6 +502,10 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
       <nav className="hero-actions" aria-label="Start" style={kitVars() as React.CSSProperties}>
         <button className="cta play kit" onClick={() => onPlay(opts('ai'))} disabled={small} title={small ? 'Desktop only for now' : undefined}>
           Play match
+          <i className="kit-wipe" aria-hidden />
+          <i className="kit-edge" aria-hidden>
+            <i />
+          </i>
         </button>
         <button className="cta ghost kit" onClick={onRules}>
           Learn the game
