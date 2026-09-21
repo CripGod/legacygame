@@ -1246,7 +1246,9 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .coach .coach-back:hover { color: var(--gold-2); }
 
 /* Tutorial 'do' steps use the same gold box as the points, pinned top-centre and out of the way of the board. */
-.tut-do { position: fixed; top: 8px; left: 50%; transform: translateX(-50%); z-index: 41; width: min(520px, 92vw); pointer-events: auto; }
+/* The tutorial's step sheet sits just under the name plates, at the top of the board (absolute in .main-wrap, which
+   starts where the HUD ends), so the Stand on Business button never covers it. */
+.tut-do { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 41; width: min(520px, 92vw); pointer-events: auto; }
 .tut-do h3 { font-size: 16px; }
 .tut-do p { font-size: 15px; }
 .tut-do .actions { margin-top: 2px; }
