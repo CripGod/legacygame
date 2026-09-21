@@ -2310,6 +2310,11 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 }
 @keyframes kit-edge { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg); } 4% { opacity: 1; } 30% { opacity: 1; } 34% { opacity: 0; transform: translate(-50%, -50%) rotate(360deg); } 100% { opacity: 0; transform: translate(-50%, -50%) rotate(360deg); } }
 .stand-btn:disabled .kit-edge { display: none; }
+/* The last scheduled turn, and you can still stand: the button pulses and the wipe shine runs every three seconds. */
+.stand-btn.urge:not(.ftue-flash):not(.slam) { animation: stand-urge 1.6s ease-in-out infinite; }
+@keyframes stand-urge { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.04); filter: brightness(1.22) saturate(1.1) drop-shadow(0 0 12px rgba(252, 180, 36, 0.5)); } }
+.stand-btn.urge .kit-wipe { animation-duration: 3s; animation-delay: 0.3s; }
+@media (prefers-reduced-motion: reduce) { .stand-btn.urge:not(.ftue-flash):not(.slam) { animation: none; filter: brightness(1.15); } }
 @media (prefers-reduced-motion: reduce) { .kit-wipe, .kit-edge { display: none; } }
 /* Stand on Business: the primary, and its lit variant once you stand. */
 .stand-btn { min-width: clamp(180px, 26vw, 420px); }

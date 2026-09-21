@@ -4,7 +4,7 @@ import { tip, HINTS } from '../tip';
 import { Art } from './Art';
 import { SettingsMenu } from './SettingsMenu';
 
-export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: GameState; me: PlayerId; onProfile: (p: PlayerId) => void; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void; stand?: { on: boolean; disabled: boolean; flash?: boolean; onToggle: () => void; /** What the Legacy becomes if the planned Stand goes through. */ proposed?: number; /** The press: the button slams. */ slam?: boolean; /** The clap: the coin flips to the new price. */ flip?: boolean } }) {
+export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: GameState; me: PlayerId; onProfile: (p: PlayerId) => void; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void; stand?: { on: boolean; disabled: boolean; flash?: boolean; /** The last scheduled turn and you can still stand: the button pulses with the kit's wipe shine. */ urge?: boolean; onToggle: () => void; /** What the Legacy becomes if the planned Stand goes through. */ proposed?: number; /** The press: the button slams. */ slam?: boolean; /** The clap: the coin flips to the new price. */ flip?: boolean } }) {
   const { placeholders } = useDisplay();
   const profile = (p: PlayerId, right: boolean) => {
     const ps = view.players[p];
@@ -45,8 +45,9 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
       {profile('A', false)}
       <div className="hud-center">
         {stand && (
-          <button className={`stand-btn ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''} ${stand.slam ? 'slam' : ''}`} disabled={stand.disabled} onClick={stand.onToggle} aria-label={view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes}>
+          <button className={`stand-btn ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''} ${stand.slam ? 'slam' : ''} ${stand.urge ? 'urge' : ''}`} disabled={stand.disabled} onClick={stand.onToggle} aria-label={view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes}>
             {stand.on ? 'Standing ✓' : 'Stand on Business'}
+            {stand.urge && <i className="kit-wipe" aria-hidden />}
             <i className="kit-edge" aria-hidden>
               <i />
             </i>

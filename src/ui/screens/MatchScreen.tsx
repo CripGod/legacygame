@@ -2180,7 +2180,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           </video>
         )}
       </div>
-      <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, flash: flash === 'stakes' || flash === 'final', onToggle: toggleStand, proposed: opts.proposedStakes, slam: standSlam, flip: coinFlip }} />
+      <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, flash: flash === 'stakes' || flash === 'final', urge: planning && opts.canStand && !plan.standOnBusiness && view.turn >= view.maxTurns, onToggle: toggleStand, proposed: opts.proposedStakes, slam: standSlam, flip: coinFlip }} />
       <div className="main-wrap">
         <Battlefield
           pending={pendingInf}

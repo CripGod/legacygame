@@ -847,9 +847,9 @@ Built for the desk, for now
 The match is desktop-only while it is in development. Open this on a laptop or desktop browser to play. The cards and the rules are open here.
 onPlay(opts('ai'))} disabled=… title=…>
 Play match
-Learn the game
-onPlay(…)} disabled=… title=…>
-New here? Play the tutorial match ✦
+<button
+Play the tutorial
+Learn the game ✦
 Different
 paths.
 Same
@@ -949,8 +949,36 @@ An Event is dropped on a Location the same way a Character is: it goes into the 
 
 ## End of the match
 
+for (let i = 0; i < n; i++) {
+dot.style.width = `$…px`;
+dot.style.height = `$…px`;
+dot.style.left = `$…px`;
+dot.style.top = `$…px`;
+dot.style.background = INKS[i % INKS.length];
+box.appendChild(dot);
+* The end of a match, on the board (Hearthstone's banner, Snap's result panel): the word slams in over the
+* stamped Locations, then fades as the result panel opens in the centre over a near-black scrim; "Look at the
+* board" lifts the scrim and leaves a slim bar. No separate screen.
+*   stage 1: the banner only.  stage 2: the banner lifts, the panel rises.
+view,
+stage,
+collapsed,
+onCollapse,
+onAgain,
+onRematch,
+onMenu,
+view: GameState;
+me: PlayerId;
+stage: 1 | 2;
+collapsed: boolean;
+setWallet(Math.round(after - gain + gain * Math.max(0, 1 - Math.pow(1 - k, 3))));
+raf = requestAnimationFrame(tick);
+measure();
+window.addEventListener('resize', measure);
+window.clearTimeout(id);
+window.removeEventListener('resize', measure);
 r.reason === 'locations' ? (r.sweep ? 'All three Locations: a clean sweep.' : 'Two of three Locations.') : r.reason === 'tiebreak-influence' ? 'One Location each: total Influence decides.' : r.reason === 'tiebreak-force' ? 'Tied on Influence: total Force decides.' : r.reason === 'stepOff' ? (mineWon ? `$… sat down.` : 'You sat down.') : 'Nothing separates them.';
-= 2 ? 'lift' : ''} aria-live="assertive">
+= 2 ? (collapsed ? 'lift' : 'docked') : ''} style={{ '--dock': `$…px` } as React.CSSProperties} aria-live="assertive">
 onCollapse(false)}>
 Show result
 Play again
@@ -1135,6 +1163,7 @@ Menu
 - danger sit-btn ${raisedOnMe && opts.canStepOff ? 'pulse' : ''}
 - turn-mini ${finalTurnLabel(view) ? 'final' : ''}
 - T${Math.min(view.turn, view.maxTurns)}/${view.maxTurns}
+- turn-flash ${(finalTurnLabel(view, false, true) ?? '').length > 8 ? 'wide' : ''}
 - card-flash p${arrival.owner} ${arrival.leaving ? 'leaving' : ''}
 - drag-ghost ${drag.payload.kind === 'card' ? 'card-ghost' : ''} ${drag.pointerType !== 'mouse' ? 'touch' : ''} ${drag.returning ? 'returning' : ''} ${drag.snap ? 'snap' : ''}
 - You give up the match, now. ${view.players[other(me)].handle} takes ${opts.stepOffCost} Legacy.${raisedOnMe ? 
@@ -1145,16 +1174,19 @@ Menu
 
 ### src/ui/components/Sheets.tsx
 
-- ${threatLabel(t.defId, placeholders)}${t.target ? 
+- cx-plate is-threat ${family}
+- Force it takes to neutralize, in one turn.
+-  · hunting ${view.players[t.target].handle}
 - at least 1 Force from each player in the same turn
-- ${t.forceRequired} Force in one turn
-- ASSIST? This Threat hunts your opponent.
+- ${threatForceNeeded(view, t)} Force in one turn
+- Assist? This Threat hunts your opponent
 - small ${on ? 'primary' : ''}
+-  / ${threatForceNeeded(view, t)}
 -  Assisting earns Solidarity (cosmetic).
 - You have no eligible Characters here.
 - ${locationName(def.id, placeholders)} (opens next)
 - Location ${index + 1} (hidden)
-- ${locationName(def.id, placeholders)} opens here
+- cx-plate is-location ${loc.lost ? 'lost' : ''}
 - ${ps.handle} was holding ${peek.cards.length} card${peek.cards.length > 1 ? 's' : ''}. They draw one each turn.
 - ${ps.handle} was holding nothing.
 - stand-title ${mine ? 'pA' : 'pB'}
@@ -1721,7 +1753,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - Legend ${ps.legend ?? 0}: Threats ${p === me ? 'you' : 'they'} helped clear. Clearing one pays +1 lasting Influence at every other Location to everyone who brought Force, +2 to whoever brought the most. At ${LEGEND_READY}, Characters arrive at the Gates Ready.
 - Quick chat: emotes and Summon.
 - bubble ${right ? 'right' : ''}
-- stand-btn ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''} ${stand.slam ? 'slam' : ''}
+- stand-btn ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''} ${stand.slam ? 'slam' : ''} ${stand.urge ? 'urge' : ''}
 - coin ${view.pendingRaises.length ? 'raised' : ''} ${stand?.flip ? 'flip' : ''}
 
 ### src/ui/display.ts

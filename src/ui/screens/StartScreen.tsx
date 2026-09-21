@@ -507,13 +507,18 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
             <i />
           </i>
         </button>
-        <button className="cta ghost kit" onClick={onRules}>
-          Learn the game
+        <button
+          className="cta ghost kit"
+          onClick={() => onPlay({ ...opts('ai'), seed: TUTORIAL_SEED, deckA: TUTORIAL_DECKS.A, deckB: TUTORIAL_DECKS.B, coach: true, tutorial: true })}
+          disabled={small}
+          title={small ? 'Desktop only for now' : undefined}
+        >
+          Play the tutorial
         </button>
       </nav>
       <div className="hero-more">
-        <button type="button" className="link-cta" onClick={() => onPlay({ ...opts('ai'), seed: TUTORIAL_SEED, deckA: TUTORIAL_DECKS.A, deckB: TUTORIAL_DECKS.B, coach: true, tutorial: true })} disabled={small} title={small ? 'Desktop only for now' : undefined}>
-          New here? Play the tutorial match ✦
+        <button type="button" className="link-cta" onClick={onRules}>
+          Learn the game ✦
         </button>
       </div>
 
