@@ -36,6 +36,10 @@ Tweening: DOTween (Asset Store, free) or PrimeTween (OpenUPM). Add it when the b
 - **Done:** the board's look, reused from the web as-is. `Resources/art` holds the same pictures public/art ships (portraits, Locations, Threats, Events as JPEG; the card frames, gate frames, Location plates and the Brightside kit converted from WebP to PNG, which Unity reads and WebP it does not), `Resources/fonts` the web's Cinzel and Crimson Pro. `Game/Art.cs` wraps them (textures, fonts, nine-sliced kit buttons, the theme's colours); `MatchScreen` lays the board out with the web's measurements: cards on their frames (CardFace.tsx, the `.card.tpl` rules), portraits in the gate frames with the three badges, Location plates with the title band, Influence line, Inside seats, Threat tiles and the rule, the turn count on the ribbon. The pictures are plain git blobs, the same bytes as public/art, so git stores them once; the LFS rules came out of .gitattributes.
 - **Next:** the turn replay (the trace steps as beats, the way the web plays a turn back), then sound.
 
+## Checking the engine without Unity
+
+`unity/tools/check.sh` compiles the engine with Roslyn under Mono and replays every golden trace through it (every turn, every Harborlight plan), the same checks the EditMode tests make. `unity/tools/README.md` has the steps for syncing a web change into Unity.
+
 ## Running the board
 
 Once, in the Unity project:
