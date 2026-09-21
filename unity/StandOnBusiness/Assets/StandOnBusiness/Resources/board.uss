@@ -1,12 +1,9 @@
 /* The board's few layout classes; the look itself is set from code (Game/Art.cs, MatchScreen.cs) with the web's art. */
 .screen { flex-grow: 1; background-color: rgb(8, 19, 31); }
-.page { position: absolute; left: 0; top: 0; right: 0; bottom: 0; padding: 10px 14px; }
-.hud { flex-direction: row; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-.hud-left { flex-direction: row; align-items: center; flex-grow: 1; }
-.hud-right { flex-direction: row; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
-.middle { flex-direction: row; flex-grow: 1; min-height: 0; justify-content: center; }
+.page { position: absolute; left: 0; top: 0; right: 0; bottom: 0; padding: 12px 16px 14px; }
+.hud { flex-direction: row; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
 .board { flex-direction: row; justify-content: center; }
-.column { margin: 0 6px; }
-.log { margin-left: 8px; padding: 8px 10px; border-radius: 8px; background-color: rgba(15, 31, 51, 0.85); border-width: 1px; border-color: rgb(42, 68, 102); }
-.hand { margin-top: 6px; border-radius: 10px; background-color: rgba(8, 19, 31, 0.6); border-width: 1px; border-color: rgba(42, 68, 102, 0.8); }
+.column { margin: 0 8px; }
+.log { padding: 8px 10px; border-radius: 8px; background-color: rgba(10, 22, 38, 0.92); border-width: 2px; border-color: rgb(138, 106, 20); }
+.hand { align-items: center; margin-bottom: 0; }
 .result { position: absolute; left: 30%; right: 30%; top: 32%; padding: 24px; border-radius: 12px; border-width: 2px; border-color: rgb(246, 215, 122); background-color: rgb(15, 31, 51); align-items: center; }

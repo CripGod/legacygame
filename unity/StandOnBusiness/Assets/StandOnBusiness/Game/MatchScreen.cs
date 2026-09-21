@@ -278,12 +278,13 @@ namespace StandOnBusiness.Game
         // ---------- rendering: the web board's look (Battlefield.tsx, CardFace.tsx, theme.css), reused as-is ----------
 
         // Reference sizes on the 1920 x 1080 panel; PanelSettings scales the whole tree.
-        const float ColW = 500f;               // a Location column
-        const float PlateH = ColW / 1.28f;      // .location.framed aspect-ratio 1.28
-        const float GateW = 96f, GateH = 71f;   // --gw, --gh (0.74)
-        const float Seat = 62f, SeatH = 45f;    // --slot, --slot-h (0.72)
-        const float CardW = 150f;               // --card-w
-        const float LogW = 300f;
+        const float ColW = 560f;                      // a Location column
+        const float PlateH = ColW / 1.28f;             // .location.framed aspect-ratio 1.28
+        const float GateW = (ColW - 3 * 12f) / 4f;      // four slots across the column (--gw)
+        const float GateH = GateW * 0.74f;              // --gh
+        const float Seat = 64f, SeatH = 46f;            // --slot, --slot-h (the seats stretch taller when the plate has room)
+        const float CardW = 150f;                       // --card-w
+        const float LogW = 380f;
 
         string CharShort(string uid) => Query.CharDef(content, state.Characters[uid].DefId).Short;
         static string Rank(int cost) => cost >= 6 ? "ruby" : cost >= 5 ? "emerald" : cost >= 4 ? "gold" : cost >= 3 ? "silver" : cost >= 2 ? "bronze" : "wood";
@@ -297,86 +298,158 @@ namespace StandOnBusiness.Game
             root.Add(screen);
             var shade = new VisualElement();
             Art.Fill(shade);
-            shade.style.backgroundColor = Art.Rgba(5, 12, 21, 0.55f);
+            shade.style.backgroundColor = Art.Rgba(5, 12, 21, 0.5f);
             shade.pickingMode = PickingMode.Ignore;
             screen.Add(shade);
             var page = new VisualElement();
             page.AddToClassList("page");
             screen.Add(page);
-            page.Add(BuildHud());
-            var middle = new VisualElement();
-            middle.AddToClassList("middle");
-            page.Add(middle);
+            page.Add(BuildTopBar());
             var board = new VisualElement();
             board.AddToClassList("board");
-            middle.Add(board);
+            page.Add(board);
             foreach (var loc in state.Locations) board.Add(BuildColumn(loc));
-            middle.Add(BuildLog());
+            var spacer = new VisualElement();
+            spacer.style.flexGrow = 1;
+            page.Add(spacer);
             page.Add(BuildHand());
+            page.Add(BuildBottomLeft());
+            page.Add(BuildBottomRight());
             if (state.Phase == Rules.PhaseEnded) page.Add(BuildResult());
         }
 
-        // ---- HUD ----
+        // ---- the HUD: the profile plates, Stand on Business between them; the log, Sit Down, Lock In and the turn plate below ----
 
-        VisualElement BuildHud()
+        VisualElement BuildTopBar()
         {
-            var hud = new VisualElement();
-            hud.AddToClassList("hud");
-            var left = new VisualElement();
-            left.AddToClassList("hud-left");
-            hud.Add(left);
-
-            // The turn count on the Brightside ribbon.
-            var ribbon = new VisualElement();
-            ribbon.style.width = 250;
-            ribbon.style.height = 250 * 462f / 1614f;
-            Art.Stretch(ribbon, Art.Tex("kit/ribbon"));
-            ribbon.style.justifyContent = Justify.Center;
-            ribbon.style.alignItems = Align.Center;
-            var turn = Art.Text(state.Phase == Rules.PhaseEnded ? "MATCH OVER" : $"TURN {state.Turn} OF {state.MaxTurns}");
-            Art.Display(turn, 800, 18, Art.Hex("#22304a"));
-            turn.style.letterSpacing = 2;
-            turn.style.marginBottom = 6;
-            ribbon.Add(turn);
-            left.Add(ribbon);
-
-            var lines = new VisualElement();
-            lines.style.marginLeft = 14;
-            left.Add(lines);
-            string stakes = $"Stakes ×{Query.EffectiveStakes(state)}" + (state.PendingRaises.Count > 0 ? $"  ·  raise to ×{opts.PendingStakes} pending" : "") + (Query.IsNight(state) ? "  ·  night" : "");
-            var l1 = Art.Text(stakes);
-            Art.Display(l1, 700, 14, Art.Gold2);
-            lines.Add(l1);
-            if (state.Phase == Rules.PhasePlanning)
-            {
-                int spent = Query.PlanCost(content, plan, state, Me);
-                var l2 = Art.Text($"Energy {opts.Energy - spent} of {opts.Energy}   ·   Relocations {plan.Relocations.Count} of {opts.RelocationsAllowed}");
-                Art.Body(l2, 600, 16, Art.TextColor);
-                lines.Add(l2);
-            }
-            var statusLabel = Art.Text(status);
-            Art.Body(statusLabel, 600, 17, Art.Hex("#fff0c8"));
-            statusLabel.style.marginTop = 2;
-            lines.Add(statusLabel);
-
-            var right = new VisualElement();
-            right.AddToClassList("hud-right");
-            hud.Add(right);
-            if (state.Phase == Rules.PhasePlanning)
-            {
-                if (pendingTarget != null) right.Add(Gap(Art.Kit("small", "Play without a target", 36, PlayWithoutTarget)));
-                if (opts.CanStepOff) right.Add(Gap(Art.Kit("small", plan.StepOff == true ? $"Sitting down · pay {opts.StepOffCost}" : $"Sit down · pay {opts.StepOffCost}", 36, ToggleStepOff)));
-                if (opts.CanStand) right.Add(Gap(Art.Kit(plan.StandOnBusiness == true ? "stand-btn-on" : "primary", plan.StandOnBusiness == true ? $"Standing ×{opts.ProposedStakes}" : $"Stand on Business ×{opts.ProposedStakes}", 52, ToggleStand)));
-                right.Add(Gap(Art.Kit("secondary", "Lock In", 56, LockIn)));
-            }
-            else right.Add(Gap(Art.Kit("secondary", "Play again", 56, StartMatch)));
-            return hud;
+            var bar = new VisualElement();
+            bar.AddToClassList("hud");
+            var ps = state.Players[Me];
+            var them = state.Players[Ai];
+            string mine = $"{ps.Hand.Count} of {Rules.MaxHand} in hand \u00b7 {ps.DeckCount} in deck";
+            if (state.Phase == Rules.PhasePlanning) mine += $" \u00b7 Energy {opts.Energy - Query.PlanCost(content, plan, state, Me)} of {opts.Energy} \u00b7 Relocations {plan.Relocations.Count} of {opts.RelocationsAllowed}";
+            bar.Add(Profile(ps.Handle, mine, ps.AvatarDefId, Art.Gold, false));
+            var centre = new VisualElement();
+            centre.style.alignItems = Align.Center;
+            bar.Add(centre);
+            bool on = plan.StandOnBusiness == true;
+            bool canStand = state.Phase == Rules.PhasePlanning && opts.CanStand;
+            var stand = Art.Kit(on ? "stand-btn-on" : "primary", on ? $"STANDING \u00d7{opts.ProposedStakes}" : "STAND ON BUSINESS", 56, ToggleStand, canStand);
+            stand.style.width = 440;
+            centre.Add(stand);
+            var stakes = Art.Text($"Stakes \u00d7{Query.EffectiveStakes(state)}" + (state.PendingRaises.Count > 0 ? $" \u00b7 raise to \u00d7{opts.PendingStakes} pending" : "") + (Query.IsNight(state) ? " \u00b7 night" : " \u00b7 day"));
+            Art.Display(stakes, 700, 11, Art.Gold2);
+            stakes.style.letterSpacing = 2;
+            stakes.style.marginTop = 4;
+            Art.Border(stakes, 1, Art.GoldDark, 999);
+            Art.Pad(stakes, 2, 12, 2, 12);
+            stakes.style.backgroundColor = Art.Hex("#0a1626");
+            centre.Add(stakes);
+            bar.Add(Profile(them.Handle, $"{them.Hand.Count} of {Rules.MaxHand} in hand \u00b7 {them.DeckCount} in deck", them.AvatarDefId, Art.Blue, true));
+            return bar;
         }
 
-        static VisualElement Gap(VisualElement ve)
+        VisualElement Profile(string handle, string sub, string avatarId, Color tone, bool right)
         {
-            ve.style.marginLeft = 10;
-            return ve;
+            var box = new VisualElement();
+            box.style.flexDirection = right ? FlexDirection.RowReverse : FlexDirection.Row;
+            box.style.alignItems = Align.Center;
+            box.style.width = 560;
+            var avatar = new VisualElement();
+            avatar.style.width = avatar.style.height = 72;
+            Art.Border(avatar, 3, tone, 36);
+            Art.Cover(avatar, Art.Tex($"characters/{avatarId}"), 18);
+            avatar.style.backgroundColor = Art.Hue(avatarId ?? "x");
+            box.Add(avatar);
+            var plate = new VisualElement();
+            plate.style.flexGrow = 1;
+            plate.style.height = 60;
+            plate.style.justifyContent = Justify.Center;
+            plate.style.backgroundColor = Art.Rgba(10, 22, 38, 0.92f);
+            Art.Border(plate, 2, tone, 6);
+            Art.Pad(plate, 4, right ? 14 : 18, 4, right ? 18 : 14);
+            if (right) plate.style.marginRight = -8; else plate.style.marginLeft = -8;
+            plate.style.alignItems = right ? Align.FlexEnd : Align.FlexStart;
+            box.Add(plate);
+            var name = Art.Text(handle);
+            Art.Display(name, 700, 20, Art.Parchment);
+            name.style.letterSpacing = 1;
+            plate.Add(name);
+            var line = Art.Text(sub);
+            Art.Body(line, 600, 13, Art.Hex("#cfc3a6"));
+            plate.Add(line);
+            return box;
+        }
+
+        VisualElement BuildBottomLeft()
+        {
+            var box = new VisualElement();
+            Art.Abs(box, left: 0, bottom: 0, width: LogW);
+            var log = BuildLog();
+            box.Add(log);
+            bool can = state.Phase == Rules.PhasePlanning && opts.CanStepOff;
+            var sit = Art.Kit("small", plan.StepOff == true ? $"SITTING DOWN \u00b7 PAY {opts.StepOffCost}" : can ? $"SIT DOWN \u00b7 PAY {opts.StepOffCost}" : "SIT DOWN", 56, ToggleStepOff, can);
+            sit.style.marginTop = 10;
+            sit.style.width = 300;
+            box.Add(sit);
+            return box;
+        }
+
+        VisualElement BuildBottomRight()
+        {
+            var box = new VisualElement();
+            Art.Abs(box, right: 0, bottom: 0);
+            box.style.alignItems = Align.FlexEnd;
+            if (state.Phase == Rules.PhasePlanning)
+            {
+                if (pendingTarget != null)
+                {
+                    var skip = Art.Kit("small", "PLAY WITHOUT A TARGET", 40, PlayWithoutTarget);
+                    skip.style.marginBottom = 8;
+                    box.Add(skip);
+                }
+                var lockIn = Art.Kit("secondary", "LOCK IN", 66, LockIn);
+                lockIn.style.width = 280;
+                box.Add(lockIn);
+            }
+            else
+            {
+                var again = Art.Kit("secondary", "PLAY AGAIN", 66, StartMatch);
+                again.style.width = 280;
+                box.Add(again);
+            }
+            box.Add(BuildTurnPlate());
+            return box;
+        }
+
+        VisualElement BuildTurnPlate()
+        {
+            var plate = new VisualElement();
+            plate.style.width = 280;
+            plate.style.marginTop = 8;
+            plate.style.alignItems = Align.Center;
+            plate.style.backgroundColor = Art.Rgba(10, 22, 38, 0.92f);
+            Art.Border(plate, 2, Art.Gold, 8);
+            Art.Pad(plate, 6, 12, 8, 12);
+            var t = Art.Text(state.Phase == Rules.PhaseEnded ? "MATCH OVER" : $"TURN {state.Turn} / {state.MaxTurns}");
+            Art.Display(t, 700, 15, Art.Gold2);
+            t.style.letterSpacing = 3;
+            plate.Add(t);
+            var dots = new VisualElement();
+            dots.style.flexDirection = FlexDirection.Row;
+            dots.style.marginTop = 6;
+            plate.Add(dots);
+            for (int i = 1; i <= state.MaxTurns; i++)
+            {
+                var d = new VisualElement();
+                d.style.width = d.style.height = 14;
+                d.style.marginLeft = d.style.marginRight = 3;
+                bool done = i <= state.Turn;
+                Art.Border(d, 2, done ? (i % 2 == 0 ? Art.Blue : Art.Gold) : Art.Rgba(233, 185, 58, 0.35f), 7);
+                d.style.backgroundColor = done ? (i % 2 == 0 ? Art.Blue : Art.Gold) : Art.Rgba(6, 12, 22, 0.6f);
+                dots.Add(d);
+            }
+            return plate;
         }
 
         // ---- a Location column: their Gates, the plate, my Gates ----
@@ -393,6 +466,7 @@ namespace StandOnBusiness.Game
                 (pendingTarget != null && pendingTarget.Target?.CharUid != null && pendingOption.NeedsTarget == "friendlyCharAndLocation"));
             col.Add(BuildGateStrip(index, Ai));
             col.Add(BuildPlate(loc, droppable));
+            col.Add(GatesLabel());
             col.Add(BuildGateStrip(index, Me));
             col.RegisterCallback<ClickEvent>(e => { if (((VisualElement)e.target).ClassListContains("drop")) PickLocation(index); });
             return col;
@@ -402,6 +476,32 @@ namespace StandOnBusiness.Game
         {
             ve.AddToClassList("drop");
             return ve;
+        }
+
+        /// <summary>The web's "— THE GATES —" rule between the plate and my Gates.</summary>
+        VisualElement GatesLabel()
+        {
+            var row = Drop(new VisualElement());
+            row.style.flexDirection = FlexDirection.Row;
+            row.style.alignItems = Align.Center;
+            row.style.height = 18;
+            Art.Pad(row, 0, 40, 0, 40);
+            VisualElement Line()
+            {
+                var l = Drop(new VisualElement());
+                l.style.flexGrow = 1;
+                l.style.height = 1;
+                l.style.backgroundColor = Art.Rgba(233, 185, 58, 0.45f);
+                return l;
+            }
+            row.Add(Line());
+            var lbl = Drop(Art.Text("THE GATES"));
+            Art.Display(lbl, 600, 10, Art.Hex("#cfc3a6"));
+            lbl.style.letterSpacing = 3;
+            lbl.style.marginLeft = lbl.style.marginRight = 12;
+            row.Add(lbl);
+            row.Add(Line());
+            return row;
         }
 
         VisualElement BuildPlate(LocationState loc, bool droppable)
@@ -542,13 +642,18 @@ namespace StandOnBusiness.Game
             var row = Drop(new VisualElement());
             row.style.flexDirection = FlexDirection.Row;
             row.style.alignItems = Align.Center;
-            Art.Pad(row, 4, 10, 2, 10);
-            var a = Drop(Art.Text(inf[Me].ToString()));
-            Art.Display(a, 800, 17, Art.Gold2);
-            Art.Shadow(a, 1, 2, Color.black);
-            a.style.minWidth = 22;
-            a.style.unityTextAlign = TextAnchor.MiddleCenter;
-            row.Add(a);
+            Art.Pad(row, 2, 6, 2, 6);
+            VisualElement Coin(int value, Color tone)
+            {
+                var c = Drop(Art.Text(value.ToString()));
+                c.style.width = c.style.height = 30;
+                Art.Border(c, 2, tone, 15);
+                c.style.backgroundColor = Art.Hex("#08131f");
+                Art.Display(c, 800, 14, tone);
+                c.style.unityTextAlign = TextAnchor.MiddleCenter;
+                return c;
+            }
+            row.Add(Coin(inf[Me], Art.Gold2));
             var line = Drop(new VisualElement());
             line.style.flexGrow = 1;
             line.style.height = 6;
@@ -566,29 +671,39 @@ namespace StandOnBusiness.Game
             fillB.style.flexGrow = 1;
             fillB.style.backgroundColor = Art.Blue;
             line.Add(fillB);
+            var mark = new VisualElement();
+            mark.style.position = Position.Absolute;
+            mark.style.left = Length.Percent(frac * 100);
+            mark.style.top = -6;
+            mark.style.marginLeft = -8;
+            mark.style.width = mark.style.height = 16;
+            mark.style.rotate = new Rotate(Angle.Degrees(45));
+            mark.style.backgroundColor = Color.white;
+            Art.Border(mark, 2, Art.Hex("#08131f"), 2);
+            mark.pickingMode = PickingMode.Ignore;
+            line.Add(mark);
             row.Add(line);
-            var b = Drop(Art.Text(inf[Ai].ToString()));
-            Art.Display(b, 800, 17, Art.Hex("#8fb6ff"));
-            Art.Shadow(b, 1, 2, Color.black);
-            b.style.minWidth = 22;
-            b.style.unityTextAlign = TextAnchor.MiddleCenter;
-            row.Add(b);
+            row.Add(Coin(inf[Ai], Art.Hex("#8fb6ff")));
             return row;
         }
 
         VisualElement BuildInsideRow(int index, string owner, string label)
         {
             var block = Drop(new VisualElement());
+            block.style.flexGrow = 1;
+            block.style.minHeight = SeatH + 14;
             block.style.marginTop = 2;
             var lbl = Drop(Art.Text(label));
-            Art.Display(lbl, 600, 8.5f, Art.Hex("#cfc3a6"));
-            lbl.style.letterSpacing = 2;
+            Art.Display(lbl, 600, 9, Art.Hex("#cfc3a6"));
+            lbl.style.letterSpacing = 3;
             lbl.style.marginLeft = 4;
             block.Add(lbl);
             var seats = Drop(new VisualElement());
             seats.style.flexDirection = FlexDirection.Row;
-            seats.style.flexWrap = Wrap.NoWrap;
-            Art.Pad(seats, 1, 0, 2, 4);
+            seats.style.flexGrow = 1;
+            seats.style.minHeight = SeatH;
+            seats.style.alignItems = Align.Stretch;
+            Art.Pad(seats, 1, 0, 3, 4);
             block.Add(seats);
             var chars = Query.CharsAt(state, index, owner, Rules.ZoneInside);
             int capacity = Math.Max(chars.Count, Query.InsideCapacity(content, state, index));
@@ -596,8 +711,7 @@ namespace StandOnBusiness.Game
             {
                 var seat = Drop(new VisualElement());
                 seat.style.width = Seat;
-                seat.style.height = SeatH;
-                seat.style.marginRight = 5;
+                seat.style.marginRight = 6;
                 seat.style.backgroundColor = Art.Rgba(6, 12, 22, 0.55f);
                 seat.style.overflow = Overflow.Hidden;
                 if (i < chars.Count)
@@ -705,19 +819,10 @@ namespace StandOnBusiness.Game
 
         VisualElement BuildGateStrip(int index, string owner)
         {
-            var strip = Drop(new VisualElement());
-            strip.style.height = GateH + 16;
-            strip.style.flexDirection = FlexDirection.Column;
-            var lbl = Drop(Art.Text(owner == Me ? "THE GATES · YOU" : "THE GATES · HARBORLIGHT"));
-            Art.Display(lbl, 600, 8.5f, Art.Hex("#cfc3a6"));
-            lbl.style.letterSpacing = 2;
-            lbl.style.marginLeft = 12;
-            strip.Add(lbl);
             var row = Drop(new VisualElement());
+            row.style.height = GateH;
             row.style.flexDirection = FlexDirection.Row;
             row.style.justifyContent = Justify.SpaceBetween;
-            Art.Pad(row, 0, 10, 0, 10);
-            strip.Add(row);
             var chars = Query.CharsAt(state, index, owner, Rules.ZoneGate);
             var ghosts = new List<VisualElement>();
             if (owner == Me)
@@ -733,7 +838,7 @@ namespace StandOnBusiness.Game
                 else row.Add(EmptySlot(i == chars.Count + used));
             }
             row.Add(EventSlot(index, owner));
-            return strip;
+            return row;
         }
 
         VisualElement SlotBox()
@@ -773,7 +878,7 @@ namespace StandOnBusiness.Game
             if (open)
             {
                 var plus = Drop(Art.Text("+"));
-                Art.Display(plus, 700, 18, Art.Rgba(255, 224, 150, 0.85f));
+                Art.Display(plus, 700, 20, Art.Rgba(255, 224, 150, 0.7f));
                 Art.Fill(plus);
                 plus.style.unityTextAlign = TextAnchor.MiddleCenter;
                 slot.Add(plus);
@@ -820,6 +925,28 @@ namespace StandOnBusiness.Game
             if (pl == null)
             {
                 Art.Stretch(slot, Art.Tex("frames/gate-event-off"));
+                var col = Drop(new VisualElement());
+                Art.Fill(col);
+                col.style.justifyContent = Justify.Center;
+                col.style.alignItems = Align.Center;
+                slot.Add(col);
+                var plus = Drop(Art.Text("+"));
+                Art.Display(plus, 700, 18, Art.Rgba(203, 184, 255, 0.8f));
+                col.Add(plus);
+                var ev = Drop(Art.Text("EVENT"));
+                Art.Display(ev, 600, 9, Art.Rgba(203, 184, 255, 0.9f));
+                ev.style.letterSpacing = 2;
+                col.Add(ev);
+                if (owner == Me)
+                {
+                    var ps = state.Players[Me];
+                    int left = ps.Hand.Count(id => content.EventById.ContainsKey(id)) + ps.Deck.Count(id => content.EventById.ContainsKey(id));
+                    int total = left + ps.Discard.Count(id => content.EventById.ContainsKey(id));
+                    var n = Drop(Art.Text($"{left} OF {total}"));
+                    Art.Display(n, 600, 7.5f, Art.Rgba(203, 184, 255, 0.7f));
+                    n.style.letterSpacing = 1;
+                    col.Add(n);
+                }
                 return slot;
             }
             var win = Window(slot);
@@ -921,16 +1048,10 @@ namespace StandOnBusiness.Game
             var hand = new VisualElement();
             hand.AddToClassList("hand");
             var ps = state.Players[Me];
-            var title = Art.Text($"YOUR HAND  ·  {ps.DeckCount} IN DECK  ·  {ps.Discard.Count} DISCARDED  ·  SETBACKS {ps.Setbacks}");
-            Art.Display(title, 600, 9, Art.Hex("#cfc3a6"));
-            title.style.letterSpacing = 2;
-            title.style.marginLeft = 12;
-            title.style.marginBottom = 4;
-            hand.Add(title);
             var row = new VisualElement();
             row.style.flexDirection = FlexDirection.Row;
+            row.style.justifyContent = Justify.Center;
             row.style.alignItems = Align.FlexEnd;
-            Art.Pad(row, 12, 12, 6, 12);
             hand.Add(row);
             foreach (var cardId in ps.Hand)
             {
@@ -943,6 +1064,12 @@ namespace StandOnBusiness.Game
                 card.RegisterCallback<ClickEvent>(_ => { if (state.Phase == Rules.PhasePlanning) PickCard(id); });
                 row.Add(card);
             }
+            var statusLabel = Art.Text(status);
+            Art.Body(statusLabel, 600, 16, Art.Hex("#fff0c8"));
+            statusLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
+            statusLabel.style.marginTop = 6;
+            statusLabel.style.height = 22;
+            hand.Add(statusLabel);
             return hand;
         }
 
@@ -1038,11 +1165,23 @@ namespace StandOnBusiness.Game
         {
             var box = new VisualElement();
             box.AddToClassList("log");
-            box.style.width = LogW;
-            var title = Art.Text(history.Count > 0 ? $"What happened on {history[history.Count - 1]}" : "The match begins");
-            Art.Display(title, 700, 14, Art.Gold2);
-            title.style.marginBottom = 6;
-            box.Add(title);
+            box.style.height = 190;
+            var head = new VisualElement();
+            head.style.flexDirection = FlexDirection.Row;
+            head.style.alignItems = Align.Center;
+            head.style.marginBottom = 4;
+            box.Add(head);
+            var tag = Art.Text(history.Count > 0 ? history[history.Count - 1].ToUpperInvariant() : "THE MATCH BEGINS");
+            Art.Display(tag, 700, 10, Art.Hex("#1a1200"));
+            tag.style.backgroundColor = Art.Gold2;
+            tag.style.letterSpacing = 2;
+            Art.Pad(tag, 2, 8, 2, 8);
+            tag.style.borderTopLeftRadius = tag.style.borderTopRightRadius = tag.style.borderBottomLeftRadius = tag.style.borderBottomRightRadius = 3;
+            head.Add(tag);
+            var title = Art.Text(history.Count > 0 ? "What happened" : "");
+            Art.Display(title, 700, 12, Art.Gold2);
+            title.style.marginLeft = 8;
+            head.Add(title);
             var scroll = new ScrollView(ScrollViewMode.Vertical);
             scroll.style.flexGrow = 1;
             box.Add(scroll);
