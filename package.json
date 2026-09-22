@@ -16,6 +16,7 @@
     "export": "tsx scripts/export.ts",
     "golden": "tsx scripts/golden.ts",
     "kit": "tsx scripts/kit.ts",
+    "cine": "tsx scripts/cine.ts",
     "refs:check": "tsx scripts/refs-check.ts"
   },
   "dependencies": {

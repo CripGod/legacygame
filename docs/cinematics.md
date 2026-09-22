@@ -1,0 +1,73 @@
+# Card cinematics: the direction
+
+A few cards have a moment of their own: when the card is played, either side, a short clip with a transparent
+background rises out of the card's tile, the board goes still under a veil, a line of the person's own words sits
+under their name, and when the clip ends the board picks up where it froze. The sequence was worked out on Paul
+Laurence Dunbar and every clip since follows it; the code reads one table (`src/ui/cinematics.ts`), so a new clip is
+one command and one line.
+
+## The sequence
+
+The play beat is the same 1.8-second turn every card gets; the clip grows out of it. Times are from the beat's start.
+
+| When | What happens |
+| --- | --- |
+| 0.0s | The beat opens. Harborlight's card turns face up in its Gate slot: a moment on the back, the tile swells to 1.32×, turns at the top of the swell, holds the face, settles. Your own card, which you already know, takes the same beat face up, with no back shown. |
+| 1.0s | With the face up and big, the clip rises out of the tile's rectangle to the middle of the board (0.55s), a veil comes over the board (0.5s, 72% dark), and the board holds: the backdrop video pauses, every animation on the board freezes in place, the strip's shines go still. Nothing else moves until the clip is done. |
+| 1.25s | The caption fades in under the clip: a plate in Harborlight's blue saying who played the card, when it is their play; the card's name (gold for you, blue for Harborlight); the line; the card's summary. |
+| the clip | Plays to its end at up to 480px tall (42% of the viewport's height). About three seconds is the direction; the game cuts a clip off at 4.5s. Its sound, if it carries one, plays at the game's sound-effects setting, muted when that is off. |
+| the end | The veil and the caption fade (0.4s), the board resumes where it froze, the tile settles, and the beat moves on. A click does not skip the clip: nothing in a turn's replay is skipped. |
+
+When the browser cannot play the clip (Safari, which has no VP9 with alpha) or the player asked for reduced motion,
+there is no clip: the card takes its ordinary turn and the beat moves on.
+
+The moment is the card being played from hand. A card arriving Inside, relocating, or coming back does not play it.
+
+## Delivering a clip
+
+- **Square, 720×720**, 24 fps, **about three seconds**. 400×400 plays but is scaled up on a big screen; nothing is
+  scaled up in the encode, so what is delivered is what shows. A longer clip is brought down to 720.
+- **An alpha channel**, transparent wherever the board should show through. From Premiere or Media Encoder: Export,
+  Format QuickTime, Apple ProRes 4444, Depth "8-bpc + alpha" (or 16-bpc). From After Effects: Channels RGB + Alpha,
+  Color Straight. A clip without alpha is refused with that setting named.
+- **No fade needed.** The game fades the clip in over a quarter second and out over three quarters, picture and
+  sound together, so the clip can be delivered running from frame one to its last frame.
+- **Sound is optional.** Stereo, in the clip. It is brought to one level (-20 LUFS) and faded with the picture, and
+  plays at 0.6 of full scale, level with the game's own cues.
+- **Size.** ProRes 4444 is large: three seconds at 400² is about 30 MB, at 720² about 90 MB. When an upload limit
+  is in the way, a colour pass over black plus a matte pass (white on black, from a Track Matte Key) in H.264 come
+  to a few MB each; the key is then made by hand (Dunbar's was, from a colour pass alone).
+- **Safari** needs the same clip as HEVC with alpha (Media Encoder on a Mac: the "HEVC with alpha" preset). Not
+  wired yet: when such a file exists it goes first in the video element's sources, ahead of the WebM.
+
+## Bringing it in
+
+```
+npm run cine -- ~/Downloads/harriet.mov harriet
+```
+
+`scripts/cine.ts` reads the clip (ffmpeg and ffprobe on the PATH), refuses one without alpha, and writes the two
+files the game plays: `public/art/video/harriet.webm` (VP9 with alpha, Opus when there is sound) for the web and
+`unity/StandOnBusiness/Assets/StandOnBusiness/Resources/video/harriet.webm` (VP8 with alpha, Vorbis) for Unity. The
+fades and the sound level are baked in there. `--dry` prints what it would do.
+
+Then the card's entry in `src/ui/cinematics.ts`: the clip's file name, the line under the name (the person's own
+words, a real quotation, never ours), and `sound: true` when the clip carries sound. The test in
+`tests/cinematics.test.ts` checks that every entry names a real card and that both files exist. In `?dev=1`,
+`window.__sobCine('harriet_tubman')` plays the moment out of her tile on the spot, and `__sobCine('harriet_tubman', true)`
+plays it as Harborlight's.
+
+The single-file build (the artifact) does not inline video: `inline.cjs` keeps the clips as files beside the page,
+so a new clip is published alongside it.
+
+## Unity
+
+The VP8 twin is copied into the Unity project's Resources at import; the Unity board's own player for these moments
+(VideoPlayer with transparency, the same hold and caption) is still to build. The direction above is the spec for it.
+
+## The clips so far
+
+| Card | Clip | Line | Sound | Source |
+| --- | --- | --- | --- | --- |
+| Paul Laurence Dunbar | `dunbar.webm` | "We wear the mask that grins and lies." | none | A 1080² colour pass over black, keyed by hand and played at twice its speed (six seconds became three) |
+| Harriet Tubman | `harriet.webm` | "I never ran my train off the track, and I never lost a passenger." | yes | ProRes 4444 with alpha, 400², through `npm run cine` |
