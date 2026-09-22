@@ -5,7 +5,7 @@ import { Art } from './Art';
 import { artUrl } from '../art';
 import { SettingsMenu } from './SettingsMenu';
 
-export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: GameState; me: PlayerId; onProfile: (p: PlayerId) => void; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void; stand?: { on: boolean; disabled: boolean; stood?: boolean; between?: boolean; flash?: boolean; /** The last scheduled turn and you can still stand: the button pulses with the kit's wipe shine. */ urge?: boolean; onToggle: () => void; /** What the Legacy becomes if the planned Stand goes through. */ proposed?: number; /** The press: the button slams. */ slam?: boolean; } }) {
+export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: GameState; me: PlayerId; onProfile: (p: PlayerId) => void; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void; stand?: { on: boolean; disabled: boolean; stood?: boolean; between?: boolean; current?: number; flash?: boolean; /** The last scheduled turn and you can still stand: the button pulses with the kit's wipe shine. */ urge?: boolean; onToggle: () => void; /** What the Legacy becomes if the planned Stand goes through. */ proposed?: number; /** The press: the button slams. */ slam?: boolean; } }) {
   const { placeholders } = useDisplay();
   /* The nameplate from the top-bar cut: the wordless strip (gold for you, blue for Harborlight) with the name and counts
      as live text, and the avatar ring hung off its end (the ring, the portrait clipped to the well over it, the level
@@ -63,8 +63,8 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
                greys, both baked). The resting finish is silver, the less precious metal: the silver plate and lettering
                with the silver shine SVGs (a spark runs the outline every 9s; when things ramp up, the back half of the
                match or the last turn, a glint sweeps the face every 11s; under reduced motion the still plate). Gold is
-               the prize: the gold plate and lettering fade up over the silver on hover, and Standing holds the gold
-               pressed plate. Once your Stand has landed (stood) the button rests in gold for the rest of the match, out
+               the prize, and it comes only with the click: hover is a brighter silver glow, Standing holds the gold
+               pressed plate with the gold lettering, the kit's wipe sweeping the letters and four faint stars on them. Once your Stand has landed (stood) the button rests in gold for the rest of the match, out
                of reach but not greyed; only between turns (the plan locked, the turn playing out) does it take the
                greyed plate. The wordmark rides over the plate, outside the button's hit area, on the board's seat. The button itself takes no pointer (its glow and shadow must not be clipped);
                the hit area is the frame plus the lettering under it (.sob-hit). Standing holds the pressed state with the raise on a chip. */
@@ -74,7 +74,6 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
                 <img className="sob-l sob-shine sob-shine-edge" src={artUrl('kit', 'sob-silver-shine-edge', 'svg')} alt="" aria-hidden draggable={false} />
                 <img className="sob-l sob-shine sob-shine-wipe" src={artUrl('kit', 'sob-silver-shine-wipe', 'svg')} alt="" aria-hidden draggable={false} />
                 <i className="sob-l sob-l-hover" aria-hidden />
-                <i className="sob-l sob-l-gold" aria-hidden />
                 <i className="sob-l sob-l-pressed" aria-hidden />
                 <i className="sob-l sob-l-disabled" aria-hidden />
                 <i className="sob-l sob-l-gold-rest" aria-hidden />
@@ -83,7 +82,13 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
               </button>
               <i className="sob-word" aria-hidden />
               <i className="sob-word sob-word-lit" aria-hidden />
-              {stand.on && <b className="sob-chip">×{stand.proposed ?? effectiveStakes(view)}</b>}
+              <i className="sob-word sob-stars" aria-hidden>
+                <i style={{ '--x': '13%', '--y': '36%', '--d': '0s' } as React.CSSProperties} />
+                <i style={{ '--x': '49.5%', '--y': '11%', '--d': '1.3s' } as React.CSSProperties} />
+                <i style={{ '--x': '66%', '--y': '44%', '--d': '2.1s' } as React.CSSProperties} />
+                <i style={{ '--x': '89%', '--y': '52%', '--d': '3.4s' } as React.CSSProperties} />
+              </i>
+              {stand.on && <b className="sob-chip">+{Math.max(1, (stand.proposed ?? effectiveStakes(view)) - (stand.current ?? effectiveStakes(view)))} Legacy</b>}
             </span>
           )}
           <SettingsMenu className="hud-settings" icon="gear" />

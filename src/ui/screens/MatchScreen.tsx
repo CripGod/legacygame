@@ -47,6 +47,8 @@ const SLAM_ENABLED = false;
 /** The one Character with a cinematic so far, and its clip under public/art/video (VP9 WebM with alpha). */
 const CINE_CARD = 'paul_laurence_dunbar';
 const CINE_CLIP = 'dunbar.webm';
+/** The line under his name while the clip plays: Dunbar's own, 1895. */
+const CINE_LINE = 'We wear the mask that grins and lies.';
 const BEAT_MS: Record<string, number> = {
   stand: 1400,
   reveal: 600, // after the smashdown (~1.55s)
@@ -225,26 +227,65 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
    * clip is a VP9 WebM with alpha; a browser that cannot play that (Safari, until the HEVC copy lands) skips it, as
    * does reduced motion. `cineDone` is the promise the beat waits on; the video's end, an error, or a timeout settle it.
    */
-  const [cine, setCine] = useState<{ key: number; leaving?: boolean } | null>(null);
+  const [cine, setCine] = useState<{ key: number; from?: DOMRect; leaving?: boolean } | null>(null);
   const cineDone = useRef<(() => void) | null>(null);
+  /** Set the moment a beat decides to play the clip, before any await, so the replay cannot slip past an own beat (0ms) first. */
+  const cineHold = useRef(false);
   const cineSupported = useRef<boolean | null>(null);
   const canCine = () => {
     if (cineSupported.current === null) cineSupported.current = typeof document !== 'undefined' && document.createElement('video').canPlayType('video/webm; codecs="vp9"') !== '';
     return cineSupported.current && !reduceMotion();
   };
   const endCine = () => cineDone.current?.();
-  const playCine = async () => {
-    setCine({ key: Date.now() });
+  /**
+   * The board holds still while the clip plays (Snap freezes the table for a card's moment): the backdrop video
+   * pauses, every animation under the veil pauses in place (CSS ones through .cine-hold, scripted ones here), and
+   * the strip's shines go still; all of it resumes when the clip is done.
+   */
+  const holdBoard = (on: boolean) => {
+    const app = document.querySelector('.app');
+    app?.classList.toggle('cine-hold', on);
+    const bg = document.querySelector<HTMLVideoElement>('.app-bg-video');
+    if (bg) {
+      if (on) bg.pause();
+      else void bg.play?.().catch(() => undefined);
+    }
+    const inCine = (a: Animation) => { const t = (a.effect as KeyframeEffect | null)?.target; return !!t && !!(t as Element).closest?.('.cine'); };
+    for (const a of document.getAnimations()) {
+      if (inCine(a)) continue;
+      if (on && a.playState === 'running') { heldAnimations.current.push(a); a.pause(); }
+    }
+    if (!on) {
+      for (const a of heldAnimations.current) if (a.playState === 'paused') a.play();
+      heldAnimations.current = [];
+    }
+  };
+  const heldAnimations = useRef<Animation[]>([]);
+  /** `from` is the tile the clip grows out of (its rectangle at launch); without one it opens from the middle. */
+  const playCine = async (from?: DOMRect) => {
+    setCine({ key: Date.now(), from });
     await painted();
+    holdBoard(true);
     await new Promise<void>((r) => {
       let settled = false;
       const done = () => { if (settled) return; settled = true; cineDone.current = null; r(); };
       cineDone.current = done;
-      window.setTimeout(done, 7500);
+      window.setTimeout(done, 4500);
     });
+    holdBoard(false);
     setCine((c) => (c ? { ...c, leaving: true } : c));
     await wait(400);
     setCine(null);
+    cineHold.current = false;
+  };
+  /** The tile's turn settles only once the clip, if one is playing, has gone. */
+  const settleArrive = (uid: string, alive: () => boolean) => {
+    const tick = () => {
+      if (!alive()) return;
+      if (cineHold.current) { window.setTimeout(tick, 150); return; }
+      setFx((f) => (f?.arrive === uid ? null : f));
+    };
+    window.setTimeout(tick, 1900);
   };
   /** The replay step whose Event card has flashed: its tile may turn over. Until then (the frame before the flash, the flash itself) the tile stays as it was. */
   const [eventFlashed, setEventFlashed] = useState<number>(-1);
@@ -1083,11 +1124,6 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           }
         }
       }
-      // Dunbar's cinematic: the poet puts on the mask over the board, and the beat waits for it.
-      if (step.kind === 'play' && step.cardId === CINE_CARD && canCine()) {
-        await playCine();
-        if (!alive()) return;
-      }
       // An Event announces itself (Snap-style, as a Gathering's arrival does): its card flashes big over the board with
       // the banner telling its name and what it does, then it flips into its purple slot and the flare plays.
       if (step.kind === 'event' && step.cardId && step.player) {
@@ -1116,8 +1152,23 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         if (tileOf(uid)) {
           setFx((f) => ({ ...(f ?? { hidden: [] }), arrive: uid }));
           // The turn done (1.8s), the beat's effects are over (the replay only moves on once fx is null).
-          window.setTimeout(() => { if (alive()) setFx((f) => (f?.arrive === uid ? null : f)); }, 1900);
+          settleArrive(uid, alive);
         }
+      }
+      // Dunbar's cinematic grows out of his tile's turn: the tile turns face up and swells (the arrive fx above, which
+      // your own play gets here too, so the moment reads the same from either side), and a second in, with the face up
+      // and big, the clip rises out of that rectangle to the middle of the board. The beat waits for the clip.
+      if (step.kind === 'play' && step.cardId === CINE_CARD && step.uids?.length && canCine()) {
+        const uid = step.uids[0];
+        cineHold.current = true;
+        if (step.player === me && tileOf(uid)) {
+          setFx((f) => ({ ...(f ?? { hidden: [] }), arrive: uid }));
+          settleArrive(uid, alive);
+        }
+        await wait(1000);
+        if (!alive()) return;
+        await playCine(tileOf(uid)?.getBoundingClientRect());
+        if (!alive()) return;
       }
       if (!reduceMotion() && step.kind === 'revealFx' && step.uids?.[0] && step.player && !trailEvs.length && !clashEvs.length) {
         await painted();
@@ -1229,7 +1280,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   }, [view.turn, m.replay, view.lastEvents]);
   /** Advance the replay once this beat's sheets are closed. */
   useEffect(() => {
-    if (!step || fx || trail || dig || arrival || peekShow || fireworks || cine) return;
+    if (!step || fx || trail || dig || arrival || peekShow || fireworks || cine || cineHold.current) return;
     const ms = ownBeat ? 0 : BEAT_MS[step.kind] ?? 900;
     const id = window.setTimeout(m.replayNext, ms);
     return () => window.clearTimeout(id);
@@ -1267,7 +1318,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     };
     /** Dev: heal a Location and send its wave to others (window.__sobHeal(1, [0, 2], freezeAt?, 'B')); freezeAt holds one wave frame; the last argument is who broke it. */
     /** Dev: play Dunbar's cinematic now (window.__sobCine()). */
-    (window as unknown as { __sobCine?: () => void }).__sobCine = () => { void playCine(); };
+    (window as unknown as { __sobCine?: () => void }).__sobCine = () => { const tile = Array.from(document.querySelectorAll<HTMLElement>('[data-uid]')).find((el) => el.dataset.defId === CINE_CARD || el.getAttribute('aria-label')?.includes('Dunbar')); void playCine(tile?.getBoundingClientRect()); };
     (window as unknown as { __sobHeal?: (loc: number, locs: number[], freezeAt?: number, by?: PlayerId | 'both') => void }).__sobHeal = (loc, locs, freezeAt, by = 'A') => {
       setTrailFreeze(freezeAt);
       const from = document.querySelector(`.column[data-index="${loc}"] .location`)?.getBoundingClientRect();
@@ -1583,7 +1634,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     window.setTimeout(() => {
       if (!standArmed.current) return;
       setShake(true);
-      window.setTimeout(() => setShake(false), 320);
+      window.setTimeout(() => setShake(false), 440);
     }, 800);
   };
   /** Stand on Business is one tap: it toggles in the plan and the toast explains what it does. */
@@ -2180,9 +2231,10 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
             poster={artUrl('landing', 'board')}
             ref={(el) => {
               // The muted property must be set before play() for autoplay to be allowed; React sets it, this makes sure.
+              // (This runs on every render; while a cinematic holds the board the backdrop stays paused.)
               if (!el) return;
               el.muted = true;
-              if (el.paused) el.play?.().catch(() => undefined);
+              if (el.paused && !el.closest('.app')?.classList.contains('cine-hold')) el.play?.().catch(() => undefined);
             }}
           >
             <source src={videoUrl('board.webm')} type="video/webm" />
@@ -2190,7 +2242,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           </video>
         )}
       </div>
-      <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, stood: view.players[me].standUsed, between: !planning, flash: flash === 'stakes' || flash === 'final', urge: planning && opts.canStand && !plan.standOnBusiness && view.turn >= view.maxTurns, onToggle: toggleStand, proposed: opts.proposedStakes, slam: standSlam }} />
+      <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, stood: view.players[me].standUsed, between: !planning, current: opts.pendingStakes, flash: flash === 'stakes' || flash === 'final', urge: planning && opts.canStand && !plan.standOnBusiness && view.turn >= view.maxTurns, onToggle: toggleStand, proposed: opts.proposedStakes, slam: standSlam }} />
       <div className="main-wrap">
         <Battlefield
           pending={pendingInf}
@@ -2372,11 +2424,16 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       )}
 
       {cine && (
-        <div className={`cine ${cine.leaving ? 'leaving' : ''}`} key={cine.key} aria-hidden>
+        <div className={`cine ${cine.leaving ? 'leaving' : ''} ${cine.from ? 'from-tile' : ''}`} key={cine.key} aria-hidden style={cine.from ? ({ '--fx': `${cine.from.left + cine.from.width / 2}px`, '--fy': `${cine.from.top + cine.from.height / 2}px`, '--fw': `${cine.from.width}px` } as React.CSSProperties) : undefined}>
           <div className="cine-veil" />
           <video className="cine-clip" autoPlay muted playsInline preload="auto" onEnded={endCine} onError={endCine}>
             <source src={videoUrl(CINE_CLIP)} type="video/webm" />
           </video>
+          <div className="cine-cap">
+            <b>{CARD_BY_ID[CINE_CARD]?.name}</b>
+            <q>{CINE_LINE}</q>
+            <span>{(CARD_BY_ID[CINE_CARD] as { summary?: string } | undefined)?.summary}</span>
+          </div>
         </div>
       )}
       {arrival && (
