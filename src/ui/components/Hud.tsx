@@ -84,7 +84,7 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
               <i className="sob-word sob-word-lit" aria-hidden />
               <i className="sob-word sob-stars" aria-hidden>
                 <i style={{ '--x': '13%', '--y': '36%', '--d': '0s' } as React.CSSProperties} />
-                <i style={{ '--x': '49.5%', '--y': '11%', '--d': '1.3s' } as React.CSSProperties} />
+                <i style={{ '--x': '49.5%', '--y': '25%', '--d': '1.3s' } as React.CSSProperties} />
                 <i style={{ '--x': '66%', '--y': '44%', '--d': '2.1s' } as React.CSSProperties} />
                 <i style={{ '--x': '89%', '--y': '52%', '--d': '3.4s' } as React.CSSProperties} />
               </i>
