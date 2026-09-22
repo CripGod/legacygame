@@ -51,7 +51,7 @@ const BEAT_MS: Record<string, number> = {
   stand: 2400,
   reveal: 1600, // after the smashdown (~1.55s)
   play: 1950,
-  event: 3100, // the flash (2.1s) comes first; then the tile's own turn (2s)
+  event: 2300, // after the flash: the tile's own turn (2s, it fades out at the end), then the empty slot fades up
   revealFx: 2400,
   enter: 1800,
   move: 1900,

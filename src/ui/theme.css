@@ -1009,6 +1009,10 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 .card.big .text .era { text-align: left; padding: 0; }
 .card.big .cat { position: static; padding-top: 4px; }
 /* Event slot: a purple dotted container beside the Gates, filled when an Event is played there. */
+/* The empty slot fades up when it comes back (after an Event's beat the tile has faded out; the frame should not pop). */
+.gate-slot.event-slot.empty { animation: ev-slot-in 0.7s ease-out both; }
+@keyframes ev-slot-in { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .gate-slot.event-slot.empty { animation: none; } }
 .gate-slot.event-slot.empty { border: 1.5px dotted rgba(167, 139, 232, 0.75); background: rgba(58, 31, 110, 0.18); color: rgba(183, 153, 232, 0.7); display: grid; place-items: center; box-shadow: none; }
 .gate-slot.event-slot.empty .ini { font-size: calc(var(--mini) * 0.28); color: rgba(183, 153, 232, 0.8); text-shadow: 0 0 8px rgba(122, 76, 207, 0.6); }
 .gate-slot.event-slot { border: 2px solid #a184d8; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6); }
