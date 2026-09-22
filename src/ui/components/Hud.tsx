@@ -5,7 +5,7 @@ import { Art } from './Art';
 import { artUrl } from '../art';
 import { SettingsMenu } from './SettingsMenu';
 
-export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: GameState; me: PlayerId; onProfile: (p: PlayerId) => void; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void; stand?: { on: boolean; disabled: boolean; flash?: boolean; /** The last scheduled turn and you can still stand: the button pulses with the kit's wipe shine. */ urge?: boolean; onToggle: () => void; /** What the Legacy becomes if the planned Stand goes through. */ proposed?: number; /** The press: the button slams. */ slam?: boolean; } }) {
+export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: GameState; me: PlayerId; onProfile: (p: PlayerId) => void; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void; stand?: { on: boolean; disabled: boolean; stood?: boolean; between?: boolean; flash?: boolean; /** The last scheduled turn and you can still stand: the button pulses with the kit's wipe shine. */ urge?: boolean; onToggle: () => void; /** What the Legacy becomes if the planned Stand goes through. */ proposed?: number; /** The press: the button slams. */ slam?: boolean; } }) {
   const { placeholders } = useDisplay();
   /* The nameplate from the top-bar cut: the wordless strip (gold for you, blue for Harborlight) with the name and counts
      as live text, and the avatar ring hung off its end (the ring, the portrait clipped to the well over it, the level
@@ -64,10 +64,12 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
                with the silver shine SVGs (a spark runs the outline every 9s; when things ramp up, the back half of the
                match or the last turn, a glint sweeps the face every 11s; under reduced motion the still plate). Gold is
                the prize: the gold plate and lettering fade up over the silver on hover, and Standing holds the gold
-               pressed plate. The wordmark rides over the plate, outside the button's hit area, on the board's seat. The button itself takes no pointer (its glow and shadow must not be clipped);
+               pressed plate. Once your Stand has landed (stood) the button rests in gold for the rest of the match, out
+               of reach but not greyed; only between turns (the plan locked, the turn playing out) does it take the
+               greyed plate. The wordmark rides over the plate, outside the button's hit area, on the board's seat. The button itself takes no pointer (its glow and shadow must not be clipped);
                the hit area is the frame plus the lettering under it (.sob-hit). Standing holds the pressed state with the raise on a chip. */
             <span className={`sob-seat ${ramp ? 'ramp' : ''}`} style={{ '--heat': heat } as React.CSSProperties}>
-              <button className={`sob ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''} ${stand.slam ? 'slam' : ''} ${stand.urge ? 'urge' : ''}`} disabled={stand.disabled} onClick={stand.onToggle} aria-label={stand.on ? 'Standing on Business' : 'Stand on Business'} title={view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes}>
+              <button className={`sob ${stand.on ? 'on' : ''} ${stand.stood ? 'stood' : ''} ${stand.between ? 'between' : ''} ${stand.flash ? 'ftue-flash' : ''} ${stand.slam ? 'slam' : ''} ${stand.urge ? 'urge' : ''}`} disabled={stand.disabled} onClick={stand.onToggle} aria-label={stand.on ? 'Standing on Business' : 'Stand on Business'} title={view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes}>
                 <i className="sob-l sob-l-default" aria-hidden />
                 <img className="sob-l sob-shine sob-shine-edge" src={artUrl('kit', 'sob-silver-shine-edge', 'svg')} alt="" aria-hidden draggable={false} />
                 <img className="sob-l sob-shine sob-shine-wipe" src={artUrl('kit', 'sob-silver-shine-wipe', 'svg')} alt="" aria-hidden draggable={false} />
@@ -75,6 +77,8 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
                 <i className="sob-l sob-l-gold" aria-hidden />
                 <i className="sob-l sob-l-pressed" aria-hidden />
                 <i className="sob-l sob-l-disabled" aria-hidden />
+                <i className="sob-l sob-l-gold-rest" aria-hidden />
+                <img className="sob-l sob-shine sob-shine-gold" src={artUrl('kit', 'sob-shine-edge', 'svg')} alt="" aria-hidden draggable={false} />
                 <i className="sob-hit" aria-hidden />
               </button>
               <i className="sob-word" aria-hidden />

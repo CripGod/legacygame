@@ -2463,6 +2463,13 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .sob-seat .sob:not(:disabled):active .sob-l-default, .sob-seat .sob.on .sob-l-default, .sob-seat .sob:not(:disabled):active .sob-shine, .sob-seat .sob.on .sob-shine { opacity: 0; }
 .sob:disabled .sob-l-disabled { opacity: 1; }
 .sob:disabled .sob-l-default { opacity: 0; }
+/* Stood: once your Stand has landed the button rests in gold for the rest of the match, out of reach but not greyed:
+   the gold plate, the gold lettering and the gold edge shine. Only between turns (the plan locked, the turn playing
+   out) does it take the greyed plate. */
+.sob-l-gold-rest { background-image: var(--kit-sob-default); }
+.sob.stood:not(.between) .sob-l-gold-rest, .sob.stood:not(.between) .sob-shine-gold { opacity: 1; }
+.sob.stood:not(.between) .sob-l-disabled, .sob.stood:not(.between) .sob-l-default { opacity: 0; }
+.sob.stood:not(.between) .sob-hit { cursor: default; }
 .sob-seat > .sob-word, .sob-static .sob-word { position: absolute; width: calc(var(--sob1) * var(--kit-sob-wordmark-w)); height: calc(var(--sob1) * var(--kit-sob-wordmark-h)); left: calc(var(--sob1) * (var(--kit-sob-shell-x) + var(--kit-sob-shell-w) / 2 + var(--kit-sob-wordmark-dx))); top: calc(var(--sob1) * (var(--kit-sob-shell-y) + var(--kit-sob-shell-h) / 2)); transform: translate(-50%, -50%); background: var(--kit-sob-silver-wordmark) center / 100% 100% no-repeat; pointer-events: none; z-index: 2; transition: transform 0.12s, opacity 0.2s, filter 0.2s; }
 .sob-seat > .sob-word { top: 50%; }
 /* The gold lettering over the silver, up on hover, press and Standing. */
@@ -2470,6 +2477,8 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .sob-seat:has(.sob:not(:disabled):hover) > .sob-word-lit, .sob-seat:has(.sob:not(:disabled):active) > .sob-word-lit, .sob-seat:has(.sob.on) > .sob-word-lit { opacity: 1; }
 .sob-seat:has(.sob:not(:disabled):active) > .sob-word, .sob-seat:has(.sob.on) > .sob-word { transform: translate(-50%, calc(-50% + var(--sob1) * var(--kit-sob-lift-pressed))); }
 .sob-seat:has(.sob:disabled) > .sob-word:not(.sob-word-lit) { opacity: 0.55; filter: grayscale(0.6); }
+.sob-seat:has(.sob.stood:not(.between)) > .sob-word-lit { opacity: 1; }
+.sob-seat:has(.sob.stood:not(.between)) > .sob-word:not(.sob-word-lit) { opacity: 1; filter: none; }
 .sob-chip { position: absolute; left: 50%; top: calc(50% + var(--sob1) * var(--kit-sob-shell-h) / 2); z-index: 3; transform: translate(-50%, -50%); padding: calc(var(--sobw) * 0.004) calc(var(--sobw) * 0.016); border-radius: 999px; font-family: var(--display); font-weight: 800; font-size: calc(var(--sobw) * 0.026); letter-spacing: 0.04em; color: #1a1200; background: linear-gradient(180deg, #f6d77a, #d7a422 60%, #b4851a); border: 1px solid #fff0c0; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7); pointer-events: none; }
 /* The last scheduled turn, and you can still stand: the button breathes. */
 .sob.urge:not(.ftue-flash):not(.slam) { animation: stand-urge 1.6s ease-in-out infinite; }
