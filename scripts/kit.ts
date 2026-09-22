@@ -65,6 +65,8 @@ const PIECES: Record<string, { prefix: string; files: Record<string, string>; re
       };
     },
   },
+  // The strip's silver finish: the same piece, the same numbers, made from the gold cut (docs/kit.md); the resting state.
+  'sob-button-silver': { prefix: 'sob-silver', files: { 'files.default': 'default', 'files.hover': 'hover', 'files.disabled': 'disabled', 'files.wordmark': 'wordmark', 'files.shineEdge': 'shine-edge', 'files.shineWipe': 'shine-wipe', 'files.plateStill': 'plate-still' }, read: (p) => PIECES['sob-button'].read(p) },
   'nameplate-you': { prefix: 'np-you', files: { 'strip.file': 'strip', 'avatar.files.ring': 'ring', 'avatar.files.levelChip': 'chip' }, read: readNameplate },
   'nameplate-opponent': { prefix: 'np-opp', files: { 'strip.file': 'strip', 'avatar.files.ring': 'ring', 'avatar.files.levelChip': 'chip' }, read: readNameplate },
 };

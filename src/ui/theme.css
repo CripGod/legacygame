@@ -2434,36 +2434,49 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 /* The pointer lands on the frame and the lettering under it, not the canvas's shadow room; the button draws unclipped. */
 .sob-hit { position: absolute; left: calc(var(--sob1) * var(--kit-sob-shell-x)); right: calc(var(--sob1) * (var(--kit-sob-size-w) - var(--kit-sob-shell-x) - var(--kit-sob-shell-w))); top: calc(var(--sob1) * var(--kit-sob-shell-y)); bottom: 12%; pointer-events: auto; cursor: pointer; }
 .sob:disabled .sob-hit { pointer-events: none; cursor: default; }
-.sob-l { position: absolute; inset: 0; background: var(--kit-sob-default) center / 100% 100% no-repeat; opacity: 0; transition: opacity 0.12s; pointer-events: none; }
+/* The layers, bottom to top: the silver plate (rest), the silver shine SVGs, the silver hover glow (the pulse), the
+   gold hover plate (mouse over, and the pulse once the seat ramps), the gold pressed plate (Standing), the silver
+   disabled plate. Only opacity moves. */
+.sob-l { position: absolute; inset: 0; background: var(--kit-sob-silver-default) center / 100% 100% no-repeat; opacity: 0; transition: opacity 0.12s; pointer-events: none; }
 .sob-l-default { opacity: 1; }
-.sob-l-hover { background-image: var(--kit-sob-hover); }
+.sob-l-hover { background-image: var(--kit-sob-silver-hover); }
+.sob-l-gold { background-image: var(--kit-sob-hover); }
 .sob-l-pressed { background-image: var(--kit-sob-pressed); }
-.sob-l-disabled { background-image: var(--kit-sob-disabled); }
+.sob-l-disabled { background-image: var(--kit-sob-silver-disabled); }
 .sob-shine { inset: auto; left: calc(var(--sob1) * var(--kit-sob-svg-x)); top: calc(var(--sob1) * var(--kit-sob-svg-y)); width: calc(var(--sob1) * var(--kit-sob-svg-w)); height: calc(var(--sob1) * var(--kit-sob-svg-h)); max-width: none; background: none; user-select: none; }
 .sob:not(:disabled) .sob-shine-edge { opacity: 1; }
 .sob-seat.ramp .sob:not(:disabled) .sob-shine-edge { opacity: 0; }
 .sob-seat.ramp .sob:not(:disabled) .sob-shine-wipe { opacity: 1; }
-/* The plate breathes its hover glow while the button is live, harder and faster as the match nears its end (--heat,
-   set by the Hud from the turn count): a clear pulse on turn 1, a full glow on the last turn. Hover, press and
-   Standing hold it steady. */
+/* The plate breathes its glow while the button is live, harder and faster as the match nears its end (--heat, set
+   by the Hud from the turn count): a clear pulse on turn 1, a full glow on the last turn. The silver glow breathes at
+   rest; once the seat ramps (the back half, the last turn) the gold glow breathes instead, the metal warming as the
+   end nears. Hover shows the gold plate whole; press and Standing hold the gold pressed plate and put the silver
+   layers away (the pressed plate sinks 2px, and a silver sliver would show above it). */
 .sob:not(:disabled) .sob-l-hover { animation: sob-heat calc(2.4s - var(--heat, 0) * 1.5s) ease-in-out infinite; }
+.sob-seat.ramp .sob:not(:disabled) .sob-l-hover { animation: none; opacity: 0; }
+.sob-seat.ramp .sob:not(:disabled) .sob-l-gold { animation: sob-heat calc(2.4s - var(--heat, 0) * 1.5s) ease-in-out infinite; }
 @keyframes sob-heat { 0%, 100% { opacity: calc(0.1 + var(--heat, 0) * 0.2); } 50% { opacity: calc(0.55 + var(--heat, 0) * 0.45); } }
-.sob:not(:disabled):hover .sob-l-hover { animation: none; opacity: 1; }
-.sob:not(:disabled):active .sob-l-pressed, .sob.on .sob-l-pressed { opacity: 1; }
-.sob:not(:disabled):active .sob-l-hover, .sob.on .sob-l-hover { animation: none; opacity: 0; }
+.sob-seat .sob:not(:disabled):hover .sob-l-hover { animation: none; opacity: 0; }
+.sob-seat .sob:not(:disabled):hover .sob-l-gold { animation: none; opacity: 1; }
+.sob-seat .sob:not(:disabled):active .sob-l-pressed, .sob-seat .sob.on .sob-l-pressed { opacity: 1; }
+.sob-seat .sob:not(:disabled):active .sob-l-hover, .sob-seat .sob.on .sob-l-hover, .sob-seat .sob:not(:disabled):active .sob-l-gold, .sob-seat .sob.on .sob-l-gold { animation: none; opacity: 0; }
+.sob-seat .sob:not(:disabled):active .sob-l-default, .sob-seat .sob.on .sob-l-default, .sob-seat .sob:not(:disabled):active .sob-shine, .sob-seat .sob.on .sob-shine { opacity: 0; }
 .sob:disabled .sob-l-disabled { opacity: 1; }
 .sob:disabled .sob-l-default { opacity: 0; }
-.sob-seat > .sob-word, .sob-static .sob-word { position: absolute; width: calc(var(--sob1) * var(--kit-sob-wordmark-w)); height: calc(var(--sob1) * var(--kit-sob-wordmark-h)); left: calc(var(--sob1) * (var(--kit-sob-shell-x) + var(--kit-sob-shell-w) / 2 + var(--kit-sob-wordmark-dx))); top: calc(var(--sob1) * (var(--kit-sob-shell-y) + var(--kit-sob-shell-h) / 2)); transform: translate(-50%, -50%); background: var(--kit-sob-wordmark) center / 100% 100% no-repeat; pointer-events: none; z-index: 2; transition: transform 0.12s, opacity 0.2s, filter 0.2s; }
+.sob-seat > .sob-word, .sob-static .sob-word { position: absolute; width: calc(var(--sob1) * var(--kit-sob-wordmark-w)); height: calc(var(--sob1) * var(--kit-sob-wordmark-h)); left: calc(var(--sob1) * (var(--kit-sob-shell-x) + var(--kit-sob-shell-w) / 2 + var(--kit-sob-wordmark-dx))); top: calc(var(--sob1) * (var(--kit-sob-shell-y) + var(--kit-sob-shell-h) / 2)); transform: translate(-50%, -50%); background: var(--kit-sob-silver-wordmark) center / 100% 100% no-repeat; pointer-events: none; z-index: 2; transition: transform 0.12s, opacity 0.2s, filter 0.2s; }
 .sob-seat > .sob-word { top: 50%; }
+/* The gold lettering over the silver, up on hover, press and Standing. */
+.sob-seat > .sob-word-lit { background-image: var(--kit-sob-wordmark); opacity: 0; z-index: 3; }
+.sob-seat:has(.sob:not(:disabled):hover) > .sob-word-lit, .sob-seat:has(.sob:not(:disabled):active) > .sob-word-lit, .sob-seat:has(.sob.on) > .sob-word-lit { opacity: 1; }
 .sob-seat:has(.sob:not(:disabled):active) > .sob-word, .sob-seat:has(.sob.on) > .sob-word { transform: translate(-50%, calc(-50% + var(--sob1) * var(--kit-sob-lift-pressed))); }
-.sob-seat:has(.sob:disabled) > .sob-word { opacity: 0.55; filter: grayscale(0.6); }
+.sob-seat:has(.sob:disabled) > .sob-word:not(.sob-word-lit) { opacity: 0.55; filter: grayscale(0.6); }
 .sob-chip { position: absolute; left: 50%; top: calc(50% + var(--sob1) * var(--kit-sob-shell-h) / 2); z-index: 3; transform: translate(-50%, -50%); padding: calc(var(--sobw) * 0.004) calc(var(--sobw) * 0.016); border-radius: 999px; font-family: var(--display); font-weight: 800; font-size: calc(var(--sobw) * 0.026); letter-spacing: 0.04em; color: #1a1200; background: linear-gradient(180deg, #f6d77a, #d7a422 60%, #b4851a); border: 1px solid #fff0c0; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7); pointer-events: none; }
 /* The last scheduled turn, and you can still stand: the button breathes. */
 .sob.urge:not(.ftue-flash):not(.slam) { animation: stand-urge 1.6s ease-in-out infinite; }
 @keyframes stand-urge { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.03); filter: brightness(1.18) saturate(1.1); } }
 @media (prefers-reduced-motion: reduce) {
   .sob.urge:not(.ftue-flash):not(.slam) { animation: none; filter: brightness(1.12); }
-  .sob:not(:disabled) .sob-l-hover { animation: none; opacity: calc(0.1 + var(--heat, 0) * 0.6); }
+  .sob:not(:disabled) .sob-l-hover, .sob-seat.ramp .sob:not(:disabled) .sob-l-gold { animation: none; opacity: calc(0.1 + var(--heat, 0) * 0.6); }
   .sob .sob-shine { display: none; }
 }
 .sob-static { --sob1: calc(var(--sobw) / var(--kit-sob-size-w)); position: relative; display: inline-block; width: var(--sobw); height: calc(var(--sob1) * var(--kit-sob-size-h)); clip-path: none; }

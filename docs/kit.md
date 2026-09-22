@@ -30,6 +30,7 @@ out; a re-export with the same numbers is only new pictures.
 | --- | --- | --- | --- |
 | `sob-button` | `sob` | default, hover, pressed, disabled, wordmark, shineEdge, shineWipe, plateStill | canvas, shell, lift, the wordmark's seat, the shine SVGs' viewBox offset |
 | `turn-tracker` | `tt` | plate, plateDisabled, coinLit, coinUnlit | canvas, shell, the title seat and size, the coin row |
+| `sob-button-silver` | `sob-silver` | default, hover, disabled, wordmark, shineEdge, shineWipe, plateStill | the same numbers (the CSS reads `--kit-sob-*` for both finishes) |
 | `nameplate-you` | `np-you` | strip, ring, levelChip (as `chip`) | canvas and shell of the strip and the avatar, the portrait well, the level chip (not yet read by the CSS: the name plates still carry their numbers in `theme.css`) |
 | `nameplate-opponent` | `np-opp` | as above | as above |
 
@@ -54,9 +55,10 @@ files out (the tracker's plate is a hand-made one for now, see below); `--dry` p
   next export carries the size.
 - The wordmark's vertical seat: the cut sits it 20.95 below the shell's centre; the reference lockup centres it on
   the shell (the crown clears the frame), so the CSS reads `dx` and not `dy`.
-- Silver, or any second finish of a piece, is a second cut (a second set of states) exported from UIKM, imported
-  under its own prefix, and faded between in the CSS; the game never recolours a sprite in code, so Unity can read
-  the same pictures.
+- A second finish of a piece is a second cut (a second set of states) imported under its own prefix and faded
+  between in the CSS; the game never recolours a sprite in code, so Unity reads the same pictures. The strip's silver
+  (its resting finish; gold is hover and Standing) is such a cut, made from the gold cut by one colour map (its
+  README says how, and the ramp) rather than exported from UIKM; it lives at the same numbers.
 
 ## Unity
 

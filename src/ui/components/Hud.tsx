@@ -60,22 +60,25 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
             /* The Stand on Business strip from the button cut. --heat is how far the match has run (turn 1 = 0, the last
                turn = 1): the plate breathes its hover glow harder and faster as the end nears. The plate is the kit's four
                states as four layers (hover fades a second layer up, never swapping the sprite; pressed sinks and disabled
-               greys, both baked). At rest the plate is the cut's edge-shine SVG (a spark runs the outline every 9s);
-               when things ramp up (the back half of the match, or the last turn) it is the wipe shine (a glint sweeps the
-               face every 11s); under reduced motion the still PNG. The wordmark rides over the plate, outside the
-               button's hit area, on the board's seat. The button itself takes no pointer (its glow and shadow must not be clipped);
+               greys, both baked). The resting finish is silver, the less precious metal: the silver plate and lettering
+               with the silver shine SVGs (a spark runs the outline every 9s; when things ramp up, the back half of the
+               match or the last turn, a glint sweeps the face every 11s; under reduced motion the still plate). Gold is
+               the prize: the gold plate and lettering fade up over the silver on hover, and Standing holds the gold
+               pressed plate. The wordmark rides over the plate, outside the button's hit area, on the board's seat. The button itself takes no pointer (its glow and shadow must not be clipped);
                the hit area is the frame plus the lettering under it (.sob-hit). Standing holds the pressed state with the raise on a chip. */
             <span className={`sob-seat ${ramp ? 'ramp' : ''}`} style={{ '--heat': heat } as React.CSSProperties}>
               <button className={`sob ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''} ${stand.slam ? 'slam' : ''} ${stand.urge ? 'urge' : ''}`} disabled={stand.disabled} onClick={stand.onToggle} aria-label={stand.on ? 'Standing on Business' : 'Stand on Business'} title={view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes}>
                 <i className="sob-l sob-l-default" aria-hidden />
-                <img className="sob-l sob-shine sob-shine-edge" src={artUrl('kit', 'sob-shine-edge', 'svg')} alt="" aria-hidden draggable={false} />
-                <img className="sob-l sob-shine sob-shine-wipe" src={artUrl('kit', 'sob-shine-wipe', 'svg')} alt="" aria-hidden draggable={false} />
+                <img className="sob-l sob-shine sob-shine-edge" src={artUrl('kit', 'sob-silver-shine-edge', 'svg')} alt="" aria-hidden draggable={false} />
+                <img className="sob-l sob-shine sob-shine-wipe" src={artUrl('kit', 'sob-silver-shine-wipe', 'svg')} alt="" aria-hidden draggable={false} />
                 <i className="sob-l sob-l-hover" aria-hidden />
+                <i className="sob-l sob-l-gold" aria-hidden />
                 <i className="sob-l sob-l-pressed" aria-hidden />
                 <i className="sob-l sob-l-disabled" aria-hidden />
                 <i className="sob-hit" aria-hidden />
               </button>
               <i className="sob-word" aria-hidden />
+              <i className="sob-word sob-word-lit" aria-hidden />
               {stand.on && <b className="sob-chip">×{stand.proposed ?? effectiveStakes(view)}</b>}
             </span>
           )}
