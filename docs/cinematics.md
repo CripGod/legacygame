@@ -16,7 +16,7 @@ The play beat is the same 1.8-second turn every card gets; the clip grows out of
 | 1.0s | With the face up and big, the clip rises out of the tile's rectangle to the middle of the board (0.55s), a veil comes over the board (0.5s, 72% dark), and the board holds: the backdrop video pauses, every animation on the board freezes in place, the strip's shines go still. Nothing else moves until the clip is done. |
 | 1.25s | The caption fades in under the clip: a plate in Harborlight's blue saying who played the card, when it is their play; the card's name (gold for you, blue for Harborlight); the line; the card's summary. |
 | the clip | Plays to its end at up to 480px tall (42% of the viewport's height). About three seconds is the direction; the game cuts a clip off at 4.5s. Its sound, if it carries one, plays at the game's sound-effects setting, muted when that is off. |
-| the clip done | The caption rises 50px into the space the picture leaves (0.6s) and holds for two seconds to be read: the eye was on the picture while it played. The board stays held. |
+| the clip done | The caption rises to the vertical centre of where the picture was (0.6s), where the eye is resting, and holds for two seconds to be read. The board stays held. |
 | the end | The veil and the caption fade (0.4s), the board resumes where it froze, the tile settles, and the beat moves on. A click does not skip the clip: nothing in a turn's replay is skipped. |
 
 When the browser cannot play the clip (Safari, which has no VP9 with alpha) or the player asked for reduced motion,
