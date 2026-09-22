@@ -2,7 +2,8 @@
  * The readout's short form of a beat. The engine's labels and event texts are whole sentences ("Harborlight plays John
  * Russwurm at the Gates of Montgomery, Alabama"); the readout above Lock In is 300px wide, so it shows a compressed
  * line and leaves the sentence to the log: your handle becomes "You", people take their short names, Locations lose
- * their state or year, the stock phrases shrink, and what is still long is cut at a word.
+ * their state or year, the stock phrases shrink to a glance ("You: Russwurm → Montgomery"), a beat keeps only its first
+ * clause, and what is still long is cut at a word. The full sentence is in the log.
  */
 import { CARD_BY_ID, LOCATION_BY_ID, type GameState, type PlayerId } from '../engine';
 
@@ -35,9 +36,17 @@ const PHRASES: [RegExp, string][] = [
   [/ stands? on business/g, ' Stand on Business'],
   [/ Established Character/g, ' Established'],
   [/straight Inside/g, 'Inside'],
+  [/^(.+?) plays? (.+?) Inside (.+)$/g, '$1: $2 → $3, Inside'],
+  [/^(.+?) plays? (.+?) at (.+)$/g, '$1: $2 → $3'],
+  [/^You plant (.+?) at (.+)$/g, 'You plant $1 → $2'],
+  [/^(.+?) plants (.+?) at (.+)$/g, '$1 plants $2 → $3'],
+  [/^(.+?) is torn up at .+$/g, '$1 torn up'],
+  [/^(.+?) closes at .+: proved up$/g, '$1 proved up'],
+  [/^First Location bonus at .+$/g, 'First Location bonus'],
+  [/ on business$/g, ' on Business'],
 ];
 
-const MAX = 64;
+const MAX = 40;
 
 export function shortBeat(text: string, view: GameState, me: PlayerId, placeholders: boolean): string {
   let t = text;
@@ -57,9 +66,12 @@ export function shortBeat(text: string, view: GameState, me: PlayerId, placehold
   }
   for (const [re, short] of PHRASES) t = t.replace(re, short);
   t = t.replace(/\s+/g, ' ').trim();
+  // The first sentence only (a reveal's "Name: what happened." keeps the what; the why and the aside go to the log).
+  const stop = t.search(/[.;] |\. ?$/);
+  if (stop > 0) t = t.slice(0, stop);
   if (t.length > MAX) {
     const cut = t.lastIndexOf(' ', MAX - 1);
-    t = `${t.slice(0, cut > 24 ? cut : MAX - 1).replace(/[,.;:]$/, '')}…`;
+    t = `${t.slice(0, cut > 16 ? cut : MAX - 1).replace(/[,.;:(]$/, '')}…`;
   }
-  return t;
+  return t.replace(/[.]$/, '');
 }
