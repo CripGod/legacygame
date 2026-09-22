@@ -14,7 +14,7 @@ import '../compendium.css';
  * The same stage serves the match: `children` is an action tray under the card (send it somewhere, enter,
  * relocate, a live readout), so a card reads the same wherever it opens.
  */
-export function CodexSheet({ id, label, onClose, children, flat, siblings, onNav }: { id: string; label: string; onClose: () => void; children?: ReactNode; /** No backdrop blur: for the match, where the board behind keeps animating and a blurred backdrop would be recomputed every frame. */ flat?: boolean; siblings?: string[]; onNav?: (id: string) => void }) {
+export function CodexSheet({ id, label, onClose, children, flat, siblings, onNav, status }: { id: string; label: string; onClose: () => void; children?: ReactNode; /** The piece's standing on the board right now (under protection, shielded), shown above the rank. */ status?: ReactNode; /** No backdrop blur: for the match, where the board behind keeps animating and a blurred backdrop would be recomputed every frame. */ flat?: boolean; siblings?: string[]; onNav?: (id: string) => void }) {
   const { placeholders } = useDisplay();
   useLedger();
   const rank = rankOf(id);
@@ -41,8 +41,11 @@ export function CodexSheet({ id, label, onClose, children, flat, siblings, onNav
       historyTag={mythic ? 'A figure of faith and folklore, not a historical person. Here is where the story comes from.' : undefined}
       refsId={history ? id : undefined}
       below={
-        /* The card's rank, and the way up: Legacy buys the next frame. Cosmetic only; the numbers never change. */
+        /* The piece's standing (from the match), then the card's rank and the way up: Legacy buys the next frame.
+           Cosmetic only; the numbers never change. */
         def.kind === 'character' ? (
+          <>
+          {status}
           <div className={`cx-rank rank-${finish ?? rank} ${flash ? 'flash' : ''}`}>
             <span className="cx-rank-medal" aria-hidden />
             <span className="cx-rank-lbl">{finish ? `${FINISH_LABEL[finish]} finish · ${RANK_LABEL[rank]} rank` : `${RANK_LABEL[rank]} rank`}</span>
@@ -65,6 +68,7 @@ export function CodexSheet({ id, label, onClose, children, flat, siblings, onNav
               <span className="cx-rank-max">{fixedRank(id) ? `Only comes in ${RANK_LABEL[rank]}` : 'Highest rank'}</span>
             )}
           </div>
+          </>
         ) : undefined
       }
     >

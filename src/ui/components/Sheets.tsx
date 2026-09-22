@@ -15,11 +15,14 @@ import {
   type GameState,
   type PlayerId,
   type TurnPlan,
+  isProtected,
+  shielded,
 } from '../../engine';
 import { cardName, initials, locationName, threatLabel, useDisplay, spawnText } from '../display';
 import { RECONSTRUCTION_TURNS } from '../../engine/types';
 import { CardFace } from './CardFace';
 import { CodexSheet } from './CodexSheet';
+import { HINTS } from '../tip';
 import { Stage } from './Stage';
 import { tip } from '../tip';
 import { Art } from './Art';
@@ -75,7 +78,16 @@ export function CardSheet({
 export function CharSheet({ view, uid, onClose }: { view: GameState; uid: string; onClose: () => void }) {
   const c = view.characters[uid];
   if (!c) return null;
-  return <CodexSheet id={c.defId} label={view.players[c.owner].handle} onClose={onClose} flat />;
+  // The piece's standing on the board: under protection (the veil on its tile), shielded from Reveals, or neither.
+  const guarded = isProtected(view, c);
+  const shield = !guarded && shielded(view, c);
+  const status = guarded || shield ? (
+    <div className="cx-chips cx-status">
+      {guarded && <span className="cx-chip cx-shield">🛡 {HINTS.protected}</span>}
+      {shield && <span className="cx-chip cx-shield">🛡 {HINTS.shielded}</span>}
+    </div>
+  ) : undefined;
+  return <CodexSheet id={c.defId} label={view.players[c.owner].handle} onClose={onClose} flat status={status} />;
 }
 
 /** A Threat on the board: its plate on the dark stage, the story beside it, and what you can send against it in the tray. */
