@@ -12,10 +12,10 @@ import { Battlefield } from '../components/Battlefield';
 import { Hand } from '../components/Hand';
 import { Coach } from '../components/Coach';
 import { Spotlight } from '../components/Spotlight';
-import { sfx, voice, EVENT_CARD_SFX, getAudioSettings } from '../audio';
+import { sfx, voice, EVENT_CARD_SFX, useAudioSettings } from '../audio';
 import type { TraceStep } from '../../engine';
 import { Trails, TRAIL_COLORS, waveLandAt, type TrailShot } from '../components/Trails';
-import { CINEMATICS, CINE_VOLUME, CINE_READ_MS } from '../cinematics';
+import { CINEMATICS, CINE_VOLUME, CINE_READ_MS, CINE_MAX_MS } from '../cinematics';
 import { Fireworks } from '../components/Fireworks';
 import { MatchEnd } from '../components/MatchEnd';
 import { ghostOf, fly, jolt, partWay, clearGhosts, wait, painted, type Ghost } from '../fly';
@@ -196,6 +196,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   const reckoned = useRef(false);
   // Explainer pop-ups (the first-match guide, the coach's tips) are off outside the tutorial: the board tells the story.
   const [guideOn, setGuideOn] = useState(false);
+  const audio = useAudioSettings();
   const opts = useMemo(() => legalOptions(view, me), [view, me]);
   /** What your Stand added to the Legacy (from its event in the log), for the chip that stays on the gold strip. */
   const myRaise = useMemo(() => {
@@ -237,10 +238,11 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     setArrival(null);
   };
   /**
-   * A Character's cinematic, Marvel Snap style: when Paul Laurence Dunbar is played (by either side) his clip plays
-   * over the board on a dark veil, the alpha in the file, and the replay holds that beat until the clip ends. The
-   * clip is a VP9 WebM with alpha; a browser that cannot play that (Safari, until the HEVC copy lands) skips it, as
-   * does reduced motion. `cineDone` is the promise the beat waits on; the video's end, an error, or a timeout settle it.
+   * A card's cinematic, Marvel Snap style: when a card with an entry in CINEMATICS is played (by either side) its clip
+   * plays over the board on a dark veil, the alpha in the file, and the replay holds that beat until the clip ends.
+   * The clip is a VP9 WebM with alpha. WebKit (Safari, and every browser on iOS) plays VP9 WebM but not its alpha, so
+   * the clip would show as an opaque square there: it is skipped by vendor until the HEVC-with-alpha copy lands, as it
+   * is under reduced motion. `cineDone` is the promise the beat waits on; the video's end, an error, or a timeout settle it.
    */
   const [cine, setCine] = useState<{ key: number; card: string; from?: DOMRect; by?: PlayerId; /** The clip is done: the caption rises and holds to be read. */ read?: boolean; leaving?: boolean } | null>(null);
   const cineDone = useRef<(() => void) | null>(null);
@@ -248,7 +250,10 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   const cineHold = useRef(false);
   const cineSupported = useRef<boolean | null>(null);
   const canCine = () => {
-    if (cineSupported.current === null) cineSupported.current = typeof document !== 'undefined' && document.createElement('video').canPlayType('video/webm; codecs="vp9"') !== '';
+    if (cineSupported.current === null) {
+      const webkit = typeof navigator !== 'undefined' && /Apple/i.test(navigator.vendor);
+      cineSupported.current = !webkit && typeof document !== 'undefined' && document.createElement('video').canPlayType('video/webm; codecs="vp9"') !== '';
+    }
     return cineSupported.current && !reduceMotion();
   };
   const endCine = () => cineDone.current?.();
@@ -276,32 +281,47 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     }
   };
   const heldAnimations = useRef<Animation[]>([]);
-  /** `card` has the clip (CINEMATICS); `from` is the tile it grows out of (its rectangle at launch), without one it opens from the middle; `by` is who played the card: the opponent's play carries their plate. */
-  const playCine = async (card: string, from?: DOMRect, by?: PlayerId) => {
-    setCine({ key: Date.now(), card, from, by });
-    await painted();
-    holdBoard(true);
-    await new Promise<void>((r) => {
+  /**
+   * `card` has the clip (CINEMATICS); `from` is the tile it grows out of (its rectangle at launch), without one it
+   * opens from the middle; `by` is who played the card: the opponent's play carries their plate. `alive` is the beat's
+   * cancel token: a beat torn down mid-clip (a skip, a new match) takes the veil and the hold with it.
+   */
+  const playCine = async (card: string, from?: DOMRect, by?: PlayerId, alive: () => boolean = () => true) => {
+    // Armed before the element mounts: in a hidden tab nothing paints, but the clip plays and ends all the same.
+    const played = new Promise<void>((r) => {
       let settled = false;
       const done = () => { if (settled) return; settled = true; cineDone.current = null; r(); };
       cineDone.current = done;
-      window.setTimeout(done, 4500);
+      // The wait ends at CINE_MAX_MS whatever the clip is doing; a clip still playing is paused so the caption reads over a still.
+      window.setTimeout(() => { document.querySelector<HTMLVideoElement>('.cine-clip')?.pause(); done(); }, CINE_MAX_MS);
     });
-    // The clip done, the caption rises and holds for two seconds: the eye was on the picture, now it reads.
+    const torn = () => { holdBoard(false); setCine(null); cineHold.current = false; };
+    setCine({ key: Date.now(), card, from, by });
+    await painted();
+    if (!alive()) return torn();
+    holdBoard(true);
+    await played;
+    if (!alive()) return torn();
+    // The clip done, the caption rises and holds to be read: the eye was on the picture, now it reads.
     setCine((c) => (c ? { ...c, read: true } : c));
     await wait(CINE_READ_MS);
+    if (!alive()) return torn();
     holdBoard(false);
+    // The board is moving again: the tile's turn, paused under the hold, runs its rest (settleArrive gives it that).
+    cineHold.current = false;
     setCine((c) => (c ? { ...c, leaving: true } : c));
     await wait(400);
     setCine(null);
-    cineHold.current = false;
   };
-  /** The tile's turn settles only once the clip, if one is playing, has gone. */
+  /** The tile's turn settles only once the clip, if one is playing, has gone: paused about a second in under the hold, it has most of a second still to run once the board resumes. */
   const settleArrive = (uid: string, alive: () => boolean) => {
+    let held = false;
+    const clear = () => { if (alive()) setFx((f) => (f?.arrive === uid || f?.rise === uid ? null : f)); };
     const tick = () => {
       if (!alive()) return;
-      if (cineHold.current) { window.setTimeout(tick, 150); return; }
-      setFx((f) => (f?.arrive === uid || f?.rise === uid ? null : f));
+      if (cineHold.current) { held = true; window.setTimeout(tick, 150); return; }
+      if (held) { window.setTimeout(clear, 900); return; }
+      clear();
     };
     window.setTimeout(tick, 1900);
   };
@@ -1196,7 +1216,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         }
         await wait(1000);
         if (!alive()) return;
-        await playCine(step.cardId, tileOf(uid)?.getBoundingClientRect(), step.player);
+        await playCine(step.cardId, tileOf(uid)?.getBoundingClientRect(), step.player, alive);
         if (!alive()) return;
       }
       if (!reduceMotion() && step.kind === 'revealFx' && step.uids?.[0] && step.player && !trailEvs.length && !clashEvs.length) {
@@ -1267,6 +1287,9 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     void run();
     return () => {
       cancelled = true;
+      // A clip in flight: settle its wait; playCine sees the beat is gone and takes the veil and the hold down.
+      cineHold.current = false;
+      cineDone.current?.();
       clearGhosts();
       document.querySelector('.app')?.classList.remove('beat-focus');
       document.querySelectorAll('.acting, .acting-col').forEach((el) => el.classList.remove('acting', 'acting-col'));
@@ -1292,7 +1315,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   useEffect(() => warmKit(), []);
   // The clips are a few MB: fetch them into the cache as the match opens, so a first play does not stall.
   useEffect(() => {
-    if (canCine()) for (const c of Object.values(CINEMATICS)) void fetch(videoUrl(c.clip), { cache: 'force-cache' }).catch(() => undefined);
+    // The body is read so the whole file lands in the cache, not only its headers.
+    if (canCine()) for (const c of Object.values(CINEMATICS)) void fetch(videoUrl(c.clip), { cache: 'force-cache' }).then((r) => r.arrayBuffer()).catch(() => undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const turnHeard = useRef(view.turn);
@@ -2462,10 +2486,24 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       {cine && (
         <div className={`cine ${cine.read ? 'read' : ''} ${cine.leaving ? 'leaving' : ''} ${cine.from ? 'from-tile' : ''} ${cine.by && cine.by !== me ? 'theirs' : ''}`} key={cine.key} aria-hidden style={cine.from ? ({ '--fx': `${cine.from.left + cine.from.width / 2}px`, '--fy': `${cine.from.top + cine.from.height / 2}px`, '--fw': `${cine.from.width}px` } as React.CSSProperties) : undefined}>
           <div className="cine-veil" />
-          {/* A clip with sound plays it at the game's sound setting; a muted element is what lets autoplay through everywhere else. */}
-          <video className="cine-clip" autoPlay muted={!(CINEMATICS[cine.card]?.sound && getAudioSettings().sfx)} playsInline preload="auto" onEnded={endCine} onError={endCine} ref={(el) => { if (el) el.volume = CINE_VOLUME; }}>
-            <source src={videoUrl(CINEMATICS[cine.card]?.clip ?? '')} type="video/webm" />
-          </video>
+          {/* A clip with sound plays it at the game's sound setting (live: a toggle mid-clip takes). The file is the element's own src, so a
+              file that fails fires error here and ends the moment. Audible autoplay can be refused: then muted, and failing even that, the end. */}
+          <video
+            className="cine-clip"
+            src={videoUrl(CINEMATICS[cine.card]?.clip ?? '')}
+            autoPlay
+            muted={!(CINEMATICS[cine.card]?.sound && audio.sfx)}
+            playsInline
+            preload="auto"
+            onEnded={endCine}
+            onError={endCine}
+            ref={(el) => {
+              if (!el || el.dataset.armed) return;
+              el.dataset.armed = '1';
+              el.volume = CINE_VOLUME;
+              el.play()?.catch(() => { el.muted = true; el.play().catch(endCine); });
+            }}
+          />
           <div className="cine-cap">
             {cine.by && cine.by !== me && <i className="cine-by">{view.players[cine.by].handle} plays</i>}
             <b>{CARD_BY_ID[cine.card]?.name}</b>

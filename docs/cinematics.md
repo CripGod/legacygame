@@ -8,33 +8,36 @@ one command and one line.
 
 ## The sequence
 
-The play beat is the same 1.8-second turn every card gets; the clip grows out of it. Times are from the beat's start.
+The play beat is the 1.8-second turn Harborlight's cards get (your own card, which needs no turn, gets the swell only under a clip); the clip grows out of it. Times are from the beat's start.
 
 | When | What happens |
 | --- | --- |
 | 0.0s | The beat opens. Harborlight's card turns face up in its Gate slot: a moment on the back, the tile swells to 1.32×, turns at the top of the swell, holds the face, settles. Your own card, which you already know, takes the same beat face up, with no back shown. |
 | 1.0s | With the face up and big, the clip rises out of the tile's rectangle to the middle of the board (0.55s), a veil comes over the board (0.5s, 72% dark), and the board holds: the backdrop video pauses, every animation on the board freezes in place, the strip's shines go still. Nothing else moves until the clip is done. |
 | 1.25s | The caption fades in under the clip: a plate in Harborlight's blue saying who played the card, when it is their play; the card's name (gold for you, blue for Harborlight); the line; the card's summary. |
-| the clip | Plays to its end at up to 480px tall (42% of the viewport's height). About three seconds is the direction; the game cuts a clip off at 4.5s. Its sound, if it carries one, plays at the game's sound-effects setting, muted when that is off. |
-| the clip done | The caption rises to the vertical centre of where the picture was (0.6s), where the eye is resting, and holds for two seconds to be read. The board stays held. |
-| the end | The veil and the caption fade (0.4s), the board resumes where it froze, the tile settles, and the beat moves on. A click does not skip the clip: nothing in a turn's replay is skipped. |
+| the clip | Plays to its end at up to 480px tall (42% of the viewport's height). About three seconds is the direction; the board stops waiting at 6.5s and pauses whatever is still playing. Its sound, if it carries one, plays at the game's sound-effects setting, muted when that is off (a toggle mid-clip takes at once). |
+| the clip done | The caption rises to the vertical centre of where the picture was (0.6s), where the eye is resting, and holds there to be read: two seconds in all. The board stays held. |
+| the end | The veil and the caption fade (0.4s), the board resumes where it froze, the tile's turn runs its rest and settles, and the beat moves on. A click does not skip the clip. |
 
-When the browser cannot play the clip (Safari, which has no VP9 with alpha) or the player asked for reduced motion,
-there is no clip: the card takes its ordinary turn and the beat moves on.
+Under reduced motion, and on WebKit (Safari, and every browser on iOS: they play VP9 WebM but not its alpha, so the
+clip would show as an opaque square), there is no clip: the card takes its ordinary turn and the beat moves on. The
+WebKit skip is by vendor, since no browser API reports alpha support.
 
 The moment is the card being played from hand. A card arriving Inside, relocating, or coming back does not play it.
 
 ## Delivering a clip
 
-- **Square, 720×720**, 24 fps, **about three seconds**. 400×400 plays but is scaled up on a big screen; nothing is
-  scaled up in the encode, so what is delivered is what shows. A longer clip is brought down to 720.
+- **Square, 720×720**, 24 fps, **about three seconds** (six at most: the board stops waiting at 6.5s). 400×400 plays
+  but is scaled up on a big screen, 250×250 visibly so; nothing is scaled up in the encode, so what is delivered is
+  what shows. A clip larger than 720 square is scaled down to 720; a long clip is not shortened.
 - **An alpha channel**, transparent wherever the board should show through. From Premiere or Media Encoder: Export,
   Format QuickTime, Apple ProRes 4444, Depth "8-bpc + alpha" (or 16-bpc). From After Effects: Channels RGB + Alpha,
   Color Straight. A clip without alpha is refused with that setting named.
 - **No fade needed.** The game fades the clip in over a quarter second and out over three quarters, picture and
   sound together, so the clip can be delivered running from frame one to its last frame.
-- **Sound is optional.** Stereo, in the clip. It is brought to one level (-20 LUFS) and faded with the picture, and
-  plays at 0.6 of full scale, level with the game's own cues.
+- **Sound is optional.** Stereo, in the clip. It is brought to one level (about -20 LUFS; one pass over a short clip
+  lands within a couple of LU of it), cut with the picture, faded with it, and plays at 0.6 of full scale, level with
+  the game's own cues.
 - **Size.** ProRes 4444 is large: three seconds at 400² is about 30 MB, at 720² about 90 MB. When an upload limit
   is in the way, a colour pass over black plus a matte pass (white on black, from a Track Matte Key) in H.264 come
   to a few MB each; the key is then made by hand (Dunbar's was, from a colour pass alone).
@@ -54,13 +57,13 @@ fades and the sound level are baked in there. `--dry` prints what it would do.
 
 Then the card's entry in `src/ui/cinematics.ts`: the clip's file name, the line under the name (the person's own
 words, a real quotation, never ours), and `sound: true` when the clip carries sound. The read hold after the clip is
-`CINE_READ_MS` in the same file, and a clip's volume `CINE_VOLUME`. The test in
+`CINE_READ_MS` in the same file, the longest wait `CINE_MAX_MS`, and a clip's volume `CINE_VOLUME`. The test in
 `tests/cinematics.test.ts` checks that every entry names a real card and that both files exist. In `?dev=1`,
 `window.__sobCine('harriet_tubman')` plays the moment out of her tile on the spot, and `__sobCine('harriet_tubman', true)`
 plays it as Harborlight's.
 
-The single-file build (the artifact) does not inline video: `inline.cjs` keeps the clips as files beside the page,
-so a new clip is published alongside it.
+The single-file build for the artifact does not inline video: the clips are published as files beside the page, so
+a new clip goes up with it.
 
 ## Unity
 
@@ -73,3 +76,4 @@ The VP8 twin is copied into the Unity project's Resources at import; the Unity b
 | --- | --- | --- | --- | --- |
 | Paul Laurence Dunbar | `dunbar.webm` | "We wear the mask that grins and lies." | none | A 1080² colour pass over black, keyed by hand and played at twice its speed (six seconds became three) |
 | Harriet Tubman | `harriet.webm` | "I never ran my train off the track, and I never lost a passenger." | yes | ProRes 4444 with alpha, 400², through `npm run cine` |
+| Frederick Douglass | `douglass.webm` | "If there is no struggle, there is no progress." | yes | ProRes 4444 with alpha, 250², 5.5s, through `npm run cine` |

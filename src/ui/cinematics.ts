@@ -16,8 +16,10 @@ export interface Cinematic {
 export const CINEMATICS: Record<string, Cinematic> = {
   // "We Wear the Mask" (1895), the poem's first line.
   paul_laurence_dunbar: { clip: 'dunbar.webm', line: 'We wear the mask that grins and lies.' },
-  // Her account of the Railroad years, as Sarah Bradford recorded it.
+  // Her account of the Railroad years as Sarah Bradford recorded it (1886), in Bradford's dialect rendering; this is the standard modern wording.
   harriet_tubman: { clip: 'harriet.webm', line: 'I never ran my train off the track, and I never lost a passenger.', sound: true },
+  // The West India Emancipation speech, Canandaigua, 1857.
+  frederick_douglass: { clip: 'douglass.webm', line: 'If there is no struggle, there is no progress.', sound: true },
 };
 
 /** A clip's sound, brought to -20 LUFS by `npm run cine`, plays at this volume: level with the game's own cues. */
@@ -25,3 +27,6 @@ export const CINE_VOLUME = 0.6;
 
 /** After the clip, the caption rises and holds this long to be read: the eye was on the picture while it played. */
 export const CINE_READ_MS = 2000;
+
+/** The longest the board waits for a clip: a clip still playing then is paused, and the caption reads over the still. Six seconds of clip fit. */
+export const CINE_MAX_MS = 6500;
