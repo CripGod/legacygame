@@ -111,13 +111,8 @@ body { font-family: var(--font); font-size: 16px; }
 .hud-center { gap: 4px; }
 .sob.slam { animation: stand-slam 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
 @keyframes stand-slam { 0% { transform: scale(1); filter: brightness(1); } 12% { transform: scale(1.14); filter: brightness(1.9); } 30% { transform: scale(0.96); filter: brightness(1.2); } 55% { transform: scale(1.04); } 100% { transform: scale(1); filter: brightness(1); } }
-.readout .coin.flip { animation: coin-flip 0.9s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
-@keyframes coin-flip { 0% { transform: rotateX(0) scale(1); } 40% { transform: rotateX(360deg) scale(1.4); filter: brightness(2); } 100% { transform: rotateX(720deg) scale(1); filter: brightness(1); } }
-@media (prefers-reduced-motion: reduce) { .sob.slam, .readout .coin.flip { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .sob.slam { animation: none; } }
 .hud-sub { display: flex; align-items: center; gap: 10px; font-size: clamp(11px, 1vw, 14px); color: var(--muted); }
-.readout .coin { width: auto; height: auto; border-radius: 999px; padding: 2px 12px; display: inline-flex; gap: 4px; align-items: baseline; border: 1.5px solid var(--gold-dark); background: linear-gradient(180deg, #14233a, #0a1626); font-family: var(--display); font-weight: 700; font-size: 14px; color: var(--gold-2); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.5); }
-.readout .coin.raised { border-color: var(--gold-2); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 0 12px rgba(233, 185, 58, 0.45); }
-.readout .coin small { font-size: 8px; margin-left: 3px; letter-spacing: 0.14em; text-transform: uppercase; color: #cfc3a6; }
 .hud-sub .turn-label { font-size: clamp(10px, 0.95vw, 13px); letter-spacing: 0.14em; }
 .chat-btn { border-color: var(--gold-dark); }
 
@@ -680,17 +675,6 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 @media (max-width: 720px) {
   .replay-banner { top: 4px; gap: 6px; padding: 5px 8px; font-size: 11px; max-width: 96vw; }
   .replay-count { display: none; }
-}
-/* On a wide screen the banner, the toasts and the peek strip live in the empty lower-left corner, above Sit Down,
-   so nothing ever covers the board. */
-/* Wherever the lock panel shows (above 700px) the banner lives in the readout above Lock In, so nothing covers the board. */
-@media (min-width: 701px) {
-  .lock-panel .replay-banner { position: static; top: auto; left: auto; transform: none; width: 100%; max-width: none; box-sizing: border-box; flex-wrap: wrap; align-items: flex-start; row-gap: 6px; animation: replay-in-corner 260ms ease-out; }
-  .lock-panel .replay-banner .replay-text { flex: 1 1 100%; order: 3; }
-  .lock-panel .replay-banner .replay-kind { order: 1; }
-  .lock-panel .replay-banner .replay-count { order: 2; margin-left: auto; }
-  .lock-panel .replay-banner button.small { order: 2; }
-  @keyframes replay-in-corner { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 }
 @media (min-width: 721px) {
   .toast, .coach ~ .toast { position: fixed; top: auto; bottom: 226px; left: 16px; transform: none; max-width: min(32vw, 340px); }
@@ -2497,14 +2481,3 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .tt-coins i.lit { background-image: var(--kit-tt-coin-lit); }
 .turn-tracker.disabled .tt-title, .turn-tracker.disabled .tt-coins { opacity: 0.5; }
 
-/* ---- The readout above Lock In: the turn's beats as they play (with Skip), Energy and Legacy while planning. The bar
-   hides it and remembers. ---- */
-/* Anchored 28px above Lock In and growing upward from there, so however long a beat runs it never reaches the button;
-   its shadow stays tight so it never falls on the button either. */
-.readout { position: absolute; left: 0; right: 0; bottom: calc(100% + 28px); display: grid; gap: 4px; }
-.lock-panel .replay-banner { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(233, 185, 58, 0.25); }
-.readout-bar { display: flex; align-items: center; gap: 6px; padding: 0 2px; }
-.readout-label { font-family: var(--display); font-size: clamp(8px, 0.7vw, 10px); letter-spacing: 0.16em; text-transform: uppercase; color: #cfc3a6; margin-right: auto; }
-.readout-bar button.small { padding: 2px 8px; font-size: 10px; min-height: 0; }
-.readout .coin.energy-meter { border-color: #2d7ff9; color: #cfe2ff; }
-.readout .coin.energy-meter.spent { color: #8fb6ff; }

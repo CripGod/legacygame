@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { influenceAt, CARD_BY_ID, viewFor, legalOptions, validatePlan, gateRoom, GATE_CAPACITY, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, filterEvents, LOCATION_BY_ID, effectiveStakes } from '../../engine';
+import { influenceAt, CARD_BY_ID, viewFor, legalOptions, validatePlan, gateRoom, GATE_CAPACITY, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, filterEvents, LOCATION_BY_ID } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import { artUrl, videoUrl, kitVars, warmKit } from '../art';
@@ -14,7 +14,6 @@ import { Coach } from '../components/Coach';
 import { Spotlight } from '../components/Spotlight';
 import { sfx, voice, EVENT_CARD_SFX } from '../audio';
 import type { TraceStep } from '../../engine';
-import { shortBeat } from '../beat';
 import { Trails, TRAIL_COLORS, waveLandAt, type TrailShot } from '../components/Trails';
 import { Fireworks } from '../components/Fireworks';
 import { MatchEnd } from '../components/MatchEnd';
@@ -64,26 +63,6 @@ const BEAT_MS: Record<string, number> = {
   info: 500,
   tally: 1200,
   stakes: 1300,
-};
-const BEAT_KIND: Record<string, string> = {
-  turncoat: 'Charleston',
-  stand: 'Stand',
-  reveal: 'Location',
-  play: 'Play',
-  event: 'Event',
-  revealFx: 'Reveal',
-  enter: 'Enter',
-  move: 'Move',
-  showdown: 'Showdown',
-  summon: 'Summon',
-  threat: 'Threat',
-  spawn: 'Arrival',
-  crossing: 'The Crossing',
-  ready: 'Ready',
-  sundown: 'Sundown',
-  info: '',
-  tally: 'Tally',
-  stakes: 'Legacy',
 };
 
 /** A clash event's payload, as resolve.ts writes it. */
@@ -197,24 +176,6 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   /** The end of the match on the board: 1 the banner slams in, 2 it lifts and the result panel rises; collapsed = looking at the board. */
   const [endStage, setEndStage] = useState<0 | 1 | 2>(() => (m.view.phase === 'ended' ? 2 : 0));
   const [endCollapsed, setEndCollapsed] = useState(false);
-  /* The readout above Lock In: the turn's beats as they play, Energy and Legacy while planning. Hidden stays hidden. */
-  const [readoutOpen, setReadoutOpen] = useState(() => {
-    try {
-      return window.localStorage.getItem('bhcb.readout.v1') !== '0';
-    } catch {
-      return true;
-    }
-  });
-  const toggleReadout = () => {
-    setReadoutOpen((o) => {
-      try {
-        window.localStorage.setItem('bhcb.readout.v1', o ? '0' : '1');
-      } catch {
-        /* private mode: the choice lasts the session */
-      }
-      return !o;
-    });
-  };
   // A new match clears the last one's verdict.
   useEffect(() => {
     if (view.phase !== 'ended') {
@@ -288,7 +249,9 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   /** The choreography's grip on the board: tiles hidden under their flying ghosts, the flash, the stamp. Non-null while a clash plays. */
   const [fx, setFx] = useState<BoardFx | null>(null);
   /** What the banner says while a clash plays: the verdict in the pill, the sentence beside it. */
-  const [clashTell, setClashTell] = useState<{ title: string; text: string; sub?: string; tone: 'hit' | 'miss' | 'hex' | 'arrive' | 'ruling' | 'event' } | null>(null);
+  /* The clash tell (title, text, tone) once fed the readout; the board's own choreography tells it now. The state still
+     paces the replay, so it is kept and not read. */
+  const [, setClashTell] = useState<{ title: string; text: string; sub?: string; tone: 'hit' | 'miss' | 'hex' | 'arrive' | 'ruling' | 'event' } | null>(null);
   /** The board as it stood before this beat: a clash opens on it, so every piece is still where it was struck. */
   const prevView = useMemo(() => (m.replay && m.replay.idx > 0 ? viewFor(m.replay.steps[m.replay.idx - 1].state, me) : null), [m.replay?.idx, m.replay?.steps, me]);
   const [stagePrev, setStagePrev] = useState(false);
@@ -1206,7 +1169,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     if (step && !ownBeat) {
       beatSfx(step, step.kind === 'reveal' && !revealSlams(step));
       // The other side's Stand lands on the board the same way yours does: the burst over the Legacy coin, the flip.
-      if (step.kind === 'stand' && step.events.some((e) => e.type === 'stand' && e.player && e.player !== me) && !reduceMotion()) coinFx(document.querySelector('.readout .coin') ?? document.querySelector('.sob'));
+      if (step.kind === 'stand' && step.events.some((e) => e.type === 'stand' && e.player && e.player !== me) && !reduceMotion()) coinFx(document.querySelector('.sob'));
       if (step.kind === 'play' && step.cardId) voice(step.cardId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1572,16 +1535,12 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
    */
   const standArmed = useRef(false);
   const [standSlam, setStandSlam] = useState(false);
-  const [coinFlip, setCoinFlip] = useState(false);
-  /** The coin flips to the new price with a gold burst over it (the clap of your Stand, or the other side's Stand landing). */
+  /** A gold burst over the Stand strip (the clap of your Stand, or the other side's Stand landing). */
   const coinFx = (burstAt: Element | null) => {
     if (burstAt) {
       const r = burstAt.getBoundingClientRect();
       setTrail([{ from: r, to: r, color: TRAIL_COLORS.stand, kind: 'burst' }]);
     }
-    setCoinFlip(false);
-    window.setTimeout(() => setCoinFlip(true), 0);
-    window.setTimeout(() => setCoinFlip(false), 950);
   };
   const standFx = () => {
     setStandSlam(false);
@@ -2173,46 +2132,6 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   const stepOffLabel = 'Sit Down';
   const stepOffTip = opts.canStepOff ? tip(`Sit Down: give up the match now. ${view.players[other(me)].handle} takes ${opts.stepOffCost} Legacy.`) : tip(HINTS.noStepOff);
 
-  /* The turn's beat, one face at a time: the clash tell, the step with Skip, or the wait while the other side decides.
-     It renders in the readout above Lock In on a wide screen, and over the board on a phone, where the lock panel is hidden. */
-  const beat =
-verdict ? null : clashTell ? (
-      <div className={`replay-banner kind-clash ${clashTell.tone}`} role="status">
-        <span className="replay-kind">{clashTell.title}</span>
-        <span className="replay-text">{shortBeat(clashTell.text, view, me, placeholders)}</span>
-        {m.replay && (
-          <button className="small" onClick={m.replaySkip}>
-            Skip ▸▸
-          </button>
-        )}
-      </div>
-    ) : step && !ownBeat ? (
-      <div className={`replay-banner kind-${step.kind}`} role="status">
-        {BEAT_KIND[step.kind] && <span className="replay-kind">{BEAT_KIND[step.kind]}</span>}
-        <span className="replay-text">{shortBeat(step.label, view, me, placeholders)}</span>
-        {step.kind === 'stand' && (
-          <span className={`coin raised ${coinFlip ? 'flip' : ''}`} {...tip(HINTS.stakesPending)}>
-            {view.stakes}
-            <em>→{effectiveStakes(view)}</em>
-            <small>legacy</small>
-          </span>
-        )}
-        <span className="replay-count">
-          {m.replay!.idx + 1}/{m.replay!.steps.length}
-        </span>
-        <button className="small" onClick={m.replaySkip}>
-          Skip ▸▸
-        </button>
-      </div>
-    ) : resolving && !m.replay ? (
-      <div className="replay-banner kind-wait" role="status">
-        <span className="replay-kind">{locked ? 'Locked' : 'Resolving'}</span>
-        <span className="replay-text">
-          {locked ? (m.mode === 'ai' ? 'Harborlight is deciding' : 'Waiting for the other side') : 'The board settles'}
-          <span className="dots" aria-hidden />
-        </span>
-      </div>
-    ) : null;
 
   return (
     <div className={`app ${resolving ? 'resolving' : ''}`} style={kitVars() as React.CSSProperties}>
@@ -2269,7 +2188,6 @@ verdict ? null : clashTell ? (
           glowLocation={guideLocation}
           summonLabel={summonState}
         />
-        {compact && beat}
         {peekShow && (
           <div className="peek-strip" role="status" onClick={() => setPeekShow(null)}>
             <div className="peek-cap">
@@ -2368,28 +2286,6 @@ verdict ? null : clashTell ? (
           </div>
         </div>
         <div className="lock-panel">
-          {/* The readout: the turn's beats as they play (with Skip). A bar to hide it. Nothing while planning: the Energy dots
-              under Lock In and the Stand strip already say what the plan face said. */}
-          {view.phase !== 'ended' && (m.replay || resolving || beat) && (
-            <div className={`readout ${readoutOpen ? 'open' : 'shut'}`}>
-              <div className="readout-bar">
-                <span className="readout-label">{m.replay ? 'Playing out' : resolving ? 'Resolving' : 'Readout'}</span>
-                {m.replay && !readoutOpen && (
-                  <button className="small" onClick={m.replaySkip}>
-                    Skip ▸▸
-                  </button>
-                )}
-                <button className="small readout-toggle" onClick={toggleReadout} aria-expanded={readoutOpen} aria-controls="readout-body" title={readoutOpen ? 'Hide the readout' : 'Show the readout'}>
-                  {readoutOpen ? 'Hide' : 'Show'}
-                </button>
-              </div>
-              {readoutOpen && (
-                <div id="readout-body">
-                  {beat}
-                </div>
-              )}
-            </div>
-          )}
           {view.phase === 'ended' ? (
             endCollapsed ? (
               <button className="primary lock-btn" onClick={() => setEndCollapsed(false)}>
@@ -2397,8 +2293,8 @@ verdict ? null : clashTell ? (
               </button>
             ) : null
           ) : (
-            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${locked ? 'locked' : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning} onClick={lockNow} title={HINTS.timer}>
-              <span>{planning ? 'LOCK IN' : locked ? 'LOCKED ✓' : 'RESOLVING…'}</span>
+            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${locked ? 'locked' : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning && !m.replay} onClick={planning ? lockNow : m.replaySkip} title={planning ? HINTS.timer : m.replay ? 'Skip to the end of the turn' : undefined}>
+              <span>{planning ? 'LOCK IN' : m.replay ? 'SKIP ▸▸' : locked ? 'LOCKED ✓' : 'RESOLVING…'}</span>
               <i className="timer-bar" aria-hidden>
                 <b style={{ width: `${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 0}%` }} />
               </i>
@@ -2416,8 +2312,8 @@ verdict ? null : clashTell ? (
               </button>
             ) : null
           ) : (
-            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${locked ? 'locked' : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning} onClick={lockNow} title={HINTS.timer}>
-              <span>{planning ? 'LOCK IN' : locked ? 'LOCKED ✓' : 'RESOLVING…'}</span>
+            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${locked ? 'locked' : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning && !m.replay} onClick={planning ? lockNow : m.replaySkip} title={planning ? HINTS.timer : m.replay ? 'Skip to the end of the turn' : undefined}>
+              <span>{planning ? 'LOCK IN' : m.replay ? 'SKIP ▸▸' : locked ? 'LOCKED ✓' : 'RESOLVING…'}</span>
               <i className="timer-bar" aria-hidden>
                 <b style={{ width: `${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 0}%` }} />
               </i>
