@@ -57,14 +57,14 @@ const BEAT_MS: Record<string, number> = {
   move: 1900,
   showdown: 1700,
   summon: 2200,
-  threat: 2200,
+  threat: 1700, // the tile arrives in 0.9s and pulses; the sting has played by then
   spawn: 1600,
-  ready: 600, // the Ready strips: bookkeeping, a short settle
+  ready: 250, // the Ready strips: bookkeeping, the briefest settle
   sundown: 2200,
   crossing: 2200,
   turncoat: 2300,
-  info: 900,
-  tally: 700, // the turn is counted: nothing moves, a settle before the turn call
+  info: 600,
+  tally: 300, // the turn is counted: nothing moves, the briefest settle before the turn call
   stakes: 2300,
 };
 
