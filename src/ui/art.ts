@@ -29,6 +29,15 @@ export function warmKit(): void {
     img.src = u;
   }
 }
+/** Every number in kit-geometry.json (scripts/kit.ts writes it from a cut's manifest) as a CSS variable named
+ *  --kit-<prefix>-<path> (--kit-tt-shell-w, --kit-sob-wordmark-dx), so the CSS lays a piece out by the cut's own
+ *  numbers and a re-export with a different shell or seat lays itself out. See docs/kit.md. */
+const kebab = (k: string) => k.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
+function geometryVars(prefix: string, node: unknown, out: Record<string, string>): void {
+  if (typeof node === 'number') out[prefix] = String(node);
+  else if (node && typeof node === 'object') for (const [k, v] of Object.entries(node)) geometryVars(`${prefix}-${kebab(k)}`, v, out);
+}
+
 export function kitVars(): Record<string, string> {
   const out: Record<string, string> = {};
   for (const p of KIT_PIECES) for (const s of KIT_STATES) out[`--kit-${p}-${s}`] = `url("${pageUrl(artUrl('kit', `${p}-${s}`, 'webp'))}")`;
@@ -40,10 +49,12 @@ export function kitVars(): Record<string, string> {
   out['--kit-ribbon-glow'] = `url("${pageUrl(artUrl('kit', 'ribbon-glow', 'webp'))}")`;
   // The card back (public/art/frames/card-back.webp, 600 by 364, the Gate window's shape): every face-down card wears it.
   out['--card-back'] = `url("${pageUrl(artUrl('frames', 'card-back', 'webp'))}")`;
+  geometryVars('--kit', geometry, out);
   return out;
 }
 
 import manifest from './art-manifest.json';
+import geometry from './kit-geometry.json';
 
 const missing = new Set<string>();
 

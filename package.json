@@ -15,6 +15,7 @@
     "docs": "tsx scripts/docs.ts",
     "export": "tsx scripts/export.ts",
     "golden": "tsx scripts/golden.ts",
+    "kit": "tsx scripts/kit.ts",
     "refs:check": "tsx scripts/refs-check.ts"
   },
   "dependencies": {
@@ -26,6 +27,7 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
+    "sharp": "^0.35.4",
     "tsx": "^4.23.13",
     "typescript": "^5.9.3",
     "vite": "^8.2.2",
