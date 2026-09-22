@@ -1066,15 +1066,16 @@ function playEvent(state: GameState, p: PlayerId, play: PlayAction, events: Game
   events.push({ type: 'eventPlayed', text: `${ps.handle} plays ${def.name} at ${locName(state, at)}.`, player: p, cardId: def.id, location: at });
   switch (def.effect.type) {
     case 'reparations': {
-      const base = Math.min(def.effect.max, ps.setbacks);
+      // The card always pays one. Every Setback suffered this match adds one more, up to the cap, and the Americas add the region bonus.
+      const owed = Math.min(def.effect.max, ps.setbacks);
       const home = hereDef?.region === def.effect.bonus.region ? def.effect.bonus.influence : 0;
-      if (base + home === 0) {
-        events.push({ type: 'info', text: `${def.name}: no Setbacks this match, and ${locName(state, at)} is not in the Americas.`, player: p, location: at });
-        break;
-      }
+      const total = 1 + owed + home;
       here.permInfluence = here.permInfluence ?? { A: 0, B: 0 };
-      here.permInfluence[p] += base + home;
-      events.push({ type: 'info', text: `${def.name}: +${base + home} lasting Influence at ${locName(state, at)} (${ps.setbacks} Setback${ps.setbacks === 1 ? '' : 's'}${home ? `, +${home} in the Americas` : ''}). It counts at the end no matter when it was played.`, player: p, location: at });
+      here.permInfluence[p] += total;
+      const why: string[] = [];
+      if (ps.setbacks) why.push(`${ps.setbacks} Setback${ps.setbacks === 1 ? '' : 's'}${owed < ps.setbacks ? `, +${owed} at most` : ''}`);
+      if (home) why.push(`+${home} in the Americas`);
+      events.push({ type: 'info', text: `${def.name}: +${total} lasting Influence at ${locName(state, at)}${why.length ? ` (${why.join(', ')})` : ''}. It counts at the end no matter when it was played.`, player: p, location: at });
       break;
     }
     case 'ancestors': {

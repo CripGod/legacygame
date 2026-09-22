@@ -231,8 +231,8 @@ export function evaluate(state: GameState, p: PlayerId): Evaluation {
     score -= c.zone === 'gate' ? 1.0 : 0.6;
     reasons.push('held');
   }
-  // Reparations potential.
-  if (state.players[p].hand.includes('reparations')) score += 0.4 * Math.min(4, state.players[p].setbacks);
+  // Reparations potential: the card pays one on its own and one more per Setback up to four, so holding it is worth a little even on a clean record.
+  if (state.players[p].hand.includes('reparations')) score += 0.4 * (1 + Math.min(4, state.players[p].setbacks));
   return { score, reasons };
 }
 

@@ -98,7 +98,7 @@ Never in a deck: the board calls them.
 
 | Event | Cost | Text | Decks |
 |---|---|---|---|
-| Reparations | 1 | Choose a Location: +1 lasting Influence there for each Setback you have suffered this match (max +4). It counts at the end no matter when you play it. In the Americas: +1 more. | Railroad, Black Star, Pantheon, Mirror |
+| Reparations | 1 | Choose a Location: +1 lasting Influence there, and +1 more for each Setback you have suffered this match (max +4 from Setbacks). It counts at the end no matter when you play it. In the Americas: +1 more. | Railroad, Black Star, Pantheon, Mirror |
 | Community Defense | 2 | This turn none of your Characters, anywhere, can be blocked or displaced. Choose a Location: your Characters there also confront Threats with +2 Force. | Black Star, Mirror |
 | Bois Caïman | 3 | The oath: choose a Location with a Threat. Until that Threat is neutralized, every Character there, yours and theirs, confronts it every turn with full Force, and nobody relocates out. | Uprising |
 | The Ancestors | 0 | Play it while planning: the Ancestors show you your opponent's plan for this turn and every danger the board is about to spring. Choose a Location. In Africa: your Characters there gain +1 Influence this turn. |  |

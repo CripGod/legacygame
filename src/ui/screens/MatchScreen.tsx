@@ -2444,10 +2444,10 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   );
 }
 
-/** What Reparations would pay if played now: Setbacks so far (max 4), plus one in the Americas. */
+/** What Reparations would pay if played now: one, plus one per Setback so far (max 4), plus one in the Americas. */
 function ReparationsReadout({ view, me, placeholders }: { view: GameState; me: PlayerId; placeholders: boolean }) {
   const n = view.players[me].setbacks;
-  const base = Math.min(4, n);
+  const owed = Math.min(4, n);
   const americas = view.locations.filter((l) => l.revealed && LOCATION_BY_ID[l.defId]?.region === 'americas').map((l) => locationName(l.defId, placeholders));
   return (
     <div className={`rep-readout ${n > 0 ? 'live' : ''}`}>
@@ -2455,9 +2455,7 @@ function ReparationsReadout({ view, me, placeholders }: { view: GameState; me: P
         <b>{n}</b> Setback{n === 1 ? '' : 's'} so far
       </div>
       <div>
-        {n === 0
-          ? 'Nothing owed yet. Every Setback you suffer from here on adds +1 (up to +4).'
-          : `Played now: +${base} lasting Influence at the Location you choose${base < n ? ' (the cap is 4)' : ''}, and +1 more in the Americas${americas.length ? ` (${americas.join(', ')})` : ''}. It counts at the end no matter when you play it.`}
+        {`Played now: +${1 + owed} lasting Influence at the Location you choose${n === 0 ? '' : ` (+1, and +${owed} for the Setback${n === 1 ? '' : 's'}${owed < n ? '; the cap is 4' : ''})`}, and +1 more in the Americas${americas.length ? ` (${americas.join(', ')})` : ''}.${owed < 4 ? ' Every Setback you suffer from here on adds +1 (up to +4).' : ''} It counts at the end no matter when you play it.`}
       </div>
     </div>
   );

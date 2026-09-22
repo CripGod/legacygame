@@ -335,11 +335,13 @@ describe('threats', () => {
     // Now A can Assist against B's Patrol.
     const opts = legalOptions(s, 'A');
     expect(opts.confronts.find((c) => c.threatUid === 't2')?.assist).toBe(true);
-    // Reparations at Great Migration (Americas): +1 per Setback, +1 more for the region.
+    // Reparations at Great Migration (Americas): +1 on its own, +1 per Setback, +1 more for the region (on top of what Word spreads paid there when the Patrol broke).
+    const before = s.locations[1].permInfluence?.A ?? 0;
     const out = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'reparations', location: 1 }] }, B: pass() });
-    expect(out.events.some((e) => e.text.includes('Reparations: +') && e.text.includes('+1 in the Americas'))).toBe(true);
-    expect(out.state.locations[1].tempInfluence.A).toBe(0); // temporary: cleared at end of turn
-    expect((out.events.find((e) => e.type === 'influence' && e.location === 1)?.data as { A: number }).A).toBeGreaterThanOrEqual(2);
+    expect(out.events.some((e) => e.text.includes('Reparations: +3 lasting Influence') && e.text.includes('(1 Setback, +1 in the Americas)'))).toBe(true);
+    expect(out.state.locations[1].tempInfluence.A).toBe(0); // lasting, not temporary
+    expect(out.state.locations[1].permInfluence?.A).toBe(before + 3);
+    expect((out.events.find((e) => e.type === 'influence' && e.location === 1)?.data as { A: number }).A).toBeGreaterThanOrEqual(3);
   });
   it('Comfortable Complicity needs both players and rewards the leader while active', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['black_star', 'great_migration', 'greenwood'], revealAll: true });
@@ -1685,9 +1687,33 @@ describe('variety pass and lasting Reparations', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['reparations'] });
     s.players.A.setbacks = 3;
     s = resolveTurn(s, { A: { ...pass(), plays: [{ cardId: 'reparations', location: 0 }] }, B: pass() }).state;
-    expect(s.locations[0].permInfluence?.A).toBe(4); // 3 Setbacks +1 in the Americas
+    expect(s.locations[0].permInfluence?.A).toBe(5); // +1 on its own, 3 Setbacks, +1 in the Americas
     s = resolveTurn(s, { A: pass(), B: pass() }).state;
-    expect(influenceAt(s, 0).A).toBe(4);
+    expect(influenceAt(s, 0).A).toBe(5);
+  });
+  it('Reparations pays +1 with no Setbacks, +1 more per Setback, and +1 more in the Americas', () => {
+    // Accra is in Africa: no region bonus, so the base shows on its own.
+    const clean = rig(createMatch({ seed: 2 }), { locations: ['accra_ghana', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['reparations'] });
+    let r = resolveTurn(clean, { A: { ...pass(), plays: [{ cardId: 'reparations', location: 0 }] }, B: pass() });
+    expect(r.state.locations[0].permInfluence?.A).toBe(1);
+    expect(r.events.some((e) => e.text === 'Reparations: +1 lasting Influence at Accra, Ghana. It counts at the end no matter when it was played.')).toBe(true);
+    // Two Setbacks: +1 and +2.
+    const owed = rig(createMatch({ seed: 2 }), { locations: ['accra_ghana', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['reparations'] });
+    owed.players.A.setbacks = 2;
+    r = resolveTurn(owed, { A: { ...pass(), plays: [{ cardId: 'reparations', location: 0 }] }, B: pass() });
+    expect(r.state.locations[0].permInfluence?.A).toBe(3);
+    expect(r.events.some((e) => e.text === 'Reparations: +3 lasting Influence at Accra, Ghana (2 Setbacks). It counts at the end no matter when it was played.')).toBe(true);
+    // The Americas with a clean record: +1 and the region's +1.
+    const home = rig(createMatch({ seed: 2 }), { locations: ['accra_ghana', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['reparations'] });
+    r = resolveTurn(home, { A: { ...pass(), plays: [{ cardId: 'reparations', location: 1 }] }, B: pass() });
+    expect(r.state.locations[1].permInfluence?.A).toBe(2);
+    expect(r.events.some((e) => e.text.includes('Reparations: +2 lasting Influence at') && e.text.includes('(+1 in the Americas)'))).toBe(true);
+    // Six Setbacks: the Setback share is capped at four, so +5.
+    const capped = rig(createMatch({ seed: 2 }), { locations: ['accra_ghana', 'great_migration', 'gary_indiana'], revealAll: true, handA: ['reparations'] });
+    capped.players.A.setbacks = 6;
+    r = resolveTurn(capped, { A: { ...pass(), plays: [{ cardId: 'reparations', location: 0 }] }, B: pass() });
+    expect(r.state.locations[0].permInfluence?.A).toBe(5);
+    expect(r.events.some((e) => e.text.includes('(6 Setbacks, +4 at most)'))).toBe(true);
   });
   it('Zora digs, Walker banks Energy, Payne discounts the next Character, Green grants a Relocation, Vesey recruits', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, energy: true, handA: ['zora_neale_hurston', 'madam_cj_walker', 'daniel_payne', 'victor_hugo_green', 'denmark_vesey', 'john_russwurm'] });

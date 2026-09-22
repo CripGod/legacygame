@@ -275,7 +275,7 @@ export function influenceRows(state: GameState, location: number, p: PlayerId): 
   const perm = l.permInfluence?.[p] ?? 0;
   if (perm) rows.push({ label: 'Lasting Influence here (First Location bonus, Word spreads, pacts)', amount: perm });
   const temp = l.tempInfluence[p] ?? 0;
-  if (temp) rows.push({ label: 'This turn only (Reparations and the like)', amount: temp });
+  if (temp) rows.push({ label: 'This turn only (The Ancestors and the like)', amount: temp });
   const raw = rows.reduce((s, r) => s + r.amount, 0);
   if (raw < 0) rows.push({ label: 'Influence cannot go below 0', amount: -raw });
   const final = influenceAt(state, location);
