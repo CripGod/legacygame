@@ -1168,8 +1168,6 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   useEffect(() => {
     if (step && !ownBeat) {
       beatSfx(step, step.kind === 'reveal' && !revealSlams(step));
-      // The other side's Stand lands on the board the same way yours does: the burst over the Legacy coin, the flip.
-      if (step.kind === 'stand' && step.events.some((e) => e.type === 'stand' && e.player && e.player !== me) && !reduceMotion()) coinFx(document.querySelector('.sob'));
       if (step.kind === 'play' && step.cardId) voice(step.cardId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1529,19 +1527,11 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   };
 
   /**
-   * The Stand, Marvel Snap style: the button slams on the press; on the clap (800 ms in, when the bell rings) it
-   * explodes into a gold burst, the board jolts and the Legacy coin flips to the new price while the roar carries on.
-   * `standArmed` lets a quick cancel call the burst off.
+   * The Stand, Marvel Snap style: the button slams on the press; on the clap (800 ms in, when the bell rings) the
+   * board jolts while the roar carries on. `standArmed` lets a quick cancel call the jolt off.
    */
   const standArmed = useRef(false);
   const [standSlam, setStandSlam] = useState(false);
-  /** A gold burst over the Stand strip (the clap of your Stand, or the other side's Stand landing). */
-  const coinFx = (burstAt: Element | null) => {
-    if (burstAt) {
-      const r = burstAt.getBoundingClientRect();
-      setTrail([{ from: r, to: r, color: TRAIL_COLORS.stand, kind: 'burst' }]);
-    }
-  };
   const standFx = () => {
     setStandSlam(false);
     window.setTimeout(() => setStandSlam(true), 0);
@@ -1550,7 +1540,6 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     standArmed.current = true;
     window.setTimeout(() => {
       if (!standArmed.current) return;
-      coinFx(document.querySelector('.sob'));
       setShake(true);
       window.setTimeout(() => setShake(false), 320);
     }, 800);
@@ -2334,7 +2323,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         <div className="turn-call" key={turnFlash} aria-hidden>
           <div className="turn-veil" />
           <div className={`turn-flash ${(finalTurnLabel(view, false, true) ?? '').length > 8 ? 'wide' : ''}`}>
-            <img className="ribbon-base" src={artUrl('kit', 'ribbon', 'webp')} alt="" />
+            <i className="turn-plate" aria-hidden />
             <span className="ribbon-word">{finalTurnLabel(view, false, true) ?? `Turn ${turnFlash}`}</span>
           </div>
         </div>

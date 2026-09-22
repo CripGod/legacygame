@@ -1658,16 +1658,18 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
   position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
   /* The call rides the Brightside ribbon: the word in the kit's face at its seat (see the match-end block), the whole
      thing scaled through --k, the ribbon's px per 1x unit. */
-  --rb-w: min(48vw, 560px); --k: calc(var(--rb-w) / 807); width: var(--rb-w); aspect-ratio: 807 / 231;
-  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.6));
+  --rb-w: min(52vw, 640px); --k: calc(var(--rb-w) / 809); width: var(--rb-w); aspect-ratio: 809 / 246;
+  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.55));
   animation: turn-flash 1.9s linear both;
 }
-/* A long call (THE LAST WORD) rides a wider ribbon and a smaller word, so it keeps clear of the plate's edges (the kit's
-   reading width is about two thirds of the ribbon). */
-.turn-flash.wide { --rb-w: min(62vw, 740px); }
-.turn-flash.wide .ribbon-word { font-size: calc(var(--k) * 44); letter-spacing: 0.1em; }
-.turn-flash .ribbon-base { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.turn-flash .ribbon-word { position: absolute; left: 50%; top: 35.3%; transform: translate(-50%, -50%); font-family: var(--display); font-weight: 700; font-size: calc(var(--k) * 58); line-height: 1; letter-spacing: 0.08em; text-transform: uppercase; color: #22304a; text-shadow: 0 calc(var(--k) * 3.2) calc(var(--k) * 4) rgba(138, 126, 100, 0.26); white-space: nowrap; }
+/* The call now rides the button cut's strip plate (the Stand strip's notched, glassy plate; the kit's drop shadow in
+   the file): the word in the kit's gold, big, centred on the plate's shell (its centre sits at 47.9% of the canvas). */
+.turn-flash .turn-plate { position: absolute; inset: 0; background: var(--kit-sob-default) center / 100% 100% no-repeat; }
+/* A long call (THE LAST WORD) rides a wider plate and a smaller word, so it keeps clear of the frame (the shell is 84%
+   of the canvas). */
+.turn-flash.wide { --rb-w: min(64vw, 800px); }
+.turn-flash.wide .ribbon-word { font-size: calc(var(--k) * 64); letter-spacing: 0.1em; }
+.turn-flash .ribbon-word { position: absolute; left: 50%; top: 47.9%; transform: translate(-50%, -50%); font-family: var(--display); font-weight: 700; font-size: calc(var(--k) * 96); line-height: 1; letter-spacing: 0.08em; text-transform: uppercase; color: #fccc3c; text-shadow: 0 calc(var(--k) * 3) calc(var(--k) * 3) rgba(11, 18, 40, 0.85), 0 0 calc(var(--k) * 28) rgba(0, 0, 0, 0.55); white-space: nowrap; }
 /* In: fades up from nothing while it grows 0 to 115%, drops under to 96%, comes back to 102% and settles at 100% (the bell
    at 520ms, on the drop). Out: a small wind-up to 108%, then it shrinks away to nothing as it fades. Every leg has its
    own easing; the keyframe times are on the 1.9s timeline the veil shares. */
@@ -2112,10 +2114,13 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 /* Your label rides 10px higher, over the Location's glow, so it reads as the frame's caption rather than the row's. */
 .gates-strip.mine .lbl { position: relative; top: -10px; z-index: 8; }
 
-/* The two name plates sit over everything on the board: tiles, glows, floats, flights and trails pass beneath
-   them (the fly layer and the floats are appended inside .app, whose stacking context is isolated, so a z-index
-   here can rank above them). Only modal sheets and their scrim, the dragged card and the tooltip stay above. */
-.hud { position: relative; z-index: 65; }
+/* The two name plates and the gear sit over everything on the board: tiles, glows, floats, flights and trails pass
+   beneath them (the fly layer and the floats are appended inside .app, whose stacking context is isolated, so a
+   z-index here can rank above them). Only modal sheets and their scrim, the dragged card and the tooltip stay above.
+   The bar itself is not a stacking context, so the Stand strip in its middle can sink to the bottom of the order
+   (.sob-seat, below), under the Gates and the board, just above the backdrop. */
+.hud { position: relative; }
+.hud .np { position: relative; z-index: 65; }
 /* The match's end sits over the board, the name plates and every effect (76-80); a sheet opened from it (a card to promote) over that. */
 .scrim, .devpanel { z-index: 85; }
 
@@ -2415,8 +2420,16 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
    Hover never swaps the sprite. */
 .hud-center { --sobw: calc(var(--u) * 710); --sobh: calc(var(--sobw) * 0.30408); }
 .hud-mid { position: relative; display: flex; align-items: center; justify-content: center; height: var(--np-h); }
-.hud-mid .hud-settings { position: absolute; left: calc(92.2% + clamp(6px, 0.8vw, 14px)); top: 50%; transform: translateY(-50%); }
-.sob-seat { position: relative; display: block; width: var(--sobw); height: 100%; flex: none; }
+.hud-mid .hud-settings { position: absolute; left: calc(92.2% + clamp(6px, 0.8vw, 14px)); top: 50%; transform: translateY(-50%); z-index: 66; }
+/* The strip is the hero plate, not a panel: it sits at the bottom of the z-order, just over the backdrop video, so the
+   lettering that hangs below it runs under the Gates and everything on the board passes over it. (.app isolates its
+   stacking context and .app-bg, fixed at -1, comes first in the tree, so -1 here lands right above it.) */
+.sob-seat { position: relative; display: block; width: var(--sobw); height: 100%; flex: none; z-index: -1; }
+/* Sunk below the bar, the strip would sit under the bar's own transparent boxes for hit-testing (a box takes the
+   pointer whether or not it paints), so the bar and its middle column pass the pointer through and only the name
+   plates, the gear and the strip's hit area take it back. */
+.hud, .hud-center, .hud-mid { pointer-events: none; }
+.hud .np, .hud-mid .hud-settings, .sob-hit { pointer-events: auto; }
 .sob { position: absolute; left: 0; top: calc(50% - var(--sobh) * 0.4791); width: var(--sobw); height: var(--sobh); margin: 0; padding: 0; border: 0 !important; border-radius: 0 !important; background: none !important; box-shadow: none; clip-path: none !important; overflow: visible; pointer-events: none; isolation: isolate; z-index: 1; transition: filter 0.15s; }
 /* The pointer lands on the frame and the lettering under it, not the canvas's shadow room; the button draws unclipped. */
 .sob-hit { position: absolute; left: 7.8%; right: 7.8%; top: 25.5%; bottom: 12%; pointer-events: auto; cursor: pointer; }
@@ -2473,9 +2486,13 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
    and the title as live text at (235.4, 43.5) from the shell in Cinzel 700, the kit's Highlight gold. --v is the
    plate's 1x pixel at the size it is drawn: the shell, not the sprite, is as wide as Lock In (the sprite carries
    transparent margins and the drop shadow), so the element overhangs the panel by the sprite's margins. Match over: the greyed plate, coins and title at half. ---- */
-.turn-tracker { --v: calc(var(--tt) / 470.9); position: relative; width: calc(var(--v) * 510); height: calc(var(--v) * 178); justify-self: start; margin-left: calc(-1 * var(--v) * 19.5); margin-right: calc(-1 * var(--v) * 19.6); margin-top: calc(-1 * var(--v) * 2.9); }
-.tt-plate { position: absolute; inset: 0; background: var(--kit-tt-plate) center / 100% 100% no-repeat; }
-.turn-tracker.disabled .tt-plate { background-image: var(--kit-tt-plate-disabled); }
+.turn-tracker { --v: calc(var(--tt) / 470.9); position: relative; width: calc(var(--v) * 510); height: calc(var(--v) * 134.7); justify-self: start; margin-left: calc(-1 * var(--v) * 19.5); margin-right: calc(-1 * var(--v) * 19.6); margin-top: calc(-1 * var(--v) * 2.9); margin-bottom: calc(var(--v) * 43.3); }
+/* The plate is the kit's primary plate (Sit Down's and Lock In's) with its extrusion lip cut out (tt-plate.webp, the
+   2x rows of the lip removed), drawn as the same nine-slice at the same caps as Sit Down, so the two walls are one
+   width on screen and the tracker has no lip. It fills the cut's shell rectangle, so the title and the coins keep
+   their seats. */
+.tt-plate { position: absolute; left: calc(var(--v) * 19.5); top: calc(var(--v) * 2.9); width: calc(var(--v) * 470.9); height: calc(var(--v) * 131.8); box-sizing: border-box; --kh: clamp(38px, 4.4vw, 56px); --cap: calc(var(--kh) * 0.205); border-style: solid; border-color: transparent; border-width: var(--cap); border-image-source: var(--kit-tt-plate); border-image-slice: 75 fill; border-image-repeat: stretch; }
+.turn-tracker.disabled .tt-plate { border-image-source: var(--kit-tt-plate-disabled); }
 .tt-title { position: absolute; left: calc(var(--v) * 254.9); top: calc(var(--v) * 46.4); transform: translate(-50%, -50%); white-space: nowrap; font-family: var(--display); font-weight: 700; font-size: calc(var(--v) * 26.3); letter-spacing: 0.03em; text-transform: uppercase; color: #fccc3c; text-shadow: 0 2px 2px rgba(11, 18, 40, 0.8); }
 .tt-coins i { position: absolute; width: calc(var(--v) * 53); height: calc(var(--v) * 53); top: calc(var(--v) * (95.2 - 26.5)); left: calc(var(--v) * (79.9 - 26.5 + var(--i) * 350.1 / (var(--turns) - 1))); background: var(--kit-tt-coin-unlit) center / 100% 100% no-repeat; }
 .tt-coins i.lit { background-image: var(--kit-tt-coin-lit); }
