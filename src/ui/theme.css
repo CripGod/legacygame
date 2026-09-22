@@ -513,7 +513,6 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
   .profile .sub { display: none; }
   .chat-btn { display: none; }
   .hud-sub { font-size: 10px; gap: 6px; }
-  .readout .coin { font-size: 10px; padding: 0 8px; }
   .battlefield { gap: 4px; padding: 4px 4px; }
   .column { gap: 4px; padding: 0; }
   .gates { gap: 4px; }
@@ -684,14 +683,16 @@ h1.title, .rules h2, .cards-screen h2, .winner, .stand-title { font-family: var(
 }
 /* On a wide screen the banner, the toasts and the peek strip live in the empty lower-left corner, above Sit Down,
    so nothing ever covers the board. */
-/* On a wide screen the banner lives in the readout above Lock In (below), so nothing ever covers the board. */
-@media (min-width: 721px) {
+/* Wherever the lock panel shows (above 700px) the banner lives in the readout above Lock In, so nothing covers the board. */
+@media (min-width: 701px) {
   .lock-panel .replay-banner { position: static; top: auto; left: auto; transform: none; width: 100%; max-width: none; box-sizing: border-box; flex-wrap: wrap; align-items: flex-start; row-gap: 6px; animation: replay-in-corner 260ms ease-out; }
   .lock-panel .replay-banner .replay-text { flex: 1 1 100%; order: 3; }
   .lock-panel .replay-banner .replay-kind { order: 1; }
   .lock-panel .replay-banner .replay-count { order: 2; margin-left: auto; }
   .lock-panel .replay-banner button.small { order: 2; }
   @keyframes replay-in-corner { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+}
+@media (min-width: 721px) {
   .toast, .coach ~ .toast { position: fixed; top: auto; bottom: 226px; left: 16px; transform: none; max-width: min(32vw, 340px); }
   .peek-strip { position: fixed; top: auto; bottom: 226px; left: 16px; transform: none; max-width: min(34vw, 360px); justify-items: start; animation-name: peek-in-corner; }
   .peek-strip .peek-cards { flex-wrap: wrap; --card-w: clamp(56px, 4.6vw, 76px); }

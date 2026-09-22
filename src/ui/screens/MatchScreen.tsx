@@ -1206,7 +1206,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     if (step && !ownBeat) {
       beatSfx(step, step.kind === 'reveal' && !revealSlams(step));
       // The other side's Stand lands on the board the same way yours does: the burst over the Legacy coin, the flip.
-      if (step.kind === 'stand' && step.events.some((e) => e.type === 'stand' && e.player && e.player !== me) && !reduceMotion()) coinFx(document.querySelector('.readout .coin'));
+      if (step.kind === 'stand' && step.events.some((e) => e.type === 'stand' && e.player && e.player !== me) && !reduceMotion()) coinFx(document.querySelector('.readout .coin') ?? document.querySelector('.sob'));
       if (step.kind === 'play' && step.cardId) voice(step.cardId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -2173,6 +2173,47 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   const stepOffLabel = 'Sit Down';
   const stepOffTip = opts.canStepOff ? tip(`Sit Down: give up the match now. ${view.players[other(me)].handle} takes ${opts.stepOffCost} Legacy.`) : tip(HINTS.noStepOff);
 
+  /* The turn's beat, one face at a time: the clash tell, the step with Skip, or the wait while the other side decides.
+     It renders in the readout above Lock In on a wide screen, and over the board on a phone, where the lock panel is hidden. */
+  const beat =
+verdict ? null : clashTell ? (
+      <div className={`replay-banner kind-clash ${clashTell.tone}`} role="status">
+        <span className="replay-kind">{clashTell.title}</span>
+        <span className="replay-text">{shortBeat(clashTell.text, view, me, placeholders)}</span>
+        {m.replay && (
+          <button className="small" onClick={m.replaySkip}>
+            Skip ▸▸
+          </button>
+        )}
+      </div>
+    ) : step && !ownBeat ? (
+      <div className={`replay-banner kind-${step.kind}`} role="status">
+        {BEAT_KIND[step.kind] && <span className="replay-kind">{BEAT_KIND[step.kind]}</span>}
+        <span className="replay-text">{shortBeat(step.label, view, me, placeholders)}</span>
+        {step.kind === 'stand' && (
+          <span className={`coin raised ${coinFlip ? 'flip' : ''}`} {...tip(HINTS.stakesPending)}>
+            {view.stakes}
+            <em>→{effectiveStakes(view)}</em>
+            <small>legacy</small>
+          </span>
+        )}
+        <span className="replay-count">
+          {m.replay!.idx + 1}/{m.replay!.steps.length}
+        </span>
+        <button className="small" onClick={m.replaySkip}>
+          Skip ▸▸
+        </button>
+      </div>
+    ) : resolving && !m.replay ? (
+      <div className="replay-banner kind-wait" role="status">
+        <span className="replay-kind">{locked ? 'Locked' : 'Resolving'}</span>
+        <span className="replay-text">
+          {locked ? (m.mode === 'ai' ? 'Harborlight is deciding' : 'Waiting for the other side') : 'The board settles'}
+          <span className="dots" aria-hidden />
+        </span>
+      </div>
+    ) : null;
+
   return (
     <div className={`app ${resolving ? 'resolving' : ''}`} style={kitVars() as React.CSSProperties}>
       {/* The board's backdrop: the lakeside plaza under the mountain, a 20s loop over its still (the still is the poster, the
@@ -2199,7 +2240,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           </video>
         )}
       </div>
-      <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, flash: flash === 'stakes' || flash === 'final', urge: planning && opts.canStand && !plan.standOnBusiness && view.turn >= view.maxTurns, onToggle: toggleStand, proposed: opts.proposedStakes, slam: standSlam, flip: coinFlip }} />
+      <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, flash: flash === 'stakes' || flash === 'final', urge: planning && opts.canStand && !plan.standOnBusiness && view.turn >= view.maxTurns, onToggle: toggleStand, proposed: opts.proposedStakes, slam: standSlam }} />
       <div className="main-wrap">
         <Battlefield
           pending={pendingInf}
@@ -2228,6 +2269,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           glowLocation={guideLocation}
           summonLabel={summonState}
         />
+        {compact && beat}
         {peekShow && (
           <div className="peek-strip" role="status" onClick={() => setPeekShow(null)}>
             <div className="peek-cap">
@@ -2336,43 +2378,14 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
                     Skip ▸▸
                   </button>
                 )}
-                <button className="small readout-toggle" onClick={toggleReadout} aria-expanded={readoutOpen} title={readoutOpen ? 'Hide the readout' : 'Show the readout'}>
+                <button className="small readout-toggle" onClick={toggleReadout} aria-expanded={readoutOpen} aria-controls="readout-body" title={readoutOpen ? 'Hide the readout' : 'Show the readout'}>
                   {readoutOpen ? 'Hide' : 'Show'}
                 </button>
               </div>
               {readoutOpen && (
-                <>
-          {verdict ? null : clashTell ? (
-            <div className={`replay-banner kind-clash ${clashTell.tone}`} role="status">
-              <span className="replay-kind">{clashTell.title}</span>
-              <span className="replay-text">{shortBeat(clashTell.text, view, me, placeholders)}</span>
-              {m.replay && (
-                <button className="small" onClick={m.replaySkip}>
-                  Skip ▸▸
-                </button>
-              )}
-            </div>
-          ) : step && !ownBeat ? (
-            <div className={`replay-banner kind-${step.kind}`} role="status">
-              {BEAT_KIND[step.kind] && <span className="replay-kind">{BEAT_KIND[step.kind]}</span>}
-              <span className="replay-text">{shortBeat(step.label, view, me, placeholders)}</span>
-              <span className="replay-count">
-                {m.replay!.idx + 1}/{m.replay!.steps.length}
-              </span>
-              <button className="small" onClick={m.replaySkip}>
-                Skip ▸▸
-              </button>
-            </div>
-          ) : resolving && !m.replay ? (
-            <div className="replay-banner kind-wait" role="status">
-              <span className="replay-kind">{locked ? 'Locked' : 'Resolving'}</span>
-              <span className="replay-text">
-                {locked ? (m.mode === 'ai' ? 'Harborlight is deciding' : 'Waiting for the other side') : 'The board settles'}
-                <span className="dots" aria-hidden />
-              </span>
-            </div>
-          ) : (
-            <div className="replay-banner kind-plan" role="status">
+                <div id="readout-body">
+                  {beat ?? (planning ? (
+            <div className="replay-banner kind-plan">
               <span className="replay-kind">Plan</span>
               <span className="replay-text readout-plan">
                 <span className={`coin energy-meter ${energyShown < opts.energy ? 'spent' : ''}`} {...tip(HINTS.energy)}>
@@ -2386,8 +2399,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
                 </span>
               </span>
             </div>
-          )}
-                </>
+                  ) : null)}
+                </div>
               )}
             </div>
           )}
