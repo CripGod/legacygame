@@ -1698,7 +1698,19 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     }, 800);
   };
   /** Stand on Business is one tap: it toggles in the plan and the toast explains what it does. */
+  /** The match opens: the strip runs its flourish for five seconds, or until the strip is pressed. Again on a new match. */
+  const [standOpening, setStandOpening] = useState(false);
+  useEffect(() => {
+    if (view.turn !== 1 || !planning) return;
+    setStandOpening(true);
+    const id = window.setTimeout(() => setStandOpening(false), 5200);
+    return () => {
+      window.clearTimeout(id);
+      setStandOpening(false);
+    };
+  }, [view.turn, planning]);
   const toggleStand = () => {
+    setStandOpening(false);
     if (plan.standOnBusiness) {
       standArmed.current = false;
       setPlan((p) => ({ ...p, standOnBusiness: false }));
@@ -2302,7 +2314,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           </video>
         )}
       </div>
-      <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, stood: view.players[me].standUsed, between: !planning, current: opts.pendingStakes, raise: myRaise, flash: flash === 'stakes' || flash === 'final', urge: planning && opts.canStand && !plan.standOnBusiness && view.turn >= view.maxTurns, onToggle: toggleStand, proposed: opts.proposedStakes, slam: standSlam }} />
+      <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, stood: view.players[me].standUsed, between: !planning, current: opts.pendingStakes, raise: myRaise, flash: flash === 'stakes' || flash === 'final', urge: planning && opts.canStand && !plan.standOnBusiness && view.turn >= view.maxTurns, opening: standOpening, onToggle: toggleStand, proposed: opts.proposedStakes, slam: standSlam }} />
       <div className="main-wrap">
         <Battlefield
           pending={pendingInf}
