@@ -457,6 +457,22 @@ export function isProtected(state: GameState, c: CharacterInstance): boolean {
   return false;
 }
 
+/** Why a Character is under protection, in a few words for the board (the cause first, since that is what a player asks), or null. */
+export function protectionReason(state: GameState, c: CharacterInstance): string | null {
+  if (swornAt(state, c.owner, c.location)) return 'the oath at Bois Caïman';
+  if (state.players[c.owner].defendedTurn === state.turn) return 'Community Defense this turn';
+  if (c.protectedTurn === state.turn) return 'held this turn by a Reveal';
+  const loc = state.locations[c.location];
+  if (loc.revealed && LOCATION_BY_ID[loc.defId]?.effect.type === 'noDisplace') return `${LOCATION_BY_ID[loc.defId].name}: nobody is displaced here`;
+  const hold = hasEstablished(state, c.owner, c.location, 'noDisplaceHere')[0] ?? hasEstablished(state, c.owner, c.location, 'sanctuary')[0];
+  if (hold) return `${charDef(hold.defId).name} is Established here`;
+  if (c.relocatedTurn === state.turn) {
+    const cover = hasEstablishedAnywhere(state, c.owner, 'relocatedNoDisplace')[0];
+    if (cover) return `${charDef(cover.defId).name}'s cover, the turn it relocated`;
+  }
+  return null;
+}
+
 /** Nanny of the Maroons: opposing Reveal abilities cannot single out your Characters here. The oath shields as well. */
 export function shielded(state: GameState, c: CharacterInstance): boolean {
   return hasEstablished(state, c.owner, c.location, 'shieldHere').length > 0 || swornAt(state, c.owner, c.location);

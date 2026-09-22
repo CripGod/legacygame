@@ -1020,4 +1020,5 @@ a.cx-refs-link { display: inline-block; width: auto; justify-self: start; align-
 
 /* A piece's standing on the board, above its rank: under protection or shielded, in the veil's cool cyan. */
 .cx-status { justify-content: center; margin-bottom: 8px; }
-.cx-chip.cx-shield { border-color: rgba(150, 225, 255, 0.75); color: #dff4ff; background: rgba(18, 62, 92, 0.92); box-shadow: 0 0 12px rgba(120, 200, 240, 0.35), inset 0 0 0 1px rgba(0, 0, 0, 0.4); font-family: var(--font); font-weight: 600; font-size: 12.5px; letter-spacing: 0; text-transform: none; text-align: left; max-width: 52ch; white-space: normal; line-height: 1.35; padding: 6px 12px; }
+.cx-chip.cx-shield { border-color: rgba(150, 225, 255, 0.75); color: #dff4ff; background: rgba(18, 62, 92, 0.92); box-shadow: 0 0 12px rgba(120, 200, 240, 0.35), inset 0 0 0 1px rgba(0, 0, 0, 0.4); font-family: var(--font); font-weight: 600; font-size: 12.5px; letter-spacing: 0; text-transform: none; text-align: left; max-width: 44ch; white-space: normal; line-height: 1.35; padding: 6px 12px; }
+.cx-chip.cx-shield em { font-style: italic; font-weight: 500; opacity: 0.75; margin-left: 4px; }

@@ -16,6 +16,7 @@ import {
   type PlayerId,
   type TurnPlan,
   isProtected,
+  protectionReason,
   shielded,
 } from '../../engine';
 import { cardName, initials, locationName, threatLabel, useDisplay, spawnText } from '../display';
@@ -83,7 +84,7 @@ export function CharSheet({ view, uid, onClose }: { view: GameState; uid: string
   const shield = !guarded && shielded(view, c);
   const status = guarded || shield ? (
     <div className="cx-chips cx-status">
-      {guarded && <span className="cx-chip cx-shield">🛡 {HINTS.protected}</span>}
+      {guarded && <span className="cx-chip cx-shield">🛡 Under protection: {protectionReason(view, c) ?? 'cannot be displaced this turn'}. <em>More in the rules.</em></span>}
       {shield && <span className="cx-chip cx-shield">🛡 {HINTS.shielded}</span>}
     </div>
   ) : undefined;

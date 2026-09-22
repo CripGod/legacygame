@@ -742,8 +742,8 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - `timer`: Planning timer. At zero your current plan locks automatically.
 - `noStepOff`: You Stood on Business. There is no backing out of this match.
 - `directEntry`: Direct Entry: may go Inside the turn it is played. Tap ⇅ on the planned move to choose Gates or Inside.
-- `protected`: Under protection: nothing displaces, sends back or moves this Character this turn. The oath at Bois Caïman, Community Defense, a Reveal standing guard over it, a hold or a sanctuary Established here, cover on the turn it relocated, or a Location where nobody is displaced.
-- `shielded`: Shielded: opposing Reveal abilities cannot single this Character out here (Nanny of the Maroons, or the oath at Bois Caïman). A greater Force can still move it.
+- `protected`: Under protection: cannot be displaced this turn. More in the rules.
+- `shielded`: Shielded: opposing Reveals cannot single this Character out. More in the rules.
 
 ## Coach tips (first match)
 
@@ -1013,6 +1013,7 @@ Menu
 
 ### src/ui/screens/MatchScreen.tsx
 
+- We wear the mask that grins and lies.
 - (prefers-reduced-motion: reduce)
 - [data-uid="${uid}"], [data-threat="${uid}"]
 - Last turn unless someone stands
@@ -1067,6 +1068,7 @@ Menu
 - ${who} ${def.name}${step.location !== undefined ? 
 - Location ${step.location + 1}
 - s hand flips face up in its slot as its beat opens; a Character
+- s cinematic grows out of his tile
 - .column[data-index="${i}"] .art
 - ${adef.name} beats ${vdef.name} (${adef.force} Force against ${vdef.force}) and knocks them away to the Gates of another Location.
 - .column[data-index="${to}"] .gates
@@ -1174,6 +1176,9 @@ Menu
 - turn-mini ${finalTurnLabel(view) ? 'final' : ''}
 - T${Math.min(view.turn, view.maxTurns)}/${view.maxTurns}
 - turn-flash ${(finalTurnLabel(view, false, true) ?? '').length > 8 ? 'wide' : ''}
+- cine ${cine.leaving ? 'leaving' : ''} ${cine.from ? 'from-tile' : ''}
+- ${cine.from.left + cine.from.width / 2}px
+- ${cine.from.top + cine.from.height / 2}px
 - card-flash p${arrival.owner} ${arrival.leaving ? 'leaving' : ''}
 - drag-ghost ${drag.payload.kind === 'card' ? 'card-ghost' : ''} ${drag.pointerType !== 'mouse' ? 'touch' : ''} ${drag.returning ? 'returning' : ''} ${drag.snap ? 'snap' : ''}
 - You give up the match, now. ${view.players[other(me)].handle} takes ${opts.stepOffCost} Legacy.${raisedOnMe ? 
@@ -1184,6 +1189,7 @@ Menu
 
 ### src/ui/components/Sheets.tsx
 
+- cannot be displaced this turn
 - cx-plate is-threat ${family}
 - Force it takes to neutralize, in one turn.
 -  · hunting ${view.players[t.target].handle}
@@ -1705,6 +1711,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - strip leaving ${s.held.arriving ? 'arriving' : ''}
 - tile-glow owner-${owner} ${focus?.includes(s.uid) ? 'focus' : ''}
 - gate-slot filled gf owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''} ${fx?.arrive === s.uid ? 'fx-flip' : ''} ${guarded ? 'protected' : ''} ${shield ? 'shielded' : ''}
+- Under protection: ${protectionReason(view, s) ?? 'cannot be displaced this turn'}. More in the rules.
 - stamp verdict ${fx.stamp.tone ?? 'hit'}
 - Your Event slot here: drop an Event card on this Location. One per Location per turn. A deck carries at most two Events: you have ${evLeft} of ${evTotal} left.
 - ev-count ${evLeft === 0 ? 'spent' : ''}
@@ -1715,6 +1722,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - Seat closed: a Housing Restriction (or the Land Office) holds it. Clear the Threat and it opens.
 - tile-glow seat ${c.owner} ${focus?.includes(c.uid) ? 'focus' : ''}
 - slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''} ${fx?.hidden.includes(c.uid) ? 'fx-hidden' : ''} ${guarded ? 'protected' : ''} ${shield ? 'shielded' : ''}
+- Under protection: ${protectionReason(view, c) ?? 'cannot be displaced this turn'}. More in the rules.
 - s blow lands: a red flash when it tells, green when the Threat shrugs it off. */ hit?: 
 - ; shatter?: boolean; stamp?: BoardFx[
 - threat-tile ${who} ${fresh ? 'fresh' : ''} ${gone ? 'gone' : ''} ${confronting ? 'confronting' : ''} ${foreseen ? 'foreseen' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' && !gone ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''} ${hidden ? 'fx-hidden' : ''} ${hit ? 
@@ -1765,7 +1773,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - Quick chat: emotes and Summon.
 - bubble ${right ? 'right' : ''}
 - sob-seat ${ramp ? 'ramp' : ''}
-- sob ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''} ${stand.slam ? 'slam' : ''} ${stand.urge ? 'urge' : ''}
+- sob ${stand.on ? 'on' : ''} ${stand.stood ? 'stood' : ''} ${stand.between ? 'between' : ''} ${stand.flash ? 'ftue-flash' : ''} ${stand.slam ? 'slam' : ''} ${stand.urge ? 'urge' : ''}
 
 ### src/ui/display.ts
 

@@ -21,7 +21,7 @@ import { SkyTag } from './Sky';
 import { artUrl } from '../art';
 import { assistButtons } from '../assist';
 import { influenceLines } from '../influence';
-import { charDef, confrontForce, threatForceNeeded, isNight, lockKind, isProtected, shielded, LOCATION_BY_ID, CARD_BY_ID, TEAM_UP_BY_ID } from '../../engine';
+import { charDef, confrontForce, threatForceNeeded, isNight, lockKind, isProtected, protectionReason, shielded, LOCATION_BY_ID, CARD_BY_ID, TEAM_UP_BY_ID } from '../../engine';
 
 /** The strip on a tile that cannot relocate out, by what holds it: the word says which. */
 const LOCK_STRIP: Record<'curfew' | 'besieged' | 'held' | 'oath', string> = { curfew: 'Curfew', besieged: 'Besieged', held: 'Held', oath: 'Oath' };
@@ -275,7 +275,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                   data-place={`${index}:gate`}
                   className={`gate-slot filled gf owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''} ${fx?.arrive === s.uid ? 'fx-flip' : ''} ${guarded ? 'protected' : ''} ${shield ? 'shielded' : ''}`}
                   {...draggable}
-                  {...(guarded ? tip(HINTS.protected) : shield ? tip(HINTS.shielded) : {})}
+                  {...(guarded ? tip(`Under protection: ${protectionReason(view, s) ?? 'cannot be displaced this turn'}. More in the rules.`) : shield ? tip(HINTS.shielded) : {})}
                 >
                   {/* An arrival turns the whole framed tile over, frame and all; the back sits in the frame's window. */}
                   {fx?.arrive === s.uid && <i className="back" aria-hidden />}
@@ -365,7 +365,7 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
           return (
             <div key={c.uid} className={`tile-glow seat ${c.owner} ${focus?.includes(c.uid) ? 'focus' : ''}`}>
               <i className="glow" aria-hidden />
-              <div data-uid={c.uid} data-place={`${index}:inside`} className={`slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''} ${fx?.hidden.includes(c.uid) ? 'fx-hidden' : ''} ${guarded ? 'protected' : ''} ${shield ? 'shielded' : ''}`} {...draggable} {...(guarded ? tip(HINTS.protected) : shield ? tip(HINTS.shielded) : {})}>
+              <div data-uid={c.uid} data-place={`${index}:inside`} className={`slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''} ${fx?.hidden.includes(c.uid) ? 'fx-hidden' : ''} ${guarded ? 'protected' : ''} ${shield ? 'shielded' : ''}`} {...draggable} {...(guarded ? tip(`Under protection: ${protectionReason(view, c) ?? 'cannot be displaced this turn'}. More in the rules.`) : shield ? tip(HINTS.shielded) : {})}>
                 {fx?.stamp?.uid === c.uid && (
                   <div className={`stamp verdict ${fx.stamp.tone ?? 'hit'}`}>
                     <b>{fx.stamp.title}</b>

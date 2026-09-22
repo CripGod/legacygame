@@ -82,6 +82,6 @@ export const HINTS = {
   timer: 'Planning timer. At zero your current plan locks automatically.',
   noStepOff: 'You Stood on Business. There is no backing out of this match.',
   directEntry: 'Direct Entry: may go Inside the turn it is played. Tap ⇅ on the planned move to choose Gates or Inside.',
-  protected: 'Under protection: nothing displaces, sends back or moves this Character this turn. The oath at Bois Caïman, Community Defense, a Reveal standing guard over it, a hold or a sanctuary Established here, cover on the turn it relocated, or a Location where nobody is displaced.',
-  shielded: 'Shielded: opposing Reveal abilities cannot single this Character out here (Nanny of the Maroons, or the oath at Bois Caïman). A greater Force can still move it.',
+  protected: 'Under protection: cannot be displaced this turn. More in the rules.',
+  shielded: 'Shielded: opposing Reveals cannot single this Character out. More in the rules.',
 };
