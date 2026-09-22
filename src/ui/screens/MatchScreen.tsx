@@ -217,6 +217,14 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   };
   /** A Gathering's card, flashed over the board as it arrives (no button: it flies to its tile on its own). */
   const [arrival, setArrival] = useState<{ cardId: string; owner: PlayerId; leaving?: boolean } | null>(null);
+  /** A click away from the flash settles this early; the beat that put the flash up waits on it. */
+  const arrivalAway = useRef<(() => void) | null>(null);
+  const holdArrival = (ms: number) => new Promise<void>((r) => {
+    let done = false;
+    const settle = () => { if (done) return; done = true; arrivalAway.current = null; r(); };
+    arrivalAway.current = settle;
+    window.setTimeout(settle, ms);
+  });
   /** The flash fades out (0.3s) before it goes. */
   const dismissArrival = async () => {
     setArrival((a) => (a ? { ...a, leaving: true } : a));
@@ -884,7 +892,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     setArrival({ cardId: ev.cardId, owner: ev.player });
     await painted();
     if (!alive()) return;
-    await wait(reduceMotion() ? 1400 : 1100);
+    await holdArrival(reduceMotion() ? 1400 : 2100);
     if (!alive()) return;
     await dismissArrival();
     if (!alive()) return;
@@ -1146,7 +1154,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
             setArrival({ cardId: step.cardId, owner: step.player });
             await painted();
             if (!alive()) return;
-            await wait(2100);
+            await holdArrival(3100);
             if (!alive()) return;
             await dismissArrival();
             if (!alive()) return;
@@ -2449,6 +2457,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           </div>
         </div>
       )}
+      {arrival && !arrival.leaving && <div className="card-flash-away" aria-hidden onClick={() => arrivalAway.current?.()} />}
       {arrival && (
         <div className={`card-flash p${arrival.owner} ${arrival.leaving ? 'leaving' : ''}`} aria-hidden>
           <CardFace id={arrival.cardId} big />

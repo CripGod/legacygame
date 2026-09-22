@@ -1332,6 +1332,8 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 @media (prefers-reduced-motion: reduce) { .threat-tile.fx-hit, .threat-tile.fx-held, .threat-tile.fx-shatter { animation: none; } .threat-tile.fx-hit::after, .threat-tile.fx-held::after { animation: none; opacity: 0; } }
 
 /* ---------- Arrival: a Gathering's card flashes over the board, then flies to its tile ---------- */
+/* The flash holds three seconds to be read; a click anywhere outside the card (.card-flash-away, the layer under it) lets it go early. */
+.card-flash-away { position: fixed; inset: 0; z-index: 57; cursor: pointer; }
 .card-flash { position: fixed; left: 50%; top: 42%; z-index: 58; transform: translate(-50%, -50%); pointer-events: none; animation: card-flash-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.25) both; filter: drop-shadow(0 24px 40px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 30px rgba(233, 185, 58, 0.45)); }
 @keyframes card-flash-in { 0% { opacity: 0; transform: translate(-50%, -40%) scale(0.6) rotate(-6deg); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); } }
 .card-flash.leaving { animation: card-flash-out 0.3s ease-in both; }
@@ -1826,7 +1828,7 @@ body.board-shake .battlefield { animation: board-shake 0.44s cubic-bezier(0.36, 
 .end-panel.draw .end-title { color: #dfe6f2; text-shadow: none; }
 
 /* The result panel: centred over a near-black scrim; the board is barely there behind it until "Look at the board". */
-.end-scrim { position: fixed; inset: 0; z-index: 76; background: rgba(2, 5, 10, 0.8); animation: end-scrim-in 0.4s ease-out both; }
+.end-scrim { position: fixed; inset: 0; z-index: 76; background: rgba(2, 5, 10, 0.8); cursor: pointer; animation: end-scrim-in 0.4s ease-out both; }
 @keyframes end-scrim-in { from { opacity: 0; } to { opacity: 1; } }
 /* The panel is glass, the landing page's deck panels' finish: a hairline in the result's colour and a dark frosted plate
    inset by a pixel, both cut with one chamfered corner top-left and bottom-right, drawn on two layers under the content.

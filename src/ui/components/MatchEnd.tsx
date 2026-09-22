@@ -201,7 +201,8 @@ export function MatchEnd({
           </button>
         </div>
       )}
-      {stage >= 2 && !collapsed && <div className="end-scrim" aria-hidden />}
+      {/* A click outside the card puts it away and leaves the board (the slim bar brings it back). */}
+      {stage >= 2 && !collapsed && <div className="end-scrim" aria-hidden onClick={() => onCollapse(true)} />}
       {stage >= 2 && !collapsed && (
         <div className={`end-panel docked ${tone}`} role="dialog" aria-label="Match result" ref={panelRef}>
           <div className="end-head">
