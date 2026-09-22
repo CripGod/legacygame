@@ -188,20 +188,7 @@ export function MatchEnd({
         <div className="end-flash" aria-hidden />
         <EndRibbon title={title} tone={tone} stage={stage} stars={stars} />
       </div>
-      {stage >= 2 && collapsed && (
-        <div className={`end-bar ${tone}`} role="status">
-          <span className="end-bar-text">
-            <b>{title}</b> · {line}
-          </span>
-          <button className="small" onClick={() => onCollapse(false)}>
-            Show result
-          </button>
-          <button className="small primary" onClick={onAgain}>
-            Play again
-          </button>
-        </div>
-      )}
-      {/* A click outside the card puts it away and leaves the board (the slim bar brings it back). */}
+      {/* A click outside the card puts it away and leaves the board; SEE RESULT in the corner brings it back. */}
       {stage >= 2 && !collapsed && <div className="end-scrim" aria-hidden onClick={() => onCollapse(true)} />}
       {stage >= 2 && !collapsed && (
         <div className={`end-panel docked ${tone}`} role="dialog" aria-label="Match result" ref={panelRef}>

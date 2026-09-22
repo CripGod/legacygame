@@ -1880,19 +1880,6 @@ body.board-shake .battlefield { animation: board-shake 0.44s cubic-bezier(0.36, 
 @keyframes end-gain { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 .end-stats { margin: 0 0 12px; }
 .end-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-/* Collapsed to look at the board: one slim bar along the bottom. */
-.end-bar {
-  position: fixed; left: 50%; bottom: 10px; z-index: 78; transform: translateX(-50%);
-  display: flex; align-items: center; gap: 10px; max-width: 94vw; padding: 7px 10px 7px 14px;
-  border: 1px solid var(--gold); border-radius: 6px;
-  background: linear-gradient(180deg, rgba(20, 34, 56, 0.97), rgba(8, 19, 31, 0.97));
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65), inset 0 0 0 1px rgba(233, 185, 58, 0.25);
-  color: var(--cream); font-family: var(--font); font-size: 13px; animation: replay-in 260ms ease-out;
-}
-.end-bar.loss { border-color: var(--danger); }
-.end-bar-text b { font-family: var(--display); letter-spacing: 0.1em; margin-right: 4px; }
-.end-bar.win .end-bar-text b { color: var(--gold-2); }
-.end-bar.loss .end-bar-text b { color: #ff9c96; }
 @media (width <= 700px) {
   .end-panel { width: 96vw; padding: 12px 12px 14px; max-height: 92vh; }
   .end-head { gap: 10px; }
