@@ -30,6 +30,7 @@ export function DigReveal({ dig, me, onDone, freeze }: { dig: DigShow; me: Playe
   const { placeholders } = useDisplay();
   const [phase, setPhase] = useState<DigPhase>(freeze ?? 'enter');
   const [shots, setShots] = useState<TrailShot[] | null>(null);
+  const [leaving, setLeaving] = useState(false);
   const [fly, setFly] = useState<Record<number, string>>({});
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const done = useRef(onDone);
@@ -63,11 +64,14 @@ export function DigReveal({ dig, me, onDone, freeze }: { dig: DigShow; me: Playe
       if (dig.seen.length > 1) sfx('dig.bury');
       launch();
     }, ENTER_MS + JUDGE_MS);
-    const t3 = window.setTimeout(() => done.current(), ENTER_MS + JUDGE_MS + RESOLVE_MS + 900);
+    // The cards gone, the veil lifts at once rather than holding the line over an empty stage.
+    const t3 = window.setTimeout(() => setLeaving(true), ENTER_MS + JUDGE_MS + RESOLVE_MS);
+    const t4 = window.setTimeout(() => done.current(), ENTER_MS + JUDGE_MS + RESOLVE_MS + 400);
     return () => {
       window.clearTimeout(t1);
       window.clearTimeout(t2);
       window.clearTimeout(t3);
+      window.clearTimeout(t4);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -95,7 +99,7 @@ export function DigReveal({ dig, me, onDone, freeze }: { dig: DigShow; me: Playe
 
   const name = (id: string) => (id === 'hidden' ? 'A card' : cardName(id, placeholders));
   return (
-    <div className={`scrim dig-scrim ${phase}`} aria-live="polite">
+    <div className={`scrim dig-scrim ${phase} ${leaving ? 'leaving' : ''}`} aria-live="polite">
       <div className="dig-kicker">
         <span className="dig-who">{dig.by ?? 'Zora Neale Hurston'} · Folklore</span>
         <span className="dig-line">
@@ -125,7 +129,6 @@ export function DigReveal({ dig, me, onDone, freeze }: { dig: DigShow; me: Playe
                 <CardFace id={id} big />
               )}
               <div className="dig-ring" />
-              {!dig.hidden && def && <div className="dig-cost">{def.cost}</div>}
             </div>
           );
         })}
