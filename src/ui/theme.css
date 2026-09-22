@@ -2440,10 +2440,10 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .sob-seat { position: relative; display: block; width: var(--sob); height: 100%; flex: none; }
 .sob-glow { position: absolute; left: -10.3%; top: calc(-1 * var(--u) * 26 - var(--sob) * 0.103); width: 120.6%; height: calc(var(--sob) * 1.206); background: #fcb424; -webkit-mask: var(--kit-sob-glow) center / 100% 100% no-repeat; mask: var(--kit-sob-glow) center / 100% 100% no-repeat; opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 0; }
 /* The glow breathes while the button is live, harder and faster as the match nears its end (--heat, set by the Hud
-   from the turn count): a faint breath on turn 1, a full gold pulse on the last turn. Hover, press and Standing hold
+   from the turn count): a clear pulse on turn 1, a full gold pulse on the last turn. Hover, press and Standing hold
    it steady. */
-.sob-seat:has(.sob:not(:disabled)) .sob-glow { animation: sob-heat calc(2.8s - var(--heat, 0) * 1.9s) ease-in-out infinite; }
-@keyframes sob-heat { 0%, 100% { opacity: calc(var(--heat, 0) * 0.3); transform: scale(1); } 50% { opacity: calc(0.15 + var(--heat, 0) * 0.85); transform: scale(calc(1 + var(--heat, 0) * 0.1)); } }
+.sob-seat:has(.sob:not(:disabled)) .sob-glow { animation: sob-heat calc(2.4s - var(--heat, 0) * 1.5s) ease-in-out infinite; }
+@keyframes sob-heat { 0%, 100% { opacity: calc(0.15 + var(--heat, 0) * 0.2); transform: scale(1); } 50% { opacity: calc(0.5 + var(--heat, 0) * 0.5); transform: scale(calc(1.02 + var(--heat, 0) * 0.1)); } }
 .sob-seat:has(.sob:not(:disabled):hover) .sob-glow { animation: none; opacity: calc(0.45 + var(--heat, 0) * 0.35); transform: scale(calc(1 + var(--heat, 0) * 0.05)); }
 .sob-seat:has(.sob:not(:disabled):active) .sob-glow, .sob-seat:has(.sob.on) .sob-glow { animation: none; opacity: calc(0.6 + var(--heat, 0) * 0.3); transform: scale(calc(1 + var(--heat, 0) * 0.05)); }
 .sob { position: absolute; left: 0; top: calc(-1 * var(--u) * 26); width: var(--sob); height: var(--sob); margin: 0; padding: 0; border: 0 !important; border-radius: 50% !important; background: none !important; box-shadow: none; clip-path: circle(41.2% at 50% 49.7%) !important; cursor: pointer; isolation: isolate; z-index: 1; transition: filter 0.15s; }
