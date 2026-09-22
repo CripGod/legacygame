@@ -2498,3 +2498,37 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .tt-coins i.lit { background-image: var(--kit-tt-coin-lit); }
 .turn-tracker.disabled .tt-title, .turn-tracker.disabled .tt-coins { opacity: 0.5; }
 
+
+/* ---------- Under protection: the veil ----------
+   A Character nothing can displace this turn (the engine's isProtected: the oath at Bois Caïman, Community Defense,
+   a Reveal standing guard over it, a Location where nobody is displaced, a sanctuary or a hold Established here)
+   stands behind a field, the way a force field reads in a comic: a cool, see-through cyan-white pane over the
+   portrait, a bright rim where the field meets the frame, a glass highlight in its upper corner, and a slow sheen
+   that drifts across it every few seconds. The pane is the portrait's own ::before. The portrait (.pic) is the
+   tile's stacking context: its badges sit at 2 and 5, its strip at 1, so the pane at 1, first in tree order, lies
+   under every number, the name band and the status band, and over the art alone; the Inside seat's Influence pill
+   and the plain strip are lifted to 1 to keep it so. The pane takes no room and no pointer, so nothing about the
+   tile's size, hover or drag changes, and the frame stays the owner's gold or blue; the halo box beside the tile
+   (see "Glows on one plane") takes an icy cast so the field reads from across the board. The art itself cools a
+   little under it. Reduced motion: the pane and its rim, no sheen. */
+.protected .pic::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(115deg, transparent 40%, rgba(235, 250, 255, 0.3) 46%, rgba(255, 255, 255, 0.6) 50%, rgba(235, 250, 255, 0.3) 54%, transparent 60%) 200% 0 / 300% 100% no-repeat,
+    radial-gradient(ellipse 70% 55% at 28% 18%, rgba(225, 246, 255, 0.34), transparent 70%),
+    rgba(150, 220, 255, 0.22);
+  box-shadow: inset 0 0 0 1.5px rgba(205, 240, 255, 0.8), inset 0 0 12px 3px rgba(150, 225, 255, 0.55);
+  animation: veil-sheen 3.5s linear infinite;
+}
+@keyframes veil-sheen { from { background-position: 200% 0, 0 0; } to { background-position: -100% 0, 0 0; } }
+.protected .pic .pic-img { filter: saturate(0.85) brightness(1.05); }
+.protected .pic .inf, .protected .pic .strip { z-index: 1; }
+.tile-glow:has(> .protected) > i.glow { box-shadow: 0 0 8px 2px rgba(160, 228, 255, 0.7), 0 6px 10px rgba(0, 0, 0, 0.7); }
+.tile-glow.seat:has(> .protected) > i.glow { box-shadow: 0 0 7px 2px rgba(160, 228, 255, 0.65), 0 3px 8px rgba(0, 0, 0, 0.6); }
+@media (prefers-reduced-motion: reduce) {
+  .protected .pic::before { animation: none; background-image: radial-gradient(ellipse 70% 55% at 28% 18%, rgba(225, 246, 255, 0.34), transparent 70%); background-position: 0 0; background-size: auto; }
+}

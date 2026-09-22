@@ -442,6 +442,26 @@ export function swornAt(state: GameState, owner: PlayerId, location: number): bo
   return standingAt(state, owner, location, 'sworn').length > 0;
 }
 
+/** Under protection: nothing displaces, sends back or moves this Character this turn. The oath at Bois Caïman, a
+ *  Community Defense called this turn, a Reveal that stood guard over it (protectedTurn), a Location where nobody is
+ *  displaced, a sanctuary or a no-displace hold Established here, or cover on a piece that relocated in this turn.
+ *  The resolver checks it before every displacement; the board reads it too, to draw the veil over the tile. */
+export function isProtected(state: GameState, c: CharacterInstance): boolean {
+  if (swornAt(state, c.owner, c.location)) return true;
+  if (state.players[c.owner].defendedTurn === state.turn) return true;
+  if (c.protectedTurn === state.turn) return true;
+  if (state.locations[c.location].revealed && LOCATION_BY_ID[state.locations[c.location].defId]?.effect.type === 'noDisplace') return true;
+  if (hasEstablished(state, c.owner, c.location, 'noDisplaceHere').length) return true;
+  if (hasEstablished(state, c.owner, c.location, 'sanctuary').length) return true;
+  if (c.relocatedTurn === state.turn && hasEstablishedAnywhere(state, c.owner, 'relocatedNoDisplace').length) return true;
+  return false;
+}
+
+/** Nanny of the Maroons: opposing Reveal abilities cannot single out your Characters here. The oath shields as well. */
+export function shielded(state: GameState, c: CharacterInstance): boolean {
+  return hasEstablished(state, c.owner, c.location, 'shieldHere').length > 0 || swornAt(state, c.owner, c.location);
+}
+
 export function isBlockedFromEntering(state: GameState, c: CharacterInstance): string | null {
   if (swornAt(state, c.owner, c.location)) return null;
   if (hasEstablished(state, c.owner, c.location, 'noBlockHere').length) return null;

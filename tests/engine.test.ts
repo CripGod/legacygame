@@ -41,6 +41,8 @@ import {
   LAST_WORD_ENERGY,
   MAX_ENERGY,
   sweepBonus,
+  isProtected,
+  shielded,
 } from '../src/engine';
 import { planTurn } from '../src/ai/harborlight';
 
@@ -1223,6 +1225,27 @@ describe('Team-ups', () => {
     s = r.state;
     expect(s.locations[0].teamUps).toEqual([]);
     expect(r.events.some((e) => (e.data as { teamUp?: string; formed?: boolean } | undefined)?.teamUp === 'bois_caiman' && (e.data as { formed?: boolean }).formed === false)).toBe(true);
+  });
+  it('isProtected and shielded are the engine\'s to read: the oath and a Reveal standing guard this turn say yes, a plain piece says no', () => {
+    const s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'juneteenth'], revealAll: true });
+    const plain = addChar(s, 'organizer', 'A', 1, 'gate');
+    expect(isProtected(s, plain)).toBe(false);
+    expect(shielded(s, plain)).toBe(false);
+    // Hayden or Tutu stood guard over it this turn; last turn's guard is over.
+    const guarded = addChar(s, 'organizer', 'A', 2, 'gate');
+    guarded.protectedTurn = s.turn;
+    expect(isProtected(s, guarded)).toBe(true);
+    guarded.protectedTurn = s.turn - 1;
+    expect(isProtected(s, guarded)).toBe(false);
+    // Both oath-takers Inside: everyone of theirs here is sworn, protected and shielded; the other side's piece is neither.
+    addChar(s, 'boukman_dutty', 'A', 0, 'inside');
+    addChar(s, 'cecile_fatiman', 'A', 0, 'inside');
+    const sworn = addChar(s, 'bud_billiken', 'A', 0, 'gate');
+    expect(isProtected(s, sworn)).toBe(true);
+    expect(shielded(s, sworn)).toBe(true);
+    const theirs = addChar(s, 'organizer', 'B', 0, 'gate');
+    expect(isProtected(s, theirs)).toBe(false);
+    expect(shielded(s, theirs)).toBe(false);
   });
   it('Adwa fires once, for whoever assembles it first: the other side gets nothing later', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'juneteenth'], revealAll: true });

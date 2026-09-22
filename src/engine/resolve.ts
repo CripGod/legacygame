@@ -33,7 +33,7 @@ import {
   threatForceNeeded,
   validatePlan,
   cardCost,
-  lockReason, swornAt, teamUpAssembled, standingAt } from './query';
+  lockReason, teamUpAssembled, standingAt, isProtected, shielded } from './query';
 import type { CharacterDef, CharacterInstance, GameEvent, GameState, MatchResult, PlayAction, PlayerId, ResolveOptions, ResolveOutput, ThreatInstance, TraceStep, TurnPlan } from './types';
 import { MAX_STAKES, standMultiplier, PLAYERS, EXTENDED_TURNS, MAX_HAND, other, emptyPlan, LEGEND_READY, sweepBonus } from './types';
 import { GATHERING_DEFS } from './content/characters';
@@ -54,22 +54,6 @@ export function threatName(state: GameState, t: ThreatInstance): string {
 function setback(state: GameState, p: PlayerId, reason: string, events: GameEvent[]): void {
   state.players[p].setbacks += 1;
   events.push({ type: 'setback', text: `Setback for ${state.players[p].handle}: ${reason}.`, player: p });
-}
-
-function isProtected(state: GameState, c: CharacterInstance): boolean {
-  if (swornAt(state, c.owner, c.location)) return true;
-  if (state.players[c.owner].defendedTurn === state.turn) return true;
-  if (c.protectedTurn === state.turn) return true;
-  if (state.locations[c.location].revealed && LOCATION_BY_ID[state.locations[c.location].defId]?.effect.type === 'noDisplace') return true;
-  if (hasEstablished(state, c.owner, c.location, 'noDisplaceHere').length) return true;
-  if (hasEstablished(state, c.owner, c.location, 'sanctuary').length) return true;
-  if (c.relocatedTurn === state.turn && hasEstablishedAnywhere(state, c.owner, 'relocatedNoDisplace').length) return true;
-  return false;
-}
-
-/** Nanny of the Maroons: opposing Reveal abilities cannot single out your Characters here. */
-function shielded(state: GameState, c: CharacterInstance): boolean {
-  return hasEstablished(state, c.owner, c.location, 'shieldHere').length > 0 || swornAt(state, c.owner, c.location);
 }
 
 /** Nehanda: a Character that rises again leaves the board for the hand instead of being displaced, and costs 0 next time. */

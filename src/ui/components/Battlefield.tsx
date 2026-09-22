@@ -21,7 +21,7 @@ import { SkyTag } from './Sky';
 import { artUrl } from '../art';
 import { assistButtons } from '../assist';
 import { influenceLines } from '../influence';
-import { charDef, confrontForce, threatForceNeeded, isNight, lockKind, LOCATION_BY_ID, CARD_BY_ID, TEAM_UP_BY_ID } from '../../engine';
+import { charDef, confrontForce, threatForceNeeded, isNight, lockKind, isProtected, shielded, LOCATION_BY_ID, CARD_BY_ID, TEAM_UP_BY_ID } from '../../engine';
 
 /** The strip on a tile that cannot relocate out, by what holds it: the word says which. */
 const LOCK_STRIP: Record<'curfew' | 'besieged' | 'held' | 'oath', string> = { curfew: 'Curfew', besieged: 'Besieged', held: 'Held', oath: 'Oath' };
@@ -264,14 +264,18 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
             const confronting = plan.confronts.some((c) => c.uid === s.uid);
             const draggable =
               owner === me && dragProps ? dragProps(planned ? { kind: 'card', cardId: s.uid.slice(PLANNED_PREFIX.length) } : { kind: 'char', uid: s.uid }) : {};
+            // A piece on the board that nothing can displace this turn stands under the veil (see theme.css); a planned one is not there yet.
+            const guarded = !planned && isProtected(view, s);
+            const shield = !planned && shielded(view, s);
             return (
               <div key={s.uid} className={`tile-glow owner-${owner} ${focus?.includes(s.uid) ? 'focus' : ''}`}>
                 <i className="glow" aria-hidden />
                 <div
                   data-uid={s.uid}
                   data-place={`${index}:gate`}
-                  className={`gate-slot filled gf owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''} ${fx?.arrive === s.uid ? 'fx-flip' : ''}`}
+                  className={`gate-slot filled gf owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''} ${fx?.arrive === s.uid ? 'fx-flip' : ''} ${guarded ? 'protected' : ''} ${shield ? 'shielded' : ''}`}
                   {...draggable}
+                  {...(guarded ? tip(HINTS.protected) : shield ? tip(HINTS.shielded) : {})}
                 >
                   {/* An arrival turns the whole framed tile over, frame and all; the back sits in the frame's window. */}
                   {fx?.arrive === s.uid && <i className="back" aria-hidden />}
@@ -356,10 +360,12 @@ function InsideRow({ view, owner, me, index, plan, onChar, label, flash, dragPro
           const confronting = plan.confronts.some((x) => x.uid === c.uid);
           const draggable =
             mine && dragProps ? dragProps(planned ? { kind: 'card', cardId: c.uid.slice(PLANNED_PREFIX.length) } : { kind: 'char', uid: c.uid }) : {};
+          const guarded = !planned && isProtected(view, c);
+          const shield = !planned && shielded(view, c);
           return (
             <div key={c.uid} className={`tile-glow seat ${c.owner} ${focus?.includes(c.uid) ? 'focus' : ''}`}>
               <i className="glow" aria-hidden />
-              <div data-uid={c.uid} data-place={`${index}:inside`} className={`slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''} ${fx?.hidden.includes(c.uid) ? 'fx-hidden' : ''}`} {...draggable}>
+              <div data-uid={c.uid} data-place={`${index}:inside`} className={`slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''} ${fx?.hidden.includes(c.uid) ? 'fx-hidden' : ''} ${guarded ? 'protected' : ''} ${shield ? 'shielded' : ''}`} {...draggable} {...(guarded ? tip(HINTS.protected) : shield ? tip(HINTS.shielded) : {})}>
                 {fx?.stamp?.uid === c.uid && (
                   <div className={`stamp verdict ${fx.stamp.tone ?? 'hit'}`}>
                     <b>{fx.stamp.title}</b>
