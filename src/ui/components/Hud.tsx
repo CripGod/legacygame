@@ -5,7 +5,7 @@ import { Art } from './Art';
 import { artUrl } from '../art';
 import { SettingsMenu } from './SettingsMenu';
 
-export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: GameState; me: PlayerId; onProfile: (p: PlayerId) => void; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void; stand?: { on: boolean; disabled: boolean; stood?: boolean; between?: boolean; current?: number; flash?: boolean; /** The last scheduled turn and you can still stand: the button pulses with the kit's wipe shine. */ urge?: boolean; onToggle: () => void; /** What the Legacy becomes if the planned Stand goes through. */ proposed?: number; /** The press: the button slams. */ slam?: boolean; } }) {
+export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: GameState; me: PlayerId; onProfile: (p: PlayerId) => void; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void; stand?: { on: boolean; disabled: boolean; stood?: boolean; between?: boolean; current?: number; flash?: boolean; /** The last scheduled turn and you can still stand: the button pulses with the kit's wipe shine. */ urge?: boolean; onToggle: () => void; /** What the Legacy becomes if the planned Stand goes through. */ proposed?: number; /** Once stood: what the Stand added, for the chip that stays with the gold. */ raise?: number; /** The press: the button slams. */ slam?: boolean; } }) {
   const { placeholders } = useDisplay();
   /* The nameplate from the top-bar cut: the wordless strip (gold for you, blue for Harborlight) with the name and counts
      as live text, and the avatar ring hung off its end (the ring, the portrait clipped to the well over it, the level
@@ -88,7 +88,12 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
                 <i style={{ '--x': '66%', '--y': '44%', '--d': '2.1s' } as React.CSSProperties} />
                 <i style={{ '--x': '89%', '--y': '52%', '--d': '3.4s' } as React.CSSProperties} />
               </i>
-              {stand.on && <b className="sob-chip">+{Math.max(1, (stand.proposed ?? effectiveStakes(view)) - (stand.current ?? effectiveStakes(view)))} Legacy</b>}
+              {/* The chip follows the strip: up while the Stand is planned and, once stood, whenever the strip is gold (not between turns). */}
+              {stand.on ? (
+                <b className="sob-chip">+{Math.max(1, (stand.proposed ?? effectiveStakes(view)) - (stand.current ?? effectiveStakes(view)))} Legacy</b>
+              ) : (
+                stand.stood && !stand.between && stand.raise !== undefined && <b className="sob-chip">+{stand.raise} Legacy</b>
+              )}
             </span>
           )}
           <SettingsMenu className="hud-settings" icon="gear" />

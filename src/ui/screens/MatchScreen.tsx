@@ -197,6 +197,12 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   // Explainer pop-ups (the first-match guide, the coach's tips) are off outside the tutorial: the board tells the story.
   const [guideOn, setGuideOn] = useState(false);
   const opts = useMemo(() => legalOptions(view, me), [view, me]);
+  /** What your Stand added to the Legacy (from its event in the log), for the chip that stays on the gold strip. */
+  const myRaise = useMemo(() => {
+    const ev = m.log.find((e) => e.type === 'stand' && e.player === me && (e.data as { to?: number } | undefined)?.to !== undefined);
+    const d = ev?.data as { from: number; to: number } | undefined;
+    return d ? Math.max(1, d.to - d.from) : undefined;
+  }, [m.log, me]);
   const step = m.replay ? m.replay.steps[m.replay.idx] : null;
   /** Beats that only re-show one of your own planned moves are skipped. */
   const ownBeat = !!step && !!m.replay && step.player === me && (step.kind === 'play' || step.kind === 'enter' || (step.kind === 'move' && m.replay.plan.relocations.some((r) => step.uids?.includes(r.uid))));
@@ -2272,7 +2278,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           </video>
         )}
       </div>
-      <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, stood: view.players[me].standUsed, between: !planning, current: opts.pendingStakes, flash: flash === 'stakes' || flash === 'final', urge: planning && opts.canStand && !plan.standOnBusiness && view.turn >= view.maxTurns, onToggle: toggleStand, proposed: opts.proposedStakes, slam: standSlam }} />
+      <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, stood: view.players[me].standUsed, between: !planning, current: opts.pendingStakes, raise: myRaise, flash: flash === 'stakes' || flash === 'final', urge: planning && opts.canStand && !plan.standOnBusiness && view.turn >= view.maxTurns, onToggle: toggleStand, proposed: opts.proposedStakes, slam: standSlam }} />
       <div className="main-wrap">
         <Battlefield
           pending={pendingInf}
