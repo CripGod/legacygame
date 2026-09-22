@@ -31,11 +31,13 @@ out; a re-export with the same numbers is only new pictures.
 | `sob-button` | `sob` | default, hover, pressed, disabled, wordmark, shineEdge, shineWipe, plateStill | canvas, shell, lift, the wordmark's seat, the shine SVGs' viewBox offset |
 | `turn-tracker` | `tt` | plate, plateDisabled, coinLit, coinUnlit | canvas, shell, the title seat and size, the coin row |
 | `sob-button-silver` | `sob-silver` | default, hover, disabled, wordmark, shineEdge, shineWipe, plateStill | the same numbers (the CSS reads `--kit-sob-*` for both finishes) |
-| `nameplate-you` | `np-you` | strip, ring, levelChip (as `chip`) | canvas and shell of the strip and the avatar, the portrait well, the level chip (not yet read by the CSS: the name plates still carry their numbers in `theme.css`) |
+| `nameplate-you` | `np-you` | strip, ring, levelChip (as `chip`) | the strip's canvas and shell; the avatar's canvas, shell, portrait well, level chip and level text seat (written, not yet read by the CSS: the name plates still carry their numbers in `theme.css`) |
 | `nameplate-opponent` | `np-opp` | as above | as above |
 
-Options: `--only sob-button,turn-tracker` imports some pieces of a cut; `--skip plate,plateDisabled` leaves named
-files out (the tracker's plate is a hand-made one for now, see below); `--dry` prints what would happen.
+Options: `--only sob-button,turn-tracker` imports some pieces of a cut; `--skip plate,plate-disabled` leaves named
+files out, by their asset names (the tracker's plate is a hand-made one for now, see below); `--dry` prints what
+would happen, the numbers that would change included. A piece or file the cut does not have is an error, not a
+silent no-op, and nothing is written if any piece's numbers fail to read.
 
 ## What still takes a hand
 

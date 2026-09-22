@@ -2406,16 +2406,15 @@ body.board-shake .battlefield { animation: board-shake 0.44s cubic-bezier(0.36, 
 .np .bubble { top: calc(100% - 6px); left: calc(var(--u) * 96); }
 .np.right .bubble { left: auto; right: calc(var(--u) * 96); }
 
-/* ---- The Stand on Business strip (public/art/kit sob-*): the button cut's plate, 809 by 246 at 1x with its frame at
-   shell 63, 62.9, 683.2 by 109.9 (the kit's drop shadow in the file), on the board at 0.79 (639 wide on 1920, the
-   shell centred on the nameplates' centre line). The plate scales with the nameplates (--u): 710u wide. The four
-   states are four layers and only their opacity moves; pressed sinks 2px and disabled greys, both baked. At rest the
-   plate is the edge-shine SVG (its viewBox is -90, -90, 941.2 by 549.9 with the PNG's top-left at -24, -8, so the
-   image sits at -66/809 and -82/246 of the canvas, 941.2/809 by 549.9/246 of it); when the seat ramps, the wipe shine.
-   The wordmark (shadow baked, 700.15 by 263.16 at plate 1x) centres 0.77 right of the shell centre, on its centre
-   line (the reference lockup: the crown clears the top of the strip; the cut's seat sat it 21 lower), drawn outside the clipped button so its lettering hangs below the strip as the board places it. The hit area is the
-   frame plus the lettering under it (.sob-hit; the button itself takes no pointer, so its glow is never clipped).
-   Hover never swaps the sprite. */
+/* ---- The Stand on Business strip (public/art/kit sob-* and sob-silver-*): the button cut's plate (the kit's drop
+   shadow in the file), on the board at 0.79 (639 wide on 1920, the shell centred on the nameplates' centre line).
+   Every number (canvas, shell, the pressed sink, the wordmark's seat, the shine SVGs' viewBox offset) is the cut's
+   own, from kit-geometry.json as --kit-sob-* (scripts/kit.ts writes it; both finishes share the numbers). The plate
+   scales with the nameplates (--u): 710u wide. The states are layers and only their opacity moves; pressed sinks
+   and disabled greys, both baked. The wordmark centres on the shell's centre line (the reference lockup: the crown
+   clears the top of the strip; the cut's seat sat it lower, so the CSS reads dx and not dy), drawn outside the
+   button so its lettering hangs below the strip. The hit area is the frame plus the lettering under it (.sob-hit;
+   the button itself takes no pointer, so its glow is never clipped). Hover never swaps the sprite. */
 /* --sobw is the canvas width (710 nameplate units, 639px on 1920); --sob1 is the canvas's px per 1x unit of the cut, and
    every seat below is the cut's own number (kit-geometry.json, --kit-sob-*) times it. */
 .hud-center { --sobw: calc(var(--u) * 710); --sob1: calc(var(--sobw) / var(--kit-sob-size-w)); --sobh: calc(var(--sob1) * var(--kit-sob-size-h)); }
@@ -2491,7 +2490,7 @@ body.board-shake .battlefield { animation: board-shake 0.44s cubic-bezier(0.36, 
   .sob .sob-shine { display: none; }
   .sob-seat > .sob-word-lit::after, .sob-stars i { animation: none; }
 }
-.sob-static { --sob1: calc(var(--sobw) / var(--kit-sob-size-w)); position: relative; display: inline-block; width: var(--sobw); height: calc(var(--sob1) * var(--kit-sob-size-h)); clip-path: none; }
+.sob-static { --sob1: calc(var(--sobw) / var(--kit-sob-size-w)); position: relative; top: auto; display: inline-block; width: var(--sobw); height: calc(var(--sob1) * var(--kit-sob-size-h)); clip-path: none; }
 .sob-static .sob-l-default { opacity: 1; }
 @media (width <= 700px) {
   .hud { --np: 34vw; }
@@ -2506,11 +2505,12 @@ body.board-shake .battlefield { animation: board-shake 0.44s cubic-bezier(0.36, 
   .hud { --np: clamp(220px, 20vw, 380px); }
 }
 
-/* ---- The turn tracker cut (public/art/kit tt-*): the plate (510 by 178 at 1x, its frame at shell 19.5, 2.9, 470.9 by
-   131.8), one coin per turn on the shell's seats (radius 18.9, pitch 50 for eight; the pitch closes up for a ninth),
-   and the title as live text at (235.4, 43.5) from the shell in Cinzel 700, the kit's Highlight gold. --v is the
-   plate's 1x pixel at the size it is drawn: the shell, not the sprite, is as wide as Lock In (the sprite carries
-   transparent margins and the drop shadow), so the element overhangs the panel by the sprite's margins. Match over: the greyed plate, coins and title at half. ---- */
+/* ---- The turn tracker cut (public/art/kit tt-*): the plate on its canvas, one coin per turn on the shell's seats,
+   and the title as live text at the cut's seat in Cinzel 700. Every number (canvas, shell, title seat, coin row) is
+   the cut's own, from kit-geometry.json as --kit-tt-* (scripts/kit.ts writes it). --v is the plate's 1x pixel at the
+   size it is drawn: the shell, not the sprite, is as wide as Lock In (the sprite carries margins and the drop
+   shadow), so the element overhangs the panel by the sprite's margins. Match over: the greyed plate, coins and
+   title at half. ---- */
 /* --v is the px per 1x unit of the cut (the shell fills --tt); every seat is the cut's own number (kit-geometry.json,
    --kit-tt-*) times it, so a re-export lays itself out. The plate fills the cut's canvas (shell plus shadow room). */
 .turn-tracker { --v: calc(var(--tt) / var(--kit-tt-shell-w)); position: relative; width: calc(var(--v) * var(--kit-tt-size-w)); height: calc(var(--v) * var(--kit-tt-size-h)); justify-self: start; margin-left: calc(-1 * var(--v) * var(--kit-tt-shell-x)); margin-right: calc(-1 * var(--v) * (var(--kit-tt-size-w) - var(--kit-tt-shell-x) - var(--kit-tt-shell-w))); margin-top: calc(-1 * var(--v) * var(--kit-tt-shell-y)); }
