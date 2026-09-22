@@ -2605,13 +2605,10 @@ body.board-shake .battlefield { animation: board-shake 0.44s cubic-bezier(0.36, 
 .app.cine-hold *:not(.cine, .cine *) { animation-play-state: paused !important; }
 .app.cine-hold .sob-shine { opacity: 0 !important; }
 
-/* ---- The light on the beat: while a replay beat plays, the column it happens in stays bright and rises over its
-   neighbours, which step back a shade, and the piece acting gets a warm breathing halo; so a new player's eye goes to
-   what is happening. The dim is a filter, so a dimmed column is its own stacking context: the acting column takes a
-   z-index to keep its swelling tile over them. Off in planning and on your own beats. */
-.column { transition: filter 0.35s ease; }
-.app.beat-focus .column:not(.acting-col) { filter: brightness(0.74) saturate(0.85); }
-.app.beat-focus .column.acting-col { position: relative; z-index: 3; }
+/* ---- The light on the beat: while a replay beat plays, the piece acting gets a warm breathing halo, so a new
+   player's eye goes to what is happening. Off in planning and on your own beats. The other columns stepping back a
+   shade (a brightness filter on .app.beat-focus .column:not(.acting-col)) is off for now: it did not read as focus.
+   The runner still marks the beat's column .acting-col, so the dim can come back as one rule. */
 .tile-glow.acting > i.glow { animation: acting-breathe 1.3s ease-in-out infinite; }
 @keyframes acting-breathe { 0%, 100% { box-shadow: 0 0 10px 3px rgba(255, 226, 150, 0.55), 0 6px 10px rgba(0, 0, 0, 0.7); } 50% { box-shadow: 0 0 22px 8px rgba(255, 226, 150, 0.95), 0 6px 10px rgba(0, 0, 0, 0.7); } }
 .tile-glow.acting .pic, .slot.acting .pic { filter: brightness(1.12); }
