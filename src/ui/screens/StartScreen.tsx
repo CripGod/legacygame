@@ -28,6 +28,8 @@ export interface StartOptions {
 }
 
 const RANDOM_DECK = { key: 'random', name: 'Random', style: 'Ten random Characters from the whole pool plus both Events. Different every match.', cards: [] as string[] };
+/** The decks on offer in each panel's pulldown: the presets, then Random. */
+const DECK_OPTIONS = [...Object.entries(PRESET_DECKS).map(([k, d]) => ({ key: k, name: d.name, style: d.style, cards: d.cards })), RANDOM_DECK];
 /** One-line deck descriptions for the landing page; the full text lives on the deck itself. */
 const TAGLINE: Record<string, string> = {
   railroad: 'Movement and organizing. Harriet moves people, John Brown breaks Threats.',
@@ -225,6 +227,70 @@ function Fist({ side }: { side: 'left' | 'right' }) {
   );
 }
 
+/** The first sentence of a deck's style line: the panel's subtitle. */
+const motto = (style: string) => style.split(/(?<=\.)\s/)[0];
+
+/**
+ * One side's deck on the landing page: the label, the DECK › name pulldown, and the card row. It lives at module
+ * scope on purpose: declared inside StartScreen it would be a new component type on every render, and React would
+ * unmount and remount both panels (cards and all) whenever anything on the page changed, so choosing a deck for one
+ * side re-dealt the other.
+ */
+function DeckPanel({ side, label, value, onChange, open, onToggle, onOpenCard }: { side: 'mine' | 'theirs'; label: string; value: string; onChange: (k: string) => void; /** This panel's pulldown is the open one. */ open: boolean; onToggle: (open: boolean) => void; /** A card tapped in the row opens the Compendium sheet on it, with the deck to carousel through. */ onOpenCard: (id: string, cards: string[]) => void }) {
+  const d = DECK_OPTIONS.find((o) => o.key === value)!;
+  return (
+    <section className={`deck-panel ${side}`}>
+      <div className="deck-head">
+        <div className="deck-title">
+          <div className="lbl">{label}</div>
+          <p className="deck-style" title={d.style}>{motto(TAGLINE[d.key] ?? d.style)}</p>
+        </div>
+        {/* The deck, chosen from a dropdown: DECK › name. */}
+        <div className={`deck-menu ${open ? 'open' : ''}`}>
+          <button type="button" className="deck-menu-btn" aria-haspopup="listbox" aria-expanded={open} onClick={() => onToggle(!open)}>
+            <span className="dm-k">Deck</span>
+            <span className="dm-sep" aria-hidden>
+              ›
+            </span>
+            <span className="dm-v">{d.name}</span>
+            <span className="dm-caret" aria-hidden />
+          </button>
+          {open && (
+            <ul className="deck-menu-list" role="listbox" aria-label={`${label}: deck`}>
+              {DECK_OPTIONS.map((o) => (
+                <li key={o.key} role="option" aria-selected={o.key === value}>
+                  <button
+                    type="button"
+                    className={o.key === value ? 'on' : ''}
+                    onClick={() => {
+                      onChange(o.key);
+                      onToggle(false);
+                    }}
+                  >
+                    <b>{o.name}</b>
+                    <span>{motto(TAGLINE[o.key] ?? o.style)}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+      <div className="deck-row">
+        {d.cards.length > 0 ? (
+          <div className="deck-cards">
+            {d.cards.map((id) => (
+              <CardFace key={id} id={id} onClick={() => onOpenCard(id, d.cards)} />
+            ))}
+          </div>
+        ) : (
+          <div className="deck-random">A fresh hand every match: ten Characters drawn from the whole pool, plus both Events.</div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: (o: StartOptions) => void; onRules: () => void; onCards: (chapter?: string) => void; initialDev: boolean }) {
   const [dev, setDev] = useState(initialDev);
   // Dev: ?legacy=N grants N Legacy once per page load, to review ranks without playing.
@@ -315,11 +381,13 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
     return def.category === 'artist' ? 'Artists' : def.category.charAt(0).toUpperCase() + def.category.slice(1);
   };
   const opts = (mode: 'ai' | 'hotseat'): StartOptions => ({ seed: seed.trim() ? Number(seed) : undefined, mode, placeholders, dev, coach, deckA, deckB });
-  const deckOptions = [...Object.entries(PRESET_DECKS).map(([k, d]) => ({ key: k, name: d.name, style: d.style, cards: d.cards })), RANDOM_DECK];
   const mob = THREAT_BY_ID[SPOTLIGHT_THREAT];
+  /** A deck card tapped on the landing page: the sheet opens on it and carousels through that deck. */
+  const openCard = (id: string, cards: string[]) => {
+    setOpenDeck(cards);
+    setOpen(id);
+  };
 
-  /** The first sentence of a deck's style line: the panel's subtitle. */
-  const motto = (style: string) => style.split(/(?<=\.)\s/)[0];
   const [menuOpen, setMenuOpen] = useState<'mine' | 'theirs' | null>(null);
   useEffect(() => {
     if (!menuOpen) return;
@@ -336,62 +404,6 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
       window.removeEventListener('keydown', key);
     };
   }, [menuOpen]);
-
-  const DeckPanel = ({ side, label, value, onChange }: { side: 'mine' | 'theirs'; label: string; value: string; onChange: (k: string) => void }) => {
-    const d = deckOptions.find((o) => o.key === value)!;
-    const open = menuOpen === side;
-    return (
-      <section className={`deck-panel ${side}`}>
-        <div className="deck-head">
-          <div className="deck-title">
-            <div className="lbl">{label}</div>
-            <p className="deck-style" title={d.style}>{motto(TAGLINE[d.key] ?? d.style)}</p>
-          </div>
-          {/* The deck, chosen from a dropdown: DECK › name. */}
-          <div className={`deck-menu ${open ? 'open' : ''}`}>
-            <button type="button" className="deck-menu-btn" aria-haspopup="listbox" aria-expanded={open} onClick={() => setMenuOpen(open ? null : side)}>
-              <span className="dm-k">Deck</span>
-              <span className="dm-sep" aria-hidden>
-                ›
-              </span>
-              <span className="dm-v">{d.name}</span>
-              <span className="dm-caret" aria-hidden />
-            </button>
-            {open && (
-              <ul className="deck-menu-list" role="listbox" aria-label={`${label}: deck`}>
-                {deckOptions.map((o) => (
-                  <li key={o.key} role="option" aria-selected={o.key === value}>
-                    <button
-                      type="button"
-                      className={o.key === value ? 'on' : ''}
-                      onClick={() => {
-                        onChange(o.key);
-                        setMenuOpen(null);
-                      }}
-                    >
-                      <b>{o.name}</b>
-                      <span>{motto(TAGLINE[o.key] ?? o.style)}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-        <div className="deck-row">
-          {d.cards.length > 0 ? (
-            <div className="deck-cards">
-              {d.cards.map((id) => (
-                <CardFace key={id} id={id} onClick={() => { setOpenDeck(d.cards); setOpen(id); }} />
-              ))}
-            </div>
-          ) : (
-            <div className="deck-random">A fresh hand every match: ten Characters drawn from the whole pool, plus both Events.</div>
-          )}
-        </div>
-      </section>
-    );
-  };
   const [signNote, setSignNote] = useState(false);
   const scrollTo = (sel: string) => root.current?.querySelector(sel)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
@@ -523,7 +535,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
       </div>
 
       <div className="decks">
-        <DeckPanel side="mine" label="Your cards" value={deckA} onChange={setDeckA} />
+        <DeckPanel side="mine" label="Your cards" value={deckA} onChange={setDeckA} open={menuOpen === 'mine'} onToggle={(o) => setMenuOpen(o ? 'mine' : null)} onOpenCard={openCard} />
         <div className={`vs-col ${mobState}`}>
           <div className="vs-flourish" aria-hidden />
           <img className="vs-mark" src={artUrl('landing', 'africa', 'webp')} alt="" aria-hidden draggable={false} />
@@ -571,7 +583,7 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
             </div>
           )}
         </div>
-        <DeckPanel side="theirs" label="Opponent's cards" value={deckB} onChange={setDeckB} />
+        <DeckPanel side="theirs" label="Opponent's cards" value={deckB} onChange={setDeckB} open={menuOpen === 'theirs'} onToggle={(o) => setMenuOpen(o ? 'theirs' : null)} onOpenCard={openCard} />
       </div>
 
       <footer className="hero-foot">
