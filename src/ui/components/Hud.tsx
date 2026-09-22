@@ -19,7 +19,14 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
           <div className="np-text">
             <div className="handle">{ps.handle}</div>
             <div className="sub">
-              {ps.hand.length}/{MAX_HAND} in hand · {ps.deckCount} in deck{p === me ? ' · you' : ''}
+              <span>{ps.hand.length}/{MAX_HAND} in hand · {ps.deckCount} in deck{p === me ? ' · you' : ''}</span>
+              {p === me && (
+                <span className={`coin ${view.pendingRaises.length ? 'raised' : ''} ${stand?.flip ? 'flip' : ''}`} {...tip(view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes)}>
+                  {view.stakes}
+                  {(view.pendingRaises.length > 0 || stand?.on) && <em>→{stand?.on && stand.proposed ? stand.proposed : effectiveStakes(view)}</em>}
+                  <small>legacy</small>
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -53,11 +60,6 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
       {profile('A', false)}
       <div className="hud-center">
         <div className="hud-mid">
-          <span className={`coin ${view.pendingRaises.length ? 'raised' : ''} ${stand?.flip ? 'flip' : ''}`} {...tip(view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes)}>
-            {view.stakes}
-            {(view.pendingRaises.length > 0 || stand?.on) && <em>→{stand?.on && stand.proposed ? stand.proposed : effectiveStakes(view)}</em>}
-            <small>legacy</small>
-          </span>
           {stand && (
             /* The round Stand on Business button from the top-bar cut: the backing in the kit's four states (hover fades a
                second layer up, never swapping the sprite), the wordmark over it, the gold glow behind on hover and press,
@@ -70,9 +72,9 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
                 <i className="sob-l sob-l-hover" aria-hidden />
                 <i className="sob-l sob-l-pressed" aria-hidden />
                 <i className="sob-l sob-l-disabled" aria-hidden />
-                <i className="sob-word" aria-hidden />
                 {stand.on && <b className="sob-chip">×{stand.proposed ?? effectiveStakes(view)}</b>}
               </button>
+              <i className="sob-word" aria-hidden />
             </span>
           )}
           <SettingsMenu className="hud-settings" icon="gear" />

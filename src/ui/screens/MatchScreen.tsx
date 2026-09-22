@@ -1187,7 +1187,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     if (step && !ownBeat) {
       beatSfx(step, step.kind === 'reveal' && !revealSlams(step));
       // The other side's Stand lands on the board the same way yours does: the burst over the Legacy coin, the flip.
-      if (step.kind === 'stand' && step.events.some((e) => e.type === 'stand' && e.player && e.player !== me) && !reduceMotion()) coinFx(document.querySelector('.hud-sub .coin'));
+      if (step.kind === 'stand' && step.events.some((e) => e.type === 'stand' && e.player && e.player !== me) && !reduceMotion()) coinFx(document.querySelector('.np .coin'));
       if (step.kind === 'play' && step.cardId) voice(step.cardId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
