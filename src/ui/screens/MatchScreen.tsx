@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { influenceAt, CARD_BY_ID, viewFor, legalOptions, validatePlan, gateRoom, GATE_CAPACITY, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, filterEvents, LOCATION_BY_ID } from '../../engine';
+import { influenceAt, CARD_BY_ID, viewFor, legalOptions, validatePlan, gateRoom, GATE_CAPACITY, lockReason, PLANNING_SECONDS, insideOpen, insideCapacity, isBlockedFromEntering, charsAt, locDef, THREAT_BY_ID, SUMMON, emptyPlan, type PlayerId, type TurnPlan, type GameEvent, type GameState, other, MAX_HAND, EXTENDED_TURNS, ENERGY_CAP, planCost, cardCost, filterEvents, LOCATION_BY_ID, effectiveStakes } from '../../engine';
 import { useDrag, targetKey, type DragPayload, type DropTarget } from '../drag';
 import { CardFace, Pic } from '../components/CardFace';
 import { artUrl, videoUrl, kitVars, warmKit } from '../art';
@@ -196,6 +196,24 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   /** The end of the match on the board: 1 the banner slams in, 2 it lifts and the result panel rises; collapsed = looking at the board. */
   const [endStage, setEndStage] = useState<0 | 1 | 2>(() => (m.view.phase === 'ended' ? 2 : 0));
   const [endCollapsed, setEndCollapsed] = useState(false);
+  /* The readout above Lock In: the turn's beats as they play, Energy and Legacy while planning. Hidden stays hidden. */
+  const [readoutOpen, setReadoutOpen] = useState(() => {
+    try {
+      return window.localStorage.getItem('bhcb.readout.v1') !== '0';
+    } catch {
+      return true;
+    }
+  });
+  const toggleReadout = () => {
+    setReadoutOpen((o) => {
+      try {
+        window.localStorage.setItem('bhcb.readout.v1', o ? '0' : '1');
+      } catch {
+        /* private mode: the choice lasts the session */
+      }
+      return !o;
+    });
+  };
   // A new match clears the last one's verdict.
   useEffect(() => {
     if (view.phase !== 'ended') {
@@ -1187,7 +1205,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     if (step && !ownBeat) {
       beatSfx(step, step.kind === 'reveal' && !revealSlams(step));
       // The other side's Stand lands on the board the same way yours does: the burst over the Legacy coin, the flip.
-      if (step.kind === 'stand' && step.events.some((e) => e.type === 'stand' && e.player && e.player !== me) && !reduceMotion()) coinFx(document.querySelector('.np .coin'));
+      if (step.kind === 'stand' && step.events.some((e) => e.type === 'stand' && e.player && e.player !== me) && !reduceMotion()) coinFx(document.querySelector('.readout .coin'));
       if (step.kind === 'play' && step.cardId) voice(step.cardId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -2180,7 +2198,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           </video>
         )}
       </div>
-      <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} energy={{ left: energyShown, total: opts.energy }} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, flash: flash === 'stakes' || flash === 'final', urge: planning && opts.canStand && !plan.standOnBusiness && view.turn >= view.maxTurns, onToggle: toggleStand, proposed: opts.proposedStakes, slam: standSlam, flip: coinFlip }} />
+      <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, flash: flash === 'stakes' || flash === 'final', urge: planning && opts.canStand && !plan.standOnBusiness && view.turn >= view.maxTurns, onToggle: toggleStand, proposed: opts.proposedStakes, slam: standSlam, flip: coinFlip }} />
       <div className="main-wrap">
         <Battlefield
           pending={pendingInf}
@@ -2209,39 +2227,6 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           glowLocation={guideLocation}
           summonLabel={summonState}
         />
-        {verdict ? null : clashTell ? (
-          <div className={`replay-banner kind-clash ${clashTell.tone}`} role="status">
-            <span className="replay-kind">{clashTell.title}</span>
-            <span className="replay-text">
-              {clashTell.text}
-              {clashTell.sub && <span className="replay-sub">{clashTell.sub}</span>}
-            </span>
-            {m.replay && (
-              <button className="small" onClick={m.replaySkip}>
-                Skip ▸▸
-              </button>
-            )}
-          </div>
-        ) : step && !ownBeat ? (
-          <div className={`replay-banner kind-${step.kind}`} role="status">
-            {BEAT_KIND[step.kind] && <span className="replay-kind">{BEAT_KIND[step.kind]}</span>}
-            <span className="replay-text">{step.label}</span>
-            <span className="replay-count">
-              {m.replay!.idx + 1}/{m.replay!.steps.length}
-            </span>
-            <button className="small" onClick={m.replaySkip}>
-              Skip ▸▸
-            </button>
-          </div>
-        ) : resolving && !m.replay ? (
-          <div className="replay-banner kind-wait" role="status">
-            <span className="replay-kind">{locked ? 'Locked' : 'Resolving'}</span>
-            <span className="replay-text">
-              {locked ? (m.mode === 'ai' ? 'Harborlight is deciding' : 'Waiting for the other side') : 'The board settles'}
-              <span className="dots" aria-hidden />
-            </span>
-          </div>
-        ) : null}
         {peekShow && (
           <div className="peek-strip" role="status" onClick={() => setPeekShow(null)}>
             <div className="peek-cap">
@@ -2340,6 +2325,74 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           </div>
         </div>
         <div className="lock-panel">
+          {/* The readout: the turn's beats as they play (with Skip), Energy and Legacy while planning. A bar to hide it. */}
+          {view.phase !== 'ended' && (
+            <div className={`readout ${readoutOpen ? 'open' : 'shut'}`}>
+              <div className="readout-bar">
+                <span className="readout-label">{m.replay ? 'Playing out' : resolving ? 'Resolving' : 'Readout'}</span>
+                {m.replay && !readoutOpen && (
+                  <button className="small" onClick={m.replaySkip}>
+                    Skip ▸▸
+                  </button>
+                )}
+                <button className="small readout-toggle" onClick={toggleReadout} aria-expanded={readoutOpen} title={readoutOpen ? 'Hide the readout' : 'Show the readout'}>
+                  {readoutOpen ? 'Hide' : 'Show'}
+                </button>
+              </div>
+              {readoutOpen && (
+                <>
+          {verdict ? null : clashTell ? (
+            <div className={`replay-banner kind-clash ${clashTell.tone}`} role="status">
+              <span className="replay-kind">{clashTell.title}</span>
+              <span className="replay-text">
+                {clashTell.text}
+                {clashTell.sub && <span className="replay-sub">{clashTell.sub}</span>}
+              </span>
+              {m.replay && (
+                <button className="small" onClick={m.replaySkip}>
+                  Skip ▸▸
+                </button>
+              )}
+            </div>
+          ) : step && !ownBeat ? (
+            <div className={`replay-banner kind-${step.kind}`} role="status">
+              {BEAT_KIND[step.kind] && <span className="replay-kind">{BEAT_KIND[step.kind]}</span>}
+              <span className="replay-text">{step.label}</span>
+              <span className="replay-count">
+                {m.replay!.idx + 1}/{m.replay!.steps.length}
+              </span>
+              <button className="small" onClick={m.replaySkip}>
+                Skip ▸▸
+              </button>
+            </div>
+          ) : resolving && !m.replay ? (
+            <div className="replay-banner kind-wait" role="status">
+              <span className="replay-kind">{locked ? 'Locked' : 'Resolving'}</span>
+              <span className="replay-text">
+                {locked ? (m.mode === 'ai' ? 'Harborlight is deciding' : 'Waiting for the other side') : 'The board settles'}
+                <span className="dots" aria-hidden />
+              </span>
+            </div>
+          ) : (
+            <div className="replay-banner kind-plan" role="status">
+              <span className="replay-kind">Plan</span>
+              <span className="replay-text readout-plan">
+                <span className={`coin energy-meter ${energyShown < opts.energy ? 'spent' : ''}`} {...tip(HINTS.energy)}>
+                  {energyShown}
+                  <small>of {opts.energy} energy</small>
+                </span>
+                <span className={`coin ${view.pendingRaises.length ? 'raised' : ''} ${coinFlip ? 'flip' : ''}`} {...tip(view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes)}>
+                  {view.stakes}
+                  {(view.pendingRaises.length > 0 || plan.standOnBusiness) && <em>→{plan.standOnBusiness ? opts.proposedStakes : effectiveStakes(view)}</em>}
+                  <small>legacy</small>
+                </span>
+              </span>
+            </div>
+          )}
+                </>
+              )}
+            </div>
+          )}
           {view.phase === 'ended' ? (
             endCollapsed ? (
               <button className="primary lock-btn" onClick={() => setEndCollapsed(false)}>

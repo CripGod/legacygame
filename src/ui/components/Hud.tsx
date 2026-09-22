@@ -4,7 +4,7 @@ import { tip, HINTS } from '../tip';
 import { Art } from './Art';
 import { SettingsMenu } from './SettingsMenu';
 
-export function Hud({ view, me, onProfile, bubbles, onChat, energy, stand }: { view: GameState; me: PlayerId; onProfile: (p: PlayerId) => void; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void; /** Your Energy this turn: what is left after the planned plays, of the turn's total. */ energy?: { left: number; total: number }; stand?: { on: boolean; disabled: boolean; flash?: boolean; /** The last scheduled turn and you can still stand: the button pulses with the kit's wipe shine. */ urge?: boolean; onToggle: () => void; /** What the Legacy becomes if the planned Stand goes through. */ proposed?: number; /** The press: the button slams. */ slam?: boolean; /** The clap: the coin flips to the new price. */ flip?: boolean } }) {
+export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: GameState; me: PlayerId; onProfile: (p: PlayerId) => void; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void; stand?: { on: boolean; disabled: boolean; flash?: boolean; /** The last scheduled turn and you can still stand: the button pulses with the kit's wipe shine. */ urge?: boolean; onToggle: () => void; /** What the Legacy becomes if the planned Stand goes through. */ proposed?: number; /** The press: the button slams. */ slam?: boolean; /** The clap: the coin flips to the new price. */ flip?: boolean } }) {
   const { placeholders } = useDisplay();
   /* The nameplate from the top-bar cut: the wordless strip (gold for you, blue for Harborlight) with the name and counts
      as live text, and the avatar ring hung off its end (the ring, the portrait clipped to the well over it, the level
@@ -20,19 +20,6 @@ export function Hud({ view, me, onProfile, bubbles, onChat, energy, stand }: { v
             <div className="handle">{ps.handle}</div>
             <div className="sub">
               <span>{ps.hand.length}/{MAX_HAND} in hand · {ps.deckCount} in deck{p === me ? ' · you' : ''}</span>
-              {p === me && energy && (
-                <span className={`coin energy-meter ${energy.left < energy.total ? 'spent' : ''}`} {...tip(HINTS.energy)}>
-                  {energy.left}
-                  <small>of {energy.total} energy</small>
-                </span>
-              )}
-              {p === me && (
-                <span className={`coin ${view.pendingRaises.length ? 'raised' : ''} ${stand?.flip ? 'flip' : ''}`} {...tip(view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes)}>
-                  {view.stakes}
-                  {(view.pendingRaises.length > 0 || stand?.on) && <em>→{stand?.on && stand.proposed ? stand.proposed : effectiveStakes(view)}</em>}
-                  <small>legacy</small>
-                </span>
-              )}
             </div>
           </div>
         </div>
