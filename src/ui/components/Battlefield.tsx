@@ -630,10 +630,13 @@ export function Battlefield(props: BattlefieldProps) {
                 <Score p="B" value={inf.B} hurt={fx?.hurt?.location === loc.index && fx.hurt.owner === 'B'} detail={influenceLines(view, loc.index, 'B', me).join('\n')} />
               </div>
               {(() => {
+                // The column seats a Threat by whom it hunts: the opponent's at the top (their row), the area's between, yours at the
+                // bottom (your row). A Threat that fell this beat keeps its seat while its ghost lingers, so the fighters charge the
+                // tile on their own side, not the seat the ghost would take at the end of the column.
                 const rank = (t: ThreatInstance) => (t.target ? (t.target === me ? 2 : 0) : 1);
-                const live = [...loc.threats].sort((a, b) => rank(a) - rank(b));
                 const ghosts = fallen.map((g): ThreatInstance => ({ uid: g.uid, defId: g.defId, location: g.location, target: g.target, forceRequired: THREAT_BY_ID[g.defId]?.force ?? 0, spawnedTurn: -1 }));
-                const has = live.length + ghosts.length > 0;
+                const seated = [...loc.threats.map((t) => ({ t, gone: false })), ...ghosts.map((t) => ({ t, gone: true }))].sort((a, b) => rank(a.t) - rank(b.t));
+                const has = seated.length > 0;
                 return (
                   <div className="inside-block">
                     <div className="inside-rows">
@@ -642,12 +645,13 @@ export function Battlefield(props: BattlefieldProps) {
                     </div>
                     {/* The column is always reserved, so the rows never change shape; empty, it shows the Location's art. */}
                     <div className={`threat-col ${has ? '' : 'empty'}`} aria-hidden={!has}>
-                      {live.map((t) => (
-                        <ThreatTile key={t.uid} t={t} view={view} me={me} plan={plan} drop={drop} foreseen={!!foreseen?.threats.includes(t.uid)} flash={flash === 'threat' && glowLocation !== null && glowLocation !== undefined && glowLocation !== loc.index ? null : flash} onThreat={onThreat} hidden={fx?.hidden.includes(t.uid)} hit={fx?.flash?.uid === t.uid ? fx.flash.kind : undefined} stamp={fx?.stamp?.uid === t.uid ? fx.stamp : undefined} />
-                      ))}
-                      {ghosts.map((t) => (
-                        <ThreatTile key={`gone:${t.uid}`} t={t} view={view} me={me} plan={plan} onThreat={onThreat} gone={!fx?.alive?.includes(t.uid)} goneWhy={fallen.find((g) => g.uid === t.uid)?.why} hidden={fx?.hidden.includes(t.uid)} hit={fx?.flash?.uid === t.uid ? fx.flash.kind : undefined} shatter={fx?.shatter === t.uid} stamp={fx?.stamp?.uid === t.uid ? fx.stamp : undefined} />
-                      ))}
+                      {seated.map(({ t, gone }) =>
+                        gone ? (
+                          <ThreatTile key={`gone:${t.uid}`} t={t} view={view} me={me} plan={plan} onThreat={onThreat} gone={!fx?.alive?.includes(t.uid)} goneWhy={fallen.find((g) => g.uid === t.uid)?.why} hidden={fx?.hidden.includes(t.uid)} hit={fx?.flash?.uid === t.uid ? fx.flash.kind : undefined} shatter={fx?.shatter === t.uid} stamp={fx?.stamp?.uid === t.uid ? fx.stamp : undefined} />
+                        ) : (
+                          <ThreatTile key={t.uid} t={t} view={view} me={me} plan={plan} drop={drop} foreseen={!!foreseen?.threats.includes(t.uid)} flash={flash === 'threat' && glowLocation !== null && glowLocation !== undefined && glowLocation !== loc.index ? null : flash} onThreat={onThreat} hidden={fx?.hidden.includes(t.uid)} hit={fx?.flash?.uid === t.uid ? fx.flash.kind : undefined} stamp={fx?.stamp?.uid === t.uid ? fx.stamp : undefined} />
+                        ),
+                      )}
                     </div>
                   </div>
                 );
