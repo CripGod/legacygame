@@ -2439,8 +2439,13 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .hud-mid .hud-settings { position: absolute; left: calc(100% + clamp(8px, 1vw, 18px)); top: 50%; transform: translateY(-50%); }
 .sob-seat { position: relative; display: block; width: var(--sob); height: 100%; flex: none; }
 .sob-glow { position: absolute; left: -10.3%; top: calc(-1 * var(--u) * 26 - var(--sob) * 0.103); width: 120.6%; height: calc(var(--sob) * 1.206); background: #fcb424; -webkit-mask: var(--kit-sob-glow) center / 100% 100% no-repeat; mask: var(--kit-sob-glow) center / 100% 100% no-repeat; opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 0; }
-.sob-seat:has(.sob:not(:disabled):hover) .sob-glow { opacity: 0.45; }
-.sob-seat:has(.sob:not(:disabled):active) .sob-glow, .sob-seat:has(.sob.on) .sob-glow { opacity: 0.6; }
+/* The glow breathes while the button is live, harder and faster as the match nears its end (--heat, set by the Hud
+   from the turn count): a faint breath on turn 1, a full gold pulse on the last turn. Hover, press and Standing hold
+   it steady. */
+.sob-seat:has(.sob:not(:disabled)) .sob-glow { animation: sob-heat calc(2.8s - var(--heat, 0) * 1.9s) ease-in-out infinite; }
+@keyframes sob-heat { 0%, 100% { opacity: calc(var(--heat, 0) * 0.3); transform: scale(1); } 50% { opacity: calc(0.15 + var(--heat, 0) * 0.85); transform: scale(calc(1 + var(--heat, 0) * 0.1)); } }
+.sob-seat:has(.sob:not(:disabled):hover) .sob-glow { animation: none; opacity: calc(0.45 + var(--heat, 0) * 0.35); transform: scale(calc(1 + var(--heat, 0) * 0.05)); }
+.sob-seat:has(.sob:not(:disabled):active) .sob-glow, .sob-seat:has(.sob.on) .sob-glow { animation: none; opacity: calc(0.6 + var(--heat, 0) * 0.3); transform: scale(calc(1 + var(--heat, 0) * 0.05)); }
 .sob { position: absolute; left: 0; top: calc(-1 * var(--u) * 26); width: var(--sob); height: var(--sob); margin: 0; padding: 0; border: 0 !important; border-radius: 50% !important; background: none !important; box-shadow: none; clip-path: circle(41.2% at 50% 49.7%) !important; cursor: pointer; isolation: isolate; z-index: 1; transition: filter 0.15s; }
 .sob:disabled { cursor: default; }
 .sob-l { position: absolute; inset: 0; background: var(--kit-sob-default) center / 100% 100% no-repeat; opacity: 0; transition: opacity 0.12s; pointer-events: none; }
@@ -2459,9 +2464,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 /* The last scheduled turn, and you can still stand: the button breathes and its glow pulses. */
 .sob.urge:not(.ftue-flash):not(.slam) { animation: stand-urge 1.6s ease-in-out infinite; }
 @keyframes stand-urge { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.04); filter: brightness(1.18) saturate(1.1); } }
-.sob-seat:has(.sob.urge:not(:disabled)) .sob-glow { animation: sob-glow-pulse 1.6s ease-in-out infinite; }
-@keyframes sob-glow-pulse { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.55; } }
-@media (prefers-reduced-motion: reduce) { .sob.urge:not(.ftue-flash):not(.slam) { animation: none; filter: brightness(1.12); } .sob-seat:has(.sob.urge) .sob-glow { animation: none; opacity: 0.4; } }
+@media (prefers-reduced-motion: reduce) { .sob.urge:not(.ftue-flash):not(.slam) { animation: none; filter: brightness(1.12); } .sob-seat:has(.sob:not(:disabled)) .sob-glow { animation: none; opacity: calc(0.1 + var(--heat, 0) * 0.5); } }
 .sob-static { position: relative; display: inline-block; width: var(--sob); height: var(--sob); clip-path: circle(41.2% at 50% 49.7%); }
 .sob-static .sob-l-default { opacity: 1; }
 @media (width <= 700px) {

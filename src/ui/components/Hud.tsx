@@ -61,11 +61,12 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
       <div className="hud-center">
         <div className="hud-mid">
           {stand && (
-            /* The round Stand on Business button from the top-bar cut: the backing in the kit's four states (hover fades a
+            /* The round Stand on Business button from the top-bar cut. --heat is how far the match has run (turn 1 = 0, the
+               last turn = 1): the glow breathes harder and faster as the end nears: the backing in the kit's four states (hover fades a
                second layer up, never swapping the sprite), the wordmark over it, the gold glow behind on hover and press,
                and Standing held on the pressed state with the raise on a chip. The seat keeps the bar's height; the button
                hangs below it, over the top of the middle column, as the board places it. */
-            <span className="sob-seat">
+            <span className="sob-seat" style={{ '--heat': Math.min(1, Math.max(0, (view.turn - 1) / Math.max(1, view.maxTurns - 1))) } as React.CSSProperties}>
               <i className="sob-glow" aria-hidden />
               <button className={`sob ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''} ${stand.slam ? 'slam' : ''} ${stand.urge ? 'urge' : ''}`} disabled={stand.disabled} onClick={stand.onToggle} aria-label={stand.on ? 'Standing on Business' : 'Stand on Business'} title={view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes}>
                 <i className="sob-l sob-l-default" aria-hidden />
