@@ -2427,13 +2427,16 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
    image sits at -66/809 and -82/246 of the canvas, 941.2/809 by 549.9/246 of it); when the seat ramps, the wipe shine.
    The wordmark (shadow baked, 700.15 by 263.16 at plate 1x) centres 0.77 right of the shell centre, on its centre
    line (the reference lockup: the crown clears the top of the strip; the cut's seat sat it 21 lower), drawn outside the clipped button so its lettering hangs below the strip as the board places it. The hit area is the
-   frame plus the lettering under it. Hover never swaps the sprite. */
+   frame plus the lettering under it (.sob-hit; the button itself takes no pointer, so its glow is never clipped).
+   Hover never swaps the sprite. */
 .hud-center { --sobw: calc(var(--u) * 710); --sobh: calc(var(--sobw) * 0.30408); }
 .hud-mid { position: relative; display: flex; align-items: center; justify-content: center; height: var(--np-h); }
 .hud-mid .hud-settings { position: absolute; left: calc(92.2% + clamp(6px, 0.8vw, 14px)); top: 50%; transform: translateY(-50%); }
 .sob-seat { position: relative; display: block; width: var(--sobw); height: 100%; flex: none; }
-.sob { position: absolute; left: 0; top: calc(50% - var(--sobh) * 0.4791); width: var(--sobw); height: var(--sobh); margin: 0; padding: 0; border: 0 !important; border-radius: 0 !important; background: none !important; box-shadow: none; clip-path: inset(25.5% 7.8% 12% 7.8%) !important; cursor: pointer; isolation: isolate; z-index: 1; transition: filter 0.15s; }
-.sob:disabled { cursor: default; }
+.sob { position: absolute; left: 0; top: calc(50% - var(--sobh) * 0.4791); width: var(--sobw); height: var(--sobh); margin: 0; padding: 0; border: 0 !important; border-radius: 0 !important; background: none !important; box-shadow: none; clip-path: none !important; overflow: visible; pointer-events: none; isolation: isolate; z-index: 1; transition: filter 0.15s; }
+/* The pointer lands on the frame and the lettering under it, not the canvas's shadow room; the button draws unclipped. */
+.sob-hit { position: absolute; left: 7.8%; right: 7.8%; top: 25.5%; bottom: 12%; pointer-events: auto; cursor: pointer; }
+.sob:disabled .sob-hit { pointer-events: none; cursor: default; }
 .sob-l { position: absolute; inset: 0; background: var(--kit-sob-default) center / 100% 100% no-repeat; opacity: 0; transition: opacity 0.12s; pointer-events: none; }
 .sob-l-default { opacity: 1; }
 .sob-l-hover { background-image: var(--kit-sob-hover); }
@@ -2457,7 +2460,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .sob-seat > .sob-word { width: calc(var(--sobw) * 0.8655); height: calc(var(--sobh) * 1.0698); left: calc(var(--sobw) * 0.501); top: 50%; }
 .sob-seat:has(.sob:not(:disabled):active) > .sob-word, .sob-seat:has(.sob.on) > .sob-word { transform: translate(-50%, calc(-50% + var(--sobh) * 0.0081)); }
 .sob-seat:has(.sob:disabled) > .sob-word { opacity: 0.55; filter: grayscale(0.6); }
-.sob-chip { position: absolute; left: 90%; top: 70%; transform: translate(-50%, -50%); padding: calc(var(--sobw) * 0.004) calc(var(--sobw) * 0.016); border-radius: 999px; font-family: var(--display); font-weight: 800; font-size: calc(var(--sobw) * 0.026); letter-spacing: 0.04em; color: #1a1200; background: linear-gradient(180deg, #f6d77a, #d7a422 60%, #b4851a); border: 1px solid #fff0c0; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7); pointer-events: none; }
+.sob-chip { position: absolute; left: 89.5%; top: 47.9%; transform: translate(-50%, -50%); padding: calc(var(--sobw) * 0.004) calc(var(--sobw) * 0.016); border-radius: 999px; font-family: var(--display); font-weight: 800; font-size: calc(var(--sobw) * 0.026); letter-spacing: 0.04em; color: #1a1200; background: linear-gradient(180deg, #f6d77a, #d7a422 60%, #b4851a); border: 1px solid #fff0c0; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7); pointer-events: none; }
 /* The last scheduled turn, and you can still stand: the button breathes. */
 .sob.urge:not(.ftue-flash):not(.slam) { animation: stand-urge 1.6s ease-in-out infinite; }
 @keyframes stand-urge { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.03); filter: brightness(1.18) saturate(1.1); } }

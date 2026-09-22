@@ -63,7 +63,8 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
                greys, both baked). At rest the plate is the cut's edge-shine SVG (a spark runs the outline every 9s);
                when things ramp up (the back half of the match, or the last turn) it is the wipe shine (a glint sweeps the
                face every 11s); under reduced motion the still PNG. The wordmark rides over the plate, outside the
-               button's hit area, on the board's seat. Standing holds the pressed state with the raise on a chip. */
+               button's hit area, on the board's seat. The button itself takes no pointer (its glow and shadow must not be clipped);
+               the hit area is the frame plus the lettering under it (.sob-hit). Standing holds the pressed state with the raise on a chip. */
             <span className={`sob-seat ${ramp ? 'ramp' : ''}`} style={{ '--heat': heat } as React.CSSProperties}>
               <button className={`sob ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''} ${stand.slam ? 'slam' : ''} ${stand.urge ? 'urge' : ''}`} disabled={stand.disabled} onClick={stand.onToggle} aria-label={stand.on ? 'Standing on Business' : 'Stand on Business'} title={view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes}>
                 <i className="sob-l sob-l-default" aria-hidden />
@@ -73,6 +74,7 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
                 <i className="sob-l sob-l-pressed" aria-hidden />
                 <i className="sob-l sob-l-disabled" aria-hidden />
                 {stand.on && <b className="sob-chip">×{stand.proposed ?? effectiveStakes(view)}</b>}
+                <i className="sob-hit" aria-hidden />
               </button>
               <i className="sob-word" aria-hidden />
             </span>
