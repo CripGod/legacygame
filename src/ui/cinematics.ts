@@ -22,3 +22,6 @@ export const CINEMATICS: Record<string, Cinematic> = {
 
 /** A clip's sound, brought to -20 LUFS by `npm run cine`, plays at this volume: level with the game's own cues. */
 export const CINE_VOLUME = 0.6;
+
+/** After the clip, the caption rises and holds this long to be read: the eye was on the picture while it played. */
+export const CINE_READ_MS = 2000;

@@ -15,7 +15,7 @@ import { Spotlight } from '../components/Spotlight';
 import { sfx, voice, EVENT_CARD_SFX, getAudioSettings } from '../audio';
 import type { TraceStep } from '../../engine';
 import { Trails, TRAIL_COLORS, waveLandAt, type TrailShot } from '../components/Trails';
-import { CINEMATICS, CINE_VOLUME } from '../cinematics';
+import { CINEMATICS, CINE_VOLUME, CINE_READ_MS } from '../cinematics';
 import { Fireworks } from '../components/Fireworks';
 import { MatchEnd } from '../components/MatchEnd';
 import { ghostOf, fly, jolt, partWay, clearGhosts, wait, painted, type Ghost } from '../fly';
@@ -59,12 +59,12 @@ const BEAT_MS: Record<string, number> = {
   summon: 2200,
   threat: 2200,
   spawn: 1600,
-  ready: 1200,
+  ready: 600, // the Ready strips: bookkeeping, a short settle
   sundown: 2200,
   crossing: 2200,
   turncoat: 2300,
   info: 900,
-  tally: 2200,
+  tally: 700, // the turn is counted: nothing moves, a settle before the turn call
   stakes: 2300,
 };
 
@@ -179,12 +179,15 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   /** The end of the match on the board: 1 the banner slams in, 2 it lifts and the result panel rises; collapsed = looking at the board. */
   const [endStage, setEndStage] = useState<0 | 1 | 2>(() => (m.view.phase === 'ended' ? 2 : 0));
   const [endCollapsed, setEndCollapsed] = useState(false);
-  // A new match clears the last one's verdict.
+  // A new match clears the last one's verdict, the winners' stamps on the Locations, and lets its own Reckoning run.
+  // (The phases are planning and ended, so this fires when a match starts, not between turns.)
   useEffect(() => {
     if (view.phase !== 'ended') {
       setVerdict(null);
       setEndStage(0);
       setEndCollapsed(false);
+      setFx(null);
+      reckoned.current = false;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view.phase]);
@@ -233,7 +236,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
    * clip is a VP9 WebM with alpha; a browser that cannot play that (Safari, until the HEVC copy lands) skips it, as
    * does reduced motion. `cineDone` is the promise the beat waits on; the video's end, an error, or a timeout settle it.
    */
-  const [cine, setCine] = useState<{ key: number; card: string; from?: DOMRect; by?: PlayerId; leaving?: boolean } | null>(null);
+  const [cine, setCine] = useState<{ key: number; card: string; from?: DOMRect; by?: PlayerId; /** The clip is done: the caption rises and holds to be read. */ read?: boolean; leaving?: boolean } | null>(null);
   const cineDone = useRef<(() => void) | null>(null);
   /** Set the moment a beat decides to play the clip, before any await, so the replay cannot slip past an own beat (0ms) first. */
   const cineHold = useRef(false);
@@ -278,6 +281,9 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       cineDone.current = done;
       window.setTimeout(done, 4500);
     });
+    // The clip done, the caption rises and holds for two seconds: the eye was on the picture, now it reads.
+    setCine((c) => (c ? { ...c, read: true } : c));
+    await wait(CINE_READ_MS);
     holdBoard(false);
     setCine((c) => (c ? { ...c, leaving: true } : c));
     await wait(400);
@@ -1001,6 +1007,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
 
   useEffect(() => {
     if (!step) return;
+    // Dev (?dev=1): the beats as they open, for timing the replay (window.__sobBeats).
+    if (window.location.search.includes('dev=1')) ((window as unknown as { __sobBeats?: { at: number; kind: string; label: string; own: boolean }[] }).__sobBeats ??= []).push({ at: Math.round(performance.now()), kind: step.kind, label: step.label, own: ownBeat });
     const evs = filterEvents(step.events, me);
     let cancelled = false;
     const alive = () => !cancelled;
@@ -2446,7 +2454,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       )}
 
       {cine && (
-        <div className={`cine ${cine.leaving ? 'leaving' : ''} ${cine.from ? 'from-tile' : ''} ${cine.by && cine.by !== me ? 'theirs' : ''}`} key={cine.key} aria-hidden style={cine.from ? ({ '--fx': `${cine.from.left + cine.from.width / 2}px`, '--fy': `${cine.from.top + cine.from.height / 2}px`, '--fw': `${cine.from.width}px` } as React.CSSProperties) : undefined}>
+        <div className={`cine ${cine.read ? 'read' : ''} ${cine.leaving ? 'leaving' : ''} ${cine.from ? 'from-tile' : ''} ${cine.by && cine.by !== me ? 'theirs' : ''}`} key={cine.key} aria-hidden style={cine.from ? ({ '--fx': `${cine.from.left + cine.from.width / 2}px`, '--fy': `${cine.from.top + cine.from.height / 2}px`, '--fw': `${cine.from.width}px` } as React.CSSProperties) : undefined}>
           <div className="cine-veil" />
           {/* A clip with sound plays it at the game's sound setting; a muted element is what lets autoplay through everywhere else. */}
           <video className="cine-clip" autoPlay muted={!(CINEMATICS[cine.card]?.sound && getAudioSettings().sfx)} playsInline preload="auto" onEnded={endCine} onError={endCine} ref={(el) => { if (el) el.volume = CINE_VOLUME; }}>

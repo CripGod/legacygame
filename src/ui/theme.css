@@ -2589,7 +2589,10 @@ body.board-shake .battlefield { animation: board-shake 0.44s cubic-bezier(0.36, 
    so the start is the tile's centre less the middle of the screen). */
 .cine.from-tile .cine-clip { animation: cine-rise 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 @keyframes cine-rise { from { opacity: 0.6; transform: translate(calc(var(--fx) - 50vw), calc(var(--fy) - 50vh - 7px)) scale(calc(var(--fw) / var(--ch))); } to { opacity: 1; transform: none; } }
-.cine-cap { position: relative; display: grid; justify-items: center; gap: 4px; max-width: min(80vw, 640px); text-align: center; animation: cine-cap-in 0.5s ease-out 0.25s both; }
+/* The clip done, the caption rises 50px into the space it leaves and holds to be read (translate, not transform: the
+   entrance animation owns transform and would pin it). */
+.cine.read .cine-cap { translate: 0 -50px; }
+.cine-cap { translate: 0 0; transition: translate 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); position: relative; display: grid; justify-items: center; gap: 4px; max-width: min(80vw, 640px); text-align: center; animation: cine-cap-in 0.5s ease-out 0.25s both; }
 /* Harborlight's play: a plate in Harborlight's blue names who played him, and the name takes the blue too. */
 .cine-by { font-family: var(--display); font-weight: 700; font-size: clamp(11px, 0.9vw, 14px); letter-spacing: 0.14em; text-transform: uppercase; color: #bcd3ff; background: rgba(28, 58, 120, 0.85); border: 1px solid #6fa3ff; border-radius: 999px; padding: 3px 12px; text-shadow: 0 1px 2px #000; box-shadow: 0 0 14px rgba(111, 163, 255, 0.45); }
 .cine.theirs .cine-cap b { color: #8fb6ff; }
@@ -2598,7 +2601,7 @@ body.board-shake .battlefield { animation: board-shake 0.44s cubic-bezier(0.36, 
 .cine-cap span { font-family: var(--font); font-size: clamp(14px, 1.3vw, 20px); color: var(--parchment); text-shadow: 0 1px 2px #000; }
 @keyframes cine-cap-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @media (max-width: 700px) { .cine-clip { --ch: 48vw; } }
-@media (prefers-reduced-motion: reduce) { .cine-clip, .cine.from-tile .cine-clip, .cine-cap { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .cine-clip, .cine.from-tile .cine-clip, .cine-cap { animation: none; } .cine-cap { transition: none; } }
 /* While the clip plays the board holds still: every animation under the veil pauses where it is (the scripted ones
    and the backdrop video are paused from the screen), and the strip's shines, which live inside SVG images and
    cannot pause, go out. */
