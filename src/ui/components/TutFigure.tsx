@@ -38,7 +38,7 @@ export function TutFigure({ kind, cardId }: { kind: TutFigureKind; cardId?: stri
         </span>
         <i className="tut-ring wide" />
       </div>
-      <div className="tut-fig-cap">The round button at the top centre of the screen</div>
+      <div className="tut-fig-cap">The button at the top centre of the screen</div>
     </div>
   );
 }

@@ -1807,7 +1807,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .tut-fig-track i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: linear-gradient(90deg, #f6d77a, #e0b23c); }
 .tut-fig-track b { position: absolute; left: 75%; top: 50%; width: 12px; height: 12px; background: #fff; transform: translate(-50%, -50%) rotate(45deg); box-shadow: 0 0 8px rgba(255, 255, 255, 0.8); }
 .tut-fig-stand { position: relative; padding: 10px 14px; }
-.tut-fig-stand .sob-static { --sob: 120px; display: inline-block; pointer-events: none; }
+.tut-fig-stand .sob-static { --sobw: 240px; display: inline-block; pointer-events: none; margin-bottom: 20px; }
 .tut-ring.wide { left: 50%; top: 50%; width: 100%; height: 100%; border-radius: 16px; transform: translate(-50%, -50%); }
 @media (prefers-reduced-motion: reduce) { .tut-ring { animation: none; } }
 
@@ -2419,61 +2419,66 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .np .bubble { top: calc(100% - 6px); left: calc(var(--u) * 96); }
 .np.right .bubble { left: auto; right: calc(var(--u) * 96); }
 
-/* The round button: the backing canvas is 583 at 1x with the 470 shell centred at (50%, 49.7%); the board draws it at
-   0.397 (a 232 canvas on a 1920 stage), 15px higher than the board's seat. The seat holds the bar's height; the button
-   hangs below it, over the top of the middle column. Hit-testing follows the circle, so the Gate row under its corners
-   stays clickable. The glow (the backing's alpha blurred, 60px of padding at 1x) sits behind the button in the seat,
-   tinted the kit's gold, and fades up on hover and press; the wordmark rides at (-5.62, 40.41) from the centre, 569
-   wide in the backing's 1x; the reference lockup centres it on the disc at 1.15 times the disc's width, so the
-   lettering runs past both edges, and it is drawn outside the clipped button so it bleeds. Hover never swaps the sprite: the four states are four layers and only their opacity moves. */
-.hud-center { --sob: clamp(90px, 9.65vw, 186px); }
+/* ---- The Stand on Business strip (public/art/kit sob-*): the button cut's plate, 809 by 246 at 1x with its frame at
+   shell 63, 62.9, 683.2 by 109.9 (the kit's drop shadow in the file), on the board at 0.79 (639 wide on 1920, the
+   shell centred on the nameplates' centre line). The plate scales with the nameplates (--u): 710u wide. The four
+   states are four layers and only their opacity moves; pressed sinks 2px and disabled greys, both baked. At rest the
+   plate is the edge-shine SVG (its viewBox is -90, -90, 941.2 by 549.9 with the PNG's top-left at -24, -8, so the
+   image sits at -66/809 and -82/246 of the canvas, 941.2/809 by 549.9/246 of it); when the seat ramps, the wipe shine.
+   The wordmark (shadow baked, 700.15 by 263.16 at plate 1x) centres 0.77 right and 20.95 down from the shell centre,
+   drawn outside the clipped button so its lettering hangs below the strip as the board places it. The hit area is the
+   frame plus the lettering under it. Hover never swaps the sprite. */
+.hud-center { --sobw: calc(var(--u) * 710); --sobh: calc(var(--sobw) * 0.30408); }
 .hud-mid { position: relative; display: flex; align-items: center; justify-content: center; height: var(--np-h); }
-.hud-mid .hud-settings { position: absolute; left: calc(100% + clamp(8px, 1vw, 18px)); top: 50%; transform: translateY(-50%); }
-.sob-seat { position: relative; display: block; width: var(--sob); height: 100%; flex: none; }
-.sob-glow { position: absolute; left: -10.3%; top: calc(-1 * var(--u) * 26 - var(--sob) * 0.103); width: 120.6%; height: calc(var(--sob) * 1.206); background: #fcb424; -webkit-mask: var(--kit-sob-glow) center / 100% 100% no-repeat; mask: var(--kit-sob-glow) center / 100% 100% no-repeat; opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 0; }
-/* The glow breathes while the button is live, harder and faster as the match nears its end (--heat, set by the Hud
-   from the turn count): a clear pulse on turn 1, a full gold pulse on the last turn. Hover, press and Standing hold
-   it steady. */
-.sob-seat:has(.sob:not(:disabled)) .sob-glow { animation: sob-heat calc(2.4s - var(--heat, 0) * 1.5s) ease-in-out infinite; }
-@keyframes sob-heat { 0%, 100% { opacity: calc(0.15 + var(--heat, 0) * 0.2); transform: scale(1); } 50% { opacity: calc(0.5 + var(--heat, 0) * 0.5); transform: scale(calc(1.02 + var(--heat, 0) * 0.1)); } }
-.sob-seat:has(.sob:not(:disabled):hover) .sob-glow { animation: none; opacity: calc(0.45 + var(--heat, 0) * 0.35); transform: scale(calc(1 + var(--heat, 0) * 0.05)); }
-.sob-seat:has(.sob:not(:disabled):active) .sob-glow, .sob-seat:has(.sob.on) .sob-glow { animation: none; opacity: calc(0.6 + var(--heat, 0) * 0.3); transform: scale(calc(1 + var(--heat, 0) * 0.05)); }
-.sob { position: absolute; left: 0; top: calc(-1 * var(--u) * 26); width: var(--sob); height: var(--sob); margin: 0; padding: 0; border: 0 !important; border-radius: 50% !important; background: none !important; box-shadow: none; clip-path: circle(41.2% at 50% 49.7%) !important; cursor: pointer; isolation: isolate; z-index: 1; transition: filter 0.15s; }
+.hud-mid .hud-settings { position: absolute; left: calc(92.2% + clamp(6px, 0.8vw, 14px)); top: 50%; transform: translateY(-50%); }
+.sob-seat { position: relative; display: block; width: var(--sobw); height: 100%; flex: none; }
+.sob { position: absolute; left: 0; top: calc(50% - var(--sobh) * 0.4791); width: var(--sobw); height: var(--sobh); margin: 0; padding: 0; border: 0 !important; border-radius: 0 !important; background: none !important; box-shadow: none; clip-path: inset(25.5% 7.8% 12% 7.8%) !important; cursor: pointer; isolation: isolate; z-index: 1; transition: filter 0.15s; }
 .sob:disabled { cursor: default; }
 .sob-l { position: absolute; inset: 0; background: var(--kit-sob-default) center / 100% 100% no-repeat; opacity: 0; transition: opacity 0.12s; pointer-events: none; }
 .sob-l-default { opacity: 1; }
 .sob-l-hover { background-image: var(--kit-sob-hover); }
 .sob-l-pressed { background-image: var(--kit-sob-pressed); }
 .sob-l-disabled { background-image: var(--kit-sob-disabled); }
-.sob:not(:disabled):hover .sob-l-hover { opacity: 1; }
+.sob-shine { inset: auto; left: -8.158%; top: -33.333%; width: 116.341%; height: 223.537%; max-width: none; background: none; user-select: none; }
+.sob:not(:disabled) .sob-shine-edge { opacity: 1; }
+.sob-seat.ramp .sob:not(:disabled) .sob-shine-edge { opacity: 0; }
+.sob-seat.ramp .sob:not(:disabled) .sob-shine-wipe { opacity: 1; }
+/* The plate breathes its hover glow while the button is live, harder and faster as the match nears its end (--heat,
+   set by the Hud from the turn count): a clear pulse on turn 1, a full glow on the last turn. Hover, press and
+   Standing hold it steady. */
+.sob:not(:disabled) .sob-l-hover { animation: sob-heat calc(2.4s - var(--heat, 0) * 1.5s) ease-in-out infinite; }
+@keyframes sob-heat { 0%, 100% { opacity: calc(0.1 + var(--heat, 0) * 0.2); } 50% { opacity: calc(0.55 + var(--heat, 0) * 0.45); } }
+.sob:not(:disabled):hover .sob-l-hover { animation: none; opacity: 1; }
 .sob:not(:disabled):active .sob-l-pressed, .sob.on .sob-l-pressed { opacity: 1; }
+.sob:not(:disabled):active .sob-l-hover, .sob.on .sob-l-hover { animation: none; opacity: 0; }
 .sob:disabled .sob-l-disabled { opacity: 1; }
 .sob:disabled .sob-l-default { opacity: 0; }
-.sob-seat > .sob-word, .sob-static .sob-word { position: absolute; width: 97.4%; height: 65.8%; left: 49.2%; top: 49%; transform: translate(-50%, -50%); background: var(--kit-sob-wordmark) center / 100% 100% no-repeat; filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.95)); pointer-events: none; z-index: 2; }
-.sob-seat > .sob-word { width: calc(var(--sob) * 0.974); height: calc(var(--sob) * 0.658); left: calc(var(--sob) * 0.492); top: calc(-1 * var(--u) * 26 + var(--sob) * 0.49); }
-.sob-seat:has(.sob:disabled) > .sob-word { opacity: 0.55; filter: grayscale(0.6) drop-shadow(0 2px 5px rgba(0, 0, 0, 0.9)); }
-.sob-chip { position: absolute; left: 50%; top: 80%; transform: translate(-50%, -50%); padding: calc(var(--sob) * 0.012) calc(var(--sob) * 0.05); border-radius: 999px; font-family: var(--display); font-weight: 800; font-size: calc(var(--sob) * 0.078); letter-spacing: 0.04em; color: #1a1200; background: linear-gradient(180deg, #f6d77a, #d7a422 60%, #b4851a); border: 1px solid #fff0c0; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7); pointer-events: none; }
-/* The last scheduled turn, and you can still stand: the button breathes and its glow pulses. */
+.sob-seat > .sob-word, .sob-static .sob-word { position: absolute; width: 86.55%; height: 106.98%; left: 50.1%; top: 56.42%; transform: translate(-50%, -50%); background: var(--kit-sob-wordmark) center / 100% 100% no-repeat; pointer-events: none; z-index: 2; transition: transform 0.12s, opacity 0.2s, filter 0.2s; }
+.sob-seat > .sob-word { width: calc(var(--sobw) * 0.8655); height: calc(var(--sobh) * 1.0698); left: calc(var(--sobw) * 0.501); top: calc(50% - var(--sobh) * 0.4791 + var(--sobh) * 0.5642); }
+.sob-seat:has(.sob:not(:disabled):active) > .sob-word, .sob-seat:has(.sob.on) > .sob-word { transform: translate(-50%, calc(-50% + var(--sobh) * 0.0081)); }
+.sob-seat:has(.sob:disabled) > .sob-word { opacity: 0.55; filter: grayscale(0.6); }
+.sob-chip { position: absolute; left: 90%; top: 70%; transform: translate(-50%, -50%); padding: calc(var(--sobw) * 0.004) calc(var(--sobw) * 0.016); border-radius: 999px; font-family: var(--display); font-weight: 800; font-size: calc(var(--sobw) * 0.026); letter-spacing: 0.04em; color: #1a1200; background: linear-gradient(180deg, #f6d77a, #d7a422 60%, #b4851a); border: 1px solid #fff0c0; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7); pointer-events: none; }
+/* The last scheduled turn, and you can still stand: the button breathes. */
 .sob.urge:not(.ftue-flash):not(.slam) { animation: stand-urge 1.6s ease-in-out infinite; }
-@keyframes stand-urge { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.04); filter: brightness(1.18) saturate(1.1); } }
-@media (prefers-reduced-motion: reduce) { .sob.urge:not(.ftue-flash):not(.slam) { animation: none; filter: brightness(1.12); } .sob-seat:has(.sob:not(:disabled)) .sob-glow { animation: none; opacity: calc(0.1 + var(--heat, 0) * 0.5); } }
-.sob-static { position: relative; display: inline-block; width: var(--sob); height: var(--sob); clip-path: circle(41.2% at 50% 49.7%); }
+@keyframes stand-urge { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.03); filter: brightness(1.18) saturate(1.1); } }
+@media (prefers-reduced-motion: reduce) {
+  .sob.urge:not(.ftue-flash):not(.slam) { animation: none; filter: brightness(1.12); }
+  .sob:not(:disabled) .sob-l-hover { animation: none; opacity: calc(0.1 + var(--heat, 0) * 0.6); }
+  .sob .sob-shine { display: none; }
+}
+.sob-static { position: relative; display: inline-block; width: var(--sobw); height: calc(var(--sobw) * 0.30408); clip-path: none; }
 .sob-static .sob-l-default { opacity: 1; }
 @media (width <= 700px) {
   .hud { --np: 34vw; }
   .np .sub { display: none; }
   .np .handle { font-size: calc(var(--u) * 24); }
-  .hud-center { --sob: 19vw; }
   .hud { padding-top: 6px; }
   .np { margin-left: calc(var(--u) * 60); }
   .np.right { margin-right: calc(var(--u) * 60); }
-  .sob { top: -6px; }
-  .sob-glow { top: calc(-6px - var(--sob) * 0.103); }
   .hud-mid { gap: 4px; }
 }
 @media (min-width: 701px) and (max-height: 820px) {
   .hud { --np: clamp(220px, 20vw, 380px); }
-  .hud-center { --sob: clamp(90px, 8vw, 152px); }
 }
 
 /* ---- The turn tracker cut (public/art/kit tt-*): the plate (510 by 178 at 1x, its frame at shell 19.5, 2.9, 470.9 by

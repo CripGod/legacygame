@@ -2,6 +2,7 @@ import { CARD_BY_ID, MAX_HAND, LEGEND_READY, type GameState, type PlayerId, effe
 import { initials, useDisplay } from '../display';
 import { tip, HINTS } from '../tip';
 import { Art } from './Art';
+import { artUrl } from '../art';
 import { SettingsMenu } from './SettingsMenu';
 
 export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: GameState; me: PlayerId; onProfile: (p: PlayerId) => void; bubbles?: Partial<Record<PlayerId, string>>; onChat?: () => void; stand?: { on: boolean; disabled: boolean; flash?: boolean; /** The last scheduled turn and you can still stand: the button pulses with the kit's wipe shine. */ urge?: boolean; onToggle: () => void; /** What the Legacy becomes if the planned Stand goes through. */ proposed?: number; /** The press: the button slams. */ slam?: boolean; } }) {
@@ -48,21 +49,26 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
       </div>
     );
   };
+  const heat = Math.min(1, Math.max(0, (view.turn - 1) / Math.max(1, view.maxTurns - 1)));
+  const ramp = Boolean(stand && !stand.disabled && (stand.urge || heat >= 0.5));
   return (
     <header className="hud">
       {profile('A', false)}
       <div className="hud-center">
         <div className="hud-mid">
           {stand && (
-            /* The round Stand on Business button from the top-bar cut. --heat is how far the match has run (turn 1 = 0, the
-               last turn = 1): the glow breathes harder and faster as the end nears: the backing in the kit's four states (hover fades a
-               second layer up, never swapping the sprite), the wordmark over it, the gold glow behind on hover and press,
-               and Standing held on the pressed state with the raise on a chip. The seat keeps the bar's height; the button
-               hangs below it, over the top of the middle column, as the board places it. */
-            <span className="sob-seat" style={{ '--heat': Math.min(1, Math.max(0, (view.turn - 1) / Math.max(1, view.maxTurns - 1))) } as React.CSSProperties}>
-              <i className="sob-glow" aria-hidden />
+            /* The Stand on Business strip from the button cut. --heat is how far the match has run (turn 1 = 0, the last
+               turn = 1): the plate breathes its hover glow harder and faster as the end nears. The plate is the kit's four
+               states as four layers (hover fades a second layer up, never swapping the sprite; pressed sinks and disabled
+               greys, both baked). At rest the plate is the cut's edge-shine SVG (a spark runs the outline every 9s);
+               when things ramp up (the back half of the match, or the last turn) it is the wipe shine (a glint sweeps the
+               face every 11s); under reduced motion the still PNG. The wordmark rides over the plate, outside the
+               button's hit area, on the board's seat. Standing holds the pressed state with the raise on a chip. */
+            <span className={`sob-seat ${ramp ? 'ramp' : ''}`} style={{ '--heat': heat } as React.CSSProperties}>
               <button className={`sob ${stand.on ? 'on' : ''} ${stand.flash ? 'ftue-flash' : ''} ${stand.slam ? 'slam' : ''} ${stand.urge ? 'urge' : ''}`} disabled={stand.disabled} onClick={stand.onToggle} aria-label={stand.on ? 'Standing on Business' : 'Stand on Business'} title={view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes}>
                 <i className="sob-l sob-l-default" aria-hidden />
+                <img className="sob-l sob-shine sob-shine-edge" src={artUrl('kit', 'sob-shine-edge', 'svg')} alt="" aria-hidden draggable={false} />
+                <img className="sob-l sob-shine sob-shine-wipe" src={artUrl('kit', 'sob-shine-wipe', 'svg')} alt="" aria-hidden draggable={false} />
                 <i className="sob-l sob-l-hover" aria-hidden />
                 <i className="sob-l sob-l-pressed" aria-hidden />
                 <i className="sob-l sob-l-disabled" aria-hidden />
