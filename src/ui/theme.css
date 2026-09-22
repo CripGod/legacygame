@@ -391,7 +391,7 @@ body { font-family: var(--font); font-size: 16px; }
 }
 .bottom .actions-left { grid-area: left; align-self: end; padding-bottom: 2px; display: grid; grid-auto-flow: row; gap: 8px; justify-items: start; --tt: clamp(180px, 18vw, 300px); }
 .bottom .actions-left .danger { width: var(--tt); min-width: 0; }
-.lock-panel { grid-area: right; justify-self: end; align-self: end; display: grid; gap: 8px; justify-items: stretch; min-width: clamp(180px, 18vw, 300px); padding-bottom: 2px; }
+.lock-panel { grid-area: right; justify-self: end; align-self: end; display: grid; gap: 8px; justify-items: stretch; min-width: clamp(180px, 18vw, 300px); padding-bottom: 22px; }
 .hint { min-height: 18px; font-family: var(--font); font-size: 13px; color: #cfc3a6; }
 .actions-left .danger {
   font-family: var(--display);
