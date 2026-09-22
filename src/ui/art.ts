@@ -7,8 +7,8 @@ export type ArtKind = 'characters' | 'locations' | 'threats' | 'events' | 'landi
 /** The UI Kit Maker cut (public/art/kit): six buttons in four states and the plan timer's track and fill, as CSS
  *  variables the match root carries, so the stylesheet can draw nine-sliced frames from them (theme.css, "The kit"). */
 export const KIT_PIECES = ['primary', 'secondary', 'lock-locked', 'small'] as const;
-/** The top-bar cut (public/art/kit, np-* and sob-*): the two nameplate strips with their avatar rings and level chips, and the round Stand on Business button in four states with its glow and wordmark. */
-export const TOP_BAR_PIECES = ['np-you-strip', 'np-you-ring', 'np-you-chip', 'np-opp-strip', 'np-opp-ring', 'np-opp-chip', 'sob-default', 'sob-hover', 'sob-pressed', 'sob-disabled', 'sob-glow', 'sob-wordmark'] as const;
+/** The top-bar cut (public/art/kit, np-* and sob-*): the two nameplate strips with their avatar rings and level chips, and the round Stand on Business button in four states with its glow and wordmark. The turn-tracker cut (tt-*): the plate in two states and the lit and unlit coin. */
+export const TOP_BAR_PIECES = ['np-you-strip', 'np-you-ring', 'np-you-chip', 'np-opp-strip', 'np-opp-ring', 'np-opp-chip', 'sob-default', 'sob-hover', 'sob-pressed', 'sob-disabled', 'sob-glow', 'sob-wordmark', 'tt-plate', 'tt-plate-disabled', 'tt-coin-lit', 'tt-coin-unlit'] as const;
 export const KIT_STATES = ['default', 'hover', 'pressed', 'disabled'] as const;
 /** An art address a CSS url() can use from anywhere: absolute against the page (the inlined page hands back data URLs unchanged). */
 export const pageUrl = (u: string): string => (typeof document !== 'undefined' ? new URL(u, document.baseURI).href : u);

@@ -2343,15 +2343,21 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
               </i>
             </button>
           )}
-          <div className={`turn-panel ${finalTurnLabel(view) ? 'final' : ''}`} {...tip(finalTurnLabel(view) ? (view.maxTurns === EXTENDED_TURNS ? HINTS.lastWord : HINTS.finalTurn) : HINTS.energy)}>
-            <div className="turn-text">
-              {finalTurnLabel(view) ?? `Turn ${Math.min(view.turn, view.maxTurns)} / ${view.maxTurns}`}
-            </div>
-            <div className="crystals" aria-label={`Energy ${energyShown} of ${opts.energy}`}>
-              {Array.from({ length: Math.max(ENERGY_CAP, opts.energy) }, (_, i) => (
-                <i key={i} className={i < energyShown ? 'on' : i < opts.energy ? 'used' : 'future'} />
+          {/* The turn tracker from the kit's cut: the plate, one coin per turn lit through the current one, the title as
+              live text. The Energy crystals keep their row beneath it. */}
+          <div className={`turn-tracker ${view.phase === 'ended' ? 'disabled' : ''} ${finalTurnLabel(view) ? 'final' : ''}`} style={{ '--turns': view.maxTurns } as React.CSSProperties} {...tip(finalTurnLabel(view) ? (view.maxTurns === EXTENDED_TURNS ? HINTS.lastWord : HINTS.finalTurn) : `Turn ${view.turn} of ${view.maxTurns}. One coin lights per turn.`)}>
+            <i className="tt-plate" aria-hidden />
+            <div className="tt-title">{finalTurnLabel(view, false, true) ?? `Turn ${Math.min(view.turn, view.maxTurns)} / ${view.maxTurns}`}</div>
+            <div className="tt-coins" aria-hidden>
+              {Array.from({ length: view.maxTurns }, (_, i) => (
+                <i key={i} className={i < Math.min(view.turn, view.maxTurns) ? 'lit' : 'unlit'} style={{ '--i': i } as React.CSSProperties} />
               ))}
             </div>
+          </div>
+          <div className="crystals energy-meter" {...tip(HINTS.energy)}>
+            {Array.from({ length: Math.max(ENERGY_CAP, opts.energy) }, (_, i) => (
+              <i key={i} className={i < energyShown ? 'on' : i < opts.energy ? 'used' : 'future'} />
+            ))}
           </div>
         </div>
         <div className="mobile-actions">
