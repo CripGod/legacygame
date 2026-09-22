@@ -127,6 +127,8 @@ export interface BoardFx {
   land?: string;
   /** A card landing in its slot: the tile flips face up where it stands (a play, an arrival). */
   arrive?: string;
+  /** A card its owner already knows: the tile swells face up where it stands, no turn and no back (your own Dunbar under his cinematic). */
+  rise?: string;
   /** The Location just revealed slamming onto the board: the panel drops, the cards in its column hop. */
   slam?: number;
   /** The first Location opening quietly (nobody guessed it): the beat waits for the picture to develop, no slam. */
@@ -273,7 +275,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                 <div
                   data-uid={s.uid}
                   data-place={`${index}:gate`}
-                  className={`gate-slot filled gf owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''} ${fx?.arrive === s.uid ? 'fx-flip' : ''} ${guarded ? 'protected' : ''} ${shield ? 'shielded' : ''}`}
+                  className={`gate-slot filled gf owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''} ${fx?.arrive === s.uid ? 'fx-flip' : ''} ${fx?.rise === s.uid ? 'fx-rise' : ''} ${guarded ? 'protected' : ''} ${shield ? 'shielded' : ''}`}
                   {...draggable}
                   {...(guarded ? tip(`Under protection: ${protectionReason(view, s) ?? 'cannot be displaced this turn'}. More in the rules.`) : shield ? tip(HINTS.shielded) : {})}
                 >

@@ -237,7 +237,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
    * clip is a VP9 WebM with alpha; a browser that cannot play that (Safari, until the HEVC copy lands) skips it, as
    * does reduced motion. `cineDone` is the promise the beat waits on; the video's end, an error, or a timeout settle it.
    */
-  const [cine, setCine] = useState<{ key: number; from?: DOMRect; leaving?: boolean } | null>(null);
+  const [cine, setCine] = useState<{ key: number; from?: DOMRect; by?: PlayerId; leaving?: boolean } | null>(null);
   const cineDone = useRef<(() => void) | null>(null);
   /** Set the moment a beat decides to play the clip, before any await, so the replay cannot slip past an own beat (0ms) first. */
   const cineHold = useRef(false);
@@ -271,9 +271,9 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     }
   };
   const heldAnimations = useRef<Animation[]>([]);
-  /** `from` is the tile the clip grows out of (its rectangle at launch); without one it opens from the middle. */
-  const playCine = async (from?: DOMRect) => {
-    setCine({ key: Date.now(), from });
+  /** `from` is the tile the clip grows out of (its rectangle at launch); without one it opens from the middle. `by` is who played him: the opponent's play carries their plate. */
+  const playCine = async (from?: DOMRect, by?: PlayerId) => {
+    setCine({ key: Date.now(), from, by });
     await painted();
     holdBoard(true);
     await new Promise<void>((r) => {
@@ -293,7 +293,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     const tick = () => {
       if (!alive()) return;
       if (cineHold.current) { window.setTimeout(tick, 150); return; }
-      setFx((f) => (f?.arrive === uid ? null : f));
+      setFx((f) => (f?.arrive === uid || f?.rise === uid ? null : f));
     };
     window.setTimeout(tick, 1900);
   };
@@ -1174,19 +1174,19 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           settleArrive(uid, alive);
         }
       }
-      // Dunbar's cinematic grows out of his tile's turn: the tile turns face up and swells (the arrive fx above, which
-      // your own play gets here too, so the moment reads the same from either side), and a second in, with the face up
-      // and big, the clip rises out of that rectangle to the middle of the board. The beat waits for the clip.
+      // Dunbar's cinematic grows out of his tile's beat: Harborlight's card turns face up and swells (the arrive fx
+      // above); your own, which you know, swells face up with no back to show. A second in, with the face up and big,
+      // the clip rises out of that rectangle to the middle of the board. The beat waits for the clip.
       if (step.kind === 'play' && step.cardId === CINE_CARD && step.uids?.length && canCine()) {
         const uid = step.uids[0];
         cineHold.current = true;
         if (step.player === me && tileOf(uid)) {
-          setFx((f) => ({ ...(f ?? { hidden: [] }), arrive: uid }));
+          setFx((f) => ({ ...(f ?? { hidden: [] }), rise: uid }));
           settleArrive(uid, alive);
         }
         await wait(1000);
         if (!alive()) return;
-        await playCine(tileOf(uid)?.getBoundingClientRect());
+        await playCine(tileOf(uid)?.getBoundingClientRect(), step.player);
         if (!alive()) return;
       }
       if (!reduceMotion() && step.kind === 'revealFx' && step.uids?.[0] && step.player && !trailEvs.length && !clashEvs.length) {
@@ -1338,8 +1338,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       if (freezeAt === undefined) window.setTimeout(() => landFx(locs.map((location) => ({ location, amount: 1, tone: side === 'artist' ? 'artist' : side === 'A' ? 'mine' : 'theirs' }))), 1050);
     };
     /** Dev: heal a Location and send its wave to others (window.__sobHeal(1, [0, 2], freezeAt?, 'B')); freezeAt holds one wave frame; the last argument is who broke it. */
-    /** Dev: play Dunbar's cinematic now (window.__sobCine()). */
-    (window as unknown as { __sobCine?: () => void }).__sobCine = () => { const tile = Array.from(document.querySelectorAll<HTMLElement>('[data-uid]')).find((el) => el.dataset.defId === CINE_CARD || el.getAttribute('aria-label')?.includes('Dunbar')); void playCine(tile?.getBoundingClientRect()); };
+    /** Dev: play Dunbar's cinematic now (window.__sobCine(), or __sobCine(true) as Harborlight's play). */
+    (window as unknown as { __sobCine?: (theirs?: boolean) => void }).__sobCine = (theirs) => { const tile = Array.from(document.querySelectorAll<HTMLElement>('[data-uid]')).find((el) => el.dataset.defId === CINE_CARD || el.getAttribute('aria-label')?.includes('Dunbar')); void playCine(tile?.getBoundingClientRect(), theirs ? other(me) : me); };
     (window as unknown as { __sobHeal?: (loc: number, locs: number[], freezeAt?: number, by?: PlayerId | 'both') => void }).__sobHeal = (loc, locs, freezeAt, by = 'A') => {
       setTrailFreeze(freezeAt);
       const from = document.querySelector(`.column[data-index="${loc}"] .location`)?.getBoundingClientRect();
@@ -2445,12 +2445,13 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       )}
 
       {cine && (
-        <div className={`cine ${cine.leaving ? 'leaving' : ''} ${cine.from ? 'from-tile' : ''}`} key={cine.key} aria-hidden style={cine.from ? ({ '--fx': `${cine.from.left + cine.from.width / 2}px`, '--fy': `${cine.from.top + cine.from.height / 2}px`, '--fw': `${cine.from.width}px` } as React.CSSProperties) : undefined}>
+        <div className={`cine ${cine.leaving ? 'leaving' : ''} ${cine.from ? 'from-tile' : ''} ${cine.by && cine.by !== me ? 'theirs' : ''}`} key={cine.key} aria-hidden style={cine.from ? ({ '--fx': `${cine.from.left + cine.from.width / 2}px`, '--fy': `${cine.from.top + cine.from.height / 2}px`, '--fw': `${cine.from.width}px` } as React.CSSProperties) : undefined}>
           <div className="cine-veil" />
           <video className="cine-clip" autoPlay muted playsInline preload="auto" onEnded={endCine} onError={endCine}>
             <source src={videoUrl(CINE_CLIP)} type="video/webm" />
           </video>
           <div className="cine-cap">
+            {cine.by && cine.by !== me && <i className="cine-by">{view.players[cine.by].handle} plays</i>}
             <b>{CARD_BY_ID[CINE_CARD]?.name}</b>
             <q>{CINE_LINE}</q>
             <span>{(CARD_BY_ID[CINE_CARD] as { summary?: string } | undefined)?.summary}</span>
