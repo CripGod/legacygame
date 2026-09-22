@@ -391,7 +391,7 @@ body { font-family: var(--font); font-size: 16px; }
 }
 .bottom .actions-left { grid-area: left; align-self: end; padding-bottom: 2px; display: grid; grid-auto-flow: row; gap: 8px; justify-items: start; --tt: clamp(180px, 18vw, 300px); }
 .bottom .actions-left .danger { width: var(--tt); min-width: 0; }
-.lock-panel { --tt: clamp(180px, 18vw, 300px); grid-area: right; justify-self: end; align-self: end; display: grid; gap: 8px; justify-items: stretch; width: var(--tt); min-width: 0; padding-bottom: 22px; }
+.lock-panel { --tt: clamp(180px, 18vw, 300px); position: relative; grid-area: right; justify-self: end; align-self: end; display: grid; gap: 8px; justify-items: stretch; width: var(--tt); min-width: 0; padding-bottom: 22px; }
 .hint { min-height: 18px; font-family: var(--font); font-size: 13px; color: #cfc3a6; }
 .actions-left .danger {
   font-family: var(--display);
@@ -2490,7 +2490,10 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 
 /* ---- The readout above Lock In: the turn's beats as they play (with Skip), Energy and Legacy while planning. The bar
    hides it and remembers. ---- */
-.readout { display: grid; gap: 4px; width: 100%; }
+/* Anchored 28px above Lock In and growing upward from there, so however long a beat runs it never reaches the button;
+   its shadow stays tight so it never falls on the button either. */
+.readout { position: absolute; left: 0; right: 0; bottom: calc(100% + 28px); display: grid; gap: 4px; }
+.lock-panel .replay-banner { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(233, 185, 58, 0.25); }
 .readout-bar { display: flex; align-items: center; gap: 6px; padding: 0 2px; }
 .readout-label { font-family: var(--display); font-size: clamp(8px, 0.7vw, 10px); letter-spacing: 0.16em; text-transform: uppercase; color: #cfc3a6; margin-right: auto; }
 .readout-bar button.small { padding: 2px 8px; font-size: 10px; min-height: 0; }
