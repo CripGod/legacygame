@@ -2506,7 +2506,5 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .readout-bar { display: flex; align-items: center; gap: 6px; padding: 0 2px; }
 .readout-label { font-family: var(--display); font-size: clamp(8px, 0.7vw, 10px); letter-spacing: 0.16em; text-transform: uppercase; color: #cfc3a6; margin-right: auto; }
 .readout-bar button.small { padding: 2px 8px; font-size: 10px; min-height: 0; }
-.readout-plan { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.replay-banner.kind-plan .replay-kind { background: #3a4a63; color: #fff; }
 .readout .coin.energy-meter { border-color: #2d7ff9; color: #cfe2ff; }
 .readout .coin.energy-meter.spent { color: #8fb6ff; }

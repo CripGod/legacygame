@@ -1781,7 +1781,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         if (target.type === 'hand') return null;
         const i = locIndex!;
         const opt = opts.plays.find((p) => p.cardId === payload.cardId);
-        if (view.locations[i].lost) return { text: `${locNameAt(i)} is Lost. Nobody can win it, so nothing can be played there.`, shake: [`${col(i)} .art`] };
+        if (view.locations[i].lost) return { text: `${locNameAt(i)} is Lost: nothing can be played there until the people rebuild it.`, shake: [`${col(i)} .art`] };
         if (!opt) return { text: `${nm} cannot be played right now.`, shake: [`[data-hand-card="${payload.cardId}"]`] };
         if (!plan.plays.some((pl) => pl.cardId === payload.cardId) && cardCost(payload.cardId, view, me) > opts.energy - planCost(plan, view, me))
           return { text: `Not enough Energy: ${nm} costs ${cardCost(payload.cardId, view, me)} and you have ${opts.energy - planCost(plan, view, me)} left this turn. Energy equals the turn number, so it grows every turn.`, shake: [`[data-hand-card="${payload.cardId}"]`, '.energy-meter'] };
@@ -1831,7 +1831,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       if (c.zone === 'gate') {
         if (i !== c.location) {
           if (harrietPlay && (plan.enters.includes(c.uid) || plan.relocations.some((x) => x.uid === c.uid))) return { text: `${nm} is already moving this turn. Harriet Tubman can only move a Character that is staying put.`, shake: [tile] };
-          if (harrietPlay && view.locations[i].lost) return { text: `${locNameAt(i)} is Lost. Nobody can win it.`, shake: [`${col(i)} .art`] };
+          if (harrietPlay && view.locations[i].lost) return { text: `${locNameAt(i)} is Lost: nobody can move there until the people rebuild it.`, shake: [`${col(i)} .art`] };
           if (harrietPlay) return { text: `Your Gates at ${locNameAt(i)} are full, so Harriet Tubman cannot move ${nm} there.`, shake: [`${col(i)} .gates-left[data-drop="gates"] .gate-slot`] };
           if ((CARD_BY_ID[c.defId] as { keywords?: string[] })?.keywords?.includes('INFORMANT')) {
             const r = opts.relocations.find((x) => x.uid === c.uid);
@@ -1860,7 +1860,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       }
       // Established Character relocating.
       if (i === c.location) return null;
-      if (view.locations[i].lost) return { text: `${locNameAt(i)} is Lost. Nobody can win it.`, shake: [`${col(i)} .art`] };
+      if (view.locations[i].lost) return { text: `${locNameAt(i)} is Lost: nobody can move there until the people rebuild it.`, shake: [`${col(i)} .art`] };
       if (gateRoom(view, i, me) <= 0) return { text: `Your Gates at ${locNameAt(i)} are full; a relocated Character arrives at the Gates.`, shake: [`${col(i)} .gates-left[data-drop="gates"] .gate-slot`] };
       if (plan.relocations.length >= opts.relocationsAllowed && !plan.relocations.some((x) => x.uid === c.uid))
         return { text: `You get ${opts.relocationsAllowed} Relocation${opts.relocationsAllowed > 1 ? 's' : ''} per turn (Pullman Porter adds one). Drag the other one back to cancel it.`, shake: plan.relocations.map((r) => `[data-uid="${r.uid}"]`) };
@@ -2368,8 +2368,9 @@ verdict ? null : clashTell ? (
           </div>
         </div>
         <div className="lock-panel">
-          {/* The readout: the turn's beats as they play (with Skip), Energy and Legacy while planning. A bar to hide it. */}
-          {view.phase !== 'ended' && (
+          {/* The readout: the turn's beats as they play (with Skip). A bar to hide it. Nothing while planning: the Energy dots
+              under Lock In and the Stand strip already say what the plan face said. */}
+          {view.phase !== 'ended' && (m.replay || resolving || beat) && (
             <div className={`readout ${readoutOpen ? 'open' : 'shut'}`}>
               <div className="readout-bar">
                 <span className="readout-label">{m.replay ? 'Playing out' : resolving ? 'Resolving' : 'Readout'}</span>
@@ -2384,22 +2385,7 @@ verdict ? null : clashTell ? (
               </div>
               {readoutOpen && (
                 <div id="readout-body">
-                  {beat ?? (planning ? (
-            <div className="replay-banner kind-plan">
-              <span className="replay-kind">Plan</span>
-              <span className="replay-text readout-plan">
-                <span className={`coin energy-meter ${energyShown < opts.energy ? 'spent' : ''}`} {...tip(HINTS.energy)}>
-                  {energyShown}
-                  <small>of {opts.energy} energy</small>
-                </span>
-                <span className={`coin ${view.pendingRaises.length ? 'raised' : ''} ${coinFlip ? 'flip' : ''}`} {...tip(view.pendingRaises.length ? HINTS.stakesPending : HINTS.stakes)}>
-                  {view.stakes}
-                  {(view.pendingRaises.length > 0 || plan.standOnBusiness) && <em>→{plan.standOnBusiness ? opts.proposedStakes : effectiveStakes(view)}</em>}
-                  <small>legacy</small>
-                </span>
-              </span>
-            </div>
-                  ) : null)}
+                  {beat}
                 </div>
               )}
             </div>
