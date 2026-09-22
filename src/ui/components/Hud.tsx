@@ -73,10 +73,10 @@ export function Hud({ view, me, onProfile, bubbles, onChat, stand }: { view: Gam
                 <i className="sob-l sob-l-hover" aria-hidden />
                 <i className="sob-l sob-l-pressed" aria-hidden />
                 <i className="sob-l sob-l-disabled" aria-hidden />
-                {stand.on && <b className="sob-chip">×{stand.proposed ?? effectiveStakes(view)}</b>}
                 <i className="sob-hit" aria-hidden />
               </button>
               <i className="sob-word" aria-hidden />
+              {stand.on && <b className="sob-chip">×{stand.proposed ?? effectiveStakes(view)}</b>}
             </span>
           )}
           <SettingsMenu className="hud-settings" icon="gear" />
