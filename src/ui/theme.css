@@ -2556,3 +2556,15 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 @media (prefers-reduced-motion: reduce) {
   .protected .pic::before { animation: none; background-image: radial-gradient(ellipse 70% 55% at 28% 18%, rgba(225, 246, 255, 0.34), transparent 70%); background-position: 0 0; background-size: auto; }
 }
+
+/* ---- A Character's cinematic (Dunbar): the clip, alpha in the file, over the board on a dark veil while the replay
+   holds the beat. The veil comes up in half a second and goes in 0.4s once the clip has faded (its fade is baked
+   in). The clip is square and takes most of the height; the board shows through around it. Above the board, the
+   floats and the flights (58, with the card flash), under the sheets and the tooltip. */
+.cine { position: fixed; inset: 0; z-index: 58; pointer-events: none; display: grid; place-items: center; }
+.cine-veil { position: absolute; inset: 0; background: rgba(2, 5, 10, 0.72); animation: cine-veil-in 0.5s ease-out both; }
+.cine.leaving .cine-veil { animation: cine-veil-out 0.4s ease-in both; }
+@keyframes cine-veil-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cine-veil-out { from { opacity: 1; } to { opacity: 0; } }
+.cine-clip { position: relative; height: min(84vh, 960px); width: auto; aspect-ratio: 1; display: block; filter: drop-shadow(0 24px 48px rgba(0, 0, 0, 0.7)); }
+@media (max-width: 700px) { .cine-clip { height: auto; width: 96vw; } }

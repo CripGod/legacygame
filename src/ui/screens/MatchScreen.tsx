@@ -44,6 +44,9 @@ type SheetState =
 const SLAM_ENABLED = false;
 
 /** How long each replay beat holds on screen before the next. */
+/** The one Character with a cinematic so far, and its clip under public/art/video (VP9 WebM with alpha). */
+const CINE_CARD = 'paul_laurence_dunbar';
+const CINE_CLIP = 'dunbar.webm';
 const BEAT_MS: Record<string, number> = {
   stand: 1400,
   reveal: 600, // after the smashdown (~1.55s)
@@ -215,6 +218,33 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     setArrival((a) => (a ? { ...a, leaving: true } : a));
     await wait(reduceMotion() ? 0 : 300);
     setArrival(null);
+  };
+  /**
+   * A Character's cinematic, Marvel Snap style: when Paul Laurence Dunbar is played (by either side) his clip plays
+   * over the board on a dark veil, the alpha in the file, and the replay holds that beat until the clip ends. The
+   * clip is a VP9 WebM with alpha; a browser that cannot play that (Safari, until the HEVC copy lands) skips it, as
+   * does reduced motion. `cineDone` is the promise the beat waits on; the video's end, an error, or a timeout settle it.
+   */
+  const [cine, setCine] = useState<{ key: number; leaving?: boolean } | null>(null);
+  const cineDone = useRef<(() => void) | null>(null);
+  const cineSupported = useRef<boolean | null>(null);
+  const canCine = () => {
+    if (cineSupported.current === null) cineSupported.current = typeof document !== 'undefined' && document.createElement('video').canPlayType('video/webm; codecs="vp9"') !== '';
+    return cineSupported.current && !reduceMotion();
+  };
+  const endCine = () => cineDone.current?.();
+  const playCine = async () => {
+    setCine({ key: Date.now() });
+    await painted();
+    await new Promise<void>((r) => {
+      let settled = false;
+      const done = () => { if (settled) return; settled = true; cineDone.current = null; r(); };
+      cineDone.current = done;
+      window.setTimeout(done, 7500);
+    });
+    setCine((c) => (c ? { ...c, leaving: true } : c));
+    await wait(400);
+    setCine(null);
   };
   /** The replay step whose Event card has flashed: its tile may turn over. Until then (the frame before the flash, the flash itself) the tile stays as it was. */
   const [eventFlashed, setEventFlashed] = useState<number>(-1);
@@ -1053,6 +1083,11 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           }
         }
       }
+      // Dunbar's cinematic: the poet puts on the mask over the board, and the beat waits for it.
+      if (step.kind === 'play' && step.cardId === CINE_CARD && canCine()) {
+        await playCine();
+        if (!alive()) return;
+      }
       // An Event announces itself (Snap-style, as a Gathering's arrival does): its card flashes big over the board with
       // the banner telling its name and what it does, then it flips into its purple slot and the flare plays.
       if (step.kind === 'event' && step.cardId && step.player) {
@@ -1173,6 +1208,11 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [m.replay?.idx, m.replay?.steps]);
   useEffect(() => warmKit(), []);
+  // The clip is a few MB: fetch it into the cache as the match opens, so its first play does not stall.
+  useEffect(() => {
+    if (canCine()) void fetch(videoUrl(CINE_CLIP), { cache: 'force-cache' }).catch(() => undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const turnHeard = useRef(view.turn);
   useEffect(() => {
     if (m.replay || turnHeard.current === view.turn) return;
@@ -1189,12 +1229,12 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   }, [view.turn, m.replay, view.lastEvents]);
   /** Advance the replay once this beat's sheets are closed. */
   useEffect(() => {
-    if (!step || fx || trail || dig || arrival || peekShow || fireworks) return;
+    if (!step || fx || trail || dig || arrival || peekShow || fireworks || cine) return;
     const ms = ownBeat ? 0 : BEAT_MS[step.kind] ?? 900;
     const id = window.setTimeout(m.replayNext, ms);
     return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [m.replay?.idx, m.replay?.steps, arrival, peekShow, fx, trail, dig, fireworks]);
+  }, [m.replay?.idx, m.replay?.steps, arrival, peekShow, fx, trail, dig, fireworks, cine]);
   useEffect(() => {
     document.body.classList.toggle('board-shake', shake);
     return () => document.body.classList.remove('board-shake');
@@ -1226,6 +1266,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       if (freezeAt === undefined) window.setTimeout(() => landFx(locs.map((location) => ({ location, amount: 1, tone: side === 'artist' ? 'artist' : side === 'A' ? 'mine' : 'theirs' }))), 1050);
     };
     /** Dev: heal a Location and send its wave to others (window.__sobHeal(1, [0, 2], freezeAt?, 'B')); freezeAt holds one wave frame; the last argument is who broke it. */
+    /** Dev: play Dunbar's cinematic now (window.__sobCine()). */
+    (window as unknown as { __sobCine?: () => void }).__sobCine = () => { void playCine(); };
     (window as unknown as { __sobHeal?: (loc: number, locs: number[], freezeAt?: number, by?: PlayerId | 'both') => void }).__sobHeal = (loc, locs, freezeAt, by = 'A') => {
       setTrailFreeze(freezeAt);
       const from = document.querySelector(`.column[data-index="${loc}"] .location`)?.getBoundingClientRect();
@@ -2329,6 +2371,14 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         </div>
       )}
 
+      {cine && (
+        <div className={`cine ${cine.leaving ? 'leaving' : ''}`} key={cine.key} aria-hidden>
+          <div className="cine-veil" />
+          <video className="cine-clip" autoPlay muted playsInline preload="auto" onEnded={endCine} onError={endCine}>
+            <source src={videoUrl(CINE_CLIP)} type="video/webm" />
+          </video>
+        </div>
+      )}
       {arrival && (
         <div className={`card-flash p${arrival.owner} ${arrival.leaving ? 'leaving' : ''}`} aria-hidden>
           <CardFace id={arrival.cardId} big />
