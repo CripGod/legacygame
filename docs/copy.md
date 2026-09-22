@@ -742,6 +742,8 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - `timer`: Planning timer. At zero your current plan locks automatically.
 - `noStepOff`: You Stood on Business. There is no backing out of this match.
 - `directEntry`: Direct Entry: may go Inside the turn it is played. Tap ⇅ on the planned move to choose Gates or Inside.
+- `protected`: Under protection: nothing displaces, sends back or moves this Character this turn. The oath at Bois Caïman, Community Defense, a Reveal standing guard over it, a hold or a sanctuary Established here, cover on the turn it relocated, or a Location where nobody is displaced.
+- `shielded`: Shielded: opposing Reveal abilities cannot single this Character out here (Nanny of the Maroons, or the oath at Bois Caïman). A greater Force can still move it.
 
 ## Coach tips (first match)
 
@@ -795,6 +797,17 @@ window.removeEventListener('resize', resize);
 0 ? 'has' : ''} {...tip(`$… Legacy in hand: $… won, $… spent on card ranks. A match pays its Legacy to the winner; open a card to promote it.`)}>
 ★ … Legacy
 m.addEventListener('change', on);
+* One side's deck on the landing page: the label, the DECK › name pulldown, and the card row. It lives at module
+* scope on purpose: declared inside StartScreen it would be a new component type on every render, and React would
+* unmount and remount both panels (cards and all) whenever anything on the page changed, so choosing a deck for one
+* side re-dealt the other.
+onToggle(!open)}>
+Deck
+<button
+onChange(o.key);
+onToggle(false);
+onOpenCard(id, d.cards)} />
+A fresh hand every match: ten Characters drawn from the whole pool, plus both Events.
 devGranted = true;
 bank(n, 'dev grant');
 root.current?.style.setProperty('--heal-x', `$…px`);
@@ -808,16 +821,12 @@ threatMusic(true); // its music opens with the hit: the entrance cue
 el.style.setProperty('--mx', x.toFixed(3));
 el.style.setProperty('--my', y.toFixed(3));
 window.addEventListener('pointermove', onMove, …);
+setOpenDeck(cards);
+setOpen(id);
 window.addEventListener('pointerdown', off);
 window.addEventListener('keydown', key);
 window.removeEventListener('pointerdown', off);
 window.removeEventListener('keydown', key);
-setMenuOpen(open ? null : side)}>
-Deck
-<button
-onChange(o.key);
-setMenuOpen(null);
-A fresh hand every match: ten Characters drawn from the whole pool, plus both Events.
 the sound switches sit with them). */}
 scrollTo('.hero')} aria-label="Stand on Business">
 scrollTo('.hero')}>
@@ -851,6 +860,7 @@ Play match
 <button
 Play the tutorial
 Learn the game ✦
+setMenuOpen(o ? 'mine' : null)} onOpenCard=… />
 Different
 paths.
 Same
@@ -862,6 +872,7 @@ Work together to overcome.
 Both players may contribute Force.
 Defeated together
 Neither side had … Force alone. Both stood up in the same turn, and the Mob broke.
+setMenuOpen(o ? 'theirs' : null)} onOpenCard=… />
 More than a game.
 A stronger tomorrow.
 Systems prototype · v0.3 · build …
@@ -1693,7 +1704,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - ${hd.name} ${s.held.why} when you Lock It In. The slot stays taken until then.
 - strip leaving ${s.held.arriving ? 'arriving' : ''}
 - tile-glow owner-${owner} ${focus?.includes(s.uid) ? 'focus' : ''}
-- gate-slot filled gf owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''} ${fx?.arrive === s.uid ? 'fx-flip' : ''}
+- gate-slot filled gf owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''} ${fx?.arrive === s.uid ? 'fx-flip' : ''} ${guarded ? 'protected' : ''} ${shield ? 'shielded' : ''}
 - stamp verdict ${fx.stamp.tone ?? 'hit'}
 - Your Event slot here: drop an Event card on this Location. One per Location per turn. A deck carries at most two Events: you have ${evLeft} of ${evTotal} left.
 - ev-count ${evLeft === 0 ? 'spent' : ''}
@@ -1703,7 +1714,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - slot ${i >= cap ? 'locked' : ''}
 - Seat closed: a Housing Restriction (or the Land Office) holds it. Clear the Threat and it opens.
 - tile-glow seat ${c.owner} ${focus?.includes(c.uid) ? 'focus' : ''}
-- slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''} ${fx?.hidden.includes(c.uid) ? 'fx-hidden' : ''}
+- slot filled ${c.owner} ${entering || planned || brought ? 'preview' : ''} ${flash === 'move' && mine && !entering && !planned ? 'ftue-flash' : ''} ${fx?.hidden.includes(c.uid) ? 'fx-hidden' : ''} ${guarded ? 'protected' : ''} ${shield ? 'shielded' : ''}
 - s blow lands: a red flash when it tells, green when the Threat shrugs it off. */ hit?: 
 - ; shatter?: boolean; stamp?: BoardFx[
 - threat-tile ${who} ${fresh ? 'fresh' : ''} ${gone ? 'gone' : ''} ${confronting ? 'confronting' : ''} ${foreseen ? 'foreseen' : ''} ${armed ? 'armed' : ''} ${flash === 'threat' && !gone ? 'ftue-flash' : ''} ${tOk ? 'drop-ok' : ''} ${tOver ? 'drop-over' : ''} ${hidden ? 'fx-hidden' : ''} ${hit ? 

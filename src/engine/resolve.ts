@@ -1057,7 +1057,7 @@ function playEvent(state: GameState, p: PlayerId, play: PlayAction, events: Game
       here.permInfluence = here.permInfluence ?? { A: 0, B: 0 };
       here.permInfluence[p] += total;
       const why: string[] = [];
-      if (ps.setbacks) why.push(`${ps.setbacks} Setback${ps.setbacks === 1 ? '' : 's'}${owed < ps.setbacks ? `, +${owed} at most` : ''}`);
+      if (ps.setbacks) why.push(`${ps.setbacks} Setback${ps.setbacks === 1 ? '' : 's'}${owed < ps.setbacks ? `, the cap is ${owed}` : ''}`);
       if (home) why.push(`+${home} in the Americas`);
       events.push({ type: 'info', text: `${def.name}: +${total} lasting Influence at ${locName(state, at)}${why.length ? ` (${why.join(', ')})` : ''}. It counts at the end no matter when it was played.`, player: p, location: at });
       break;

@@ -1658,18 +1658,16 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
   position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
   /* The call rides the Brightside ribbon: the word in the kit's face at its seat (see the match-end block), the whole
      thing scaled through --k, the ribbon's px per 1x unit. */
-  --rb-w: min(52vw, 640px); --k: calc(var(--rb-w) / 809); width: var(--rb-w); aspect-ratio: 809 / 246;
-  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.55));
+  --rb-w: min(48vw, 560px); --k: calc(var(--rb-w) / 807); width: var(--rb-w); aspect-ratio: 807 / 231;
+  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.6));
   animation: turn-flash 1.9s linear both;
 }
-/* The call now rides the button cut's strip plate (the Stand strip's notched, glassy plate; the kit's drop shadow in
-   the file): the word in the kit's gold, big, centred on the plate's shell (its centre sits at 47.9% of the canvas). */
-.turn-flash .turn-plate { position: absolute; inset: 0; background: var(--kit-sob-default) center / 100% 100% no-repeat; }
-/* A long call (THE LAST WORD) rides a wider plate and a smaller word, so it keeps clear of the frame (the shell is 84%
-   of the canvas). */
-.turn-flash.wide { --rb-w: min(64vw, 800px); }
-.turn-flash.wide .ribbon-word { font-size: calc(var(--k) * 64); letter-spacing: 0.1em; }
-.turn-flash .ribbon-word { position: absolute; left: 50%; top: 47.9%; transform: translate(-50%, -50%); font-family: var(--display); font-weight: 700; font-size: calc(var(--k) * 96); line-height: 1; letter-spacing: 0.08em; text-transform: uppercase; color: #fccc3c; text-shadow: 0 calc(var(--k) * 3) calc(var(--k) * 3) rgba(11, 18, 40, 0.85), 0 0 calc(var(--k) * 28) rgba(0, 0, 0, 0.55); white-space: nowrap; }
+/* A long call (THE LAST WORD) rides a wider ribbon and a smaller word, so it keeps clear of the plate's edges (the kit's
+   reading width is about two thirds of the ribbon). */
+.turn-flash.wide { --rb-w: min(62vw, 740px); }
+.turn-flash.wide .ribbon-word { font-size: calc(var(--k) * 44); letter-spacing: 0.1em; }
+.turn-flash .ribbon-base { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.turn-flash .ribbon-word { position: absolute; left: 50%; top: 35.3%; transform: translate(-50%, -50%); font-family: var(--display); font-weight: 700; font-size: calc(var(--k) * 58); line-height: 1; letter-spacing: 0.08em; text-transform: uppercase; color: #22304a; text-shadow: 0 calc(var(--k) * 3.2) calc(var(--k) * 4) rgba(138, 126, 100, 0.26); white-space: nowrap; }
 /* In: fades up from nothing while it grows 0 to 115%, drops under to 96%, comes back to 102% and settles at 100% (the bell
    at 520ms, on the drop). Out: a small wind-up to 108%, then it shrinks away to nothing as it fades. Every leg has its
    own easing; the keyframe times are on the 1.9s timeline the veil shares. */
@@ -2487,13 +2485,15 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
    plate's 1x pixel at the size it is drawn: the shell, not the sprite, is as wide as Lock In (the sprite carries
    transparent margins and the drop shadow), so the element overhangs the panel by the sprite's margins. Match over: the greyed plate, coins and title at half. ---- */
 .turn-tracker { --v: calc(var(--tt) / 470.9); position: relative; width: calc(var(--v) * 510); height: calc(var(--v) * 134.7); justify-self: start; margin-left: calc(-1 * var(--v) * 19.5); margin-right: calc(-1 * var(--v) * 19.6); margin-top: calc(-1 * var(--v) * 2.9); margin-bottom: calc(var(--v) * 43.3); }
-/* The plate is the kit's primary plate (Sit Down's and Lock In's) with its extrusion lip cut out (tt-plate.webp, the
-   2x rows of the lip removed), drawn as the same nine-slice at the same caps as Sit Down, so the two walls are one
-   width on screen and the tracker has no lip. It fills the cut's shell rectangle, so the title and the coins keep
-   their seats. */
-.tt-plate { position: absolute; left: calc(var(--v) * 19.5); top: calc(var(--v) * 2.9); width: calc(var(--v) * 470.9); height: calc(var(--v) * 131.8); box-sizing: border-box; --kh: clamp(38px, 4.4vw, 56px); --cap: calc(var(--kh) * 0.205); border-style: solid; border-color: transparent; border-width: var(--cap); border-image-source: var(--kit-tt-plate); border-image-slice: 75 fill; border-image-repeat: stretch; }
+/* The plate is the button cut's strip (the Stand strip's notched, glassy plate) cut to its shell, the lip and the
+   shadow room gone (tt-plate.webp: 2x px 125..1493 by 124..344 of the cut's default.png), drawn as a nine-slice:
+   the corner slices hold the notch and the wall (60px at 2x), the edges tile the face's finish at the corner's scale
+   and the middle stretches its gradient. The caps are sized so the wall lands at Sit Down's width on screen
+   (Sit Down draws an 11px wall at 0.307; this wall is 7.5px, so 0.48), and there is no lip. It fills the cut's shell
+   rectangle, so the title and the coins keep their seats. */
+.tt-plate { position: absolute; left: calc(var(--v) * 19.5); top: calc(var(--v) * 2.9); width: calc(var(--v) * 470.9); height: calc(var(--v) * 131.8); box-sizing: border-box; --kh: clamp(38px, 4.4vw, 56px); --cap: calc(var(--kh) * 0.258); border-style: solid; border-color: transparent; border-width: var(--cap); border-image-source: var(--kit-tt-plate); border-image-slice: 60 fill; border-image-repeat: round stretch; }
 .turn-tracker.disabled .tt-plate { border-image-source: var(--kit-tt-plate-disabled); }
-.tt-title { position: absolute; left: calc(var(--v) * 254.9); top: calc(var(--v) * 46.4); transform: translate(-50%, -50%); white-space: nowrap; font-family: var(--display); font-weight: 700; font-size: calc(var(--v) * 26.3); letter-spacing: 0.03em; text-transform: uppercase; color: #fccc3c; text-shadow: 0 2px 2px rgba(11, 18, 40, 0.8); }
+.tt-title { position: absolute; left: calc(var(--v) * 254.9); top: calc(var(--v) * 44); transform: translate(-50%, -50%); white-space: nowrap; font-family: var(--display); font-weight: 700; font-size: calc(var(--v) * 36); letter-spacing: 0.03em; text-transform: uppercase; color: #fccc3c; text-shadow: 0 2px 2px rgba(11, 18, 40, 0.8); }
 .tt-coins i { position: absolute; width: calc(var(--v) * 53); height: calc(var(--v) * 53); top: calc(var(--v) * (95.2 - 26.5)); left: calc(var(--v) * (79.9 - 26.5 + var(--i) * 350.1 / (var(--turns) - 1))); background: var(--kit-tt-coin-unlit) center / 100% 100% no-repeat; }
 .tt-coins i.lit { background-image: var(--kit-tt-coin-lit); }
 .turn-tracker.disabled .tt-title, .turn-tracker.disabled .tt-coins { opacity: 0.5; }
@@ -2518,7 +2518,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
   z-index: 1;
   pointer-events: none;
   background:
-    linear-gradient(115deg, transparent 40%, rgba(235, 250, 255, 0.3) 46%, rgba(255, 255, 255, 0.6) 50%, rgba(235, 250, 255, 0.3) 54%, transparent 60%) 200% 0 / 300% 100% no-repeat,
+    linear-gradient(115deg, transparent 40%, rgba(235, 250, 255, 0.18) 46%, rgba(255, 255, 255, 0.4) 50%, rgba(235, 250, 255, 0.18) 54%, transparent 60%) 200% 0 / 300% 100% no-repeat,
     radial-gradient(ellipse 70% 55% at 28% 18%, rgba(225, 246, 255, 0.34), transparent 70%),
     rgba(150, 220, 255, 0.22);
   box-shadow: inset 0 0 0 1.5px rgba(205, 240, 255, 0.8), inset 0 0 12px 3px rgba(150, 225, 255, 0.55);
@@ -2527,6 +2527,7 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 @keyframes veil-sheen { from { background-position: 200% 0, 0 0; } to { background-position: -100% 0, 0 0; } }
 .protected .pic .pic-img { filter: saturate(0.85) brightness(1.05); }
 .protected .pic .inf, .protected .pic .strip { z-index: 1; }
+.protected .pic .ini { position: relative; z-index: 1; }
 .tile-glow:has(> .protected) > i.glow { box-shadow: 0 0 8px 2px rgba(160, 228, 255, 0.7), 0 6px 10px rgba(0, 0, 0, 0.7); }
 .tile-glow.seat:has(> .protected) > i.glow { box-shadow: 0 0 7px 2px rgba(160, 228, 255, 0.65), 0 3px 8px rgba(0, 0, 0, 0.6); }
 @media (prefers-reduced-motion: reduce) {

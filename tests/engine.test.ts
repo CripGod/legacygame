@@ -1736,7 +1736,7 @@ describe('variety pass and lasting Reparations', () => {
     capped.players.A.setbacks = 6;
     r = resolveTurn(capped, { A: { ...pass(), plays: [{ cardId: 'reparations', location: 0 }] }, B: pass() });
     expect(r.state.locations[0].permInfluence?.A).toBe(5);
-    expect(r.events.some((e) => e.text.includes('(6 Setbacks, +4 at most)'))).toBe(true);
+    expect(r.events.some((e) => e.text.includes('(6 Setbacks, the cap is 4)'))).toBe(true);
   });
   it('Zora digs, Walker banks Energy, Payne discounts the next Character, Green grants a Relocation, Vesey recruits', () => {
     let s = rig(createMatch({ seed: 2 }), { locations: ['greenwood', 'great_migration', 'gary_indiana'], revealAll: true, energy: true, handA: ['zora_neale_hurston', 'madam_cj_walker', 'daniel_payne', 'victor_hugo_green', 'denmark_vesey', 'john_russwurm'] });

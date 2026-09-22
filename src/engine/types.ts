@@ -392,7 +392,7 @@ export interface LocationState {
   firstRelocatedThisTurn?: string;
   /** Harriet: uid of first relocated Character per owner this turn. */
   firstRelocatedByOwner?: Partial<Record<PlayerId, string>>;
-  /** Reparations / temporary location influence per player this turn. */
+  /** Temporary Location Influence per player this turn (The Ancestors in Africa). */
   tempInfluence: Record<PlayerId, number>;
   /** Permanent per-player Influence modifiers at this Location (broken pacts). */
   permInfluence?: Record<PlayerId, number>;
