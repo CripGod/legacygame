@@ -2293,8 +2293,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
               </button>
             ) : null
           ) : (
-            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${locked ? 'locked' : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning && !m.replay} onClick={planning ? lockNow : m.replaySkip} title={planning ? HINTS.timer : m.replay ? 'Skip to the end of the turn' : undefined}>
-              <span>{planning ? 'LOCK IN' : m.replay ? 'SKIP ▸▸' : locked ? 'LOCKED ✓' : 'RESOLVING…'}</span>
+            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${locked ? 'locked' : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning} onClick={lockNow} title={HINTS.timer}>
+              <span>{planning ? 'LOCK IN' : locked ? 'LOCKED ✓' : 'RESOLVING…'}</span>
               <i className="timer-bar" aria-hidden>
                 <b style={{ width: `${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 0}%` }} />
               </i>
@@ -2312,8 +2312,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
               </button>
             ) : null
           ) : (
-            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${locked ? 'locked' : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning && !m.replay} onClick={planning ? lockNow : m.replaySkip} title={planning ? HINTS.timer : m.replay ? 'Skip to the end of the turn' : undefined}>
-              <span>{planning ? 'LOCK IN' : m.replay ? 'SKIP ▸▸' : locked ? 'LOCKED ✓' : 'RESOLVING…'}</span>
+            <button className={`primary lock-btn ${planning ? urgency(m.secondsLeft) : ''} ${locked ? 'locked' : ''} ${doing?.lock ? 'ftue-flash' : ''}`} disabled={!planning} onClick={lockNow} title={HINTS.timer}>
+              <span>{planning ? 'LOCK IN' : locked ? 'LOCKED ✓' : 'RESOLVING…'}</span>
               <i className="timer-bar" aria-hidden>
                 <b style={{ width: `${planning ? Math.max(0, Math.min(100, (100 * m.secondsLeft) / PLANNING_SECONDS)) : 0}%` }} />
               </i>
