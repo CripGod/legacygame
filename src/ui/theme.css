@@ -2399,6 +2399,8 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 .np .handle { font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 21); letter-spacing: 0.02em; color: var(--parchment); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7); }
 .np .sub { font-family: var(--font); font-size: calc(var(--u) * 13); color: #d9cfb4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: baseline; gap: calc(var(--u) * 8); }
 .np .sub .coin { font-size: calc(var(--u) * 12); padding: 0 calc(var(--u) * 9); line-height: 1.3; }
+.np .sub .coin.energy-meter { border-radius: 999px; border: 1.5px solid #2d7ff9; background: linear-gradient(180deg, #14233a, #0a1626); color: #cfe2ff; font-size: calc(var(--u) * 12); display: inline-flex; gap: 4px; align-items: baseline; }
+.np .sub .coin.energy-meter.spent { color: #8fb6ff; }
 .np-avatar { position: absolute; width: calc(var(--u) * 149.6); height: calc(var(--u) * 160.3); left: calc(var(--u) * -56.1); top: calc(var(--u) * -17.1); z-index: 2; transition: filter 0.4s; }
 .np.right .np-avatar { left: calc(var(--u) * 410.1); }
 .np-ring, .np-chip { position: absolute; inset: 0; background: var(--kit-np-you-ring) center / 100% 100% no-repeat; pointer-events: none; }
@@ -2477,15 +2479,14 @@ body.board-shake .battlefield { animation: board-shake 0.32s cubic-bezier(0.36, 
 /* ---- The turn tracker cut (public/art/kit tt-*): the plate (510 by 178 at 1x, its frame at shell 19.5, 2.9, 470.9 by
    131.8), one coin per turn on the shell's seats (radius 18.9, pitch 50 for eight; the pitch closes up for a ninth),
    and the title as live text at (235.4, 43.5) from the shell in Cinzel 700, the kit's Highlight gold. --v is the
-   plate's 1x pixel at the size it is drawn. Match over: the greyed plate, coins and title at half. ---- */
+   plate's 1x pixel at the size it is drawn: the shell, not the sprite, is as wide as Lock In (the sprite carries
+   transparent margins and the drop shadow), so the element overhangs the panel by the sprite's margins. Match over: the greyed plate, coins and title at half. ---- */
 .lock-panel { --tt: clamp(180px, 18vw, 300px); }
 .lock-panel .lock-btn { width: var(--tt); }
-.turn-tracker { --v: calc(var(--tt) / 510); position: relative; width: var(--tt); height: calc(var(--v) * 178); justify-self: end; }
+.turn-tracker { --v: calc(var(--tt) / 470.9); position: relative; width: calc(var(--v) * 510); height: calc(var(--v) * 178); justify-self: end; margin-left: calc(-1 * var(--v) * 19.5); margin-right: calc(-1 * var(--v) * 19.6); margin-top: calc(-1 * var(--v) * 2.9); }
 .tt-plate { position: absolute; inset: 0; background: var(--kit-tt-plate) center / 100% 100% no-repeat; }
 .turn-tracker.disabled .tt-plate { background-image: var(--kit-tt-plate-disabled); }
 .tt-title { position: absolute; left: calc(var(--v) * 254.9); top: calc(var(--v) * 46.4); transform: translate(-50%, -50%); white-space: nowrap; font-family: var(--display); font-weight: 700; font-size: calc(var(--v) * 26.3); letter-spacing: 0.03em; text-transform: uppercase; color: #fccc3c; text-shadow: 0 2px 2px rgba(11, 18, 40, 0.8); }
 .tt-coins i { position: absolute; width: calc(var(--v) * 53); height: calc(var(--v) * 53); top: calc(var(--v) * (95.2 - 26.5)); left: calc(var(--v) * (79.9 - 26.5 + var(--i) * 350.1 / (var(--turns) - 1))); background: var(--kit-tt-coin-unlit) center / 100% 100% no-repeat; }
 .tt-coins i.lit { background-image: var(--kit-tt-coin-lit); }
 .turn-tracker.disabled .tt-title, .turn-tracker.disabled .tt-coins { opacity: 0.5; }
-.lock-panel .crystals { justify-self: end; margin-right: calc(var(--v, 0.5px) * 19.5); }
-.lock-panel .crystals.energy-meter { border: 0; background: none; padding: 0; box-shadow: none; }

@@ -2180,7 +2180,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           </video>
         )}
       </div>
-      <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, flash: flash === 'stakes' || flash === 'final', urge: planning && opts.canStand && !plan.standOnBusiness && view.turn >= view.maxTurns, onToggle: toggleStand, proposed: opts.proposedStakes, slam: standSlam, flip: coinFlip }} />
+      <Hud view={view} me={me} onProfile={(p) => setSheet({ kind: 'profile', p })} bubbles={bubbles} onChat={() => setSheet({ kind: 'chat' })} energy={{ left: energyShown, total: opts.energy }} stand={{ on: !!plan.standOnBusiness, disabled: !planning || !opts.canStand, flash: flash === 'stakes' || flash === 'final', urge: planning && opts.canStand && !plan.standOnBusiness && view.turn >= view.maxTurns, onToggle: toggleStand, proposed: opts.proposedStakes, slam: standSlam, flip: coinFlip }} />
       <div className="main-wrap">
         <Battlefield
           pending={pendingInf}
@@ -2353,11 +2353,6 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
                 <i key={i} className={i < Math.min(view.turn, view.maxTurns) ? 'lit' : 'unlit'} style={{ '--i': i } as React.CSSProperties} />
               ))}
             </div>
-          </div>
-          <div className="crystals energy-meter" {...tip(HINTS.energy)}>
-            {Array.from({ length: Math.max(ENERGY_CAP, opts.energy) }, (_, i) => (
-              <i key={i} className={i < energyShown ? 'on' : i < opts.energy ? 'used' : 'future'} />
-            ))}
           </div>
         </div>
         <div className="mobile-actions">
