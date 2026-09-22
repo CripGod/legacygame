@@ -14,6 +14,7 @@ import { Coach } from '../components/Coach';
 import { Spotlight } from '../components/Spotlight';
 import { sfx, voice, EVENT_CARD_SFX } from '../audio';
 import type { TraceStep } from '../../engine';
+import { shortBeat } from '../beat';
 import { Trails, TRAIL_COLORS, waveLandAt, type TrailShot } from '../components/Trails';
 import { Fireworks } from '../components/Fireworks';
 import { MatchEnd } from '../components/MatchEnd';
@@ -2344,10 +2345,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           {verdict ? null : clashTell ? (
             <div className={`replay-banner kind-clash ${clashTell.tone}`} role="status">
               <span className="replay-kind">{clashTell.title}</span>
-              <span className="replay-text">
-                {clashTell.text}
-                {clashTell.sub && <span className="replay-sub">{clashTell.sub}</span>}
-              </span>
+              <span className="replay-text">{shortBeat(clashTell.text, view, me, placeholders)}</span>
               {m.replay && (
                 <button className="small" onClick={m.replaySkip}>
                   Skip ▸▸
@@ -2357,7 +2355,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           ) : step && !ownBeat ? (
             <div className={`replay-banner kind-${step.kind}`} role="status">
               {BEAT_KIND[step.kind] && <span className="replay-kind">{BEAT_KIND[step.kind]}</span>}
-              <span className="replay-text">{step.label}</span>
+              <span className="replay-text">{shortBeat(step.label, view, me, placeholders)}</span>
               <span className="replay-count">
                 {m.replay!.idx + 1}/{m.replay!.steps.length}
               </span>
