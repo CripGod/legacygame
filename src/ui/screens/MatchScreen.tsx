@@ -49,25 +49,27 @@ const CINE_CARD = 'paul_laurence_dunbar';
 const CINE_CLIP = 'dunbar.webm';
 /** The line under his name while the clip plays: Dunbar's own, 1895. */
 const CINE_LINE = 'We wear the mask that grins and lies.';
+/** How long a beat holds after its motion, so a new player can read what just happened: a second more than the motion
+ *  itself needs. */
 const BEAT_MS: Record<string, number> = {
-  stand: 1400,
-  reveal: 600, // after the smashdown (~1.55s)
-  play: 950,
-  event: 2100, // the flash (1.1s) comes first; then the tile's own turn (2s)
-  revealFx: 1400,
-  enter: 800,
-  move: 900,
-  showdown: 700,
-  summon: 1200,
-  threat: 1200,
-  spawn: 600,
-  ready: 700,
-  sundown: 1200,
-  crossing: 1200,
-  turncoat: 1300,
-  info: 500,
-  tally: 1200,
-  stakes: 1300,
+  stand: 2400,
+  reveal: 1600, // after the smashdown (~1.55s)
+  play: 1950,
+  event: 3100, // the flash (2.1s) comes first; then the tile's own turn (2s)
+  revealFx: 2400,
+  enter: 1800,
+  move: 1900,
+  showdown: 1700,
+  summon: 2200,
+  threat: 2200,
+  spawn: 1600,
+  ready: 1200,
+  sundown: 2200,
+  crossing: 2200,
+  turncoat: 2300,
+  info: 900,
+  tally: 2200,
+  stakes: 2300,
 };
 
 /** A clash event's payload, as resolve.ts writes it. */
@@ -1013,6 +1015,15 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     const clashEvs = evs.filter((e) => e.type === 'clash');
     const showdownEvs = evs.filter((e) => e.type === 'showdown');
     const arrivalEvs = evs.filter((e) => e.type === 'spawned' && !!e.cardId && !!e.player);
+    // The light on the beat: the piece acting now is lit and its Location stays bright while the other columns step
+    // back a shade, so a new player sees where to look. Your own beats (planned in daylight) keep the board as it is.
+    const acting = ownBeat ? [] : (step.uids ?? []).map((u) => tileOf(u)?.closest('.tile-glow') ?? tileOf(u)).filter((el): el is Element => !!el);
+    const actingCol = !ownBeat && step.location !== undefined ? document.querySelector(`.column[data-index="${step.location}"]`) : acting[0]?.closest('.column') ?? null;
+    if (acting.length || actingCol) {
+      document.querySelector('.app')?.classList.add('beat-focus');
+      acting.forEach((el) => el.classList.add('acting'));
+      actingCol?.classList.add('acting-col');
+    }
     // What render-time staging shows for this beat; the runner seeds its own effects with the same so nothing blinks.
     const seed = (): BoardFx => ({ hidden: arrivalEvs.map((e) => e.uid).filter((u): u is string => !!u), alive: showdownEvs.map((e) => (e.data as ShowdownData).threatUid) });
     // The meters wait for their numbers: everything this beat will float into a circle (a trail's +N, Word
@@ -1135,7 +1146,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
             setArrival({ cardId: step.cardId, owner: step.player });
             await painted();
             if (!alive()) return;
-            await wait(1100);
+            await wait(2100);
             if (!alive()) return;
             await dismissArrival();
             if (!alive()) return;
@@ -1239,6 +1250,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     return () => {
       cancelled = true;
       clearGhosts();
+      document.querySelector('.app')?.classList.remove('beat-focus');
+      document.querySelectorAll('.acting, .acting-col').forEach((el) => el.classList.remove('acting', 'acting-col'));
       setStagePrev(false);
       setFx(null);
       setPendingInf({});
