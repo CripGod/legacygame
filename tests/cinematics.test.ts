@@ -10,7 +10,8 @@ describe('card cinematics', () => {
       expect(c.clip, `${card}: the clip is a .webm under public/art/video`).toMatch(/^[a-z0-9-]+\.webm$/);
       expect(existsSync(`public/art/video/${c.clip}`), `${card}: public/art/video/${c.clip} is missing (npm run cine)`).toBe(true);
       expect(existsSync(`unity/StandOnBusiness/Assets/StandOnBusiness/Resources/video/${c.clip}`), `${card}: the Unity twin of ${c.clip} is missing (npm run cine)`).toBe(true);
-      expect(c.line.length, `${card}: the line under the name`).toBeGreaterThan(0);
+      expect((c.line ?? c.epithet ?? '').length, `${card}: a line or an epithet under the name`).toBeGreaterThan(0);
+      if (c.line) expect(c.epithet, `${card}: a line or an epithet, not both`).toBeUndefined();
     }
   });
   it('plays a clip with sound under full scale, beside the game cues', () => {

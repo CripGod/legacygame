@@ -2508,7 +2508,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       )}
 
       {cine && (
-        <div className={`cine ${cine.read ? 'read' : ''} ${cine.leaving ? 'leaving' : ''} ${cine.from ? 'from-tile' : ''} ${cine.by && cine.by !== me ? 'theirs' : ''}`} key={cine.key} aria-hidden style={cine.from ? ({ '--fx': `${cine.from.left + cine.from.width / 2}px`, '--fy': `${cine.from.top + cine.from.height / 2}px`, '--fw': `${cine.from.width}px` } as React.CSSProperties) : undefined}>
+        <div className={`cine ${cine.read ? 'read' : ''} ${cine.leaving ? 'leaving' : ''} ${cine.from ? 'from-tile' : ''} ${cine.by && cine.by !== me ? 'theirs' : ''} ${CINEMATICS[cine.card]?.wide ? 'wide' : ''}`} key={cine.key} aria-hidden style={cine.from ? ({ '--fx': `${cine.from.left + cine.from.width / 2}px`, '--fy': `${cine.from.top + cine.from.height / 2}px`, '--fw': `${cine.from.width}px` } as React.CSSProperties) : undefined}>
           <div className="cine-veil" />
           {/* A clip with sound plays it at the game's sound setting (live: a toggle mid-clip takes). The file is the element's own src, so a
               file that fails fires error here and ends the moment. Audible autoplay can be refused: then muted, and failing even that, the end. */}
@@ -2531,7 +2531,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           <div className="cine-cap">
             {cine.by && cine.by !== me && <i className="cine-by">{view.players[cine.by].handle} plays</i>}
             <b>{CARD_BY_ID[cine.card]?.name}</b>
-            <q>{CINEMATICS[cine.card]?.line}</q>
+            {CINEMATICS[cine.card]?.line ? <q>{CINEMATICS[cine.card]?.line}</q> : CINEMATICS[cine.card]?.epithet ? <i className="cine-epithet">{CINEMATICS[cine.card]?.epithet}</i> : null}
             <span>{(CARD_BY_ID[cine.card] as { summary?: string } | undefined)?.summary}</span>
           </div>
         </div>

@@ -7,8 +7,12 @@
 export interface Cinematic {
   /** The file under public/art/video (VP9 with alpha; Unity plays the VP8 twin from its Resources/video). */
   clip: string;
-  /** The line under the name: the card's own words, a real quotation, never ours. */
-  line: string;
+  /** The line under the name: the card's own words, a real quotation, never ours. Absent when none is attested. */
+  line?: string;
+  /** In place of a line, a plain fact about the person, set without quotation marks. */
+  epithet?: string;
+  /** A 16:9 clip: the board draws it wide (up to 1280 by 720 in the file, 72% of the viewport's width on the board). */
+  wide?: boolean;
   /** The clip carries sound: it plays at CINE_VOLUME when sound effects are on, muted when they are off. */
   sound?: boolean;
 }
@@ -20,6 +24,8 @@ export const CINEMATICS: Record<string, Cinematic> = {
   harriet_tubman: { clip: 'harriet.webm', line: 'I never ran my train off the track, and I never lost a passenger.', sound: true },
   // The West India Emancipation speech, Canandaigua, 1857.
   frederick_douglass: { clip: 'douglass.webm', line: 'If there is no struggle, there is no progress.', sound: true },
+  // No quotation of Reeves's own is well attested (he could not read or write; the papers paraphrased him), so a fact.
+  bass_reeves: { clip: 'reeves.webm', epithet: 'Deputy U.S. Marshal in the Indian Territory for thirty-two years.', sound: true, wide: true },
 };
 
 /** A clip's sound, brought to -20 LUFS by `npm run cine`, plays at this volume: level with the game's own cues. */

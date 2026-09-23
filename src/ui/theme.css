@@ -2596,7 +2596,7 @@ body.board-stomp .battlefield { animation: board-stomp 0.45s cubic-bezier(0.2, 0
 .cine.leaving .cine-veil, .cine.leaving .cine-cap { animation: cine-veil-out 0.4s ease-in both; }
 @keyframes cine-veil-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes cine-veil-out { from { opacity: 1; } to { opacity: 0; } }
-.cine-clip { position: relative; height: var(--ch); width: auto; aspect-ratio: 1; display: block; filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.7)); animation: cine-open 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.cine-clip { position: relative; height: var(--ch); width: auto; aspect-ratio: var(--car, 1); display: block; filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.7)); animation: cine-open 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 @keyframes cine-open { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: none; } }
 /* From the tile: the clip starts over the tile at the tile's width and rises to its seat (the flex box centres it,
    so the start is the tile's centre less the middle of the screen). */
@@ -2614,7 +2614,13 @@ body.board-stomp .battlefield { animation: board-stomp 0.45s cubic-bezier(0.2, 0
 .cine-cap q { font-family: var(--font); font-style: italic; font-size: clamp(13px, 1.2vw, 18px); color: #cfc3a6; text-shadow: 0 1px 2px #000; quotes: '\201C' '\201D'; }
 .cine-cap span { font-family: var(--font); font-size: clamp(14px, 1.3vw, 20px); color: var(--parchment); text-shadow: 0 1px 2px #000; }
 @keyframes cine-cap-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-@media (max-width: 700px) { .cine { --ch: 48vw; } }
+/* A wide (16:9) clip: sized by width, up to 72% of the viewport, its height from the ratio; the caption's rise reads --ch as ever. */
+.cine.wide { --car: 16 / 9; --cw: min(72vw, 960px); --ch: calc(var(--cw) * 9 / 16); }
+.cine.wide .cine-clip { width: var(--cw); height: auto; }
+.cine.wide.from-tile .cine-clip { animation-name: cine-rise-wide; }
+@keyframes cine-rise-wide { from { opacity: 0.6; transform: translate(calc(var(--fx) - 50vw), calc(var(--fy) - 50vh - 7px)) scale(calc(var(--fw) / var(--cw))); } to { opacity: 1; transform: none; } }
+.cine-epithet { font-family: var(--font); font-style: italic; font-size: clamp(13px, 1.2vw, 18px); color: #cfc3a6; text-shadow: 0 1px 2px #000; }
+@media (max-width: 700px) { .cine { --ch: 48vw; } .cine.wide { --cw: 92vw; } }
 @media (prefers-reduced-motion: reduce) { .cine-clip, .cine.from-tile .cine-clip, .cine-cap { animation: none; } .cine-cap { transition: none; } }
 /* While the clip plays the board holds still: every animation under the veil pauses where it is (the scripted ones
    and the backdrop video are paused from the screen), and the strip's shines, which live inside SVG images and

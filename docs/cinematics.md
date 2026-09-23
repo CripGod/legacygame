@@ -29,10 +29,14 @@ The moment is the card being played from hand. A card arriving Inside, relocatin
 
 - **Square, 720×720**, 24 fps, **about three seconds** (six at most: the board stops waiting at 6.5s). 400×400 plays
   but is scaled up on a big screen, 250×250 visibly so; nothing is scaled up in the encode, so what is delivered is
-  what shows. A clip larger than 720 square is scaled down to 720; a long clip is not shortened.
+  what shows. A clip taller than 720 is brought down to 720 tall, a wide one wider than 1280 to 1280; a long clip is
+  not shortened. **A 16:9 clip** (1280×720) is drawn wide, up to 72% of the viewport's width, with `wide: true` on
+  its entry.
 - **An alpha channel**, transparent wherever the board should show through. From Premiere or Media Encoder: Export,
   Format QuickTime, Apple ProRes 4444, Depth "8-bpc + alpha" (or 16-bpc). From After Effects: Channels RGB + Alpha,
-  Color Straight. A clip without alpha is refused with that setting named.
+  Color Straight. A clip without alpha is refused with that setting named. A clip delivered over black can be keyed
+  first: `python3 scripts/cine-key.py in.mov out.mov` cuts out the black that touches the frame's edge (the picture's
+  own darks stay) and writes a ProRes 4444 with alpha for the import. It needs numpy and scipy.
 - **No fade needed.** The game fades the clip in over a quarter second and out over three quarters, picture and
   sound together, so the clip can be delivered running from frame one to its last frame.
 - **Sound is optional.** Stereo, in the clip. It is brought to one level (about -20 LUFS; one pass over a short clip
@@ -56,7 +60,8 @@ files the game plays: `public/art/video/harriet.webm` (VP9 with alpha, Opus when
 fades and the sound level are baked in there. `--dry` prints what it would do.
 
 Then the card's entry in `src/ui/cinematics.ts`: the clip's file name, the line under the name (the person's own
-words, a real quotation, never ours), and `sound: true` when the clip carries sound. The read hold after the clip is
+words, a real quotation, never ours; when none is attested, an `epithet`, a plain fact set without quotation marks),
+`sound: true` when the clip carries sound, and `wide: true` for a 16:9 clip. The read hold after the clip is
 `CINE_READ_MS` in the same file, the longest wait `CINE_MAX_MS`, and a clip's volume `CINE_VOLUME`. The test in
 `tests/cinematics.test.ts` checks that every entry names a real card and that both files exist. In `?dev=1`,
 `window.__sobCine('harriet_tubman')` plays the moment out of her tile on the spot, and `__sobCine('harriet_tubman', true)`
@@ -77,3 +82,4 @@ The VP8 twin is copied into the Unity project's Resources at import; the Unity b
 | Paul Laurence Dunbar | `dunbar.webm` | "We wear the mask that grins and lies." | none | A 1080² colour pass over black, keyed by hand and played at twice its speed (six seconds became three) |
 | Harriet Tubman | `harriet.webm` | "I never ran my train off the track, and I never lost a passenger." | yes | ProRes 4444 with alpha, 400², through `npm run cine` |
 | Frederick Douglass | `douglass.webm` | "If there is no struggle, there is no progress." | yes | ProRes 4444 with alpha, 400², 6s, through `npm run cine` |
+| Bass Reeves | `reeves.webm` | Deputy U.S. Marshal in the Indian Territory for thirty-two years (an epithet: no quotation of his is well attested) | yes | 16:9, 1280×720, 5.6s, delivered over black, keyed with `cine-key.py`, drawn wide |

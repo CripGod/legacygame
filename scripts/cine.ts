@@ -20,6 +20,8 @@ const WEB_DIR = join(ROOT, 'public/art/video');
 const UNITY_DIR = join(ROOT, 'unity/StandOnBusiness/Assets/StandOnBusiness/Resources/video');
 /** The board draws a clip at up to 480px tall; 720 leaves room for a dense screen without a file twice the size. */
 const MAX_SIDE = 720;
+/** A wide clip's longest side: 16:9 at 720 tall. */
+const MAX_WIDE = 1280;
 const FADE_IN = 0.25;
 const FADE_OUT = 0.75;
 /** The game's own cues sit around -16 LUFS and play at about 0.4 of full scale; the clip plays at 0.6, so -20 here lands beside them. */
@@ -93,13 +95,13 @@ function main(argv: string[]): number {
     `${src}: ${p.codec} ${p.width}x${p.height} ${p.pixFmt}, ${p.fps} fps, ${p.frames} frames (${p.duration.toFixed(2)}s), ${(statSync(src).size / 1048576).toFixed(1)} MB`,
     p.audio ? `sound: ${p.audio.codec}, ${p.audio.channels} ch at ${p.audio.rate} Hz (brought to ${LOUDNESS} LUFS, faded with the picture)` : 'sound: none (the clip plays silent)',
   ];
-  if (!p.alpha) throw new CineError(`${src} carries no alpha channel (${p.pixFmt}). Export QuickTime, Apple ProRes 4444, Depth "8-bpc + alpha" (Premiere or Media Encoder), or render Channels: RGB + Alpha from After Effects.`);
+  if (!p.alpha) throw new CineError(`${src} carries no alpha channel (${p.pixFmt}). Export QuickTime, Apple ProRes 4444, Depth "8-bpc + alpha" (Premiere or Media Encoder), or render Channels: RGB + Alpha from After Effects. A clip delivered over black can be keyed first: python3 scripts/cine-key.py in.mov out.mov`);
   if (p.width !== p.height) lines.push(`note: the frame is not square (${p.width}x${p.height}); the board draws it at its own aspect, centred.`);
   if (p.duration > MAX_PLAY) lines.push(`note: ${p.duration.toFixed(1)}s is long for a board moment; the game stops waiting at 6.5s and pauses the clip there, before the fade-out. Three seconds is the direction.`);
   if (p.duration < 1) throw new CineError(`${src} is ${p.duration.toFixed(2)}s long; a cinematic is one to four seconds.`);
-  const side = Math.max(p.width, p.height);
-  const scale = side > MAX_SIDE ? `,scale=${p.width >= p.height ? `${MAX_SIDE}:-2` : `-2:${MAX_SIDE}`}:flags=lanczos` : '';
-  if (side < 480) lines.push(`note: at ${p.width}x${p.height} the picture is scaled up on a big screen (the board draws it up to 480px tall). 720 square is the direction.`);
+  // The height is capped at 720 and the width at 1280: a square clip comes down to 720, a 16:9 clip to 1280 by 720.
+  const scale = p.height > MAX_SIDE ? `,scale=-2:${MAX_SIDE}:flags=lanczos` : p.width > MAX_WIDE ? `,scale=${MAX_WIDE}:-2:flags=lanczos` : '';
+  if (p.height < 480) lines.push(`note: at ${p.width}x${p.height} the picture is scaled up on a big screen (the board draws it up to 480px tall). 720 tall is the direction.`);
   const outStart = Math.max(0, p.duration - FADE_OUT);
   const vf = `format=yuva420p,fade=t=in:st=0:d=${FADE_IN}:alpha=1,fade=t=out:st=${outStart.toFixed(3)}:d=${FADE_OUT}:alpha=1${scale}`;
   // loudnorm works (and outputs) at 192 kHz; aresample brings the sound back to 48 kHz, the rate both codecs and Unity want.
