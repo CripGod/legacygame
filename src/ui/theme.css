@@ -2127,6 +2127,22 @@ body.board-stomp .battlefield { animation: board-stomp 0.45s cubic-bezier(0.2, 0
 /* Your label rides 10px higher, over the Location's glow, so it reads as the frame's caption rather than the row's. */
 .gates-strip.mine .lbl { position: relative; top: -10px; z-index: 8; }
 
+/* ---- A short viewport (a laptop with the browser's chrome: about 800px of page and under): the framed Location keeps
+   its width but not its height, so what the frame cannot hold goes. The rule box under the seats is dropped (the
+   rule is on the name's sheet), "The Gates" caption goes with its rules, the two seat rows come down to the tile's
+   own height and no more, and the Threat column follows the rows so a Threat never spills past the frame's foot.
+   Full size is untouched. */
+@media (max-height: 860px) and (min-width: 701px) {
+  .location.framed .loc-rule { display: none; }
+  .location.framed { --rule-h: 0px; }
+  .gates-strip .lbl { display: none; }
+  .gates-strip.mine .lbl { display: none; }
+  .location.framed .inside-block { --seat-max: calc(var(--slot) * 0.82); --seat-min: calc(var(--slot) * 0.38); --lbl: calc(clamp(8px, 0.66vw, 10px) * 1.05); }
+  .location.framed .threat-col { max-height: 100%; overflow: hidden; }
+  .location.framed .threat-col .threat-tile { min-height: 0; max-height: calc(var(--seat-max) * 2 + var(--lbl) * 2); }
+  .location.framed .threat-col .threat-tile .threat-name { font-size: clamp(7px, 0.6vw, 9px); line-height: 1.05; }
+  .location.framed .threat-col .threat-tile .threat-who { display: none; }
+}
 /* The two name plates and the gear sit over everything on the board: tiles, glows, floats, flights and trails pass
    beneath them (the fly layer and the floats are appended inside .app, whose stacking context is isolated, so a
    z-index here can rank above them). Only modal sheets and their scrim, the dragged card and the tooltip stay above.
