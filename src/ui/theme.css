@@ -1285,6 +1285,11 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
    face up throughout; you played it, there is no back to show you. */
 .gate-slot.gf.filled.fx-rise, .pic.fx-rise { animation: fx-rise 1.8s linear both; }
 .pic.fx-rise { position: relative; z-index: 30; }
+/* After a cinematic the tile was held big under the veil: it comes down to rest in one motion, no second swell, no bounce. */
+.gate-slot.gf.filled.fx-settle, .pic.fx-settle { animation: fx-settle 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.pic.fx-settle { position: relative; z-index: 30; }
+.tile-glow:has(.fx-settle) { z-index: 30; }
+@keyframes fx-settle { from { transform: scale(1.32); } to { transform: none; } }
 @keyframes fx-rise {
   0%, 20% { transform: scale(1); animation-timing-function: ease-out; }
   33%, 75% { transform: scale(1.32); animation-timing-function: ease-in-out; }
@@ -1322,7 +1327,7 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 @media (prefers-reduced-motion: reduce) {
   .pic.fx-windup, .pic.fx-knocked, .pic.fx-held, .pic.fx-hexed, .pic.fx-land, .pic.fx-arrive, .pic.fx-jolt { animation: none; }
   .pic.fx-arrive::after, .gate-slot.event-slot .back, .gate-slot.fx-flip > .back { display: none; }
-  .gate-slot.gf.filled.fx-flip, .gate-slot.gf.filled.fx-rise, .pic.fx-rise { animation: none; }
+  .gate-slot.gf.filled.fx-flip, .gate-slot.gf.filled.fx-rise, .pic.fx-rise, .gate-slot.gf.filled.fx-settle, .pic.fx-settle { animation: none; }
   .pic.fx-knocked::after, .pic.fx-held::after, .pic.fx-hexed::after { animation: none; opacity: 0; }
 }
 

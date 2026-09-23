@@ -129,6 +129,8 @@ export interface BoardFx {
   arrive?: string;
   /** A card its owner already knows: the tile swells face up where it stands, no turn and no back (your own Dunbar under his cinematic). */
   rise?: string;
+  /** After a cinematic: the tile, held big under the veil, comes down to rest in one motion (no second swell, no bounce). */
+  settle?: string;
   /** The Location just revealed slamming onto the board: the panel drops, the cards in its column hop. */
   slam?: number;
   /** The first Location opening quietly (nobody guessed it): the beat waits for the picture to develop, no slam. */
@@ -147,10 +149,11 @@ export interface BoardFx {
   healBy?: PlayerId | 'both';
 }
 
-const picFx = (fx: BoardFx | null | undefined, uid: string): 'windup' | 'knocked' | 'held' | 'hexed' | 'land' | 'arrive' | 'rise' | 'jolt' | undefined => {
+const picFx = (fx: BoardFx | null | undefined, uid: string): 'windup' | 'knocked' | 'held' | 'hexed' | 'land' | 'arrive' | 'rise' | 'settle' | 'jolt' | undefined => {
   if (!fx) return undefined;
   if (fx.arrive === uid) return 'arrive';
   if (fx.rise === uid) return 'rise';
+  if (fx.settle === uid) return 'settle';
   if (fx.jolt?.includes(uid)) return 'jolt';
   if (fx.windup === uid) return 'windup';
   if (fx.flash?.uid === uid) return fx.flash.kind === 'hit' ? 'knocked' : fx.flash.kind;
@@ -276,7 +279,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                 <div
                   data-uid={s.uid}
                   data-place={`${index}:gate`}
-                  className={`gate-slot filled gf owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''} ${fx?.arrive === s.uid ? 'fx-flip' : ''} ${fx?.rise === s.uid ? 'fx-rise' : ''} ${guarded ? 'protected' : ''} ${shield ? 'shielded' : ''}`}
+                  className={`gate-slot filled gf owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''} ${fx?.arrive === s.uid ? 'fx-flip' : ''} ${fx?.rise === s.uid ? 'fx-rise' : ''} ${fx?.settle === s.uid ? 'fx-settle' : ''} ${guarded ? 'protected' : ''} ${shield ? 'shielded' : ''}`}
                   {...draggable}
                   {...(guarded ? tip(`Under protection: ${protectionReason(view, s) ?? 'cannot be displaced this turn'}. More in the rules.`) : shield ? tip(HINTS.shielded) : {})}
                 >

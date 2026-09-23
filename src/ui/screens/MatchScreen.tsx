@@ -317,14 +317,18 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     await wait(400);
     setCine(null);
   };
-  /** The tile's turn settles only once the clip, if one is playing, has gone: paused about a second in under the hold, it has most of a second still to run once the board resumes. */
+  /** The tile's turn settles only once the clip, if one is playing, has gone. Held big under the veil, it does not run the rest of its swell (the hold, the shrink, the overshoot) when the board resumes: it comes down to rest in one motion. */
   const settleArrive = (uid: string, alive: () => boolean) => {
     let held = false;
-    const clear = () => { if (alive()) setFx((f) => (f?.arrive === uid || f?.rise === uid ? null : f)); };
+    const clear = () => { if (alive()) setFx((f) => (f?.arrive === uid || f?.rise === uid || f?.settle === uid ? null : f)); };
     const tick = () => {
       if (!alive()) return;
       if (cineHold.current) { held = true; window.setTimeout(tick, 150); return; }
-      if (held) { window.setTimeout(clear, 900); return; }
+      if (held) {
+        setFx((f) => (f?.arrive === uid || f?.rise === uid ? { ...f, arrive: undefined, rise: undefined, settle: uid } : f));
+        window.setTimeout(clear, 500);
+        return;
+      }
       clear();
     };
     window.setTimeout(tick, 1900);
