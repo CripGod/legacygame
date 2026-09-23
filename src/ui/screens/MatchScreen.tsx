@@ -250,6 +250,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   const cineDone = useRef<(() => void) | null>(null);
   /** Set the moment a beat decides to play the clip, before any await, so the replay cannot slip past an own beat (0ms) first. */
   const cineHold = useRef(false);
+  /** The beat now open is a quiet one (a Reveal on the card just turned, with nothing to show): the advance holds only briefly. */
+  const quietBeat = useRef(false);
   const cineSupported = useRef<boolean | null>(null);
   const canCine = () => {
     if (cineSupported.current === null) {
@@ -1055,10 +1057,15 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     const clashEvs = evs.filter((e) => e.type === 'clash');
     const showdownEvs = evs.filter((e) => e.type === 'showdown');
     const arrivalEvs = evs.filter((e) => e.type === 'spawned' && !!e.cardId && !!e.player);
+    // A Reveal firing on the card Harborlight turned over a beat ago, with nothing to show but its pulse: the card was
+    // lit when it turned, so this beat passes quietly (no halo, no pulse, the briefest hold) instead of lighting it twice.
+    const prevStep = m.replay && m.replay.idx > 0 ? m.replay.steps[m.replay.idx - 1] : null;
+    const quiet = step.kind === 'revealFx' && step.player !== me && !!prevStep && prevStep.kind === 'play' && prevStep.uids?.[0] === step.uids?.[0] && !trailEvs.length && !legendEvs.length && !clashEvs.length && !digEv;
+    quietBeat.current = quiet;
     // The light on the beat: the piece acting now is lit and its Location stays bright while the other columns step
     // back a shade, so a new player sees where to look. Your own beats (planned in daylight) keep the board as it is.
-    const acting = ownBeat ? [] : (step.uids ?? []).map((u) => tileOf(u)?.closest('.tile-glow') ?? tileOf(u)).filter((el): el is Element => !!el);
-    const actingCol = !ownBeat && step.location !== undefined ? document.querySelector(`.column[data-index="${step.location}"]`) : acting[0]?.closest('.column') ?? null;
+    const acting = ownBeat || quiet ? [] : (step.uids ?? []).map((u) => tileOf(u)?.closest('.tile-glow') ?? tileOf(u)).filter((el): el is Element => !!el);
+    const actingCol = !ownBeat && !quiet && step.location !== undefined ? document.querySelector(`.column[data-index="${step.location}"]`) : acting[0]?.closest('.column') ?? null;
     if (acting.length || actingCol) {
       document.querySelector('.app')?.classList.add('beat-focus');
       acting.forEach((el) => el.classList.add('acting'));
@@ -1221,7 +1228,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         await playCine(step.cardId, tileOf(uid)?.getBoundingClientRect(), step.player, alive);
         if (!alive()) return;
       }
-      if (!reduceMotion() && step.kind === 'revealFx' && step.uids?.[0] && step.player && !trailEvs.length && !clashEvs.length) {
+      if (!reduceMotion() && !quiet && step.kind === 'revealFx' && step.uids?.[0] && step.player && !trailEvs.length && !clashEvs.length) {
         await painted();
         if (!alive()) return;
         pulseGlow(step.uids[0], step.player);
@@ -1338,7 +1345,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   /** Advance the replay once this beat's sheets are closed. */
   useEffect(() => {
     if (!step || fx || trail || dig || arrival || peekShow || fireworks || cine || cineHold.current) return;
-    const ms = ownBeat ? 0 : BEAT_MS[step.kind] ?? 900;
+    const ms = ownBeat ? 0 : quietBeat.current ? 350 : BEAT_MS[step.kind] ?? 900;
     const id = window.setTimeout(m.replayNext, ms);
     return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
