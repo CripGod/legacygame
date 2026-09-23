@@ -154,7 +154,7 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   'dig.keep': [{ files: ['select'], gain: 0.55 }, { files: ['trail'], gain: 0.25, at: 80 }], // "you have been chosen": the select climb, a shimmer under it
   'dig.bury': [{ files: ['card-back'], gain: 0.5 }, { files: ['thud-soft'], gain: 0.4, at: 120 }],
   stand: [{ files: ['stand-thud'], gain: 0.9 }, { files: ['stand-drums'], gain: 0.8 }],
-  'stand.button': [{ files: ['stand-stomp'], gain: 0.9 }, { files: ['stand-burst'], gain: 0.85, at: 800 }], // stomp, stomp, clap ... and on the clap the boom and the crowd carrying on (no brass; the ring bell is the turn call's)
+  'stand.button': [{ files: ['stand-stomp'], gain: 1.0 }], // stomp, stomp, clap: a foot coming down. No boom after it (its instant attack read as a shot); the ring bell is the turn call's
   lastword: [{ files: ['lastword'], gain: 0.8 }],
   lost: [{ files: ['lost'], gain: 0.65 }],
   win: [{ files: ['stand-drums'], gain: 0.85 }, { files: ['lastword'], gain: 0.7, at: 220 }], // drums and the bell: gravity, not a fanfare

@@ -1695,19 +1695,19 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   const standFx = () => {
     setStandSlam(false);
     window.setTimeout(() => setStandSlam(true), 0);
-    window.setTimeout(() => setStandSlam(false), 750);
+    window.setTimeout(() => setStandSlam(false), 550);
     if (reduceMotion()) return;
     standArmed.current = true;
-    // The ground dips as the foot lands (the strip's landing, ~0.24s in) and again on the boom at 0.8s.
+    // The ground dips under each stomp in the sound (they land at about 0.15s and 0.48s); the strip's own landing is the first.
     const dip = (at: number) =>
       window.setTimeout(() => {
         if (!standArmed.current) return;
         setStomp(false);
         window.setTimeout(() => setStomp(true), 0);
-        window.setTimeout(() => setStomp(false), 500);
+        window.setTimeout(() => setStomp(false), 450);
       }, at);
-    dip(240);
-    dip(800);
+    dip(150);
+    dip(480);
   };
   /** Stand on Business is one tap: it toggles in the plan and the toast explains what it does. */
   /** The match opens: the strip runs its flourish for five seconds, or until the strip is pressed. Again on a new match. */

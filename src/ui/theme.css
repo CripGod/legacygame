@@ -109,7 +109,7 @@ body { font-family: var(--font); font-size: 16px; }
 .handle { font-family: var(--display); font-weight: 700; font-size: clamp(13px, 1.35vw, 20px); letter-spacing: 0.02em; color: var(--parchment); }
 .profile .sub { font-family: var(--font); font-size: clamp(10px, 0.95vw, 14px); color: #cfc3a6; }
 .hud-center { gap: 4px; }
-.sob.slam { animation: stand-slam 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+.sob.slam { animation: stand-slam 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
 /* The press is a foot coming down, not a shot: the strip lifts a touch, drops, squashes on the landing (wider,
    shorter, a little brighter from the weight, no flash), and settles. The ground dips under it (body.board-stomp). */
 @keyframes stand-slam { 0% { transform: none; filter: brightness(1); } 16% { transform: translateY(-7px) scale(1.03); filter: brightness(1.05); } 34% { transform: translateY(4px) scale(1.07, 0.92); filter: brightness(1.22); } 50% { transform: translateY(0) scale(0.985, 1.02); filter: brightness(1.08); } 66% { transform: scale(1.012, 0.995); } 100% { transform: none; filter: brightness(1); } }
@@ -1497,7 +1497,7 @@ body.board-shake .battlefield { animation: board-shake 0.44s cubic-bezier(0.36, 
 @keyframes board-shake { 10%, 90% { transform: translate(-4px, 2px); } 20%, 80% { transform: translate(6px, -3px); } 30%, 50%, 70% { transform: translate(-10px, 5px); } 40%, 60% { transform: translate(10px, -5px); } }
 @media (prefers-reduced-motion: reduce) { body.board-shake .battlefield { animation: none; } }
 /* The ground under a stomp: a downward dip that bounces out, not a side-to-side rattle. */
-body.board-stomp .battlefield { animation: board-stomp 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+body.board-stomp .battlefield { animation: board-stomp 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
 @keyframes board-stomp { 0% { transform: none; } 14% { transform: translateY(10px); } 32% { transform: translateY(-5px); } 50% { transform: translateY(3px); } 68% { transform: translateY(-1px); } 100% { transform: none; } }
 @media (prefers-reduced-motion: reduce) { body.board-stomp .battlefield { animation: none; } }
 
