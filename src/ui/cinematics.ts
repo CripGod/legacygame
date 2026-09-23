@@ -32,7 +32,7 @@ export const CINEMATICS: Record<string, Cinematic> = {
 export const CINE_VOLUME = 0.6;
 
 /** After the clip, the caption rises and holds this long to be read: the eye was on the picture while it played. */
-export const CINE_READ_MS = 3000;
+export const CINE_READ_MS = 2500;
 
 /** The longest the board waits for a clip: a clip still playing then is paused, and the caption reads over the still. Six seconds of clip fit. */
 export const CINE_MAX_MS = 6500;
