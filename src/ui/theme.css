@@ -1907,17 +1907,20 @@ body.board-stomp .battlefield { animation: board-stomp 0.45s cubic-bezier(0.2, 0
 /* ---------- The Gate frames (art) ---------- */
 /* The frame is the picture, stretched to the tile's own size: the dull frame on an empty slot, the lit one over a filled
    tile; the tile's picture sits in the frame's window. Gold on my side, blue on Harborlight's, one geometry. */
-.gate-slot.gf:not(.event-slot) { border: 0; border-radius: 0; box-shadow: none; background: var(--gate-off) center / 100% 100% no-repeat; color: rgba(255, 224, 150, 0.85); }
+.gate-slot.gf:not(.event-slot) { position: relative; border: 0; border-radius: 0; box-shadow: none; background: transparent; color: rgba(255, 224, 150, 0.85); }
 .gate-slot.gf.later { opacity: 1; }
-/* Every Gate tile is 5% smaller than the row would allow; the four spread across the row (space-between) so the
-   outer edges still meet the Location frame's. */
-.gates-strip .gates { --gw: calc(min(var(--mini), (100cqw - 15px) / 4) * 0.95); --gh: calc(var(--mini-h) * 0.95); --gi-x: calc(var(--gw) * 0.134); --gi-t: calc(var(--gh) * 0.08); --gi-b: calc(var(--gh) * 0.074); justify-content: space-between; }
+/* The four Gate tiles fill the row, nearly touching (3% under a quarter each, space-between), at the tile's height
+   (--gh): on a wide screen a tile is wider than the frame's own proportion and shows more of the picture. The frame is
+   nine-sliced (border-image) so its side ornaments and corners keep their shape at the tile's height while the plain
+   top and bottom bars stretch; the picture window's side inset is the ornament's width, not a share of the tile. */
+.gates-strip .gates { --gw: min(calc((100cqw - 15px) / 4 * 0.97), calc(var(--gh) * 2.3)); --gh: calc(var(--mini-h) * 0.95); --sl-x: calc(var(--gh) * 85 / 364); --sl-y: calc(var(--gh) * 40 / 364); --sle-x: calc(var(--gh) * 85 / 444); --sle-y: calc(var(--gh) * 40 / 444); --gi-x: var(--sl-x); --gi-t: calc(var(--gh) * 0.08); --gi-b: calc(var(--gh) * 0.074); justify-content: space-between; }
+.gates-strip .gates .gate-slot.gf:not(.event-slot)::before { content: ''; position: absolute; inset: 0; border-style: solid; border-width: var(--sl-y) var(--sl-x); border-image: var(--gate-off) 40 85 / var(--sl-y) var(--sl-x) stretch; pointer-events: none; z-index: 1; }
+.gates-strip .gates .gate-slot.gf.filled:not(.event-slot)::before, .gates-strip .gates .gate-slot.gf.reserved::before { z-index: 4; border-image-source: var(--gate-on); }
+.gates-strip .gates .gate-slot.gf.reserved::before { border-image-source: var(--gate-off); }
 .gates-strip .gates .gate-slot { width: var(--gw); height: var(--gh); }
 .gate-slot.gf.filled:not(.event-slot), .gate-slot.gf.reserved { box-sizing: border-box; width: var(--gw); background: transparent !important; clip-path: none !important; padding: var(--gi-t) var(--gi-x) var(--gi-b) !important; overflow: visible; }
 .gate-slot.gf.reserved .pic-img { top: var(--gi-t); left: var(--gi-x); width: calc(100% - 2 * var(--gi-x)); height: calc(100% - var(--gi-t) - var(--gi-b)); }
 .gate-slot.gf.filled:not(.event-slot)::after, .gate-slot.gf.reserved::after { display: none; }
-.gate-slot.gf.filled:not(.event-slot)::before, .gate-slot.gf.reserved::before { content: ''; position: absolute; inset: 0; background: var(--gate-on) center / 100% 100% no-repeat; pointer-events: none; z-index: 4; }
-.gate-slot.gf.reserved::before { background-image: var(--gate-off); }
 .gate-slot.gf.filled .pic { clip-path: none; border-radius: 0; }
 .gate-slot.gf.filled .pic .b, .gate-slot.gf.reserved .ghost-arrow, .gate-slot.gf.filled > .ghost-arrow { z-index: 5; }
 /* A verdict stamp (SUPPRESSED, HEXED, BANISHED…) reads over the frame and the picture. */
@@ -2095,11 +2098,12 @@ body.board-stomp .battlefield { animation: board-stomp 0.45s cubic-bezier(0.2, 0
    the face-down stripes inside the window. A Curse tints the lit frame red; the trigger ring keeps ::before. */
 @media (width > 700px) {
   .gates .gate-slot.event-slot { box-sizing: border-box; width: var(--gw); height: var(--gh); padding: var(--gi-t) var(--gi-x) var(--gi-b); border: 0; border-radius: 0; box-shadow: none; overflow: visible; background: #12101f; background-clip: content-box; }
-  .gates .gate-slot.event-slot::after { content: ''; position: absolute; inset: 0; background: var(--gate-event-on) center / 100% 100% no-repeat; pointer-events: none; z-index: 4; }
-  .gates .gate-slot.event-slot.empty { background: var(--gate-event-off) center / 100% 100% no-repeat; background-clip: border-box; border: 0; box-shadow: none; }
-  .gates .gate-slot.event-slot.empty::after { display: none; }
+  .gates .gate-slot.event-slot::after { content: ''; position: absolute; inset: 0; border-style: solid; border-width: var(--sle-y) var(--sle-x); border-image: var(--gate-event-on) 40 85 / var(--sle-y) var(--sle-x) stretch; pointer-events: none; z-index: 4; }
+  .gates .gate-slot.event-slot.empty { background: transparent; border: 0; box-shadow: none; }
+  .gates .gate-slot.event-slot.empty::after { border-image-source: var(--gate-event-off); z-index: 1; }
   /* The empty Event slot mirrors an open Gate slot: a plain plus, in purple, over the label. */
   .gates .gate-slot.event-slot.empty .ini { font-size: inherit; font-weight: inherit; color: rgba(196, 170, 255, 0.9); text-shadow: none; line-height: 1; }
+  .gates .gate-slot.event-slot.empty > * { position: relative; z-index: 2; }
   /* An img with width/height auto keeps its natural size even with four insets: the window's size is spelled out. */
   .gates .gate-slot.event-slot .pic-img { top: var(--gi-t); left: var(--gi-x); width: calc(100% - 2 * var(--gi-x)); height: calc(100% - var(--gi-t) - var(--gi-b)); }
   .gates .gate-slot.event-slot .strip { left: var(--gi-x); right: var(--gi-x); bottom: var(--gi-b); z-index: 5; }
@@ -2127,12 +2131,12 @@ body.board-stomp .battlefield { animation: board-stomp 0.45s cubic-bezier(0.2, 0
 /* Your label rides 10px higher, over the Location's glow, so it reads as the frame's caption rather than the row's. */
 .gates-strip.mine .lbl { position: relative; top: -10px; z-index: 8; }
 
-/* ---- A short viewport (a laptop with the browser's chrome: about 800px of page and under): the framed Location keeps
+/* ---- A short viewport (a laptop with the browser's chrome: about 940px of page and under): the framed Location keeps
    its width but not its height, so what the frame cannot hold goes. The rule box under the seats is dropped (the
    rule is on the name's sheet), "The Gates" caption goes with its rules, the two seat rows come down to the tile's
    own height and no more, and the Threat column follows the rows so a Threat never spills past the frame's foot.
    Full size is untouched. */
-@media (max-height: 860px) and (min-width: 701px) {
+@media (max-height: 940px) and (min-width: 701px) {
   .location.framed .loc-rule { display: none; }
   .location.framed { --rule-h: 0px; }
   .gates-strip .lbl { display: none; }
