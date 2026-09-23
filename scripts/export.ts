@@ -8,7 +8,7 @@ import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { CHARACTERS, EVENTS, THREATS, LOCATIONS, UNKNOWN_LOCATION, PRESET_DECKS, RANDOM_THREAT_POOL, TEAM_UPS, SUMMON, referencesFor } from '../src/engine/content';
 import * as T from '../src/engine/types';
-import { SECOND_WAVE_TURN, SECOND_WAVE_CHANCE, THIRD_WAVE_TURN, THIRD_WAVE_CHANCE } from '../src/engine/setup';
+import { WAVE_FROM_TURN, LATER_WAVE_CHANCE } from '../src/engine/setup';
 
 const root = process.cwd();
 const out = path.join(root, 'unity/StandOnBusiness/Assets/StandOnBusiness/Resources/content.json');
@@ -41,10 +41,8 @@ const constants = {
   PLANNING_SECONDS: T.PLANNING_SECONDS,
   MAX_STAKES: T.MAX_STAKES,
   STAND_MULTIPLIERS: T.STAND_MULTIPLIERS,
-  SECOND_WAVE_TURN,
-  SECOND_WAVE_CHANCE,
-  THIRD_WAVE_TURN,
-  THIRD_WAVE_CHANCE,
+  WAVE_FROM_TURN,
+  LATER_WAVE_CHANCE,
 };
 
 const ids = [...CHARACTERS, ...EVENTS, ...THREATS, ...LOCATIONS].map((d) => d.id);

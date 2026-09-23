@@ -2104,8 +2104,8 @@ describe('home ground and Straight Inside', () => {
   });
 });
 
-describe('history moves twice', () => {
-  it('a second random Threat arrives on Turn 5 in a good share of matches (it needs a revealed Location with no Threat, and some arrive with one)', () => {
+describe('history keeps moving', () => {
+  it('a random Threat arrives on Turn 5 in a good share of matches (it needs a revealed Location with no Threat, and some arrive with one)', () => {
     let hits = 0;
     const N = 120;
     for (let seed = 1; seed <= N; seed++) {
@@ -2118,6 +2118,17 @@ describe('history moves twice', () => {
     }
     expect(hits / N).toBeGreaterThan(0.3);
     expect(hits / N).toBeLessThan(0.8);
+  });
+  it('Threats can still arrive on the last turn', () => {
+    let hits = 0;
+    const N = 120;
+    for (let seed = 1; seed <= N; seed++) {
+      let s = createMatch({ seed });
+      for (let t = 0; t < 7; t++) s = resolveTurn(s, { A: pass(), B: pass() }).state;
+      expect(s.turn).toBe(8);
+      if (s.lastEvents.some((e) => e.type === 'threatSpawned')) hits++;
+    }
+    expect(hits).toBeGreaterThan(10);
   });
 });
 

@@ -497,11 +497,10 @@ namespace StandOnBusiness.Engine
                     loc.PendingTimedThreat = null;
                 }
             }
-            // History moves: Turn 3 a random neutral Threat at a revealed Location without one; Turn 5 again in most
-            // matches; Turn 7 a third time. The two rolls are taken only on their turns, as the web engine's short-circuit does.
-            bool wave = state.Turn == 3
-                || (state.Turn == Rules.SecondWaveTurn && Rng.NextFloat(state.Rng) < Rules.SecondWaveChance)
-                || (state.Turn == Rules.ThirdWaveTurn && Rng.NextFloat(state.Rng) < Rules.ThirdWaveChance);
+            // History moves: Turn 3 a random neutral Threat at a revealed Location without one, and on every turn after,
+            // to the last, in most turns. The roll is taken only after Turn 3, as the web engine's short-circuit does.
+            bool wave = state.Turn == Rules.WaveFromTurn
+                || (state.Turn > Rules.WaveFromTurn && Rng.NextFloat(state.Rng) < Rules.LaterWaveChance);
             if (wave && state.RevealOrder.Count > 0)
             {
                 var candidates = state.Locations.Where(l => l.Revealed && !l.Lost && l.Threats.Count == 0).ToList();

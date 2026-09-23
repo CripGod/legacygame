@@ -1,7 +1,7 @@
 {
  "format": 1,
  "source": {
-  "commit": "752604e",
+  "commit": "e11a535",
   "generator": "scripts/export.ts"
  },
  "constants": {
@@ -45,10 +45,8 @@
    2,
    2
   ],
-  "SECOND_WAVE_TURN": 5,
-  "SECOND_WAVE_CHANCE": 0.6,
-  "THIRD_WAVE_TURN": 7,
-  "THIRD_WAVE_CHANCE": 0.75
+  "WAVE_FROM_TURN": 3,
+  "LATER_WAVE_CHANCE": 0.6
  },
  "characters": [
   {
@@ -3741,9 +3739,9 @@
    "id": "reparations",
    "name": "Reparations",
    "short": "Reparations",
-   "summary": "+1 lasting Influence here per Setback (max 4), +1 in the Americas. Counts at the end.",
+   "summary": "+1 lasting Influence here, +1 more per Setback (max 4), +1 in the Americas. Counts at the end.",
    "cost": 1,
-   "text": "Choose a Location: +1 lasting Influence there for each Setback you have suffered this match (max +4). It counts at the end no matter when you play it. In the Americas: +1 more.",
+   "text": "Choose a Location: +1 lasting Influence there, and +1 more for each Setback you have suffered this match (max +4 from Setbacks). It counts at the end no matter when you play it. In the Americas: +1 more.",
    "effect": {
     "type": "reparations",
     "max": 4,
