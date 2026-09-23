@@ -169,8 +169,10 @@
    layers beneath the content (the hairline, then the glass inset by a pixel) so the deck menu can hang past the edge. */
 .deck-panel {
   --pc: rgba(233, 185, 58, 0.62); --pc-soft: rgba(233, 185, 58, 0.18); --ch: 16px;
+  --dk-w: clamp(124px, 8.7vw, 168px); /* the miniature's width; the card is 1103:1426 */
+  --dk-h: calc(var(--dk-w) * 1426 / 1103);
   position: relative; isolation: isolate; padding: 16px 18px 14px; border: 0; border-radius: 0; background: none;
-  display: grid; gap: 8px; align-content: start; min-width: 0;
+  display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 8px; align-content: start; min-width: 0;
 }
 .deck-panel::before, .deck-panel::after { content: ''; position: absolute; z-index: -1; clip-path: polygon(var(--ch) 0, 100% 0, 100% calc(100% - var(--ch)), calc(100% - var(--ch)) 100%, 0 100%, 0 var(--ch)); pointer-events: none; }
 .deck-panel::before { inset: 0; background: linear-gradient(160deg, var(--pc), rgba(233, 185, 58, 0.22) 40%, var(--pc)); }
@@ -208,7 +210,7 @@
 .deck-panel.theirs .deck-menu-list button.on b { color: #9fc8ff; }
 .deck-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; align-items: start; }
 .deck-panel .deck-cards { align-items: flex-start; }
-.deck-panel .deck-cards { --card-w: clamp(124px, 8.7vw, 168px); margin-top: 0; padding: 30px 2px 6px; }
+.deck-panel .deck-cards { --card-w: var(--dk-w); margin-top: 0; padding: 30px 2px 6px; }
 /* The soft fade at the row's right edge is an overlay, not a mask on the scroller: a masked scroller is rasterized as
    one bitmap and the card type goes soft. */
 /* The row is its own stacking context, so the fade's level counts only against the cards in the row and never against the
@@ -217,6 +219,20 @@
 .deck-row::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 56px; pointer-events: none; z-index: 6; background: linear-gradient(to right, rgba(6, 14, 24, 0), rgba(6, 14, 24, 0.85)); }
 /* Every card in the row is the same size; the first one only carries the deck's glow. */
 .deck-panel .deck-cards .card:first-child { margin: 0; }
+/* The row is a size container: its height is whatever the panel has left under the head (the page gives the decks
+   the rest of the screen), never less than one row of cards. On a tall screen, where two or more rows fit, the
+   cards wrap into a grid that scrolls down instead of sideways, so a big presentation shows the deck rather than an
+   empty plate. The columns are 91% of a card, the same overlap as the sideways row; the fade moves to the foot. */
+.deck-row { container-type: size; container-name: deckrow; min-height: calc(var(--dk-h) + 36px); }
+/* From a row and a half of room the grid takes over (the second row showing under the first says there is more).
+   The card is capped a few pixels under the sideways size so four of them, overlapping, fit the widest panel (618px);
+   the right padding is the last card's overhang past its column, so no card is cut by the scroller's edge. */
+@container deckrow (min-height: calc(1.4 * clamp(124px, 8.7vw, 168px) * 1426 / 1103 + 54px)) {
+  .deck-panel .deck-cards { --card-w: min(var(--dk-w), 163px); display: grid; grid-template-columns: repeat(auto-fill, calc(var(--card-w) * 0.91)); grid-auto-rows: max-content; row-gap: 14px; column-gap: 0; justify-content: start; height: 100%; box-sizing: border-box; padding: 30px calc(var(--card-w) * 0.09 + 2px) 14px 2px; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scroll-snap-type: none; }
+  .deck-panel .deck-cards .card.tpl + .card.tpl { margin-left: 0 !important; }
+  .deck-panel .deck-cards::-webkit-scrollbar { width: 6px; height: auto; }
+  .deck-row::after { top: auto; left: 0; right: 0; width: auto; height: 44px; background: linear-gradient(to bottom, rgba(6, 14, 24, 0), rgba(6, 14, 24, 0.85)); }
+}
 .deck-random { align-self: center; padding: 16px; font-style: italic; color: #cfd6e2; }
 .vs-col { --vs: clamp(40px, 4.8vw, 72px); position: relative; display: grid; place-items: center; min-width: 0; }
 .vs-mark { position: absolute; left: 50%; top: 50%; width: min(100%, 220px); height: auto; transform: translate(-50%, -54%); opacity: 0.16; filter: saturate(0.6); pointer-events: none; z-index: 0; }

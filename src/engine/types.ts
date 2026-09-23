@@ -38,7 +38,7 @@ export const MAX_HAND = 7;
 /** Legend: Threats a player helped clear. From this many on, their Characters arrive at the Gates Ready ("I have people in Detroit"). */
 export const LEGEND_READY = 2;
 export const MAX_EVENTS = 2;
-export const PLANNING_SECONDS = 120;
+export const PLANNING_SECONDS = 90;
 export const MAX_STAKES = 16;
 /** A clean sweep, all three Locations, pays half the Legacy again on top of the stakes, rounded up: 1 pays 2, 4 pays 6, 16 pays 24. */
 export function sweepBonus(stakes: number): number {

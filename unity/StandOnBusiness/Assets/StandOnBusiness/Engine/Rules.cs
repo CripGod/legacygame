@@ -33,7 +33,7 @@ namespace StandOnBusiness.Engine
         public const int MaxHand = 7;
         public const int LegendReady = 2;
         public const int MaxEvents = 2;
-        public const int PlanningSeconds = 120;
+        public const int PlanningSeconds = 90;
         public const int MaxStakes = 16;
         public static readonly int[] StandMultipliers = { 4, 4, 3, 3, 3, 2, 2, 2, 2 };
         public const int WaveFromTurn = 3;

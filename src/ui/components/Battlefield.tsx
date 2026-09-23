@@ -437,7 +437,7 @@ function ThreatTile({ t, view, me, plan, drop, flash, onThreat, gone, goneWhy, h
  * The Location's rule in one line or two, big enough to read from the chair. When the box cannot hold it, the text is
  * clipped and a MORE link opens the Location's sheet, where the whole rule and its history live.
  */
-function LocRule({ text, onOpen }: { text: string; onOpen: () => void }) {
+function LocRule({ text, more = true, onOpen }: { text: string; more?: boolean; onOpen: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const [clipped, setClipped] = useState(false);
   useLayoutEffect(() => {
@@ -460,7 +460,7 @@ function LocRule({ text, onOpen }: { text: string; onOpen: () => void }) {
       <div className="loc-rule-text" ref={ref}>
         {text}
       </div>
-      {clipped && <b className="loc-more">More ›</b>}
+      {more && <b className="loc-more">More ›</b>}
     </div>
   );
 }
@@ -697,6 +697,7 @@ export function Battlefield(props: BattlefieldProps) {
               <InEffect view={view} index={loc.index} me={me} onOpen={() => onLocationInfo(loc.index)} />
               <LocRule
                 text={loc.lost ? `LOST: ${loc.lostReason ?? 'an unresolved crisis'} Neither player can win here.` : loc.revealed ? (def.short ?? def.rule) : 'Hidden until revealed. Commit blind.'}
+                more={loc.revealed}
                 onOpen={() => onLocationInfo(loc.index)}
               />
             </div>

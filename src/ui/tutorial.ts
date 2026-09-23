@@ -122,7 +122,7 @@ export function lessonsFor(view: GameState, me: PlayerId, placeholders: boolean)
             ? `Most cards wait a turn at the Gates, the row of slots labelled The Gates just below the Location panel, and count their Influence from there. ${who} is the exception: Straight Inside means it walks in the moment it lands. All three Locations are still hidden, so this first commit is blind for both players.`
             : `${who} now waits at the Gates, the row of slots labelled The Gates just below the Location panel. It counts its Influence from there this turn. All three Locations are still hidden, so this first commit is blind for both players.`,
         ),
-        act: lock('Press Lock In. The bar inside the button is the turn clock: in a real match it drains over two minutes and locks whatever you have planned. In here it only ticks for show.'),
+        act: lock('Press Lock In. The bar inside the button is the turn clock: in a real match it drains over a minute and a half and locks whatever you have planned. In here it only ticks for show.'),
       },
     ]);
   }

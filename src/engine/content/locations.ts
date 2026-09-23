@@ -10,7 +10,7 @@ export const LOCATIONS: LocationDef[] = [
     effect: { type: 'insideInfluence', amount: 1 },
     timedThreat: { turn: 4, threatId: 'mob' },
     region: 'americas',
-    short: 'Established Characters here gain +1 Influence. Turn 4: a Mob.',
+    short: 'Established here: +1 Influence. Turn 4: Mob.',
   },
   {
     id: 'harpers_ferry',
@@ -21,7 +21,7 @@ export const LOCATIONS: LocationDef[] = [
     effect: { type: 'confrontForce', amount: 2 },
     spawnOnReveal: 'paddy_roller',
     region: 'americas',
-    short: 'Confronting a Threat here: +2 Force.',
+    short: 'Fight a Threat here: +2 Force.',
   },
   {
     id: 'black_star',
@@ -32,7 +32,7 @@ export const LOCATIONS: LocationDef[] = [
     effect: { type: 'relocatedOutReady' },
     transformsInto: { id: 'accra_ghana', afterTurns: 3 },
     region: 'atlantic',
-    short: 'A ship: whoever relocates out arrives Ready. Three turns on, it lands in Accra.',
+    short: 'A ship. Leave here: arrive Ready. In 3 turns it lands in Accra.',
   },
   {
     id: 'accra_ghana',
@@ -44,7 +44,7 @@ export const LOCATIONS: LocationDef[] = [
     effect: { type: 'relocatedInReady' },
     notInPool: true,
     noThreats: true,
-    short: 'Characters relocated here arrive Ready. No Threats appear here.',
+    short: 'Arrive here: Ready. No Threats here.',
   },
   {
     id: 'great_migration',
@@ -54,7 +54,7 @@ export const LOCATIONS: LocationDef[] = [
     blurb: 'Six million people left the rural South for northern and western cities, remaking America.',
     effect: { type: 'firstRelocatedEnters' },
     region: 'americas',
-    short: 'The first Character relocated here each turn enters at once.',
+    short: 'First one relocated here each turn: straight Inside.',
   },
   {
     id: 'juneteenth',
@@ -64,7 +64,7 @@ export const LOCATIONS: LocationDef[] = [
     blurb: 'June 19th, 1865: the day freedom finally reached Texas, two years after it was declared.',
     effect: { type: 'readyOnArrival' },
     region: 'americas',
-    short: 'Gate Characters here are Ready the turn they arrive.',
+    short: 'Arrive at the Gates: Ready at once.',
   },
   {
     id: 'sundown_town',
@@ -76,7 +76,7 @@ export const LOCATIONS: LocationDef[] = [
     curfew: true,
     weight: 0.35,
     region: 'americas',
-    short: 'Arrivals at these Gates are run out at the end of the turn. Curfew at night.',
+    short: 'Arrive at the Gates: run out at turn\'s end. Curfew at night.',
   },
   {
     id: 'middle_passage',
@@ -90,7 +90,7 @@ export const LOCATIONS: LocationDef[] = [
     noThreats: true,
     weight: 0.3,
     region: 'atlantic',
-    short: 'No Inside. Each turn the Gates lose 1 Influence and about 1 in 7 is lost. Whoever leaves arrives Ready, +1.',
+    short: 'No Inside. Gates: -1 Influence a turn, 1 in 7 lost. Leave: Ready, +1.',
   },
   {
     id: 'charleston_1822',
@@ -101,7 +101,7 @@ export const LOCATIONS: LocationDef[] = [
     effect: { type: 'turncoatAtEnd' },
     weight: 0.35,
     region: 'americas',
-    short: 'At each turn\'s end the lowest Waiting Gate Character here changes sides.',
+    short: 'Turn\'s end: the lowest Waiting Gate Character here changes sides.',
   },
   {
     id: 'lagos',
@@ -112,7 +112,7 @@ export const LOCATIONS: LocationDef[] = [
     effect: { type: 'hub' },
     region: 'africa',
     immuneThreats: ['housing_restriction'],
-    short: 'Relocating out of Lagos is free, and whoever leaves arrives Ready.',
+    short: 'Leaving is free. Leave here: arrive Ready.',
   },
   {
     id: 'gary_indiana',
@@ -122,7 +122,7 @@ export const LOCATIONS: LocationDef[] = [
     blurb: 'Built by U.S. Steel, filled by the Great Migration. Joe Jackson ran a crane at Gary Works and drilled five boys in the living room at 2300 Jackson Street; in 1972 ten thousand people came for the National Black Political Convention.',
     effect: { type: 'steelAndSoul', force: 1, fiveBonus: 1 },
     region: 'americas',
-    short: 'Your Characters here gain +1 Force. Five here: +1 Influence on each.',
+    short: 'Yours here: +1 Force. Five here: +1 Influence each.',
   },
   {
     id: 'justice_system',
@@ -133,7 +133,7 @@ export const LOCATIONS: LocationDef[] = [
     effect: { type: 'lockInside', turns: 2 },
     weight: 0.6,
     region: 'americas',
-    short: 'Once Inside here, a Character cannot relocate out for 2 turns.',
+    short: 'Go Inside: no leaving for 2 turns.',
   },
   {
     id: 'the_tabernacle',
@@ -144,7 +144,7 @@ export const LOCATIONS: LocationDef[] = [
     effect: { type: 'noDisplace' },
     weight: 0.8,
     region: 'americas',
-    short: 'Your Characters here cannot be displaced.',
+    short: 'Yours here cannot be displaced.',
   },
   {
     id: 'montgomery',
@@ -155,7 +155,7 @@ export const LOCATIONS: LocationDef[] = [
     effect: { type: 'relocatedOutReady' },
     weight: 0.9,
     region: 'americas',
-    short: 'Characters who relocate out of Montgomery arrive Ready.',
+    short: 'Leave here: arrive Ready.',
   },
   {
     id: 'oak_bluffs',
@@ -167,7 +167,7 @@ export const LOCATIONS: LocationDef[] = [
     noThreats: true,
     region: 'americas',
     weight: 0.9,
-    short: '2+ Characters Inside at turn\'s end: +1 Energy next turn. No Threats here.',
+    short: '2+ Inside at turn\'s end: +1 Energy next turn. No Threats.',
   },
   {
     id: 'the_stroll',
@@ -180,7 +180,7 @@ export const LOCATIONS: LocationDef[] = [
     effect: { type: 'nightInside', amount: 1 },
     region: 'americas',
     weight: 0.9,
-    short: 'After dark (even turns) your Characters Inside gain +1 Influence.',
+    short: 'After dark (even turns): Inside +1 Influence.',
   },
   {
     id: 'jim_crow',
@@ -193,7 +193,7 @@ export const LOCATIONS: LocationDef[] = [
     effect: { type: 'gatesUncounted' },
     spawnOnReveal: 'segregationist_patrol',
     region: 'americas',
-    short: 'Gate Characters count no Influence here. Only those Inside count.',
+    short: 'Gates count no Influence. Only Inside counts.',
   },
   {
     id: 'cotton_club',
@@ -206,7 +206,7 @@ export const LOCATIONS: LocationDef[] = [
     effect: { type: 'showcase', amount: 1, tag: 'Music', tagBonus: 1 },
     spawnOnReveal: 'color_line',
     region: 'americas',
-    short: 'Your Characters Inside gain +1 Influence, Music Characters +2.',
+    short: 'Inside: +1 Influence. Music: +2.',
   },
   {
     id: 'harlem_renaissance',
@@ -218,7 +218,7 @@ export const LOCATIONS: LocationDef[] = [
       "The Great Migration filled Harlem: by the mid-1920s some 175,000 Black people lived between 125th and 155th Streets, and the neighborhood became the capital of Black America. Alain Locke's anthology The New Negro (1925) named the movement; the Crisis, edited by W. E. B. Du Bois, and Opportunity, edited by Charles S. Johnson, published its writers and ran the prize dinners that introduced them to publishers. Langston Hughes, Zora Neale Hurston, Claude McKay, Countee Cullen, Jessie Fauset and Nella Larsen wrote; Aaron Douglas painted and Augusta Savage sculpted and taught; Duke Ellington's orchestra played the Cotton Club and Fletcher Henderson's the Roseland. Arturo Schomburg's collection, bought for the 135th Street branch library in 1926, gave the movement its archive. Marcus Garvey's UNIA had its headquarters on 135th Street. The Depression cut the money off, the patrons went home, and the riot of March 1935 is the usual end date, though the Apollo had opened in 1934 and the neighborhood's writers and musicians kept working.",
     effect: { type: 'showcase', amount: 0, tag: ['Artist', 'Writer', 'Poet', 'Letters', 'Music', 'Harlem Renaissance'], tagBonus: 2 },
     region: 'americas',
-    short: 'Your writers, artists and musicians Inside gain +2 Influence.',
+    short: 'Writers, artists, musicians Inside: +2 Influence.',
   },
 ];
 
