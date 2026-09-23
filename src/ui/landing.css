@@ -223,7 +223,8 @@
    the rest of the screen), never less than one row of cards. On a tall screen, where two or more rows fit, the
    cards wrap into a grid that scrolls down instead of sideways, so a big presentation shows the deck rather than an
    empty plate. The columns are 91% of a card, the same overlap as the sideways row; the fade moves to the foot. */
-.deck-row { container-type: size; container-name: deckrow; min-height: calc(var(--dk-h) + 36px); }
+.deck-row { container-type: size; container-name: deckrow; min-height: calc(var(--dk-h) + 36px + 12px); } /* + the sideways scroller's bar where it takes room */
+.deck-row:has(.deck-random)::after { content: none; } /* the Random deck has no cards to fade */
 /* From a row and a half of room the grid takes over (the second row showing under the first says there is more).
    The card is capped a few pixels under the sideways size so four of them, overlapping, fit the widest panel (618px);
    the right padding is the last card's overhang past its column, so no card is cut by the scroller's edge. */

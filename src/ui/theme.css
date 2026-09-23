@@ -1979,7 +1979,7 @@ body.board-stomp .battlefield { animation: board-stomp 0.45s cubic-bezier(0.2, 0
      and where the panel is short (a squashed viewport, a two-line rule, the in-effect chip) the rows give height
      first while the seats keep their width. The Threat column mirrors the same four tracks so one Threat spans the
      block, two share it row for row, and three or more stand two abreast on the same footing. */
-  .location.framed .inside-block { flex: 1 1 0; min-height: 0; margin-top: 0; --lbl: calc(clamp(8px, 0.72vw, 11px) * 1.1); --seat-max: calc(var(--slot) * 1.25); --seat-min: 0px; }
+  .location.framed .inside-block { flex: 1 1 0; min-height: 0; margin-top: 0; grid-template-rows: minmax(0, 1fr); --lbl: calc(clamp(8px, 0.72vw, 11px) * 1.1); --seat-max: calc(var(--slot) * 1.25); --seat-min: 0px; }
   .location.framed .inside-rows { height: 100%; display: grid; grid-template-rows: var(--lbl) minmax(var(--seat-min), var(--seat-max)) var(--lbl) minmax(var(--seat-min), var(--seat-max)); align-content: end; row-gap: 0; }
   .location.framed .inside-row { display: contents; }
   .location.framed .row-lbl { height: var(--lbl); line-height: 1.1; padding-top: 0; overflow: hidden; }

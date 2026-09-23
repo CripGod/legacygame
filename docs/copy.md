@@ -893,7 +893,7 @@ In-match: the ⚙ button opens AI reasoning, analytics and the event log. Also e
 Rules
 ### The match
 - Two players, three Locations, eight turns (a 9th if someone Stands on Business), 24-card decks. Four-card opening hand and one draw every turn. Hands hold at most seven cards: a draw into a full hand is discarded.
-- Both players plan at the same time, then Lock It In. Two minutes per turn.
+- Both players plan at the same time, then Lock It In. Ninety seconds per turn.
 - Win Influence at two of the three Locations to win the match.
 ### Playing Characters
 - Every card has an Energy cost. Each turn you get Energy equal to the turn number (Turn 1: 1, Turn 8: 8; The Last Word pays 10); Organizer and Denmark Vesey add +1 while Established, Oak Bluffs pays +1 next turn, a turn never pays more than 12, and unspent Energy does not carry over. Play as many cards as you can pay for and fit. A Character goes to one of your three Gate slots at a Location. Its Reveal ability triggers there.

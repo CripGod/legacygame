@@ -1,7 +1,7 @@
 {
  "format": 1,
  "source": {
-  "commit": "281269e",
+  "commit": "2022f8b",
   "generator": "scripts/export.ts"
  },
  "constants": {
@@ -3983,7 +3983,7 @@
     "afterTurns": 3
    },
    "region": "atlantic",
-   "short": "A ship. Leave here: arrive Ready. In 3 turns it lands in Accra."
+   "short": "A ship. Leave here: arrive Ready. Then it lands in Accra."
   },
   {
    "id": "accra_ghana",
@@ -3997,7 +3997,7 @@
    },
    "notInPool": true,
    "noThreats": true,
-   "short": "Arrive here: Ready. No Threats here."
+   "short": "Relocated here: Ready. No Threats here."
   },
   {
    "id": "great_migration",
@@ -4196,7 +4196,7 @@
    },
    "spawnOnReveal": "color_line",
    "region": "americas",
-   "short": "Inside: +1 Influence. Music: +2."
+   "short": "Inside: +1 Influence. Music Inside: +2."
   },
   {
    "id": "harlem_renaissance",

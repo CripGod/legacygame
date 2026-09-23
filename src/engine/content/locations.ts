@@ -32,7 +32,7 @@ export const LOCATIONS: LocationDef[] = [
     effect: { type: 'relocatedOutReady' },
     transformsInto: { id: 'accra_ghana', afterTurns: 3 },
     region: 'atlantic',
-    short: 'A ship. Leave here: arrive Ready. In 3 turns it lands in Accra.',
+    short: 'A ship. Leave here: arrive Ready. Then it lands in Accra.',
   },
   {
     id: 'accra_ghana',
@@ -44,7 +44,7 @@ export const LOCATIONS: LocationDef[] = [
     effect: { type: 'relocatedInReady' },
     notInPool: true,
     noThreats: true,
-    short: 'Arrive here: Ready. No Threats here.',
+    short: 'Relocated here: Ready. No Threats here.',
   },
   {
     id: 'great_migration',
@@ -206,7 +206,7 @@ export const LOCATIONS: LocationDef[] = [
     effect: { type: 'showcase', amount: 1, tag: 'Music', tagBonus: 1 },
     spawnOnReveal: 'color_line',
     region: 'americas',
-    short: 'Inside: +1 Influence. Music: +2.',
+    short: 'Inside: +1 Influence. Music Inside: +2.',
   },
   {
     id: 'harlem_renaissance',
