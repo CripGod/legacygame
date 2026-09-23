@@ -48,21 +48,23 @@ const SLAM_ENABLED = false;
 /** How long a beat holds after its motion, so a new player can read what just happened: a second more than the motion
  *  itself needs. */
 const BEAT_MS: Record<string, number> = {
+  // The beats with something to read keep their time (the Stand, an Event's card, the stakes, a Turncoat); the
+  // action beats hold only as long as their motion, so the turn moves.
   stand: 2400,
-  reveal: 1600, // after the smashdown (~1.55s)
-  play: 1950,
+  reveal: 600, // after the smashdown (~1.55s)
+  play: 950, // after Harborlight's card has turned (1.8s)
   event: 2300, // after the flash: the tile's own turn (2s, it fades out at the end), then the empty slot fades up
-  revealFx: 2400,
-  enter: 1800,
-  move: 1900,
-  showdown: 1700,
-  summon: 2200,
-  threat: 1700, // the tile arrives in 0.9s and pulses; the sting has played by then
-  spawn: 1600,
+  revealFx: 1400,
+  enter: 800,
+  move: 900,
+  showdown: 700,
+  summon: 1200,
+  threat: 1200, // the tile arrives in 0.9s; the sting has played
+  spawn: 600,
   ready: 250, // the Ready strips: bookkeeping, the briefest settle
-  sundown: 2200,
-  crossing: 2200,
-  turncoat: 2300,
+  sundown: 1200,
+  crossing: 1200,
+  turncoat: 1800,
   info: 600,
   tally: 300, // the turn is counted: nothing moves, the briefest settle before the turn call
   stakes: 2300,
