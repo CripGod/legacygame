@@ -76,4 +76,4 @@ The VP8 twin is copied into the Unity project's Resources at import; the Unity b
 | --- | --- | --- | --- | --- |
 | Paul Laurence Dunbar | `dunbar.webm` | "We wear the mask that grins and lies." | none | A 1080² colour pass over black, keyed by hand and played at twice its speed (six seconds became three) |
 | Harriet Tubman | `harriet.webm` | "I never ran my train off the track, and I never lost a passenger." | yes | ProRes 4444 with alpha, 400², through `npm run cine` |
-| Frederick Douglass | `douglass.webm` | "If there is no struggle, there is no progress." | yes | ProRes 4444 with alpha, 250², 5.5s, through `npm run cine` |
+| Frederick Douglass | `douglass.webm` | "If there is no struggle, there is no progress." | yes | ProRes 4444 with alpha, 400², 6s, through `npm run cine` |
