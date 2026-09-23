@@ -2017,7 +2017,7 @@ body.board-stomp .battlefield { animation: board-stomp 0.45s cubic-bezier(0.2, 0
 .gate-slot.reserved.arriving { --bfill: rgba(79, 209, 138, 0.1); border-style: dashed; }
 .gate-slot.reserved.arriving .pic-img { opacity: 0.45; }
 .gate-slot.reserved .strip.leaving.arriving { background: rgba(20, 110, 55, 0.9); color: #eaffef; }
-.gate-slot.gf.reserved.arriving::before { background-image: var(--gate-on); opacity: 0.55; }
+.gate-slot.gf.reserved.arriving::before { border-image-source: var(--gate-on); opacity: 0.55; }
 /* In the frame the photograph shows more: a lighter wash, the rows still readable against it. */
 .location.framed .loc-bg::after { background: linear-gradient(to bottom, rgba(8, 19, 31, 0.04) 0%, rgba(8, 19, 31, 0.16) 30%, rgba(8, 19, 31, 0.42) 60%, rgba(8, 19, 31, 0.62) 100%); }
 .location.framed.night .loc-bg::after { background: linear-gradient(to bottom, rgba(6, 10, 34, 0.3) 0%, rgba(6, 10, 34, 0.38) 30%, rgba(8, 19, 31, 0.58) 60%, rgba(8, 19, 31, 0.75) 100%); }
