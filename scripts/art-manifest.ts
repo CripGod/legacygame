@@ -13,7 +13,7 @@ const walk = (dir: string) => {
   for (const name of readdirSync(dir).sort()) {
     const full = join(dir, name);
     if (statSync(full).isDirectory()) walk(full);
-    else if (/\.(jpe?g|webp|png|svg)$/i.test(name)) out[relative(root, full).split('\\').join('/')] = createHash('md5').update(readFileSync(full)).digest('hex').slice(0, 8);
+    else if (/\.(jpe?g|webp|png|svg|webm|mp4)$/i.test(name)) out[relative(root, full).split('\\').join('/')] = createHash('md5').update(readFileSync(full)).digest('hex').slice(0, 8);
   }
 };
 walk(root);

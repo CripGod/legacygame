@@ -67,11 +67,12 @@ declare global {
   }
 }
 
-/** A video under public/art/video, by file name ("board.mp4"). */
+/** A video under public/art/video, by file name ("board.mp4"). Versioned like the pictures: the host caches art for a year, so a replaced clip needs a new address. */
 export function videoUrl(file: string): string {
   const inline = typeof window !== 'undefined' ? window.__VIDEO__?.[file] : undefined;
   if (inline) return inline;
-  return `${import.meta.env.BASE_URL}art/video/${file}`;
+  const v = (manifest as Record<string, string>)[`video/${file}`];
+  return `${import.meta.env.BASE_URL}art/video/${file}${v ? `?v=${v}` : ''}`;
 }
 
 export function artUrl(kind: ArtKind, id: string, ext?: 'jpg' | 'webp' | 'png' | 'svg'): string {
