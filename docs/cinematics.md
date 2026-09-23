@@ -83,3 +83,4 @@ The VP8 twin is copied into the Unity project's Resources at import; the Unity b
 | Harriet Tubman | `harriet.webm` | "I never ran my train off the track, and I never lost a passenger." | yes | ProRes 4444 with alpha, 400², through `npm run cine` |
 | Frederick Douglass | `douglass.webm` | "If there is no struggle, there is no progress." | yes | ProRes 4444 with alpha, 400², 6s, through `npm run cine` |
 | Bass Reeves | `reeves.webm` | Deputy U.S. Marshal in the Indian Territory for thirty-two years (an epithet: no quotation of his is well attested) | yes | 16:9, 1280×720, 5.6s, delivered over black, keyed with `cine-key.py`, drawn wide |
+| Bessie Coleman | `coleman.webm` | "The air is the only place free from prejudices." | yes | 16:9, 1280×720, 4s, ProRes 4444 with alpha, through `npm run cine`, drawn wide |

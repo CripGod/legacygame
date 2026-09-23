@@ -147,9 +147,10 @@ export interface BoardFx {
   healBy?: PlayerId | 'both';
 }
 
-const picFx = (fx: BoardFx | null | undefined, uid: string): 'windup' | 'knocked' | 'held' | 'hexed' | 'land' | 'arrive' | 'jolt' | undefined => {
+const picFx = (fx: BoardFx | null | undefined, uid: string): 'windup' | 'knocked' | 'held' | 'hexed' | 'land' | 'arrive' | 'rise' | 'jolt' | undefined => {
   if (!fx) return undefined;
   if (fx.arrive === uid) return 'arrive';
+  if (fx.rise === uid) return 'rise';
   if (fx.jolt?.includes(uid)) return 'jolt';
   if (fx.windup === uid) return 'windup';
   if (fx.flash?.uid === uid) return fx.flash.kind === 'hit' ? 'knocked' : fx.flash.kind;

@@ -1283,7 +1283,8 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 .tile-glow:has(.pic.fx-arrive), .tile-glow:has(.fx-flip), .tile-glow:has(.fx-rise), .tile-glow.event.trigger { z-index: 30; }
 /* Your own card under a cinematic: the same beat as the turn (a moment still, the swell, the hold, the settle) with the
    face up throughout; you played it, there is no back to show you. */
-.gate-slot.gf.filled.fx-rise { animation: fx-rise 1.8s linear both; }
+.gate-slot.gf.filled.fx-rise, .pic.fx-rise { animation: fx-rise 1.8s linear both; }
+.pic.fx-rise { position: relative; z-index: 30; }
 @keyframes fx-rise {
   0%, 20% { transform: scale(1); animation-timing-function: ease-out; }
   33%, 75% { transform: scale(1.32); animation-timing-function: ease-in-out; }
@@ -1321,7 +1322,7 @@ h1.logo-title small { margin-top: 10px; font-size: 11px; letter-spacing: 0.16em;
 @media (prefers-reduced-motion: reduce) {
   .pic.fx-windup, .pic.fx-knocked, .pic.fx-held, .pic.fx-hexed, .pic.fx-land, .pic.fx-arrive, .pic.fx-jolt { animation: none; }
   .pic.fx-arrive::after, .gate-slot.event-slot .back, .gate-slot.fx-flip > .back { display: none; }
-  .gate-slot.gf.filled.fx-flip, .gate-slot.gf.filled.fx-rise { animation: none; }
+  .gate-slot.gf.filled.fx-flip, .gate-slot.gf.filled.fx-rise, .pic.fx-rise { animation: none; }
   .pic.fx-knocked::after, .pic.fx-held::after, .pic.fx-hexed::after { animation: none; opacity: 0; }
 }
 

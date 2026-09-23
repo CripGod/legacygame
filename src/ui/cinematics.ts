@@ -26,6 +26,8 @@ export const CINEMATICS: Record<string, Cinematic> = {
   frederick_douglass: { clip: 'douglass.webm', line: 'If there is no struggle, there is no progress.', sound: true },
   // No quotation of Reeves's own is well attested (he could not read or write; the papers paraphrased him), so a fact.
   bass_reeves: { clip: 'reeves.webm', epithet: 'Deputy U.S. Marshal in the Indian Territory for thirty-two years.', sound: true, wide: true },
+  // Her line on flying, as the Black press of the 1920s carried it.
+  bessie_coleman: { clip: 'coleman.webm', line: 'The air is the only place free from prejudices.', sound: true, wide: true },
 };
 
 /** A clip's sound, brought to -20 LUFS by `npm run cine`, plays at this volume: level with the game's own cues. */
