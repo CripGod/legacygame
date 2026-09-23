@@ -991,9 +991,6 @@ window.clearTimeout(id);
 window.removeEventListener('resize', measure);
 r.reason === 'locations' ? (r.sweep ? 'All three Locations: a clean sweep.' : 'Two of three Locations.') : r.reason === 'tiebreak-influence' ? 'One Location each: total Influence decides.' : r.reason === 'tiebreak-force' ? 'Tied on Influence: total Force decides.' : r.reason === 'stepOff' ? (mineWon ? `$… sat down.` : 'You sat down.') : 'Nothing separates them.';
 = 2 ? (collapsed ? 'lift' : 'docked') : ''} style={{ '--dock': `$…px` } as React.CSSProperties} aria-live="assertive">
-onCollapse(false)}>
-Show result
-Play again
 … Turn ….
 0 ? 'gain' : ''}>
 Your Legacy
@@ -1013,10 +1010,10 @@ Menu
 
 ### src/ui/screens/MatchScreen.tsx
 
-- We wear the mask that grins and lies.
 - (prefers-reduced-motion: reduce)
 - [data-uid="${uid}"], [data-threat="${uid}"]
 - Last turn unless someone stands
+- s play carries their plate. `alive` is the beat
 - s art, swells, then jumps into that side
 - .column[data-index="${location}"] .art
 - .column[data-index="${location}"] .score.p${side}
@@ -1068,8 +1065,9 @@ Menu
 - ${who} ${def.name}${step.location !== undefined ? 
 - Location ${step.location + 1}
 - s hand flips face up in its slot as its beat opens; a Character
-- s cinematic grows out of his tile
+- s cinematic (CINEMATICS, docs/cinematics.md) grows out of its tile
 - .column[data-index="${i}"] .art
+- s cinematic now, out of its tile when it is on the board (window.__sobCine(
 - ${adef.name} beats ${vdef.name} (${adef.force} Force against ${vdef.force}) and knocks them away to the Gates of another Location.
 - .column[data-index="${to}"] .gates
 - s arrival flash (window.__sobArrival(
@@ -1176,9 +1174,10 @@ Menu
 - turn-mini ${finalTurnLabel(view) ? 'final' : ''}
 - T${Math.min(view.turn, view.maxTurns)}/${view.maxTurns}
 - turn-flash ${(finalTurnLabel(view, false, true) ?? '').length > 8 ? 'wide' : ''}
-- cine ${cine.leaving ? 'leaving' : ''} ${cine.from ? 'from-tile' : ''}
+- cine ${cine.read ? 'read' : ''} ${cine.leaving ? 'leaving' : ''} ${cine.from ? 'from-tile' : ''} ${cine.by && cine.by !== me ? 'theirs' : ''} ${CINEMATICS[cine.card]?.wide ? 'wide' : ''}
 - ${cine.from.left + cine.from.width / 2}px
 - ${cine.from.top + cine.from.height / 2}px
+- s sound setting (live: a toggle mid-clip takes). The file is the element
 - card-flash p${arrival.owner} ${arrival.leaving ? 'leaving' : ''}
 - drag-ghost ${drag.payload.kind === 'card' ? 'card-ghost' : ''} ${drag.pointerType !== 'mouse' ? 'touch' : ''} ${drag.returning ? 'returning' : ''} ${drag.snap ? 'snap' : ''}
 - You give up the match, now. ${view.players[other(me)].handle} takes ${opts.stepOffCost} Legacy.${raisedOnMe ? 
@@ -1710,7 +1709,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - ${hd.name} ${s.held.why} when you Lock It In. The slot stays taken until then.
 - strip leaving ${s.held.arriving ? 'arriving' : ''}
 - tile-glow owner-${owner} ${focus?.includes(s.uid) ? 'focus' : ''}
-- gate-slot filled gf owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''} ${fx?.arrive === s.uid ? 'fx-flip' : ''} ${guarded ? 'protected' : ''} ${shield ? 'shielded' : ''}
+- gate-slot filled gf owner-${owner} ${planned || moving ? 'preview' : ''} ${flash === 'enter' && owner === me && s.ready ? 'ftue-flash' : ''} ${fx?.hidden.includes(s.uid) ? 'fx-hidden' : ''} ${fx?.arrive === s.uid ? 'fx-flip' : ''} ${fx?.rise === s.uid ? 'fx-rise' : ''} ${fx?.settle === s.uid ? 'fx-settle' : ''} ${guarded ? 'protected' : ''} ${shield ? 'shielded' : ''}
 - Under protection: ${protectionReason(view, s) ?? 'cannot be displaced this turn'}. More in the rules.
 - stamp verdict ${fx.stamp.tone ?? 'hit'}
 - Your Event slot here: drop an Event card on this Location. One per Location per turn. A deck carries at most two Events: you have ${evLeft} of ${evTotal} left.
@@ -1732,6 +1731,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - ${tdef.name}, aimed at you. ${tdef.text}
 - ${tdef.name}, aimed at ${view.players[other(me)].handle}. ${tdef.text}
 - stamp verdict ${stamp.tone ?? 'hit'}
+- loc-rule ${clipped ? 'clipped' : ''}
 - healing${fx?.healBy && fx.healBy !== 'both' ? 
 -  : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''} ${fx?.slam === loc.index ? 'slam' : ''}
 - Play here: ${loc.revealed ? locationName(loc.defId, placeholders) : 
@@ -1746,8 +1746,8 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - lost-tag teamup ${t.owner === me ? 'mine' : 'theirs'}
 - Team-up, ${TEAM_UP_BY_ID[t.id].name} (${view.players[t.owner].handle}): ${TEAM_UP_BY_ID[t.id].text} It holds while both remain Inside.
 - line ${winner && winner !== 'lost' ? 
+- s at the top (their row), the area
 - threat-col ${has ? '' : 'empty'}
-- loc-rule ${loc.revealed && !loc.lost && (def.short ?? def.rule).length > 115 ? 'long' : ''}
 - LOST: ${loc.lostReason ?? 'an unresolved crisis'} Neither player can win here.
 - Hidden until revealed. Commit blind.
 
@@ -1773,7 +1773,7 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - Quick chat: emotes and Summon.
 - bubble ${right ? 'right' : ''}
 - sob-seat ${ramp ? 'ramp' : ''}
-- sob ${stand.on ? 'on' : ''} ${stand.stood ? 'stood' : ''} ${stand.between ? 'between' : ''} ${stand.flash ? 'ftue-flash' : ''} ${stand.slam ? 'slam' : ''} ${stand.urge ? 'urge' : ''}
+- sob ${stand.on ? 'on' : ''} ${stand.stood ? 'stood' : ''} ${stand.between ? 'between' : ''} ${stand.flash ? 'ftue-flash' : ''} ${stand.slam ? 'slam' : ''} ${stand.urge ? 'urge' : ''} ${stand.opening && !stand.disabled && !stand.on && !stand.stood ? 'opening' : ''}
 
 ### src/ui/display.ts
 

@@ -1979,7 +1979,7 @@ body.board-stomp .battlefield { animation: board-stomp 0.45s cubic-bezier(0.2, 0
      and where the panel is short (a squashed viewport, a two-line rule, the in-effect chip) the rows give height
      first while the seats keep their width. The Threat column mirrors the same four tracks so one Threat spans the
      block, two share it row for row, and three or more stand two abreast on the same footing. */
-  .location.framed .inside-block { flex: 1 1 0; min-height: 0; margin-top: 0; --lbl: calc(clamp(8px, 0.72vw, 11px) * 1.1); --seat-max: calc(var(--slot) * 1.25); --seat-min: calc(var(--slot) * 0.5); }
+  .location.framed .inside-block { flex: 1 1 0; min-height: 0; margin-top: 0; --lbl: calc(clamp(8px, 0.72vw, 11px) * 1.1); --seat-max: calc(var(--slot) * 1.25); --seat-min: 0px; }
   .location.framed .inside-rows { height: 100%; display: grid; grid-template-rows: var(--lbl) minmax(var(--seat-min), var(--seat-max)) var(--lbl) minmax(var(--seat-min), var(--seat-max)); align-content: end; row-gap: 0; }
   .location.framed .inside-row { display: contents; }
   .location.framed .row-lbl { height: var(--lbl); line-height: 1.1; padding-top: 0; overflow: hidden; }
@@ -2001,14 +2001,17 @@ body.board-stomp .battlefield { animation: board-stomp 0.45s cubic-bezier(0.2, 0
 .location.framed .influence { padding: 3px 8px 1px; gap: 8px; }
 .location.framed .influence .score { width: clamp(24px, min(2.7vw, 4vh), 34px); height: clamp(24px, min(2.7vw, 4vh), 34px); font-size: clamp(12px, min(1.4vw, 2vh), 17px); }
 .location.framed .slots { padding: 1px 0 2px calc(var(--slot) * 0.2); gap: calc(var(--slot) * 0.12); }
-.location.framed .loc-rule { margin: 2px 10px 0; font-size: clamp(8px, 0.8vw, 12px); line-height: 1.25; }
+.location.framed .loc-rule { margin: 2px 10px 0; font-size: clamp(11px, 0.95vw, 15px); line-height: 1.3; }
 /* The rule box is one constant height (two lines) whatever the Location says, so the Inside seats never move when a
    Location reveals or changes and the three columns share one layout. Long rules take a smaller face; the sheet has
    the whole text either way (tap the box). */
-.location.framed { --rule-h: calc(2.5 * clamp(8px, 0.8vw, 12px) + 6px); }
-.location.framed .loc-rule { -webkit-line-clamp: 2; height: var(--rule-h); min-height: var(--rule-h); box-sizing: border-box; }
-.location.framed .loc-rule.long { font-size: clamp(8px, 0.7vw, 10.5px); line-height: calc((var(--rule-h) - 6px) / 2); padding-top: 3px; }
-@media (max-width: 700px) { .location.framed .loc-rule.long { font-size: 8.5px; } }
+/* Two lines of the bigger text; what does not fit is clipped behind a MORE link that opens the sheet. */
+.location.framed { --rule-h: calc(2 * 1.3 * clamp(11px, 0.95vw, 15px) + 8px); }
+.location.framed .loc-rule { position: relative; display: block; height: var(--rule-h); min-height: var(--rule-h); box-sizing: border-box; overflow: hidden; -webkit-line-clamp: unset; }
+.loc-rule .loc-rule-text { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; height: 100%; }
+.loc-rule.clipped .loc-rule-text { -webkit-line-clamp: 2; }
+.loc-rule .loc-more { position: absolute; right: 8px; bottom: 3px; padding: 0 4px 0 22px; font-family: var(--display); font-weight: 700; font-size: 0.8em; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold-2); background: linear-gradient(90deg, rgba(6, 12, 22, 0), rgba(6, 12, 22, 0.96) 40%); cursor: pointer; }
+.loc-rule.clipped .loc-rule-text { padding-right: 3.6em; }
 
 /* Where a piece is going: its ghost at the Gates it arrives at, dashed, with the lit frame faint, and an Arriving strip. */
 .gate-slot.reserved.arriving { --bfill: rgba(79, 209, 138, 0.1); border-style: dashed; }
@@ -2141,7 +2144,7 @@ body.board-stomp .battlefield { animation: board-stomp 0.45s cubic-bezier(0.2, 0
   .location.framed { --rule-h: 0px; }
   .gates-strip .lbl { display: none; }
   .gates-strip.mine .lbl { display: none; }
-  .location.framed .inside-block { --seat-max: calc(var(--slot) * 0.82); --seat-min: calc(var(--slot) * 0.38); --lbl: calc(clamp(8px, 0.66vw, 10px) * 1.05); }
+  .location.framed .inside-block { --seat-max: calc(var(--slot) * 0.82); --seat-min: 0px; --lbl: calc(clamp(8px, 0.66vw, 10px) * 1.05); }
   .location.framed .threat-col { max-height: 100%; overflow: hidden; }
   .location.framed .threat-col .threat-tile { min-height: 0; max-height: calc(var(--seat-max) * 2 + var(--lbl) * 2); }
   .location.framed .threat-col .threat-tile .threat-name { font-size: clamp(7px, 0.6vw, 9px); line-height: 1.05; }

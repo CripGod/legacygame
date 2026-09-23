@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState , useLayoutEffect } from 'react';
 import {
   charsAt,
   influenceAt,
@@ -433,6 +433,38 @@ function ThreatTile({ t, view, me, plan, drop, flash, onThreat, gone, goneWhy, h
   );
 }
 
+/**
+ * The Location's rule in one line or two, big enough to read from the chair. When the box cannot hold it, the text is
+ * clipped and a MORE link opens the Location's sheet, where the whole rule and its history live.
+ */
+function LocRule({ text, onOpen }: { text: string; onOpen: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [clipped, setClipped] = useState(false);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const check = () => setClipped(el.scrollHeight > el.clientHeight + 1);
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [text]);
+  return (
+    <div
+      className={`loc-rule ${clipped ? 'clipped' : ''}`}
+      onClick={(e) => {
+        e.stopPropagation();
+        onOpen();
+      }}
+    >
+      <div className="loc-rule-text" ref={ref}>
+        {text}
+      </div>
+      {clipped && <b className="loc-more">More ›</b>}
+    </div>
+  );
+}
+
 /** Established abilities live at a Location: a count per player; tap for the full list. */
 function InEffect({ view, index, me, onOpen }: { view: GameState; index: number; me: PlayerId; onOpen: () => void }) {
   const counts = (['A', 'B'] as PlayerId[]).map((p) => ({ p, n: liveAbilities(view, index, p).length }));
@@ -663,15 +695,10 @@ export function Battlefield(props: BattlefieldProps) {
                 );
               })()}
               <InEffect view={view} index={loc.index} me={me} onOpen={() => onLocationInfo(loc.index)} />
-              <div
-                className={`loc-rule ${loc.revealed && !loc.lost && (def.short ?? def.rule).length > 115 ? 'long' : ''}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onLocationInfo(loc.index);
-                }}
-              >
-                {loc.lost ? `LOST: ${loc.lostReason ?? 'an unresolved crisis'} Neither player can win here.` : loc.revealed ? (def.short ?? def.rule) : 'Hidden until revealed. Commit blind.'}
-              </div>
+              <LocRule
+                text={loc.lost ? `LOST: ${loc.lostReason ?? 'an unresolved crisis'} Neither player can win here.` : loc.revealed ? (def.short ?? def.rule) : 'Hidden until revealed. Commit blind.'}
+                onOpen={() => onLocationInfo(loc.index)}
+              />
             </div>
             </div>
             <GateStrip {...common} owner={me} index={loc.index} label="The Gates" />
