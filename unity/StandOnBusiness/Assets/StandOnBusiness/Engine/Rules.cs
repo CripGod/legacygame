@@ -37,7 +37,7 @@ namespace StandOnBusiness.Engine
         public const int MaxStakes = 16;
         public static readonly int[] StandMultipliers = { 4, 4, 3, 3, 3, 2, 2, 2, 2 };
         public const int WaveFromTurn = 3;
-        public const double LaterWaveChance = 0.6;
+        public const double LaterWaveChance = 0.45;
 
         /// <summary>A clean sweep pays half the Legacy again on top of the stakes, rounded up.</summary>
         public static int SweepBonus(int stakes) => (stakes + 1) / 2;

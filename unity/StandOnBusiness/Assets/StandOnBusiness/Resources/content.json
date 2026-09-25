@@ -1,7 +1,7 @@
 {
  "format": 1,
  "source": {
-  "commit": "2022f8b",
+  "commit": "ca0b941",
   "generator": "scripts/export.ts"
  },
  "constants": {
@@ -46,7 +46,7 @@
    2
   ],
   "WAVE_FROM_TURN": 3,
-  "LATER_WAVE_CHANCE": 0.6
+  "LATER_WAVE_CHANCE": 0.45
  },
  "characters": [
   {

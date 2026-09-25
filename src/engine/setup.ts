@@ -139,9 +139,9 @@ export function drawCard(state: GameState, p: PlayerId, events?: GameEvent[]): s
   return card;
 }
 
-/** History moves on Turn 3 for certain, and on every turn after, to the last, in this share of turns: it does not stop. */
+/** History moves on Turn 3 for certain, and on every turn after, to the last, in this share of turns (just under half): it does not stop. */
 export const WAVE_FROM_TURN = 3;
-export const LATER_WAVE_CHANCE = 0.6;
+export const LATER_WAVE_CHANCE = 0.45;
 
 /** `force`: a Threat already on its way (a Mob carried into a retold Location) ignores the new story's protections. */
 export function spawnThreat(state: GameState, location: number, threatId: string, events: GameEvent[], force = false): void {
@@ -307,7 +307,7 @@ export function startTurn(state: GameState, events: GameEvent[]): void {
     }
   }
   // "History moves": on Turn 3 a random neutral Threat appears at a revealed Location without one, and on every turn
-  // after, to the last, history moves again in most turns (LATER_WAVE_CHANCE): it does not stop.
+  // after, to the last, history moves again in just under half the turns (LATER_WAVE_CHANCE): it does not stop.
   const wave = state.turn === WAVE_FROM_TURN || (state.turn > WAVE_FROM_TURN && nextFloat(state.rng) < LATER_WAVE_CHANCE);
   if (wave && state.revealOrder.length > 0) {
     const candidates = state.locations.filter((l) => l.revealed && !l.lost && l.threats.length === 0);

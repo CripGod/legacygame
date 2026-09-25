@@ -1,7 +1,7 @@
 {
  "format": 2,
  "source": {
-  "commit": "e11a535",
+  "commit": "ca0b941",
   "generator": "scripts/golden.ts"
  },
  "matches": [
@@ -23,7 +23,7 @@
     "B": "mirror"
    },
    "turns": 9,
-   "winner": "B"
+   "winner": "A"
   },
   {
    "file": "seed-0003.json",
@@ -43,7 +43,7 @@
     "B": "railroad"
    },
    "turns": 8,
-   "winner": "A"
+   "winner": "B"
   },
   {
    "file": "seed-0005.json",
@@ -72,8 +72,8 @@
     "A": "blackstar",
     "B": "mirror"
    },
-   "turns": 8,
-   "winner": "B"
+   "turns": 9,
+   "winner": "A"
   },
   {
    "file": "seed-0008.json",
@@ -93,7 +93,7 @@
     "B": "railroad"
    },
    "turns": 8,
-   "winner": "A"
+   "winner": "B"
   },
   {
    "file": "seed-0010.json",
@@ -103,7 +103,7 @@
     "B": "pantheon"
    },
    "turns": 8,
-   "winner": "B"
+   "winner": "A"
   },
   {
    "file": "seed-0011.json",
@@ -142,7 +142,7 @@
     "A": "pantheon",
     "B": "railroad"
    },
-   "turns": 9,
+   "turns": 8,
    "winner": "A"
   },
   {
@@ -152,7 +152,7 @@
     "A": "mirror",
     "B": "pantheon"
    },
-   "turns": 6,
+   "turns": 9,
    "winner": "B"
   },
   {
@@ -162,7 +162,7 @@
     "A": "railroad",
     "B": "blackstar"
    },
-   "turns": 7,
+   "turns": 9,
    "winner": "A"
   },
   {
@@ -232,7 +232,7 @@
     "A": "caiman",
     "B": "caiman"
    },
-   "turns": 9,
+   "turns": 8,
    "winner": "B"
   },
   {
@@ -252,8 +252,8 @@
     "A": "mirror",
     "B": "pantheon"
    },
-   "turns": 9,
-   "winner": "A"
+   "turns": 7,
+   "winner": "B"
   },
   {
    "file": "seed-0026.json",
@@ -293,7 +293,7 @@
     "B": "railroad"
    },
    "turns": 9,
-   "winner": "B"
+   "winner": "A"
   },
   {
    "file": "seed-0030.json",
@@ -302,7 +302,7 @@
     "A": "mirror",
     "B": "pantheon"
    },
-   "turns": 9,
+   "turns": 8,
    "winner": "B"
   },
   {
@@ -332,7 +332,7 @@
     "A": "caiman",
     "B": "caiman"
    },
-   "turns": 8,
+   "turns": 9,
    "winner": "B"
   },
   {
