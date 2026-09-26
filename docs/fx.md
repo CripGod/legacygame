@@ -42,9 +42,10 @@ every port, and the editor can scrub. The seed fixes the birth values; the game 
 
 ## The editor
 
-`npm run dev`, then `?fx=1`. Pick a preset, play or loop it over the stand-in, scrub with the slider, slow it to 0.5,
-0.25 or 0.1×, pick a tint, change any value and watch, **reset to saved** to go back, **copy JSON**, or **save** to
-write `src/ui/fx/presets/<id>.json` (the dev server only; the game reloads it). A new effect is a new file listed in
+Open it from the landing page's footer (**Effects editor**) or with `?fx=1`. Pick a preset, play or loop it over the stand-in, scrub with the slider, slow it to 0.5,
+0.25 or 0.1×, pick a tint, change any value and watch, **reset to saved** to go back, **copy JSON**, or **save**. Save always keeps a copy in this browser, which the game there plays from then on (so the preview
+and the live site are working editors); on the dev server it also writes `src/ui/fx/presets/<id>.json`. **Back to
+shipped** drops the browser copy. To make a tuned preset permanent from the preview, copy the JSON and hand it over. A new effect is a new file listed in
 `src/ui/fx/presets.ts`. `tests/fx.test.ts` validates every preset.
 
 ## Presets

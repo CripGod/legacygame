@@ -91,7 +91,7 @@ export function App() {
   };
   return (
     <DisplayContext.Provider value={{ placeholders: opts.placeholders }}>
-      {screen === 'start' && <StartScreen onPlay={start} onRules={() => setScreen('rules')} onCards={(chapter) => { setCardsChapter(chapter ?? null); setScreen('cards'); }} initialDev={opts.dev} />}
+      {screen === 'start' && <StartScreen onPlay={start} onRules={() => setScreen('rules')} onFx={() => setScreen('fx')} onCards={(chapter) => { setCardsChapter(chapter ?? null); setScreen('cards'); }} initialDev={opts.dev} />}
       {screen === 'rules' && <RulesScreen onBack={() => setScreen('start')} />}
       {screen === 'cards' && <CardsScreen onBack={() => setScreen('start')} initialRefs={refsLink} initialChapter={cardsChapter} />}
       {screen === 'fx' && <FxEditor onBack={() => setScreen('start')} />}

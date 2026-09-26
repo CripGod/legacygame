@@ -291,7 +291,7 @@ function DeckPanel({ side, label, value, onChange, open, onToggle, onOpenCard }:
   );
 }
 
-export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: (o: StartOptions) => void; onRules: () => void; onCards: (chapter?: string) => void; initialDev: boolean }) {
+export function StartScreen({ onPlay, onRules, onCards, onFx, initialDev }: { onPlay: (o: StartOptions) => void; onRules: () => void; onCards: (chapter?: string) => void; onFx?: () => void; initialDev: boolean }) {
   const [dev, setDev] = useState(initialDev);
   // Dev: ?legacy=N grants N Legacy once per page load, to review ranks without playing.
   useEffect(() => {
@@ -597,6 +597,11 @@ export function StartScreen({ onPlay, onRules, onCards, initialDev }: { onPlay: 
           <button className="link" onClick={() => setDev((d) => !d)}>
             {dev ? 'Hide developer tools' : 'Developer tools'}
           </button>
+          {onFx && (
+            <button className="link" onClick={onFx}>
+              Effects editor
+            </button>
+          )}
         </div>
         {dev && (
           <div className="dev">

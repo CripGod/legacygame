@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Fx } from './Fx';
-import { PRESETS, PRESET_IDS } from './presets';
+import { PRESETS, PRESET_IDS, clearBrowserCopy, getPreset, hasBrowserCopy, saveBrowserCopy } from './presets';
 import { validatePreset, type Curve, type Emitter, type FxPreset, type Gradient, type Range } from './schema';
 import { TRAIL_COLORS } from '../components/Trails';
 import './fx.css';
@@ -161,7 +161,8 @@ const NEW_EMITTER: Emitter = {
 
 export function FxEditor({ onBack }: { onBack: () => void }) {
   const [id, setId] = useState(PRESET_IDS[0]);
-  const [draft, setDraft] = useState<FxPreset>(() => clone(PRESETS[PRESET_IDS[0]]));
+  const [draft, setDraft] = useState<FxPreset>(() => clone(getPreset(PRESET_IDS[0])));
+  const [browserCopy, setBrowserCopy] = useState(() => hasBrowserCopy(PRESET_IDS[0]));
   const [tint, setTint] = useState(TRAIL_COLORS.A);
   const [speed, setSpeed] = useState(1);
   const [loop, setLoop] = useState(true);
@@ -173,7 +174,8 @@ export function FxEditor({ onBack }: { onBack: () => void }) {
   const anchorRef = useRef<HTMLDivElement>(null);
   const errors = useMemo(() => validatePreset(draft), [draft]);
   const [aw, ah] = ANCHOR_SIZE[draft.anchor] ?? ANCHOR_SIZE.location;
-  const dirty = JSON.stringify(draft) !== JSON.stringify(PRESETS[id]);
+  const dirty = JSON.stringify(draft) !== JSON.stringify(getPreset(id));
+  const offShipped = JSON.stringify(draft) !== JSON.stringify(PRESETS[id]);
 
   useLayoutEffect(() => {
     const measure = () => anchorRef.current && setRect(anchorRef.current.getBoundingClientRect());
@@ -184,7 +186,8 @@ export function FxEditor({ onBack }: { onBack: () => void }) {
 
   const pick = (next: string) => {
     setId(next);
-    setDraft(clone(PRESETS[next]));
+    setDraft(clone(getPreset(next)));
+    setBrowserCopy(hasBrowserCopy(next));
     setFreezeAt(undefined);
     setPlayKey((k) => k + 1);
     setNote('');
@@ -194,8 +197,15 @@ export function FxEditor({ onBack }: { onBack: () => void }) {
     setPlayKey((k) => k + 1);
   };
   const reset = () => {
-    setDraft(clone(PRESETS[id]));
+    setDraft(clone(getPreset(id)));
     setNote('Back to the saved values.');
+    play();
+  };
+  const shipped = () => {
+    clearBrowserCopy(id);
+    setBrowserCopy(false);
+    setDraft(clone(PRESETS[id]));
+    setNote('Back to the shipped file; the browser copy is gone.');
     play();
   };
   const copy = async () => {
@@ -204,12 +214,16 @@ export function FxEditor({ onBack }: { onBack: () => void }) {
   };
   const save = async () => {
     if (errors.length) return setNote(`Not saved: ${errors[0]}`);
+    // Always the browser copy (the game here plays it); on the dev server the file as well.
+    const kept = saveBrowserCopy(draft);
+    setBrowserCopy(kept);
+    if (!import.meta.env.DEV) return setNote(kept ? 'Saved in this browser: matches here play it. Copy JSON to make it permanent.' : 'Could not save: this browser blocks storage.');
     try {
       const r = await fetch('/__fx/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(draft) });
       const j = (await r.json()) as { ok?: boolean; error?: string };
-      setNote(j.ok ? `Saved src/ui/fx/presets/${draft.id}.json` : `Not saved: ${j.error ?? r.status}`);
+      setNote(j.ok ? `Saved src/ui/fx/presets/${draft.id}.json` : `Not saved to the file: ${j.error ?? r.status}`);
     } catch (e) {
-      setNote(`Not saved: ${String(e)}`);
+      setNote(`Not saved to the file: ${String(e)}`);
     }
   };
   const total = Math.max(draft.duration, ...draft.emitters.map((e) => e.spawn.max + e.life.max));
@@ -312,14 +326,17 @@ export function FxEditor({ onBack }: { onBack: () => void }) {
           <button type="button" className="fx-btn ghost" onClick={copy}>
             copy JSON
           </button>
-          {import.meta.env.DEV && (
-            <button type="button" className="fx-btn" onClick={save} disabled={!dirty || errors.length > 0}>
-              save
+          <button type="button" className="fx-btn" onClick={save} disabled={!dirty || errors.length > 0}>
+            save
+          </button>
+          {browserCopy && (
+            <button type="button" className="fx-btn ghost" onClick={shipped}>
+              back to shipped
             </button>
           )}
         </div>
         {note && <div className="fx-note">{note}</div>}
-        {!import.meta.env.DEV && <div className="fx-muted small">Saving needs the dev server (npm run dev); here, copy the JSON into src/ui/fx/presets/{draft.id}.json.</div>}
+        {browserCopy && <div className="fx-muted small">A copy saved in this browser is in force{offShipped ? ' (it differs from the shipped file)' : ''}; matches played here use it. Copy JSON to have it committed.</div>}
       </aside>
     </div>
   );

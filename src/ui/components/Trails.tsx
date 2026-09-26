@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { drawSim, makeSim, type Sim } from '../fx/engine';
-import { PRESETS } from '../fx/presets';
+import { getPreset } from '../fx/presets';
 
 /**
  * Particle tellings on a fixed canvas over the whole viewport; nothing here touches the game state. Three looks, so
@@ -228,7 +228,7 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
       const landAt = LAUNCH_SPREAD_MS * 0.6 + FLY_MS;
       landings.push({ ...land, start: landAt, color: shots[i].color, label: shots[i].label });
       // The landing's embers: the 'ember-landing' preset (src/ui/fx), tunable in the editor (?fx=1), in the shot's colour.
-      emberSims.push({ sim: makeSim(PRESETS['ember-landing'], shots[i].to, { tint: shots[i].color, seed: 1234567 + i * 7919 }), at: landAt });
+      emberSims.push({ sim: makeSim(getPreset('ember-landing'), shots[i].to, { tint: shots[i].color, seed: 1234567 + i * 7919 }), at: landAt });
     }
     // Sprays: sparks flung from the struck tile, falling as they die.
     const sparks: Spark[] = [];
