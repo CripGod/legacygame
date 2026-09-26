@@ -203,6 +203,8 @@ export interface CharacterDef {
   blurb: string;
   /** Longer factual history, or origins and tradition for Mythic characters. */
   history?: string;
+  /** For a card whose Reveal asks the player for something (Harriet's passenger): when and how to use it, on its page. */
+  howTo?: string;
 }
 
 /** Every Event is played into the Event slot under a Location (one per Location per player per turn). It resolves everywhere, and `bonus` says what the Location adds. */

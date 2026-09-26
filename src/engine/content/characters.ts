@@ -35,6 +35,7 @@ export const CHARACTERS: CharacterDef[] = [
     era: '1822–1913',
     blurb: 'Conductor of the Underground Railroad who returned again and again to bring people out.',
     history: 'Born Araminta Ross into slavery in Dorchester County, Maryland, around 1822, Harriet Tubman escaped in 1849 and then returned to the South roughly thirteen times, guiding about seventy people to freedom on the Underground Railroad and never losing a passenger. During the Civil War she worked for the Union Army as a nurse, scout and spy, and in June 1863 she guided the Combahee River Raid that freed more than seven hundred people, the first woman to lead an armed assault in the war. She spent her later years in Auburn, New York, campaigning for women\'s suffrage and running a home for the elderly.',
+    howTo: "On the turn you play her, during planning. Drop Harriet on a Location, then drag one of your Characters already on the board, at the Gates or Inside anywhere, onto a different Location: that is her passenger (optional; lock in without one and she simply arrives). As the turn plays out she fires before anyone walks Inside, and the passenger lands straight Inside the destination, or at its Gates, Ready, if the Inside is full. It costs no Relocation and pulls a piece out of a curfew or The Justice System's hold. She cannot carry a Character already moving this turn, or an Informant, and she never conducts again on later turns: on the board, her power is the Established one.",
   },
   {
     kind: 'character',

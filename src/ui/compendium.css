@@ -1022,3 +1022,8 @@ a.cx-refs-link { display: inline-block; width: auto; justify-self: start; align-
 .cx-status { justify-content: center; margin-bottom: 8px; }
 .cx-chip.cx-shield { border-color: rgba(150, 225, 255, 0.75); color: #dff4ff; background: rgba(18, 62, 92, 0.92); box-shadow: 0 0 12px rgba(120, 200, 240, 0.35), inset 0 0 0 1px rgba(0, 0, 0, 0.4); font-family: var(--font); font-weight: 600; font-size: 12.5px; letter-spacing: 0; text-transform: none; text-align: left; max-width: 44ch; white-space: normal; line-height: 1.35; padding: 6px 12px; }
 .cx-chip.cx-shield em { font-style: italic; font-weight: 500; opacity: 0.75; margin-left: 4px; }
+
+/* How to play: a card whose Reveal asks the player for something carries its instructions under the card, on the dark stage. */
+.cx-stage .cx-howto { margin: 0; max-width: none; color: #ece4d2; background: linear-gradient(90deg, rgba(233, 185, 58, 0.18), rgba(233, 185, 58, 0.05)); border-left-color: var(--gold-2); font-size: 15px; line-height: 1.5; text-align: left; }
+.cx-stage .cx-howto p { font-size: 15px; line-height: 1.5; color: #ece4d2; }
+.cx-stage .cx-howto .cx-note-tag { color: var(--gold-2); text-transform: uppercase; letter-spacing: 0.12em; }

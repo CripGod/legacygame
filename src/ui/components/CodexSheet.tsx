@@ -27,8 +27,19 @@ export function CodexSheet({ id, label, onClose, children, flat, siblings, onNav
   if (!def) return null;
   const mythic = def.kind === 'character' && def.category === 'mythic';
   const history = placeholders ? undefined : def.history;
+  // A card whose Reveal asks the player for something opens with its instructions beside it; History swaps them for the story.
+  const howTo =
+    !placeholders && def.kind === 'character' && def.howTo ? (
+      <div className="cx-info">
+        <div className="cx-note cx-howto">
+          <span className="cx-note-tag">How to play</span>
+          <p>{def.howTo}</p>
+        </div>
+      </div>
+    ) : undefined;
   return (
     <Stage
+      info={howTo}
       name={cardName(id, placeholders)}
       label={label}
       onClose={onClose}
