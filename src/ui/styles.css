@@ -210,6 +210,10 @@ button.small { min-height: 34px; padding: 6px 12px; font-size: 13px; }
   background: rgba(0,0,0,0.7); color: #fff; text-align: center; padding: 1px 0; white-space: nowrap; overflow: hidden;
 }
 .pic .strip.ready { background: var(--ok); color: #062; }
+/* Resolving: the turn is locked or playing out, so a Ready piece cannot be touched. Steel, not green, breathing like the clock. */
+.pic .strip.resolving { background: rgba(126, 146, 176, 0.92); color: #0b1424; animation: strip-breathe 1.4s ease-in-out infinite; }
+@keyframes strip-breathe { 0%, 100% { filter: brightness(0.85); } 50% { filter: brightness(1.35); } }
+@media (prefers-reduced-motion: reduce) { .pic .strip.resolving { animation: none; } }
 .pic .strip.entering, .pic .strip.moving { background: #fff; color: #062; }
 .pic .strip.confront { background: var(--danger); color: #fff; }
 .pic .strip.blocked { background: var(--danger); }

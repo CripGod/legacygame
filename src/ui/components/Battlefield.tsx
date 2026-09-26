@@ -161,7 +161,7 @@ const picFx = (fx: BoardFx | null | undefined, uid: string): 'windup' | 'knocked
   return undefined;
 };
 
-type Common = Pick<BattlefieldProps, 'view' | 'me' | 'plan' | 'onChar' | 'flash' | 'dragProps' | 'drop' | 'reserved' | 'focus' | 'eventFx' | 'pendingEvents' | 'fx' | 'foreseen' | 'readyBaseline'>;
+type Common = Pick<BattlefieldProps, 'view' | 'me' | 'plan' | 'onChar' | 'flash' | 'dragProps' | 'drop' | 'reserved' | 'focus' | 'eventFx' | 'pendingEvents' | 'fx' | 'foreseen' | 'readyBaseline' | 'resolving'>;
 
 /** An Event card sitting at the Gates: planned, waiting to resolve, or resolving now. */
 function EventTile({ cardId, state, hidden, foreseen, onClick }: { cardId: string; state: 'planned' | 'pending' | 'trigger'; hidden?: boolean; /** The Ancestors foresee it: faint. */ foreseen?: boolean; onClick?: () => void }) {
@@ -201,7 +201,7 @@ export function tileOrder(c: { arrivedTurn: number; uid: string }): number {
   return n ? c.arrivedTurn * 1e6 + Number(n[1]) : Number.POSITIVE_INFINITY;
 }
 
-function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, dragProps, drop, reserved, focus, eventFx, pendingEvents, fx, foreseen, readyBaseline }: Common & { owner: PlayerId; index: number; label: string; right?: React.ReactNode }) {
+function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, dragProps, drop, reserved, focus, eventFx, pendingEvents, fx, foreseen, readyBaseline, resolving }: Common & { owner: PlayerId; index: number; label: string; right?: React.ReactNode }) {
   const gOk = owner === me && drop?.gates.includes(index);
   const gOver = gOk && drop?.overKey === `gates:${index}`;
   const chars = charsAt(view, index, owner, 'gate');
@@ -296,7 +296,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                       ›
                     </span>
                   )}
-                  <Pic state={view} c={s} ready={readyBaseline ? !!readyBaseline.characters[s.uid]?.ready : undefined} badges fx={picFx(fx, s.uid) === 'arrive' ? undefined : picFx(fx, s.uid)} focus={focus?.includes(s.uid)} strip={planned ? 'Placed' : moving ? (movingTo === index ? 'Arriving' : 'Moving') : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockKind(view, s) ? LOCK_STRIP[lockKind(view, s)!.kind] : undefined} onClick={() => onChar(s.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(s.uid); }} />
+                  <Pic state={view} c={s} ready={readyBaseline ? !!readyBaseline.characters[s.uid]?.ready : undefined} resolving={resolving} badges fx={picFx(fx, s.uid) === 'arrive' ? undefined : picFx(fx, s.uid)} focus={focus?.includes(s.uid)} strip={planned ? 'Placed' : moving ? (movingTo === index ? 'Arriving' : 'Moving') : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockKind(view, s) ? LOCK_STRIP[lockKind(view, s)!.kind] : undefined} onClick={() => onChar(s.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(s.uid); }} />
                 </div>
               </div>
             );
@@ -547,7 +547,7 @@ export function Battlefield(props: BattlefieldProps) {
     // A tile whose ghost is flying does not glide: it reappears where the ghost lands.
     durationFor: (uid) => (fx?.hidden.includes(uid) ? 0 : view.characters[uid]?.owner === me || isPlannedUid(uid) ? (resolving ? 0 : 220) : 620),
   });
-  const common: Common = { view, me, plan, onChar, flash, dragProps, drop, reserved, focus, eventFx, pendingEvents, fx, foreseen, readyBaseline };
+  const common: Common = { view, me, plan, onChar, flash, dragProps, drop, reserved, focus, eventFx, pendingEvents, fx, foreseen, readyBaseline, resolving };
   return (
     <div className="battlefield" ref={rootRef}>
       {view.locations.map((loc) => {
