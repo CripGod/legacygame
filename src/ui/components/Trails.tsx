@@ -1,4 +1,6 @@
 import { useEffect, useRef } from 'react';
+import { drawSim, makeSim, type Sim } from '../fx/engine';
+import { PRESETS } from '../fx/presets';
 
 /**
  * Particle tellings on a fixed canvas over the whole viewport; nothing here touches the game state. Three looks, so
@@ -31,7 +33,6 @@ const FLY_MS = 700;
 const LAUNCH_SPREAD_MS = 350;
 const LAND_MS = 800;
 const PARTICLES = 40;
-const EMBERS = 22;
 const RIBBON_TOTAL_MS = LAUNCH_SPREAD_MS + FLY_MS + LAND_MS + 100;
 const SPRAY_MS = 520;
 const SPARKS = 30;
@@ -194,7 +195,7 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
     }
     // Ribbons: the swarm, the path, and the landing.
     const particles: Particle[] = [];
-    const embers: Ember[] = [];
+    const emberSims: { sim: Sim; at: number }[] = [];
     const landings: Landing[] = [];
     // Waves: one ring per origin (the shots of one clear all share it), a landing with sparkles per Location reached.
     const waves: Wave[] = [];
@@ -226,10 +227,8 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
       const land = centre(shots[i].to);
       const landAt = LAUNCH_SPREAD_MS * 0.6 + FLY_MS;
       landings.push({ ...land, start: landAt, color: shots[i].color, label: shots[i].label });
-      const r = shots[i].to;
-      for (let k = 0; k < EMBERS; k++) {
-        embers.push({ shot: i, x0: r.left + r.width * (0.15 + rng() * 0.7), y0: r.top + r.height * (0.45 + rng() * 0.5), rise: 50 + rng() * 90, sway: 4 + rng() * 10, phase: rng() * Math.PI * 2, size: 2 + rng() * 2.6, start: landAt + rng() * 220, life: 520 + rng() * 280 });
-      }
+      // The landing's embers: the 'ember-landing' preset (src/ui/fx), tunable in the editor (?fx=1), in the shot's colour.
+      emberSims.push({ sim: makeSim(PRESETS['ember-landing'], shots[i].to, { tint: shots[i].color, seed: 1234567 + i * 7919 }), at: landAt });
     }
     // Sprays: sparks flung from the struck tile, falling as they die.
     const sparks: Spark[] = [];
@@ -443,16 +442,10 @@ export function Trails({ shots, onDone, freezeAt }: { shots: TrailShot[]; onDone
           ctx.globalCompositeOperation = 'lighter';
         }
       }
-      for (const e of embers) {
-        const t = (el - e.start) / e.life;
-        if (t < 0 || t > 1) continue;
-        const sprite = sprites[e.shot];
-        const a = t < 0.2 ? t / 0.2 : 1 - (t - 0.2) / 0.8;
-        const x = e.x0 + Math.sin(t * Math.PI * 2 * 1.3 + e.phase) * e.sway;
-        const y = e.y0 - e.rise * ease(t);
-        const d = e.size * (2.6 + 1.2 * (1 - t));
-        ctx.globalAlpha = a * 0.95;
-        ctx.drawImage(sprite, x - d / 2, y - d / 2, d, d);
+      for (const { sim, at: landAt } of emberSims) {
+        if (el < landAt) continue;
+        drawSim(ctx, sim, el - landAt);
+        ctx.globalCompositeOperation = 'lighter';
       }
       // Sparkles: four-point stars twinkling over a Location the wave has reached, each turning as it swells and fades.
       for (const sp of sparkles) {

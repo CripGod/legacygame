@@ -541,8 +541,13 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   const [trail, setTrail] = useState<TrailShot[] | null>(null);
   /** Fireworks over a Threat just cleared in a showdown: where they rise from. */
   const [fireworks, setFireworks] = useState<DOMRect | null>(null);
-  /** Anansi's smoke over a Location he retells (its panel's rect). */
-  const [smoke, setSmoke] = useState<DOMRect | null>(null);
+  /** Anansi's tile at a Location, as drawn right now: where his smoke pours from. */
+  const anansiTile = (loc: number): DOMRect | undefined => {
+    const a = Object.values(boardView.characters).find((c) => c.defId === 'anansi' && c.location === loc);
+    return a ? document.querySelector(`[data-uid="${a.uid}"]`)?.getBoundingClientRect() : undefined;
+  };
+  /** Anansi's smoke over a Location he retells (its panel's rect), from his tile. */
+  const [smoke, setSmoke] = useState<{ at: DOMRect; from?: DOMRect } | null>(null);
   const [smokeFreeze, setSmokeFreeze] = useState<number | undefined>(undefined);
   const [fireworksFreeze, setFireworksFreeze] = useState<number | undefined>(undefined);
   const [trailFreeze, setTrailFreeze] = useState<number | undefined>(undefined);
@@ -1185,7 +1190,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
           // Anansi's retelling: the old place goes up in smoke and the new one develops under it.
           if (slammed.type === 'locationTransformed') {
             const panel = document.querySelector(`.column[data-index="${idx}"] .location`);
-            if (panel) setSmoke(panel.getBoundingClientRect());
+            if (panel) setSmoke({ at: panel.getBoundingClientRect(), from: anansiTile(idx) });
           }
           if (revealSlams(step)) {
             setFx((f) => ({ ...(f ?? { hidden: [] }), slam: idx }));
@@ -1459,7 +1464,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       if (!el) return;
       sfx('location.retell', view.locations[loc]?.defId);
       setSmokeFreeze(freezeAt);
-      setSmoke(el.getBoundingClientRect());
+      // Anansi's tile if he stands there, else any filled Gate tile in the column as his stand-in.
+      setSmoke({ at: el.getBoundingClientRect(), from: anansiTile(loc) ?? document.querySelector(`.column[data-index="${loc}"] .gate-slot.filled`)?.getBoundingClientRect() });
     };
     /** Dev: a Gathering's arrival flash (window.__sobArrival('chairteenth', uidOnBoard?)). */
     (window as unknown as { __sobArrival?: (cardId: string, uid?: string) => void }).__sobArrival = (cardId, uid) => {
@@ -2601,7 +2607,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       )}
       {trail && <Trails shots={trail} freezeAt={trailFreeze} onDone={() => { setTrail(null); setTrailFreeze(undefined); }} />}
       {fireworks && <Fireworks at={fireworks} freezeAt={fireworksFreeze} onDone={() => { setFireworks(null); setFireworksFreeze(undefined); }} />}
-      {smoke && <Smoke at={smoke} freezeAt={smokeFreeze} onDone={() => { setSmoke(null); setSmokeFreeze(undefined); }} />}
+      {smoke && <Smoke at={smoke.at} from={smoke.from} freezeAt={smokeFreeze} onDone={() => { setSmoke(null); setSmokeFreeze(undefined); }} />}
       {dig && <DigReveal key={digKey.current} dig={dig} me={me} freeze={digFreeze} onDone={() => { setDig(null); setDigFreeze(undefined); }} />}
       {sheet?.kind === 'card' && (
         <CardSheet

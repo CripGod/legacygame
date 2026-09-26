@@ -1,0 +1,28 @@
+{
+  "id": "ember-landing",
+  "name": "Ribbon landing: embers",
+  "anchor": "location",
+  "duration": 1100,
+  "emitters": [
+    {
+      "name": "embers",
+      "count": 22,
+      "spawn": { "min": 0, "max": 220 },
+      "origin": { "x": { "min": 0.15, "max": 0.85 }, "y": { "min": 0.45, "max": 0.95 } },
+      "life": { "min": 520, "max": 800 },
+      "angle": { "min": 266, "max": 274 },
+      "speed": { "min": 0.3, "max": 0.84 },
+      "drag": 0.006,
+      "gravity": 0,
+      "sway": { "amp": 9, "freq": 2 },
+      "size": { "min": 7, "max": 17 },
+      "sizeOver": [[0, 1], [1, 0.68]],
+      "alphaOver": [[0, 0], [0.2, 0.95], [1, 0]],
+      "color": [[0, "$tint"], [1, "$tint"]],
+      "sprite": "glow",
+      "spin": { "min": 0, "max": 0 },
+      "blend": "add",
+      "trail": 0
+    }
+  ]
+}

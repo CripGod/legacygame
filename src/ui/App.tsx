@@ -7,8 +7,9 @@ import { CardsScreen } from './screens/CardsScreen';
 import { MatchScreen } from './screens/MatchScreen';
 import { useMatch, type Mode } from './useMatch';
 import { DevPanel } from './components/DevPanel';
+import { FxEditor } from './fx/FxEditor';
 
-type Screen = 'start' | 'rules' | 'cards' | 'match' | 'result';
+type Screen = 'start' | 'rules' | 'cards' | 'match' | 'result' | 'fx';
 
 class ErrorBoundary extends Component<{ children: ReactNode; onReset: () => void }, { error: Error | null }> {
   state = { error: null as Error | null };
@@ -70,7 +71,8 @@ export function App() {
   const initialDev = new URLSearchParams(window.location.search).get('dev') === '1';
   // #refs=<id>: a link straight to one entry's references in the Compendium.
   const refsLink = /^#refs=([\w-]+)$/.exec(window.location.hash)?.[1] ?? null;
-  const [screen, setScreen] = useState<Screen>(refsLink ? 'cards' : 'start');
+  // ?fx=1 opens the effects editor (src/ui/fx) instead of the landing page.
+  const [screen, setScreen] = useState<Screen>(new URLSearchParams(window.location.search).get('fx') === '1' ? 'fx' : refsLink ? 'cards' : 'start');
   /** The landing page's nav opens the Compendium at a chapter (Locations). */
   const [cardsChapter, setCardsChapter] = useState<string | null>(null);
   // Sound: one gesture unlocks it; the landing page and the match play the music, the reading screens fade it out.
@@ -92,6 +94,7 @@ export function App() {
       {screen === 'start' && <StartScreen onPlay={start} onRules={() => setScreen('rules')} onCards={(chapter) => { setCardsChapter(chapter ?? null); setScreen('cards'); }} initialDev={opts.dev} />}
       {screen === 'rules' && <RulesScreen onBack={() => setScreen('start')} />}
       {screen === 'cards' && <CardsScreen onBack={() => setScreen('start')} initialRefs={refsLink} initialChapter={cardsChapter} />}
+      {screen === 'fx' && <FxEditor onBack={() => setScreen('start')} />}
       {screen === 'match' && (
         <ErrorBoundary onReset={() => setScreen('start')}>
           <MatchHost key={matchKey} seed={seed} mode={opts.mode} dev={opts.dev} coach={opts.coach} decks={{ A: opts.deckA, B: opts.deckB }} tutorial={!!opts.tutorial} onMenu={() => setScreen('start')} />

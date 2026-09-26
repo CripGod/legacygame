@@ -11,12 +11,12 @@ const TOTAL_MS = 1500;
 const PUFFS = 52;
 const SPAWN_MS = 260;
 const MOTES = 14;
-const DRAG = 0.008; // per ms: the clouds stop boiling outward within ~350 ms and hang
+const DRAG = 0.011; // per ms: the clouds are at their spots within ~300 ms and hang
 const RISE = 0.09; // px per ms, the smoke lifting as it thins
 /** Smoke from dark to pale, all on Anansi's violet. */
 const TINTS = ['#221a34', '#3a2d55', '#5b4a7e', '#8c7bb0', '#b8a9d6'];
 
-interface Puff { start: number; angle: number; speed: number; size: number; grow: number; life: number; tint: number; spin: number; squash: number; alpha: number }
+interface Puff { start: number; angle: number; speed: number; ox: number; oy: number; size: number; grow: number; life: number; tint: number; spin: number; squash: number; alpha: number }
 interface Mote { start: number; x: number; y: number; vx: number; vy: number; size: number; twinkle: number }
 
 function hexToRgb(hex: string): [number, number, number] {
@@ -54,7 +54,7 @@ function glowSprite(color: string, size: number): HTMLCanvasElement {
   return c;
 }
 
-export function Smoke({ at, onDone, freezeAt }: { at: DOMRect; onDone: () => void; /** Dev: render one frame at this time and hold it. */ freezeAt?: number }) {
+export function Smoke({ at, from, onDone, freezeAt }: { at: DOMRect; /** Where the smoke pours from (Anansi's tile); the window's centre when absent. */ from?: DOMRect; onDone: () => void; /** Dev: render one frame at this time and hold it. */ freezeAt?: number }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const done = useRef(onDone);
   done.current = onDone;
@@ -73,18 +73,26 @@ export function Smoke({ at, onDone, freezeAt }: { at: DOMRect; onDone: () => voi
       let s = 24681357;
       return () => ((s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
     })();
-    const cx = at.left + at.width / 2;
-    const cy = at.top + at.height * 0.52;
-    // The puff has to cover the window: the farthest smoke reaches past its corners, the biggest clouds are a third of it.
+    // The smoke pours from Anansi's tile (or the window's centre) and every cloud makes for its own spot in the window,
+    // past the edges a little, so the whole window is covered whichever side he stands on.
+    const cx = from ? from.left + from.width / 2 : at.left + at.width / 2;
+    const cy = from ? from.top + from.height / 2 : at.top + at.height * 0.52;
     const reach = Math.hypot(at.width, at.height) * 0.56;
     const base = Math.max(90, at.width * 0.44);
+    const jitter = from ? Math.min(from.width, from.height) * 0.35 : at.width * 0.12;
     const puffs: Puff[] = [];
     for (let i = 0; i < PUFFS; i++) {
-      const speed = (0.45 + rng() * 0.6) * reach * DRAG; // speed/DRAG, the distance under drag, lands between 0.45 and 1.05 of the reach: the clouds reach the corners without flying off the window
+      const tx = at.left + at.width * (-0.08 + rng() * 1.16);
+      const ty = at.top + at.height * (-0.08 + rng() * 1.16);
+      const ox = cx + (rng() - 0.5) * jitter;
+      const oy = cy + (rng() - 0.5) * jitter;
+      const dist = Math.max(30, Math.hypot(tx - ox, ty - oy));
       puffs.push({
         start: (i / PUFFS) * SPAWN_MS + rng() * 40,
-        angle: (i / PUFFS) * Math.PI * 2 + rng() * 0.6,
-        speed,
+        angle: Math.atan2(ty - oy, tx - ox),
+        speed: dist * DRAG, // speed/DRAG, the distance under drag, is the way to its spot: there by ~400 ms
+        ox,
+        oy,
         size: base * (0.6 + rng() * 0.7),
         grow: 1.0 + rng() * 0.8,
         life: 0.45 + rng() * 0.5, // the first clouds are gone by 700 ms, the last hang to 1.4 s: the window comes back through them
@@ -100,7 +108,7 @@ export function Smoke({ at, onDone, freezeAt }: { at: DOMRect; onDone: () => voi
     for (let i = 0; i < MOTES; i++) {
       const a = rng() * Math.PI * 2;
       const v = 0.05 + rng() * 0.14;
-      motes.push({ start: 80 + rng() * 300, x: cx + (rng() - 0.5) * at.width * 0.3, y: cy + (rng() - 0.5) * at.height * 0.3, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 0.08, size: 5 + rng() * 6, twinkle: rng() * Math.PI * 2 });
+      motes.push({ start: 80 + rng() * 300, x: cx + (rng() - 0.5) * jitter * 2, y: cy + (rng() - 0.5) * jitter * 2, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 0.08, size: 5 + rng() * 6, twinkle: rng() * Math.PI * 2 });
     }
     const sprites = TINTS.map((c) => cloudSprite(c, 128));
     const gold = glowSprite('#f2c14e', 48);
@@ -113,7 +121,7 @@ export function Smoke({ at, onDone, freezeAt }: { at: DOMRect; onDone: () => voi
       const flash = Math.max(0, 1 - el / 180);
       if (flash > 0) {
         ctx.globalCompositeOperation = 'lighter';
-        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, reach * 0.9);
+        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, from ? reach * 0.45 : reach * 0.9);
         grad.addColorStop(0, `rgba(255,255,255,${0.85 * flash})`);
         grad.addColorStop(0.4, `rgba(184,169,214,${0.5 * flash})`);
         grad.addColorStop(1, 'rgba(120,90,180,0)');
@@ -123,7 +131,7 @@ export function Smoke({ at, onDone, freezeAt }: { at: DOMRect; onDone: () => voi
       }
       // A veil the window's size under the clouds, so the swap is hidden whatever the clouds' geometry: up by 380 ms,
       // held while the picture changes, gone by 1.3 s.
-      const veil = Math.min(1, Math.max(0, (el - 120) / 260)) * (el < 800 ? 1 : Math.max(0, 1 - (el - 800) / 500));
+      const veil = Math.min(1, Math.max(0, (el - 90) / 200)) * (el < 850 ? 1 : Math.max(0, 1 - (el - 850) / 450));
       if (veil > 0) {
         ctx.globalAlpha = veil * 0.85;
         ctx.fillStyle = TINTS[1];
@@ -137,8 +145,8 @@ export function Smoke({ at, onDone, freezeAt }: { at: DOMRect; onDone: () => voi
         if (pt < 0 || pt > lifeMs) continue;
         const u = pt / lifeMs;
         const dist = (p.speed * (1 - Math.exp(-DRAG * pt))) / DRAG;
-        const x = cx + Math.cos(p.angle) * dist;
-        const y = cy + Math.sin(p.angle) * dist - RISE * pt * u;
+        const x = p.ox + Math.cos(p.angle) * dist;
+        const y = p.oy + Math.sin(p.angle) * dist - RISE * pt * u;
         const d = p.size * (1 + p.grow * u);
         const env = Math.min(1, pt / 90) * (u < 0.3 ? 1 : 1 - Math.pow((u - 0.3) / 0.7, 1.2));
         ctx.globalAlpha = Math.max(0, p.alpha * env);
@@ -172,6 +180,6 @@ export function Smoke({ at, onDone, freezeAt }: { at: DOMRect; onDone: () => voi
     };
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
-  }, [at, freezeAt]);
+  }, [at, from, freezeAt]);
   return <canvas ref={ref} className="smoke" aria-hidden />;
 }
