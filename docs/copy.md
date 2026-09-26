@@ -715,7 +715,7 @@ Everything a player reads, grouped by where it lives. Keep the `id` lines as the
 - `influence`: Influence: how much this Character counts toward controlling its Location. Gate Characters count; Established Characters (Inside) count +1 more.
 - `force`: Force: strength when confronting Threats or answering a challenge. Force never attacks players directly.
 - `oath`: The oath at Bois Caïman: until the Threat here is broken, every Character at this Location, both sides, confronts it every turn, and nobody relocates out.
-- `treatyTorn`: No treaty: Taytu Betul tore it up. Any Event the other side plays at this Location this turn is torn up before it resolves.
+- `treatyTorn`: tore up the treaty here. Any Event the other side plays at this Location is torn up before it resolves while this holds.
 - `lastWord`: THE LAST WORD: the ninth turn, here only because somebody stood on business. Both sides get 10 Energy and an extra card. Whatever stands after this turn is the legacy.
 - `rebuilt`: Rebuilt: this Location was Lost, and the people who stayed put it back up. It is back in play, and everyone who stayed gained +1 Influence.
 - `finalTurn`: Last scheduled turn. A Stand on Business now adds a 9th turn; otherwise whatever stands after this one is counted: two Locations of three, then total Influence, then total Force.
@@ -1035,6 +1035,7 @@ Menu
 - scale(${opts.big ? 1.6 : 1.35})
 - 0 0 0 2px #fff, 0 0 26px rgba(${tone === 'theirs' ? '111, 163, 255' : tone === 'artist' ? '79, 209, 138' : '255, 227, 179'}, 1)
 - .column[data-index="${it.location}"] .loc-glow
+- s smoke over a Location he retells (its panel
 - s ghost flies: its real tile
 - .column[data-index="${d.from}"] .score.p${d.victim.owner}
 - cubic-bezier(0.4, 0, 0.8, 0.6)
@@ -1061,6 +1062,7 @@ Menu
 - .column[data-index="${e.location}"] .score.p${side}
 - .column[data-index="${e.location}"] .location
 - +${amount} First Location bonus
+- .column[data-index="${idx}"] .location
 - ${view.players[step.player].handle} plays
 - ${who} ${def.name}${step.location !== undefined ? 
 - Location ${step.location + 1}
@@ -1156,6 +1158,7 @@ Menu
 - Press 1-3 to play ${cardName(selected, placeholders)} at a Location, or close the card and drag it there.
 - Harriet Tubman: drag any of your Characters to another Location and she takes them straight Inside. Free, and she gets them out of a curfew (optional).
 - ${cardName(yemojaPlay.cardId, placeholders)}: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : 
+- ${cardName(pl.cardId, placeholders)} cannot go straight Inside at ${locationName(view.locations[pl.location].defId, placeholders)}: ${why}. Plays resolve before confrontations, so it waits at the Gates this turn${why.includes('Patrol') ? ' and you take a Setback' : ''}. Play it elsewhere, or hold it a turn.
 - Nothing in hand fits your ${energyLeft} Energy. Lock in.
 - ${name} fits your ${energyLeft} Energy (${cost}). Drag it onto a Location.
 - Sit Down: give up the match now. ${view.players[other(me)].handle} takes ${opts.stepOffCost} Legacy.
@@ -1732,6 +1735,10 @@ export function TallySheet({ view, me, onResult, onBoard }: { view: GameState; m
 - ${tdef.name}, aimed at ${view.players[other(me)].handle}. ${tdef.text}
 - stamp verdict ${stamp.tone ?? 'hit'}
 - loc-rule ${clipped ? 'clipped' : ''}
+- ${charDef(c.defId).name} would go straight Inside, but the door is shut: ${why}. Plays resolve before confrontations, so it waits at the Gates this turn${why.includes('Patrol') ? ' and you take a Setback' : ''}.
+- card-tag ${mine ? 'mine' : 'theirs'}
+- ${name}: ${tipText}${turns !== undefined ? 
+-  : ''} Tap to read the card.
 - healing${fx?.healBy && fx.healBy !== 'both' ? 
 -  : ''} ${dropOk ? 'drop-ok' : ''} ${dropOver ? 'drop-over' : ''} ${glowLocation === loc.index ? 'ftue-flash' : ''} ${fx?.slam === loc.index ? 'slam' : ''}
 - Play here: ${loc.revealed ? locationName(loc.defId, placeholders) : 

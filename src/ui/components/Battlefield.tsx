@@ -21,7 +21,7 @@ import { SkyTag } from './Sky';
 import { artUrl } from '../art';
 import { assistButtons } from '../assist';
 import { influenceLines } from '../influence';
-import { charDef, confrontForce, threatForceNeeded, isNight, lockKind, isProtected, protectionReason, shielded, LOCATION_BY_ID, CARD_BY_ID, TEAM_UP_BY_ID } from '../../engine';
+import { charDef, confrontForce, threatForceNeeded, isNight, lockKind, isBlockedFromEntering, isProtected, protectionReason, shielded, LOCATION_BY_ID, CARD_BY_ID, TEAM_UP_BY_ID } from '../../engine';
 
 /** The strip on a tile that cannot relocate out, by what holds it: the word says which. */
 const LOCK_STRIP: Record<'curfew' | 'besieged' | 'held' | 'oath', string> = { curfew: 'Curfew', besieged: 'Besieged', held: 'Held', oath: 'Oath' };
@@ -298,7 +298,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                       ›
                     </span>
                   )}
-                  <Pic state={view} c={s} ready={readyBaseline ? !!readyBaseline.characters[s.uid]?.ready : undefined} resolving={resolving} badges fx={picFx(fx, s.uid) === 'arrive' ? undefined : picFx(fx, s.uid)} focus={focus?.includes(s.uid)} strip={planned ? 'Placed' : moving ? (movingTo === index ? 'Arriving' : 'Moving') : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockKind(view, s) ? LOCK_STRIP[lockKind(view, s)!.kind] : undefined} onClick={() => onChar(s.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(s.uid); }} />
+                  <Pic state={view} c={s} ready={readyBaseline ? !!readyBaseline.characters[s.uid]?.ready : undefined} resolving={resolving} badges fx={picFx(fx, s.uid) === 'arrive' ? undefined : picFx(fx, s.uid)} focus={focus?.includes(s.uid)} stripTip={shutDoor(view, s, planned)} strip={planned ? (shutDoor(view, s, planned) ? 'Blocked' : 'Placed') : moving ? (movingTo === index ? 'Arriving' : 'Moving') : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockKind(view, s) ? LOCK_STRIP[lockKind(view, s)!.kind] : undefined} onClick={() => onChar(s.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(s.uid); }} />
                 </div>
               </div>
             );
@@ -465,6 +465,18 @@ function LocRule({ text, more = true, onOpen }: { text: string; more?: boolean; 
       {more && <b className="loc-more">More ›</b>}
     </div>
   );
+}
+
+/** A planned card that promises to go straight Inside, at a door that is shut (a Patrol on this side, the Color Line):
+ *  the reason, for the tile's strip and its hover, or undefined when it walks in as promised. Plays resolve before
+ *  confrontations, so a Patrol being fought this turn still turns it around. */
+function shutDoor(view: GameState, c: CharacterInstance, planned: boolean): string | undefined {
+  if (!planned) return undefined;
+  const kw = charDef(c.defId).keywords;
+  if (!kw.includes('STRAIGHT_INSIDE') && !kw.includes('DIRECT_ENTRY')) return undefined;
+  const why = isBlockedFromEntering(view, c);
+  if (!why) return undefined;
+  return `${charDef(c.defId).name} would go straight Inside, but the door is shut: ${why}. Plays resolve before confrontations, so it waits at the Gates this turn${why.includes('Patrol') ? ' and you take a Setback' : ''}.`;
 }
 
 /** A card's mark on a Location (Taytu's torn treaty): the card's face in its owner's ring, then what it did, and the

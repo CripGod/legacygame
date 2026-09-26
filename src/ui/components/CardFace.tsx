@@ -313,6 +313,7 @@ export function Pic({
   strip,
   ready,
   resolving,
+  stripTip,
   onClick,
   onContextMenu,
   highlight,
@@ -327,6 +328,8 @@ export function Pic({
   ready?: boolean;
   /** The turn is resolving (locked, or the beats playing): a Ready piece reads Resolving and breathes, since nothing can be touched. */
   resolving?: boolean;
+  /** What the strip means here, when the generic hint is not enough (a shut door, named). */
+  stripTip?: string;
   onClick?: () => void;
   /** Right-click reads the piece, the way it reads a hand card. */
   onContextMenu?: (e: React.MouseEvent) => void;
@@ -381,7 +384,7 @@ export function Pic({
         </span>
       )}
       {label && (
-        <span className={`strip ${cls}`} {...tip((HINTS as Record<string, string>)[cls] ?? label)}>
+        <span className={`strip ${cls}`} {...tip(stripTip ?? (HINTS as Record<string, string>)[cls] ?? label)}>
           {label}
         </span>
       )}

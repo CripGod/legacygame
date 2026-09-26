@@ -28,6 +28,7 @@ export type SfxName =
   | 'turn'
   | 'location.reveal'
   | 'location.open'
+  | 'location.retell'
   | 'draw'
   | 'enter'
   | 'move'
@@ -75,6 +76,7 @@ export const SFX_EVENTS: Record<SfxName, string> = {
   turn: 'A new turn begins: the ring bell (a fight\'s round bell) as the turn\'s banner lands over the darkened board.',
   'location.reveal': 'A Location is revealed with the smashdown (or the Black Star arrives): the thud on the landing. Plays with the place\'s own sound when it has one: see SFX_PLACES.',
   'location.open': 'A Location revealed without the smashdown (most of them: the first slams only when someone guessed it, later ones only when they arrive with force): the picture develops, the bells, no thud. With the place\'s own sound.',
+  'location.retell': "Anansi retells a Location: it goes up in smoke and the new place stands where it was. A genie's puff: a rising whoosh, a soft poof, then a harp run up with a sparkle as the new name appears. About a second; the place's own clip follows.",
   draw: 'You draw a card.',
   enter: 'A Character walks Inside: planned by you, or in the replay for the other side.',
   move: 'A relocation (swoosh).',
@@ -133,6 +135,7 @@ export const SFX_FILES: Record<SfxName, Layer[]> = {
   turn: [{ files: ['stand-bell'], gain: 0.75, at: 520 }], // the ring bell on the banner's landing (the overshoot peak, ~500ms into the call); the soft bells are gone
   'location.reveal': [{ files: ['stand-thud'], gain: 0.6, at: 1260 }, { files: ['turn'], gain: 0.4, at: 1420 }], // the thud on the smashdown's landing (~1.26s into the beat, after the picture develops and the panel grows)
   'location.open': [{ files: ['turn'], gain: 0.4, at: 700 }], // the quiet reveal: the bells as the colour comes in
+  'location.retell': [], // synth until recorded: Anansi's smoke, a whoosh, a soft poof and a harp run up (see SFX_EVENTS)
   draw: [{ files: ['draw'], gain: 0.5 }],
   enter: [{ files: ['enter'], gain: 0.45 }, { files: ['turn'], gain: 0.45, at: 380 }],
   move: [{ files: ['move-1', 'move-2'], gain: 0.6 }],
@@ -437,6 +440,13 @@ function synth(name: SfxName, t: number): void {
       break;
     case 'location.open':
       chime(t + 0.7, [659, 988], 0.09, 0.3, 0.12);
+      break;
+    case 'location.retell':
+      // Anansi's smoke: a rising whoosh as the old place goes, a soft poof, and a harp run up as the new one appears.
+      swoosh(t, 0.42, 320, 2600, 0.5, 0.7);
+      thud(t + 0.2, 0.35, 140, 50, 0.26);
+      chime(t + 0.28, [523, 659, 784, 1047, 1319, 1568], 0.055, 0.55, 0.11);
+      sparkle(t + 0.5, 8, 0.05);
       break;
     case 'draw':
       swoosh(t, 0.09, 1600, 3800, 0.18, 1.4);

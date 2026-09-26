@@ -17,6 +17,7 @@ import type { TraceStep } from '../../engine';
 import { Trails, TRAIL_COLORS, waveLandAt, type TrailShot } from '../components/Trails';
 import { CINEMATICS, CINE_VOLUME, CINE_READ_MS, CINE_MAX_MS } from '../cinematics';
 import { Fireworks } from '../components/Fireworks';
+import { Smoke } from '../components/Smoke';
 import { MatchEnd } from '../components/MatchEnd';
 import { ghostOf, fly, jolt, partWay, clearGhosts, wait, painted, type Ghost } from '../fly';
 import { DigReveal, type DigShow, type DigPhase } from '../components/DigReveal';
@@ -540,6 +541,9 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   const [trail, setTrail] = useState<TrailShot[] | null>(null);
   /** Fireworks over a Threat just cleared in a showdown: where they rise from. */
   const [fireworks, setFireworks] = useState<DOMRect | null>(null);
+  /** Anansi's smoke over a Location he retells (its panel's rect). */
+  const [smoke, setSmoke] = useState<DOMRect | null>(null);
+  const [smokeFreeze, setSmokeFreeze] = useState<number | undefined>(undefined);
   const [fireworksFreeze, setFireworksFreeze] = useState<number | undefined>(undefined);
   const [trailFreeze, setTrailFreeze] = useState<number | undefined>(undefined);
   /** Zora's dig, told on screen: the cards seen, the one kept. */
@@ -1177,6 +1181,11 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         const slammed = evs.find((e) => e.location !== undefined && (e.type === 'locationRevealed' || (e.type === 'locationTransformed' && !!e.data?.retold)));
         if (slammed?.location !== undefined) {
           const idx = slammed.location;
+          // Anansi's retelling: the old place goes up in smoke and the new one develops under it.
+          if (slammed.type === 'locationTransformed') {
+            const panel = document.querySelector(`.column[data-index="${idx}"] .location`);
+            if (panel) setSmoke(panel.getBoundingClientRect());
+          }
           if (revealSlams(step)) {
             setFx((f) => ({ ...(f ?? { hidden: [] }), slam: idx }));
             window.setTimeout(() => { if (alive()) setFx((f) => (f?.slam === idx ? null : f)); }, 1550);
@@ -1314,6 +1323,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       setArrival(null);
       setFireworks(null);
       setFireworksFreeze(undefined);
+      setSmoke(null);
+      setSmokeFreeze(undefined);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [m.replay?.idx, m.replay?.steps]);
@@ -1440,6 +1451,14 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       sfx('fireworks');
       setFireworksFreeze(freezeAt);
       setFireworks(el.getBoundingClientRect());
+    };
+    /** Dev: Anansi's smoke over a Location (window.__sobRetell(loc = 0, freezeAt?)), with its sound. */
+    (window as unknown as { __sobRetell?: (loc?: number, freezeAt?: number) => void }).__sobRetell = (loc = 0, freezeAt) => {
+      const el = document.querySelector(`.column[data-index="${loc}"] .location`);
+      if (!el) return;
+      sfx('location.retell', view.locations[loc]?.defId);
+      setSmokeFreeze(freezeAt);
+      setSmoke(el.getBoundingClientRect());
     };
     /** Dev: a Gathering's arrival flash (window.__sobArrival('chairteenth', uidOnBoard?)). */
     (window as unknown as { __sobArrival?: (cardId: string, uid?: string) => void }).__sobArrival = (cardId, uid) => {
@@ -1775,6 +1794,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     if (directEntry && play.enter === undefined) play = { ...play, enter: !doorShut };
     if (play.enter && doorShut) play = { ...play, enter: false };
     sfx(play.enter ? 'card.inside' : 'card.drop');
+    // The promise of straight Inside meets a shut door: the gate's own sound, so the drop already says it.
+    if (doorShut && pdef?.kind === 'character' && (directEntry || pdef.keywords.includes('STRAIGHT_INSIDE'))) sfx('clash.block');
     voice(play.cardId);
     const current = planRef.current.plays.filter((pl) => pl.cardId !== play.cardId);
     const spent = current.reduce((s, pl) => s + cardCost(pl.cardId, view, me), 0);
@@ -2288,6 +2309,14 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     if (harrietPlay && !harrietPlay.target) return 'Harriet Tubman: drag any of your Characters to another Location and she takes them straight Inside. Free, and she gets them out of a curfew (optional).';
     if (yemojaPlay && !yemojaPlay.target) return `${cardName(yemojaPlay.cardId, placeholders)}: drag an Established Character from elsewhere onto ${view.locations[yemojaPlay.location].revealed ? locationName(view.locations[yemojaPlay.location].defId, placeholders) : `Location ${yemojaPlay.location + 1}`} (optional).`;
     const affordable = opts.plays.filter((o) => !plan.plays.some((pl) => pl.cardId === o.cardId) && cardCost(o.cardId, view, me) <= energyLeft);
+    // A card that promises to go straight Inside, dropped at a shut door: say so now, not when the turn plays out.
+    for (const pl of plan.plays) {
+      const d = CARD_BY_ID[pl.cardId];
+      if (!d || d.kind !== 'character' || !(d.keywords.includes('STRAIGHT_INSIDE') || d.keywords.includes('DIRECT_ENTRY'))) continue;
+      const why = isBlockedFromEntering(view, { owner: me, location: pl.location } as (typeof view.characters)[string]);
+      if (!why) continue;
+      return `${cardName(pl.cardId, placeholders)} cannot go straight Inside at ${locationName(view.locations[pl.location].defId, placeholders)}: ${why}. Plays resolve before confrontations, so it waits at the Gates this turn${why.includes('Patrol') ? ' and you take a Setback' : ''}. Play it elsewhere, or hold it a turn.`;
+    }
     if (planItems.length) return '';
     return handHint(affordable.map((o) => o.cardId));
   })();
@@ -2570,6 +2599,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       )}
       {trail && <Trails shots={trail} freezeAt={trailFreeze} onDone={() => { setTrail(null); setTrailFreeze(undefined); }} />}
       {fireworks && <Fireworks at={fireworks} freezeAt={fireworksFreeze} onDone={() => { setFireworks(null); setFireworksFreeze(undefined); }} />}
+      {smoke && <Smoke at={smoke} freezeAt={smokeFreeze} onDone={() => { setSmoke(null); setSmokeFreeze(undefined); }} />}
       {dig && <DigReveal key={digKey.current} dig={dig} me={me} freeze={digFreeze} onDone={() => { setDig(null); setDigFreeze(undefined); }} />}
       {sheet?.kind === 'card' && (
         <CardSheet
@@ -2700,7 +2730,7 @@ function beatSfx(step: TraceStep, quiet = false): void {
   if (evs.some((e) => e.type === 'threatSpawned')) return sfx('threat.spawn');
   // Anansi retells a Location mid-replay (a Reveal beat): the new place sounds at that beat.
   const retold = evs.find((e) => e.type === 'locationTransformed' && e.data?.retold);
-  if (retold && typeof retold.data?.to === 'string') return sfx('location.reveal', retold.data.to);
+  if (retold && typeof retold.data?.to === 'string') return sfx('location.retell', retold.data.to);
   switch (step.kind) {
     case 'play':
       return sfx('card.drop');
