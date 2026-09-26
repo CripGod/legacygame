@@ -145,7 +145,15 @@ body { font-family: var(--font); font-size: 16px; }
 .column.targetable .loc-glow { filter: drop-shadow(0 0 14px rgba(246, 215, 122, 0.75)); }
 .location .art .lost-tag.daytag { color: #5d5240; background: rgba(233, 185, 58, 0.25); }
 .location .art .lost-tag.nighttag { color: #fff; background: #1d2a6b; }
-.location .art .lost-tag.treaty { color: #fff; background: #6e2a1a; }
+/* A card's mark on the Location (Taytu's torn treaty): the card's face in its owner's ring (gold mine, blue theirs), the
+   word, and a counter of the turns it has left; a tap reads the card. Sits in the band with the other tags. */
+.location .art .card-tag { position: static; display: inline-flex; align-items: center; gap: 5px; margin-left: 6px; padding: 1px 7px 1px 2px; border-radius: 999px; background: #6e2a1a; color: #fff; font-family: var(--display); font-weight: 800; font-size: clamp(8px, 0.72vw, 10px); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; cursor: pointer; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); --ring: var(--gold-2); transition: filter 0.15s; }
+.location .art .card-tag.theirs { --ring: #6fa3ff; }
+.location .art .card-tag:hover { filter: brightness(1.18); }
+.card-tag .ct-pic { width: 2em; height: 2em; border-radius: 50%; overflow: hidden; border: 1.5px solid var(--ring); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.55); display: grid; place-items: center; flex: none; }
+.card-tag .ct-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card-tag .ct-ini { font-size: 0.7em; color: #fff; letter-spacing: 0; }
+.card-tag .ct-turns { min-width: 1.5em; height: 1.5em; border-radius: 999px; background: rgba(255, 255, 255, 0.2); display: grid; place-items: center; font-size: 0.9em; letter-spacing: 0; }
 .location .art .lost-tag.teamup { color: #ffe9a8; background: #4a1f6b; }
 .location .art .lost-tag.teamup.theirs { background: #5a2d2d; }
 .location .art .lost-tag.oath { color: #fff; background: #8a2a2a; }

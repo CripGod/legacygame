@@ -14,7 +14,7 @@ import {
   INSIDE_CAPACITY,
   THREAT_BY_ID,
 } from '../../engine';
-import { initials, locationName, threatLabel, useDisplay } from '../display';
+import { hueFor, initials, locationName, threatLabel, useDisplay } from '../display';
 import { Pic } from './CardFace';
 import { Art } from './Art';
 import { SkyTag } from './Sky';
@@ -52,6 +52,8 @@ export interface BattlefieldProps {
   onLocationTap: (index: number) => void;
   onLocationInfo: (index: number) => void;
   onChar: (uid: string) => void;
+  /** Read a card by id (a card's mark on a Location, tapped). */
+  onCard?: (id: string) => void;
   onThreat: (uid: string) => void;
   locked: boolean;
   /** Active first-match coach tip; matching elements pulse. */
@@ -465,6 +467,30 @@ function LocRule({ text, more = true, onOpen }: { text: string; more?: boolean; 
   );
 }
 
+/** A card's mark on a Location (Taytu's torn treaty): the card's face in its owner's ring, then what it did, and the
+ *  turns it has left. Tap it to read the card, so the mark is never mistaken for a rule of the place. */
+function CardTag({ id, mine, label, turns, tipText, onOpen }: { id: string; mine: boolean; label: string; turns?: number; tipText: string; onOpen?: (id: string) => void }) {
+  const { placeholders } = useDisplay();
+  const name = placeholders ? initials(id, true) : charDef(id).name;
+  return (
+    <span
+      className={`card-tag ${mine ? 'mine' : 'theirs'}`}
+      role="button"
+      {...tip(`${name}: ${tipText}${turns !== undefined ? ` ${turns > 1 ? `${turns} turns left.` : 'This turn only.'}` : ''} Tap to read the card.`)}
+      onClick={(e) => {
+        e.stopPropagation();
+        onOpen?.(id);
+      }}
+    >
+      <span className="ct-pic" style={{ background: hueFor(id) }}>
+        <Art kind="characters" id={id} className="ct-img" fallback={<span className="ct-ini">{initials(id, placeholders)}</span>} alt="" />
+      </span>
+      <span className="ct-label">{label}</span>
+      {turns !== undefined && <span className="ct-turns">{turns}</span>}
+    </span>
+  );
+}
+
 /** Established abilities live at a Location: a count per player; tap for the full list. */
 function InEffect({ view, index, me, onOpen }: { view: GameState; index: number; me: PlayerId; onOpen: () => void }) {
   const counts = (['A', 'B'] as PlayerId[]).map((p) => ({ p, n: liveAbilities(view, index, p).length }));
@@ -536,7 +562,7 @@ function shortEffect(type: string): string {
 }
 
 export function Battlefield(props: BattlefieldProps) {
-  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onThreat, flash, dragProps, drop, delays, resolving, glowLocation, summonLabel, reserved, focus, eventFx, pendingEvents, neutralized, fx, foreseen, readyBaseline, pending } = props;
+  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onCard, onThreat, flash, dragProps, drop, delays, resolving, glowLocation, summonLabel, reserved, focus, eventFx, pendingEvents, neutralized, fx, foreseen, readyBaseline, pending } = props;
   const { placeholders } = useDisplay();
   const opp = other(me);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -651,7 +677,7 @@ export function Battlefield(props: BattlefieldProps) {
                 {loc.lost && <span className="lost-tag">LOST</span>}
                 {!loc.lost && loc.rebuilt && <span className="lost-tag rebuilt" {...tip(HINTS.rebuilt)}>REBUILT</span>}
                 {!loc.lost && loc.webbed && <span className="lost-tag webbed" {...tip(HINTS.webbed)}>WEBBED</span>}
-                {!loc.lost && loc.treatyTorn && view.turn <= loc.treatyTorn.until && <span className="lost-tag treaty" {...tip(HINTS.treatyTorn)}>NO TREATY</span>}
+                {!loc.lost && loc.treatyTorn && view.turn <= loc.treatyTorn.until && <CardTag id="taytu_betul" mine={loc.treatyTorn.by === me} label="No treaty" turns={loc.treatyTorn.until - view.turn + 1} tipText={HINTS.treatyTorn} onOpen={onCard} />}
                 {!loc.lost && loc.teamUps?.map((t) => <span key={`${t.id}-${t.owner}`} className={`lost-tag teamup ${t.owner === me ? 'mine' : 'theirs'}`} {...tip(`Team-up, ${TEAM_UP_BY_ID[t.id].name} (${view.players[t.owner].handle}): ${TEAM_UP_BY_ID[t.id].text} It holds while both remain Inside.`)}>{TEAM_UP_BY_ID[t.id].name.toUpperCase()}</span>)}
                 {!loc.lost && loc.oath && loc.threats.some((t) => t.uid === loc.oath!.threatUid) && <span className="lost-tag oath" {...tip(HINTS.oath)}>OATH</span>}
                 {!loc.lost && hasCurfew && <SkyTag night={nightHere} />}

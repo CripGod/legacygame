@@ -54,7 +54,7 @@ export const HINTS = {
   influence: 'Influence: how much this Character counts toward controlling its Location. Gate Characters count; Established Characters (Inside) count +1 more.',
   force: 'Force: strength when confronting Threats or answering a challenge. Force never attacks players directly.',
   oath: 'The oath at Bois Caïman: until the Threat here is broken, every Character at this Location, both sides, confronts it every turn, and nobody relocates out.',
-  treatyTorn: 'No treaty: Taytu Betul tore it up. Any Event the other side plays at this Location this turn is torn up before it resolves.',
+  treatyTorn: 'tore up the treaty here. Any Event the other side plays at this Location is torn up before it resolves while this holds.',
   webbed: "Webbed: Anansi retold this Location into a random one not in the match and spun his web over it. Characters that cost 1 or less gain +2 Influence here; 3 or more lose 1. Both players.",
   lastWord: 'THE LAST WORD: the ninth turn, here only because somebody stood on business. Both sides get 10 Energy and an extra card. Whatever stands after this turn is the legacy.',
   rebuilt: 'Rebuilt: this Location was Lost, and the people who stayed put it back up. It is back in play, and everyone who stayed gained +1 Influence.',

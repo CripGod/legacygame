@@ -2341,6 +2341,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       <div className="main-wrap">
         <Battlefield
           pending={pendingInf}
+          onCard={(id) => setSheet({ kind: 'card', id })}
           view={boardView}
           readyBaseline={m.replay ? viewFor(m.replay.before, me) : null}
           me={me}
