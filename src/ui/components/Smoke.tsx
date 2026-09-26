@@ -77,10 +77,10 @@ export function Smoke({ at, onDone, freezeAt }: { at: DOMRect; onDone: () => voi
     const cy = at.top + at.height * 0.52;
     // The puff has to cover the window: the farthest smoke reaches past its corners, the biggest clouds are a third of it.
     const reach = Math.hypot(at.width, at.height) * 0.56;
-    const base = Math.max(80, at.width * 0.36);
+    const base = Math.max(90, at.width * 0.44);
     const puffs: Puff[] = [];
     for (let i = 0; i < PUFFS; i++) {
-      const speed = (0.3 + rng() * 0.5) * reach * DRAG; // speed/DRAG, the distance under drag, lands between 0.3 and 0.8 of the reach: the smoke fills the window, it does not fly off it
+      const speed = (0.45 + rng() * 0.6) * reach * DRAG; // speed/DRAG, the distance under drag, lands between 0.45 and 1.05 of the reach: the clouds reach the corners without flying off the window
       puffs.push({
         start: (i / PUFFS) * SPAWN_MS + rng() * 40,
         angle: (i / PUFFS) * Math.PI * 2 + rng() * 0.6,
@@ -121,6 +121,15 @@ export function Smoke({ at, onDone, freezeAt }: { at: DOMRect; onDone: () => voi
         ctx.fillRect(cx - reach, cy - reach, reach * 2, reach * 2);
         ctx.globalCompositeOperation = 'source-over';
       }
+      // A veil the window's size under the clouds, so the swap is hidden whatever the clouds' geometry: up by 380 ms,
+      // held while the picture changes, gone by 1.3 s.
+      const veil = Math.min(1, Math.max(0, (el - 120) / 260)) * (el < 800 ? 1 : Math.max(0, 1 - (el - 800) / 500));
+      if (veil > 0) {
+        ctx.globalAlpha = veil * 0.85;
+        ctx.fillStyle = TINTS[1];
+        ctx.fillRect(at.left + 4, at.top + 4, at.width - 8, at.height - 8);
+        ctx.globalAlpha = 1;
+      }
       // The smoke: each cloud boils out from the centre, slows under drag, grows, lifts, and thins away.
       for (const p of puffs) {
         const pt = el - p.start;
@@ -129,7 +138,7 @@ export function Smoke({ at, onDone, freezeAt }: { at: DOMRect; onDone: () => voi
         const u = pt / lifeMs;
         const dist = (p.speed * (1 - Math.exp(-DRAG * pt))) / DRAG;
         const x = cx + Math.cos(p.angle) * dist;
-        const y = cy + Math.sin(p.angle) * dist * 0.8 - RISE * pt * u;
+        const y = cy + Math.sin(p.angle) * dist - RISE * pt * u;
         const d = p.size * (1 + p.grow * u);
         const env = Math.min(1, pt / 90) * (u < 0.3 ? 1 : 1 - Math.pow((u - 0.3) / 0.7, 1.2));
         ctx.globalAlpha = Math.max(0, p.alpha * env);

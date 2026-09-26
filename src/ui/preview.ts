@@ -10,13 +10,7 @@ export function previewPlan(view: GameState, me: PlayerId, plan: TurnPlan): Game
   const hasChanges = plan.plays.length || plan.enters.length || plan.relocations.length;
   if (!hasChanges) return view;
   const v = cloneState(view);
-  for (const uid of plan.enters) {
-    const c = v.characters[uid];
-    if (c && c.owner === me && c.zone === 'gate') {
-      c.zone = 'inside';
-      c.arrivedTurn = v.turn;
-    }
-  }
+  // Engine order: relocations, then plays (with the door check), then entries; so the entries are applied last, after the plays.
   for (const r of plan.relocations) {
     const c = v.characters[r.uid];
     if (c && c.owner === me && c.zone === 'inside') {
@@ -76,6 +70,13 @@ export function previewPlan(view: GameState, me: PlayerId, plan: TurnPlan): Game
       }
     }
   });
+  for (const uid of plan.enters) {
+    const c = v.characters[uid];
+    if (c && c.owner === me && c.zone === 'gate') {
+      c.zone = 'inside';
+      c.arrivedTurn = v.turn;
+    }
+  }
   return v;
 }
 
@@ -152,4 +153,12 @@ export function foreseePlan(view: GameState, opp: PlayerId, plan: TurnPlan): { g
   }
   moves += plan.confronts.length;
   return { ghosts, threats: plan.confronts.map((c) => c.threatUid), events, moves };
+}
+
+/** Is the door at `location` shut to `me`'s straight-Inside play, judged on the board the engine will see: relocations
+ *  applied, planned entries not yet (they resolve after the plays). The reason, or null. One answer for the tile, the
+ *  hint and the drop's sound. */
+export function doorShutAt(view: GameState, me: PlayerId, plan: TurnPlan, location: number): string | null {
+  const board = plan.relocations.length ? previewPlan(view, me, { ...plan, enters: [], plays: [] }) : view;
+  return isBlockedFromEntering(board, { owner: me, location } as CharacterInstance);
 }

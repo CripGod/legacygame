@@ -21,7 +21,7 @@ import { SkyTag } from './Sky';
 import { artUrl } from '../art';
 import { assistButtons } from '../assist';
 import { influenceLines } from '../influence';
-import { charDef, confrontForce, threatForceNeeded, isNight, lockKind, isBlockedFromEntering, isProtected, protectionReason, shielded, LOCATION_BY_ID, CARD_BY_ID, TEAM_UP_BY_ID } from '../../engine';
+import { charDef, confrontForce, threatForceNeeded, isNight, lockKind, isProtected, protectionReason, shielded, LOCATION_BY_ID, CARD_BY_ID, TEAM_UP_BY_ID } from '../../engine';
 
 /** The strip on a tile that cannot relocate out, by what holds it: the word says which. */
 const LOCK_STRIP: Record<'curfew' | 'besieged' | 'held' | 'oath', string> = { curfew: 'Curfew', besieged: 'Besieged', held: 'Held', oath: 'Oath' };
@@ -54,6 +54,8 @@ export interface BattlefieldProps {
   onChar: (uid: string) => void;
   /** Read a card by id (a card's mark on a Location, tapped). */
   onCard?: (id: string) => void;
+  /** Is the door at a Location shut to my straight-Inside play (the reason), judged as the engine will: the same answer the hint and the drop's sound give. */
+  doorShut?: (location: number) => string | null;
   onThreat: (uid: string) => void;
   locked: boolean;
   /** Active first-match coach tip; matching elements pulse. */
@@ -163,7 +165,7 @@ const picFx = (fx: BoardFx | null | undefined, uid: string): 'windup' | 'knocked
   return undefined;
 };
 
-type Common = Pick<BattlefieldProps, 'view' | 'me' | 'plan' | 'onChar' | 'flash' | 'dragProps' | 'drop' | 'reserved' | 'focus' | 'eventFx' | 'pendingEvents' | 'fx' | 'foreseen' | 'readyBaseline' | 'resolving'>;
+type Common = Pick<BattlefieldProps, 'view' | 'me' | 'plan' | 'onChar' | 'flash' | 'dragProps' | 'drop' | 'reserved' | 'focus' | 'eventFx' | 'pendingEvents' | 'fx' | 'foreseen' | 'readyBaseline' | 'resolving' | 'doorShut'>;
 
 /** An Event card sitting at the Gates: planned, waiting to resolve, or resolving now. */
 function EventTile({ cardId, state, hidden, foreseen, onClick }: { cardId: string; state: 'planned' | 'pending' | 'trigger'; hidden?: boolean; /** The Ancestors foresee it: faint. */ foreseen?: boolean; onClick?: () => void }) {
@@ -203,7 +205,7 @@ export function tileOrder(c: { arrivedTurn: number; uid: string }): number {
   return n ? c.arrivedTurn * 1e6 + Number(n[1]) : Number.POSITIVE_INFINITY;
 }
 
-function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, dragProps, drop, reserved, focus, eventFx, pendingEvents, fx, foreseen, readyBaseline, resolving }: Common & { owner: PlayerId; index: number; label: string; right?: React.ReactNode }) {
+function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, dragProps, drop, reserved, focus, eventFx, pendingEvents, fx, foreseen, readyBaseline, resolving, doorShut }: Common & { owner: PlayerId; index: number; label: string; right?: React.ReactNode }) {
   const gOk = owner === me && drop?.gates.includes(index);
   const gOver = gOk && drop?.overKey === `gates:${index}`;
   const chars = charsAt(view, index, owner, 'gate');
@@ -298,7 +300,7 @@ function GateStrip({ view, owner, me, index, plan, onChar, label, right, flash, 
                       ›
                     </span>
                   )}
-                  <Pic state={view} c={s} ready={readyBaseline ? !!readyBaseline.characters[s.uid]?.ready : undefined} resolving={resolving} badges fx={picFx(fx, s.uid) === 'arrive' ? undefined : picFx(fx, s.uid)} focus={focus?.includes(s.uid)} stripTip={shutDoor(view, s, planned)} strip={planned ? (shutDoor(view, s, planned) ? 'Blocked' : 'Placed') : moving ? (movingTo === index ? 'Arriving' : 'Moving') : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockKind(view, s) ? LOCK_STRIP[lockKind(view, s)!.kind] : undefined} onClick={() => onChar(s.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(s.uid); }} />
+                  <Pic state={view} c={s} ready={readyBaseline ? !!readyBaseline.characters[s.uid]?.ready : undefined} resolving={resolving} badges fx={picFx(fx, s.uid) === 'arrive' ? undefined : picFx(fx, s.uid)} focus={focus?.includes(s.uid)} stripTip={shutDoor(s, planned, doorShut)} strip={planned ? (shutDoor(s, planned, doorShut) ? 'Blocked' : 'Placed') : moving ? (movingTo === index ? 'Arriving' : 'Moving') : confronting ? 'Confront' : !isPlannedUid(s.uid) && lockKind(view, s) ? LOCK_STRIP[lockKind(view, s)!.kind] : undefined} onClick={() => onChar(s.uid)} onContextMenu={(e) => { e.preventDefault(); onChar(s.uid); }} />
                 </div>
               </div>
             );
@@ -470,13 +472,14 @@ function LocRule({ text, more = true, onOpen }: { text: string; more?: boolean; 
 /** A planned card that promises to go straight Inside, at a door that is shut (a Patrol on this side, the Color Line):
  *  the reason, for the tile's strip and its hover, or undefined when it walks in as promised. Plays resolve before
  *  confrontations, so a Patrol being fought this turn still turns it around. */
-function shutDoor(view: GameState, c: CharacterInstance, planned: boolean): string | undefined {
-  if (!planned) return undefined;
+function shutDoor(c: CharacterInstance, planned: boolean, doorShut?: (location: number) => string | null): string | undefined {
+  if (!planned || !doorShut) return undefined;
   const kw = charDef(c.defId).keywords;
   if (!kw.includes('STRAIGHT_INSIDE') && !kw.includes('DIRECT_ENTRY')) return undefined;
-  const why = isBlockedFromEntering(view, c);
+  const why = doorShut(c.location);
   if (!why) return undefined;
-  return `${charDef(c.defId).name} would go straight Inside, but the door is shut: ${why}. Plays resolve before confrontations, so it waits at the Gates this turn${why.includes('Patrol') ? ' and you take a Setback' : ''}.`;
+  // A Direct Entry play at a shut door reaches the engine as a plain Gate arrival: no Setback.
+  return `${charDef(c.defId).name} would go straight Inside, but the door is shut: ${why}. Plays resolve before confrontations, so it waits at the Gates this turn${why.includes('Patrol') && kw.includes('STRAIGHT_INSIDE') ? ' and you take a Setback' : ''}.`;
 }
 
 /** A card's mark on a Location (Taytu's torn treaty): the card's face in its owner's ring, then what it did, and the
@@ -574,7 +577,7 @@ function shortEffect(type: string): string {
 }
 
 export function Battlefield(props: BattlefieldProps) {
-  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onCard, onThreat, flash, dragProps, drop, delays, resolving, glowLocation, summonLabel, reserved, focus, eventFx, pendingEvents, neutralized, fx, foreseen, readyBaseline, pending } = props;
+  const { view, me, plan, targetable, onLocationTap, onLocationInfo, onChar, onCard, doorShut, onThreat, flash, dragProps, drop, delays, resolving, glowLocation, summonLabel, reserved, focus, eventFx, pendingEvents, neutralized, fx, foreseen, readyBaseline, pending } = props;
   const { placeholders } = useDisplay();
   const opp = other(me);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -585,7 +588,7 @@ export function Battlefield(props: BattlefieldProps) {
     // A tile whose ghost is flying does not glide: it reappears where the ghost lands.
     durationFor: (uid) => (fx?.hidden.includes(uid) ? 0 : view.characters[uid]?.owner === me || isPlannedUid(uid) ? (resolving ? 0 : 220) : 620),
   });
-  const common: Common = { view, me, plan, onChar, flash, dragProps, drop, reserved, focus, eventFx, pendingEvents, fx, foreseen, readyBaseline, resolving };
+  const common: Common = { view, me, plan, onChar, flash, dragProps, drop, reserved, focus, eventFx, pendingEvents, fx, foreseen, readyBaseline, resolving, doorShut };
   return (
     <div className="battlefield" ref={rootRef}>
       {view.locations.map((loc) => {

@@ -5,7 +5,7 @@ import { CardFace, Pic } from '../components/CardFace';
 import { artUrl, videoUrl, kitVars, warmKit } from '../art';
 import { TutFigure } from '../components/TutFigure';
 import { tileOrder, type DropHighlight, type BoardFx } from '../components/Battlefield';
-import { previewPlan, remainingPlan, isPlannedUid, PLANNED_PREFIX, foreseePlan } from '../preview';
+import { previewPlan, remainingPlan, isPlannedUid, PLANNED_PREFIX, foreseePlan, doorShutAt } from '../preview';
 import type { MatchController } from '../useMatch';
 import { Hud } from '../components/Hud';
 import { Battlefield } from '../components/Battlefield';
@@ -1177,7 +1177,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       // develops in the window in grey and colours in, then the panel grows and slams down (~1.26s); on the landing
       // the cards in that column hop and settle (see theme.css, loc-slam).
       // The slam is rare (see revealSlams); every other reveal opens quietly, the beat waiting for the picture.
-      if (!reduceMotion() && step.kind === 'reveal') {
+      if (!reduceMotion() && (step.kind === 'reveal' || step.kind === 'revealFx')) {
+        // (Anansi's retelling is a revealFx beat; a locationRevealed only ever comes in a reveal beat.)
         const slammed = evs.find((e) => e.location !== undefined && (e.type === 'locationRevealed' || (e.type === 'locationTransformed' && !!e.data?.retold)));
         if (slammed?.location !== undefined) {
           const idx = slammed.location;
@@ -1359,12 +1360,12 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   }, [view.turn, m.replay, view.lastEvents]);
   /** Advance the replay once this beat's sheets are closed. */
   useEffect(() => {
-    if (!step || fx || trail || dig || arrival || peekShow || fireworks || cine || cineHold.current) return;
+    if (!step || fx || trail || dig || arrival || peekShow || fireworks || smoke || cine || cineHold.current) return;
     const ms = ownBeat ? 0 : quietBeat.current ? 350 : BEAT_MS[step.kind] ?? 900;
     const id = window.setTimeout(m.replayNext, ms);
     return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [m.replay?.idx, m.replay?.steps, arrival, peekShow, fx, trail, dig, fireworks, cine]);
+  }, [m.replay?.idx, m.replay?.steps, arrival, peekShow, fx, trail, dig, fireworks, smoke, cine]);
   useEffect(() => {
     document.body.classList.toggle('board-shake', shake);
     return () => document.body.classList.remove('board-shake');
@@ -1790,7 +1791,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
   function addPlay(play: { cardId: string; location: number; target?: { charUid?: string; location?: number }; enter?: boolean }) {
     const pdef = CARD_BY_ID[play.cardId];
     const directEntry = pdef?.kind === 'character' && pdef.keywords.includes('DIRECT_ENTRY');
-    const doorShut = pdef?.kind === 'character' && isBlockedFromEntering(view, { owner: me, location: play.location } as (typeof view.characters)[string]);
+    const doorShut = pdef?.kind === 'character' ? doorShutAt(view, me, planRef.current, play.location) : null;
     if (directEntry && play.enter === undefined) play = { ...play, enter: !doorShut };
     if (play.enter && doorShut) play = { ...play, enter: false };
     sfx(play.enter ? 'card.inside' : 'card.drop');
@@ -1807,7 +1808,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     const next: TurnPlan = { ...planRef.current, plays: [...current, play] };
     floatPlanned(planRef.current, next, play.location, `${PLANNED_PREFIX}${play.cardId}`); // what the card adds here, Gates or Inside, from the tile it lands on
     setPlan((p) => ({ ...p, plays: [...p.plays.filter((pl) => pl.cardId !== play.cardId), play] }));
-    if (directEntry) feedback(`${cardName(play.cardId, placeholders)} goes Inside right away (Direct Entry). Tap ⇅ on the planned move to wait at the Gates instead.`, [], 'info');
+    if (directEntry && !doorShut) feedback(`${cardName(play.cardId, placeholders)} goes Inside right away (Direct Entry). Tap ⇅ on the planned move to wait at the Gates instead.`, [], 'info');
     // A card that would walk straight Inside meets a shut door: say so, and what the Gates are worth here meanwhile.
     if (pdef?.kind === 'character' && pdef.keywords.includes('STRAIGHT_INSIDE') && doorShut) {
       const here = view.locations[play.location];
@@ -2313,9 +2314,9 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     for (const pl of plan.plays) {
       const d = CARD_BY_ID[pl.cardId];
       if (!d || d.kind !== 'character' || !(d.keywords.includes('STRAIGHT_INSIDE') || d.keywords.includes('DIRECT_ENTRY'))) continue;
-      const why = isBlockedFromEntering(view, { owner: me, location: pl.location } as (typeof view.characters)[string]);
+      const why = doorShutAt(view, me, plan, pl.location);
       if (!why) continue;
-      return `${cardName(pl.cardId, placeholders)} cannot go straight Inside at ${locationName(view.locations[pl.location].defId, placeholders)}: ${why}. Plays resolve before confrontations, so it waits at the Gates this turn${why.includes('Patrol') ? ' and you take a Setback' : ''}. Play it elsewhere, or hold it a turn.`;
+      return `${cardName(pl.cardId, placeholders)} cannot go straight Inside at ${locationName(view.locations[pl.location].defId, placeholders)}: ${why}. Plays resolve before confrontations, so it waits at the Gates this turn${why.includes('Patrol') && d.keywords.includes('STRAIGHT_INSIDE') ? ' and you take a Setback' : ''}. Play it elsewhere, or hold it a turn.`;
     }
     if (planItems.length) return '';
     return handHint(affordable.map((o) => o.cardId));
@@ -2371,6 +2372,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
         <Battlefield
           pending={pendingInf}
           onCard={(id) => setSheet({ kind: 'card', id })}
+          doorShut={(loc) => doorShutAt(view, me, plan, loc)}
           view={boardView}
           readyBaseline={m.replay ? viewFor(m.replay.before, me) : null}
           me={me}
