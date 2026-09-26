@@ -18,6 +18,7 @@ import { Trails, TRAIL_COLORS, waveLandAt, type TrailShot } from '../components/
 import { CINEMATICS, CINE_VOLUME, CINE_READ_MS, CINE_MAX_MS } from '../cinematics';
 import { Fireworks } from '../components/Fireworks';
 import { Smoke } from '../components/Smoke';
+import { FxLayer, fxPlay, fxClear } from '../fx/FxLayer';
 import { MatchEnd } from '../components/MatchEnd';
 import { ghostOf, fly, jolt, partWay, clearGhosts, wait, painted, type Ghost } from '../fly';
 import { DigReveal, type DigShow, type DigPhase } from '../components/DigReveal';
@@ -469,6 +470,8 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
     el.style.top = `${y0}px`;
     (document.querySelector('.app') ?? document.body).appendChild(el); // inside the app root, under the name plates
     const rr = ring.getBoundingClientRect();
+    // The Influence itself, as light: a stream from where the number rises into the circle (the 'influence-flow' preset).
+    fxPlay('influence-flow', { at: opts.from ? new DOMRect(x0 - 32, y0 - 32, 64, 64) : r, to: rr, tint: tone === 'theirs' ? TRAIL_COLORS.B : tone === 'artist' ? TRAIL_COLORS.artist : TRAIL_COLORS.A });
     const dx = rr.left + rr.width / 2 - x0;
     const dy = rr.top + rr.height / 2 - y0;
     const peak = opts.big ? 2.1 : opts.via ? 1.6 : 1.35;
@@ -1331,6 +1334,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       setFireworksFreeze(undefined);
       setSmoke(null);
       setSmokeFreeze(undefined);
+      fxClear();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [m.replay?.idx, m.replay?.steps]);
@@ -2607,6 +2611,7 @@ export function MatchScreen({ m, coach, tutorial = false, onAgain, onRematch, on
       )}
       {trail && <Trails shots={trail} freezeAt={trailFreeze} onDone={() => { setTrail(null); setTrailFreeze(undefined); }} />}
       {fireworks && <Fireworks at={fireworks} freezeAt={fireworksFreeze} onDone={() => { setFireworks(null); setFireworksFreeze(undefined); }} />}
+      <FxLayer />
       {smoke && <Smoke at={smoke.at} from={smoke.from} freezeAt={smokeFreeze} onDone={() => { setSmoke(null); setSmokeFreeze(undefined); }} />}
       {dig && <DigReveal key={digKey.current} dig={dig} me={me} freeze={digFreeze} onDone={() => { setDig(null); setDigFreeze(undefined); }} />}
       {sheet?.kind === 'card' && (

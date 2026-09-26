@@ -18,14 +18,28 @@ export type Gradient = [number, string][];
 
 export type Sprite = 'glow' | 'puff' | 'spark' | 'star';
 
+/** How a particle travels: free (speed, drag, gravity) or to the effect's target along an arc. */
+export interface Path {
+  mode: 'free' | 'target';
+  /** Target mode: the arc's lift at mid-way, px (negative sags). */
+  arc: number;
+  /** Target mode: how the travel is timed over the particle's life. */
+  ease: 'linear' | 'in' | 'out' | 'inOut';
+  /** Target mode: scatter around the target's centre at arrival, px. */
+  spread: number;
+}
+
 export interface Emitter {
   name: string;
   /** Particles this emitter makes in all. */
   count: number;
   /** When they are born, ms after the effect starts. */
   spawn: Range;
-  /** Where they are born: fractions of the anchor rect (0 = left/top, 1 = right/bottom; outside is allowed). */
+  /** Where they are born: fractions of the anchor rect (0 = left/top, 1 = right/bottom; outside is allowed), or of the target's. */
   origin: { x: Range; y: Range };
+  originAt?: 'anchor' | 'target';
+  /** Free flight by default; 'target' carries each particle to the effect's target over its life. */
+  path?: Path;
   /** How long each lives, ms. */
   life: Range;
   /** Launch direction, degrees, screen-wise: 0 right, 90 down, 180 left, 270 up. */
@@ -58,8 +72,10 @@ export interface Emitter {
 export interface FxPreset {
   id: string;
   name: string;
-  /** What the effect plays over: a Location panel, a tile, the Stand button… for the editor's stand-in. */
+  /** What the effect plays over (where particles are born): a Location panel, a tile, the Stand button, the screen. */
   anchor: 'location' | 'tile' | 'button' | 'screen';
+  /** What it travels to, when its emitters have a target path: the Influence circle, or a Location panel. */
+  target?: 'meter' | 'location';
   /** The effect is over after this many ms (particles past it are cut). */
   duration: number;
   emitters: Emitter[];
@@ -135,6 +151,8 @@ export function validatePreset(p: FxPreset): string[] {
     if (!['glow', 'puff', 'spark', 'star'].includes(e.sprite)) errs.push(`${e.name}: unknown sprite`);
     if (!['add', 'normal'].includes(e.blend)) errs.push(`${e.name}: blend is add or normal`);
     if (e.drag < 0) errs.push(`${e.name}: drag cannot be negative`);
+    if (e.path && !['free', 'target'].includes(e.path.mode)) errs.push(`${e.name}: path mode is free or target`);
+    if ((e.path?.mode === 'target' || e.originAt === 'target') && !p.target) errs.push(`${e.name}: needs the preset's target`);
   }
   return errs;
 }

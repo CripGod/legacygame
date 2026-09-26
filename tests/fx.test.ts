@@ -41,3 +41,29 @@ describe('particle presets', () => {
     expect(gradientAt([[0, '#000000'], [1, '#ffffff']], 0.5, '#ff0000')).toBe('#808080');
   });
 });
+
+describe('target paths', () => {
+  it('a particle on a target path is born at the source and ends at the target, lifted on the way', () => {
+    const p = PRESETS['influence-flow'];
+    const at = rect(100, 500, 64, 64);
+    const to = rect(300, 100, 34, 34);
+    const sim = makeSim(p, at, { seed: 3, target: to });
+    const stream = sim.particles.filter((q) => p.emitters[q.emitter].name === 'stream');
+    expect(stream.length).toBe(28);
+    for (const q of stream) {
+      const e = p.emitters[q.emitter];
+      const start = particleAt(e, q, 0);
+      const mid = particleAt(e, q, q.life / 2);
+      const end = particleAt(e, q, q.life);
+      expect(start.x).toBeGreaterThanOrEqual(100);
+      expect(start.x).toBeLessThanOrEqual(164);
+      expect(Math.hypot(end.x - 317, end.y - 117)).toBeLessThanOrEqual(e.path!.spread + 0.01);
+      expect(mid.y).toBeLessThan((start.y + end.y) / 2); // the arc lifts
+    }
+    const arrival = sim.particles.filter((q) => p.emitters[q.emitter].name === 'arrival');
+    for (const q of arrival) {
+      expect(q.x0).toBeGreaterThanOrEqual(300);
+      expect(q.x0).toBeLessThanOrEqual(334);
+    }
+  });
+});

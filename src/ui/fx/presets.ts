@@ -5,9 +5,11 @@
  */
 import { validatePreset, type FxPreset } from './schema';
 import emberLanding from './presets/ember-landing.json';
+import influenceFlow from './presets/influence-flow.json';
 
 export const PRESETS: Record<string, FxPreset> = {
   [emberLanding.id]: emberLanding as FxPreset,
+  [influenceFlow.id]: influenceFlow as FxPreset,
 };
 
 export const PRESET_IDS = Object.keys(PRESETS);

@@ -6,7 +6,7 @@ import type { FxPreset } from './schema';
  * One effect on its own fixed canvas over the viewport: a preset played over an anchor rect, in a tint, at a speed.
  * `freezeAt` renders one frame and holds it (the editor's scrub, a screenshot). Nothing here touches the game state.
  */
-export function Fx({ preset, at, tint, seed, speed = 1, freezeAt, loop, onDone }: { preset: FxPreset; at: DOMRect; tint?: string; seed?: number; speed?: number; freezeAt?: number; loop?: boolean; onDone?: () => void }) {
+export function Fx({ preset, at, to, tint, seed, speed = 1, freezeAt, loop, onDone }: { preset: FxPreset; at: DOMRect; /** What it travels to (the Influence circle). */ to?: DOMRect; tint?: string; seed?: number; speed?: number; freezeAt?: number; loop?: boolean; onDone?: () => void }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const done = useRef(onDone);
   done.current = onDone;
@@ -21,7 +21,7 @@ export function Fx({ preset, at, tint, seed, speed = 1, freezeAt, loop, onDone }
     canvas.width = Math.floor(W * dpr);
     canvas.height = Math.floor(H * dpr);
     ctx.scale(dpr, dpr);
-    const sim = makeSim(preset, at, { tint, seed });
+    const sim = makeSim(preset, at, { tint, seed, target: to });
     const total = Math.max(sim.end, 1);
     let t0 = performance.now();
     let raf = 0;
@@ -43,6 +43,6 @@ export function Fx({ preset, at, tint, seed, speed = 1, freezeAt, loop, onDone }
     };
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
-  }, [preset, at, tint, seed, speed, freezeAt, loop]);
+  }, [preset, at, to, tint, seed, speed, freezeAt, loop]);
   return <canvas ref={ref} className="fxlayer" aria-hidden />;
 }

@@ -17,11 +17,15 @@ export interface Particle {
   spin: number; // radians per ms
   phase: number;
   seed: number;
+  /** Target mode: where this one lands. */
+  tx: number;
+  ty: number;
 }
 
 export interface Sim {
   preset: FxPreset;
   anchor: DOMRect;
+  target?: DOMRect;
   tint: string;
   particles: Particle[];
   /** The last moment anything is alive, ms. */
@@ -35,20 +39,29 @@ export function makeRng(seed: number): () => number {
 
 const lerp = (r: { min: number; max: number }, k: number) => r.min + (r.max - r.min) * k;
 
-export function makeSim(preset: FxPreset, anchor: DOMRect, opts: { tint?: string; seed?: number } = {}): Sim {
+export function makeSim(preset: FxPreset, anchor: DOMRect, opts: { tint?: string; seed?: number; target?: DOMRect } = {}): Sim {
   const rng = makeRng(opts.seed ?? 1234567);
   const particles: Particle[] = [];
+  const target = opts.target ?? anchor;
+  const tcx = target.left + target.width / 2;
+  const tcy = target.top + target.height / 2;
   let end = 0;
   preset.emitters.forEach((e, ei) => {
+    const box = e.originAt === 'target' ? target : anchor;
     for (let k = 0; k < e.count; k++) {
       const start = lerp(e.spawn, rng());
       const life = lerp(e.life, rng());
+      const spread = e.path?.mode === 'target' ? e.path.spread : 0;
+      const sa = rng() * Math.PI * 2;
+      const sr = Math.sqrt(rng()) * spread;
       particles.push({
         emitter: ei,
         start,
         life,
-        x0: anchor.left + anchor.width * lerp(e.origin.x, rng()),
-        y0: anchor.top + anchor.height * lerp(e.origin.y, rng()),
+        x0: box.left + box.width * lerp(e.origin.x, rng()),
+        y0: box.top + box.height * lerp(e.origin.y, rng()),
+        tx: tcx + Math.cos(sa) * sr,
+        ty: tcy + Math.sin(sa) * sr,
         angle: (lerp(e.angle, rng()) * Math.PI) / 180,
         speed: lerp(e.speed, rng()),
         size: lerp(e.size, rng()),
@@ -59,13 +72,29 @@ export function makeSim(preset: FxPreset, anchor: DOMRect, opts: { tint?: string
       end = Math.max(end, Math.min(preset.duration, start + life));
     }
   });
-  return { preset, anchor, tint: opts.tint ?? '#ffe3b3', particles, end };
+  return { preset, anchor, target: opts.target, tint: opts.tint ?? '#ffe3b3', particles, end };
 }
+
+const EASE: Record<NonNullable<Emitter['path']>['ease'], (u: number) => number> = {
+  linear: (u) => u,
+  in: (u) => u * u * u,
+  out: (u) => 1 - Math.pow(1 - u, 3),
+  inOut: (u) => (u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2),
+};
 
 /** Where a particle is t ms after birth (t ≥ 0). */
 export function particleAt(e: Emitter, p: Particle, t: number): { x: number; y: number } {
-  const dist = e.drag > 0 ? (p.speed * (1 - Math.exp(-e.drag * t))) / e.drag : p.speed * t;
   const sway = e.sway.amp ? Math.sin((2 * Math.PI * e.sway.freq * t) / 1000 + p.phase) * e.sway.amp : 0;
+  if (e.path?.mode === 'target') {
+    // An arc from birth to the target: a quadratic curve lifted at mid-way, run over the particle's life.
+    const u = Math.max(0, Math.min(1, t / p.life));
+    const k = EASE[e.path.ease ?? 'inOut'](u);
+    const mx = (p.x0 + p.tx) / 2;
+    const my = (p.y0 + p.ty) / 2 - e.path.arc;
+    const w = 1 - k;
+    return { x: w * w * p.x0 + 2 * w * k * mx + k * k * p.tx + sway * (1 - k), y: w * w * p.y0 + 2 * w * k * my + k * k * p.ty };
+  }
+  const dist = e.drag > 0 ? (p.speed * (1 - Math.exp(-e.drag * t))) / e.drag : p.speed * t;
   return { x: p.x0 + Math.cos(p.angle) * dist + sway, y: p.y0 + Math.sin(p.angle) * dist + 0.5 * e.gravity * t * t };
 }
 
@@ -148,9 +177,10 @@ export function drawSim(ctx: CanvasRenderingContext2D, sim: Sim, t: number): voi
     const spr = sprite(e.sprite, col);
     const { x, y } = particleAt(e, p, pt);
     ctx.globalCompositeOperation = e.blend === 'add' ? 'lighter' : 'source-over';
-    if (e.trail > 0 && pt > 8) {
-      const back = Math.max(0, pt - 40);
-      const q = particleAt(e, p, back);
+    const back = Math.max(0, pt - 40);
+    const q = e.trail > 0 || e.sprite === 'spark' ? particleAt(e, p, back) : null;
+    const heading = q && (q.x !== x || q.y !== y) ? Math.atan2(y - q.y, x - q.x) : p.angle;
+    if (e.trail > 0 && pt > 8 && q) {
       const bx = x + (q.x - x) * e.trail;
       const by = y + (q.y - y) * e.trail;
       ctx.globalAlpha = a * 0.7;
@@ -166,7 +196,7 @@ export function drawSim(ctx: CanvasRenderingContext2D, sim: Sim, t: number): voi
     if ((e.sprite === 'star' || e.sprite === 'spark') && (p.spin !== 0 || e.sprite === 'spark')) {
       ctx.save();
       ctx.translate(x, y);
-      ctx.rotate(e.sprite === 'spark' ? p.angle : p.spin * pt + p.phase);
+      ctx.rotate(e.sprite === 'spark' ? heading : p.spin * pt + p.phase);
       ctx.drawImage(spr, -d / 2, -d / 2, d, d);
       ctx.restore();
     } else {

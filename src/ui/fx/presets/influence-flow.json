@@ -1,0 +1,53 @@
+{
+  "id": "influence-flow",
+  "name": "Card to meter: Influence flows",
+  "anchor": "tile",
+  "target": "meter",
+  "duration": 1300,
+  "emitters": [
+    {
+      "name": "stream",
+      "count": 28,
+      "spawn": { "min": 0, "max": 380 },
+      "origin": { "x": { "min": 0.3, "max": 0.7 }, "y": { "min": 0.3, "max": 0.7 } },
+      "originAt": "anchor",
+      "path": { "mode": "target", "arc": 60, "ease": "inOut", "spread": 6 },
+      "life": { "min": 560, "max": 760 },
+      "angle": { "min": 0, "max": 360 },
+      "speed": { "min": 0, "max": 0 },
+      "drag": 0,
+      "gravity": 0,
+      "sway": { "amp": 4, "freq": 3 },
+      "size": { "min": 6, "max": 12 },
+      "sizeOver": [[0, 0.6], [0.3, 1], [1, 0.5]],
+      "alphaOver": [[0, 0], [0.15, 1], [0.85, 1], [1, 0]],
+      "color": [[0, "$tint"], [0.7, "$tint"], [1, "#ffffff"]],
+      "sprite": "glow",
+      "spin": { "min": 0, "max": 0 },
+      "blend": "add",
+      "trail": 0.6
+    },
+    {
+      "name": "arrival",
+      "count": 10,
+      "spawn": { "min": 700, "max": 950 },
+      "origin": { "x": { "min": 0.2, "max": 0.8 }, "y": { "min": 0.2, "max": 0.8 } },
+      "originAt": "target",
+      "path": { "mode": "free", "arc": 0, "ease": "linear", "spread": 0 },
+      "life": { "min": 300, "max": 450 },
+      "angle": { "min": 0, "max": 360 },
+      "speed": { "min": 0.08, "max": 0.2 },
+      "drag": 0.005,
+      "gravity": 0,
+      "sway": { "amp": 0, "freq": 0 },
+      "size": { "min": 5, "max": 9 },
+      "sizeOver": [[0, 0.5], [0.5, 1.2], [1, 0.5]],
+      "alphaOver": [[0, 1], [1, 0]],
+      "color": [[0, "#ffffff"], [1, "$tint"]],
+      "sprite": "star",
+      "spin": { "min": 0.5, "max": 1.5 },
+      "blend": "add",
+      "trail": 0
+    }
+  ]
+}

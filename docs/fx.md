@@ -9,14 +9,17 @@ on the web and, to come, by the same maths in C# for Unity. The editor at `?fx=1
 { id, name, anchor, duration, emitters: [ … ] }
 ```
 
-`anchor` says what the effect plays over (a Location panel, a tile, the Stand button, the screen); the editor uses it
-for its stand-in. `duration` cuts everything past it. Each emitter:
+`anchor` says what the effect plays over, where its particles are born (a card tile, a Location panel, the Stand button,
+the screen); `target` what it travels to when an emitter has a target path (the Influence circle, a Location panel).
+The editor plays it over the real board's tile, circle and panels. `duration` cuts everything past it. Each emitter:
 
 | Field | Meaning |
 |---|---|
 | `count` | particles in all |
 | `spawn` | when they are born, ms after the effect starts (a min–max range) |
 | `origin` | where, as fractions of the anchor rect: `x` and `y` ranges, 0 = left/top, 1 = right/bottom, outside allowed |
+| `originAt` | `anchor` (the source) or `target`: whose rect the origin fractions refer to |
+| `path` | `{ mode, arc, ease, spread }`: `free` flight by the fields below, or `target`, an arc from birth to the preset's target over the particle's life, lifted `arc` px at mid-way, timed by `ease` (`linear`, `in`, `out`, `inOut`), scattered `spread` px at arrival |
 | `life` | ms each lives |
 | `angle` | launch direction in degrees, screen-wise: 0 right, 90 down, 180 left, 270 up |
 | `speed` | px per ms at birth |
@@ -42,7 +45,9 @@ every port, and the editor can scrub. The seed fixes the birth values; the game 
 
 ## The editor
 
-Open it from the landing page's footer (**Effects editor**) or with `?fx=1`. Pick a preset, play or loop it over the stand-in, scrub with the slider, slow it to 0.5,
+Open it from the landing page's footer (**Effects editor**) or with `?fx=1`. The stage is the real board (a rigged
+match, three Locations open, pieces on both sides), so an effect plays over the actual tile, Influence circle and
+panels; **show board** fades it to see the particles alone. Every value is a slider or a pulldown. Pick a preset, play or loop it over the stand-in, scrub with the slider, slow it to 0.5,
 0.25 or 0.1×, pick a tint, change any value and watch, **reset to saved** to go back, **copy JSON**, or **save**. Save always keeps a copy in this browser, which the game there plays from then on (so the preview
 and the live site are working editors); on the dev server it also writes `src/ui/fx/presets/<id>.json`. **Back to
 shipped** drops the browser copy. To make a tuned preset permanent from the preview, copy the JSON and hand it over. A new effect is a new file listed in
@@ -53,3 +58,4 @@ shipped** drops the browser copy. To make a tuned preset permanent from the prev
 | Preset | Plays when | Anchor |
 |---|---|---|
 | `ember-landing` | a ribbon lands on a Location: embers rise off its lower half in the shot's colour | location |
+| `influence-flow` | every +N: a stream of light from where the number rises (the card's tile, or the Location's band) into the Influence circle, with a small burst as it arrives; `FxLayer` plays it from `floatNum` | tile → meter |
